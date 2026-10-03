@@ -45,6 +45,8 @@ def nuevo_documento():
     doc.header["$LTSCALE"] = 0.25
     doc.header["$INSUNITS"] = 6          # metros
     doc.header["$LUPREC"] = 2
+    if "HIDDEN" not in doc.linetypes:
+        doc.linetypes.add("HIDDEN", pattern=[0.375, 0.25, -0.125], description="Hidden __ __ __ __ __ __ __ __ __ __ __ __ __ __")
     for n, c, lt in CAPAS:
         if n not in doc.layers:
             doc.layers.add(n, color=c, linetype=lt)
