@@ -130,14 +130,14 @@ def dp01(doc, ox, oy, R, T, BP):
     for pl in (int_pred, int_via): lam.poli(pl, "CONCRETO-OCULTO")
     # caja de llegada CL en 0+000 (interior 1.50 x 1.00): hacia aguas arriba del 0+000
     x0, y0 = E[0]
-    cl = [(x0, y0 - 0.5 - D["e_muro"]), (x0 + D["CL_largo"] + D["e_muro"], y0 - 0.5 - D["e_muro"]),
-          (x0 + D["CL_largo"] + D["e_muro"], y0 + 0.5 + D["e_muro"]), (x0, y0 + 0.5 + D["e_muro"])]
+    cl = [(x0, y0 - 0.5 - D["e_muro"]), (x0 + D["CL_largo"] + 2 * D["e_muro"], y0 - 0.5 - D["e_muro"]),
+          (x0 + D["CL_largo"] + 2 * D["e_muro"], y0 + 0.5 + D["e_muro"]), (x0, y0 + 0.5 + D["e_muro"])]
     lam.poli(cl, "CONCRETO", cerrada=True, ancho=0.04)
-    lam.rect(x0, y0 - 0.5, x0 + D["CL_largo"], y0 + 0.5, "CONCRETO-OCULTO")
-    lam.poli([(x0, y0 - 0.5), (x0, y0 + 0.5)], "CONCRETO-OCULTO")
+    lam.rect(x0, y0 - 0.5, x0 + D["CL_largo"] + D["e_muro"], y0 + 0.5, "CONCRETO-OCULTO")
+    lam.poli([(x0, y0 - 0.5), (x0, y0 + 0.5)], "CONCRETO-OCULTO"); lam.poli([(x0 + D["e_muro"], y0 - 0.5), (x0 + D["e_muro"], y0 + 0.5)], "CONCRETO-OCULTO")
     # caja de caida CC: poza 1.50 x 3.50 entre brink y fin
     xb, yb = E[3]; xf, yf = E[4]
-    lam.rect(xf - D["e_muro"], yb - 0.75 - D["e_muro"], xb, yb + 0.75 + D["e_muro"], "CONCRETO", const_width=0.04)
+    lam.rect(xf - D["e_muro"], yb - 0.75 - D["e_muro"], xb + D["e_muro"], yb + 0.75 + D["e_muro"], "CONCRETO", const_width=0.04)
     lam.rect(xf, yb - 0.75, xb, yb + 0.75, "POZA")
     lam.poli([(xb, yb - D["b"] / 2), (xb, yb + D["b"] / 2)], "CONCRETO-OCULTO")   # brink
     lam.poli([(xf + 0.20, yb - 0.75), (xf + 0.20, yb + 0.75)], "POZA")             # umbral
@@ -276,8 +276,9 @@ def perfil_tramo(lam, xmm, ymm, p1, p2, R, T, escH, escV, con_tabla=True, paso_t
     fondo_inf = [(X(p), Y(fz(p) - ef)) for p in psc]
     lam.achurado(fondo + list(reversed(fondo_inf)), escala_mm=0.5)
     lam.poli(fondo, "CONCRETO"); lam.poli(fondo_inf, "CONCRETO")
-    lam.poli([(X(p), Y(fz(p) - ef - es)) for p in psc], "SOLADO")
-    lam.poli([(X(p1), Y(fz(p1) - ef - es - 0.02)), (X(p2c), Y(fz(p2c) - ef - es - 0.02))], "EXCAVACION")
+    pss = [q for q in psc if q <= dz.P_BRINK - D["e_muro"] + 1e-6] or psc[:2]
+    lam.poli([(X(p), Y(fz(p) - ef - es)) for p in pss], "SOLADO")
+    lam.poli([(X(p1), Y(fz(p1) - ef - es - 0.02)), (X(pss[-1]), Y(fz(pss[-1]) - ef - es - 0.02))], "EXCAVACION")
     # ---------- losa superior (cortada) con aberturas de registro
     cortes = sorted([(rg["prog"] - 0.35, rg["prog"] + 0.35) for rg in regs])
     a = p1
@@ -330,38 +331,42 @@ def perfil_tramo(lam, xmm, ymm, p1, p2, R, T, escH, escV, con_tabla=True, paso_t
     # ---------- caja de llegada CL (0+000) y llegada del aporte externo
     if p1 <= 0.0:
         e = D["e_muro"]; zp = D["CF0"] - D["CL_poza"]
-        xi = X(0) - D["CL_largo"] * fx; xo = xi - e * fx
+        xb = X(0) - e * fx                      # escalon de la poza: murete e=0.15 bajo el fondo del colector
+        xi = xb - D["CL_largo"] * fx; xo = xi - e * fx
         lam.rect(xo, Y(zp - ef), X(0), Y(NPT), "CONCRETO")
         lam.achurado([(xo, Y(zp - ef)), (X(0), Y(zp - ef)), (X(0), Y(zp)), (xo, Y(zp))], escala_mm=0.5)       # fondo de la caja
+        lam.achurado([(xb, Y(zp)), (X(0), Y(zp)), (X(0), Y(D["CF0"])), (xb, Y(D["CF0"]))], escala_mm=0.5)      # murete del escalon + fondo del colector
+        lam.linea((xb, Y(zp)), (xb, Y(D["CF0"])), "CONCRETO"); lam.linea((xb, Y(D["CF0"])), (X(0), Y(D["CF0"])), "CONCRETO")
         lam.achurado([(xo, Y(zp)), (xi, Y(zp)), (xi, Y(D["CF_varones_sup"])), (xo, Y(D["CF_varones_sup"]))], escala_mm=0.5)   # muro de llegada bajo la ventana
         lam.achurado([(xo, Y(D["CF_varones_sup"] + 0.70)), (xi, Y(D["CF_varones_sup"] + 0.70)), (xi, Y(NPT)), (xo, Y(NPT))], escala_mm=0.5)
         lam.achurado([(xo, Y(NPT - D["e_losa"])), (X(0) - 0.35 * fx, Y(NPT - D["e_losa"])), (X(0) - 0.35 * fx, Y(NPT)), (xo, Y(NPT))], escala_mm=0.5)   # losa de la caja
         lam.rect(X(0) - 0.35 * fx - 0.34 * fx, Y(NPT - 0.08), X(0) - 0.35 * fx + 0.34 * fx, Y(NPT), "REGISTRO-TAPA")
         lam.linea((xi, Y(zp)), (xi, Y(D["CF_varones_sup"])), "CONCRETO"); lam.linea((xi, Y(D["CF_varones_sup"] + 0.70)), (xi, Y(NPT - D["e_losa"])), "CONCRETO")
-        lam.linea((X(0), Y(zp)), (X(0), Y(fz(0))), "CONCRETO")
-        lam.poli([(xi, Y(zp - ef - es)), (X(0), Y(zp - ef - es))], "SOLADO")
+        lam.poli([(xo, Y(zp - ef - es)), (X(0), Y(zp - ef - es))], "SOLADO")
         # colector del CAR Varones (referencia): llega por la ventana del muro
         lam.rect(xo - 1.2 * fx, Y(D["CF_varones_sup"] - 0.15), xo, Y(D["CF_varones_sup"] + 0.70 + 0.10), "ARQ-BASE")
         lam.rect(xo - 1.2 * fx, Y(D["CF_varones_sup"]), xo, Y(D["CF_varones_sup"] + 0.70), "ARQ-BASE")
         lam.poli([(xo - 1.2 * fx, Y(D["CF_varones_sup"] + 0.35)), (xo, Y(D["CF_varones_sup"] + 0.35)), (xi + 0.3 * fx, Y(D["CF_varones_sup"] + 0.1)), (xi + 0.6 * fx, Y(zp + R["caja_llegada"]["tirante_poza"]))], "AGUA")
-        lam.relleno([(xi, Y(zp)), (X(0), Y(zp)), (X(0), Y(perfil_en(R, 0.0, "NA"))), (xi, Y(perfil_en(R, 0.0, "NA")))], "AGUA-RELLENO")
+        lam.relleno([(xi, Y(zp)), (xb, Y(zp)), (xb, Y(D["CF0"])), (X(0), Y(D["CF0"])), (X(0), Y(perfil_en(R, 0.0, "NA"))), (xi, Y(perfil_en(R, 0.0, "NA")))], "AGUA-RELLENO")
         lam.llamada((xo - 0.6 * fx, Y(D["CF_varones_sup"] + 0.8)), (xo + 0.2 * fx, Y(NPT + 0.9)), ["COLECTOR CAR VARONES (CUI 2705619), referencia", "cota de fondo de llegada %.2f por confirmar" % D["CF_varones_sup"]], 1.6, al=TA.LEFT)
         lam.llamada((xi + 0.5 * fx, Y(zp)), (xo + 0.1 * fx, Y(zp - 0.75)), ["CAJA DE LLEGADA CL: interior %.2f x %.2f" % (D["CL_largo"], D["CL_ancho"]), "poza %.2f m, piso %.2f; colchon de agua %.2f m" % (D["CL_poza"], zp, R["caja_llegada"]["tirante_poza"])], 1.6, al=TA.LEFT)
         lam.nivel((xi + 0.3 * fx, Y(zp)), zp, lado=1)
         lam.cota((xi, Y(zp)), (xi, Y(D["CF_varones_sup"])), -8, horizontal=False, texto="%.2f" % (D["CF_varones_sup"] - zp))
+        lam.cota((xo, Y(zp - ef - es)), (xi, Y(zp - ef - es)), -6); lam.cota((xi, Y(zp - ef - es)), (xb, Y(zp - ef - es)), -6); lam.cota((xb, Y(zp - ef - es)), (X(0), Y(zp - ef - es)), -6)
     # ---------- caja de caida CC y colector receptor
     if p2 >= dz.P_BRINK - 1e-6:
         e = D["e_muro"]; zp = D["CF_R01"] - D["CC_poza_prof"]; pb, pf = dz.P_BRINK, dz.P_FIN
-        xf = X(pf); xfe = xf + e * fx
-        lam.rect(X(pb), Y(zp - ef), xfe, Y(NPT), "CONCRETO")
-        lam.achurado([(X(pb), Y(zp - ef)), (xfe, Y(zp - ef)), (xfe, Y(zp)), (X(pb), Y(zp))], escala_mm=0.5)
+        xf = X(pf); xfe = xf + e * fx; xm = X(pb) - e * fx       # murete e=0.15 del escalon, bajo el fondo del colector
+        lam.rect(xm, Y(zp - ef), xfe, Y(NPT), "CONCRETO")
+        lam.achurado([(xm, Y(zp - ef)), (xfe, Y(zp - ef)), (xfe, Y(zp)), (xm, Y(zp))], escala_mm=0.5)
+        lam.achurado([(xm, Y(zp)), (X(pb), Y(zp)), (X(pb), Y(fz(pb) - ef)), (xm, Y(fz(pb) - ef))], escala_mm=0.5)   # murete
+        lam.linea((X(pb), Y(zp)), (X(pb), Y(fz(pb))), "CONCRETO")
         lam.achurado([(xf, Y(zp)), (xfe, Y(zp)), (xfe, Y(D["CF_R01"])), (xf, Y(D["CF_R01"]))], escala_mm=0.5)                      # muro bajo la ventana de salida
         lam.achurado([(xf, Y(D["NPT_wilma"] - 0.10)), (xfe, Y(D["NPT_wilma"] - 0.10)), (xfe, Y(NPT)), (xf, Y(NPT))], escala_mm=0.5)  # muro sobre la ventana de salida
         lam.achurado([(X(pb + 0.35), Y(NPT - D["e_losa"])), (xfe, Y(NPT - D["e_losa"])), (xfe, Y(NPT)), (X(pb + 0.35), Y(NPT))], escala_mm=0.5)
-        lam.linea((X(pb), Y(fz(pb))), (X(pb), Y(zp)), "CONCRETO"); lam.linea((X(pb), Y(fz(pb) - ef)), (X(pb), Y(zp - ef)), "CONCRETO-OCULTO")
         lam.linea((xf, Y(zp)), (xf, Y(D["CF_R01"])), "CONCRETO"); lam.linea((xf, Y(D["NPT_wilma"] - 0.10)), (xf, Y(NPT - D["e_losa"])), "CONCRETO")
         # umbral de salida 0.25 x 0.40
-        lam.poli([(X(pb), Y(zp - ef - es)), (xfe, Y(zp - ef - es))], "SOLADO")
+        lam.poli([(xm, Y(zp - ef - es)), (xfe, Y(zp - ef - es))], "SOLADO")
         for pr in (pb + 0.6, pf - 1.0):
             lam.rect(X(pr - 0.34), Y(NPT - 0.08), X(pr + 0.34), Y(NPT), "REGISTRO-TAPA")
         # agua: caida libre, resalto ahogado y salida sobre el umbral
@@ -369,7 +374,7 @@ def perfil_tramo(lam, xmm, ymm, p1, p2, R, T, escH, escV, con_tabla=True, paso_t
         agua = [(X(pb), Y(nab)), (X(pb + 0.45), Y(zp + y1 + 0.05)), (X(pb + 0.9), Y(zp + y1)), (X(pb + 1.6), Y(zp + R["poza"]["y2"] * 0.7)), (X(pb + 2.4), Y(D["NA_R01"])), (xf, Y(D["NA_R01"])), (xfe + 1.0 * fx, Y(D["NA_R01"]))]
         lam.relleno([(X(pb), Y(zp)), (X(pf - 0.25), Y(zp)), (X(pf - 0.25), Y(D["CF_R01"])), (xfe + 1.0 * fx, Y(D["CF_R01"]))] + list(reversed(agua)), "AGUA-RELLENO")
         lam.poli(agua, "AGUA")
-        lam.rect(X(pf - 0.25), Y(zp), xf, Y(D["CF_R01"]), "POZA"); lam.achurado([(X(pf - 0.25), Y(zp)), (xf, Y(zp)), (xf, Y(D["CF_R01"])), (X(pf - 0.25), Y(D["CF_R01"]))], escala_mm=0.4)
+        lam.rect(X(pf - 0.25), Y(zp), xf, Y(D["CF_R01"]), "POZA"); lam.achurado([(X(pf - 0.25), Y(zp)), (xf, Y(zp)), (xf, Y(D["CF_R01"])), (X(pf - 0.25), Y(D["CF_R01"]))], escala_mm=0.2)
         # colector receptor CAR Mujeres (referencia)
         xr2 = xfe + 1.0 * fx
         lam.rect(xfe, Y(D["CF_R01"] - 0.15), xr2, Y(D["NPT_wilma"]), "ARQ-BASE"); lam.rect(xfe, Y(D["CF_R01"]), xr2, Y(D["NPT_wilma"] - 0.10), "ARQ-BASE")
@@ -379,7 +384,7 @@ def perfil_tramo(lam, xmm, ymm, p1, p2, R, T, escH, escV, con_tabla=True, paso_t
         lam.nivel((xf + 0.5 * fx, Y(D["CF_R01"])), D["CF_R01"], texto="CF %.2f (R-01)" % D["CF_R01"], lado=1)
         lam.nivel((X(pb + 2.2), Y(zp)), zp, lado=1)
         lam.cota((X(pb), Y(zp)), (X(pb), Y(fz(pb))), -8, horizontal=False, texto="caida %.2f" % (fz(pb) - zp))
-        lam.cota((X(pb), Y(zp - ef - es)), (X(pf), Y(zp - ef - es)), -6, texto="%.2f" % (pf - pb))
+        lam.cota((X(pb), Y(zp - ef - es)), (X(pf), Y(zp - ef - es)), -6, texto="%.2f" % (pf - pb)); lam.cota((xm, Y(zp - ef - es)), (X(pb), Y(zp - ef - es)), -6); lam.cota((X(pf), Y(zp - ef - es)), (xfe, Y(zp - ef - es)), -6)
     # ---------- cotas de altura interior
     for pm in ([p1 + 0.3 * (p2 - p1), p1 + 0.7 * (p2 - p1)] if detalle else [p1 + 0.5 * (p2 - p1)]):
         pm = min(pm, dz.P_BRINK - 1.0)
@@ -394,10 +399,11 @@ def perfil_tramo(lam, xmm, ymm, p1, p2, R, T, escH, escV, con_tabla=True, paso_t
     lam.nivel((X(p1 + 2.5), Y(NPT)), NPT, texto="NPT +%.2f (losa superior = piso terminado)" % NPT)
     lam.texto((X(p1 + 1.0), Y(fz(p1 + 1.0)) - 4.5 * lam.f), "S = %.2f %%" % (D["S"] * 100), 1.8, "TEXTOS", TA.LEFT)
     # ---------- escala vertical de cotas
+    xs = X(p1) - ((D["CL_largo"] + 2 * D["e_muro"] + 1.2 + 0.4) * fx if p1 <= 0.0 else 0.0)   # escala de cotas fuera de la caja CL
     for z in np.arange(258.0, 261.01, 0.5):
-        lam.linea((X(p1) - 3 * lam.f, Y(z)), (X(p1) - 1 * lam.f, Y(z)), "GUITARRA")
-        lam.texto((X(p1) - 4 * lam.f, Y(z)), "%.2f" % z, 1.4, "TEXTOS", TA.MIDDLE_RIGHT)
-    lam.linea((X(p1) - 1 * lam.f, Y(257.6)), (X(p1) - 1 * lam.f, Y(261.0)), "GUITARRA")
+        lam.linea((xs - 3 * lam.f, Y(z)), (xs - 1 * lam.f, Y(z)), "GUITARRA")
+        lam.texto((xs - 4 * lam.f, Y(z)), "%.2f" % z, 1.4, "TEXTOS", TA.MIDDLE_RIGHT)
+    lam.linea((xs - 1 * lam.f, Y(257.6)), (xs - 1 * lam.f, Y(261.0)), "GUITARRA")
     if titulo: lam.texto((X(p1), Y(261.0) + 44 * lam.f), titulo, 3.0, "TITULOS")
     # ---------- tabla (guitarra)
     if con_tabla:

@@ -125,7 +125,7 @@ def cajas():
     Li, Bi = D["CL_largo"], D["CL_ancho"]; piso = D["CF0"] - D["CL_poza"]; H = D["NPT"] - D["e_losa"] - piso
     terr = float(np.interp(0.0, ps, zs))
     out["CL"] = dict(nombre="Caja de llegada CL", Li=Li, Bi=Bi, H=H, piso=piso,
-                     c_fondo=(Li + 2 * e) * (Bi + 2 * e) * ef, c_muros=(2 * (Li + 2 * e) + 2 * Bi) * e * H - 0.80 * (D["NPT"] - D["e_losa"] - D["CF0"]) * e,
+                     c_fondo=(Li + 2 * e) * (Bi + 2 * e) * ef, c_muros=(2 * (Li + 2 * e) + 2 * Bi) * e * H - 0.80 * (D["NPT"] - D["e_losa"] - D["CF0"]) * e + e * Bi * (D["CF0"] - piso),
                      c_losa=(Li + 2 * e) * (Bi + 2 * e) * D["e_losa"] - 0.49 * D["e_losa"],
                      excav=(Li + 2 * e + 2 * SOBREEXC) * (Bi + 2 * e + 2 * SOBREEXC) * max(0.0, terr - (piso - ef - D["e_solado"])),
                      solado=(Li + 2 * e + 0.1) * (Bi + 2 * e + 0.1), encof=2 * (2 * (Li + Bi) * H) + Li * Bi, acabado=(Li + 2 * e) * (Bi + 2 * e),
@@ -134,12 +134,12 @@ def cajas():
     Li, Bi = D["CC_poza_largo"], D["CC_ancho"]; piso = D["CF_R01"] - D["CC_poza_prof"]; H = D["NPT"] - D["e_losa"] - piso
     terr = float(np.interp(dz.P_FIN - 1.0, ps, zs))
     out["CC"] = dict(nombre="Caja de caida CC", Li=Li, Bi=Bi, H=H, piso=piso,
-                     c_fondo=(Li + e) * (Bi + 2 * e) * ef + 0.25 * D["CC_poza_prof"] * Bi,
-                     c_muros=(2 * (Li + e) + Bi) * e * H - D["b"] * (dz.fondo(dz.P_BRINK) - piso) * 0 - 1.50 * (D["NA_R01"] + 0.5 - D["CF_R01"]) * e,
-                     c_losa=(Li + e) * (Bi + 2 * e) * D["e_losa"] - 2 * 0.49 * D["e_losa"],
-                     excav=(Li + e + 2 * SOBREEXC) * (Bi + 2 * e + 2 * SOBREEXC) * max(0.0, terr - (piso - ef - D["e_solado"])),
-                     solado=(Li + e + 0.1) * (Bi + 2 * e + 0.1), encof=2 * (2 * (Li + Bi) * H) + Li * Bi + 2 * Bi * D["CC_poza_prof"], acabado=(Li + e) * (Bi + 2 * e),
-                     acero_kg=((Li + e) * (Bi + 2 * e) * 2 / 0.20 * 2 + (2 * (Li + Bi)) * H / 0.20 * 2 * 1.1 + (2 * (Li + Bi) + 8 * e) / 0.20 * H * 2) * PESO["3/8"] * 0.6)
+                     c_fondo=(Li + 2 * e) * (Bi + 2 * e) * ef + 0.25 * D["CC_poza_prof"] * Bi,
+                     c_muros=(2 * (Li + 2 * e) + Bi) * e * H - 1.50 * (D["NA_R01"] + 0.5 - D["CF_R01"]) * e + e * Bi * (dz.fondo(dz.P_BRINK) - piso),
+                     c_losa=(Li + 2 * e) * (Bi + 2 * e) * D["e_losa"] - 2 * 0.49 * D["e_losa"],
+                     excav=(Li + 2 * e + 2 * SOBREEXC) * (Bi + 2 * e + 2 * SOBREEXC) * max(0.0, terr - (piso - ef - D["e_solado"])),
+                     solado=(Li + 2 * e + 0.1) * (Bi + 2 * e + 0.1), encof=2 * (2 * (Li + Bi) * H) + Li * Bi + 2 * Bi * D["CC_poza_prof"] + Bi * (dz.fondo(dz.P_BRINK) - piso), acabado=(Li + 2 * e) * (Bi + 2 * e),
+                     acero_kg=((Li + 2 * e) * (Bi + 2 * e) * 2 / 0.20 * 2 + (2 * (Li + Bi)) * H / 0.20 * 2 * 1.1 + (2 * (Li + Bi) + 8 * e) / 0.20 * H * 2) * PESO["3/8"] * 0.6)
     for c in out.values():
         c["relleno"] = max(0.0, c["excav"] - (c["Li"] + 2 * e) * (c["Bi"] + 2 * e) * (c["H"] + ef + D["e_solado"]))
     return out

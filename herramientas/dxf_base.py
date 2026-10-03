@@ -92,8 +92,8 @@ def crear_bloques(doc):
     b.add_solid([(0, 10), (-3, -5), (0, -2)], dxfattribs={"layer": "TEXTOS"})
     b.add_lwpolyline([(0, 10), (3, -5), (0, -2)], close=True, dxfattribs={"layer": "TEXTOS"})
     b.add_text("N", height=4, dxfattribs={"layer": "TEXTOS"}).set_placement((0, 12), align=TA.MIDDLE_CENTER)
-    # barras longitudinales vistas en seccion: circulo relleno (radio 1 unidad; se inserta con escala = lam.f x 1.3 -> 1.3 mm de radio en papel)
-    for nombre, rad in (("ACERO-38", 1.0), ("ACERO-12", 1.25)):
+    # barras vistas en seccion: circulo relleno a diametro real (3/8" = 9.5 mm, 1/2" = 12.7 mm); se inserta con escala 1.0
+    for nombre, rad in (("ACERO-38", 0.0095 / 2), ("ACERO-12", 0.0127 / 2)):
         b = doc.blocks.new(nombre)
         b.add_circle((0, 0), rad, dxfattribs={"layer": "ACERO-PUNTOS", "color": 5})
         h = b.add_hatch(dxfattribs={"layer": "ACERO-PUNTOS", "color": 5}); h.set_solid_fill(color=5)
@@ -286,7 +286,7 @@ class Lamina:
             elif tipo == "circ":
                 self.circulo(self.P(xmm + 6, y + 1), 1.2 * self.f, capa)
             elif tipo.startswith("bloque:"):
-                self.bloque(tipo.split(":")[1], self.P(xmm + 6, y + 1), self.f * 1.3, capa=capa)
+                self.bloque(tipo.split(":")[1], self.P(xmm + 6, y + 1), 1.0, capa=capa)
             self.texto(self.P(xmm + 15, y + 1), txt, hmm, "LEYENDA", TA.MIDDLE_LEFT)
             y -= 5.5
         return y
