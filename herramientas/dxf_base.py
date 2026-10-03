@@ -18,26 +18,32 @@ ELABORADO = "HIDROCONSULT"
 
 # capas (nombre, color, tipo de linea) - mismas del tramo CAR Mujeres
 CAPAS = [
+    # (nombre, color ACI, tipo de linea). Paleta pensada para fondo blanco: sin amarillo ni cian claro.
     ("MARCO", 7, "CONTINUOUS"), ("ROTULO", 7, "CONTINUOUS"), ("ROTULO-TEXTO", 7, "CONTINUOUS"),
-    ("TITULOS", 2, "CONTINUOUS"), ("TEXTOS", 7, "CONTINUOUS"), ("TEXTOS-NOTAS", 7, "CONTINUOUS"),
-    ("LEYENDA", 7, "CONTINUOUS"), ("COTAS", 2, "CONTINUOUS"), ("NIVELES", 7, "CONTINUOUS"),
-    ("LLAMADAS", 8, "CONTINUOUS"), ("EJE-COLECTOR", 8, "CENTER"), ("CONCRETO", 4, "CONTINUOUS"),
-    ("CONCRETO-OCULTO", 4, "HIDDEN"), ("CONCRETO-ACHURADO", 8, "CONTINUOUS"), ("SOLADO", 8, "CONTINUOUS"),
-    ("ACERO", 1, "CONTINUOUS"), ("ACERO-PUNTOS", 1, "CONTINUOUS"), ("REGISTRO", 6, "CONTINUOUS"),
-    ("REGISTRO-TAPA", 30, "CONTINUOUS"), ("MARCO-METALICO", 5, "CONTINUOUS"), ("JUNTAS", 8, "DASHED"),
-    ("CRUCE-VEHICULAR", 30, "CONTINUOUS"), ("CUNETA", 3, "CONTINUOUS"), ("CUNETA-OCULTA", 3, "HIDDEN"),
-    ("POZA", 34, "CONTINUOUS"), ("TERRENO", 3, "CONTINUOUS"), ("TERRENO-EXISTENTE", 8, "DASHED"),
-    ("TERRENO-ACHURADO", 8, "CONTINUOUS"), ("EXCAVACION", 8, "HIDDEN"), ("RELLENO", 30, "CONTINUOUS"),
-    ("AGUA", 140, "DASHED"), ("AGUA-SIMBOLO", 140, "CONTINUOUS"), ("FLUJO", 140, "CONTINUOUS"),
-    ("CORTES", 6, "CONTINUOUS"), ("PROGRESIVAS", 2, "CONTINUOUS"), ("GRILLA", 9, "CONTINUOUS"),
-    ("GUITARRA", 8, "CONTINUOUS"), ("LINDERO", 6, "PHANTOM"), ("CERCO", 6, "CONTINUOUS"),
+    ("TITULOS", 7, "CONTINUOUS"), ("TEXTOS", 7, "CONTINUOUS"), ("TEXTOS-NOTAS", 7, "CONTINUOUS"),
+    ("LEYENDA", 7, "CONTINUOUS"), ("COTAS", 6, "CONTINUOUS"), ("NIVELES", 7, "CONTINUOUS"),
+    ("LLAMADAS", 8, "CONTINUOUS"), ("EJE-COLECTOR", 8, "CENTER"), ("CONCRETO", 5, "CONTINUOUS"),
+    ("CONCRETO-OCULTO", 5, "HIDDEN"), ("CONCRETO-ACHURADO", 8, "CONTINUOUS"), ("SOLADO", 8, "CONTINUOUS"),
+    ("ACERO", 1, "CONTINUOUS"), ("ACERO-LONG", 94, "CONTINUOUS"), ("ACERO-PUNTOS", 94, "CONTINUOUS"), ("REGISTRO", 32, "CONTINUOUS"),
+    ("REGISTRO-TAPA", 30, "CONTINUOUS"), ("MARCO-METALICO", 32, "CONTINUOUS"), ("JUNTAS", 8, "DASHED"),
+    ("CRUCE-VEHICULAR", 30, "CONTINUOUS"), ("CUNETA", 92, "CONTINUOUS"), ("CUNETA-OCULTA", 92, "HIDDEN"),
+    ("POZA", 34, "CONTINUOUS"), ("TERRENO", 7, "CONTINUOUS"), ("TERRENO-EXISTENTE", 8, "DASHED"),
+    ("TERRENO-ACHURADO", 8, "CONTINUOUS"), ("EXCAVACION", 8, "HIDDEN"), ("RELLENO", 32, "CONTINUOUS"),
+    ("AGUA", 150, "DASHED"), ("AGUA-SIMBOLO", 150, "CONTINUOUS"), ("AGUA-RELLENO", 150, "CONTINUOUS"), ("FLUJO", 150, "CONTINUOUS"),
+    ("CORTES", 6, "CONTINUOUS"), ("PROGRESIVAS", 5, "CONTINUOUS"), ("GRILLA", 9, "CONTINUOUS"),
+    ("GUITARRA", 8, "CONTINUOUS"), ("LINDERO", 6, "PHANTOM"), ("CERCO", 14, "CONTINUOUS"),
     ("ARQ-BASE", 8, "CONTINUOUS"), ("ARQ-TEXTO", 8, "CONTINUOUS"), ("VIA", 8, "CONTINUOUS"),
     ("ISO-CONCRETO-SUP", 254, "CONTINUOUS"), ("ISO-CONCRETO-LAT1", 253, "CONTINUOUS"),
     ("ISO-CONCRETO-LAT2", 252, "CONTINUOUS"), ("ISO-TAPA", 255, "CONTINUOUS"), ("ISO-ARISTAS", 8, "CONTINUOUS"),
-    ("ISO-AGUA", 140, "CONTINUOUS"), ("ISO-TERRENO", 3, "CONTINUOUS"), ("ISO-PIEDRA", 34, "CONTINUOUS"),
-    ("ISO-CUNETA", 3, "CONTINUOUS"), ("ISO-CERCO", 6, "CONTINUOUS"),
+    ("ISO-AGUA", 150, "CONTINUOUS"), ("ISO-TERRENO", 94, "CONTINUOUS"), ("ISO-PIEDRA", 34, "CONTINUOUS"),
+    ("ISO-CUNETA", 94, "CONTINUOUS"), ("ISO-CERCO", 14, "CONTINUOUS"),
 ]
 ESCALAS = [10, 20, 25, 50, 100, 200, 250]
+COLOR_RGB = {
+    "ISO-CONCRETO-SUP": (232, 232, 232), "ISO-CONCRETO-LAT1": (206, 206, 206), "ISO-CONCRETO-LAT2": (178, 178, 178),
+    "ISO-TAPA": (248, 244, 230), "ISO-AGUA": (130, 190, 240), "ISO-TERRENO": (214, 226, 196), "ISO-PIEDRA": (196, 176, 146),
+    "ISO-CUNETA": (168, 214, 168), "ISO-CERCO": (226, 200, 200), "AGUA-RELLENO": (205, 228, 246), "CONCRETO-ACHURADO": (120, 120, 120),
+}
 
 
 def nuevo_documento():
@@ -49,7 +55,8 @@ def nuevo_documento():
         doc.linetypes.add("HIDDEN", pattern=[0.375, 0.25, -0.125], description="Hidden __ __ __ __ __ __ __ __ __ __ __ __ __ __")
     for n, c, lt in CAPAS:
         if n not in doc.layers:
-            doc.layers.add(n, color=c, linetype=lt)
+            ly = doc.layers.add(n, color=c, linetype=lt)
+            if n in COLOR_RGB: ly.rgb = COLOR_RGB[n]
     if "TITULOS" not in doc.styles:
         doc.styles.add("TITULOS", font="romand.shx")
     doc.styles.get("STANDARD").dxf.font = "romans.shx"
@@ -58,7 +65,7 @@ def nuevo_documento():
         ds.dxf.dimscale = e / 1000.0
         ds.dxf.dimtxt = 2.5; ds.dxf.dimasz = 2.0; ds.dxf.dimexe = 1.5; ds.dxf.dimexo = 1.0; ds.dxf.dimgap = 0.8
         ds.dxf.dimtad = 1; ds.dxf.dimtih = 0; ds.dxf.dimtoh = 0; ds.dxf.dimdec = 2; ds.dxf.dimlfac = 1.0
-        ds.dxf.dimclrd = 2; ds.dxf.dimclre = 2; ds.dxf.dimclrt = 7; ds.dxf.dimtxsty = "STANDARD"
+        ds.dxf.dimclrd = 256; ds.dxf.dimclre = 256; ds.dxf.dimclrt = 7; ds.dxf.dimtxsty = "STANDARD"   # lineas de cota por capa (COTAS)
         ds.dxf.dimtsz = 1.0                      # tic oblicuo (sin bloque de flecha)
         ds.dxf.dimpost = "<>"; ds.dxf.dimapost = ""; ds.dxf.dimblk = ""; ds.dxf.dimblk1 = ""; ds.dxf.dimblk2 = ""   # grupos 3-7 presentes
         ds.dxf.dimzin = 0; ds.dxf.dimdsep = ord(".")
@@ -141,7 +148,9 @@ class Lamina:
         return self.msp.add_circle(c, r, dxfattribs={"layer": capa})
 
     def solido(self, pts, capa):
-        return self.msp.add_solid(pts, dxfattribs={"layer": capa})
+        e = self.msp.add_solid(pts, dxfattribs={"layer": capa})
+        if capa in COLOR_RGB: e.rgb = COLOR_RGB[capa]      # color verdadero en la entidad: igual en AutoCAD y en cualquier visor
+        return e
 
     def texto(self, p, t, hmm=2.5, capa="TEXTOS", al=TA.LEFT, rot=0, estilo="STANDARD", color=None):
         a = {"layer": capa, "style": estilo, "rotation": rot}
@@ -185,7 +194,10 @@ class Lamina:
 
     def relleno(self, pts, capa):
         h = self.msp.add_hatch(dxfattribs={"layer": capa})
-        h.set_solid_fill()
+        if capa in COLOR_RGB:
+            h.rgb = COLOR_RGB[capa]; h.set_solid_fill(rgb=COLOR_RGB[capa])
+        else:
+            h.set_solid_fill()
         h.paths.add_polyline_path(pts, is_closed=True)
         return h
 

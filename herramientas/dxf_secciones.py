@@ -110,7 +110,7 @@ def dp04(doc, ox, oy, R, T):
             g = geometria(p)
             lam.titulo_vista(xmm + 10, ymm - 60, "SECCION %s" % nm, "PROG. %s - CF %.3f - %s - ESC. 1/25" % (prog_txt(p), g["cf"], ACERO[g["tipo"]][4]), 100)
         lam.leyenda(32, 150, [("achurado", "CONCRETO-ACHURADO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100 kg/cm2"),
-                              ("linea", "ACERO", "acero de refuerzo (marcos)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal"),
+                              ("linea", "ACERO", "acero transversal: marco cerrado (rojo)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal (verde)"),
                               ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", "piso terminado +260.60"),
                               ("linea", "TERRENO-EXISTENTE", "terreno existente"), ("linea", "EXCAVACION", "limite de excavacion"), ("rect", "CERCO", "cerco perimetrico existente")], 1.8)
         lam.notas(300, 150, "NOTAS", ["1. Altura interior h segun el perfil longitudinal (1.40 m en 0+000 a 1.61 m en el brink).",
@@ -156,6 +156,20 @@ def iso_colector(lam, xmm, ymm, p, R, L=1.0, esc=1.0, con_tapa=True, con_agua=Tr
     else:
         m = [T(e / 2, L, ef / 2), T(be - e / 2, L, ef / 2), T(be - e / 2, L, ef + h + et / 2), T(e / 2, L, ef + h + et / 2)]
         lam.poli(m, "ACERO", cerrada=True)
+    # acero longitudinal: puntos sobre el marco en la cara de corte y barras que sobresalen 0.40 (traslape) hacia el tramo siguiente
+    sep = 0.20 if g["tipo"] == "CAMION" else 0.25
+    if g["tipo"] == "CAMION":
+        lazos = [[(r, r), (be - r, r), (be - r, ef + h + et - r), (r, ef + h + et - r)], [(e - r, ef - r), (be - e + r, ef - r), (be - e + r, ef + h + r), (e - r, ef + h + r)]]
+    else:
+        lazos = [[(e / 2, ef / 2), (be - e / 2, ef / 2), (be - e / 2, ef + h + et / 2), (e / 2, ef + h + et / 2)]]
+    for lazo in lazos:
+        for (x1, z1), (x2, z2) in zip(lazo, lazo[1:] + lazo[:1]):
+            Ls = math.hypot(x2 - x1, z2 - z1); n = max(1, int(Ls / sep))
+            for k in range(n + 1):
+                t = k / n; x, z = x1 + (x2 - x1) * t, z1 + (z2 - z1) * t
+                lam.bloque("ACERO-38", T(x, L, z), 1.0 * esc)
+                if k % 2 == 0:
+                    lam.linea(T(x, L, z), T(x, L + 0.40, z), "ACERO-LONG")
     if etiquetas:
         lam.textos(T(be + 0.3, 0, ef + h + et + 0.1), etiquetas, 1.8)
     return T
@@ -189,7 +203,7 @@ def dp06a(doc, ox, oy, R, T):
         g = geometria(p)
         lam.titulo_vista(xmm + 40, ymm - 45, "SECCION TIPICA %s" % nm, "ESC. 1/10 - h segun perfil (aqui %.2f m, prog. %s)" % (g["h"], prog_txt(p)), 150)
     lam.leyenda(32, 110, [("achurado", "CONCRETO-ACHURADO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100 kg/cm2 e=0.05"),
-                          ("linea", "ACERO", "marco de acero (barra cerrada)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal"), ("linea", "AGUA", "nivel de agua de diseno"),
+                          ("linea", "ACERO", "acero transversal: marco cerrado (rojo)"), ("linea", "ACERO-LONG", "acero longitudinal (verde), sobresale 0.40 de traslape"), ("linea", "AGUA", "nivel de agua de diseno"),
                           ("rect", "CERCO", "cerco perimetrico existente"), ("linea", "JUNTAS", "junta de tecnopor 1\"")], 1.8)
     lam.notas(300, 110, "NOTAS", ["1. Muros e=0.15 en todo el tramo; losa de fondo e=0.15; losa superior e=0.10 (e=0.25 en el cruce de camiones).",
                                     "2. Tramo normal y motos: marco unico en el eje de la seccion. En el cruce de camiones el acero va en ambas caras (doble marco 1/2\" @0.15) y la losa superior es e=0.25.",

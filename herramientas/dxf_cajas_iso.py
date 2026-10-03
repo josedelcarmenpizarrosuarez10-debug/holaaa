@@ -177,7 +177,7 @@ def dp07(doc, ox, oy, R, T):
                   ["", "encofrado", "%.2f" % c["encof"], "m2"], ["", "acero 3/8\" @0.20", "%.1f" % c["acero_kg"], "kg"],
                   ["", "excavacion / solado", "%.2f / %.2f" % (c["excav"], c["solado"]), "m3 / m2"]]
     lam.tabla(32, 170, ["CAJA", "PARTIDA", "CANTIDAD", "UND"], filas, [40, 70, 30, 18], 1.7, 4.2, "CUADRO DE MATERIALES DE LAS CAJAS")
-    lam.leyenda(230, 170, [("achurado", "CONCRETO-ACHURADO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100 e=0.05"), ("linea", "ACERO", "acero de refuerzo"),
+    lam.leyenda(230, 170, [("achurado", "CONCRETO-ACHURADO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100 e=0.05"), ("linea", "ACERO", "acero transversal (marcos y malla, rojo)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero perpendicular al corte (verde)"),
                            ("linea", "AGUA", "nivel de agua / chorro"), ("rect", "POZA", "poza de disipacion y umbral"), ("rect", "ARQ-BASE", "receptor (CAR Mujeres), referencia"), ("linea", "CUNETA", "cuneta que llega")], 1.8)
     lam.notas(430, 170, "NOTAS", ["1. Ambas cajas quedan dentro del predio, cubiertas con losa e=0.10 y registros de 0.68 x 0.68.",
                                     "2. La caja de llegada recibe el colector de CAR Varones (CUI 2705619) como aporte externo; su cota y ancho de llegada (ventana 0.80 x 0.60) son referenciales y se ajustaran a su proyecto.",
@@ -303,60 +303,77 @@ def dp09(doc, ox, oy, R, T):
 
 # ----------------------------------------------------------------------------
 def dp10(doc, ox, oy, R, T):
-    lam = B.Lamina(doc, ox, oy, 200, "DP-10", "ISOMETRICO GENERAL DEL COLECTOR PLUVIAL", "VISTA DE CONJUNTO: CAJA DE LLEGADA, COLECTOR CUBIERTO, REGISTROS, EMPALMES DE CUNETAS, QUIEBRES Y CAJA DE CAIDA")
+    """Isometrico general con el trazo real (recta frontal, dos quiebres a 45 grados, recta final), cajas, registros,
+    cunetas que llegan y el colector receptor. Exageracion vertical x2 para leer el relieve."""
+    from dxf_planta import offset_poli
+    lam = B.Lamina(doc, ox, oy, 200, "DP-10", "ISOMETRICO GENERAL DEL COLECTOR PLUVIAL", "VISTA DE CONJUNTO CON EL TRAZO REAL: CAJA DE LLEGADA, COLECTOR CUBIERTO, REGISTROS, EMPALMES DE CUNETAS, QUIEBRES A 45 GRADOS Y CAJA DE CAIDA")
     f = lam.f; e = D["e_muro"]; ef = D["e_fondo"]; et = D["e_losa"]; be = D["b_ext"]
-    o = lam.P(430, 330); esc = 1.0; EX = 3.0   # exageracion vertical x3
-    def Tt(x, y, z):
-        px, py = B.iso(x, y, z, EX); return (o[0] + px * esc, o[1] + py * esc)
-    # coordenadas: x = progresiva (0 .. P_FIN) hacia +x (derecha-abajo), y transversal (lado predio = +y), z = cota - 258.0
-    E = eje_puntos()
-    def tramo_iso(p1, p2, ancho_total, zf1, zf2, ztop, capas=("ISO-CONCRETO-SUP", "ISO-CONCRETO-LAT1", "ISO-CONCRETO-LAT2")):
-        # prisma a lo largo del eje local (tramo recto) entre p1 y p2: se dibuja con fondo inclinado como caja (aprox.)
-        x1, y1, _ = dz.eje_local(p1); x2, y2, _ = dz.eje_local(p2)
-        # pasar a coordenadas del isometrico: s = progresiva, t = lateral (predio +)
-        pts_top = [Tt(p1, -ancho_total / 2, ztop), Tt(p2, -ancho_total / 2, ztop), Tt(p2, ancho_total / 2, ztop), Tt(p1, ancho_total / 2, ztop)]
-        fre = [Tt(p1, ancho_total / 2, zf1), Tt(p2, ancho_total / 2, zf2), Tt(p2, ancho_total / 2, ztop), Tt(p1, ancho_total / 2, ztop)]
-        lat = [Tt(p2, -ancho_total / 2, zf2), Tt(p2, ancho_total / 2, zf2), Tt(p2, ancho_total / 2, ztop), Tt(p2, -ancho_total / 2, ztop)]
-        for pts, capa in ((fre, capas[1]), (lat, capas[2]), (pts_top, capas[0])):
-            lam.solido([pts[0], pts[1], pts[3], pts[2]], capa); lam.poli(pts, "ISO-ARISTAS", cerrada=True)
-    # el trazo real tiene dos quiebres: en el isometrico se representa el desarrollo del eje (progresivas) y se marcan los quiebres
-    zb = lambda p: dz.fondo(min(p, dz.P_BRINK)) - ef - 258.0
+    o = lam.P(300, 330); esc = 1.0; EX = 2.0
+    def UV(p):
+        x, y, _ = dz.eje_local(p); return (dz.X_NE - x, y - dz.Y_EJE)      # u a lo largo del frente, v hacia el predio (+)
+    def Tt(u, v, z):
+        px, py = B.iso(u, v, z, EX); return (o[0] + px * esc, o[1] + py * esc)
     ztop = D["NPT"] - 258.0
-    tramo_iso(0.0, dz.P_BRINK, be, zb(0.0), zb(dz.P_BRINK), ztop)
-    # cajas
-    tramo_iso(-D["CL_largo"] - e, 0.0, D["CL_ancho"] + 2 * e, D["CF0"] - D["CL_poza"] - ef - 258.0, D["CF0"] - D["CL_poza"] - ef - 258.0, ztop, capas=("ISO-CONCRETO-SUP", "ISO-CONCRETO-LAT1", "ISO-CONCRETO-LAT2"))
-    tramo_iso(dz.P_BRINK, dz.P_FIN, D["CC_ancho"] + 2 * e, D["CF_R01"] - D["CC_poza_prof"] - ef - 258.0, D["CF_R01"] - D["CC_poza_prof"] - ef - 258.0, ztop, capas=("ISO-POZA" if False else "ISO-CONCRETO-SUP", "ISO-CONCRETO-LAT1", "ISO-CONCRETO-LAT2"))
-    # R-01 receptor (referencia)
-    tramo_iso(dz.P_FIN, dz.P_FIN + 6.0, D["b_wilma"] + 0.20, D["CF_R01"] - 0.10 - 258.0, D["CF_R01"] - 0.10 - 0.018 - 258.0, D["NPT_wilma"] - 258.0, capas=("ISO-TERRENO", "ISO-TERRENO", "ISO-TERRENO"))
-    # registros (tapas)
+    zb = lambda p: dz.fondo(min(p, dz.P_BRINK)) - ef - 258.0
+    def cara(pts3, capa, aristas=True):
+        pts = [Tt(*q) for q in pts3]
+        if len(pts) == 4: lam.solido([pts[0], pts[1], pts[3], pts[2]], capa)
+        else: lam.relleno(pts, capa)
+        if aristas: lam.poli(pts, "ISO-ARISTAS", cerrada=True)
+    def caja(u1, u2, v1, v2, z1, z2, capas=("ISO-CONCRETO-SUP", "ISO-CONCRETO-LAT1", "ISO-CONCRETO-LAT2"), frente_u=True):
+        """Prisma alineado con u, v; caras visibles: superior, lateral +v (frente) y extremo +u (lateral)."""
+        if frente_u: cara([(u2, v1, z1), (u2, v2, z1), (u2, v2, z2), (u2, v1, z2)], capas[2])
+        cara([(u1, v2, z1), (u2, v2, z1), (u2, v2, z2), (u1, v2, z2)], capas[1])
+        cara([(u1, v1, z2), (u2, v1, z2), (u2, v2, z2), (u1, v2, z2)], capas[0])
+    # ---------- caja de llegada CL (lado lejano, se dibuja primero)
+    v0 = UV(0.0)[1]
+    caja(-D["CL_largo"] - e, 0.0, v0 - D["CL_ancho"] / 2 - e, v0 + D["CL_ancho"] / 2 + e, D["CF0"] - D["CL_poza"] - ef - 258.0, ztop, frente_u=False)
+    # ---------- colector con el trazo real: caras laterales lado predio (+v) de cada tramo recto y cara superior continua
+    progs = [0.0, dz.P_B1, dz.P_B2, dz.P_BRINK]
+    ejes = [UV(p) for p in progs]
+    izq = offset_poli(ejes, be / 2); der = offset_poli(ejes, -be / 2)
+    for k in range(3):
+        a, b_ = progs[k], progs[k + 1]
+        cara([(izq[k][0], izq[k][1], zb(a)), (izq[k + 1][0], izq[k + 1][1], zb(b_)), (izq[k + 1][0], izq[k + 1][1], ztop), (izq[k][0], izq[k][1], ztop)], "ISO-CONCRETO-LAT1")
+    cara([(q[0], q[1], ztop) for q in izq] + [(q[0], q[1], ztop) for q in reversed(der)], "ISO-CONCRETO-SUP")
+    # cara interior visible en los quiebres (lado via, -v) del tramo diagonal: lateral oscuro
+    cara([(der[1][0], der[1][1], zb(progs[1])), (der[2][0], der[2][1], zb(progs[2])), (der[2][0], der[2][1], ztop), (der[1][0], der[1][1], ztop)], "ISO-CONCRETO-LAT2")
+    # ---------- caja de caida CC y colector receptor (lado cercano)
+    vf = UV(dz.P_FIN)[1]; zcc = D["CF_R01"] - D["CC_poza_prof"] - ef - 258.0
+    caja(dz.P_BRINK, dz.P_FIN + e, vf - D["CC_ancho"] / 2 - e, vf + D["CC_ancho"] / 2 + e, zcc, ztop)
+    caja(dz.P_FIN + e, dz.P_FIN + e + 6.0, vf - D["b_wilma"] / 2 - 0.10, vf + D["b_wilma"] / 2 + 0.10, D["CF_R01"] - 0.15 - 258.0, D["NPT_wilma"] - 258.0, capas=("ISO-TERRENO", "ISO-TERRENO", "ISO-TERRENO"))
+    # ---------- registros (tapas sobre la losa)
+    def tapa(p, nm=None, du=0.0):
+        u, v = UV(p); u += du
+        cara([(u - 0.34, v - 0.34, ztop), (u + 0.34, v - 0.34, ztop), (u + 0.34, v + 0.34, ztop), (u - 0.34, v + 0.34, ztop)], "ISO-TAPA")
+        if nm:
+            q = Tt(u, v - 0.34, ztop); lam.texto((q[0], q[1] - 1.6 * f), nm, 1.6, "REGISTRO", TA.TOP_CENTER)
     for rg in R["registros"]:
-        if rg["nombre"] in ("CL", "CC"): continue
-        p = rg["prog"]; tp = [Tt(p - 0.34, -0.34, ztop), Tt(p + 0.34, -0.34, ztop), Tt(p + 0.34, 0.34, ztop), Tt(p - 0.34, 0.34, ztop)]
-        lam.solido([tp[0], tp[1], tp[3], tp[2]], "ISO-TAPA"); lam.poli(tp, "ISO-ARISTAS", cerrada=True)
-        q = Tt(p, -0.34, ztop); lam.texto((q[0], q[1] - 1.2 * f * 1.6), rg["nombre"], 1.6, "REGISTRO", TA.TOP_CENTER)
-    for p, nm in ((0.75, "CL"), (dz.P_BRINK + 0.6, "CC-a"), (dz.P_FIN - 1.0, "CC-b")):
-        tp = [Tt(p - 0.34, -0.34, ztop), Tt(p + 0.34, -0.34, ztop), Tt(p + 0.34, 0.34, ztop), Tt(p - 0.34, 0.34, ztop)]
-        lam.solido([tp[0], tp[1], tp[3], tp[2]], "ISO-TAPA"); lam.poli(tp, "ISO-ARISTAS", cerrada=True)
-    # cunetas que llegan (lado predio, +y)
+        if rg["nombre"] not in ("CL", "CC"): tapa(rg["prog"], rg["nombre"])
+    tapa(0.0, "CL", du=-0.75); tapa(dz.P_BRINK + 0.6, "CC"); tapa(dz.P_FIN - 1.0)
+    # ---------- cunetas que llegan desde el predio (+v): prisma 0.60 x H que entra por la ventana del muro
     for c in R["cunetas"]:
-        p = c["prog"]; zc = c["NCF_fin"] - 258.0; Lq = 3.0 + c["prolong"]
-        tramo_iso_q = [Tt(p - 0.3, be / 2, zc), Tt(p + 0.3, be / 2, zc), Tt(p + 0.3, be / 2 + Lq, zc), Tt(p - 0.3, be / 2 + Lq, zc)]
-        top_q = [Tt(p - 0.3, be / 2, ztop), Tt(p + 0.3, be / 2, ztop), Tt(p + 0.3, be / 2 + Lq, ztop), Tt(p - 0.3, be / 2 + Lq, ztop)]
-        lat_q = [Tt(p + 0.3, be / 2, zc), Tt(p + 0.3, be / 2 + Lq, zc), Tt(p + 0.3, be / 2 + Lq, ztop), Tt(p + 0.3, be / 2, ztop)]
-        for pts in (lat_q, top_q):
-            lam.solido([pts[0], pts[1], pts[3], pts[2]], "ISO-CUNETA"); lam.poli(pts, "ISO-ARISTAS", cerrada=True)
-        q = Tt(p, be / 2 + Lq, ztop); lam.texto((q[0], q[1] + 2 * f), "Eje %s (cuneta)" % c["perfil"].lstrip("0"), 1.6, "TEXTOS", TA.BOTTOM_CENTER)
-    # quiebres y textos
+        p = c["prog"]; u, v = UV(p); zc = c["NCF_fin"] - 258.0; Lq = 3.0 + c["prolong"]
+        vb = v + be / 2 - 0.02
+        caja(u - 0.30, u + 0.30, vb, vb + Lq, zc - 0.10, ztop, capas=("ISO-CUNETA", "ISO-CUNETA", "ISO-CUNETA"))
+        q = Tt(u, vb + Lq, ztop); lam.texto((q[0], q[1] + 2 * f), "Eje %s (cuneta)" % c["perfil"].lstrip("0"), 1.6, "CUNETA", TA.BOTTOM_CENTER)
+    # ---------- cerco perimetrico (referencia, lado predio, detras de las cunetas): franja baja para no tapar
+    u1, v1 = UV(0.0); u2 = dz.P_B1
+    # ---------- textos
     for p, nm in ((dz.P_B1, "QUIEBRE 1 (45 grados) - RS-06"), (dz.P_B2, "QUIEBRE 2 (45 grados) - RS-07")):
-        q = Tt(p, -be / 2, zb(p)); lam.llamada(q, (q[0] - 10 * f, q[1] - 12 * f), [nm], 1.8, al=TA.RIGHT)
-    q = Tt(-D["CL_largo"], -D["CL_ancho"] / 2 - e, ztop); lam.llamada(q, (q[0] - 10 * f, q[1] + 14 * f), ["CAJA DE LLEGADA CL (0+000): llegada de CAR Varones (CUI 2705619)"], 1.8, al=TA.RIGHT)
-    q = Tt(dz.P_FIN, -D["CC_ancho"] / 2, ztop); lam.llamada(q, (q[0] - 20 * f, q[1] + 22 * f), ["CAJA DE CAIDA CC: poza de disipacion y entrega al R-01 del CAR Mujeres (CUI 2717013)"], 1.8, al=TA.RIGHT)
-    q = Tt(dz.P_FIN + 4.0, D["b_wilma"] / 2, D["NPT_wilma"] - 258.0); lam.llamada(q, (q[0] - 30 * f, q[1] - 12 * f), ["colector del CAR Mujeres b=1.50 (referencia)"], 1.8, al=TA.RIGHT)
-    q = Tt(35.0, -be / 2, ztop); lam.llamada(q, (q[0] - 4 * f, q[1] - 16 * f), ["COLECTOR CUBIERTO b=0.80 m, S=0.30 %, losa superior a nivel del piso terminado +260.60"], 1.8, al=TA.RIGHT)
+        u, v = UV(p); q = Tt(u, v - be / 2, zb(p)); lam.llamada(q, (q[0] - 10 * f, q[1] - 14 * f), [nm], 1.8, al=TA.RIGHT)
+    q = Tt(-D["CL_largo"], v0 + D["CL_ancho"] / 2 + e, ztop); lam.llamada(q, (q[0] - 12 * f, q[1] + 16 * f), ["CAJA DE LLEGADA CL (0+000): llegada de CAR Varones (CUI 2705619)", "poza 0.30 m con colchon de agua"], 1.8, al=TA.RIGHT)
+    q = Tt(dz.P_FIN, vf - D["CC_ancho"] / 2 - e, ztop); lam.llamada(q, (q[0] - 24 * f, q[1] - 26 * f), ["CAJA DE CAIDA CC: poza de disipacion 1.50 x 3.50, piso 258.32", "entrega al R-01 del CAR Mujeres (CUI 2717013)"], 1.8, al=TA.RIGHT)
+    q = Tt(dz.P_FIN + e + 4.0, vf + D["b_wilma"] / 2, D["NPT_wilma"] - 258.0); lam.llamada(q, (q[0] + 6 * f, q[1] + 14 * f), ["colector del CAR Mujeres b=1.50 (referencia)"], 1.8, al=TA.LEFT)
+    q = Tt(30.0, v0 - be / 2, ztop); lam.llamada(q, (q[0] - 6 * f, q[1] - 18 * f), ["COLECTOR CUBIERTO b=0.80 m, S=0.30 %, losa superior a nivel del piso terminado +260.60", "registros cada <= 12 m y en cada llegada de cuneta"], 1.8, al=TA.RIGHT)
     for z in R["zonas"]:
-        q = Tt((z["p1"] + z["p2"]) / 2, 0, ztop); lam.texto((q[0], q[1] + 3 * f), "CRUCE DE %s" % ("CAMIONES" if z["tipo"] == "CAMION" else "MOTOS"), 1.5, "CRUCE-VEHICULAR", TA.BOTTOM_CENTER)
-    lam.texto(lam.P(40, 90), "Vista isometrica de conjunto con el eje desarrollado (los quiebres a 45 grados se indican en su progresiva); escala vertical ampliada x3 para mayor claridad del relieve. Medidas reales en las laminas DP-01 a DP-09.", 2.0, "TEXTOS-NOTAS")
-    lam.leyenda(40, 170, [("relleno", "ISO-CONCRETO-SUP", "colector y cajas de concreto armado (losa superior)"), ("relleno", "ISO-TAPA", "tapa de registro"), ("relleno", "ISO-CUNETA", "cuneta que llega"), ("relleno", "ISO-TERRENO", "colector receptor (CAR Mujeres), referencia")], 1.8)
+        u, v = UV((z["p1"] + z["p2"]) / 2); q = Tt(u, v, ztop); lam.texto((q[0], q[1] + 3 * f), "CRUCE DE %s" % ("CAMIONES" if z["tipo"] == "CAMION" else "MOTOS"), 1.5, "CRUCE-VEHICULAR", TA.BOTTOM_CENTER)
+    q = Tt(-2.0, v0 - 2.0, ztop); lam.texto((q[0], q[1]), "0+000", 1.6, "PROGRESIVAS", TA.RIGHT)
+    for p in (10.0, 20.0, 30.0, 40.0, 50.0):
+        u, v = UV(p); q = Tt(u, v - be / 2 - 0.3, ztop); lam.texto((q[0], q[1] - 1.5 * f), prog_txt(p), 1.4, "PROGRESIVAS", TA.TOP_CENTER)
+    lam.texto(lam.P(40, 90), "Vista isometrica de conjunto con el trazo real (recta frontal, dos quiebres a 45 grados y recta final hasta la caja de caida); escala vertical ampliada x2 para leer el relieve. Medidas reales en las laminas DP-01 a DP-09.", 2.0, "TEXTOS-NOTAS")
+    lam.leyenda(40, 170, [("relleno", "ISO-CONCRETO-SUP", "colector y cajas de concreto armado (losa superior)"), ("relleno", "ISO-CONCRETO-LAT1", "muro lado predio"), ("relleno", "ISO-TAPA", "tapa de registro"),
+                          ("relleno", "ISO-CUNETA", "cuneta que llega (0.40 x H, muros 0.10)"), ("relleno", "ISO-TERRENO", "colector receptor (CAR Mujeres), referencia")], 1.8)
     return lam
 
 
