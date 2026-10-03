@@ -469,7 +469,7 @@ def construir():
                 v = f[3]
                 vt = ("%.2f" % v) if isinstance(v, (int, float)) and not isinstance(v, bool) else ("" if v is None else str(v))
                 filas.append([str(f[0]), str(f[1] or ""), str(f[2] or ""), vt, str(f[4] or "")])
-        tabla(doc, ["REQUISITO", "NORMA / REFERENCIA", "CRITERIO", "VALOR", "RESULTADO"], filas, tam=8, anchos=[4.2, 3.6, 4.2, 1.6, 2.4])
+        tabla(doc, ["REQUISITO", "NORMA / REFERENCIA", "CRITERIO", "VALOR", "RESULTADO"], filas, tam=8, anchos=[3.8, 3.2, 3.6, 1.5, 3.1])
         leyenda(doc, "%s: Cuadro de cumplimiento normativo del colector pluvial frontal." % NUM.tabla())
         fuente(doc, "Fuente: Elaboración propia. Hoja CUMPLIMIENTO de la memoria de cálculo del colector.")
         parrafo(doc, "Todos los requisitos verificados cumplen. Tres de ellos dependen de datos de otros expedientes o estudios que "
