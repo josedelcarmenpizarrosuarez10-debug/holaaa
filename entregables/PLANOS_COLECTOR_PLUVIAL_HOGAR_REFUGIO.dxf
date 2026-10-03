@@ -489,7 +489,7 @@ $SKPOLY
   9
 $TDCREATE
  40
-2461317.271550926
+2461317.281446759
   9
 $TDUCREATE
  40
@@ -497,7 +497,7 @@ $TDUCREATE
   9
 $TDUPDATE
  40
-2461317.2715625
+2461317.281458333
   9
 $TDUUPDATE
  40
@@ -929,11 +929,11 @@ $PSTYLEMODE
   9
 $FINGERPRINTGUID
   2
-{83956C9E-90A0-4709-9004-AB85963EA538}
+{A643315F-FBA1-4462-AB6B-2BAE80658CF8}
   9
 $VERSIONGUID
   2
-{61884C11-4C3E-4A0D-8FBE-EEC04592E41D}
+{F50584E7-7043-4D36-965C-96C5FA17627E}
   9
 $EXTNAMES
 290
@@ -1323,9 +1323,9 @@ ISM
   0
 CLASS
   1
-ACDBPLACEHOLDER
+LAYOUT
   2
-AcDbPlaceHolder
+AcDbLayout
   3
 ObjectDBX Classes
  90
@@ -1339,9 +1339,9 @@ ObjectDBX Classes
   0
 CLASS
   1
-LAYOUT
+ACDBPLACEHOLDER
   2
-AcDbLayout
+AcDbPlaceHolder
   3
 ObjectDBX Classes
  90
@@ -335399,7 +335399,7 @@ AcDbText
  40
 0.0425
   1
-3570.0
+3628.8
   7
 STANDARD
  72
@@ -335435,7 +335435,7 @@ AcDbText
  40
 0.0425
   1
-1999.2
+2032.1
   7
 STANDARD
  72
@@ -335651,7 +335651,7 @@ AcDbText
  40
 0.0425
   1
-138.5
+161.6
   7
 STANDARD
  72
@@ -335687,7 +335687,7 @@ AcDbText
  40
 0.0425
   1
-77.6
+90.5
   7
 STANDARD
  72
@@ -335903,7 +335903,7 @@ AcDbText
  40
 0.0425
   1
-710.7
+755.1
   7
 STANDARD
  72
@@ -335939,7 +335939,7 @@ AcDbText
  40
 0.0425
   1
-706.5
+750.5
   7
 STANDARD
  72
@@ -336155,7 +336155,7 @@ AcDbText
  40
 0.0425
   1
-3396.2
+3410.7
   7
 STANDARD
  72
@@ -336191,7 +336191,7 @@ AcDbText
  40
 0.0425
   1
-1901.9
+1910.0
   7
 STANDARD
  72
@@ -337703,7 +337703,7 @@ AcDbText
  40
 0.0425
   1
-5245.9
+5343.9
   7
 STANDARD
  72
@@ -337739,7 +337739,7 @@ AcDbText
  40
 0.0425
   1
-Resumen: acero 3/8" = 4428.1 kg ; acero 1/2" = 817.8 kg ; total = 5245.9 kg (incluye traslapes y ganchos). Angulos metalicos: 151.4 kg.
+Resumen: acero 3/8" = 4482.1 kg ; acero 1/2" = 861.9 kg ; total = 5343.9 kg (incluye traslapes y ganchos). Angulos metalicos: 151.4 kg.
   7
 STANDARD
  11
@@ -351303,7 +351303,7 @@ AcDbText
  40
 0.0425
   1
-108.23
+103.90
   7
 STANDARD
  72
@@ -370531,7 +370531,7 @@ AcDbText
  40
 0.0425
   1
-4268.0
+4321.9
   7
 STANDARD
  72
@@ -370639,7 +370639,7 @@ AcDbText
  40
 0.0425
   1
-706.5
+750.5
   7
 STANDARD
  72
@@ -372737,7 +372737,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-10-03T06:31:02.760381+00:00
+1.4.4 @ 2026-10-03T06:45:17.959885+00:00
   0
 DICTIONARYVAR
   5
@@ -372749,7 +372749,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-10-03T06:31:03.413564+00:00
+1.4.4 @ 2026-10-03T06:45:18.661334+00:00
   0
 ENDSEC
   0

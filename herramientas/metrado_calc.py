@@ -13,7 +13,7 @@ D = dz.D
 PESO = {"3/8": 0.56, "1/2": 0.994}
 ANG = {"2x2x3/16": 3.63, "1.5x1.5x1/8": 1.83}   # kg/m
 SOBREEXC = 0.25          # sobreancho de excavacion a cada lado
-ESPONJ = 1.25
+ESPONJ = 1.20   # esponjamiento, igual a PARAMETROS!B16 de la planilla del proyecto
 RECUB = 0.04
 TRASLAPE = 0.40
 L_BARRA = 9.00
@@ -69,6 +69,34 @@ def tramos():
     return out
 
 
+def segmentos():
+    """Segmentos por zona (los mismos de la hoja COLECTOR TRAMOS): valores medios de h y Hz y acero
+    calculado con las mismas reglas de la planilla (marcos = REDONDEAR.MAS(L/s) x capas)."""
+    T = tramos(); cortes = sorted(set([0.0] + [z["p1"] for z in dz.ZONAS] + [z["p2"] for z in dz.ZONAS] + [dz.P_B1, dz.P_B2, dz.P_BRINK]))
+    segs = []
+    for a, b in zip(cortes[:-1], cortes[1:]):
+        ts = [t for t in T if t["p1"] >= a - 1e-6 and t["p2"] <= b + 1e-6]
+        Ls = sum(t["L"] for t in ts)
+        zona = ts[0]["zona"]
+        nombre = {"NORMAL": "tramo normal", "MOTOS": "cruce de motos", "CAMION": "cruce de camiones"}[zona]
+        if a >= dz.P_B1 - 1e-6 and b <= dz.P_B2 + 1e-6: nombre = "tramo diagonal (quiebres)"
+        elif a >= dz.P_B2 - 1e-6: nombre = "tramo recto final"
+        h = round(sum(t["h"] * t["L"] for t in ts) / Ls, 3)
+        Hz = round(sum(max(0.0, t["terreno"] - (t["cf"] - t["ef"] - D["e_solado"])) * t["L"] for t in ts) / Ls, 3)
+        dnpt = round(sum(max(0.0, D["NPT"] - t["terreno"]) * t["L"] for t in ts) / Ls, 3)
+        et = ts[0]["et"]; dia = ts[0]["marcos_dia"]; em = D["e_muro"]; ef = D["e_fondo"]; be = D["b"] + 2 * em
+        sp = 0.15 if zona in ("MOTOS", "CAMION") else 0.20; capas = 2 if zona == "CAMION" else 1; sl = 0.20 if zona == "CAMION" else 0.25
+        L2 = round(b, 2) - round(a, 2)
+        n = math.ceil(round(L2 / sp, 6)) * capas
+        per_ext = 2 * (be - 2 * RECUB) + 2 * (ef + h + et - 2 * RECUB) + 0.30
+        per_int = 2 * (D["b"] + 2 * (em - RECUB)) + 2 * (h + 2 * (em - RECUB)) + 0.30
+        nb = int(round(per_ext / sl)) + int(round(per_int / sl))
+        segs.append(dict(p1=a, p2=b, L=Ls, zona=zona, nombre=nombre, h=h, Hz=Hz, dnpt=dnpt, et=et, marcos_dia=dia, s=sp, capas=capas, sl=sl,
+                         marcos_n=n, marcos_L=n * (per_ext + per_int), marcos_kg=n * (per_ext + per_int) * PESO[dia],
+                         long_n=nb, long_L=nb * L2 * (1 + TRASLAPE / L_BARRA), long_kg=nb * L2 * (1 + TRASLAPE / L_BARRA) * PESO["3/8"]))
+    return segs
+
+
 def registros():
     n = len([r for r in dz.REGISTROS if r["tipo"] == "registro"]) + 3   # 7 + 1 en CL + 2 en CC
     return dict(n=n, contramarco_m=2.80 * n, contramarco_kg=2.80 * n * ANG["2x2x3/16"], marco_m=2.72 * n, marco_kg=2.72 * n * ANG["1.5x1.5x1/8"],
@@ -122,8 +150,9 @@ def juntas():
 
 
 def resumen():
-    T = tramos(); Rg = registros(); C = cajas(); Pr = prolongaciones(); J = juntas()
+    T = tramos(); Rg = registros(); C = cajas(); Pr = prolongaciones(); J = juntas(); SG = segmentos()
     s = lambda k: sum(t[k] for t in T)
+    sg = lambda k: sum(t[k] for t in SG)
     R = {}
     R["trazo_m2"] = s("trazo") + sum(c["solado"] for c in C.values()) + sum(p["solado"] for p in Pr)
     R["excav_m3"] = s("excav") + sum(c["excav"] for c in C.values()) + sum(p["excav"] for p in Pr)
@@ -135,9 +164,10 @@ def resumen():
     R["conc_muros_m3"] = s("c_muros") + sum(c["c_muros"] for c in C.values())
     R["conc_losa_m3"] = s("c_losa") - Rg["losa_descuento"] + sum(c["c_losa"] for c in C.values()) + Rg["borde_conc"]
     R["encof_m2"] = s("encof") + sum(c["encof"] for c in C.values())
-    R["acero_colector_kg"] = s("marcos_kg") + s("long_kg") + sum(c["acero_kg"] for c in C.values())
-    R["acero_38_kg"] = sum(t["marcos_kg"] for t in T if t["marcos_dia"] == "3/8") + s("long_kg") + sum(c["acero_kg"] for c in C.values())
-    R["acero_12_kg"] = sum(t["marcos_kg"] for t in T if t["marcos_dia"] == "1/2")
+    R["acero_colector_kg"] = sg("marcos_kg") + sg("long_kg") + sum(c["acero_kg"] for c in C.values())
+    R["acero_38_kg"] = sum(t["marcos_kg"] for t in SG if t["marcos_dia"] == "3/8") + sg("long_kg") + sum(c["acero_kg"] for c in C.values())
+    R["acero_12_kg"] = sum(t["marcos_kg"] for t in SG if t["marcos_dia"] == "1/2")
+    R["segmentos"] = SG
     R["acabado_m2"] = s("acabado") + sum(c["acabado"] for c in C.values())
     R["registros"] = Rg; R["cajas"] = C; R["prolong"] = Pr; R["juntas"] = J
     R["cuneta_conc_m3"] = sum(p["c_conc"] for p in Pr); R["cuneta_encof_m2"] = sum(p["encof"] for p in Pr); R["cuneta_acero_kg"] = sum(p["acero_kg"] for p in Pr)
@@ -148,9 +178,9 @@ def resumen():
 
 def cuadro_doblado():
     """Filas del cuadro de doblado (elemento, forma, diametro, espaciamiento, longitud, total m, peso kg)."""
-    T, R = resumen(); Rg = R["registros"]
+    T, R = resumen(); Rg = R["registros"]; SG = R["segmentos"]
     def f(k, zona=None, dia=None):
-        return sum(t[k] for t in T if (zona is None or t["zona"] == zona) and (dia is None or t["marcos_dia"] == dia))
+        return sum(t[k] for t in SG if (zona is None or t["zona"] == zona) and (dia is None or t["marcos_dia"] == dia))
     filas = [
         ("Colector: marcos tramo normal", "marco cerrado doble (ext. + int.)", '3/8"', "0.20", "ver figura, h + 0.70", f("marcos_L", "NORMAL"), f("marcos_kg", "NORMAL")),
         ("Colector: marcos cruce de motos", "marco cerrado doble (ext. + int.)", '3/8"', "0.15", "ver figura", f("marcos_L", "MOTOS"), f("marcos_kg", "MOTOS")),

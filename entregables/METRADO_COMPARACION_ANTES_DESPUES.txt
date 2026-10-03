@@ -1,0 +1,18 @@
+COMPARACION ANTES / DESPUES - METRADO_DRENAJE_PLUVIAL_MUJERES_VIOLENTADAS_CON_COLECTOR.xlsx
+
+Hoja RESUMEN                          celdas originales con contenido:   155  modificadas: 0
+Hoja PLANILLA GENERAL DE METRADOS     celdas originales con contenido:   666  modificadas: 0
+Hoja CONCRETO EN CUNETAS              celdas originales con contenido:   370  modificadas: 0
+Hoja ENCOFRADO Y DESENCOFRADO         celdas originales con contenido:   406  modificadas: 0
+Hoja METRADO MONTANTES                celdas originales con contenido:   242  modificadas: 0
+Hoja METRADO  EN PISO (SUMIDERO)      celdas originales con contenido:    50  modificadas: 0
+Hoja METRADO ACERO                    celdas originales con contenido:   905  modificadas: 0
+Hoja METRADO DE CURADO                celdas originales con contenido:   477  modificadas: 0
+Hoja METRADO DE REJILLAS              celdas originales con contenido:   260  modificadas: 0
+Hoja METRADO JUNTA DE DILATACION      celdas originales con contenido:   138  modificadas: 0
+Hoja PLANILLA TAPAS REGISTRO INTERNO  celdas originales con contenido:    80  modificadas: 0
+Hoja PARAMETROS                       celdas originales con contenido:    50  modificadas: 0
+Hoja Listas                           celdas originales con contenido:    29  modificadas: 0
+
+Hojas nuevas: COLECTOR TRAMOS, COLECTOR ACERO, COLECTOR TAPAS, COLECTOR INSUMOS
+Resultado: SIN CAMBIOS en el contenido original
