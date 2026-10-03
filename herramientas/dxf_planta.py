@@ -261,19 +261,23 @@ def perfil_tramo(lam, xmm, ymm, p1, p2, R, T, escH, escV, con_tabla=True, paso_t
     ps = sorted(set([p1, p2] + [q for q in ps if p1 - 1e-6 <= q <= p2 + 1e-6]))
     NPT = D["NPT"]; ef = D["e_fondo"]; es = D["e_solado"]
     regs = [rg for rg in R["registros"] if p1 - 1e-6 <= rg["prog"] <= p2 + 1e-6 and rg["nombre"] not in ("CL", "CC")]
+    # el canal (fondo, solado y agua del colector) termina en la caida libre a la caja CC; de ahi en adelante dibuja la caja
+    psc = [q for q in ps if q <= dz.P_BRINK + 1e-6]
+    if len(psc) < 2: psc = ps[:2]
+    p2c = psc[-1]
     # ---------- agua (relleno) y nivel de agua
-    na = [(X(p), Y(perfil_en(R, p, "NA"))) for p in ps]
-    lam.relleno([(X(p), Y(fz(p))) for p in ps] + list(reversed(na)), "AGUA-RELLENO")
+    na = [(X(p), Y(perfil_en(R, p, "NA"))) for p in psc]
+    lam.relleno([(X(p), Y(fz(p))) for p in psc] + list(reversed(na)), "AGUA-RELLENO")
     lam.poli(na, "AGUA")
     for p in np.arange(np.ceil(p1 / 10.0) * 10.0, p2 + 1e-6, 10.0):
         if p1 + 1.0 < p < min(p2, dz.P_BRINK) - 1.0: lam.bloque("SIMB-AGUA", (X(p), Y(perfil_en(R, p, "NA"))), lam.f)
     # ---------- losa de fondo (cortada) y solado
-    fondo = [(X(p), Y(fz(p))) for p in ps]
-    fondo_inf = [(X(p), Y(fz(p) - ef)) for p in ps]
+    fondo = [(X(p), Y(fz(p))) for p in psc]
+    fondo_inf = [(X(p), Y(fz(p) - ef)) for p in psc]
     lam.achurado(fondo + list(reversed(fondo_inf)), escala_mm=0.5)
     lam.poli(fondo, "CONCRETO"); lam.poli(fondo_inf, "CONCRETO")
-    lam.poli([(X(p), Y(fz(p) - ef - es)) for p in ps], "SOLADO")
-    lam.poli([(X(p1), Y(fz(p1) - ef - es - 0.02)), (X(p2), Y(fz(p2) - ef - es - 0.02))], "EXCAVACION")
+    lam.poli([(X(p), Y(fz(p) - ef - es)) for p in psc], "SOLADO")
+    lam.poli([(X(p1), Y(fz(p1) - ef - es - 0.02)), (X(p2c), Y(fz(p2c) - ef - es - 0.02))], "EXCAVACION")
     # ---------- losa superior (cortada) con aberturas de registro
     cortes = sorted([(rg["prog"] - 0.35, rg["prog"] + 0.35) for rg in regs])
     a = p1
@@ -351,14 +355,12 @@ def perfil_tramo(lam, xmm, ymm, p1, p2, R, T, escH, escV, con_tabla=True, paso_t
         xf = X(pf); xfe = xf + e * fx
         lam.rect(X(pb), Y(zp - ef), xfe, Y(NPT), "CONCRETO")
         lam.achurado([(X(pb), Y(zp - ef)), (xfe, Y(zp - ef)), (xfe, Y(zp)), (X(pb), Y(zp))], escala_mm=0.5)
-        lam.achurado([(X(pb), Y(fz(pb) - ef)), (X(pb) + 0.0, Y(fz(pb) - ef)), (X(pb), Y(fz(pb))), (X(pb), Y(fz(pb)))], escala_mm=0.5)
         lam.achurado([(xf, Y(zp)), (xfe, Y(zp)), (xfe, Y(D["CF_R01"])), (xf, Y(D["CF_R01"]))], escala_mm=0.5)                      # muro bajo la ventana de salida
         lam.achurado([(xf, Y(D["NPT_wilma"] - 0.10)), (xfe, Y(D["NPT_wilma"] - 0.10)), (xfe, Y(NPT)), (xf, Y(NPT))], escala_mm=0.5)  # muro sobre la ventana de salida
         lam.achurado([(X(pb + 0.35), Y(NPT - D["e_losa"])), (xfe, Y(NPT - D["e_losa"])), (xfe, Y(NPT)), (X(pb + 0.35), Y(NPT))], escala_mm=0.5)
         lam.linea((X(pb), Y(fz(pb))), (X(pb), Y(zp)), "CONCRETO"); lam.linea((X(pb), Y(fz(pb) - ef)), (X(pb), Y(zp - ef)), "CONCRETO-OCULTO")
         lam.linea((xf, Y(zp)), (xf, Y(D["CF_R01"])), "CONCRETO"); lam.linea((xf, Y(D["NPT_wilma"] - 0.10)), (xf, Y(NPT - D["e_losa"])), "CONCRETO")
         # umbral de salida 0.25 x 0.40
-        lam.rect(X(pf - 0.25), Y(zp), xf, Y(D["CF_R01"]), "POZA"); lam.achurado([(X(pf - 0.25), Y(zp)), (xf, Y(zp)), (xf, Y(D["CF_R01"])), (X(pf - 0.25), Y(D["CF_R01"]))], escala_mm=0.4)
         lam.poli([(X(pb), Y(zp - ef - es)), (xfe, Y(zp - ef - es))], "SOLADO")
         for pr in (pb + 0.6, pf - 1.0):
             lam.rect(X(pr - 0.34), Y(NPT - 0.08), X(pr + 0.34), Y(NPT), "REGISTRO-TAPA")
@@ -367,6 +369,7 @@ def perfil_tramo(lam, xmm, ymm, p1, p2, R, T, escH, escV, con_tabla=True, paso_t
         agua = [(X(pb), Y(nab)), (X(pb + 0.45), Y(zp + y1 + 0.05)), (X(pb + 0.9), Y(zp + y1)), (X(pb + 1.6), Y(zp + R["poza"]["y2"] * 0.7)), (X(pb + 2.4), Y(D["NA_R01"])), (xf, Y(D["NA_R01"])), (xfe + 1.0 * fx, Y(D["NA_R01"]))]
         lam.relleno([(X(pb), Y(zp)), (X(pf - 0.25), Y(zp)), (X(pf - 0.25), Y(D["CF_R01"])), (xfe + 1.0 * fx, Y(D["CF_R01"]))] + list(reversed(agua)), "AGUA-RELLENO")
         lam.poli(agua, "AGUA")
+        lam.rect(X(pf - 0.25), Y(zp), xf, Y(D["CF_R01"]), "POZA"); lam.achurado([(X(pf - 0.25), Y(zp)), (xf, Y(zp)), (xf, Y(D["CF_R01"])), (X(pf - 0.25), Y(D["CF_R01"]))], escala_mm=0.4)
         # colector receptor CAR Mujeres (referencia)
         xr2 = xfe + 1.0 * fx
         lam.rect(xfe, Y(D["CF_R01"] - 0.15), xr2, Y(D["NPT_wilma"]), "ARQ-BASE"); lam.rect(xfe, Y(D["CF_R01"]), xr2, Y(D["NPT_wilma"] - 0.10), "ARQ-BASE")
