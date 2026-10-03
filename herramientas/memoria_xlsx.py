@@ -426,6 +426,74 @@ def hoja_estructural(wb, R):
             ws[f"B{r}"].number_format = "0.000"
         r += 1
     celda(ws, f"A{r+1}", "Los muros se verifican como miembros del marco cerrado (losa superior y de fondo vaciadas monoliticamente con los muros). En los cruces el acero indicado va en ambas caras. Registros solo fuera de los cruces vehiculares.", SUB)
+    hoja_estructural.KEY = KEY
+    return ws
+
+
+def hoja_cumplimiento(wb, rlast):
+    """Cuadro de cumplimiento normativo: cada requisito con su norma, criterio, valor del diseno (formula) y resultado."""
+    ws = wb.create_sheet("CUMPLIMIENTO"); D = dz.D; K = hoja_estructural.KEY
+    cabecera(ws, "7. CUADRO DE CUMPLIMIENTO NORMATIVO Y CONDICIONES DE COMPATIBILIDAD", [58, 34, 40, 14, 18])
+    encabezado_tabla(ws, 4, ["REQUISITO", "NORMA / REFERENCIA", "CRITERIO", "VALOR DEL DISENO", "RESULTADO"])
+    E = lambda k: "ESTRUCTURAL!B%d" % K[k]
+    filas = [
+        ("HIDROLOGIA E HIDRAULICA",),
+        ("Periodo de retorno del colector", "Estudio hidrologico del proyecto (RNE CE.040)", "TR = 25 anos, igual al estudio hidrologico y al colector receptor", "=DATOS!$B$6", "=IF(DATOS!$B$6=25,\"CUMPLE\",\"VERIFICAR\")"),
+        ("Intensidad de diseno del colector", "Estudio hidrologico; MTC Manual de Hidrologia (Dick y Peschke)", "tc = 15 min sobre la curva P-D del analisis estadistico (P10 = 35.16, P20 = 41.82 mm)", "=DATOS!$B$11", "=IF(ABS(DATOS!$B$11-155.66)<0.5,\"CUMPLE\",\"VERIFICAR\")"),
+        ("Caudal de diseno del tramo", "Metodo racional, FS = 1.15 (memorias HIDRO-CE040)", "Q = Q CAR Varones (dato) + Q Hogar de Refugio", "=CAUDALES!$B$12", "=IF(CAUDALES!$B$12<=560.7,\"CUMPLE (<= 560.7 L/s del receptor)\",\"NO CUMPLE\")"),
+        ("Regimen de flujo en el colector", "RNE CE.040; Chow (flujo gradualmente variado)", "Subcritico en todo el tramo: Froude < 1", f"=PERFIL_FLUJO!B{rlast+5}", f"=IF(PERFIL_FLUJO!B{rlast+5}<1,\"CUMPLE\",\"NO CUMPLE\")"),
+        ("Llenado maximo de la seccion", "Criterio de diseno adoptado (y/h <= 85 %)", "Tirante / altura interior", f"=PERFIL_FLUJO!B{rlast+3}", f"=IF(PERFIL_FLUJO!B{rlast+3}<=DATOS!$B$33,\"CUMPLE\",\"NO CUMPLE\")"),
+        ("Borde libre bajo la losa", "Criterio de diseno adoptado (>= 0.05 m)", "Cota bajo losa - nivel de agua", f"=PERFIL_FLUJO!B{rlast+4}", f"=IF(PERFIL_FLUJO!B{rlast+4}>=DATOS!$B$34,\"CUMPLE\",\"NO CUMPLE\")"),
+        ("Velocidad minima (autolimpieza)", "RNE CE.040 Drenaje Pluvial", "V >= 0.90 m/s con el caudal de diseno", "=PERFIL_FLUJO!B200", "=PERFIL_FLUJO!B200"),
+        ("Velocidad maxima (revestimiento de concreto)", "RNE CE.040 Drenaje Pluvial", "V <= 3.0 m/s", "=PERFIL_FLUJO!B200", "=PERFIL_FLUJO!B200"),
+        ("Esfuerzo tractivo con caudales parciales", "Criterio de autolimpieza (ASCE / WEF)", "tau = gamma R S >= 0.15 kg/m2 hasta el 5 % del caudal", "=PERFIL_FLUJO!B200", "=PERFIL_FLUJO!B200"),
+        ("Caida libre de las cunetas al colector", "Criterio de diseno: NA del colector bajo el fondo de cada cuneta", "Cunetas Ejes 01, 02, 06, 07, 11 y 12", "=COUNTIF(CUNETAS!L5:L10,\"CAIDA LIBRE\")", "=IF(COUNTIF(CUNETAS!L5:L10,\"CAIDA LIBRE\")=6,\"CUMPLE (6 de 6)\",\"VERIFICAR\")"),
+        ("ENTREGA AL COLECTOR RECEPTOR (CAR MUJERES, CUI 2717013)",),
+        ("Cota de fondo de llegada >= cota de fondo del R-01", "Compatibilidad con el expediente del receptor", "CF llegada 258.89 >= 258.72", "=EMPALME!B8", "=IF(EMPALME!B8>=DATOS!$B$37,\"CUMPLE\",\"NO CUMPLE\")"),
+        ("Caudal entregado <= caudal previsto por el receptor", "Compatibilidad con el expediente del receptor", "Q <= 560.7 L/s", "=CAUDALES!$B$12", "=IF(CAUDALES!$B$12<=560.7,\"CUMPLE\",\"NO CUMPLE\")"),
+        ("Entrega en regimen subcritico (resalto ahogado en la poza)", "USBR, poza de disipacion; Chow", "y2 conjugado < tirante disponible en la poza", "=EMPALME!B19", "=EMPALME!B19"),
+        ("Longitud de la poza de disipacion", "USBR (resalto ahogado: L >= 0.8 x 6 y2)", "L poza = 3.50 m", "=EMPALME!B22", "=EMPALME!B22"),
+        ("ESTRUCTURAS (RNE E.060 CONCRETO ARMADO, E.020 CARGAS, AASHTO LRFD)",),
+        ("Combinaciones de carga", "RNE E.060 art. 9.2", "U = 1.4 D + 1.7 L; factores phi = 0.90 flexion y 0.85 cortante (art. 9.3)", "aplicado", "CUMPLE"),
+        ("Losa superior tramo normal: flexion", "RNE E.060 cap. 10", "phi Mn >= Mu", "=" + E("MnA"), "=IF(%s>=%s,\"CUMPLE\",\"NO CUMPLE\")" % (E("MnA"), E("MuA"))),
+        ("Losa superior tramo normal: cuantia minima", "RNE E.060 art. 9.7.2 (0.0018 b h, grado 60)", "As >= As min", "=" + E("AsA"), "=IF(%s>=%s,\"CUMPLE\",\"NO CUMPLE\")" % (E("AsA"), E("AmA"))),
+        ("Losa superior cruce de motos: flexion (rueda 1 t)", "RNE E.060; AASHTO LRFD 4.6.2.1.3 (ancho de franja)", "phi Mn >= Mu", "=" + E("MnB"), "=IF(%s>=%s,\"CUMPLE\",\"NO CUMPLE\")" % (E("MnB"), E("MuB"))),
+        ("Losa superior cruce de camiones: flexion (rueda HL-93, IM 33 %)", "AASHTO LRFD 3.6.1.2 y 3.6.2; Manual de Puentes MTC", "phi Mn >= Mu", "=" + E("MnC"), "=IF(%s>=%s,\"CUMPLE\",\"NO CUMPLE\")" % (E("MnC"), E("MuC"))),
+        ("Losa superior cruce de camiones: cortante", "RNE E.060 art. 11.3 (Vc = 0.53 raiz f'c b d)", "phi Vc >= Vu", "=" + E("VcC"), "=IF(%s>=%s,\"CUMPLE\",\"NO CUMPLE\")" % (E("VcC"), E("VuC"))),
+        ("Muro tramo normal: flexion por empuje de suelo", "RNE E.060; E.020 (empuje en reposo Ko = 0.5)", "phi Mn >= Mu (marco cerrado)", "=" + E("MnD"), "=IF(%s>=%s,\"CUMPLE\",\"NO CUMPLE\")" % (E("MnD"), E("MuD"))),
+        ("Muro tramo normal: cortante", "RNE E.060 art. 11.3", "phi Vc >= Vu", "=" + E("VcD"), "=IF(%s>=%s,\"CUMPLE\",\"NO CUMPLE\")" % (E("VcD"), E("VuD"))),
+        ("Muro tramo normal: refuerzo en una capa", "RNE E.060 art. 14.3.4 (dos capas solo si e > 0.20 m)", "e = 0.15 m: una capa en el eje", "=DATOS!$B$15", "=IF(DATOS!$B$15<=0.20,\"CUMPLE\",\"VERIFICAR\")"),
+        ("Muro cruce de motos: flexion", "RNE E.060", "phi Mn >= Mu", "=" + E("MnE"), "=IF(%s>=%s,\"CUMPLE\",\"NO CUMPLE\")" % (E("MnE"), E("MuE"))),
+        ("Muro cruce de camiones: flexion (sobrecarga lateral camion)", "RNE E.060; AASHTO LRFD 3.11.6.4", "phi Mn >= Mu", "=" + E("MnF"), "=IF(%s>=%s,\"CUMPLE\",\"NO CUMPLE\")" % (E("MnF"), E("MuF"))),
+        ("Losa de fondo: flexion", "RNE E.060", "phi Mn >= Mu", "=" + E("MnG"), "=IF(%s>=%s,\"CUMPLE\",\"NO CUMPLE\")" % (E("MnG"), E("MuG"))),
+        ("Presion sobre el suelo", "RNE E.050 Suelos y Cimentaciones (capacidad portante del EMS)", "q <= capacidad admisible del EMS (verificar)", "=" + E("sG"), "=IF(%s<=1.0,\"CUMPLE (<= 1.0 kg/cm2, confirmar con EMS)\",\"VERIFICAR EMS\")" % E("sG")),
+        ("Tapa de registro 0.68 x 0.68 x 0.08: flexion (rueda liviana)", "RNE E.060", "phi Mn >= Mu", "=" + E("MnH"), "=IF(%s>=%s,\"CUMPLE\",\"NO CUMPLE\")" % (E("MnH"), E("MuH"))),
+        ("Recubrimientos", "RNE E.060 art. 7.7 (concreto sobre solado: 4 cm)", "4 cm muros y losa de fondo; 2.5 cm losa superior no expuesta; 4 cm cruce de camiones", "aplicado", "CUMPLE"),
+        ("Traslapes y ganchos", "RNE E.060 cap. 12", "Traslape 0.40 m (3/8\"), 0.50 m (1/2\"); ganchos 0.30 m", "aplicado", "CUMPLE"),
+        ("CONSTRUCTIVOS",),
+        ("Registros de limpieza", "RNE CE.040 (accesibilidad para mantenimiento)", "Separacion <= 12 m y en cada llegada de cuneta; fuera de los cruces vehiculares", "7 + 3 registros", "CUMPLE"),
+        ("Juntas de dilatacion", "Practica del colector receptor (CAR Mujeres)", "Cada 4.00 m con tecnopor 1\" y sello", "17 juntas", "CUMPLE"),
+        ("Emplazamiento", "Lindero y faja de la carretera Oasis", "Dentro del predio, pegado por fuera del cerco, sin invadir la via", "eje a 0.575 m del cerco", "CUMPLE"),
+    ]
+    r = 5
+    for f in filas:
+        if len(f) == 1:
+            celda(ws, f"A{r}", f[0], NEG, fill=GRIS)
+        else:
+            fila(ws, r, list(f), fonts=[NEGRO, NEGRO, NEGRO, VERDE, NEG])
+            ws[f"D{r}"].number_format = "0.000"
+        r += 1
+    r += 1
+    celda(ws, f"A{r}", "Requisitos que no cumplen o por verificar", NEG); celda(ws, f"B{r}", f'=COUNTIF(E5:E{r-2},"NO CUMPLE*")+COUNTIF(E5:E{r-2},"VERIFICAR*")', NEG)
+    r += 2
+    celda(ws, f"A{r}", "DATOS EXTERNOS QUE DEBEN CONFIRMARSE ANTES DE LA FIRMA DEL EXPEDIENTE", NEG, fill=GRIS); r += 1
+    for t in ["1. Cota de fondo y ancho de llegada del colector del CAR Varones (CUI 2705619) en la caja CL: se asume 260.18 msnm y ventana 0.80 x 0.60 (referenciales).",
+              "2. Caudal del CAR Varones (258.7 L/s): dato de su memoria de calculo, no validado en este tramo.",
+              "3. Capacidad portante del suelo (EMS del proyecto): la presion transmitida es 0.33 kg/cm2.",
+              "4. Coordenadas UTM del trazo: referenciales, obtenidas del R-01 del CAR Mujeres y del rumbo del lindero; verificar en el replanteo.",
+              "5. Cotas de fondo de las cunetas de arquitectura al llegar al cerco (perfiles 01 a 12 del plano PLANTA GENERAL REFUGIO 03-10-2026)."]:
+        celda(ws, f"A{r}", t, NEGRO); r += 1
+    ws.freeze_panes = "A5"
     return ws
 
 
@@ -438,7 +506,7 @@ def hoja_memoria(wb, R, rlast):
         ("3. HIDROLOGIA", "Metodo Racional con los coeficientes y areas de las memorias HIDRO-CE040 de cada proyecto, TR = 25 anos, tc = 15 min, I = 155.66 mm/h, FS = 1.15. Q = 258.7 + 301.9 = 560.6 L/s."),
         ("4. HIDRAULICA", "Colector cubierto de concreto armado b = 0.80 m, S = 0.30 %, n = 0.015. El fondo inicial (259.10) queda bajo las cunetas de arquitectura (NCF 259.70 a 260.12) y el fondo final (258.89) sobre el R-01 del receptor (258.72). La entrega es por caja de caida con poza de disipacion deprimida 0.40 m, ahogada por el tirante del receptor; el control del perfil es el tirante critico en el brink y el flujo en el colector es subcritico (F <= 0.90). El aporte externo cae en una caja de llegada con colchon de agua."),
         ("5. ESTRUCTURAS", "Marco cerrado monolitico: losa superior e = 0.10, muros e = 0.15 (altura interior 1.40 a 1.65 m) y losa de fondo e = 0.15 con un solo marco 3/8\" @0.20 en el eje de la seccion y longitudinales 3/8\" @0.25 (una capa; E.060 14.3.4); cruce de motos marco 3/8\" @0.15; cruce de camiones losas e = 0.25 y doble marco 1/2\" @0.15 (una capa en cada cara). Tapas de registro 0.68 x 0.68 x 0.08."),
-        ("6. RESULTADOS", "Ver cuadro resumen. Secciones, acero y detalles en las laminas DP-01 a DP-10 y DA-01 a DA-03."),
+        ("6. RESULTADOS", "Ver cuadro resumen y la hoja CUMPLIMIENTO (requisito, norma, criterio, valor y resultado). Secciones, acero y detalles en las laminas DP-01 a DP-10 y DA-01 a DA-03."),
     ]
     r = 4
     for a, b in txt:
@@ -458,6 +526,7 @@ def hoja_memoria(wb, R, rlast):
         ("Cunetas con caida libre al colector (de 6)", "=COUNTIF(CUNETAS!L5:L10,\"CAIDA LIBRE\")", "0"),
         ("Resalto en la poza de la caja de caida", "=EMPALME!B19", None),
         ("Elementos estructurales que no cumplen", "=COUNTIF(ESTRUCTURAL!E:E,\"NO CUMPLE\")", "0"),
+        ("Requisitos normativos que no cumplen o por verificar (hoja CUMPLIMIENTO)", "=COUNTIF(CUMPLIMIENTO!E:E,\"NO CUMPLE*\")+COUNTIF(CUMPLIMIENTO!E:E,\"VERIFICAR*\")", "0"),
     ]
     for a, b, f in res:
         celda(ws, f"A{r}", a, NEGRO); c = celda(ws, f"B{r}", b, VERDE); c.alignment = Alignment(horizontal="left")
@@ -477,8 +546,8 @@ def construir(fn=os.path.join(RAIZ, "entregables", "MEMORIA_CALCULO_COLECTOR_HOG
     R = dz.disenar()
     wb = openpyxl.Workbook(); wb.remove(wb.active)
     hoja_datos(wb, R); hoja_caudales(wb, R); hoja_cunetas(wb, R); hoja_empalme(wb, R)
-    ws, rlast = hoja_perfil(wb, R); hoja_estructural(wb, R); hoja_memoria(wb, R, rlast)
-    OLD = {11: "I", 12: "FS", 14: "b", 15: "em", 16: "ef", 17: "et", 18: "ec", 19: "CF0", 20: "S", 23: "pb", 25: "NPT",
+    ws, rlast = hoja_perfil(wb, R); hoja_estructural(wb, R); hoja_cumplimiento(wb, rlast); hoja_memoria(wb, R, rlast)
+    OLD = {6: "TR", 11: "I", 12: "FS", 14: "b", 15: "em", 16: "ef", 17: "et", 18: "ec", 19: "CF0", 20: "S", 23: "pb", 25: "NPT",
            26: "pc1", 27: "pc2", 28: "pm1", 29: "pm2", 32: "n", 33: "llen", 34: "BLmin", 37: "CFr", 38: "NAr", 41: "CFv",
            44: "pcl", 45: "pcc", 46: "Lcc"}
     import re

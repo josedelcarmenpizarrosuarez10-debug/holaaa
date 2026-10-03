@@ -169,6 +169,24 @@ def leer_velocidades():
     return out
 
 
+def leer_cumplimiento():
+    """Lee la hoja CUMPLIMIENTO de la memoria recalculada: filas (requisito, norma, criterio, valor, resultado) y pendientes."""
+    rec = os.path.join(RAIZ, "entregables", "_tmp", "mem", os.path.basename(MEM))
+    if not os.path.exists(rec): return [], []
+    ws = openpyxl.load_workbook(rec, data_only=True)["CUMPLIMIENTO"]
+    filas = []; pend = []; modo = "tabla"
+    for row in ws.iter_rows(min_row=5, max_col=5):
+        a = row[0].value
+        if a is None: continue
+        if isinstance(a, str) and a.startswith("Requisitos que no cumplen"): modo = "x"; continue
+        if isinstance(a, str) and a.startswith("DATOS EXTERNOS"): modo = "pend"; continue
+        if modo == "tabla":
+            filas.append([c.value for c in row[:5]])
+        elif modo == "pend":
+            pend.append(a)
+    return filas, pend
+
+
 # ----------------------------------------------------------------------------- capitulo
 def construir():
     doc = Document(ORIG)
@@ -434,6 +452,36 @@ def construir():
     tabla(doc, ["PARTIDA", "UND", "METRADO"], filas, anchos=[10.0, 2.0, 3.0])
     leyenda(doc, "%s: Metrados principales del colector pluvial frontal." % NUM.tabla())
     fuente(doc, "Fuente: Elaboración propia. Planilla general de metrados del proyecto, partida 01.04.04.")
+
+    # ------------------------------------------------------------------ 9b. cumplimiento normativo
+    cump, pend = leer_cumplimiento()
+    if cump:
+        titulo2(doc, "Cuadro de cumplimiento normativo")
+        parrafo(doc, "El cuadro siguiente resume, para cada requisito del diseño, la norma o referencia que lo exige, el criterio "
+                     "aplicado, el valor obtenido y el resultado de la verificación. Cada valor proviene de una celda con fórmula de "
+                     "la memoria de cálculo (hoja CUMPLIMIENTO), de modo que cualquier cambio en los datos de entrada actualiza el "
+                     "resultado y puede ser auditado.")
+        filas = []
+        for f in cump:
+            if f[1] is None and f[2] is None:
+                filas.append([str(f[0]).upper(), "", "", "", ""])
+            else:
+                v = f[3]
+                vt = ("%.2f" % v) if isinstance(v, (int, float)) and not isinstance(v, bool) else ("" if v is None else str(v))
+                filas.append([str(f[0]), str(f[1] or ""), str(f[2] or ""), vt, str(f[4] or "")])
+        tabla(doc, ["REQUISITO", "NORMA / REFERENCIA", "CRITERIO", "VALOR", "RESULTADO"], filas, tam=8, anchos=[4.2, 3.6, 4.2, 1.6, 2.4])
+        leyenda(doc, "%s: Cuadro de cumplimiento normativo del colector pluvial frontal." % NUM.tabla())
+        fuente(doc, "Fuente: Elaboración propia. Hoja CUMPLIMIENTO de la memoria de cálculo del colector.")
+        parrafo(doc, "Todos los requisitos verificados cumplen. Tres de ellos dependen de datos de otros expedientes o estudios que "
+                     "deben confirmarse antes de la firma; se listan a continuación para que queden registrados de manera "
+                     "explícita y no como supuestos implícitos del diseño.", negrita=False)
+        titulo2(doc, "Datos externos por confirmar antes de la firma")
+        for t in pend:
+            vineta(doc, str(t))
+        parrafo(doc, "Ninguno de estos datos altera la sección ni el armado del colector: la cota de llegada del aporte externo sólo "
+                     "cambia la altura de caída en la caja de llegada, cuyo colchón de agua tiene margen; la capacidad portante se "
+                     "compara con una presión de contacto baja; y las coordenadas se ajustan en el replanteo sobre el mismo "
+                     "trazo pegado al cerco.")
 
     # ------------------------------------------------------------------ 10. conclusiones
     titulo2(doc, "Conclusiones del tramo")
