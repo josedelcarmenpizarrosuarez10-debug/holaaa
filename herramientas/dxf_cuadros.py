@@ -21,17 +21,19 @@ def dp08(doc, ox, oy, R, T):
     # figuras de marcos
     f = lam.f; be = D["b_ext"]; g = geometria(10.0); h = g["h"]; ef = D["e_fondo"]; et = D["e_losa"]
     ox_, oy_ = lam.P(60, 300); k = 1.0
-    lam.rect(ox_, oy_, ox_ + (be - 0.08) * k, oy_ + (ef + h + et - 0.08) * k, "ACERO"); lam.rect(ox_ + 0.11 * k, oy_ + 0.11 * k, ox_ + (be - 0.08 - 0.22) * k, oy_ + (ef + h + et - 0.08 - 0.22) * k, "ACERO")
-    lam.poli([(ox_, oy_ + (ef + h + et - 0.08) * k), (ox_ + 0.30 * k, oy_ + (ef + h + et - 0.08) * k)], "ACERO", ancho=0.01)
-    lam.cota((ox_, oy_), (ox_ + (be - 0.08) * k, oy_), -6, texto="1.02"); lam.cota((ox_ + (be - 0.08) * k, oy_), (ox_ + (be - 0.08) * k, oy_ + (ef + h + et - 0.08) * k), 6, horizontal=False, texto="h + 0.17")
-    lam.texto((ox_ + 0.05, oy_ + (ef + h + et - 0.08) * k + 0.08), "gancho 0.30", 1.6, "TEXTOS")
-    lam.titulo_vista(85, 275, "MARCOS CERRADOS 3/8\" (tramo normal @0.20, motos @0.15)", "marco exterior 1.02 x (h+0.17) y marco interior 0.80+0.22 x (h+0.22); ganchos de 0.30 m", 150)
+    em = D["e_muro"]; w1 = be - em; h1 = ef / 2 + h + et / 2
+    lam.rect(ox_, oy_, ox_ + w1 * k, oy_ + h1 * k, "ACERO")
+    lam.poli([(ox_, oy_ + h1 * k), (ox_ + 0.30 * k, oy_ + h1 * k)], "ACERO", ancho=0.01)
+    lam.cota((ox_, oy_), (ox_ + w1 * k, oy_), -6, texto="%.2f" % w1); lam.cota((ox_ + w1 * k, oy_), (ox_ + w1 * k, oy_ + h1 * k), 6, horizontal=False, texto="h + %.3f" % (ef / 2 + et / 2))
+    lam.texto((ox_ + 0.05, oy_ + h1 * k + 0.08), "gancho 0.30", 1.6, "TEXTOS")
+    lam.titulo_vista(85, 275, "MARCO UNICO 3/8\" (tramo normal @0.20, motos @0.15)", "un marco cerrado en el eje de muros y losas: %.2f x (h + %.3f); gancho de 0.30 m; una capa (E.060 14.3.4)" % (w1, ef / 2 + et / 2), 150)
     ox_, oy_ = lam.P(300, 300)
-    for d in (0, 0.03):
-        lam.rect(ox_ + d, oy_ + d, ox_ + (be - 0.08) * k - d, oy_ + (ef + h + D["e_losa_camion"] - 0.08) * k - d, "ACERO")
-        lam.rect(ox_ + 0.11 * k + d, oy_ + 0.11 * k + d, ox_ + (be - 0.08 - 0.22) * k - d, oy_ + (ef + h + D["e_losa_camion"] - 0.08 - 0.22) * k - d, "ACERO")
-    lam.cota((ox_, oy_), (ox_ + (be - 0.08) * k, oy_), -6, texto="1.02"); lam.cota((ox_ + (be - 0.08) * k, oy_), (ox_ + (be - 0.08) * k, oy_ + (ef + h + D["e_losa_camion"] - 0.08) * k), 6, horizontal=False, texto="h + 0.32")
-    lam.titulo_vista(325, 275, "MARCOS DOBLES 1/2\" @0.15 (cruce de camiones)", "dos capas en muros y losas; losa superior e=0.25", 150)
+    efc = D["e_losa_camion"]
+    lam.rect(ox_, oy_, ox_ + (be - 0.08) * k, oy_ + (ef + h + efc - 0.08) * k, "ACERO")
+    lam.rect(ox_ + 0.11 * k, oy_ + (ef - 0.04) * k, ox_ + (be - 0.08 - 0.22) * k, oy_ + (ef + h + 0.04 - 0.08) * k, "ACERO")
+    lam.poli([(ox_, oy_ + (ef + h + efc - 0.08) * k), (ox_ + 0.30 * k, oy_ + (ef + h + efc - 0.08) * k)], "ACERO", ancho=0.01)
+    lam.cota((ox_, oy_), (ox_ + (be - 0.08) * k, oy_), -6, texto="1.02"); lam.cota((ox_ + (be - 0.08) * k, oy_), (ox_ + (be - 0.08) * k, oy_ + (ef + h + efc - 0.08) * k), 6, horizontal=False, texto="h + 0.32")
+    lam.titulo_vista(325, 275, "MARCO DOBLE 1/2\" @0.15 (cruce de camiones)", "marco exterior 1.02 x (h + 0.32) y marco interior 0.80 + 0.22 x (h + 0.08); una capa en cada cara; losa superior e=0.25", 150)
     # especificaciones
     esp = ["CONCRETO ARMADO: f'c = 210 kg/cm2 (colector, cajas, tapas, prolongacion de cunetas). Cemento tipo I; agregados limpios; slump 3\" a 4\".",
            "CONCRETO SIMPLE: solado f'c = 100 kg/cm2, e = 0.05 m; umbral de la poza f'c = 210 kg/cm2 vaciado con la losa de fondo.",

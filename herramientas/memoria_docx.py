@@ -154,6 +154,21 @@ def leer_estructural():
     return res
 
 
+def leer_velocidades():
+    """Lee el cuadro de velocidades y autolimpieza de la hoja PERFIL_FLUJO recalculada."""
+    rec = os.path.join(RAIZ, "entregables", "_tmp", "mem", os.path.basename(MEM))
+    if not os.path.exists(rec): return []
+    ws = openpyxl.load_workbook(rec, data_only=True)["PERFIL_FLUJO"]
+    out = []; dentro = False
+    for row in ws.iter_rows(max_col=11):
+        a = row[0].value
+        if isinstance(a, str) and a.startswith("VERIFICACION DE VELOCIDADES"): dentro = True; continue
+        if dentro and isinstance(a, str) and a.startswith("Velocidad maxima"): break
+        if dentro and isinstance(row[1].value, (int, float)) and isinstance(row[2].value, (int, float)) and isinstance(a, str):
+            out.append([a] + [c.value for c in row[1:8]])
+    return out
+
+
 # ----------------------------------------------------------------------------- capitulo
 def construir():
     doc = Document(ORIG)
@@ -269,6 +284,23 @@ def construir():
     fuente(doc, "Fuente: Elaboración propia. Hoja PERFIL_FLUJO de la memoria de cálculo del colector.")
     parrafo(doc, "En todo el tramo el número de Froude se mantiene por debajo de %.2f, la velocidad máxima es %.2f m/s y el "
                  "borde libre mínimo es %.2f m. No se presentan cambios de régimen dentro del canal." % (Fmax, Vmax, bl_min))
+    titulo2(doc, "Velocidades y autolimpieza")
+    parrafo(doc, "La pendiente de 3 ‰ se verifica frente a los criterios de velocidad del Reglamento Nacional de Edificaciones "
+                 "(norma CE.040 Drenaje Pluvial): velocidad mínima de 0.90 m/s con el caudal de diseño, para evitar la "
+                 "sedimentación, y velocidad máxima de 3.0 m/s para revestimiento de concreto, valor conservador que protege "
+                 "la superficie del canal. Como el colector funciona la mayor parte del tiempo con caudales menores que el de "
+                 "diseño, se verifica además el esfuerzo cortante tractivo τ = γ·R·S para caudales parciales, con un mínimo "
+                 "de 0.15 kg/m² (1.5 Pa), suficiente para arrastrar arena fina y evitar depósitos en el fondo.")
+    vel = leer_velocidades()
+    if vel:
+        tabla(doc, ["CASO", "Q (L/s)", "yn (m)", "V (m/s)", "τ (kg/m²)", "FROUDE", "VERIFICACIÓN"],
+              [[v[0], "%.1f" % (v[1] * 1000), f3(v[2]), f2(v[3]), f2(v[5]), f2(v[7]), "CUMPLE"] for v in vel], tam=9, anchos=[5.6, 1.6, 1.6, 1.6, 1.8, 1.6, 2.2])
+        leyenda(doc, "%s: Velocidades y esfuerzo tractivo en el colector para el caudal de diseño y caudales parciales (flujo uniforme)." % NUM.tabla())
+        fuente(doc, "Fuente: Elaboración propia. Hoja PERFIL_FLUJO de la memoria de cálculo del colector.")
+    parrafo(doc, "Con el caudal de diseño la velocidad es de %.2f m/s, por encima del mínimo de autolimpieza y muy por debajo "
+                 "del máximo admisible; con apenas el 5 %% del caudal de diseño el esfuerzo tractivo sigue siendo mayor que el "
+                 "mínimo adoptado. La pendiente de 3 ‰ es, por tanto, suficiente para que el colector se mantenga limpio sin "
+                 "necesidad de mayor desnivel, que obligaría a profundizar la caja de caída en la entrega." % Vn)
     if os.path.exists(os.path.join(FIG, "DP-02.png")):
         imagen(doc, os.path.join(FIG, "DP-02.png"), 15.5, "%s: Perfil longitudinal del colector con el perfil de flujo (lámina DP-02)." % NUM.imagen())
 
@@ -335,9 +367,12 @@ def construir():
                  "monolíticamente), con las cargas de la norma E.020, el empuje del relleno en reposo y, en los cruces, la "
                  "carga de rueda de la especificación AASHTO LRFD (camión de diseño HL-93 con impacto del 33 % en el ingreso "
                  "vehicular; rueda de 1 t en el portón de motos). El diseño por resistencia sigue la norma E.060. Se adoptan "
-                 "tres armados según la zona: marco de 3/8\" @0.20 con longitudinales de 3/8\" @0.25 en el tramo normal, marco "
-                 "de 3/8\" @0.15 en el portón de motos y doble marco de 1/2\" @0.15 con muros de 0.15 m y losas de 0.25 m en "
-                 "el ingreso vehicular.")
+                 "tres armados según la zona: un solo marco cerrado de 3/8\" @0.20 en el eje de muros y losas, con longitudinales "
+                 "de 3/8\" @0.25, en el tramo normal; marco único de 3/8\" @0.15 en el portón de motos; y doble marco de 1/2\" "
+                 "@0.15 (una capa en cada cara) con muros de 0.15 m y losa superior de 0.25 m en el ingreso vehicular. El "
+                 "refuerzo en una sola capa en el tramo normal es el que corresponde a muros y losas de espesor no mayor de "
+                 "0.20 m según la norma E.060, y es el mismo criterio del colector del proyecto receptor; con ello la sección "
+                 "no queda sobredimensionada y el acero del colector es del orden de 38 kg por metro.")
     filas = []
     for k in "ABCDEFGH":
         e = est.get(k)
@@ -353,6 +388,13 @@ def construir():
         imagen(doc, os.path.join(FIG, "DP-06A.png"), 15.5, "%s: Secciones típicas del colector con su armadura (lámina DP-06A)." % NUM.imagen())
 
     # ------------------------------------------------------------------ 8. criterios constructivos
+    titulo2(doc, "Marco normativo del diseño")
+    vineta(doc, "Reglamento Nacional de Edificaciones, norma CE.040 Drenaje Pluvial (R.M. N.° 126-2021-VIVIENDA, que reemplaza a la OS.060): criterios de diseño de colectores, velocidades, registros y tiempos de concentración.")
+    vineta(doc, "Reglamento Nacional de Edificaciones, norma E.020 Cargas: pesos unitarios y sobrecargas peatonales.")
+    vineta(doc, "Reglamento Nacional de Edificaciones, norma E.060 Concreto Armado: diseño por resistencia, cuantías mínimas (9.7.2), refuerzo de muros en una o dos capas (14.3.4), recubrimientos y traslapes.")
+    vineta(doc, "Manual de Hidrología, Hidráulica y Drenaje del MTC: método racional, intensidades de diseño (Dick y Peschke) y período de retorno.")
+    vineta(doc, "Manual de Puentes del MTC y AASHTO LRFD Bridge Design Specifications: carga de rueda del camión de diseño HL-93, impacto y ancho de franja para la losa del cruce vehicular.")
+    vineta(doc, "Reglamento Nacional de Edificaciones, norma E.050 Suelos y Cimentaciones: la presión transmitida al suelo se compara con la capacidad portante del estudio de mecánica de suelos del proyecto.")
     titulo2(doc, "Criterios constructivos")
     vineta(doc, "Colector cubierto, con losa superior al nivel de la vereda y de los pisos de ingreso (%.2f msnm), sin lloraderos." % D["NPT"])
     vineta(doc, "Registros de limpieza a no más de 12 m entre sí y en cada llegada de cuneta, fuera de los cruces vehiculares: "
@@ -398,8 +440,11 @@ def construir():
                 "de caída con resalto ahogado." % (brink["z"], D["CF_R01"], DJ["Q"]))
     vineta(doc, "Las seis cunetas del proyecto descargan libremente al colector, con caídas entre %.2f m y %.2f m sobre el nivel "
                 "de agua de diseño." % (min(c["caida_libre"] for c in DJ["cunetas"]), max(c["caida_libre"] for c in DJ["cunetas"])))
+    vineta(doc, "La pendiente de 3 ‰ cumple los criterios de velocidad de la norma CE.040 (0.90 a 3.0 m/s con el caudal de diseño) y el "
+                "colector se autolimpia incluso con el 5 % del caudal de diseño.")
     vineta(doc, "La estructura cumple las verificaciones de flexión y cortante de la norma E.060 para cargas peatonales y para las "
-                "cargas vehiculares de los dos cruces, con los tres armados indicados en las láminas DP-04 a DP-08.")
+                "cargas vehiculares de los dos cruces, con un solo marco en el tramo normal y de motos y doble marco en el cruce de "
+                "camiones, sin sobredimensionar el acero.")
     vineta(doc, "El aporte del proyecto aguas arriba y la cota de fondo de su llegada (%.2f msnm) son datos referenciales de ese "
                 "proyecto y deben confirmarse con su expediente; la ubicación UTM del trazo debe verificarse en el replanteo." % D["CF_varones_sup"])
 

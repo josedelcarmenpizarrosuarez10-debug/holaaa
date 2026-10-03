@@ -266,6 +266,39 @@ def hoja_perfil(wb, R):
     celda(ws, f"A{rr+3}", "Froude maximo en el colector (sin el brink)"); celda(ws, f"B{rr+3}", f"=MAX(I{r0+1}:I{rlast})", NEGRO, "0.000")
     celda(ws, f"A{rr+4}", "Estaciones que no cumplen"); celda(ws, f"B{rr+4}", f"=COUNTIF(N{r0}:N{rlast},\"NO CUMPLE\")", NEGRO)
     celda(ws, f"A{rr+5}", "Nivel de agua en 0+000 (msnm)"); celda(ws, f"B{rr+5}", f"=G{rlast}", NEGRO, "0.000")
+    # verificacion de velocidades y autolimpieza
+    rv = rr + 7
+    celda(ws, f"A{rv}", "VERIFICACION DE VELOCIDADES Y AUTOLIMPIEZA (RNE CE.040 Drenaje Pluvial; esfuerzo tractivo minimo)", NEG)
+    celda(ws, f"A{rv+1}", "Tirante normal por punto fijo: y(k+1) = (Q n (b + 2 y(k))^(2/3) / (b^(5/3) S^(1/2)))^(3/5), 8 iteraciones (columnas P a W). Esfuerzo tractivo tau = gamma R S.", SUB)
+    encabezado_tabla(ws, rv + 2, ["CASO", "Q (m3/s)", "yn (m)", "V (m/s)", "R (m)", "TAU (kg/m2)", "TAU (Pa)", "FROUDE", "V >= 0.90 m/s (CE.040)", "TAU >= 0.15 kg/m2", "V <= 3.0 m/s (concreto)"])
+    casos = [("Caudal de diseno del tramo (Varones + Refugio)", "=CAUDALES!$B$13"), ("Solo aporte de CAR Varones (CUI 2705619)", "=CAUDALES!$B$10/1000"),
+             ("Solo aporte del Hogar de Refugio (CUI 2675514)", "=CAUDALES!$B$11/1000"), ("50 % del caudal de diseno", "=0.50*CAUDALES!$B$13"),
+             ("25 % del caudal de diseno", "=0.25*CAUDALES!$B$13"), ("10 % del caudal de diseno (lluvia menor)", "=0.10*CAUDALES!$B$13"), ("5 % del caudal de diseno", "=0.05*CAUDALES!$B$13")]
+    for k, (nm, q) in enumerate(casos):
+        r = rv + 3 + k
+        ws.cell(row=r, column=1, value=nm).font = NEGRO
+        ws.cell(row=r, column=2, value=q).font = VERDE; ws.cell(row=r, column=2).number_format = "0.0000"
+        ws.cell(row=r, column=16, value=f"=(B{r}*DATOS!$B$32/(DATOS!$B$14*SQRT(DATOS!$B$20)))^(3/5)").font = NEGRO
+        for it in range(1, 8):
+            prev = L(16 + it - 1)
+            ws.cell(row=r, column=16 + it, value=f"=(B{r}*DATOS!$B$32*(DATOS!$B$14+2*{prev}{r})^(2/3)/(DATOS!$B$14^(5/3)*SQRT(DATOS!$B$20)))^(3/5)").font = NEGRO
+        for c in range(16, 24): ws.cell(row=r, column=c).number_format = "0.0000"
+        ws.cell(row=r, column=3, value=f"={L(23)}{r}").font = NEGRO
+        ws.cell(row=r, column=4, value=f"=B{r}/(DATOS!$B$14*C{r})").font = NEGRO
+        ws.cell(row=r, column=5, value=f"=DATOS!$B$14*C{r}/(DATOS!$B$14+2*C{r})").font = NEGRO
+        ws.cell(row=r, column=6, value=f"=1000*E{r}*DATOS!$B$20").font = NEGRO
+        ws.cell(row=r, column=7, value=f"=F{r}*9.81").font = NEGRO
+        ws.cell(row=r, column=8, value=f"=D{r}/SQRT(9.81*C{r})").font = NEGRO
+        ws.cell(row=r, column=9, value=(f"=IF(D{r}>=0.9,\"CUMPLE\",\"NO CUMPLE\")" if k == 0 else f"=IF(D{r}>=0.9,\"CUMPLE\",\"caudal parcial: ver tau\")")).font = NEGRO
+        ws.cell(row=r, column=10, value=f"=IF(F{r}>=0.15,\"CUMPLE\",\"NO CUMPLE\")").font = NEGRO
+        ws.cell(row=r, column=11, value=f"=IF(D{r}<=3.0,\"CUMPLE\",\"NO CUMPLE\")").font = NEGRO
+        for c, f in zip(range(3, 9), ["0.000", "0.00", "0.000", "0.000", "0.00", "0.00"]): ws.cell(row=r, column=c).number_format = f
+    rf = rv + 3 + len(casos)
+    celda(ws, f"A{rf+1}", "Velocidad maxima en el perfil de flujo (m/s)"); celda(ws, f"B{rf+1}", f"=MAX(H{r0}:H{rlast})", NEGRO, "0.00")
+    celda(ws, f"A{rf+2}", "Velocidad minima en el perfil de flujo con el caudal de diseno (m/s)"); celda(ws, f"B{rf+2}", f"=MIN(H{r0}:H{rlast})", NEGRO, "0.00")
+    celda(ws, f"A{rf+3}", "Verificacion global de velocidades"); celda(ws, f"B{rf+3}", f"=IF(AND(B{rf+1}<=3.0,B{rf+2}>=0.9,COUNTIF(J{rv+3}:J{rf-1},\"NO CUMPLE\")=0),\"CUMPLE\",\"NO CUMPLE\")", NEGRO)
+    celda(ws, f"A{rf+4}", "Criterios: velocidad minima 0.90 m/s con el caudal de diseno (autolimpieza, RNE CE.040); velocidad maxima 3.0 m/s para revestimiento de concreto (valor conservador); esfuerzo tractivo minimo 0.15 kg/m2 (1.5 Pa) para caudales parciales (arrastre de arena fina en colectores pluviales).", SUB)
+    ws["B200"] = f"=B{rf+3}"; ws["A200"] = "Velocidades:"; ws["A200"].font = SUB
     # G200: referencia fija usada por EMPALME -> copiamos
     ws["G200"] = f"=G{rlast}"; ws["G200"].font = NEGRO; ws["F200"] = "NA en 0+000:"; ws["F200"].font = SUB
     ws.freeze_panes = "B6"
@@ -323,20 +356,20 @@ def hoja_estructural(wb, R):
     it("AmC", "Cuantia minima", "=0.0018*100*{eC}*100", "cm2/m", "", "=IF({AsC}>={AmC},\"CUMPLE\",\"NO CUMPLE\")")
     it("VuC", "Cortante ultimo Vu", "=1.7*{Pc}*(1+{IM})*({Lc}-{dC}/100-{c}/2)/{Lc}/{EC}+1.4*{gc}*{eC}*{Lc}/2", "t/m", "rueda a d del apoyo")
     it("VcC", "Cortante resistente fVc", "=0.85*0.53*SQRT({fc})*100*{dC}/1000", "t/m", "", "=IF({VcC}>={VuC},\"CUMPLE\",\"NO CUMPLE\")")
-    sec("D. MURO e=0.15 - TRAMO NORMAL (marco 3/8\" @0.20) - marco cerrado monolitico")
+    sec("D. MURO e=0.15 - TRAMO NORMAL (marco unico 3/8\" @0.20 en el eje de la seccion) - marco cerrado monolitico")
     it("HD", "Altura del muro H", "={H}", "m", "altura interior maxima")
     it("pD", "Empuje en reposo en la base p", "={Ko}*{gs}*{HD}", "t/m2", "Ko gamma H")
     it("qD", "Sobrecarga lateral q", "={Ko}*{sp}", "t/m2", "Ko x s/c peatonal")
     it("MD", "Momento de servicio", "={pD}*{HD}^2/20+{qD}*{HD}^2/12", "t.m/m", "miembro de marco cerrado con extremos empotrados: p H2/20 (triangular) + q H2/12 (uniforme)")
     it("MuD", "Mu", "=1.7*{MD}", "t.m/m", "1.7 empuje")
-    it("dD", "Peralte efectivo d", "=(DATOS!$B$15-0.04)*100-0.48", "cm", "recubrimiento 4 cm")
+    it("dD", "Peralte efectivo d", "=DATOS!$B$15*100/2", "cm", "marco unico en el eje del muro (una capa; E.060 14.3.4 exige dos capas solo en muros de mas de 0.20 m)")
     it("AsD", "As colocado", "=0.71/0.20", "cm2/m", "3/8\" @0.20")
     it("aD", "a", "={AsD}*{fy}/(0.85*{fc}*100)", "cm", "")
     it("MnD", "Momento resistente fMn", "=0.9*{AsD}*{fy}*({dD}-{aD}/2)/100000", "t.m/m", "", "=IF({MnD}>={MuD},\"CUMPLE\",\"NO CUMPLE\")")
     it("AmD", "Cuantia minima 0.0018 b e", "=0.0018*100*DATOS!$B$15*100", "cm2/m", "", "=IF({AsD}>={AmD},\"CUMPLE\",\"NO CUMPLE\")")
     it("VuD", "Vu", "=1.7*({pD}*{HD}/2*0.6+{qD}*{HD}/2)", "t/m", "reaccion en la base (0.6 de la triangular)")
     it("VcD", "fVc", "=0.85*0.53*SQRT({fc})*100*{dD}/1000", "t/m", "", "=IF({VcD}>={VuD},\"CUMPLE\",\"NO CUMPLE\")")
-    sec("E. MURO e=0.15 - CRUCE DE MOTOS (marco 3/8\" @0.15)")
+    sec("E. MURO e=0.15 - CRUCE DE MOTOS (marco unico 3/8\" @0.15)")
     it("HE", "Altura del muro H", "={H}", "m", "")
     it("pE", "Empuje en reposo en la base p", "={Ko}*{gs}*{HE}", "t/m2", "")
     it("qE", "Sobrecarga lateral q", "={Ko}*{sl}", "t/m2", "Ko x s/c vehiculo liviano")
@@ -344,7 +377,7 @@ def hoja_estructural(wb, R):
     it("AsE", "As colocado", "=0.71/0.15", "cm2/m", "")
     it("aE", "a", "={AsE}*{fy}/(0.85*{fc}*100)", "cm", "")
     it("MnE", "Momento resistente fMn", "=0.9*{AsE}*{fy}*({dD}-{aE}/2)/100000", "t.m/m", "", "=IF({MnE}>={MuE},\"CUMPLE\",\"NO CUMPLE\")")
-    sec("F. MURO e=0.15 - CRUCE DE CAMIONES (doble marco 1/2\" @0.15)")
+    sec("F. MURO e=0.15 - CRUCE DE CAMIONES (doble marco 1/2\" @0.15: una capa en cada cara)")
     it("HF", "Altura del muro H", "={H}", "m", "")
     it("pF", "Empuje en reposo en la base p", "={Ko}*{gs}*{HF}", "t/m2", "")
     it("qF", "Sobrecarga lateral q", "={Ko}*{sc}", "t/m2", "Ko x s/c camion")
@@ -353,12 +386,12 @@ def hoja_estructural(wb, R):
     it("AsF", "As colocado (una capa)", "=1.27/0.15", "cm2/m", "")
     it("aF", "a", "={AsF}*{fy}/(0.85*{fc}*100)", "cm", "")
     it("MnF", "Momento resistente fMn", "=0.9*{AsF}*{fy}*({dF}-{aF}/2)/100000", "t.m/m", "", "=IF({MnF}>={MuF},\"CUMPLE\",\"NO CUMPLE\")")
-    sec("G. LOSA DE FONDO e=0.15 (marco 3/8\" @0.20)")
+    sec("G. LOSA DE FONDO e=0.15 (marco unico 3/8\" @0.20)")
     it("WG", "Peso de la estructura por metro", "={gc}*(DATOS!$B$14+2*DATOS!$B$15)*(DATOS!$B$17+DATOS!$B$16)+2*{gc}*DATOS!$B$15*{H}", "t/m", "losas + muros (altura maxima)")
     it("WwG", "Agua (colector lleno) y sobrecarga", "=1.0*DATOS!$B$14*{H}+{sp}*(DATOS!$B$14+2*DATOS!$B$15)", "t/m", "")
     it("qG", "Reaccion del suelo", "=({WG}+{WwG})/(DATOS!$B$14+2*DATOS!$B$15)", "t/m2", "uniforme")
     it("MuG", "Mu", "=1.5*{qG}*{Lc}^2/8", "t.m/m", "1.5 (D+L) wL2/8, simplemente apoyada (conservador)")
-    it("dG", "Peralte efectivo d", "=(DATOS!$B$16-0.04)*100-0.48", "cm", "")
+    it("dG", "Peralte efectivo d", "=DATOS!$B$16*100/2", "cm", "marco unico en el eje de la losa de fondo (una capa)")
     it("AsG", "As colocado", "=0.71/0.20", "cm2/m", "")
     it("aG", "a", "={AsG}*{fy}/(0.85*{fc}*100)", "cm", "")
     it("MnG", "Momento resistente fMn", "=0.9*{AsG}*{fy}*({dG}-{aG}/2)/100000", "t.m/m", "", "=IF({MnG}>={MuG},\"CUMPLE\",\"NO CUMPLE\")")
@@ -401,7 +434,7 @@ def hoja_memoria(wb, R, rlast):
         ("2. NORMATIVA", "RNE CE.040 Drenaje Pluvial (RM 126-2021-VIVIENDA); RNE E.020 Cargas; RNE E.060 Concreto Armado; AASHTO LRFD (rueda HL-93 en el cruce de camiones); Chow, Hidraulica de canales abiertos (paso estandar)."),
         ("3. HIDROLOGIA", "Metodo Racional con los coeficientes y areas de las memorias HIDRO-CE040 de cada proyecto, TR = 25 anos, tc = 15 min, I = 155.66 mm/h, FS = 1.15. Q = 258.7 + 301.9 = 560.6 L/s."),
         ("4. HIDRAULICA", "Colector cubierto de concreto armado b = 0.80 m, S = 0.30 %, n = 0.015. El fondo inicial (259.10) queda bajo las cunetas de arquitectura (NCF 259.70 a 260.12) y el fondo final (258.89) sobre el R-01 del receptor (258.72). La entrega es por caja de caida con poza de disipacion deprimida 0.40 m, ahogada por el tirante del receptor; el control del perfil es el tirante critico en el brink y el flujo en el colector es subcritico (F <= 0.90). El aporte externo cae en una caja de llegada con colchon de agua."),
-        ("5. ESTRUCTURAS", "Losa superior e = 0.10 (tramo normal y cruce de motos) y e = 0.25 en el cruce de camiones; muros e = 0.15 (altura interior 1.40 a 1.65 m) como marco cerrado monolitico; losa de fondo e = 0.15; tapas de registro 0.68 x 0.68 x 0.08."),
+        ("5. ESTRUCTURAS", "Marco cerrado monolitico: losa superior e = 0.10, muros e = 0.15 (altura interior 1.40 a 1.65 m) y losa de fondo e = 0.15 con un solo marco 3/8\" @0.20 en el eje de la seccion y longitudinales 3/8\" @0.25 (una capa; E.060 14.3.4); cruce de motos marco 3/8\" @0.15; cruce de camiones losas e = 0.25 y doble marco 1/2\" @0.15 (una capa en cada cara). Tapas de registro 0.68 x 0.68 x 0.08."),
         ("6. RESULTADOS", "Ver cuadro resumen. Secciones, acero y detalles en las laminas DP-01 a DP-10 y DA-01 a DA-03."),
     ]
     r = 4
@@ -418,6 +451,7 @@ def hoja_memoria(wb, R, rlast):
         ("Borde libre minimo bajo losa (m)", f"=PERFIL_FLUJO!B{rlast+4}", "0.000"),
         ("Froude maximo en el colector", f"=PERFIL_FLUJO!B{rlast+5}", "0.00"),
         ("Estaciones hidraulicas que no cumplen", f"=PERFIL_FLUJO!B{rlast+6}", "0"),
+        ("Velocidades y autolimpieza (0.90 a 3.0 m/s; tau >= 0.15 kg/m2)", "=PERFIL_FLUJO!B200", None),
         ("Cunetas con caida libre al colector (de 6)", "=COUNTIF(CUNETAS!L5:L10,\"CAIDA LIBRE\")", "0"),
         ("Resalto en la poza de la caja de caida", "=EMPALME!B19", None),
         ("Elementos estructurales que no cumplen", "=COUNTIF(ESTRUCTURAL!E:E,\"NO CUMPLE\")", "0"),

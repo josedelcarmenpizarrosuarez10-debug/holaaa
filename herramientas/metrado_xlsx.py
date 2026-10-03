@@ -88,7 +88,7 @@ def hoja_tramos(wb, segs):
     r0 = 5 + len(par) + 2
     enc = ["TRAMO", "PROG. INICIO", "PROG. FIN", "LONGITUD (m)", "ZONA", "e LOSA SUP. (m)", "ALTURA INT. h (m)", "Hz EXCAV. (m)", "NPT - TERRENO (m)", "ANCHO EXT. (m)", "ANCHO ZANJA (m)",
            "TRAZO (m2)", "EXCAVACION (m3)", "REFINE (m2)", "RELLENO LATERAL (m3)", "RELLENO FRANJA (m3)", "SOLADO (m2)", "C. LOSA FONDO (m3)", "C. MUROS (m3)", "C. LOSA SUP. (m3)", "ENCOFRADO (m2)", "ACABADO (m2)",
-           "ESPAC. MARCOS (m)", "CAPAS", "DIAM. MARCOS", "N MARCOS", "PERIM. EXT. (m)", "PERIM. INT. (m)", "ACERO MARCOS (kg)", "ESPAC. LONG. (m)", "N BARRAS LONG.", "ACERO LONG. (kg)"]
+           "ESPAC. MARCOS (m)", "CAPAS (1 = marco unico en el eje; 2 = ext. + int.)", "DIAM. MARCOS", "N JUEGOS DE MARCOS", "PERIM. MARCO 1 (m)", "PERIM. MARCO 2 (m)", "ACERO MARCOS (kg)", "ESPAC. LONG. (m)", "N BARRAS LONG.", "ACERO LONG. (kg)"]
     for j, h in enumerate(enc):
         c = ws.cell(row=r0, column=j + 1, value=h); c.font = bold; c.fill = fill; c.border = bd; c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
     ws.row_dimensions[r0].height = 45
@@ -98,9 +98,10 @@ def hoja_tramos(wb, segs):
                 "=%s+2*%s" % (b, em), "=J%s+2*%s" % (R, sob),
                 "=K%s*D%s" % (R, R), "=K%s*H%s*D%s" % (R, R, R), "=(J%s+0.10)*D%s" % (R, R), "=2*%s*H%s*D%s" % (sob, R, R), "=%s*I%s*D%s" % (fr, R, R), "=(J%s+0.10)*D%s" % (R, R),
                 "=J%s*%s*D%s" % (R, ef, R), "=2*%s*G%s*D%s" % (em, R, R), "=J%s*F%s*D%s" % (R, R, R), "=D%s*(2*G%s+2*(%s+G%s+F%s)+%s)" % (R, R, ef, R, R, b), "=J%s*D%s" % (R, R),
-                s["s"], s["capas"], s["marcos_dia"] + '"', "=ROUNDUP(D%s/W%s,0)*X%s" % (R, R, R), "=2*(J%s-2*%s)+2*(%s+G%s+F%s-2*%s)+%s" % (R, rec, ef, R, R, rec, gan),
-                "=2*(%s+2*(%s-%s))+2*(G%s+2*(%s-%s))+%s" % (b, em, rec, R, em, rec, gan), "=Z%s*(AA%s+AB%s)*IF(Y%s=\"1/2\"\"\",%s,%s)" % (R, R, R, R, p12, p38),
-                s["sl"], "=ROUND(AA%s/AD%s,0)+ROUND(AB%s/AD%s,0)" % (R, R, R, R), "=AE%s*D%s*(1+%s/%s)*%s" % (R, R, tr, lb, p38)]
+                s["s"], s["capas"], s["marcos_dia"] + '"', "=ROUNDUP(D%s/W%s,0)" % (R, R),
+                "=IF(X%s=2,2*(J%s-2*%s)+2*(%s+G%s+F%s-2*%s)+%s,2*(J%s-%s)+2*(%s/2+G%s+F%s/2)+%s)" % (R, R, rec, ef, R, R, rec, gan, R, em, ef, R, R, gan),
+                "=IF(X%s=2,2*(%s+2*(%s-%s))+2*(G%s+2*(%s-%s))+%s,0)" % (R, b, em, rec, R, em, rec, gan), "=Z%s*(AA%s+AB%s)*IF(Y%s=\"1/2\"\"\",%s,%s)" % (R, R, R, R, p12, p38),
+                s["sl"], "=ROUND(AA%s/AD%s,0)+IF(AB%s>0,ROUND(AB%s/AD%s,0),0)" % (R, R, R, R, R), "=AE%s*D%s*(1+%s/%s)*%s" % (R, R, tr, lb, p38)]
         for j, v in enumerate(vals):
             c = ws.cell(row=r, column=j + 1, value=v); c.border = bd
             c.font = azul if (isinstance(v, (int, float)) and not isinstance(v, bool)) else nor
@@ -151,7 +152,7 @@ def hoja_acero(wb, rt_tramos, filas_cajas):
         c = ws.cell(row=3, column=j + 1, value=h); c.font = bold; c.fill = fill; c.border = bd; c.alignment = Alignment(horizontal="center", wrap_text=True)
     T = "'COLECTOR TRAMOS'"; Rg = MC.registros(); n = Rg["n"]
     rows = [
-        ("Colector: marcos cerrados (tramo normal, motos y camiones)", "3/8\" y 1/2\"", "cerrado", None, None, "=SUMPRODUCT(%s!Z%d:Z%d,%s!AA%d:AA%d+%s!AB%d:AB%d)" % (T, 22, rt_tramos - 1, T, 22, rt_tramos - 1, T, 22, rt_tramos - 1), None, "=%s!AC%d" % (T, rt_tramos), "hoja COLECTOR TRAMOS (peso segun diametro por tramo)"),
+        ("Colector: marcos cerrados (marco unico en tramo normal y motos; doble en camiones)", "3/8\" y 1/2\"", "cerrado", None, None, "=SUMPRODUCT(%s!Z%d:Z%d,%s!AA%d:AA%d+%s!AB%d:AB%d)" % (T, 22, rt_tramos - 1, T, 22, rt_tramos - 1, T, 22, rt_tramos - 1), None, "=%s!AC%d" % (T, rt_tramos), "hoja COLECTOR TRAMOS (peso segun diametro por tramo)"),
         ("Colector: barras longitudinales", "3/8\"", "recta con traslape", None, None, "=%s!AF%d/%s!$B$14" % (T, rt_tramos, T), "=%s!$B$14" % T, "=F5*G5", "incluye traslape 0.40 cada 9.00 m"),
         ("Cajas CL y CC: malla 3/8\" @0.20 ambas caras", "3/8\"", "malla", None, None, "=(%s!L%d+%s!L%d)/%s!$B$14" % (T, filas_cajas["CL"], T, filas_cajas["CC"], T), "=%s!$B$14" % T, "=F6*G6", "hoja COLECTOR TRAMOS, cuadro de cajas"),
         ("Registros: refuerzo de borde de abertura", "1/2\"", "recta", "=%d*8" % n, 1.40, "=D7*E7", "=%s!$B$15" % T, "=F7*G7", "2 barras por lado, L=1.40"),

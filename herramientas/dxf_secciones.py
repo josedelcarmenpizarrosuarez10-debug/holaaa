@@ -45,21 +45,22 @@ def seccion(lam, xmm, ymm, p, R, T, esc_txt="1/25", nombre=None, con_cerco=True,
         lam.achurado(pts, escala_mm=0.5)
     # acero: marco cerrado (eje de las barras a 0.04 de la cara)
     r = 0.04
-    lam.rect(xl + r, z0 + r, xr - r, zs - r, "ACERO")
-    lam.rect(xl + g["em"] - r, zf - r, xr - g["em"] + r, zt + r, "ACERO")
     if g["tipo"] == "CAMION":
-        lam.rect(xl + r + 0.03, z0 + r + 0.03, xr - r - 0.03, zs - r - 0.03, "ACERO")
-        lam.rect(xl + g["em"] - r - 0.03, zf - r - 0.03, xr - g["em"] + r + 0.03, zt + r + 0.03, "ACERO")
-    # barras longitudinales (puntos) @0.25 / @0.20 en ambas capas
+        # doble marco: exterior e interior (una capa en cada cara)
+        rects = [(xl + r, z0 + r, xr - r, zs - r), (xl + g["em"] - r, zf - r, xr - g["em"] + r, zt + r)]
+    else:
+        # marco unico en el eje de muros y losas
+        rects = [(xl + g["em"] / 2, (z0 + zf) / 2, xr - g["em"] / 2, (zt + zs) / 2)]
+    for (x1, y1, x2, y2) in rects:
+        lam.rect(x1, y1, x2, y2, "ACERO")
+    # barras longitudinales (puntos) @0.25 / @0.20 sobre cada marco
     sep = 0.20 if g["tipo"] == "CAMION" else 0.25
     def puntos_en(x1, y1, x2, y2):
         L = math.hypot(x2 - x1, y2 - y1); n = max(1, int(L / sep));
         for k in range(n + 1):
             t = k / n; lam.bloque("ACERO-38", (x1 + (x2 - x1) * t, y1 + (y2 - y1) * t), 1.0)
-    for (x1, y1, x2, y2) in [(xl + r, z0 + r, xr - r, z0 + r), (xl + r, zs - r, xr - r, zs - r), (xl + r, z0 + r, xl + r, zs - r), (xr - r, z0 + r, xr - r, zs - r),
-                             (xl + g["em"] - r, zf - r, xr - g["em"] + r, zf - r), (xl + g["em"] - r, zt + r, xr - g["em"] + r, zt + r),
-                             (xl + g["em"] - r, zf - r, xl + g["em"] - r, zt + r), (xr - g["em"] + r, zf - r, xr - g["em"] + r, zt + r)]:
-        puntos_en(x1, y1, x2, y2)
+    for (x1, y1, x2, y2) in rects:
+        puntos_en(x1, y1, x2, y1); puntos_en(x1, y2, x2, y2); puntos_en(x1, y1, x1, y2); puntos_en(x2, y1, x2, y2)
     # agua
     na = perfil_en(R, p, "NA"); y = na - g["cf"]
     lam.linea((xl + g["em"], zf + y), (xr - g["em"], zf + y), "AGUA")
@@ -113,9 +114,9 @@ def dp04(doc, ox, oy, R, T):
                               ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", "piso terminado +260.60"),
                               ("linea", "TERRENO-EXISTENTE", "terreno existente"), ("linea", "EXCAVACION", "limite de excavacion"), ("rect", "CERCO", "cerco perimetrico existente")], 1.8)
         lam.notas(300, 150, "NOTAS", ["1. Altura interior h segun el perfil longitudinal (1.40 m en 0+000 a 1.61 m en el brink).",
-                                        "2. Recubrimiento 0.04 m en muros y losa de fondo; 0.025 m en la losa superior del tramo normal; 0.04 m en el cruce de camiones.",
+                                        "2. Tramo normal y cruce de motos: un solo marco cerrado en el eje de muros y losas (una capa, E.060 14.3.4); recubrimiento minimo 0.04 m en muros y losa de fondo y 0.025 m en la losa superior.",
                                         "3. Junta de tecnopor de 1\" entre el muro lado predio y el cimiento del cerco; junta de 1\" entre la losa superior y el piso adyacente.",
-                                        "4. El cruce de camiones (S-04) lleva losa superior e=0.25 y doble marco de 1/2\"; el cruce de motos (S-05) marco de 3/8\" @0.15.",
+                                        "4. El cruce de camiones (S-04) lleva losas e=0.25 y doble marco de 1/2\" @0.15 (marco exterior e interior, recubrimiento 0.04); el cruce de motos (S-05) marco unico de 3/8\" @0.15.",
                                         "5. Los registros no se ubican dentro de los cruces vehiculares."], 1.7)
         lams.append(lam)
     return lams
@@ -147,10 +148,14 @@ def iso_colector(lam, xmm, ymm, p, R, L=1.0, esc=1.0, con_tapa=True, con_agua=Tr
         B.caja_iso(lam, tx, ty, ef + h + et, 0.68, 0.68, 0.012, capas=("ISO-TAPA", "ISO-TAPA", "ISO-TAPA"), **kw)
     # acero en la cara de corte (frontal, y = L): marco
     r = 0.04
-    m = [T(r, L, r), T(be - r, L, r), T(be - r, L, ef + h + et - r), T(r, L, ef + h + et - r)]
-    lam.poli(m, "ACERO", cerrada=True)
-    m2 = [T(e - r, L, ef - r), T(be - e + r, L, ef - r), T(be - e + r, L, ef + h + r), T(e - r, L, ef + h + r)]
-    lam.poli(m2, "ACERO", cerrada=True)
+    if g["tipo"] == "CAMION":
+        m = [T(r, L, r), T(be - r, L, r), T(be - r, L, ef + h + et - r), T(r, L, ef + h + et - r)]
+        lam.poli(m, "ACERO", cerrada=True)
+        m2 = [T(e - r, L, ef - r), T(be - e + r, L, ef - r), T(be - e + r, L, ef + h + r), T(e - r, L, ef + h + r)]
+        lam.poli(m2, "ACERO", cerrada=True)
+    else:
+        m = [T(e / 2, L, ef / 2), T(be - e / 2, L, ef / 2), T(be - e / 2, L, ef + h + et / 2), T(e / 2, L, ef + h + et / 2)]
+        lam.poli(m, "ACERO", cerrada=True)
     if etiquetas:
         lam.textos(T(be + 0.3, 0, ef + h + et + 0.1), etiquetas, 1.8)
     return T
@@ -187,7 +192,7 @@ def dp06a(doc, ox, oy, R, T):
                           ("linea", "ACERO", "marco de acero (barra cerrada)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal"), ("linea", "AGUA", "nivel de agua de diseno"),
                           ("rect", "CERCO", "cerco perimetrico existente"), ("linea", "JUNTAS", "junta de tecnopor 1\"")], 1.8)
     lam.notas(300, 110, "NOTAS", ["1. Muros e=0.15 en todo el tramo; losa de fondo e=0.15; losa superior e=0.10 (e=0.25 en el cruce de camiones).",
-                                    "2. En el cruce de camiones el acero de muros y losas va en ambas caras (doble marco 1/2\" @0.15); losa de fondo tambien e=0.25 en ese tramo.",
+                                    "2. Tramo normal y motos: marco unico en el eje de la seccion. En el cruce de camiones el acero va en ambas caras (doble marco 1/2\" @0.15) y la losa superior es e=0.25.",
                                     "3. El tramo diagonal (quiebres a 45 grados) tiene la seccion tipica A-A; en las esquinas las barras llevan ganchos de 0.40 m (ver DP-09).",
                                     "4. Empalme de las cunetas: ver DP-06C. Registro, tapa y junta: ver DP-06B."], 1.7)
     return lam

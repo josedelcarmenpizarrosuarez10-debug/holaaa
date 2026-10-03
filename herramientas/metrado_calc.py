@@ -33,6 +33,21 @@ def cortes():
     return sorted(c)
 
 
+GANCHO = 0.30
+
+
+def perimetros_marco(zona, be, em, ef, h, et):
+    """Perimetros de las barras de un juego de marcos por espaciamiento.
+    Tramo normal y motos: un solo marco cerrado en el eje de muros y losas (una capa; E.060 14.3.4).
+    Cruce de camiones: marco exterior + marco interior (una capa en cada cara)."""
+    if zona == "CAMION":
+        per_ext = 2 * (be - 2 * RECUB) + 2 * (ef + h + et - 2 * RECUB) + GANCHO
+        per_int = 2 * (be - 2 * em + 2 * (em - RECUB)) + 2 * (h + 2 * (em - RECUB)) + GANCHO
+        return per_ext, per_int
+    per_c = 2 * (be - em) + 2 * (ef / 2 + h + et / 2) + GANCHO
+    return per_c, 0.0
+
+
 def tramos():
     ps, zs = terreno(); out = []
     cs = cortes()
@@ -56,14 +71,13 @@ def tramos():
         # acero: marcos cerrados exterior e interior (una barra cada uno por espaciamiento)
         s = 0.15 if zona in ("MOTOS", "CAMION") else 0.20
         dia = "1/2" if zona == "CAMION" else "3/8"
-        per_ext = 2 * (be - 2 * RECUB) + 2 * (ef + h + et - 2 * RECUB) + 0.30
-        per_int = 2 * (D["b"] + 2 * (em - RECUB)) + 2 * (h + 2 * (em - RECUB)) + 0.30
+        per1, per2 = perimetros_marco(zona, be, em, ef, h, et)
         n = int(L / s) + (1 if a == 0 else 0)
         capas = 2 if zona == "CAMION" else 1
-        t["marcos_n"] = n * capas; t["marcos_L"] = (per_ext + per_int) * n * capas; t["marcos_dia"] = dia
+        t["marcos_n"] = n; t["marcos_L"] = (per1 + per2) * n; t["marcos_dia"] = dia; t["capas"] = capas
         t["marcos_kg"] = t["marcos_L"] * PESO[dia]
         sl = 0.20 if zona == "CAMION" else 0.25
-        nb = int(round(per_ext / sl)) + int(round(per_int / sl))
+        nb = int(round(per1 / sl)) + (int(round(per2 / sl)) if per2 > 0 else 0)
         t["long_n"] = nb; t["long_L"] = nb * L * (1 + TRASLAPE / L_BARRA); t["long_kg"] = t["long_L"] * PESO["3/8"]
         out.append(t)
     return out
@@ -87,12 +101,11 @@ def segmentos():
         et = ts[0]["et"]; dia = ts[0]["marcos_dia"]; em = D["e_muro"]; ef = D["e_fondo"]; be = D["b"] + 2 * em
         sp = 0.15 if zona in ("MOTOS", "CAMION") else 0.20; capas = 2 if zona == "CAMION" else 1; sl = 0.20 if zona == "CAMION" else 0.25
         L2 = round(b, 2) - round(a, 2)
-        n = math.ceil(round(L2 / sp, 6)) * capas
-        per_ext = 2 * (be - 2 * RECUB) + 2 * (ef + h + et - 2 * RECUB) + 0.30
-        per_int = 2 * (D["b"] + 2 * (em - RECUB)) + 2 * (h + 2 * (em - RECUB)) + 0.30
-        nb = int(round(per_ext / sl)) + int(round(per_int / sl))
+        n = math.ceil(round(L2 / sp, 6))
+        per1, per2 = perimetros_marco(zona, be, em, ef, h, et)
+        nb = int(round(per1 / sl)) + (int(round(per2 / sl)) if per2 > 0 else 0)
         segs.append(dict(p1=a, p2=b, L=Ls, zona=zona, nombre=nombre, h=h, Hz=Hz, dnpt=dnpt, et=et, marcos_dia=dia, s=sp, capas=capas, sl=sl,
-                         marcos_n=n, marcos_L=n * (per_ext + per_int), marcos_kg=n * (per_ext + per_int) * PESO[dia],
+                         marcos_n=n, marcos_L=n * (per1 + per2), marcos_kg=n * (per1 + per2) * PESO[dia], per1=per1, per2=per2,
                          long_n=nb, long_L=nb * L2 * (1 + TRASLAPE / L_BARRA), long_kg=nb * L2 * (1 + TRASLAPE / L_BARRA) * PESO["3/8"]))
     return segs
 
@@ -182,9 +195,9 @@ def cuadro_doblado():
     def f(k, zona=None, dia=None):
         return sum(t[k] for t in SG if (zona is None or t["zona"] == zona) and (dia is None or t["marcos_dia"] == dia))
     filas = [
-        ("Colector: marcos tramo normal", "marco cerrado doble (ext. + int.)", '3/8"', "0.20", "ver figura, h + 0.70", f("marcos_L", "NORMAL"), f("marcos_kg", "NORMAL")),
-        ("Colector: marcos cruce de motos", "marco cerrado doble (ext. + int.)", '3/8"', "0.15", "ver figura", f("marcos_L", "MOTOS"), f("marcos_kg", "MOTOS")),
-        ("Colector: marcos cruce de camiones (2 capas)", "marco cerrado doble (ext. + int.)", '1/2"', "0.15", "ver figura", f("marcos_L", "CAMION"), f("marcos_kg", "CAMION")),
+        ("Colector: marcos tramo normal", "marco unico cerrado (eje de la seccion)", '3/8"', "0.20", "ver figura: 2 x (0.95 + h + 0.125) + 0.30", f("marcos_L", "NORMAL"), f("marcos_kg", "NORMAL")),
+        ("Colector: marcos cruce de motos", "marco unico cerrado (eje de la seccion)", '3/8"', "0.15", "ver figura", f("marcos_L", "MOTOS"), f("marcos_kg", "MOTOS")),
+        ("Colector: marcos cruce de camiones", "marco doble (exterior + interior)", '1/2"', "0.15", "ver figura", f("marcos_L", "CAMION"), f("marcos_kg", "CAMION")),
         ("Colector: barras longitudinales", "recta con traslape 0.40", '3/8"', "0.25 / 0.20", "continua", f("long_L"), f("long_kg")),
         ("Cajas CL y CC: muros y losas", "malla 3/8\" @0.20 ambas caras", '3/8"', "0.20", "ver DP-07", sum(c["acero_kg"] for c in R["cajas"].values()) / PESO["3/8"], sum(c["acero_kg"] for c in R["cajas"].values())),
         ("Registros: refuerzo de borde de abertura", "recta", '1/2"', "2 por lado", "1.40", 8 * 1.40 * Rg["n"], Rg["acero_borde_kg"]),
