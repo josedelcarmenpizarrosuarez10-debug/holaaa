@@ -22,11 +22,11 @@ CAPAS = [
     ("MARCO", 7, "CONTINUOUS"), ("ROTULO", 7, "CONTINUOUS"), ("ROTULO-TEXTO", 7, "CONTINUOUS"),
     ("TITULOS", 7, "CONTINUOUS"), ("TEXTOS", 7, "CONTINUOUS"), ("TEXTOS-NOTAS", 7, "CONTINUOUS"),
     ("LEYENDA", 7, "CONTINUOUS"), ("COTAS", 6, "CONTINUOUS"), ("NIVELES", 7, "CONTINUOUS"),
-    ("LLAMADAS", 8, "CONTINUOUS"), ("EJE-COLECTOR", 8, "CENTER"), ("CONCRETO", 5, "CONTINUOUS"),
-    ("CONCRETO-OCULTO", 5, "HIDDEN"), ("CONCRETO-ACHURADO", 8, "CONTINUOUS"), ("SOLADO", 8, "CONTINUOUS"),
-    ("ACERO", 1, "CONTINUOUS"), ("ACERO-LONG", 94, "CONTINUOUS"), ("ACERO-PUNTOS", 94, "CONTINUOUS"), ("REGISTRO", 32, "CONTINUOUS"),
+    ("LLAMADAS", 8, "CONTINUOUS"), ("EJE-COLECTOR", 8, "CENTER"), ("CONCRETO", 94, "CONTINUOUS"),
+    ("CONCRETO-OCULTO", 94, "HIDDEN"), ("CONCRETO-ACHURADO", 8, "CONTINUOUS"), ("SOLADO", 8, "CONTINUOUS"),
+    ("ACERO", 1, "CONTINUOUS"), ("ACERO-LONG", 5, "CONTINUOUS"), ("ACERO-PUNTOS", 5, "CONTINUOUS"), ("REGISTRO", 32, "CONTINUOUS"),
     ("REGISTRO-TAPA", 30, "CONTINUOUS"), ("MARCO-METALICO", 32, "CONTINUOUS"), ("JUNTAS", 8, "DASHED"),
-    ("CRUCE-VEHICULAR", 30, "CONTINUOUS"), ("CUNETA", 92, "CONTINUOUS"), ("CUNETA-OCULTA", 92, "HIDDEN"),
+    ("CRUCE-VEHICULAR", 30, "CONTINUOUS"), ("CUNETA", 3, "CONTINUOUS"), ("CUNETA-OCULTA", 3, "HIDDEN"),
     ("POZA", 34, "CONTINUOUS"), ("TERRENO", 7, "CONTINUOUS"), ("TERRENO-EXISTENTE", 8, "DASHED"),
     ("TERRENO-ACHURADO", 8, "CONTINUOUS"), ("EXCAVACION", 8, "HIDDEN"), ("RELLENO", 32, "CONTINUOUS"),
     ("AGUA", 150, "DASHED"), ("AGUA-SIMBOLO", 150, "CONTINUOUS"), ("AGUA-RELLENO", 150, "CONTINUOUS"), ("FLUJO", 150, "CONTINUOUS"),
@@ -92,10 +92,12 @@ def crear_bloques(doc):
     b.add_solid([(0, 10), (-3, -5), (0, -2)], dxfattribs={"layer": "TEXTOS"})
     b.add_lwpolyline([(0, 10), (3, -5), (0, -2)], close=True, dxfattribs={"layer": "TEXTOS"})
     b.add_text("N", height=4, dxfattribs={"layer": "TEXTOS"}).set_placement((0, 12), align=TA.MIDDLE_CENTER)
-    b = doc.blocks.new("ACERO-38")
-    b.add_lwpolyline([(-0.002, 0), (0.002, 0)], close=True, dxfattribs={"layer": "ACERO-PUNTOS", "const_width": 0.004})
-    b = doc.blocks.new("ACERO-12")
-    b.add_lwpolyline([(-0.003, 0), (0.003, 0)], close=True, dxfattribs={"layer": "ACERO-PUNTOS", "const_width": 0.006})
+    # barras longitudinales vistas en seccion: circulo relleno (radio 1 unidad; se inserta con escala = lam.f x 1.3 -> 1.3 mm de radio en papel)
+    for nombre, rad in (("ACERO-38", 1.0), ("ACERO-12", 1.25)):
+        b = doc.blocks.new(nombre)
+        b.add_circle((0, 0), rad, dxfattribs={"layer": "ACERO-PUNTOS", "color": 5})
+        h = b.add_hatch(dxfattribs={"layer": "ACERO-PUNTOS", "color": 5}); h.set_solid_fill(color=5)
+        h.paths.add_polyline_path([(-rad, 0, 1.0), (rad, 0, 1.0)], is_closed=True)
     b = doc.blocks.new("REGISTRO-PLANTA")
     b.add_lwpolyline([(-0.35, -0.35), (0.35, -0.35), (0.35, 0.35), (-0.35, 0.35)], close=True, dxfattribs={"layer": "MARCO-METALICO"})
     b.add_lwpolyline([(-0.30, -0.30), (0.30, -0.30), (0.30, 0.30), (-0.30, 0.30)], close=True, dxfattribs={"layer": "REGISTRO"})
@@ -201,10 +203,25 @@ class Lamina:
         h.paths.add_polyline_path(pts, is_closed=True)
         return h
 
+    def flecha(self, p_from, p_to, capa="LLAMADAS", tam_mm=2.2):
+        """Linea con punta de flecha (triangulo relleno) en p_to."""
+        self.linea(p_from, p_to, capa)
+        dx, dy = p_to[0] - p_from[0], p_to[1] - p_from[1]; L = math.hypot(dx, dy)
+        if L < 1e-9: return
+        ux, uy = dx / L, dy / L; t = tam_mm * self.f; w = 0.35 * t
+        base = (p_to[0] - ux * t, p_to[1] - uy * t)
+        tri = [p_to, (base[0] - uy * w, base[1] + ux * w), (base[0] + uy * w, base[1] - ux * w)]
+        self.solido([tri[0], tri[1], tri[2], tri[2]], capa)
+
     def llamada(self, p_obj, p_txt, lineas, hmm=2.0, capa="LLAMADAS", al=TA.LEFT):
-        """Linea de llamada con texto (varias lineas) en p_txt."""
-        self.linea(p_obj, p_txt, capa)
-        dx = 1.5 * self.f if al == TA.LEFT else -1.5 * self.f
+        """Llamada con flecha: texto en p_txt, tramo horizontal de apoyo y linea con punta de flecha hasta el objeto."""
+        apoyo = 4.0 * self.f
+        if al == TA.LEFT:
+            p_ap = (p_txt[0] - apoyo, p_txt[1]); self.linea(p_txt, p_ap, capa)
+        else:
+            p_ap = (p_txt[0] + apoyo, p_txt[1]); self.linea(p_txt, p_ap, capa)
+        self.flecha(p_ap, p_obj, capa)
+        dx = 1.0 * self.f if al == TA.LEFT else -1.0 * self.f
         self.textos((p_txt[0] + dx, p_txt[1] + 0.3 * hmm * self.f), lineas, hmm, "TEXTOS", al)
 
     def nivel(self, p, cota, texto=None, lado=1, hmm=2.0):
@@ -269,7 +286,7 @@ class Lamina:
             elif tipo == "circ":
                 self.circulo(self.P(xmm + 6, y + 1), 1.2 * self.f, capa)
             elif tipo.startswith("bloque:"):
-                self.bloque(tipo.split(":")[1], self.P(xmm + 6, y + 1), self.f * 0.8, capa=capa)
+                self.bloque(tipo.split(":")[1], self.P(xmm + 6, y + 1), self.f * 1.3, capa=capa)
             self.texto(self.P(xmm + 15, y + 1), txt, hmm, "LEYENDA", TA.MIDDLE_LEFT)
             y -= 5.5
         return y

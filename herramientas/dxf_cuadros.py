@@ -49,9 +49,9 @@ def dp08(doc, ox, oy, R, T):
            "EXCAVACION: zanja de 1.60 m de ancho (0.25 m a cada lado del muro); entibar si la profundidad supera 1.50 m o el suelo lo requiere.",
            "VERIFICAR la cota de llegada del colector de CAR Varones (CUI 2705619) antes de vaciar la caja de llegada; verificar en campo la ubicacion del R-01 del CAR Mujeres (CUI 2717013)."]
     lam.notas(440, 560, "ESPECIFICACIONES TECNICAS", esp, 1.7)
-    ctb = ["color   5   concreto (cortes y contornos)      0.40 mm", "color   1   acero transversal (marcos)         0.30 mm", "color  94   acero longitudinal                 0.30 mm",
+    ctb = ["color  94   concreto (cortes y contornos)      0.40 mm", "color   1   acero transversal (marcos)         0.30 mm", "color   5   acero longitudinal y progresivas   0.30 mm",
            "color  32   registros y marcos metalicos       0.30 mm", "color   6   cotas, cortes y lindero            0.18 mm", "color  14   cerco perimetrico                  0.30 mm",
-           "color   7   textos, titulos, piso terminado    0.25 mm", "color  92   cunetas                            0.25 mm", "color  30   tapas y cruces vehiculares         0.18 mm",
+           "color   7   textos, titulos, piso terminado    0.25 mm", "color   3   cunetas                            0.25 mm", "color  30   tapas y cruces vehiculares         0.18 mm",
            "color  34   poza y umbral                      0.18 mm", "color 150   agua y flujo                       0.13 mm", "color   8   achurados, auxiliares y arq. base  0.09 mm",
            "color   9   grillas                            0.05 mm", "caras de isometricos y agua: color verdadero (RGB), plumilla 0.05 mm"]
     lam.notas(440, 470 - 4.2 * len(esp) + 8, "GROSOR DE PLUMILLA POR COLOR (CTB)", ctb, 1.7)

@@ -22,7 +22,7 @@ def dp07(doc, ox, oy, R, T):
     # ================= CAJA DE LLEGADA CL =================
     # planta: colector sale hacia la izquierda (aguas abajo), CL a la derecha; aporte externo entra por la derecha (NE)
     Li, Bi = D["CL_largo"], D["CL_ancho"]
-    ox_, oy_ = lam.P(150, 440)
+    ox_, oy_ = lam.P(150, 505)
     lam.rect(ox_, oy_ - Bi / 2 - e, ox_ + Li + e, oy_ + Bi / 2 + e, "CONCRETO", const_width=0.004)
     lam.rect(ox_, oy_ - Bi / 2, ox_ + Li, oy_ + Bi / 2, "CONCRETO")
     lam.rect(ox_ - 2.0, oy_ - D["b"] / 2 - e, ox_, oy_ + D["b"] / 2 + e, "CONCRETO", const_width=0.004)
@@ -45,23 +45,26 @@ def dp07(doc, ox, oy, R, T):
     lam.cota((ox_ + Li + e, oy_ - Bi / 2 - e), (ox_ + Li + e, oy_ - Bi / 2), 6, horizontal=False); lam.cota((ox_ + Li + e, oy_ - Bi / 2), (ox_ + Li + e, oy_ + Bi / 2), 6, horizontal=False); lam.cota((ox_ + Li + e, oy_ + Bi / 2), (ox_ + Li + e, oy_ + Bi / 2 + e), 6, horizontal=False)
     lam.cota((ox_ - 2.0, oy_ - D["b"] / 2), (ox_ - 2.0, oy_ + D["b"] / 2), -6, horizontal=False)
     lam.texto((ox_ - 1.0, oy_ + 0.75), "0+000.00", 1.8, "PROGRESIVAS", TA.MIDDLE_CENTER); lam.linea((ox_, oy_ + Bi / 2 + e), (ox_, oy_ + Bi / 2 + e + 0.4), "PROGRESIVAS")
-    xt = ox_ + Li + 1.6
-    lam.llamada((ox_ + Li + e, oy_ + 0.3), (xt, oy_ + 1.3), ["LLEGADA DEL COLECTOR DE CAR VARONES (CUI 2705619), 258.7 L/s", "ventana 0.80 x 0.60 en el muro NE (cota de fondo referencial 260.18, por confirmar)"], 1.8)
-    lam.llamada((xc1, oy_ + Bi / 2 + e + 0.5), (xt, oy_ + 0.9), ["cuneta Eje 01 (perfil 01): entra por ventana 0.40 x 0.48 en el muro lado predio"], 1.8)
-    lam.llamada((ox_ + 0.75 + 0.3, oy_ - 0.3), (xt, oy_ - 0.6), ["registro 0.68 x 0.68 sobre la caja"], 1.8)
-    lam.llamada((ox_ + 0.3, oy_ - Bi / 2), (xt, oy_ - 1.0), ["caja interior 1.50 x 1.00, poza de 0.30 m bajo el fondo del colector"], 1.8)
-    lam.titulo_vista(165, 395, "CL-1. CAJA DE LLEGADA - PLANTA", "ESC. 1/25 - losa superior retirada", 120)
+    xt = ox_ + Li + 1.4
+    lam.llamada((xc1, oy_ + Bi / 2 + e + 0.5), (xt, oy_ + 1.3), ["cuneta Eje 01 (perfil 01): ventana 0.40 x 0.48 en el muro lado predio"], 1.8)
+    lam.llamada((ox_ + Li + e, oy_ + 0.3), (xt, oy_ + 0.9), ["LLEGADA DEL COLECTOR DE CAR VARONES (CUI 2705619), 258.7 L/s", "ventana 0.80 x 0.60 en el muro NE (cota de fondo ref. 260.18, por confirmar)"], 1.8)
+    lam.llamada((ox_ + 0.75 + 0.3, oy_ - 0.2), (xt, oy_ - 0.4), ["registro 0.68 x 0.68 sobre la caja"], 1.8)
+    lam.llamada((ox_ + 0.3, oy_ - Bi / 2), (xt, oy_ - 0.9), ["caja interior 1.50 x 1.00; poza 0.30 m bajo el fondo del colector"], 1.8)
+    lam.titulo_vista(165, 440, "CL-1. CAJA DE LLEGADA - PLANTA", "ESC. 1/25 - losa superior retirada", 120)
     # corte longitudinal CL (por el eje)
-    ox_, oy_ = lam.P(150, 300); z0 = oy_; piso = D["CF0"] - D["CL_poza"]; Z = lambda z: z0 + (z - (piso - ef - es))
+    ox_, oy_ = lam.P(150, 285); z0 = oy_; piso = D["CF0"] - D["CL_poza"]; Z = lambda z: z0 + (z - (piso - ef - es))
     lam.rect(ox_ - 2.0, Z(piso - ef - es), ox_ + Li + e + 0.1, Z(piso - ef), "SOLADO")
     pts = [(ox_ - 2.0, Z(D["CF0"] - ef)), (ox_ + Li + e, Z(piso - ef)), (ox_ + Li + e, Z(D["NPT"])), (ox_ - 2.0, Z(D["NPT"]))]
-    lam.rect(ox_ - 2.0, Z(piso - ef), ox_ + Li + e, Z(D["NPT"]), "CONCRETO", const_width=0.004)
-    # interior: colector (fondo CF0) + caja (piso)
-    lam.poli([(ox_ - 2.0, Z(D["CF0"])), (ox_, Z(D["CF0"])), (ox_, Z(piso)), (ox_ + Li, Z(piso)), (ox_ + Li, Z(D["CF_varones_sup"])), (ox_ + Li + e, Z(D["CF_varones_sup"])), (ox_ + Li + e, Z(D["CF_varones_sup"] + 0.60)), (ox_ + Li, Z(D["CF_varones_sup"] + 0.60)), (ox_ + Li, Z(D["NPT"] - et)), (ox_ - 2.0, Z(D["NPT"] - et))], "CONCRETO")
-    for p_ in ([(ox_ - 2.0, Z(piso - ef)), (ox_ + Li + e, Z(piso - ef)), (ox_ + Li + e, Z(piso)), (ox_ + Li, Z(piso)), (ox_, Z(piso)), (ox_, Z(D["CF0"])), (ox_ - 2.0, Z(D["CF0"]))],
+    zv1, zv2 = D["CF_varones_sup"], D["CF_varones_sup"] + 0.60     # ventana de llegada del aporte externo
+    # contorno exterior escalonado: losa del colector e=0.15 y poza 0.30 mas profunda dentro de la caja
+    lam.poli([(ox_ - 2.0, Z(D["CF0"] - ef)), (ox_, Z(D["CF0"] - ef)), (ox_, Z(piso - ef)), (ox_ + Li + e, Z(piso - ef)), (ox_ + Li + e, Z(zv1)), (ox_ + Li + e, Z(zv2)),
+              (ox_ + Li + e, Z(D["NPT"])), (ox_ - 2.0, Z(D["NPT"]))], "CONCRETO", ancho=0.004)
+    lam.poli([(ox_ - 2.0, Z(D["CF0"])), (ox_, Z(D["CF0"])), (ox_, Z(piso)), (ox_ + Li, Z(piso)), (ox_ + Li, Z(zv1)), (ox_ + Li + e, Z(zv1)), (ox_ + Li + e, Z(zv2)), (ox_ + Li, Z(zv2)), (ox_ + Li, Z(D["NPT"] - et)), (ox_ - 2.0, Z(D["NPT"] - et))], "CONCRETO")
+    lam.rect(ox_ - 2.0, Z(piso - ef - es), ox_ + Li + e + 0.05, Z(piso - ef), "SOLADO") if False else lam.poli([(ox_ - 2.05, Z(D["CF0"] - ef - es)), (ox_ + 0.05, Z(D["CF0"] - ef - es)), (ox_ + 0.05, Z(piso - ef - es)), (ox_ + Li + e + 0.05, Z(piso - ef - es)), (ox_ + Li + e + 0.05, Z(piso - ef)), (ox_, Z(piso - ef)), (ox_, Z(D["CF0"] - ef)), (ox_ - 2.05, Z(D["CF0"] - ef))], "SOLADO", cerrada=True)
+    for p_ in ([(ox_ - 2.0, Z(D["CF0"] - ef)), (ox_, Z(D["CF0"] - ef)), (ox_, Z(piso - ef)), (ox_ + Li + e, Z(piso - ef)), (ox_ + Li + e, Z(piso)), (ox_ + Li, Z(piso)), (ox_, Z(piso)), (ox_, Z(D["CF0"])), (ox_ - 2.0, Z(D["CF0"]))],
                [(ox_ - 2.0, Z(D["NPT"] - et)), (ox_ + Li + e, Z(D["NPT"] - et)), (ox_ + Li + e, Z(D["NPT"])), (ox_ - 2.0, Z(D["NPT"]))],
-               [(ox_ + Li, Z(piso)), (ox_ + Li + e, Z(piso)), (ox_ + Li + e, Z(D["CF_varones_sup"])), (ox_ + Li, Z(D["CF_varones_sup"]))],
-               [(ox_ + Li, Z(D["CF_varones_sup"] + 0.60)), (ox_ + Li + e, Z(D["CF_varones_sup"] + 0.60)), (ox_ + Li + e, Z(D["NPT"] - et)), (ox_ + Li, Z(D["NPT"] - et))]):
+               [(ox_ + Li, Z(piso)), (ox_ + Li + e, Z(piso)), (ox_ + Li + e, Z(zv1)), (ox_ + Li, Z(zv1))],
+               [(ox_ + Li, Z(zv2)), (ox_ + Li + e, Z(zv2)), (ox_ + Li + e, Z(D["NPT"] - et)), (ox_ + Li, Z(D["NPT"] - et))]):
         lam.achurado(p_, escala_mm=0.5)
     # registro en la losa
     lam.rect(ox_ + 0.75 - 0.34, Z(D["NPT"] - 0.08), ox_ + 0.75 + 0.34, Z(D["NPT"]), "REGISTRO-TAPA")
@@ -70,30 +73,33 @@ def dp07(doc, ox, oy, R, T):
     lam.poli([(ox_ - 2.0, Z(na0)), (ox_ + Li, Z(na0))], "AGUA"); lam.bloque("SIMB-AGUA", (ox_ - 1.0, Z(na0)), f)
     lam.poli([(ox_ + Li, Z(D["CF_varones_sup"] + 0.25)), (ox_ + Li - 0.2, Z(D["CF_varones_sup"] + 0.15)), (ox_ + Li - 0.45, Z(na0 + 0.05))], "AGUA")
     lam.bloque("SIMB-FLECHA", (ox_ + Li + 0.6, Z(D["CF_varones_sup"] + 0.3)), f, rot=180, capa="FLUJO"); lam.bloque("SIMB-FLECHA", (ox_ - 1.5, Z(D["CF0"] + 0.25)), f, rot=180, capa="FLUJO")
-    # acero malla 3/8 @0.20
+    # acero: malla 3/8" @0.20 en ambas caras de la caja (marco exterior e interior), interrumpida en la ventana de llegada
     r = 0.04
-    lam.poli([(ox_ - 2.0, Z(D["CF0"] - ef + r)), (ox_ + r, Z(D["CF0"] - ef + r)), (ox_ + r, Z(piso - ef + r)), (ox_ + Li + e - r, Z(piso - ef + r)), (ox_ + Li + e - r, Z(D["NPT"] - r)), (ox_ - 2.0, Z(D["NPT"] - r))], "ACERO")
-    lam.poli([(ox_ - 2.0, Z(D["CF0"] - r)), (ox_ - r, Z(D["CF0"] - r)), (ox_ - r, Z(piso - r)), (ox_ + Li + r, Z(piso - r)), (ox_ + Li + r, Z(D["NPT"] - et + r)), (ox_ - 2.0, Z(D["NPT"] - et + r))], "ACERO")
+    lam.poli([(ox_ - 2.0, Z(D["CF0"] - ef + r)), (ox_ + r, Z(D["CF0"] - ef + r)), (ox_ + r, Z(piso - ef + r)), (ox_ + Li + e - r, Z(piso - ef + r)), (ox_ + Li + e - r, Z(zv1 - r)), (ox_ + Li + r, Z(zv1 - r))], "ACERO")
+    lam.poli([(ox_ + Li + r, Z(zv2 + r)), (ox_ + Li + e - r, Z(zv2 + r)), (ox_ + Li + e - r, Z(D["NPT"] - r)), (ox_ - 2.0, Z(D["NPT"] - r))], "ACERO")
+    lam.poli([(ox_ - 2.0, Z(D["CF0"] - r)), (ox_ - r, Z(D["CF0"] - r)), (ox_ - r, Z(piso - r)), (ox_ + Li + r, Z(piso - r)), (ox_ + Li + r, Z(zv1 - r))], "ACERO")
+    lam.poli([(ox_ + Li + r, Z(zv2 + r)), (ox_ + Li + r, Z(D["NPT"] - et + r)), (ox_ - 2.0, Z(D["NPT"] - et + r))], "ACERO")
     for k in range(int(round((Li + e + 2.0) / 0.20)) + 1):
         x = ox_ - 2.0 + k * 0.20
-        for z in (Z(piso - ef + r) if x > ox_ else Z(D["CF0"] - ef + r), Z(D["NPT"] - r)):
-            lam.bloque("ACERO-38", (x, z), 1.0)
+        zb_ = Z(piso - ef + r) if x > ox_ + r else Z(D["CF0"] - ef + r)
+        for z in (zb_, Z(D["NPT"] - r)):
+            lam.bloque("ACERO-38", (x, z), f * 1.3)
     lam.nivel((ox_ - 1.2, Z(D["NPT"])), D["NPT"], texto="NPT +260.60"); lam.nivel((ox_ - 1.2, Z(D["CF0"])), D["CF0"], texto="CF 259.10 (0+000)")
     lam.nivel((ox_ + 0.75, Z(piso)), piso, texto="piso de poza 258.80"); lam.nivel((ox_ + Li + 0.5, Z(D["CF_varones_sup"])), D["CF_varones_sup"], texto="llegada ref. 260.18")
     lam.nivel((ox_ - 1.7, Z(na0)), na0, texto="NA %.3f" % na0, hmm=1.6)
     lam.cota((ox_, Z(piso - ef - es)), (ox_ + Li, Z(piso - ef - es)), -8); lam.cota((ox_ + Li, Z(piso - ef - es)), (ox_ + Li + e, Z(piso - ef - es)), -8)
     lam.cota((ox_ + Li + e, Z(piso)), (ox_ + Li + e, Z(D["CF0"])), 8, horizontal=False); lam.cota((ox_ + Li + e, Z(D["CF0"])), (ox_ + Li + e, Z(D["NPT"] - et)), 8, horizontal=False)
     lam.cota((ox_ + Li + e, Z(D["CF_varones_sup"])), (ox_ + Li + e, Z(D["CF_varones_sup"] + 0.60)), 14, horizontal=False)
-    xt = ox_ + Li + 1.6
-    lam.llamada((ox_ + Li + e / 2, Z(D["NPT"] - 0.3)), (xt, Z(D["NPT"] + 0.3)), ["muros e=0.15, malla 3/8\" @0.20 ambas caras"], 1.8)
-    lam.llamada((ox_ + Li - 0.3, Z(D["CF_varones_sup"] + 0.2)), (xt, Z(D["NPT"] - 0.3)), ["caida libre del aporte externo (1.38 m) sobre colchon de agua de 0.80 m"], 1.8)
-    lam.llamada((ox_ + 0.75, Z(piso + 0.02)), (xt, Z(piso + 0.5)), ["losa de fondo e=0.15 sobre solado e=0.05; poza con pendiente 2 % hacia el colector"], 1.8)
+    xt = ox_ + Li + 1.4
     lam.llamada((ox_ + 0.75, Z(D["NPT"] - 0.04)), (xt, Z(D["NPT"] + 0.65)), ["losa superior e=0.10 con registro 0.68 x 0.68"], 1.8)
-    lam.titulo_vista(165, 255, "CL-2. CAJA DE LLEGADA - CORTE LONGITUDINAL POR EL EJE", "ESC. 1/25", 150)
+    lam.llamada((ox_ + Li - 0.3, Z(zv1 + 0.2)), (xt, Z(D["NPT"] + 0.3)), ["caida libre del aporte externo (1.38 m) sobre colchon de agua de 0.81 m"], 1.8)
+    lam.llamada((ox_ + Li + e / 2, Z(zv1 - 0.5)), (xt, Z(D["NPT"] - 0.25)), ["muros e=0.15, malla 3/8\" @0.20 en ambas caras"], 1.8)
+    lam.llamada((ox_ + 0.75, Z(piso - ef / 2)), (xt, Z(piso + 0.35)), ["losa de fondo e=0.15 sobre solado e=0.05"], 1.8)
+    lam.titulo_vista(165, 240, "CL-2. CAJA DE LLEGADA - CORTE LONGITUDINAL POR EL EJE", "ESC. 1/25", 150)
     # ================= CAJA DE CAIDA CC =================
     Li, Bi = D["CC_poza_largo"], D["CC_ancho"]; piso = D["CF_R01"] - D["CC_poza_prof"]
     # planta: colector 0.80 llega por la derecha (aguas arriba), poza 1.50 x 3.50, umbral, R-01 a la izquierda
-    ox_, oy_ = lam.P(540, 440)   # ox_ = cara aguas arriba de la poza (brink), eje en oy_
+    ox_, oy_ = lam.P(580, 505)   # ox_ = cara aguas arriba de la poza (brink), eje en oy_
     lam.rect(ox_ - Li - e, oy_ - Bi / 2 - e, ox_, oy_ + Bi / 2 + e, "CONCRETO", const_width=0.004)
     lam.rect(ox_ - Li, oy_ - Bi / 2, ox_, oy_ + Bi / 2, "POZA")
     lam.rect(ox_, oy_ - D["b"] / 2 - e, ox_ + 2.0, oy_ + D["b"] / 2 + e, "CONCRETO", const_width=0.004); lam.rect(ox_, oy_ - D["b"] / 2, ox_ + 2.0, oy_ + D["b"] / 2, "CONCRETO-OCULTO")
@@ -123,15 +129,15 @@ def dp07(doc, ox, oy, R, T):
     lam.cota((ox_ + 2.0, oy_ - D["b"] / 2), (ox_ + 2.0, oy_ + D["b"] / 2), 6, horizontal=False)
     lam.cota((ox_ - Li - e, oy_ - Bi / 2), (ox_ - Li - e, oy_ + Bi / 2), -6, horizontal=False); lam.cota((ox_ - Li - e, oy_ + Bi / 2), (ox_ - Li - e, oy_ + Bi / 2 + e), -6, horizontal=False)
     xt = ox_ + 2.4
-    lam.llamada((ox_, oy_ + 0.3), (xt, oy_ + 1.4), ["brink: fin del colector b=0.80 (CF %.3f); caida libre a la poza" % dz.fondo(dz.P_BRINK)], 1.8)
-    lam.llamada((ox_ - 1.0, oy_ + 0.5), (xt, oy_ + 1.0), ["poza de disipacion 1.50 x 3.50, piso 258.32 (0.40 bajo el fondo del receptor)"], 1.8)
-    lam.llamada((ox_ - Li + 0.25, oy_ - 0.5), (xt, oy_ + 0.6), ["umbral de salida 0.25 x 0.40 (corona 258.72 = CF del R-01)"], 1.8)
-    lam.llamada((xc12, oy_ + Bi / 2 + e + 0.5), (xt, oy_ + 0.2), ["cuneta Eje 12 (perfil 12), prolongada 5.39 m: entra por ventana 0.40 x 0.80"], 1.8)
-    lam.llamada((ox_ - 0.6 + 0.3, oy_ - 0.3), (xt, oy_ - 0.3), ["registros 0.68 x 0.68 (2 und) sobre la poza"], 1.8)
-    lam.llamada((ox_ - Li - e / 2, oy_ - 0.3), (xt, oy_ - 0.7), ["muro aguas abajo con ventana 1.50 x 0.60 sobre el umbral: entrega al R-01 (empalme con junta de 1\")"], 1.8)
-    lam.titulo_vista(540, 395, "CC-1. CAJA DE CAIDA - PLANTA", "ESC. 1/25 - losa superior retirada", 120)
+    lam.llamada((xc12, oy_ + Bi / 2 + e + 0.5), (xt, oy_ + 1.4), ["cuneta Eje 12 (perfil 12), prolongada 5.39 m: ventana 0.40 x 0.80"], 1.8)
+    lam.llamada((ox_ - 1.0, oy_ + 0.55), (xt, oy_ + 1.0), ["poza de disipacion 1.50 x 3.50, piso 258.32 (0.40 bajo el fondo del receptor)"], 1.8)
+    lam.llamada((ox_, oy_ + 0.3), (xt, oy_ + 0.6), ["brink: fin del colector b=0.80 (CF %.3f); caida libre a la poza" % dz.fondo(dz.P_BRINK)], 1.8)
+    lam.llamada((ox_ - 0.6 + 0.3, oy_ - 0.2), (xt, oy_ + 0.2), ["registros 0.68 x 0.68 (2 und) sobre la poza"], 1.8)
+    lam.llamada((ox_ - Li - e / 2, oy_ - 0.3), (xt, oy_ - 0.3), ["muro aguas abajo con ventana 1.50 x 0.60 sobre el umbral: entrega al R-01 (junta de 1\")"], 1.8)
+    lam.llamada((ox_ - Li + 0.12, oy_ - 0.55), (xt, oy_ - 0.75), ["umbral de salida 0.25 x 0.40 (corona 258.72 = CF del R-01)"], 1.8)
+    lam.titulo_vista(560, 440, "CC-1. CAJA DE CAIDA - PLANTA", "ESC. 1/25 - losa superior retirada", 120)
     # corte longitudinal CC
-    ox_, oy_ = lam.P(540, 300); z0 = oy_; Z = lambda z: z0 + (z - (piso - ef - es))
+    ox_, oy_ = lam.P(580, 285); z0 = oy_; Z = lambda z: z0 + (z - (piso - ef - es))
     zb = dz.fondo(dz.P_BRINK)
     lam.rect(ox_ - Li - e - 0.1, Z(piso - ef - es), ox_ + 2.0, Z(piso - ef), "SOLADO")
     lam.poli([(ox_ + 2.0, Z(zb - ef)), (ox_, Z(zb - ef)), (ox_, Z(piso - ef)), (ox_ - Li - e, Z(piso - ef)), (ox_ - Li - e, Z(D["NPT"])), (ox_ + 2.0, Z(D["NPT"]))], "CONCRETO", cerrada=True, ancho=0.004)
@@ -156,7 +162,7 @@ def dp07(doc, ox, oy, R, T):
     lam.poli([(ox_ + 2.0, Z(zb - r)), (ox_ - r, Z(zb - r)), (ox_ - r, Z(piso - r)), (ox_ - Li + r, Z(piso - r)), (ox_ - Li + r, Z(D["NPT"] - et + r)), (ox_ + 2.0, Z(D["NPT"] - et + r))], "ACERO")
     for k in range(int(round((Li + e + 2.0) / 0.20)) + 1):
         x = ox_ + 2.0 - k * 0.20
-        lam.bloque("ACERO-38", (x, Z(piso - ef + r) if x < ox_ else Z(zb - ef + r)), 1.0); lam.bloque("ACERO-38", (x, Z(D["NPT"] - r)), 1.0)
+        lam.bloque("ACERO-38", (x, Z(piso - ef + r) if x < ox_ else Z(zb - ef + r)), lam.f * 1.3); lam.bloque("ACERO-38", (x, Z(D["NPT"] - r)), lam.f * 1.3)
     lam.nivel((ox_ + 1.2, Z(D["NPT"])), D["NPT"], texto="NPT +260.60"); lam.nivel((ox_ + 1.0, Z(zb)), zb, texto="CF brink %.3f" % zb)
     lam.nivel((ox_ - 1.5, Z(piso)), piso, texto="piso de poza 258.32"); lam.nivel((ox_ - Li + 0.12, Z(D["CF_R01"])), D["CF_R01"], texto="umbral 258.72")
     lam.nivel((ox_ - Li - 0.6, Z(NAr)), NAr, texto="NA receptor 259.062", hmm=1.6)
@@ -164,11 +170,11 @@ def dp07(doc, ox, oy, R, T):
     lam.cota((ox_ + 2.0, Z(piso)), (ox_ + 2.0, Z(zb)), 8, horizontal=False, texto="%.2f" % (zb - piso)); lam.cota((ox_ + 2.0, Z(zb)), (ox_ + 2.0, Z(D["NPT"] - et)), 8, horizontal=False)
     lam.cota((ox_ - Li - e, Z(piso)), (ox_ - Li - e, Z(D["CF_R01"])), -8, horizontal=False); lam.cota((ox_ - Li - e, Z(D["CF_R01"])), (ox_ - Li - e, Z(D["CF_R01"] + 0.60)), -8, horizontal=False)
     xt = ox_ + 2.4
-    lam.llamada((ox_ - 0.3, Z(piso + 0.3)), (xt, Z(D["NPT"] + 0.5)), ["caida libre 0.57 m: y1 = 0.16, F1 = 3.5; conjugado y2 = 0.71 < tirante disponible 0.74: resalto ahogado"], 1.8)
-    lam.llamada((ox_ - Li + 0.12, Z(D["CF_R01"] - 0.1)), (xt, Z(D["NPT"] + 0.1)), ["umbral de concreto 0.25 x 0.40; corona = fondo del R-01"], 1.8)
-    lam.llamada((ox_ - Li - e / 2, Z(D["CF_R01"] + 0.3)), (xt, Z(D["NPT"] - 0.3)), ["ventana de salida 1.50 x 0.60 en el muro de la caja; junta de 1\" con el muro del R-01"], 1.8)
+    lam.llamada((ox_ - Li - e / 2, Z(D["CF_R01"] + 0.3)), (xt, Z(D["NPT"] + 0.5)), ["ventana de salida 1.50 x 0.60 en el muro de la caja; junta de 1\" con el muro del R-01"], 1.8)
+    lam.llamada((ox_ - 0.2, Z(zb + 0.05)), (xt, Z(D["NPT"] + 0.1)), ["caida libre 0.57 m: y1 = 0.16, F1 = 3.5; conjugado y2 = 0.71 < tirante disponible 0.74: resalto ahogado"], 1.8)
     lam.llamada((ox_ - 1.0, Z(piso - ef / 2)), (xt, Z(piso + 0.3)), ["losa de fondo e=0.15 sobre solado; malla 3/8\" @0.20 ambas caras en losas y muros"], 1.8)
-    lam.titulo_vista(540, 255, "CC-2. CAJA DE CAIDA - CORTE LONGITUDINAL POR EL EJE", "ESC. 1/25", 160)
+    lam.llamada((ox_ - Li + 0.12, Z(D["CF_R01"] - 0.25)), (ox_ - Li - e - 1.7, Z(D["NPT"] + 0.1)), ["umbral de concreto 0.25 x 0.40; corona = fondo del R-01"], 1.8, al=TA.RIGHT)
+    lam.titulo_vista(560, 240, "CC-2. CAJA DE CAIDA - CORTE LONGITUDINAL POR EL EJE", "ESC. 1/25", 160)
     # cuadro de materiales de las cajas
     filas = []
     for k in ("CL", "CC"):
@@ -177,7 +183,7 @@ def dp07(doc, ox, oy, R, T):
                   ["", "encofrado", "%.2f" % c["encof"], "m2"], ["", "acero 3/8\" @0.20", "%.1f" % c["acero_kg"], "kg"],
                   ["", "excavacion / solado", "%.2f / %.2f" % (c["excav"], c["solado"]), "m3 / m2"]]
     lam.tabla(32, 170, ["CAJA", "PARTIDA", "CANTIDAD", "UND"], filas, [40, 70, 30, 18], 1.7, 4.2, "CUADRO DE MATERIALES DE LAS CAJAS")
-    lam.leyenda(230, 170, [("achurado", "CONCRETO-ACHURADO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100 e=0.05"), ("linea", "ACERO", "acero transversal (marcos y malla, rojo)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero perpendicular al corte (verde)"),
+    lam.leyenda(230, 170, [("achurado", "CONCRETO-ACHURADO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100 e=0.05"), ("linea", "ACERO", "acero transversal (marcos y malla, rojo)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero perpendicular al corte (azul)"),
                            ("linea", "AGUA", "nivel de agua / chorro"), ("rect", "POZA", "poza de disipacion y umbral"), ("rect", "ARQ-BASE", "receptor (CAR Mujeres), referencia"), ("linea", "CUNETA", "cuneta que llega")], 1.8)
     lam.notas(430, 170, "NOTAS", ["1. Ambas cajas quedan dentro del predio, cubiertas con losa e=0.10 y registros de 0.68 x 0.68.",
                                     "2. La caja de llegada recibe el colector de CAR Varones (CUI 2705619) como aporte externo; su cota y ancho de llegada (ventana 0.80 x 0.60) son referenciales y se ajustaran a su proyecto.",
