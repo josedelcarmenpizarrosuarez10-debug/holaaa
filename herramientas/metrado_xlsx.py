@@ -767,10 +767,13 @@ def reinyectar_vml(orig, nuevo):
                 rid = "rIdHF1"
                 tag = '<legacyDrawingHF r:id="%s"/>' % rid
                 if "<legacyDrawingHF" not in s:
-                    if "</headerFooter>" in s: s = s.replace("</headerFooter>", "</headerFooter>" + tag, 1)
-                    elif "<tableParts" in s: s = s.replace("<tableParts", tag + "<tableParts", 1)
-                    elif "<extLst" in s: s = s.replace("<extLst", tag + "<extLst", 1)
-                    else: s = s.replace("</worksheet>", tag + "</worksheet>")
+                    # orden del esquema CT_Worksheet: ... drawing, legacyDrawing, legacyDrawingHF, picture, oleObjects, controls, webPublishItems, tableParts, extLst
+                    pos = len(s) - len("</worksheet>") - (len(s) - s.rfind("</worksheet>") - len("</worksheet>"))
+                    pos = s.rfind("</worksheet>")
+                    for sig in ("<picture", "<oleObjects", "<controls", "<webPublishItems", "<tableParts", "<extLst"):
+                        k = s.find(sig)
+                        if k != -1 and k < pos: pos = k
+                    s = s[:pos] + tag + s[pos:]
                 if 'xmlns:r=' not in s.split(">", 2)[1] + s.split(">", 2)[0]:
                     s = re.sub(r'<worksheet\b', '<worksheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"', s, count=1)
                 data = s.encode("utf8")
