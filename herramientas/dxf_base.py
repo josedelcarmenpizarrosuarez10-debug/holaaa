@@ -286,7 +286,8 @@ class Lamina:
             elif tipo == "circ":
                 self.circulo(self.P(xmm + 6, y + 1), 1.2 * self.f, capa)
             elif tipo.startswith("bloque:"):
-                self.bloque(tipo.split(":")[1], self.P(xmm + 6, y + 1), 1.0, capa=capa)
+                nb = tipo.split(":")[1]   # barras a diametro real (escala 1.0); simbolos en mm de papel (escala f)
+                self.bloque(nb, self.P(xmm + 6, y + 1), 1.0 if nb.startswith("ACERO") else self.f, capa=capa)
             self.texto(self.P(xmm + 15, y + 1), txt, hmm, "LEYENDA", TA.MIDDLE_LEFT)
             y -= 5.5
         return y

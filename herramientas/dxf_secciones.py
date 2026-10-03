@@ -330,6 +330,7 @@ def dp06c(doc, ox, oy, R, T):
     lam.llamada((ox_ + 0.2, oy_ + be / 2 - 0.07), (xt, oy_ + be / 2 + 0.55), ["ventana 0.40 x H en el muro lado predio del colector (sin losa de cierre: caida libre)"], 1.8)
     lam.llamada((ox_ + 0.35, oy_ + 0.2), (xt, oy_ + 0.25), ["registro de limpieza encima del empalme (tapa 0.68 x 0.68)"], 1.8)
     lam.llamada((ox_ + 1.2, oy_ - be / 2), (xt, oy_ - 0.2), ["colector b = 0.80, muros e = 0.15"], 1.8)
+    lam.textos((xt, oy_ - 0.65), ["NOTA: las cunetas de los Ejes 11 y 12 se prolongan 1.88 y 5.39 m hasta el muro del colector con su misma seccion;", "esa prolongacion se metra en la partida de cunetas del proyecto (no forma parte de la partida 01.04.04 del colector)."], 1.8)
     lam.cota((ox_ - 0.20, oy_ + be / 2 + 1.2), (ox_ + 0.20, oy_ + be / 2 + 1.2), 8, texto="0.40"); lam.cota((ox_ - 0.30, oy_ + be / 2 + 1.2), (ox_ + 0.30, oy_ + be / 2 + 1.2), 14, texto="0.60")
     lam.cota((ox_ - 1.5, oy_ - be / 2), (ox_ - 1.5, oy_ + be / 2), -8, horizontal=False); lam.cota((ox_ - 1.5, oy_ - D["b"] / 2), (ox_ - 1.5, oy_ + D["b"] / 2), -4, horizontal=False)
     lam.cota((ox_ - 0.35, oy_ - be / 2), (ox_ + 0.35, oy_ - be / 2), -8, texto="0.70")

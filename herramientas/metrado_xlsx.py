@@ -115,9 +115,9 @@ def hoja_tramos(wb, segs):
     ws.column_dimensions["A"].width = 30
     for j in range(2, 33): ws.column_dimensions[L(j)].width = 13
     ws.freeze_panes = ws.cell(row=r0 + 1, column=2)
-    # cajas y prolongaciones (valores de la memoria, con formulas simples)
+    # cajas (valores de la memoria, con formulas simples)
     C = MC.cajas(); Pr = MC.prolongaciones(); rc = rt + 3
-    ws.cell(row=rc, column=1, value="CAJAS Y PROLONGACIONES DE CUNETA (geometria de las laminas DP-06C y DP-07)").font = bold
+    ws.cell(row=rc, column=1, value="CAJAS DE LLEGADA Y DE CAIDA (geometria de la lamina DP-07)").font = bold
     enc2 = ["ELEMENTO", "LARGO INT. (m)", "ANCHO INT. (m)", "ALTURA (m)", "Hz EXCAV. (m)", "EXCAVACION (m3)", "SOLADO (m2)", "C. LOSA FONDO (m3)", "C. MUROS (m3)", "C. LOSA SUP. (m3)", "ENCOFRADO (m2)", "ACERO 3/8 (kg)", "ACABADO (m2)", "RELLENO (m3)"]
     for j, h in enumerate(enc2):
         c = ws.cell(row=rc + 1, column=j + 1, value=h); c.font = bold; c.fill = fill; c.border = bd; c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
@@ -131,14 +131,9 @@ def hoja_tramos(wb, segs):
         for j, v in enumerate(vals):
             c = ws.cell(row=r, column=j + 1, value=v); c.border = bd; c.font = azul if isinstance(v, (int, float)) else nor; c.number_format = "0.00"
         filas[k] = r
-    for i, p in enumerate(Pr):
-        r = rc + 4 + i; R = str(r)
-        vals = ["Prolongacion cuneta %s (0.40 x H, muros 0.10)" % p["cuneta"].split(" (")[0], round(p["L"], 2), 0.40, round(p["H"], 2), round(p["H"] + 0.15, 2), "=0.90*B%s*E%s" % (R, R), "=0.70*B%s" % R,
-                None, "=B%s*(0.60*0.10+2*0.10*(D%s-0.10))" % (R, R), None, "=B%s*(2*(D%s-0.10)+2*D%s)" % (R, R, R), round(p["acero_kg"], 1), "=0.60*B%s" % R, None]
-        for j, v in enumerate(vals):
-            if v is None: continue
-            c = ws.cell(row=r, column=j + 1, value=v); c.border = bd; c.font = azul if isinstance(v, (int, float)) else nor; c.number_format = "0.00"
-        filas["P%d" % i] = r
+    # nota informativa: las prolongaciones de cuneta NO se metran aqui
+    ws.cell(row=rc + 5, column=1, value="NOTA: las cunetas de los Ejes 11 y 12 (perfiles 11 y 12) se prolongan %s hasta el muro del colector con su misma seccion 0.40 x H. Esa prolongacion NO forma parte de la partida 01.04.04: se metra dentro de las partidas de cunetas del proyecto (arquitectura). Aqui solo se metra la ventana de empalme (partida 01.04.04.06.03)."
+            % " y ".join("%.2f m" % p["L"] for p in Pr)).font = nor
     return ws, r0, rt, filas
 
 
@@ -159,7 +154,6 @@ def hoja_acero(wb, rt_tramos, filas_cajas):
         ("Tapas de registro: parrilla", "3/8\"", "recta", "=%d*14" % n, 0.62, "=D8*E8", "=%s!$B$14" % T, "=F8*G8", "7 + 7 barras @0.10"),
         ("Tapas de registro: asas", "3/8\" liso", "U", "=%d*2" % n, 0.40, "=D9*E9", "=%s!$B$14" % T, "=F9*G9", ""),
         ("Anclajes de contramarco", "3/8\"", "L", "=%d*8" % n, 0.20, "=D10*E10", "=%s!$B$14" % T, "=F10*G10", "soldados al angulo"),
-        ("Prolongacion de cunetas Ejes 11 y 12", "3/8\"", "U + rectas", None, None, "=(%s!L%d+%s!L%d)/%s!$B$14" % (T, filas_cajas["P0"], T, filas_cajas["P1"], T), "=%s!$B$14" % T, "=F11*G11", "@0.20"),
     ]
     for i, row in enumerate(rows):
         r = 4 + i
@@ -170,10 +164,9 @@ def hoja_acero(wb, rt_tramos, filas_cajas):
     r = 4 + len(rows)
     ws.cell(row=r + 1, column=1, value="TOTAL ACERO COLECTOR Y CAJAS (partida 01.04.04.04.05)").font = bold; c = ws.cell(row=r + 1, column=8, value="=SUM(H4:H6)"); c.font = bold; c.number_format = "0.00"
     ws.cell(row=r + 2, column=1, value="TOTAL ACERO EN REGISTROS Y TAPAS (partida 01.04.04.05.06)").font = bold; c = ws.cell(row=r + 2, column=8, value="=SUM(H7:H10)"); c.font = bold; c.number_format = "0.00"
-    ws.cell(row=r + 3, column=1, value="TOTAL ACERO EN PROLONGACION DE CUNETAS (partida 01.04.04.06.06)").font = bold; c = ws.cell(row=r + 3, column=8, value="=H11"); c.font = bold; c.number_format = "0.00"
-    ws.cell(row=r + 4, column=1, value="TOTAL ACERO").font = bold; c = ws.cell(row=r + 4, column=8, value="=SUM(H4:H11)"); c.font = bold; c.number_format = "0.00"
+    ws.cell(row=r + 3, column=1, value="TOTAL ACERO").font = bold; c = ws.cell(row=r + 3, column=8, value="=SUM(H4:H10)"); c.font = bold; c.number_format = "0.00"
     ws.column_dimensions["A"].width = 52; ws.column_dimensions["C"].width = 18; ws.column_dimensions["E"].width = 18; ws.column_dimensions["F"].width = 16; ws.column_dimensions["I"].width = 44
-    return ws, {"colector": r + 1, "registros": r + 2, "cunetas": r + 3}
+    return ws, {"colector": r + 1, "registros": r + 2}
 
 
 def hoja_tapas(wb):
@@ -263,14 +256,13 @@ def construir():
     pl = Planilla(ws, ult + 2)
     pl.madre("01.04.04", "COLECTOR PLUVIAL FRONTAL (TRAMO HOGAR DE REFUGIO - EMPALME CON CAR MUJERES)")
     pl.titulo("01.04.04.01", "TRABAJOS PRELIMINARES")
-    rs = list(range(r0 + 1, rt)); cl, cc, p0, p1 = filas["CL"], filas["CC"], filas["P0"], filas["P1"]
+    rs = list(range(r0 + 1, rt)); cl, cc = filas["CL"], filas["CC"]
     def det_tramos(col, desc_extra=""):
         return [("%s (%s - %s)%s" % (s["nombre"].capitalize(), "0+%06.2f" % s["p1"], "0+%06.2f" % s["p2"], desc_extra), 1, None, None, None, "=%s!%s%d" % (T, col, r)) for s, r in zip(segs, rs)]
     pl.partida("01.04.04.01.01", "LIMPIEZA MANUAL DE TERRENO", "m²", det_tramos("L") + [("Caja de llegada CL", 1, None, None, None, "=%s!G%d" % (T, cl)), ("Caja de caida CC", 1, None, None, None, "=%s!G%d" % (T, cc))])
     pl.partida("01.04.04.01.02", "TRAZO, NIVELES Y REPLANTEO PRELIMINAR", "m²", det_tramos("L") + [("Caja de llegada CL", 1, None, None, None, "=%s!G%d" % (T, cl)), ("Caja de caida CC", 1, None, None, None, "=%s!G%d" % (T, cc))])
     pl.titulo("01.04.04.02", "MOVIMIENTO DE TIERRAS")
-    pl.partida("01.04.04.02.01", "EXCAVACIÓN MANUAL DE ZANJAS P/COLECTOR (ancho 1.60 m)", "m³", det_tramos("M") + [("Caja de llegada CL", 1, None, None, None, "=%s!F%d" % (T, cl)), ("Caja de caida CC", 1, None, None, None, "=%s!F%d" % (T, cc)),
-                                                                                          ("Prolongacion cuneta Eje 11", 1, None, None, None, "=%s!F%d" % (T, p0)), ("Prolongacion cuneta Eje 12", 1, None, None, None, "=%s!F%d" % (T, p1))])
+    pl.partida("01.04.04.02.01", "EXCAVACIÓN MANUAL DE ZANJAS P/COLECTOR (ancho 1.60 m)", "m³", det_tramos("M") + [("Caja de llegada CL", 1, None, None, None, "=%s!F%d" % (T, cl)), ("Caja de caida CC", 1, None, None, None, "=%s!F%d" % (T, cc))])
     pl.partida("01.04.04.02.02", "REFINE, NIVELACIÓN Y COMPACTACIÓN EN TERRENO NORMAL", "m²", det_tramos("N") + [("Caja de llegada CL", 1, None, None, None, "=%s!G%d" % (T, cl)), ("Caja de caida CC", 1, None, None, None, "=%s!G%d" % (T, cc))])
     r_rell = pl.partida("01.04.04.02.03", "RELLENO COMPACTADO CON MATERIAL PROPIO SELECCIONADO (incluye nivelacion del retiro y base de cajas)", "m³",
                         det_tramos("O", " - lateral de zanja") + det_tramos("P", " - franja de nivelacion") + [("Caja de llegada CL", 1, None, None, None, "=%s!N%d" % (T, cl)), ("Caja de caida CC", 1, None, None, None, "=%s!N%d" % (T, cc))])
@@ -278,8 +270,7 @@ def construir():
     pl.partida("01.04.04.02.04", "ELIMINACIÓN DE MATERIAL EXCEDENTE", "m³", [("Excavacion de zanjas y cajas", 1, None, None, None, "=K%d" % r_exc), ("Relleno compactado (se descuenta)", -1, None, None, None, "=-K%d" % r_rell)],)
     ws.cell(row=pl.refs["01.04.04.02.04"], column=11, value="=SUM(J%d:J%d)*PARAMETROS!$B$16" % (pl.refs["01.04.04.02.04"] + 1, pl.refs["01.04.04.02.04"] + 2))
     pl.titulo("01.04.04.03", "OBRAS DE CONCRETO SIMPLE")
-    pl.partida("01.04.04.03.01", "CONCRETO f'c=100 kg/cm2 PARA SOLADO E=2\" (0.05 m)", "m²", det_tramos("Q") + [("Caja de llegada CL", 1, None, None, None, "=%s!G%d" % (T, cl)), ("Caja de caida CC", 1, None, None, None, "=%s!G%d" % (T, cc)),
-                                                                                           ("Prolongacion cuneta Eje 11", 1, None, None, None, "=%s!G%d" % (T, p0)), ("Prolongacion cuneta Eje 12", 1, None, None, None, "=%s!G%d" % (T, p1))])
+    pl.partida("01.04.04.03.01", "CONCRETO f'c=100 kg/cm2 PARA SOLADO E=2\" (0.05 m)", "m²", det_tramos("Q") + [("Caja de llegada CL", 1, None, None, None, "=%s!G%d" % (T, cl)), ("Caja de caida CC", 1, None, None, None, "=%s!G%d" % (T, cc))])
     pl.titulo("01.04.04.04", "OBRAS DE CONCRETO ARMADO - COLECTOR Y CAJAS")
     pl.partida("01.04.04.04.01", "CONCRETO f'c=210 kg/cm2 EN LOSA DE FONDO", "m³", det_tramos("R") + [("Caja de llegada CL", 1, None, None, None, "=%s!H%d" % (T, cl)), ("Caja de caida CC (incluye umbral)", 1, None, None, None, "=%s!H%d" % (T, cc))])
     pl.partida("01.04.04.04.02", "CONCRETO f'c=210 kg/cm2 EN MUROS", "m³", det_tramos("S") + [("Caja de llegada CL", 1, None, None, None, "=%s!I%d" % (T, cl)), ("Caja de caida CC", 1, None, None, None, "=%s!I%d" % (T, cc))])
@@ -297,16 +288,12 @@ def construir():
     pl.partida("01.04.04.05.05", "CONCRETO f'c=210 kg/cm2 EN TAPAS", "m³", None, total="=+%s!G%d" % (TP, tapas["conc_tapa"]))
     pl.partida("01.04.04.05.06", "ACERO DE REFUERZO fy=4200 kg/cm2 EN TAPAS, BORDES Y ANCLAJES", "kg", None, total="=+%s!H%d" % (A, acero["registros"]))
     pl.partida("01.04.04.05.07", "PINTURA ANTICORROSIVA Y ESMALTE EN ANGULOS", "m²", None, total="=+%s!G%d" % (TP, tapas["pintura"]))
-    pl.titulo("01.04.04.06", "JUNTAS, EMPALMES Y PROLONGACION DE CUNETAS")
+    pl.titulo("01.04.04.06", "JUNTAS Y EMPALMES")
     J = MC.juntas()
     pl.partida("01.04.04.06.01", "JUNTA DE DILATACION E=1\" CON TECNOPOR Y SELLADOR ELASTOMERICO", "m", [("Juntas cada 4.00 m (perimetro de la seccion)", J["n"], round(J["L_dilat"] / J["n"], 2), None, None, None)])
     pl.partida("01.04.04.06.02", "JUNTA DE TECNOPOR E=1\" ENTRE COLECTOR, CERCO Y PISO ADYACENTE", "m", [("Contra el cimiento del cerco (tramo pegado al cerco)", 1, round(J["L_tecnopor_cerco"], 2), None, None, None), ("Borde de losa con el piso adyacente (ambos lados, colector y cajas)", 1, round(J["L_tecnopor_piso"], 2), None, None, None)])
     pl.partida("01.04.04.06.03", "EMPALME DE CUNETA AL COLECTOR (ventana en muro y caida)", "und", [("Cunetas Ejes 01, 02, 06, 07, 11 y 12", len(dz.CUNETAS), None, None, None, "=C%d")])
     rr = pl.refs["01.04.04.06.03"] + 1; ws.cell(row=rr, column=10, value="=C%d" % rr)
-    pl.partida("01.04.04.06.04", "CONCRETO f'c=210 kg/cm2 EN PROLONGACION DE CUNETAS 0.40 x H", "m³", [("Prolongacion cuneta Eje 11", 1, None, None, None, "=%s!I%d" % (T, p0)), ("Prolongacion cuneta Eje 12", 1, None, None, None, "=%s!I%d" % (T, p1))])
-    pl.partida("01.04.04.06.05", "ENCOFRADO Y DESENCOFRADO EN PROLONGACION DE CUNETAS", "m²", [("Prolongacion cuneta Eje 11", 1, None, None, None, "=%s!K%d" % (T, p0)), ("Prolongacion cuneta Eje 12", 1, None, None, None, "=%s!K%d" % (T, p1))])
-    pl.partida("01.04.04.06.06", "ACERO DE REFUERZO fy=4200 kg/cm2 EN PROLONGACION DE CUNETAS", "kg", None, total="=+%s!H%d" % (A, acero["cunetas"]))
-    pl.partida("01.04.04.06.07", "TAPA DE CONCRETO EN PROLONGACION DE CUNETAS (losa 0.60 x 0.08)", "m²", [("Prolongacion cuneta Eje 11", 1, None, None, None, "=%s!M%d" % (T, p0)), ("Prolongacion cuneta Eje 12", 1, None, None, None, "=%s!M%d" % (T, p1))])
     hoja_insumos(wb, pl.refs)
     # RESUMEN
     wr = wb["RESUMEN"]; ultr = max(c.row for row in wr.iter_rows() for c in row if c.value is not None)

@@ -378,7 +378,8 @@ def construir():
                  "cada empalme. En todos los casos la cota de fondo de la cuneta al llegar al cerco queda por encima del nivel "
                  "de agua del colector, por lo que las cunetas descargan libremente y el colector no las remansa. Las cunetas "
                  "de los Ejes 11 y 12 terminan antes del cerco y se prolongan con la misma sección y pendiente hasta el muro "
-                 "del colector.")
+                 "del colector (1.88 y 5.39 m). Esa prolongación se metra dentro de las partidas de cunetas del proyecto; la "
+                 "partida 01.04.04 del colector incluye únicamente la ventana de empalme y su registro.")
     filas = [[c["nombre"], c["perfil"], "0+%06.2f" % c["prog"], f2(c["NCF"]), f2(c["H"]), f3(c["NA_colector"]), f2(c["caida_libre"]), f2(c["prolong"]) if c["prolong"] > 0.1 else "-"] for c in DJ["cunetas"]]
     tabla(doc, ["CUNETA", "PERFIL", "PROG. DE EMPALME", "COTA DE FONDO AL CERCO (msnm)", "H (m)", "NIVEL DE AGUA COLECTOR (msnm)", "CAÍDA LIBRE (m)", "PROLONG. (m)"], filas, tam=9,
           anchos=[3.4, 1.3, 2.0, 2.3, 1.3, 2.3, 1.7, 1.7])

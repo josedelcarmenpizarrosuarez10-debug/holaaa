@@ -35,7 +35,7 @@ def dp08(doc, ox, oy, R, T):
     lam.cota((ox_, oy_), (ox_ + (be - 0.08) * k, oy_), -6, texto="1.02"); lam.cota((ox_ + (be - 0.08) * k, oy_), (ox_ + (be - 0.08) * k, oy_ + (ef + h + efc - 0.08) * k), 6, horizontal=False, texto="h + 0.32")
     lam.titulo_vista(325, 275, "MARCO DOBLE 1/2\" @0.15 (cruce de camiones)", "marco exterior 1.02 x (h + 0.32) y marco interior 0.80 + 0.22 x (h + 0.08); una capa en cada cara; losa superior e=0.25", 150)
     # especificaciones
-    esp = ["CONCRETO ARMADO: f'c = 210 kg/cm2 (colector, cajas, tapas, prolongacion de cunetas). Cemento tipo I; agregados limpios; slump 3\" a 4\".",
+    esp = ["CONCRETO ARMADO: f'c = 210 kg/cm2 (colector, cajas y tapas). Cemento tipo I; agregados limpios; slump 3\" a 4\".",
            "CONCRETO SIMPLE: solado f'c = 100 kg/cm2, e = 0.05 m; umbral de la poza f'c = 210 kg/cm2 vaciado con la losa de fondo.",
            "ACERO DE REFUERZO: fy = 4200 kg/cm2 (grado 60), corrugado. Ganchos de 0.30 m en marcos y 0.40 m en esquinas de cajas.",
            "RECUBRIMIENTOS: 0.04 m en muros y losa de fondo; 0.025 m en losa superior del tramo normal; 0.04 m en el cruce de camiones; 0.025 m en tapas.",
@@ -89,8 +89,8 @@ def da(doc, ox, oy, R, T):
         lam.llamada((xl - 0.25, zs - 0.05), (xt, zs - 1.0), ["trazo y replanteo: franja de 1.60 m"], 1.8)
         lam.llamada((s["cx"], cy + 0.03), (xt, zs - 1.4), ["refine y nivelacion del fondo: ancho 1.20 (solado)"], 1.8)
         lam.titulo_vista(xmm + 15, ymm - 55, nm, "PROG. %s - ESC. 1/25" % prog_txt(p), 150)
-    filas = [["Trazo, niveles y replanteo", "m2", "%.2f" % Rs["trazo_m2"], "franja de 1.60 m x L + cajas + prolongaciones de cuneta"],
-             ["Excavacion de zanja", "m3", "%.2f" % Rs["excav_m3"], "1.60 x Hz x L por tramo (Hz desde el terreno existente), cajas y cunetas"],
+    filas = [["Trazo, niveles y replanteo", "m2", "%.2f" % Rs["trazo_m2"], "franja de 1.60 m x L + cajas"],
+             ["Excavacion de zanja", "m3", "%.2f" % Rs["excav_m3"], "1.60 x Hz x L por tramo (Hz desde el terreno existente) + cajas"],
              ["Refine y nivelacion de fondo", "m2", "%.2f" % Rs["refine_m2"], "1.20 x L + cajas"],
              ["Relleno compactado con material propio", "m3", "%.2f" % Rs["relleno_m3"], "relleno lateral de zanja + franja de nivelacion del retiro (1.00 m) + cajas"],
              ["Eliminacion de material excedente", "m3", "%.2f" % Rs["elimin_m3"], "(excavacion - relleno) x 1.25"]]
@@ -115,8 +115,7 @@ def da(doc, ox, oy, R, T):
         lam.titulo_vista(xmm + 15, ymm - 55, nm, "PROG. %s - h = %.2f m - ESC. 1/25" % (prog_txt(p), h), 150)
     filas = [["Solado f'c=100 e=0.05", "m2", "%.2f" % Rs["solado_m2"]], ["Concreto f'c=210 - losa de fondo", "m3", "%.2f" % Rs["conc_fondo_m3"]],
              ["Concreto f'c=210 - muros", "m3", "%.2f" % Rs["conc_muros_m3"]], ["Concreto f'c=210 - losa superior (incluye bordes de registro)", "m3", "%.2f" % Rs["conc_losa_m3"]],
-             ["Encofrado y desencofrado", "m2", "%.2f" % Rs["encof_m2"]], ["Acabado frotachado y brunado de losa superior", "m2", "%.2f" % Rs["acabado_m2"]],
-             ["Prolongacion de cunetas: concreto / encofrado", "m3 / m2", "%.2f / %.2f" % (Rs["cuneta_conc_m3"], Rs["cuneta_encof_m2"])]]
+             ["Encofrado y desencofrado", "m2", "%.2f" % Rs["encof_m2"]], ["Acabado frotachado y brunado de losa superior", "m2", "%.2f" % Rs["acabado_m2"]]]
     lam.tabla(32, 200, ["PARTIDA", "UND", "METRADO"], filas, [110, 16, 26], 1.7, 4.8, "RESUMEN DE CONCRETO Y ENCOFRADO (colector + cajas)")
     lams.append(lam)
     # ---------------- DA-03
@@ -134,7 +133,6 @@ def da(doc, ox, oy, R, T):
         lam.llamada((s["cx"], s["zf"] + 0.04), (xt, s["zs"] - 0.9), ["total acero: %.1f kg/m" % ((tr["marcos_kg"] + tr["long_kg"]) / tr["L"])], 1.8)
         lam.titulo_vista(xmm + 15, ymm - 55, nm, "PROG. %s - ESC. 1/25" % prog_txt(p), 150)
     filas = [["Acero fy=4200 colector y cajas - 3/8\"", "kg", "%.1f" % Rs["acero_38_kg"]], ["Acero fy=4200 colector - 1/2\" (cruce de camiones)", "kg", "%.1f" % Rs["acero_12_kg"]],
-             ["Acero en prolongacion de cunetas 3/8\"", "kg", "%.1f" % Rs["cuneta_acero_kg"]],
              ["Registros: contramarco L 2\"x2\"x3/16\" (%d und)" % Rg["n"], "kg", "%.1f" % Rg["contramarco_kg"]], ["Registros: marco de tapa L 1 1/2\"x1 1/2\"x1/8\"", "kg", "%.1f" % Rg["marco_kg"]],
              ["Tapas de concreto 0.68 x 0.68 x 0.08", "und / m3", "%d / %.2f" % (Rg["n"], Rg["tapa_conc"])], ["Acero en tapas, bordes, asas y anclajes", "kg", "%.1f" % (Rg["acero_borde_kg"] + Rg["acero_tapa_kg"] + Rg["asas_kg"] + Rg["anclajes_kg"])],
              ["Pintura anticorrosiva y esmalte en angulos", "m2", "%.2f" % Rg["pintura_m2"]],

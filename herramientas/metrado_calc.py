@@ -1,7 +1,8 @@
 """Metrado del colector (calculo en Python; la planilla Excel repite el calculo con formulas).
 
-Tramos de hasta 2.00 m con secciones medias, mas registros, cajas, prolongaciones de
-cunetas, juntas y empalmes. Criterio de rellenos menores: dentro de la partida de relleno.
+Tramos de hasta 2.00 m con secciones medias, mas registros, cajas, juntas y empalmes. Las prolongaciones de
+las cunetas de los Ejes 11 y 12 NO se metran aqui (van en las partidas de cunetas del proyecto).
+Criterio de rellenos menores: dentro de la partida de relleno.
 """
 import os, sys, json, math
 import numpy as np
@@ -146,6 +147,8 @@ def cajas():
 
 
 def prolongaciones():
+    """Prolongacion de las cunetas de los Ejes 11 y 12 hasta el muro del colector. Solo informativo:
+    NO entra en la partida 01.04.04 (se metra dentro de las cunetas de arquitectura)."""
     out = []
     for c in dz.CUNETAS:
         if c["prolong"] > 0.1:
@@ -167,12 +170,12 @@ def resumen():
     s = lambda k: sum(t[k] for t in T)
     sg = lambda k: sum(t[k] for t in SG)
     R = {}
-    R["trazo_m2"] = s("trazo") + sum(c["solado"] for c in C.values()) + sum(p["solado"] for p in Pr)
-    R["excav_m3"] = s("excav") + sum(c["excav"] for c in C.values()) + sum(p["excav"] for p in Pr)
+    R["trazo_m2"] = s("trazo") + sum(c["solado"] for c in C.values())
+    R["excav_m3"] = s("excav") + sum(c["excav"] for c in C.values())
     R["refine_m2"] = s("solado") + sum(c["solado"] for c in C.values())
     R["relleno_m3"] = s("relleno") + sum(c["relleno"] for c in C.values())
     R["elimin_m3"] = (R["excav_m3"] - R["relleno_m3"]) * ESPONJ
-    R["solado_m2"] = s("solado") + sum(c["solado"] for c in C.values()) + sum(p["solado"] for p in Pr)
+    R["solado_m2"] = s("solado") + sum(c["solado"] for c in C.values())
     R["conc_fondo_m3"] = s("c_fondo") + sum(c["c_fondo"] for c in C.values())
     R["conc_muros_m3"] = s("c_muros") + sum(c["c_muros"] for c in C.values())
     R["conc_losa_m3"] = s("c_losa") - Rg["losa_descuento"] + sum(c["c_losa"] for c in C.values()) + Rg["borde_conc"]
@@ -183,7 +186,8 @@ def resumen():
     R["segmentos"] = SG
     R["acabado_m2"] = s("acabado") + sum(c["acabado"] for c in C.values())
     R["registros"] = Rg; R["cajas"] = C; R["prolong"] = Pr; R["juntas"] = J
-    R["cuneta_conc_m3"] = sum(p["c_conc"] for p in Pr); R["cuneta_encof_m2"] = sum(p["encof"] for p in Pr); R["cuneta_acero_kg"] = sum(p["acero_kg"] for p in Pr)
+    # informativo (no se suma a la partida del colector): prolongacion de cunetas Ejes 11 y 12
+    R["prolong_L"] = sum(p["L"] for p in Pr)
     R["empalmes"] = len(dz.CUNETAS)
     R["L_colector"] = dz.P_BRINK; R["L_total"] = dz.P_FIN
     return T, R
@@ -203,7 +207,6 @@ def cuadro_doblado():
         ("Registros: refuerzo de borde de abertura", "recta", '1/2"', "2 por lado", "1.40", 8 * 1.40 * Rg["n"], Rg["acero_borde_kg"]),
         ("Tapas de registro (incluye asas)", "recta / U", '3/8"', "0.10", "0.62 / 0.40", 14 * 0.62 * Rg["n"] + 2 * 0.40 * Rg["n"], Rg["acero_tapa_kg"] + Rg["asas_kg"]),
         ("Anclajes de contramarco", "L", '3/8"', "8 por registro", "0.20", 8 * 0.20 * Rg["n"], Rg["anclajes_kg"]),
-        ("Prolongacion de cunetas Ejes 11 y 12", "U + rectas", '3/8"', "0.20", "ver DP-06C", R["cuneta_acero_kg"] / PESO["3/8"], R["cuneta_acero_kg"]),
     ]
     tot38 = sum(fl[6] for fl in filas if fl[2] == '3/8"'); tot12 = sum(fl[6] for fl in filas if fl[2] == '1/2"')
     return filas, tot38, tot12
