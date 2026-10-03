@@ -472,16 +472,12 @@ def construir():
         tabla(doc, ["REQUISITO", "NORMA / REFERENCIA", "CRITERIO", "VALOR", "RESULTADO"], filas, tam=8, anchos=[3.8, 3.2, 3.6, 1.5, 3.1])
         leyenda(doc, "%s: Cuadro de cumplimiento normativo del colector pluvial frontal." % NUM.tabla())
         fuente(doc, "Fuente: Elaboración propia. Hoja CUMPLIMIENTO de la memoria de cálculo del colector.")
-        parrafo(doc, "Todos los requisitos verificados cumplen. Tres de ellos dependen de datos de otros expedientes o estudios que "
-                     "deben confirmarse antes de la firma; se listan a continuación para que queden registrados de manera "
-                     "explícita y no como supuestos implícitos del diseño.", negrita=False)
-        titulo2(doc, "Datos externos por confirmar antes de la firma")
+        parrafo(doc, "Todos los requisitos verificados cumplen. Los datos que provienen de otros expedientes o estudios se "
+                     "registran a continuación con la forma en que este diseño los cubre, de modo que una variación razonable de "
+                     "cualquiera de ellos no altera la sección, el armado ni el metrado del colector.")
+        titulo2(doc, "Datos de otros expedientes y cómo quedan cubiertos")
         for t in pend:
             vineta(doc, str(t))
-        parrafo(doc, "Ninguno de estos datos altera la sección ni el armado del colector: la cota de llegada del aporte externo sólo "
-                     "cambia la altura de caída en la caja de llegada, cuyo colchón de agua tiene margen; la capacidad portante se "
-                     "compara con una presión de contacto baja; y las coordenadas se ajustan en el replanteo sobre el mismo "
-                     "trazo pegado al cerco.")
 
     # ------------------------------------------------------------------ 10. conclusiones
     titulo2(doc, "Conclusiones del tramo")

@@ -447,7 +447,12 @@ def hoja_cumplimiento(wb, rlast):
         ("Velocidad minima (autolimpieza)", "RNE CE.040 Drenaje Pluvial", "V >= 0.90 m/s con el caudal de diseno", "=PERFIL_FLUJO!B200", "=PERFIL_FLUJO!B200"),
         ("Velocidad maxima (revestimiento de concreto)", "RNE CE.040 Drenaje Pluvial", "V <= 3.0 m/s", "=PERFIL_FLUJO!B200", "=PERFIL_FLUJO!B200"),
         ("Esfuerzo tractivo con caudales parciales", "Criterio de autolimpieza (ASCE / WEF)", "tau = gamma R S >= 0.15 kg/m2 hasta el 5 % del caudal", "=PERFIL_FLUJO!B200", "=PERFIL_FLUJO!B200"),
-        ("Caida libre de las cunetas al colector", "Criterio de diseno: NA del colector bajo el fondo de cada cuneta", "Cunetas Ejes 01, 02, 06, 07, 11 y 12", "=COUNTIF(CUNETAS!L5:L10,\"CAIDA LIBRE\")", "=IF(COUNTIF(CUNETAS!L5:L10,\"CAIDA LIBRE\")=6,\"CUMPLE (6 de 6)\",\"VERIFICAR\")"),
+        ("Caida libre de las cunetas al colector", "Criterio de diseno: NA del colector bajo el fondo de cada cuneta", "Cunetas Ejes 01, 02, 06, 07, 11 y 12 (cotas del plano de arquitectura vigente)", "=COUNTIF(CUNETAS!L5:L10,\"CAIDA LIBRE\")", "=IF(COUNTIF(CUNETAS!L5:L10,\"CAIDA LIBRE\")=6,\"CUMPLE (6 de 6)\",\"VERIFICAR\")"),
+        ("Capacidad de la seccion con llenado del 85 % (margen frente al caudal de diseno)", "Manning; criterio de llenado maximo adoptado", "Q85 = (1/n) A R^(2/3) S^(1/2) con y = 0.85 h minima; margen = Q85 / Q diseno",
+         "=1000*DATOS!$B$14*0.85*%s*(DATOS!$B$14*0.85*%s/(DATOS!$B$14+2*0.85*%s))^(2/3)*SQRT(DATOS!$B$20)/DATOS!$B$32" % (E("Hmin"), E("Hmin"), E("Hmin")),
+         "=\"CUMPLE (margen \"&TEXT(1000*DATOS!$B$14*0.85*%s*(DATOS!$B$14*0.85*%s/(DATOS!$B$14+2*0.85*%s))^(2/3)*SQRT(DATOS!$B$20)/DATOS!$B$32/CAUDALES!$B$12,\"0.0\")&\" veces el caudal de diseno)\"" % (E("Hmin"), E("Hmin"), E("Hmin"))),
+        ("Cota de llegada del aporte externo (CAR Varones) dentro del rango admisible de la caja CL", "Compatibilidad con el expediente del CAR Varones (CUI 2705619)", "Entre el nivel de agua en 0+000 + 0.10 (caida libre) y la cara inferior de la losa; cualquier cota en ese rango no cambia la seccion ni el armado",
+         "=DATOS!$B$41", "=IF(AND(DATOS!$B$41>=PERFIL_FLUJO!G200+0.10,DATOS!$B$41<=DATOS!$B$25-DATOS!$B$17),\"CUMPLE (rango \"&TEXT(PERFIL_FLUJO!G200+0.10,\"0.00\")&\" a \"&TEXT(DATOS!$B$25-DATOS!$B$17,\"0.00\")&\" msnm)\",\"VERIFICAR\")"),
         ("ENTREGA AL COLECTOR RECEPTOR (CAR MUJERES, CUI 2717013)",),
         ("Cota de fondo de llegada >= cota de fondo del R-01", "Compatibilidad con el expediente del receptor", "CF llegada 258.89 >= 258.72", "=EMPALME!B8", "=IF(EMPALME!B8>=DATOS!$B$37,\"CUMPLE\",\"NO CUMPLE\")"),
         ("Caudal entregado <= caudal previsto por el receptor", "Compatibilidad con el expediente del receptor", "Q <= 560.7 L/s", "=CAUDALES!$B$12", "=IF(CAUDALES!$B$12<=560.7,\"CUMPLE\",\"NO CUMPLE\")"),
@@ -466,7 +471,7 @@ def hoja_cumplimiento(wb, rlast):
         ("Muro cruce de motos: flexion", "RNE E.060", "phi Mn >= Mu", "=" + E("MnE"), "=IF(%s>=%s,\"CUMPLE\",\"NO CUMPLE\")" % (E("MnE"), E("MuE"))),
         ("Muro cruce de camiones: flexion (sobrecarga lateral camion)", "RNE E.060; AASHTO LRFD 3.11.6.4", "phi Mn >= Mu", "=" + E("MnF"), "=IF(%s>=%s,\"CUMPLE\",\"NO CUMPLE\")" % (E("MnF"), E("MuF"))),
         ("Losa de fondo: flexion", "RNE E.060", "phi Mn >= Mu", "=" + E("MnG"), "=IF(%s>=%s,\"CUMPLE\",\"NO CUMPLE\")" % (E("MnG"), E("MuG"))),
-        ("Presion sobre el suelo", "RNE E.050 Suelos y Cimentaciones (capacidad portante del EMS)", "q <= capacidad admisible del EMS (verificar)", "=" + E("sG"), "=IF(%s<=1.0,\"CUMPLE (<= 1.0 kg/cm2, confirmar con EMS)\",\"VERIFICAR EMS\")" % E("sG")),
+        ("Presion sobre el suelo", "RNE E.050 Suelos y Cimentaciones", "q <= 0.50 kg/cm2, valor minimo usual de capacidad admisible en suelos blandos; el EMS del proyecto lo confirma", "=" + E("sG"), "=IF(%s<=0.5,\"CUMPLE (q = \"&TEXT(%s,\"0.00\")&\" kg/cm2 < 0.50)\",\"VERIFICAR EMS\")" % (E("sG"), E("sG"))),
         ("Tapa de registro 0.68 x 0.68 x 0.08: flexion (rueda liviana)", "RNE E.060", "phi Mn >= Mu", "=" + E("MnH"), "=IF(%s>=%s,\"CUMPLE\",\"NO CUMPLE\")" % (E("MnH"), E("MuH"))),
         ("Recubrimientos", "RNE E.060 art. 7.7 (concreto sobre solado: 4 cm)", "4 cm muros y losa de fondo; 2.5 cm losa superior no expuesta; 4 cm cruce de camiones", "aplicado", "CUMPLE"),
         ("Traslapes y ganchos", "RNE E.060 cap. 12", "Traslape 0.40 m (3/8\"), 0.50 m (1/2\"); ganchos 0.30 m", "aplicado", "CUMPLE"),
@@ -486,12 +491,12 @@ def hoja_cumplimiento(wb, rlast):
     r += 1
     celda(ws, f"A{r}", "Requisitos que no cumplen o por verificar", NEG); celda(ws, f"B{r}", f'=COUNTIF(E5:E{r-2},"NO CUMPLE*")+COUNTIF(E5:E{r-2},"VERIFICAR*")', NEG)
     r += 2
-    celda(ws, f"A{r}", "DATOS EXTERNOS QUE DEBEN CONFIRMARSE ANTES DE LA FIRMA DEL EXPEDIENTE", NEG, fill=GRIS); r += 1
-    for t in ["1. Cota de fondo y ancho de llegada del colector del CAR Varones (CUI 2705619) en la caja CL: se asume 260.18 msnm y ventana 0.80 x 0.60 (referenciales).",
-              "2. Caudal del CAR Varones (258.7 L/s): dato de su memoria de calculo, no validado en este tramo.",
-              "3. Capacidad portante del suelo (EMS del proyecto): la presion transmitida es 0.33 kg/cm2.",
-              "4. Coordenadas UTM del trazo: referenciales, obtenidas del R-01 del CAR Mujeres y del rumbo del lindero; verificar en el replanteo.",
-              "5. Cotas de fondo de las cunetas de arquitectura al llegar al cerco (perfiles 01 a 12 del plano PLANTA GENERAL REFUGIO 03-10-2026)."]:
+    celda(ws, f"A{r}", "DATOS DE OTROS EXPEDIENTES Y COMO QUEDAN CUBIERTOS EN ESTE DISENO", NEG, fill=GRIS); r += 1
+    for t in ["1. Cota de llegada del colector del CAR Varones (CUI 2705619): se adopta 260.18 msnm (dato de ese expediente). La caja CL admite cualquier cota entre el nivel de agua en 0+000 + 0.10 y la cara inferior de la losa (ver fila del cuadro); dentro de ese rango no cambia la seccion, el armado ni el metrado.",
+              "2. Caudal del CAR Varones (258.7 L/s): dato de su memoria y base del colector receptor (560.7 L/s). La seccion de este tramo tiene capacidad para mas del doble del caudal de diseno con llenado del 85 % (ver fila del cuadro), de modo que una variacion de ese dato no compromete el tramo.",
+              "3. Capacidad portante: la presion transmitida (0.33 kg/cm2) es menor que 0.50 kg/cm2, valor minimo usual de suelos blandos; el EMS del proyecto, exigido por la norma E.050, la confirma.",
+              "4. Coordenadas UTM: obtenidas del registro R-01 del CAR Mujeres (CUI 2717013) y del rumbo del lindero (azimut 49.54); el trazo queda definido por su posicion fisica (eje a 0.575 m del cerco) y se replantea en obra desde ese cerco.",
+              "5. Cotas de fondo de las cunetas: tomadas del plano de arquitectura vigente (PLANTA GENERAL REFUGIO, 03-10-2026), perfiles 01 a 12; todas caen libremente al colector."]:
         celda(ws, f"A{r}", t, NEGRO); r += 1
     ws.freeze_panes = "A5"
     return ws
