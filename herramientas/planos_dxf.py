@@ -27,6 +27,8 @@ def construir(solo=None):
         import dxf_cuadros as DQ
         for lam in DQ.todas(doc, OX1, OY1 - 600, R, T): LAMINAS[lam.codigo] = lam
     except ImportError: pass
+    import dxf_detalles as DD
+    for lam in DD.todas(doc, OX1, OY1 - 800, R, T): LAMINAS[lam.codigo] = lam
     doc.saveas(SALIDA)
     cajas = {k: (l.ox, l.oy, l.ox + 841 * l.f, l.oy + 594 * l.f) for k, l in LAMINAS.items()}
     json.dump(cajas, open(os.path.join(RAIZ, "entregables", "_calc", "laminas.json"), "w"), indent=1)

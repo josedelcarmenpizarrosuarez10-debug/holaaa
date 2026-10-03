@@ -426,7 +426,7 @@ def construir():
                 "tapa de concreto armado de 0.68 × 0.68 × 0.08 m con malla de 3/8\" @0.10, luz libre de 0.60 m, contramarco de "
                 "ángulo de 2\" × 2\" × 3/16\" con 8 anclajes de 3/8\" de 0.20 m, marco de ángulo de 1 ½\" × 1 ½\" × 1/8\", borde "
                 "engrosado de la losa de 0.15 × 0.10 m y refuerzo de borde con 8 barras de 1/2\" de 1.40 m.")
-    vineta(doc, "Juntas de dilatación cada 4.00 m, con tecnopor de 1\" y sello asfáltico; junta de tecnopor de 1\" entre el "
+    vineta(doc, "Juntas de dilatación cada 4.00 m, con tecnopor de 1\" y sello elastomérico de poliuretano; junta de tecnopor de 1\" entre el "
                 "colector y el cimiento del cerco y entre la losa superior y los pisos adyacentes.")
     vineta(doc, "Empalme de cunetas por ventana de 0.40 × H en el muro del lado del predio, con caída al fondo, junta de 1\" y "
                 "registro sobre el empalme.")
@@ -434,6 +434,9 @@ def construir():
                 "recubrimiento de 4 cm; traslapes de 0.40 m.")
     vineta(doc, "Excavación con sobreancho de 0.25 m por lado, relleno lateral compactado con material propio seleccionado y "
                 "eliminación del excedente con esponjamiento de 20 %.")
+    vineta(doc, "Las láminas DD-01 a DD-04 desarrollan el detalle constructivo de cada una de estas partidas (contramarco, marco y "
+                "tapa, juntas y empalme de cuneta): despiece, dimensiones, procedimiento y cuadro de componentes por unidad para los "
+                "análisis de costos unitarios.")
     if os.path.exists(os.path.join(FIG, "DP-10.png")):
         imagen(doc, os.path.join(FIG, "DP-10.png"), 15.5, "%s: Isométrico general del colector frontal (lámina DP-10)." % NUM.imagen())
 
