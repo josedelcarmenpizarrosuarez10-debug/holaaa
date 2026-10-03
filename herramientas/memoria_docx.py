@@ -237,6 +237,12 @@ def construir():
                  "determinada en el estudio hidrológico para el período de retorno de %d años y el tiempo de concentración del "
                  "colector, de %d minutos, con la ecuación de Dick y Peschke:" % (D["TR"], D["tc"]))
     formula(doc, "I = P24 · (tc / 1440)^0.25 · 60 / tc = %.2f mm/h" % DJ["I"])
+    parrafo(doc, "Esta intensidad proviene de las mismas precipitaciones de diseño del estudio hidrológico: 35.16 mm en 10 minutos "
+                 "(que equivalen a 210.98 mm/h, la intensidad usada para las cunetas y montantes del proyecto) y 41.82 mm en 20 "
+                 "minutos (125.45 mm/h). Como el colector recoge toda el área del predio más el aporte del proyecto aguas arriba, "
+                 "su tiempo de concentración es mayor que el de una cuneta individual, 15 minutos, y la intensidad correspondiente "
+                 "sobre la curva precipitación–duración es de %.2f mm/h. Es el mismo criterio con el que se dimensionó el colector "
+                 "del proyecto receptor, de modo que los tres tramos del colector compartido usan la misma lluvia de diseño." % DJ["I"])
     formula(doc, "Q = Σ(C · A) · I · FS / 3600 = %.2f m² · %.2f mm/h · %.2f / 3600 = %.1f L/s" % (D["CA_refugio"], DJ["I"], D["FS"], DJ["Q_refugio_calc"]))
     parrafo(doc, "El aporte externo del proyecto aguas arriba se toma de su memoria de cálculo (%.1f L/s) y no se recalcula. "
                  "El caudal de diseño del tramo es la suma de ambos aportes, que coincide con el caudal que el colector "
