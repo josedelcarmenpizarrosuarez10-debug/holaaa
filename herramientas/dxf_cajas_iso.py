@@ -345,9 +345,9 @@ def dp10(doc, ox, oy, R, T):
     # cara interior visible en los quiebres (lado via, -v) del tramo diagonal: lateral oscuro
     cara([(der[1][0], der[1][1], zb(progs[1])), (der[2][0], der[2][1], zb(progs[2])), (der[2][0], der[2][1], ztop), (der[1][0], der[1][1], ztop)], "ISO-CONCRETO-LAT2")
     # ---------- caja de caida CC y colector receptor (lado cercano)
-    vf = UV(dz.P_FIN)[1]; zcc = D["CF_R01"] - D["CC_poza_prof"] - ef - 258.0
-    caja(dz.P_BRINK, dz.P_FIN + e, vf - D["CC_ancho"] / 2 - e, vf + D["CC_ancho"] / 2 + e, zcc, ztop)
-    caja(dz.P_FIN + e, dz.P_FIN + e + 6.0, vf - D["b_wilma"] / 2 - 0.10, vf + D["b_wilma"] / 2 + 0.10, D["CF_R01"] - 0.15 - 258.0, D["NPT_wilma"] - 258.0, capas=("ISO-TERRENO", "ISO-TERRENO", "ISO-TERRENO"))
+    ub, vf = UV(dz.P_BRINK)[0], UV(dz.P_FIN)[1]; uf = UV(dz.P_FIN)[0]; zcc = D["CF_R01"] - D["CC_poza_prof"] - ef - 258.0
+    caja(ub, uf + e, vf - D["CC_ancho"] / 2 - e, vf + D["CC_ancho"] / 2 + e, zcc, ztop)
+    caja(uf + e, uf + e + 6.0, vf - D["b_wilma"] / 2 - 0.10, vf + D["b_wilma"] / 2 + 0.10, D["CF_R01"] - 0.15 - 258.0, D["NPT_wilma"] - 258.0, capas=("ISO-TERRENO", "ISO-TERRENO", "ISO-TERRENO"))
     # ---------- registros (tapas sobre la losa)
     def tapa(p, nm=None, du=0.0):
         u, v = UV(p); u += du
@@ -369,8 +369,8 @@ def dp10(doc, ox, oy, R, T):
     for p, nm in ((dz.P_B1, "QUIEBRE 1 (45 grados) - RS-06"), (dz.P_B2, "QUIEBRE 2 (45 grados) - RS-07")):
         u, v = UV(p); q = Tt(u, v - be / 2, zb(p)); lam.llamada(q, (q[0] - 10 * f, q[1] - 14 * f), [nm], 1.8, al=TA.RIGHT)
     q = Tt(-D["CL_largo"], v0 + D["CL_ancho"] / 2 + e, ztop); lam.llamada(q, (q[0] - 12 * f, q[1] + 16 * f), ["CAJA DE LLEGADA CL (0+000): llegada de CAR Varones (CUI 2705619)", "poza 0.30 m con colchon de agua"], 1.8, al=TA.RIGHT)
-    q = Tt(dz.P_FIN, vf - D["CC_ancho"] / 2 - e, ztop); lam.llamada(q, (q[0] - 24 * f, q[1] - 26 * f), ["CAJA DE CAIDA CC: poza de disipacion 1.50 x 3.50, piso 258.32", "entrega al R-01 del CAR Mujeres (CUI 2717013)"], 1.8, al=TA.RIGHT)
-    q = Tt(dz.P_FIN + e + 4.0, vf + D["b_wilma"] / 2, D["NPT_wilma"] - 258.0); lam.llamada(q, (q[0] + 6 * f, q[1] + 14 * f), ["colector del CAR Mujeres b=1.50 (referencia)"], 1.8, al=TA.LEFT)
+    q = Tt(uf, vf - D["CC_ancho"] / 2 - e, ztop); lam.llamada(q, (q[0] - 24 * f, q[1] - 26 * f), ["CAJA DE CAIDA CC: poza de disipacion 1.50 x 3.50, piso 258.32", "entrega al R-01 del CAR Mujeres (CUI 2717013)"], 1.8, al=TA.RIGHT)
+    q = Tt(uf + e + 4.0, vf + D["b_wilma"] / 2, D["NPT_wilma"] - 258.0); lam.llamada(q, (q[0] + 6 * f, q[1] + 14 * f), ["colector del CAR Mujeres b=1.50 (referencia)"], 1.8, al=TA.LEFT)
     q = Tt(30.0, v0 - be / 2, ztop); lam.llamada(q, (q[0] - 6 * f, q[1] - 18 * f), ["COLECTOR CUBIERTO b=0.80 m, S=0.30 %, losa superior a nivel del piso terminado +260.60", "registros cada <= 12 m y en cada llegada de cuneta"], 1.8, al=TA.RIGHT)
     for z in R["zonas"]:
         u, v = UV((z["p1"] + z["p2"]) / 2); q = Tt(u, v, ztop); lam.texto((q[0], q[1] + 3 * f), "CRUCE DE %s" % ("CAMIONES" if z["tipo"] == "CAMION" else "MOTOS"), 1.5, "CRUCE-VEHICULAR", TA.BOTTOM_CENTER)
