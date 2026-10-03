@@ -30,7 +30,7 @@ D = dict(
     A_varones=6752.06, CA_varones=5203.3213,     # C ponderado 0.7707
     Q_refugio=301.9, Q_varones=258.7,            # L/s (memorias HIDRO-CE040)
     # geometria del colector
-    b=0.80, e_muro=0.15, e_fondo=0.15, e_losa=0.10, e_losa_camion=0.20,
+    b=0.80, e_muro=0.15, e_fondo=0.15, e_losa=0.10, e_losa_camion=0.25,
     e_solado=0.05, n=0.015,
     NPT=260.60,                 # cara superior de la losa = piso terminado del frente
     CF0=259.10,                 # cota de fondo en 0+000 (caja de llegada)

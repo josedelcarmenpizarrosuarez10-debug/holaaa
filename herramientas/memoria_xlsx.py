@@ -7,7 +7,7 @@ Las formulas se guardan con nombres en ingles (SUM, IF, ROUND...) y separador ",
 Excel en espanol las muestra como SUMA, SI, REDONDEAR con ";".
 Azul = dato editable; negro = formula; verde = vinculo a otra hoja.
 """
-import os, sys, json
+import os, sys, json, re
 import openpyxl
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter as L
@@ -24,6 +24,7 @@ TIT = Font(name="Arial", size=12, bold=True)
 SUB = Font(name="Arial", size=9, italic=True, color="555555")
 GRIS = PatternFill("solid", fgColor="EEEEEE")
 BORDE = Border(*(Side(style="thin", color="999999"),) * 4)
+ROW = {}   # fila de cada simbolo en la hoja DATOS
 SUBTITULO = "Colector pluvial frontal - tramo Hogar de Refugio Temporal Mujeres Violentadas (CUI 2675514), Morales - San Martin. Hidroconsult, Oct. 2026"
 
 
@@ -110,7 +111,9 @@ def hoja_datos(wb, R):
         else:
             fila(ws, r, list(f), fonts=[NEGRO, None, NEGRO, NEGRO, NEGRO])
             if isinstance(f[1], str) and f[1].startswith("="): ws[f"B{r}"].font = NEGRO
+            ROW[f[4]] = r
         r += 1
+    ws[f"B{ROW['L']}"] = f"=B{ROW['pf']}"
     celda(ws, f"A{r+1}", "Azul = dato editable; negro = formula; verde = vinculo.", SUB)
     return ws
 
@@ -171,8 +174,8 @@ def hoja_empalme(wb, R):
         ("Piso de la poza", "=DATOS!B37-DATOS!B45", "msnm", "fondo del receptor - profundidad de poza"),
         ("Caida total (brink a piso de poza)", "=B8-B11", "m", ""),
         ("Energia al pie respecto al piso E1", "=B12+1.5*B9", "m", "E1 = caida + 1.5 yc (sin perdidas, conservador)"),
-        ("Tirante al pie y1", "=B13-B14^2/(2*9.81)", "m", "resuelto por iteracion: y1 + V1^2/2g = E1 (ver B14)"),
-        ("Velocidad al pie V1", "=B6/(B7*B15)", "m/s", "V1 = Q/(b y1), iteracion circular habilitada"),
+        ("Tirante al pie y1", 0.0, "m", "resuelto por iteracion (valor de la memoria en Python); verificar en la ultima fila"),
+        ("Velocidad al pie V1", "=B6/(B7*B14)", "m/s", "V1 = Q/(b y1)"),
         ("Froude al pie F1", "=B15/SQRT(9.81*B14)", "-", ""),
         ("Tirante conjugado y2", "=B14/2*(SQRT(1+8*B16^2)-1)", "m", "resalto hidraulico en el ancho b (conservador: no considera la expansion a 1.50 m)"),
         ("Tirante disponible en la poza", "=DATOS!B38-B11", "m", "NA del receptor - piso de la poza"),
@@ -270,123 +273,123 @@ def hoja_perfil(wb, R):
 
 
 def hoja_estructural(wb, R):
+    """Verificacion estructural; las formulas se escriben con claves {clave} que se
+    traducen a la fila real al final (evita errores de numeracion)."""
     ws = wb.create_sheet("ESTRUCTURAL"); D = dz.D
-    cabecera(ws, "6. VERIFICACION ESTRUCTURAL (RNE E.060; cargas E.020 y rueda AASHTO LRFD HL-93)", [56, 12, 9, 64, 14])
+    cabecera(ws, "6. VERIFICACION ESTRUCTURAL (RNE E.060; cargas E.020 y rueda AASHTO LRFD HL-93)", [56, 12, 9, 64, 16])
     encabezado_tabla(ws, 4, ["ELEMENTO / PARAMETRO", "VALOR", "UND", "FORMULA / CRITERIO", "RESULTADO"])
     rows = []
-    def sec(t): rows.append((t,))
-    def it(*a): rows.append(a)
+    def sec(t): rows.append((None, t))
+    def it(k, *a): rows.append((k,) + a)
     sec("PARAMETROS")
-    it("f'c", 210, "kg/cm2", "E.060"); it("fy", 4200, "kg/cm2", "Grado 60")
-    it("Peso concreto armado", 2.4, "t/m3", "E.020"); it("Peso suelo / relleno", 1.8, "t/m3", "Verificar con EMS")
-    it("Ko (reposo)", 0.5, "-", "Relleno compactado contra muro rigido")
-    it("Sobrecarga peatonal", 0.5, "t/m2", "E.020"); it("Sobrecarga lateral vehiculo liviano", 1.0, "t/m2", "")
-    it("Sobrecarga lateral camion (heq 1.50 m)", 2.7, "t/m2", "AASHTO 3.11.6.4")
-    it("Rueda vehiculo liviano / moto", 1.0, "t", ""); it("Rueda camion HL-93", 7.26, "t", "AASHTO")
-    it("Impacto", 0.33, "-", "AASHTO 3.6.2"); it("Huella de rueda", 0.25, "m", "AASHTO 3.6.1.2.5")
-    it("Luz de calculo de losas (b + apoyo)", "=DATOS!$B$14+0.15", "m", "b + e muro (centro a centro aprox.)")
-    it("Altura interior maxima del muro H", "=MAX(PERFIL_FLUJO!K6:K200)", "m", "hoja PERFIL_FLUJO")
-    it("Altura interior minima del muro", "=MIN(PERFIL_FLUJO!K6:K200)", "m", "")
-    # A losa superior vereda
+    it("fc", "f'c", 210, "kg/cm2", "E.060"); it("fy", "fy", 4200, "kg/cm2", "Grado 60")
+    it("gc", "Peso concreto armado", 2.4, "t/m3", "E.020"); it("gs", "Peso suelo / relleno", 1.8, "t/m3", "Verificar con EMS")
+    it("Ko", "Ko (reposo)", 0.5, "-", "Relleno compactado contra muro rigido")
+    it("sp", "Sobrecarga peatonal", 0.5, "t/m2", "E.020"); it("sl", "Sobrecarga lateral vehiculo liviano", 1.0, "t/m2", "")
+    it("sc", "Sobrecarga lateral camion (heq 1.50 m)", 2.7, "t/m2", "AASHTO 3.11.6.4")
+    it("Pl", "Rueda vehiculo liviano / moto", 1.0, "t", ""); it("Pc", "Rueda camion HL-93", 7.26, "t", "AASHTO")
+    it("IM", "Impacto", 0.33, "-", "AASHTO 3.6.2"); it("c", "Huella de rueda", 0.25, "m", "AASHTO 3.6.1.2.5")
+    it("Lc", "Luz de calculo de losas (b + e muro)", "=DATOS!$B$14+DATOS!$B$15", "m", "centro a centro de muros")
+    it("H", "Altura interior maxima del muro H", "=MAX(PERFIL_FLUJO!K6:K200)", "m", "hoja PERFIL_FLUJO")
+    it("Hmin", "Altura interior minima del muro", "=MIN(PERFIL_FLUJO!K6:K200)", "m", "")
     sec("A. LOSA SUPERIOR MONOLITICA e=0.10 - TRAMO NORMAL (marco 3/8\" @0.20)")
-    it("Espesor", "=DATOS!$B$17", "m", "")
-    it("Carga ultima", "=1.4*B8*B21+1.7*B11", "t/m2", "1.4 D + 1.7 L")
-    it("Mu (simplemente apoyada, conservador)", "=B22*B18^2/8", "t.m/m", "wu L2/8")
-    it("Peralte efectivo d", "=B21*100/2", "cm", "")
-    it("As colocado", "=0.71/0.20", "cm2/m", "3/8\" @0.20")
-    it("a", "=B25*B7/(0.85*B6*100)", "cm", "")
-    it("Momento resistente fMn", "=0.9*B25*B7*(B24-B26/2)/100000", "t.m/m", "0.9 As fy (d - a/2)", "=IF(B27>=B23,\"CUMPLE\",\"NO CUMPLE\")")
-    it("Cuantia minima 0.0018 b e", "=0.0018*100*B21*100", "cm2/m", "E.060 9.7.2", "=IF(B25>=B28,\"CUMPLE\",\"NO CUMPLE\")")
-    # B losa cruce motos
+    it("eA", "Espesor", "=DATOS!$B$17", "m", "")
+    it("wA", "Carga ultima", "=1.4*{gc}*{eA}+1.7*{sp}", "t/m2", "1.4 D + 1.7 L")
+    it("MuA", "Mu (simplemente apoyada, conservador)", "={wA}*{Lc}^2/8", "t.m/m", "wu L2/8")
+    it("dA", "Peralte efectivo d", "={eA}*100/2", "cm", "")
+    it("AsA", "As colocado", "=0.71/0.20", "cm2/m", "3/8\" @0.20")
+    it("aA", "a", "={AsA}*{fy}/(0.85*{fc}*100)", "cm", "")
+    it("MnA", "Momento resistente fMn", "=0.9*{AsA}*{fy}*({dA}-{aA}/2)/100000", "t.m/m", "0.9 As fy (d - a/2)", "=IF({MnA}>={MuA},\"CUMPLE\",\"NO CUMPLE\")")
+    it("AmA", "Cuantia minima 0.0018 b e", "=0.0018*100*{eA}*100", "cm2/m", "E.060 9.7.2", "=IF({AsA}>={AmA},\"CUMPLE\",\"NO CUMPLE\")")
     sec("B. LOSA SUPERIOR MONOLITICA e=0.10 - CRUCE DE MOTOS (marco 3/8\" @0.15)")
-    it("Espesor", "=DATOS!$B$17", "m", "")
-    it("Ancho de franja E", "=0.66+0.55*B18", "m", "AASHTO 4.6.2.1.3")
-    it("Momento por rueda", "=B14*(1+B16)*(B18/4-B17/8)/B31", "t.m/m", "P (1+IM) (L/4 - c/8) / E")
-    it("Mu", "=1.4*B8*B30*B18^2/8+1.7*B32", "t.m/m", "1.4 MD + 1.7 ML")
-    it("Peralte efectivo d", "=B30*100/2", "cm", "")
-    it("As colocado", "=0.71/0.15", "cm2/m", "3/8\" @0.15")
-    it("a", "=B35*B7/(0.85*B6*100)", "cm", "")
-    it("Momento resistente fMn", "=0.9*B35*B7*(B34-B36/2)/100000", "t.m/m", "", "=IF(B37>=B33,\"CUMPLE\",\"NO CUMPLE\")")
-    it("Cuantia minima", "=0.0018*100*B30*100", "cm2/m", "E.060 9.7.2", "=IF(B35>=B38,\"CUMPLE\",\"NO CUMPLE\")")
-    # C losa cruce camiones
-    sec("C. LOSA SUPERIOR e=0.20 - CRUCE DE CAMIONES (doble marco 1/2\" @0.15)")
-    it("Espesor", "=DATOS!$B$18", "m", "")
-    it("Ancho de franja E", "=0.66+0.55*B18", "m", "AASHTO 4.6.2.1.3")
-    it("Momento por rueda", "=B15*(1+B16)*(B18/4-B17/8)/B42", "t.m/m", "simplemente apoyada (conservador)")
-    it("Mu", "=1.4*B8*B41*B18^2/8+1.7*B43", "t.m/m", "")
-    it("Peralte efectivo d", "=(B41-0.04)*100-0.635", "cm", "recubrimiento 4 cm")
-    it("As colocado", "=1.27/0.15", "cm2/m", "1/2\" @0.15 (una capa en traccion)")
-    it("a", "=B46*B7/(0.85*B6*100)", "cm", "")
-    it("Momento resistente fMn", "=0.9*B46*B7*(B45-B47/2)/100000", "t.m/m", "", "=IF(B48>=B44,\"CUMPLE\",\"NO CUMPLE\")")
-    it("Cuantia minima", "=0.0018*100*B41*100", "cm2/m", "", "=IF(B46>=B49,\"CUMPLE\",\"NO CUMPLE\")")
-    it("Cortante ultimo Vu", "=1.7*B15*(1+B16)*(B18-B45/100-B17/2)/B18/B42+1.4*B8*B41*B18/2", "t/m", "rueda a d del apoyo")
-    it("Cortante resistente fVc", "=0.85*0.53*SQRT(B6)*100*B45/1000", "t/m", "", "=IF(B51>=B50,\"CUMPLE\",\"NO CUMPLE\")")
-    # D muro tramo normal
+    it("eB", "Espesor", "=DATOS!$B$17", "m", "")
+    it("EB", "Ancho de franja E", "=0.66+0.55*{Lc}", "m", "AASHTO 4.6.2.1.3")
+    it("MrB", "Momento por rueda", "={Pl}*(1+{IM})*({Lc}/4-{c}/8)/{EB}", "t.m/m", "P (1+IM) (L/4 - c/8) / E")
+    it("MuB", "Mu", "=1.4*{gc}*{eB}*{Lc}^2/8+1.7*{MrB}", "t.m/m", "1.4 MD + 1.7 ML")
+    it("dB", "Peralte efectivo d", "={eB}*100/2", "cm", "")
+    it("AsB", "As colocado", "=0.71/0.15", "cm2/m", "3/8\" @0.15")
+    it("aB", "a", "={AsB}*{fy}/(0.85*{fc}*100)", "cm", "")
+    it("MnB", "Momento resistente fMn", "=0.9*{AsB}*{fy}*({dB}-{aB}/2)/100000", "t.m/m", "", "=IF({MnB}>={MuB},\"CUMPLE\",\"NO CUMPLE\")")
+    it("AmB", "Cuantia minima", "=0.0018*100*{eB}*100", "cm2/m", "E.060 9.7.2", "=IF({AsB}>={AmB},\"CUMPLE\",\"NO CUMPLE\")")
+    sec("C. LOSA SUPERIOR e=0.25 - CRUCE DE CAMIONES (doble marco 1/2\" @0.15)")
+    it("eC", "Espesor", "=DATOS!$B$18", "m", "")
+    it("EC", "Ancho de franja E", "=0.66+0.55*{Lc}", "m", "AASHTO 4.6.2.1.3")
+    it("MrC", "Momento por rueda", "={Pc}*(1+{IM})*({Lc}/4-{c}/8)/{EC}", "t.m/m", "simplemente apoyada (conservador)")
+    it("MuC", "Mu", "=1.4*{gc}*{eC}*{Lc}^2/8+1.7*{MrC}", "t.m/m", "")
+    it("dC", "Peralte efectivo d", "=({eC}-0.04)*100-0.635", "cm", "recubrimiento 4 cm")
+    it("AsC", "As colocado", "=1.27/0.15", "cm2/m", "1/2\" @0.15 (una capa en traccion)")
+    it("aC", "a", "={AsC}*{fy}/(0.85*{fc}*100)", "cm", "")
+    it("MnC", "Momento resistente fMn", "=0.9*{AsC}*{fy}*({dC}-{aC}/2)/100000", "t.m/m", "", "=IF({MnC}>={MuC},\"CUMPLE\",\"NO CUMPLE\")")
+    it("AmC", "Cuantia minima", "=0.0018*100*{eC}*100", "cm2/m", "", "=IF({AsC}>={AmC},\"CUMPLE\",\"NO CUMPLE\")")
+    it("VuC", "Cortante ultimo Vu", "=1.7*{Pc}*(1+{IM})*({Lc}-{dC}/100-{c}/2)/{Lc}/{EC}+1.4*{gc}*{eC}*{Lc}/2", "t/m", "rueda a d del apoyo")
+    it("VcC", "Cortante resistente fVc", "=0.85*0.53*SQRT({fc})*100*{dC}/1000", "t/m", "", "=IF({VcC}>={VuC},\"CUMPLE\",\"NO CUMPLE\")")
     sec("D. MURO e=0.15 - TRAMO NORMAL (marco 3/8\" @0.20) - marco cerrado monolitico")
-    it("Altura del muro H", "=B19", "m", "altura interior maxima")
-    it("Empuje en reposo en la base p", "=B10*B9*B53", "t/m2", "Ko gamma H")
-    it("Sobrecarga lateral q", "=B10*B11", "t/m2", "Ko x s/c peatonal")
-    it("Momento de servicio", "=B54*B53^2/20+B55*B53^2/12", "t.m/m", "miembro de marco cerrado con extremos empotrados: p H2/20 (triangular) + q H2/12 (uniforme)")
-    it("Mu", "=1.7*B56", "t.m/m", "1.7 empuje")
-    it("Peralte efectivo d", "=(DATOS!$B$15-0.04)*100-0.48", "cm", "recubrimiento 4 cm")
-    it("As colocado", "=0.71/0.20", "cm2/m", "3/8\" @0.20")
-    it("a", "=B59*B7/(0.85*B6*100)", "cm", "")
-    it("Momento resistente fMn", "=0.9*B59*B7*(B58-B60/2)/100000", "t.m/m", "", "=IF(B61>=B57,\"CUMPLE\",\"NO CUMPLE\")")
-    it("Cuantia minima 0.0018 b e", "=0.0018*100*DATOS!$B$15*100", "cm2/m", "", "=IF(B59>=B62,\"CUMPLE\",\"NO CUMPLE\")")
-    it("Vu", "=1.7*(B54*B53/2*0.6+B55*B53/2)", "t/m", "reaccion en la base (0.6 de la triangular)")
-    it("fVc", "=0.85*0.53*SQRT(B6)*100*B58/1000", "t/m", "", "=IF(B64>=B63,\"CUMPLE\",\"NO CUMPLE\")")
-    # E muro cruce motos
+    it("HD", "Altura del muro H", "={H}", "m", "altura interior maxima")
+    it("pD", "Empuje en reposo en la base p", "={Ko}*{gs}*{HD}", "t/m2", "Ko gamma H")
+    it("qD", "Sobrecarga lateral q", "={Ko}*{sp}", "t/m2", "Ko x s/c peatonal")
+    it("MD", "Momento de servicio", "={pD}*{HD}^2/20+{qD}*{HD}^2/12", "t.m/m", "miembro de marco cerrado con extremos empotrados: p H2/20 (triangular) + q H2/12 (uniforme)")
+    it("MuD", "Mu", "=1.7*{MD}", "t.m/m", "1.7 empuje")
+    it("dD", "Peralte efectivo d", "=(DATOS!$B$15-0.04)*100-0.48", "cm", "recubrimiento 4 cm")
+    it("AsD", "As colocado", "=0.71/0.20", "cm2/m", "3/8\" @0.20")
+    it("aD", "a", "={AsD}*{fy}/(0.85*{fc}*100)", "cm", "")
+    it("MnD", "Momento resistente fMn", "=0.9*{AsD}*{fy}*({dD}-{aD}/2)/100000", "t.m/m", "", "=IF({MnD}>={MuD},\"CUMPLE\",\"NO CUMPLE\")")
+    it("AmD", "Cuantia minima 0.0018 b e", "=0.0018*100*DATOS!$B$15*100", "cm2/m", "", "=IF({AsD}>={AmD},\"CUMPLE\",\"NO CUMPLE\")")
+    it("VuD", "Vu", "=1.7*({pD}*{HD}/2*0.6+{qD}*{HD}/2)", "t/m", "reaccion en la base (0.6 de la triangular)")
+    it("VcD", "fVc", "=0.85*0.53*SQRT({fc})*100*{dD}/1000", "t/m", "", "=IF({VcD}>={VuD},\"CUMPLE\",\"NO CUMPLE\")")
     sec("E. MURO e=0.15 - CRUCE DE MOTOS (marco 3/8\" @0.15)")
-    it("Altura del muro H", "=B19", "m", "")
-    it("Empuje en reposo en la base p", "=B10*B9*B66", "t/m2", "")
-    it("Sobrecarga lateral q", "=B10*B12", "t/m2", "Ko x s/c vehiculo liviano")
-    it("Mu", "=1.7*(B67*B66^2/20+B68*B66^2/12)", "t.m/m", "")
-    it("As colocado", "=0.71/0.15", "cm2/m", "")
-    it("a", "=B70*B7/(0.85*B6*100)", "cm", "")
-    it("Momento resistente fMn", "=0.9*B70*B7*(B58-B71/2)/100000", "t.m/m", "", "=IF(B72>=B69,\"CUMPLE\",\"NO CUMPLE\")")
-    # F muro cruce camiones
+    it("HE", "Altura del muro H", "={H}", "m", "")
+    it("pE", "Empuje en reposo en la base p", "={Ko}*{gs}*{HE}", "t/m2", "")
+    it("qE", "Sobrecarga lateral q", "={Ko}*{sl}", "t/m2", "Ko x s/c vehiculo liviano")
+    it("MuE", "Mu", "=1.7*({pE}*{HE}^2/20+{qE}*{HE}^2/12)", "t.m/m", "")
+    it("AsE", "As colocado", "=0.71/0.15", "cm2/m", "")
+    it("aE", "a", "={AsE}*{fy}/(0.85*{fc}*100)", "cm", "")
+    it("MnE", "Momento resistente fMn", "=0.9*{AsE}*{fy}*({dD}-{aE}/2)/100000", "t.m/m", "", "=IF({MnE}>={MuE},\"CUMPLE\",\"NO CUMPLE\")")
     sec("F. MURO e=0.15 - CRUCE DE CAMIONES (doble marco 1/2\" @0.15)")
-    it("Altura del muro H", "=B19", "m", "")
-    it("Empuje en reposo en la base p", "=B10*B9*B74", "t/m2", "")
-    it("Sobrecarga lateral q", "=B10*B13", "t/m2", "Ko x s/c camion")
-    it("Mu", "=1.7*(B75*B74^2/20+B76*B74^2/12)", "t.m/m", "")
-    it("Peralte efectivo d", "=(DATOS!$B$15-0.04)*100-0.635", "cm", "")
-    it("As colocado (una capa)", "=1.27/0.15", "cm2/m", "")
-    it("a", "=B79*B7/(0.85*B6*100)", "cm", "")
-    it("Momento resistente fMn", "=0.9*B79*B7*(B78-B80/2)/100000", "t.m/m", "", "=IF(B81>=B77,\"CUMPLE\",\"NO CUMPLE\")")
-    # G losa de fondo
+    it("HF", "Altura del muro H", "={H}", "m", "")
+    it("pF", "Empuje en reposo en la base p", "={Ko}*{gs}*{HF}", "t/m2", "")
+    it("qF", "Sobrecarga lateral q", "={Ko}*{sc}", "t/m2", "Ko x s/c camion")
+    it("MuF", "Mu", "=1.7*({pF}*{HF}^2/20+{qF}*{HF}^2/12)", "t.m/m", "")
+    it("dF", "Peralte efectivo d", "=(DATOS!$B$15-0.04)*100-0.635", "cm", "")
+    it("AsF", "As colocado (una capa)", "=1.27/0.15", "cm2/m", "")
+    it("aF", "a", "={AsF}*{fy}/(0.85*{fc}*100)", "cm", "")
+    it("MnF", "Momento resistente fMn", "=0.9*{AsF}*{fy}*({dF}-{aF}/2)/100000", "t.m/m", "", "=IF({MnF}>={MuF},\"CUMPLE\",\"NO CUMPLE\")")
     sec("G. LOSA DE FONDO e=0.15 (marco 3/8\" @0.20)")
-    it("Peso de la estructura por metro", "=B8*(DATOS!$B$14+2*DATOS!$B$15)*(DATOS!$B$17+DATOS!$B$16)+2*B8*DATOS!$B$15*B19", "t/m", "losas + muros (altura maxima)")
-    it("Agua (colector lleno) y sobrecarga", "=1.0*DATOS!$B$14*B19+B11*(DATOS!$B$14+2*DATOS!$B$15)", "t/m", "")
-    it("Reaccion del suelo", "=(B83+B84)/(DATOS!$B$14+2*DATOS!$B$15)", "t/m2", "uniforme")
-    it("Mu", "=1.5*B85*B18^2/8", "t.m/m", "1.5 (D+L) wL2/8, simplemente apoyada (conservador)")
-    it("Peralte efectivo d", "=(DATOS!$B$16-0.04)*100-0.48", "cm", "")
-    it("As colocado", "=0.71/0.20", "cm2/m", "")
-    it("a", "=B88*B7/(0.85*B6*100)", "cm", "")
-    it("Momento resistente fMn", "=0.9*B88*B7*(B87-B89/2)/100000", "t.m/m", "", "=IF(B90>=B86,\"CUMPLE\",\"NO CUMPLE\")")
-    it("Presion sobre el suelo", "=B85", "t/m2", "comparar con la capacidad portante del EMS", "=IF(B91<=1.0,\"CUMPLE (<= 1.0 kg/cm2)\",\"VERIFICAR EMS\")")
-    # H tapa
+    it("WG", "Peso de la estructura por metro", "={gc}*(DATOS!$B$14+2*DATOS!$B$15)*(DATOS!$B$17+DATOS!$B$16)+2*{gc}*DATOS!$B$15*{H}", "t/m", "losas + muros (altura maxima)")
+    it("WwG", "Agua (colector lleno) y sobrecarga", "=1.0*DATOS!$B$14*{H}+{sp}*(DATOS!$B$14+2*DATOS!$B$15)", "t/m", "")
+    it("qG", "Reaccion del suelo", "=({WG}+{WwG})/(DATOS!$B$14+2*DATOS!$B$15)", "t/m2", "uniforme")
+    it("MuG", "Mu", "=1.5*{qG}*{Lc}^2/8", "t.m/m", "1.5 (D+L) wL2/8, simplemente apoyada (conservador)")
+    it("dG", "Peralte efectivo d", "=(DATOS!$B$16-0.04)*100-0.48", "cm", "")
+    it("AsG", "As colocado", "=0.71/0.20", "cm2/m", "")
+    it("aG", "a", "={AsG}*{fy}/(0.85*{fc}*100)", "cm", "")
+    it("MnG", "Momento resistente fMn", "=0.9*{AsG}*{fy}*({dG}-{aG}/2)/100000", "t.m/m", "", "=IF({MnG}>={MuG},\"CUMPLE\",\"NO CUMPLE\")")
+    it("sG", "Presion sobre el suelo", "={qG}/10", "kg/cm2", "comparar con la capacidad portante del EMS", "=IF({sG}<=1.0,\"CUMPLE (<= 1.0 kg/cm2)\",\"VERIFICAR EMS\")")
     sec("H. TAPA DE REGISTRO 0.68 x 0.68 x 0.08 - 3/8\" @0.10 (rueda liviana; no hay registros en los cruces)")
-    it("Espesor", 0.08, "m", ""); it("Luz de calculo", 0.64, "m", "luz libre 0.60 + apoyo 0.02 a cada lado")
-    it("Ancho de franja", "=MIN(0.66+0.55*B94,0.68)", "m", "limitado al ancho de la tapa")
-    it("Momento por rueda", "=B14*(1+B16)*(B94/4-B17/8)/B95", "t.m/m", "")
-    it("Mu", "=1.4*B8*B93*B94^2/8+1.7*B96", "t.m/m", "")
-    it("Peralte efectivo d", "=(B93-0.025)*100-0.48", "cm", "")
-    it("As colocado", "=0.71/0.10", "cm2/m", "")
-    it("a", "=B99*B7/(0.85*B6*100)", "cm", "")
-    it("Momento resistente fMn", "=0.9*B99*B7*(B98-B100/2)/100000", "t.m/m", "", "=IF(B101>=B97,\"CUMPLE\",\"NO CUMPLE\")")
+    it("eH", "Espesor", 0.08, "m", ""); it("LH", "Luz de calculo", 0.64, "m", "luz libre 0.60 + apoyo 0.02 a cada lado")
+    it("EH", "Ancho de franja", "=MIN(0.66+0.55*{LH},0.68)", "m", "limitado al ancho de la tapa")
+    it("MrH", "Momento por rueda", "={Pl}*(1+{IM})*({LH}/4-{c}/8)/{EH}", "t.m/m", "")
+    it("MuH", "Mu", "=1.4*{gc}*{eH}*{LH}^2/8+1.7*{MrH}", "t.m/m", "")
+    it("dH", "Peralte efectivo d", "=({eH}-0.025)*100-0.48", "cm", "")
+    it("AsH", "As colocado", "=0.71/0.10", "cm2/m", "")
+    it("aH", "a", "={AsH}*{fy}/(0.85*{fc}*100)", "cm", "")
+    it("MnH", "Momento resistente fMn", "=0.9*{AsH}*{fy}*({dH}-{aH}/2)/100000", "t.m/m", "", "=IF({MnH}>={MuH},\"CUMPLE\",\"NO CUMPLE\")")
+    # asignar filas
+    KEY = {}; r = 5
+    for f in rows:
+        if f[0] is not None: KEY[f[0]] = r
+        r += 1
+    def tr(txt):
+        return re.sub(r"\{(\w+)\}", lambda m: "B%d" % KEY[m.group(1)], txt) if isinstance(txt, str) else txt
     r = 5
     for f in rows:
-        if len(f) == 1:
-            celda(ws, f"A{r}", f[0], NEG, fill=GRIS)
+        if f[0] is None:
+            celda(ws, f"A{r}", f[1], NEG, fill=GRIS)
         else:
-            vals = list(f) + [None] * (5 - len(f))
+            vals = [f[1], tr(f[2]), f[3], f[4], tr(f[5]) if len(f) > 5 else None]
             fila(ws, r, vals, fonts=[NEGRO, None, NEGRO, NEGRO, NEG])
-            if isinstance(vals[1], str) and (vals[1].startswith("=DATOS") or vals[1].startswith("=PERFIL") or vals[1].startswith("=MAX(PERFIL") or vals[1].startswith("=MIN(PERFIL")):
-                ws[f"B{r}"].font = VERDE
+            if isinstance(vals[1], str) and ("DATOS" in vals[1] or "PERFIL" in vals[1]): ws[f"B{r}"].font = VERDE
             ws[f"B{r}"].number_format = "0.000"
         r += 1
-    celda(ws, f"A{r+1}", "Los muros se verifican como miembros del marco cerrado (losa superior y de fondo vaciadas monoliticamente). En los cruces, el acero indicado va en ambas caras. Registros solo fuera de los cruces vehiculares.", SUB)
+    celda(ws, f"A{r+1}", "Los muros se verifican como miembros del marco cerrado (losa superior y de fondo vaciadas monoliticamente con los muros). En los cruces el acero indicado va en ambas caras. Registros solo fuera de los cruces vehiculares.", SUB)
     return ws
 
 
@@ -398,7 +401,7 @@ def hoja_memoria(wb, R, rlast):
         ("2. NORMATIVA", "RNE CE.040 Drenaje Pluvial (RM 126-2021-VIVIENDA); RNE E.020 Cargas; RNE E.060 Concreto Armado; AASHTO LRFD (rueda HL-93 en el cruce de camiones); Chow, Hidraulica de canales abiertos (paso estandar)."),
         ("3. HIDROLOGIA", "Metodo Racional con los coeficientes y areas de las memorias HIDRO-CE040 de cada proyecto, TR = 25 anos, tc = 15 min, I = 155.66 mm/h, FS = 1.15. Q = 258.7 + 301.9 = 560.6 L/s."),
         ("4. HIDRAULICA", "Colector cubierto de concreto armado b = 0.80 m, S = 0.30 %, n = 0.015. El fondo inicial (259.10) queda bajo las cunetas de arquitectura (NCF 259.70 a 260.12) y el fondo final (258.89) sobre el R-01 del receptor (258.72). La entrega es por caja de caida con poza de disipacion deprimida 0.40 m, ahogada por el tirante del receptor; el control del perfil es el tirante critico en el brink y el flujo en el colector es subcritico (F <= 0.90). El aporte externo cae en una caja de llegada con colchon de agua."),
-        ("5. ESTRUCTURAS", "Losa superior e = 0.10 (tramo normal y cruce de motos) y e = 0.20 en el cruce de camiones; muros e = 0.15 (altura interior 1.40 a 1.65 m) como marco cerrado monolitico; losa de fondo e = 0.15; tapas de registro 0.68 x 0.68 x 0.08."),
+        ("5. ESTRUCTURAS", "Losa superior e = 0.10 (tramo normal y cruce de motos) y e = 0.25 en el cruce de camiones; muros e = 0.15 (altura interior 1.40 a 1.65 m) como marco cerrado monolitico; losa de fondo e = 0.15; tapas de registro 0.68 x 0.68 x 0.08."),
         ("6. RESULTADOS", "Ver cuadro resumen. Secciones, acero y detalles en las laminas DP-01 a DP-10 y DA-01 a DA-03."),
     ]
     r = 4
@@ -438,8 +441,19 @@ def construir(fn=os.path.join(RAIZ, "entregables", "MEMORIA_CALCULO_COLECTOR_HOG
     wb = openpyxl.Workbook(); wb.remove(wb.active)
     hoja_datos(wb, R); hoja_caudales(wb, R); hoja_cunetas(wb, R); hoja_empalme(wb, R)
     ws, rlast = hoja_perfil(wb, R); hoja_estructural(wb, R); hoja_memoria(wb, R, rlast)
+    OLD = {11: "I", 12: "FS", 14: "b", 15: "em", 16: "ef", 17: "et", 18: "ec", 19: "CF0", 20: "S", 23: "pb", 25: "NPT",
+           26: "pc1", 27: "pc2", 28: "pm1", 29: "pm2", 32: "n", 33: "llen", 34: "BLmin", 37: "CFr", 38: "NAr", 41: "CFv",
+           44: "pcl", 45: "pcc", 46: "Lcc"}
+    import re
+    def tr(m):
+        return "DATOS!" + m.group(1) + "B" + m.group(2) + str(ROW[OLD[int(m.group(3))]])
     for ws in wb.worksheets:
         ws.sheet_view.showGridLines = False
+        if ws.title == "DATOS": continue
+        for row in ws.iter_rows():
+            for c in row:
+                if isinstance(c.value, str) and "DATOS!" in c.value:
+                    c.value = re.sub(r"DATOS!(\$?)B(\$?)(\d+)", tr, c.value)
     os.makedirs(os.path.dirname(fn), exist_ok=True); wb.save(fn)
     return fn, R
 
