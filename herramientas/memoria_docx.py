@@ -441,13 +441,17 @@ def construir():
     titulo2(doc, "Resumen de metrados del tramo")
     parrafo(doc, "Los metrados del colector se incorporan a la planilla general de metrados del proyecto como partida "
                  "independiente 01.04.04 COLECTOR PLUVIAL FRONTAL, con su propio desglose por tramos, registros, cajas, juntas "
-                 "y empalmes, sin modificar las partidas existentes del sistema de drenaje pluvial. Las cantidades principales son:")
+                 "y empalmes, sin modificar las partidas existentes del sistema de drenaje pluvial. Cada cantidad se sustenta en las "
+                 "hojas COLECTOR PARAMETROS, COLECTOR MOV. TIERRAS, COLECTOR CONCRETO, COLECTOR ENCOFRADO, COLECTOR ACERO, COLECTOR "
+                 "REGISTROS Y TAPAS y COLECTOR JUNTAS Y EMPALMES de la misma planilla, con las dimensiones de las láminas y la fórmula "
+                 "de cada medida a la vista. Las cantidades principales son:")
     Rg = RM["registros"]
     filas = [["Excavación manual de zanjas", "m³", f2(RM["excav_m3"])], ["Relleno compactado con material propio", "m³", f2(RM["relleno_m3"])],
              ["Eliminación de material excedente", "m³", f2(RM["elimin_m3"])], ["Solado f'c = 100 kg/cm² e = 0.05 m", "m²", f2(RM["solado_m2"])],
              ["Concreto f'c = 210 kg/cm² en losa de fondo", "m³", f2(RM["conc_fondo_m3"])], ["Concreto f'c = 210 kg/cm² en muros", "m³", f2(RM["conc_muros_m3"])],
              ["Concreto f'c = 210 kg/cm² en losa superior", "m³", f2(RM["conc_losa_m3"])], ["Encofrado y desencofrado", "m²", f2(RM["encof_m2"])],
              ["Acero de refuerzo fy = 4200 kg/cm² en colector y cajas", "kg", f2(RM["acero_colector_kg"])],
+             ["Acabado frotachado y bruñado de losa superior", "m²", f2(RM["acabado_m2"])], ["Curado de concreto", "m²", f2(RM["curado_m2"])],
              ["Registros con tapa de concreto armado, marco y contramarco", "und", "%d" % Rg["n"]],
              ["Junta de dilatación e = 1\" con sello", "m", f2(RM["juntas"]["L_dilat"])], ["Empalmes de cunetas", "und", "%d" % RM["empalmes"]]]
     tabla(doc, ["PARTIDA", "UND", "METRADO"], filas, anchos=[10.0, 2.0, 3.0])

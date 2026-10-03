@@ -14,5 +14,5 @@ Hoja PLANILLA TAPAS REGISTRO INTERNO  celdas originales con contenido:    80  mo
 Hoja PARAMETROS                       celdas originales con contenido:    50  modificadas: 0
 Hoja Listas                           celdas originales con contenido:    29  modificadas: 0
 
-Hojas nuevas: COLECTOR TRAMOS, COLECTOR ACERO, COLECTOR TAPAS, COLECTOR INSUMOS
+Hojas nuevas: COLECTOR PARAMETROS, COLECTOR MOV. TIERRAS, COLECTOR CONCRETO, COLECTOR ENCOFRADO, COLECTOR ACERO, COLECTOR REGISTROS Y TAPAS, COLECTOR JUNTAS Y EMPALMES, COLECTOR INSUMOS
 Resultado: SIN CAMBIOS en el contenido original

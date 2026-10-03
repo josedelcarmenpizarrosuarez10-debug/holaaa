@@ -116,7 +116,16 @@ def registros():
     return dict(n=n, contramarco_m=2.80 * n, contramarco_kg=2.80 * n * ANG["2x2x3/16"], marco_m=2.72 * n, marco_kg=2.72 * n * ANG["1.5x1.5x1/8"],
                 tapa_conc=0.68 * 0.68 * 0.08 * n, borde_conc=3.00 * 0.15 * 0.10 * n,
                 acero_borde_kg=8 * 1.40 * n * PESO["1/2"], acero_tapa_kg=14 * 0.62 * n * PESO["3/8"], asas_kg=2 * 0.40 * n * PESO["3/8"], anclajes_kg=8 * 0.20 * n * PESO["3/8"],
-                pintura_m2=(2.80 * 0.203 + 2.72 * 0.152) * n, losa_descuento=0.70 * 0.70 * D["e_losa"] * n)
+                pintura_m2=(2.80 * 0.203 + 2.72 * 0.152) * n, losa_descuento=0.70 * 0.70 * D["e_losa"] * (n - 3))   # las 3 aberturas de las cajas ya se descuentan en cajas()
+
+
+MALLA_S = 0.20          # malla 3/8" @0.20 en ambas caras de losas y muros de las cajas (lamina DP-07)
+MALLA_TRASLAPE = 1.10   # 10 % por traslapes y ganchos
+
+
+def malla(L1, L2, caras=2):
+    """kg de malla 3/8" en un paño L1 x L2: barras en los dos sentidos, en 'caras' caras."""
+    return ((L1 / MALLA_S + 1) * L2 + (L2 / MALLA_S + 1) * L1) * caras * MALLA_TRASLAPE * PESO["3/8"]
 
 
 def cajas():
@@ -129,8 +138,8 @@ def cajas():
                      c_fondo=(Li + 2 * e) * (Bi + 2 * e) * ef, c_muros=(2 * (Li + 2 * e) + 2 * Bi) * e * H - 0.80 * (D["NPT"] - D["e_losa"] - D["CF0"]) * e + e * Bi * (D["CF0"] - piso),
                      c_losa=(Li + 2 * e) * (Bi + 2 * e) * D["e_losa"] - 0.49 * D["e_losa"],
                      excav=(Li + 2 * e + 2 * SOBREEXC) * (Bi + 2 * e + 2 * SOBREEXC) * max(0.0, terr - (piso - ef - D["e_solado"])),
-                     solado=(Li + 2 * e + 0.1) * (Bi + 2 * e + 0.1), encof=2 * (2 * (Li + Bi) * H) + Li * Bi, acabado=(Li + 2 * e) * (Bi + 2 * e),
-                     acero_kg=((Li + 2 * e) * (Bi + 2 * e) * 2 / 0.20 * 2 + (2 * (Li + Bi)) * H / 0.20 * 2 * 1.1 + (2 * (Li + Bi) + 8 * e) / 0.20 * H * 2) * PESO["3/8"] * 0.6)
+                     solado=(Li + 2 * e + 0.1) * (Bi + 2 * e + 0.1), encof=2 * (2 * (Li + Bi) * H) + Li * Bi + Bi * D["CL_poza"], acabado=(Li + 2 * e) * (Bi + 2 * e),
+                     acero_kg=malla(Li + 2 * e, Bi + 2 * e) * 2 + malla(Li + 2 * e, H) * 2 + malla(Bi, H) * 2)
     # CC: poza 1.50 x 3.50, piso CF_R01-0.40, umbral 0.40 x 0.25, losa superior
     Li, Bi = D["CC_poza_largo"], D["CC_ancho"]; piso = D["CF_R01"] - D["CC_poza_prof"]; H = D["NPT"] - D["e_losa"] - piso
     terr = float(np.interp(dz.P_FIN - 1.0, ps, zs))
@@ -140,9 +149,11 @@ def cajas():
                      c_losa=(Li + 2 * e) * (Bi + 2 * e) * D["e_losa"] - 2 * 0.49 * D["e_losa"],
                      excav=(Li + 2 * e + 2 * SOBREEXC) * (Bi + 2 * e + 2 * SOBREEXC) * max(0.0, terr - (piso - ef - D["e_solado"])),
                      solado=(Li + 2 * e + 0.1) * (Bi + 2 * e + 0.1), encof=2 * (2 * (Li + Bi) * H) + Li * Bi + 2 * Bi * D["CC_poza_prof"] + Bi * (dz.fondo(dz.P_BRINK) - piso), acabado=(Li + 2 * e) * (Bi + 2 * e),
-                     acero_kg=((Li + 2 * e) * (Bi + 2 * e) * 2 / 0.20 * 2 + (2 * (Li + Bi)) * H / 0.20 * 2 * 1.1 + (2 * (Li + Bi) + 8 * e) / 0.20 * H * 2) * PESO["3/8"] * 0.6)
+                     acero_kg=malla(Li + 2 * e, Bi + 2 * e) * 2 + malla(Li + 2 * e, H) * 2 + malla(Bi, H) * 1)
     for c in out.values():
-        c["relleno"] = max(0.0, c["excav"] - (c["Li"] + 2 * e) * (c["Bi"] + 2 * e) * (c["H"] + ef + D["e_solado"]))
+        c["relleno"] = max(0.0, c["excav"] - (c["Li"] + 2 * e) * (c["Bi"] + 2 * e) * (c["H"] + D["e_losa"] + ef + D["e_solado"]))
+        c["trazo"] = (c["Li"] + 2 * e + 2 * SOBREEXC) * (c["Bi"] + 2 * e + 2 * SOBREEXC)
+        c["curado"] = 2 * (c["Li"] + c["Bi"]) * c["H"] + c["Li"] * c["Bi"] + (c["Li"] + 2 * e) * (c["Bi"] + 2 * e)
     return out
 
 
@@ -161,8 +172,8 @@ def prolongaciones():
 
 def juntas():
     n = int(dz.P_BRINK // 4.0)
-    per = 2 * (D["b"] + 2 * D["e_muro"]) + 2 * (D["e_fondo"] + 1.60 + D["e_losa"])
-    return dict(n=n, L_dilat=n * per, L_tecnopor_cerco=dz.P_B1, L_tecnopor_piso=2 * dz.P_BRINK + 2 * (D["CL_largo"] + 0.3) + 2 * (D["CC_poza_largo"] + 0.3))
+    per = 2 * (D["b"] + 2 * D["e_muro"]) + 2 * (D["e_fondo"] + 1.61 + D["e_losa"])   # 1.61 = altura interior maxima
+    return dict(n=n, L_dilat=n * per, L_tecnopor_cerco=dz.P_B1, L_tecnopor_piso=2 * dz.P_BRINK + 2 * (D["CL_largo"] + 2 * D["e_muro"] + 0.3) + 2 * (D["CC_poza_largo"] + 2 * D["e_muro"] + 0.3))
 
 
 def resumen():
@@ -170,7 +181,7 @@ def resumen():
     s = lambda k: sum(t[k] for t in T)
     sg = lambda k: sum(t[k] for t in SG)
     R = {}
-    R["trazo_m2"] = s("trazo") + sum(c["solado"] for c in C.values())
+    R["trazo_m2"] = s("trazo") + sum(c["trazo"] for c in C.values())
     R["excav_m3"] = s("excav") + sum(c["excav"] for c in C.values())
     R["refine_m2"] = s("solado") + sum(c["solado"] for c in C.values())
     R["relleno_m3"] = s("relleno") + sum(c["relleno"] for c in C.values())
@@ -185,6 +196,7 @@ def resumen():
     R["acero_12_kg"] = sum(t["marcos_kg"] for t in SG if t["marcos_dia"] == "1/2")
     R["segmentos"] = SG
     R["acabado_m2"] = s("acabado") + sum(c["acabado"] for c in C.values())
+    R["curado_m2"] = sum((2 * t["h"] + D["b"] + t["be"]) * t["L"] for t in T) + sum(c["curado"] for c in C.values())
     R["registros"] = Rg; R["cajas"] = C; R["prolong"] = Pr; R["juntas"] = J
     # informativo (no se suma a la partida del colector): prolongacion de cunetas Ejes 11 y 12
     R["prolong_L"] = sum(p["L"] for p in Pr)

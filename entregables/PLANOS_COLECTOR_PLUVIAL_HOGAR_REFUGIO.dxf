@@ -489,7 +489,7 @@ $SKPOLY
   9
 $TDCREATE
  40
-2461317.7333217594
+2461317.8491319446
   9
 $TDUCREATE
  40
@@ -497,7 +497,7 @@ $TDUCREATE
   9
 $TDUPDATE
  40
-2461317.7333333334
+2461317.8491435186
   9
 $TDUUPDATE
  40
@@ -929,11 +929,11 @@ $PSTYLEMODE
   9
 $FINGERPRINTGUID
   2
-{10EF9BB6-EEA4-472C-9DF4-09356152E0B0}
+{86CE5532-DC6D-4A62-992C-40740FDC9328}
   9
 $VERSIONGUID
   2
-{03AFFE13-7AB2-4954-BA22-CAD0DB9E98FB}
+{00AD4DE1-73B4-4DFD-B7DC-2399308C80CF}
   9
 $EXTNAMES
 290
@@ -336263,7 +336263,7 @@ AcDbText
  40
 0.0425
   1
-18.50
+18.80
   7
 STANDARD
  72
@@ -336407,7 +336407,7 @@ AcDbText
  40
 0.0425
   1
-82.6
+197.9
   7
 STANDARD
  72
@@ -336983,7 +336983,7 @@ AcDbText
  40
 0.0425
   1
-208.6
+446.0
   7
 STANDARD
  72
@@ -361053,7 +361053,7 @@ AcDbText
  40
 0.0425
   1
-519.9
+1149.8
   7
 STANDARD
  72
@@ -361089,7 +361089,7 @@ AcDbText
  40
 0.0425
   1
-291.1
+643.9
   7
 STANDARD
  72
@@ -362097,7 +362097,7 @@ AcDbText
  40
 0.0425
   1
-2836.4
+3189.2
   7
 STANDARD
  72
@@ -362133,7 +362133,7 @@ AcDbText
  40
 0.0425
   1
-Resumen: acero 3/8" = 2349.8 kg ; acero 1/2" = 486.6 kg ; total = 2836.4 kg (incluye traslapes y ganchos). Angulos metalicos: 151.4 kg.
+Resumen: acero 3/8" = 2702.6 kg ; acero 1/2" = 486.6 kg ; total = 3189.2 kg (incluye traslapes y ganchos). Angulos metalicos: 151.4 kg.
   7
 STANDARD
  11
@@ -375315,7 +375315,7 @@ AcDbText
  40
 0.0425
   1
-121.89
+125.85
   7
 STANDARD
  72
@@ -375747,7 +375747,7 @@ AcDbText
  40
 0.0425
   1
-84.28
+84.05
   7
 STANDARD
  72
@@ -375891,7 +375891,7 @@ AcDbText
  40
 0.0425
   1
-96.71
+96.99
   7
 STANDARD
  72
@@ -385751,7 +385751,7 @@ AcDbText
  40
 0.0425
   1
-9.25
+9.39
   7
 STANDARD
  72
@@ -385859,7 +385859,7 @@ AcDbText
  40
 0.0425
   1
-579.43
+579.73
   7
 STANDARD
  72
@@ -394739,7 +394739,7 @@ AcDbText
  40
 0.0425
   1
-2287.8
+2640.5
   7
 STANDARD
  72
@@ -395423,7 +395423,7 @@ AcDbText
  40
 0.0425
   1
-Junta de dilatacion e=1" con sello (17 und x 5.90 m)
+Junta de dilatacion e=1" con sello (17 und x 5.92 m)
   7
 STANDARD
  72
@@ -395495,7 +395495,7 @@ AcDbText
  40
 0.0425
   1
-100.30
+100.64
   7
 STANDARD
  72
@@ -395711,7 +395711,7 @@ AcDbText
  40
 0.0425
   1
-150.97
+152.17
   7
 STANDARD
  72
@@ -396837,7 +396837,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-10-03T17:35:59.423579+00:00
+1.4.4 @ 2026-10-03T20:22:45.821030+00:00
   0
 DICTIONARYVAR
   5
@@ -396849,7 +396849,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-10-03T17:36:00.060156+00:00
+1.4.4 @ 2026-10-03T20:22:46.407095+00:00
   0
 ENDSEC
   0
