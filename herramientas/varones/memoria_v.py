@@ -241,8 +241,9 @@ def hoja_perfil(wb, R):
     celda(ws, f"A{rv+1}", "Tirante normal por punto fijo: y(k+1) = (Q n (b + 2 y(k))^(2/3) / (b^(5/3) S^(1/2)))^(3/5), 8 iteraciones (columnas P a W). Esfuerzo tractivo tau = gamma R S.", SUB)
     encabezado_tabla(ws, rv + 2, ["CASO", "Q (m3/s)", "yn (m)", "V (m/s)", "R (m)", "TAU (kg/m2)", "TAU (Pa)", "FROUDE", "V >= 0.90 m/s (CE.040)", "TAU >= 0.15 kg/m2", "V <= 3.0 m/s (concreto)", "AUTOLIMPIEZA DEL TRAMO"])
     ra = ROW["c_ra"]
-    casos = [("Tramo Eje 04 - CL: caudal de diseno del colector (221.7 L/s)", "=CAUDALES!$D$%d/1000" % (ra + 3), True), ("Tramo Ejes 06 - 04 (149.3 L/s)", "=CAUDALES!$D$%d/1000" % (ra + 2), True),
-             ("Tramo Ejes 08 - 06 (81.3 L/s)", "=CAUDALES!$D$%d/1000" % (ra + 1), True), ("Tramo Ejes 09 - 08 (33.6 L/s)", "=CAUDALES!$D$%d/1000" % ra, True),
+    cc = [c for c in R["cunetas"] if c["entra_en"] == "colector"]; acum = [sum(x["Q"] for x in cc[:i + 1]) for i in range(len(cc))]
+    casos = [("Tramo Eje %s - CL: caudal de diseno del colector (%.1f L/s)" % (cc[3]["perfil"], acum[3]), "=CAUDALES!$D$%d/1000" % (ra + 3), True), ("Tramo Ejes %s - %s (%.1f L/s)" % (cc[2]["perfil"], cc[3]["perfil"], acum[2]), "=CAUDALES!$D$%d/1000" % (ra + 2), True),
+             ("Tramo Ejes %s - %s (%.1f L/s)" % (cc[1]["perfil"], cc[2]["perfil"], acum[1]), "=CAUDALES!$D$%d/1000" % (ra + 1), True), ("Tramo Ejes %s - %s (%.1f L/s)" % (cc[0]["perfil"], cc[1]["perfil"], acum[0]), "=CAUDALES!$D$%d/1000" % ra, True),
              ("Informativo: 25 % del caudal de diseno", "=0.25*CAUDALES!$D${r_qcol_m3}", False), ("Informativo: 10 % del caudal de diseno (lluvia menor)", "=0.10*CAUDALES!$D${r_qcol_m3}", False), ("Informativo: 5 % del caudal de diseno", "=0.05*CAUDALES!$D${r_qcol_m3}", False)]
     for k, (nm, q, tramo) in enumerate(casos):
         r = rv + 3 + k
@@ -268,7 +269,7 @@ def hoja_perfil(wb, R):
     celda(ws, f"A{rf+1}", "Velocidad maxima en el perfil de flujo (m/s)"); celda(ws, f"B{rf+1}", f"=MAX(H{r0}:H{rlast})", NEGRO, "0.00")
     celda(ws, f"A{rf+2}", "Velocidad en el ultimo tramo con el caudal de diseno, tirante normal (m/s)"); celda(ws, f"B{rf+2}", f"=D{rv+3}", NEGRO, "0.00")
     celda(ws, f"A{rf+3}", "Verificacion global de velocidades y autolimpieza"); celda(ws, f"B{rf+3}", f"=IF(AND(B{rf+1}<=3.0,B{rf+2}>=0.9,COUNTIF(L{rv+3}:L{rv+6},\"NO CUMPLE\")=0),\"CUMPLE\",\"NO CUMPLE\")", NEGRO)
-    celda(ws, f"A{rf+4}", "Criterios: velocidad minima 0.90 m/s con el caudal de diseno en la entrega (RNE CE.040) y maxima 3.0 m/s (revestimiento de concreto). En cada tramo entre empalmes se verifica la autolimpieza con su propio caudal de diseno: V >= 0.90 m/s o esfuerzo tractivo tau = gamma R S >= 0.15 kg/m2 (1.5 Pa, criterio ASCE/WEF para colectores). En los tramos de cabecera (33.6 y 81.3 L/s) la velocidad es menor de 0.90 m/s porque el ancho 0.60 es el minimo practicable para limpieza; alli la autolimpieza se asegura por esfuerzo tractivo y por los registros cada 12 m como maximo.", SUB)
+    celda(ws, f"A{rf+4}", "Criterios: velocidad minima 0.90 m/s con el caudal de diseno en la entrega (RNE CE.040) y maxima 3.0 m/s (revestimiento de concreto). En cada tramo entre empalmes se verifica la autolimpieza con su propio caudal de diseno: V >= 0.90 m/s o esfuerzo tractivo tau = gamma R S >= 0.15 kg/m2 (1.5 Pa, criterio ASCE/WEF para colectores). En los tramos de cabecera la velocidad es menor de 0.90 m/s porque el ancho 0.60 es el minimo practicable para limpieza; alli la autolimpieza se asegura por esfuerzo tractivo y por los registros cada 12 m como maximo.", SUB)
     ws["B200"] = f"=B{rf+3}"; ws["A200"] = "Velocidades:"; ws["A200"].font = SUB
     ws["G200"] = f"=G{r0}"; ws["F200"] = "NA al final:"; ws["F200"].font = SUB
     ws.freeze_panes = "B6"

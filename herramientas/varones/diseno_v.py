@@ -136,7 +136,8 @@ def zona(p):
 _LEC = json.load(open(os.path.join(RAIZ, "insumos", "katiuska", "CUNETAS_CAR_VARONES_LEIDAS.json")))["ejes"]
 _ej = {e["eje"]: e for e in _LEC}
 # extremo dibujado de cada cuneta (marco de Solange) y franja tributaria (ancho en m a lo largo del frente)
-_FIN = {"09": (349255.4, 9281954.0), "08": (349242.6, 9281949.3), "06": (349218.6, 9281938.9), "04": (349190.0, 9281923.6), "01": (349162.6, 9281915.1)}
+# x = eje de las lineas de la cuneta (capa CUNETAS del plano, lineas verticales); y = extremo dibujado
+_FIN = {"09": (349254.72, 9281954.0), "08": (349242.6, 9281949.3), "06": (349218.6, 9281938.9), "04": (349190.0, 9281923.6), "01": (349162.6, 9281915.1)}
 _LIND_E = 349262.0; _LIND_O = X_NE
 _xs = {k: v[0] for k, v in _FIN.items()}
 _orden = sorted(_xs, key=lambda k: -_xs[k])          # de este a oeste: 09, 08, 06, 04, 01

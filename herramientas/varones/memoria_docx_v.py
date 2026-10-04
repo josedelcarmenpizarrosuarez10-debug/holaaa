@@ -169,10 +169,10 @@ def construir():
     titulo2(doc, "Velocidades y autolimpieza")
     parrafo(doc, "Con el caudal de diseño en la entrega la velocidad a tirante normal es %.2f m/s (0.90 a 3.0 m/s según la norma "
                  "CE.040) y en la caída libre llega a %.2f m/s. Como el caudal crece a lo largo del tramo, cada tramo entre empalmes "
-                 "se verifica con su propio caudal: en los tramos de cabecera (33.6 y 81.3 L/s) la velocidad es menor de 0.90 m/s "
+                 "se verifica con su propio caudal: en los tramos de cabecera (%.1f y %.1f L/s) la velocidad es menor de 0.90 m/s "
                  "porque el ancho de 0.60 m es el mínimo practicable, y allí la autolimpieza se asegura con el esfuerzo tractivo "
                  "τ = γ·R·S, mayor que 0.15 kg/m² (1.5 Pa) en todos los tramos, y con los registros de limpieza cada 12 m como máximo."
-                 % ([v for v in vel if v[0].startswith("Tramo Eje 04")][0][3] if vel else 0, Vmax))
+                 % ([v for v in vel if v[0].startswith("Tramo Eje 04")][0][3] if vel else 0, [c for c in cun if c["entra_en"] == "colector"][0]["Q"], sum(c["Q"] for c in cun if c["entra_en"] == "colector")[:2] if False else sum(c["Q"] for c in [x for x in cun if x["entra_en"] == "colector"][:2]), Vmax))
     if vel:
         tabla(doc, ["CASO", "Q (L/s)", "yn (m)", "V (m/s)", "τ (kg/m²)", "FROUDE", "AUTOLIMPIEZA"],
               [[v[0], "%.1f" % (v[1] * 1000), f3(v[2]), f2(v[3]), f2(v[5]), f2(v[7]), str(v[11] or "")] for v in vel], tam=9, anchos=[5.6, 1.6, 1.6, 1.6, 1.8, 1.6, 2.2])

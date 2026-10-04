@@ -104,9 +104,9 @@ def dp01(doc, ox, oy, R, T, BP):
     for k, c in enumerate(R["cunetas"]):
         p = c["prog"]; x, y = c["x"], c["y"]
         if c["entra_en"] == "colector":
-            corte = _pe(p, D["b_ext"] / 2); ux, uy = corte[0] - dz.eje_local(p)[0], corte[1] - dz.eje_local(p)[1]
-            L = math.hypot(ux, uy); ux, uy = ux / L, uy / L
-            fin = (corte[0] + ux * 3.0, corte[1] + uy * 3.0)
+            # la cuneta es una recta norte-sur (x = cte): termina en la cara del muro lado predio, sobre esa misma vertical
+            cv = dz.cruce_vertical(x, D["b_ext"] / 2); corte = (x, cv[1]); ux, uy = 0.0, 1.0
+            fin = (corte[0], corte[1] + 3.0)
             # tramo que se descuenta (desde el extremo dibujado hasta la cara del muro), en linea oculta
             lam.poli([(x, y), corte], "CUNETA-OCULTA")
             fl = (corte[0] + ux * 1.0, corte[1] + uy * 1.0); rot = math.degrees(math.atan2(-uy, -ux))
@@ -352,7 +352,7 @@ def dp02(doc, ox, oy, R, T):
     lam.notas(330, 98, "NOTAS", [
         "1. Corte longitudinal por el eje a escala real 1/50, horizontal = vertical. Cotas en m.s.n.m. Se ve la cara interior del muro lado predio con las ventanas de las cunetas.",
         "2. Nivel de agua por flujo gradualmente variado con caudal creciente en cada empalme (memoria, hoja PERFIL_FLUJO); control: tirante critico en la caida libre a la caja CL.",
-        "3. Caudales: Eje 09 33.6 + Eje 08 47.7 + Eje 06 68.0 + Eje 04 72.4 = 221.7 L/s en el colector; la cuneta del Eje 01 (37.0 L/s) entra directamente a la CL: total 258.7 L/s (TR 25 anos).",
+        "3. Caudales: %s = %.1f L/s en el colector; la cuneta del Eje 01 (%.1f L/s) entra directamente a la CL: total %.1f L/s (TR 25 anos)." % (" + ".join("Eje %s %.1f" % (c["perfil"], c["Q"]) for c in R["cunetas"] if c["entra_en"] == "colector"), R["Q"], R["Q_directo_CL"], R["Q_CL"]),
         "4. Registros con tapa de concreto 0.68 x 0.68 x 0.08, borde engrosado y contramarco metalico (DP-06B, DD-01, DD-02). No hay registros dentro del cruce de camiones.",
         "5. La caja CL y el colector del Hogar de Refugio (CUI 2675514) se muestran como referencia; la tapa de la CL queda en +261.15 (piso del CAR Varones).",
         "6. Prof. excav. medida desde el terreno existente al fondo del solado. Relleno de nivelacion del retiro hasta +261.15 donde el terreno queda por debajo.",
