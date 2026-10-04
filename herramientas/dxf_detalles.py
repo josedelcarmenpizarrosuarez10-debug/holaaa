@@ -64,6 +64,7 @@ TXT_JUNTA_CAJAS = ("Las cajas CL y CC llevan tecnopor en su contacto", "con el c
 TXT_DD04_SUB = "PARTIDA 01.04.04.06.03 - 6 EMPALMES (CUNETAS EJES 01, 02, 06, 07, 11 Y 12) - ESC. INDICADAS"
 TXT_DD03_C = "ESC. 1/10 - tramo 0+000.00 a 0+058.81 (pegado al cerco)"
 N_EMPALMES_TXT = "6 und"
+EJ_DD04 = 11.27
 TXT_DD04_CUNETA = "(Ejes 11 y 12 prolongadas hasta el muro)"
 
 
@@ -170,7 +171,7 @@ def dd01(doc, ox, oy, R, T):
              ["Borde engrosado 0.15 x 0.10, perimetro medio 3.00 m", "m3", f3(0.045), f2(n * 0.045), "01.04.04.04.03 LOSA SUPERIOR (ya incluido)"],
              ["Pintura anticorrosiva + esmalte (desarrollo 0.203 m2/m x 2.80 m)", "m2", f2(2.80 * 0.203), f2(n * 2.80 * 0.203), "01.04.04.05.07 PINTURA (parte)"],
              ["Mano de obra de habilitacion, soldadura y colocacion", "und", "1", "%d" % n, "01.04.04.05.01 CONTRAMARCO (und)"]]
-    cuadro(lam, 330, 200, "CUADRO DE COMPONENTES POR CONTRAMARCO (1 und) Y TOTAL (10 und)", filas)
+    cuadro(lam, 330, 200, "CUADRO DE COMPONENTES POR CONTRAMARCO (1 und) Y TOTAL (%d und)" % MC.registros()["n"], filas)
     lam.leyenda(330, 150, [("relleno", "MARCO-METALICO", "angulo metalico"), ("linea", "ACERO", "anclaje 3/8\""), ("linea", "ACERO-LONG", "refuerzo de borde 1/2\" (proyeccion)"), ("achurado", "CONCRETO-ACHURADO", "concreto f'c=210"), ("rect", "REGISTRO-TAPA", "tapa (referencia, ver DD-02)")], 1.8)
     return lam
 
@@ -274,7 +275,7 @@ def dd02(doc, ox, oy, R, T):
              ["Pintura anticorrosiva + esmalte del marco (0.152 m2/m x 2.72 m)", "m2", f2(2.72 * 0.152), f2(n * 2.72 * 0.152), "01.04.04.05.07 PINTURA (parte)"],
              ["Pintura total por registro: contramarco 0.57 + marco 0.41", "m2", f2(2.80 * 0.203 + 2.72 * 0.152), f2(n * (2.80 * 0.203 + 2.72 * 0.152)), "01.04.04.05.07 PINTURA (total)"],
              ["Fabricacion, curado y colocacion de la tapa", "und", "1", "%d" % n, "01.04.04.05.04 TAPA (und); marco: 01.04.04.05.02 (und)"]]
-    cuadro(lam, 330, 245, "CUADRO DE COMPONENTES POR TAPA CON MARCO (1 und) Y TOTAL (10 und)", filas)
+    cuadro(lam, 330, 245, "CUADRO DE COMPONENTES POR TAPA CON MARCO (1 und) Y TOTAL (%d und)" % MC.registros()["n"], filas)
     lam.leyenda(330, 180, [("relleno", "MARCO-METALICO", "angulo metalico / asa"), ("linea", "ACERO", "barra 3/8\" (sentido X)"), ("linea", "ACERO-LONG", "barra 3/8\" (sentido Y)"), ("achurado", "CONCRETO-ACHURADO", "concreto f'c=210 de la tapa"), ("relleno", "ISO-TAPA", "cajuela del asa")], 1.8)
     return lam
 
@@ -294,13 +295,13 @@ def dd03(doc, ox, oy, R, T):
     lam.poli([P(-b / 2, ef + h), P(-b / 2, ef), P(b / 2, ef), P(b / 2, ef + h)], "CORTES", ancho=0.025)
     lam.poli([P(-be / 2, ef + h + et), P(be / 2, ef + h + et)], "CORTES", ancho=0.025)
     lam.rect(*P(-0.8, -0.05), *P(0.8, 0), "SOLADO")
-    lam.cota(P(-b / 2, -0.05), P(b / 2, -0.05), -5, texto="0.80"); lam.cota(P(-be / 2, -0.05), P(be / 2, -0.05), -10, texto="1.10")
+    lam.cota(P(-b / 2, -0.05), P(b / 2, -0.05), -5, texto="%.2f" % b); lam.cota(P(-be / 2, -0.05), P(be / 2, -0.05), -10, texto="%.2f" % be)
     lam.cota(P(be / 2, 0), P(be / 2, ef), 6, horizontal=False, texto="0.15"); lam.cota(P(be / 2, ef), P(be / 2, ef + h), 6, horizontal=False, texto="h max = %.2f" % h)
     lam.cota(P(be / 2, ef + h), P(be / 2, ef + h + et), 6, horizontal=False, texto="0.10")
     xt = 215
     LL(lam, P(be / 2 - em / 2, ef + h * 0.8), xt, 480, ["plancha de tecnopor de 1\" (25 mm) en toda la", "seccion: 2 muros, losa de fondo y losa superior"])
-    LL(lam, P(b / 2, ef + h * 0.45), xt, 450, ["sello elastomerico de poliuretano 1\" x 1\" en", "las caras interiores (2 x h + 0.80)"])
-    LL(lam, P(0.2, ef + h + et), xt, 420, ["sello 1\" x 1\" en la cara superior (1.10),", "enrasado con el acabado de la losa"])
+    LL(lam, P(b / 2, ef + h * 0.45), xt, 450, ["sello elastomerico de poliuretano 1\" x 1\" en", "las caras interiores (2 x h + %.2f)" % b])
+    LL(lam, P(0.2, ef + h + et), xt, 420, ["sello 1\" x 1\" en la cara superior (%.2f)," % be, "enrasado con el acabado de la losa"])
     lam.titulo_vista(130, 262, "A. JUNTA DE DILATACION - SECCION TRANSVERSAL", "ESC. 1/10 - perimetro = 2 x %.2f + 2 x (%.2f + h + %.2f) = %.2f m (h = %.2f)" % (be, ef, et, per_j, h), 185)
     # ---------------- B. detalle de la junta (1/2)
     k = 5.0; ox_, oy_ = lam.P(560, 470)
@@ -356,7 +357,7 @@ def dd03(doc, ox, oy, R, T):
     # ---------------- cuadro, procedimiento, leyenda
     per = J["L_dilat"] / J["n"]; a_tec = be * (ef + h + et) - b * h; sello = 2 * h + b + be
     filas = [["Plancha de tecnopor 1\" (seccion %.2f x %.2f menos el hueco %.2f x %.2f)" % (be, ef + h + et, b, h), "m2", "%.3f (%.3f/m)" % (a_tec, a_tec / per), f2(J["n"] * a_tec), "01.04.04.06.01 (por metro de junta: perimetro %.2f m)" % per],
-             ["Sello de poliuretano 25 x 25 mm (caras interiores 2h + 0.80 y superior 1.10)", "m", "%.2f (%.3f/m)" % (sello, sello / per), f2(J["n"] * sello), "01.04.04.06.01: 0.63 L por metro de sello (aprox. 0.75 kg)"],
+             ["Sello de poliuretano 25 x 25 mm (caras interiores 2h + %.2f y superior %.2f)" % (b, be), "m", "%.2f (%.3f/m)" % (sello, sello / per), f2(J["n"] * sello), "01.04.04.06.01: 0.63 L por metro de sello (aprox. 0.75 kg)"],
              ["Imprimante para el sello (0.10 L por metro de cordon)", "L", f2(sello * 0.10), f2(J["n"] * sello * 0.10), "insumo del ACU"],
              ["Tecnopor 1\" contra el cerco: altura 0.90 x %.2f m" % J["L_tecnopor_cerco"], "m2", "0.90 por m", f2(0.90 * J["L_tecnopor_cerco"]), "01.04.04.06.02 (tramo pegado al cerco)"],
              ["Tecnopor 1\" en el borde de la losa con el piso: altura 0.10 x %.2f m" % J["L_tecnopor_piso"], "m2", "0.10 por m", f2(0.10 * J["L_tecnopor_piso"]), "01.04.04.06.02 (ambos lados del colector y cajas)"]]
@@ -375,7 +376,7 @@ def dd04(doc, ox, oy, R, T):
     lam = B.Lamina(doc, ox, oy, 10, "DD-04", "DETALLE CONSTRUCTIVO: EMPALME DE CUNETA AL COLECTOR (VENTANA EN MURO Y CAIDA)",
                    TXT_DD04_SUB)
     b, em, ef, et = D["b"], D["e_muro"], D["e_fondo"], D["e_losa"]; be = b + 2 * em
-    cun = R["cunetas"]; ej = cun[1]; Hc = ej["H"]; NCF = ej["NCF_fin"]; cf = dz.fondo(ej["prog"]); h = dz.techo(ej["prog"]) - cf; zc = ef + (NCF - cf); Hv = ef + h - zc; e_j = 0.025
+    cun = [c for c in R["cunetas"] if c.get("entra_en", "colector") == "colector"]; ej = min(cun, key=lambda c: abs(c["prog"] - EJ_DD04)); Hc = ej["H"]; NCF = ej["NCF_fin"]; cf = dz.fondo(ej["prog"]); h = dz.techo(ej["prog"]) - cf; zc = ef + (NCF - cf); Hv = ef + h - zc; e_j = 0.025
     # ---------------- A. elevacion interior del muro con la ventana (1/10)
     k = 1.0; ox_, oy_ = lam.P(150, 330)
     P = lambda x, y: (ox_ + x * k, oy_ + y * k)
@@ -402,7 +403,7 @@ def dd04(doc, ox, oy, R, T):
     LL(lam, P(-0.6, ef + h + et / 2), xt, 450, ["losa superior monolitica: hace de dintel (luz 0.40)"])
     LL(lam, P(0.05, zc - 0.05), xt, 425, ["marcos 3/8\" interrumpidos en la ventana:", "gancho de 0.10 bajo el alfeizar"])
     LL(lam, P(0.35, zc - 0.06), xt, 400, ["2 barras 3/8\" horizontales bajo el alfeizar, L = 1.00"])
-    lam.titulo_vista(150, 295, "A. VENTANA DE EMPALME - ELEVACION INTERIOR", "ESC. 1/10 - ejemplo cuneta Eje 02 (0+011.27); Hv de cada cuneta en el cuadro", 185)
+    lam.titulo_vista(150, 295, "A. VENTANA DE EMPALME - ELEVACION INTERIOR", "ESC. 1/10 - ejemplo cuneta Eje %s (0+%06.2f); Hv de cada cuneta en el cuadro" % (ej["perfil"], ej["prog"]), 185)
     # ---------------- B. corte por el empalme (1/10)
     k = 1.0; ox_, oy_ = lam.P(520, 330)
     P = lambda x, y: (ox_ + x * k, oy_ + y * k)
@@ -425,7 +426,7 @@ def dd04(doc, ox, oy, R, T):
     lam.poli([P(xr - em - 1.0 + em, zf), P(xr - em, zf)], "CORTES", ancho=0.015)
     lam.nivel(P(xq + 0.6, zc), NCF, texto="NCF %.2f" % NCF); lam.nivel(P(xl + 0.25, zf + 0.35), 0, texto="NA colector"); lam.nivel(P(xq + 0.6, zs), D["NPT"], texto="NPT +%.2f" % D["NPT"])
     lam.cota(P(xr + 1.1, zc), P(xr + 1.1, zt), 6, horizontal=False, texto="Hv"); lam.cota(P(xr, zc - 0.10), P(xq, zc - 0.10), -6, texto="1\"")
-    lam.cota(P(xl, -0.05), P(xr, -0.05), -8, texto="1.10"); lam.cota(P(xl + em, -0.05), P(xr - em, -0.05), -4, texto="0.80")
+    lam.cota(P(xl, -0.05), P(xr, -0.05), -8, texto="%.2f" % be); lam.cota(P(xl + em, -0.05), P(xr - em, -0.05), -4, texto="%.2f" % b)
     xt = 690
     LL(lam, P(xq + 0.5, zs), xt, 505, ["piso terminado del predio"])
     LL(lam, P(xq - e_j / 2, zc + 0.6), xt, 485, ["junta de tecnopor 1\" entre el extremo de la", "cuneta y el muro, en todo el contorno (0.60 + 2 x Hc)"])
@@ -434,13 +435,13 @@ def dd04(doc, ox, oy, R, T):
     LL(lam, P(xr - em / 2, zc - 0.06), xt, 410, ["barras horizontales de borde bajo el alfeizar"])
     LL(lam, P(xq - e_j / 2, zc - 0.112), xt, 385, ["sello elastomerico 25 x 25 mm en el contorno", "exterior de la junta"])
     LL(lam, P(xr - em - 0.5, zf), xt, 360, ["fondo con acabado pulido (mortero 1:3, 1 cm)", "en 1.00 m bajo la caida; sin dado disipador"])
-    lam.titulo_vista(560, 295, "B. CORTE POR EL EMPALME (mirando aguas abajo)", "ESC. 1/10 - ejemplo Eje 02; registro de limpieza encima (DD-01 y DD-02)", 185)
+    lam.titulo_vista(560, 295, "B. CORTE POR EL EMPALME (mirando aguas abajo)", "ESC. 1/10 - ejemplo Eje %s; registro de limpieza encima (DD-01 y DD-02)" % ej["perfil"], 185)
     # ---------------- C. planta del empalme (1/5)
     k = 2.0; ox_, oy_ = lam.P(150, 150)
     P = lambda x, y: (ox_ + x * k, oy_ + y * k)
     hatch_conc(lam, [P(-0.6, -em), P(-0.20, -em), P(-0.20, 0), P(-0.6, 0)], 0.6); hatch_conc(lam, [P(0.20, -em), P(0.6, -em), P(0.6, 0), P(0.20, 0)], 0.6)
     lam.rect(*P(-0.20, -em), *P(0.20, 0), "CUNETA-OCULTA"); lam.relleno([P(-0.20, -em), P(0.20, -em), P(0.20, 0), P(-0.20, 0)], "ISO-CUNETA")
-    lam.rect(*P(-0.6, -em - 0.35), *P(0.6, -em), "CONCRETO-OCULTO"); lam.texto(P(0, -em - 0.25), "INTERIOR DEL COLECTOR (b = 0.80)", 1.7, "TEXTOS", TA.MIDDLE_CENTER)
+    lam.rect(*P(-0.6, -em - 0.35), *P(0.6, -em), "CONCRETO-OCULTO"); lam.texto(P(0, -em - 0.25), "INTERIOR DEL COLECTOR (b = %.2f)" % b, 1.7, "TEXTOS", TA.MIDDLE_CENTER)
     yq = e_j
     for s in (-1, 1):
         pts = [P(s * 0.20, yq), P(s * 0.30, yq), P(s * 0.30, yq + 0.50), P(s * 0.20, yq + 0.50)]; lam.poli(pts, "CUNETA", cerrada=True); lam.achurado(pts, "TERRENO-ACHURADO", escala_mm=0.4)
@@ -468,7 +469,7 @@ def dd04(doc, ox, oy, R, T):
               ["Refuerzo de borde 3/8\": 4 verticales (Hv + 0.60) + 2 horizontales de 1.00", "kg", f2(tot(6) / n), f2(tot(6)), "01.04.04.06.03 EMPALME (und)"],
               ["Tecnopor 1\" en el contorno de la cuneta (0.60 + 2 x H)", "m2", f2(tot(7) / n), f2(tot(7)), "01.04.04.06.03 EMPALME (und)"],
               ["Sello elastomerico 25 x 25 mm en el contorno exterior", "m", f2(tot(8) / n), f2(tot(8)), "01.04.04.06.03 EMPALME (und)"],
-              ["Acabado pulido del fondo (mortero 1:3, e = 1 cm) 0.80 x 1.00", "m2", "0.80", f2(0.80 * n), "01.04.04.06.03 EMPALME (und)"],
+              ["Acabado pulido del fondo (mortero 1:3, e = 1 cm) %.2f x 1.00" % b, "m2", f2(b), f2(b * n), "01.04.04.06.03 EMPALME (und)"],
               ["Perfilado y resane de los bordes de la ventana (mortero 1:3)", "m", f2(2 * 0.40 + 2 * hvm), f2(n * (2 * 0.40 + 2 * hvm)), "01.04.04.06.03 EMPALME (und)"],
               ["Registro de limpieza encima del empalme", "und", "1", "%d" % n, "partidas 01.04.04.05.xx (DD-01 y DD-02)"]]
     cuadro(lam, 430, 222, "CUADRO DE COMPONENTES POR EMPALME (promedio) Y TOTAL (%d und)" % n, filas2, (100, 12, 24, 22, 60))

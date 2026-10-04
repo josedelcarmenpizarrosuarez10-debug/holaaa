@@ -49,6 +49,10 @@ DS.TXT_REGISTROS = "11 und (RV-01 a RV-11), todos en la losa del colector"
 DS.NOTA_EMPALMES = "* cuneta Eje 01: no entra al colector; cae directamente a la caja de llegada CL por una ventana en su muro norte (ver DP-07)."
 DS.REG_SIN = "CL*"
 DS.P_EJ_EMPALME = 46.02
+DS.SUB_DP06C = "VENTANA EN EL MURO LADO PREDIO, CAIDA AL FONDO, JUNTAS Y REGISTRO - CUNETAS EJES 09, 08, 06 Y 04 - ESC. 1/10"
+DS.TXT_CUNETA_06C = "cuneta de arquitectura 0.40 x H, muros 0.10 (NCF segun perfil CAR VARONES, Ejes 09, 08, 06 y 04)"
+DS.TXT_CERCO_06C = "paso por el cerco proyectado: abertura 0.60 (cuneta con sus muros); junta de tecnopor 1\" a ambos lados"
+DD.EJ_DD04 = 46.02
 DS.TXT_EJ_EMPALME = "ESC. 1/10 - ejemplo cuneta Eje 06 (0+046.02, registro RV-06); en las demas varia H y la cota de fondo"
 DS.NOTA_PROLONG = ["NOTA: las cunetas de los Ejes 09, 08, 06 y 04 se acortan 0.24, 0.09, 0.24 y 3.12 m respecto del plano de arquitectura: terminan en la cara",
                    "del muro lado predio del colector (el tramo que caia dentro del colector se descuenta en la partida de cunetas del proyecto)."]

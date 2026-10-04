@@ -22,6 +22,9 @@ TXT_REGISTROS = "7 und (RS-01 a RS-07) + 3 en las cajas CL y CC"
 NOTA_EMPALMES = "* cuneta Eje 11: entra al tramo diagonal junto al registro RS-06; cuneta Eje 12: entra a la caja de caida CC."
 REG_SIN = "RS-06*"
 P_EJ_EMPALME = 11.27
+SUB_DP06C = "VENTANA EN EL MURO LADO PREDIO, CAIDA AL FONDO, JUNTAS Y REGISTRO - CUNETAS EJES 01, 02, 06, 07, 11 Y 12 - ESC. 1/10"
+TXT_CUNETA_06C = "cuneta de arquitectura 0.40 x H, muros 0.10 (NCF segun perfil 01 a 12)"
+TXT_CERCO_06C = "paso por el cerco existente: abertura 0.60 (cuneta con sus muros); junta de tecnopor 1\" a ambos lados"
 TXT_EJ_EMPALME = "ESC. 1/10 - ejemplo cuneta Eje 02 (0+011.27); en las demas varia H y la cota de fondo"
 NOTA_PROLONG = ["NOTA: las cunetas de los Ejes 11 y 12 se prolongan 1.88 y 5.39 m hasta el muro del colector con su misma seccion;", "esa prolongacion se metra en la partida de cunetas del proyecto (no forma parte de la partida 01.04.04 del colector)."]
 
@@ -318,7 +321,7 @@ def dp06b(doc, ox, oy, R, T):
 
 
 def dp06c(doc, ox, oy, R, T):
-    lam = B.Lamina(doc, ox, oy, 10, "DP-06C", "DETALLE DEL EMPALME DE CUNETA AL COLECTOR", "VENTANA EN EL MURO LADO PREDIO, CAIDA AL FONDO, JUNTAS Y REGISTRO - CUNETAS EJES 01, 02, 06, 07, 11 Y 12 - ESC. 1/10")
+    lam = B.Lamina(doc, ox, oy, 10, "DP-06C", "DETALLE DEL EMPALME DE CUNETA AL COLECTOR", SUB_DP06C)
     f = lam.f; be = D["b_ext"]
     # E1. planta
     ox_, oy_ = lam.P(230, 400)
@@ -334,8 +337,8 @@ def dp06c(doc, ox, oy, R, T):
     lam.rect(ox_ - 0.35, oy_ - 0.35, ox_ + 0.35, oy_ + 0.35, "MARCO-METALICO", const_width=0.006); lam.rect(ox_ - 0.30, oy_ - 0.30, ox_ + 0.30, oy_ + 0.30, "REGISTRO")
     lam.bloque("SIMB-FLECHA", (ox_, oy_ + be / 2 + 0.8), f, rot=-90, capa="FLUJO"); lam.bloque("SIMB-FLECHA", (ox_ - 1.0, oy_), f, rot=180, capa="FLUJO")
     xt = ox_ + 1.7
-    lam.llamada((ox_ + 0.3, oy_ + be / 2 + 1.0), (xt, oy_ + be / 2 + 1.15), ["cuneta de arquitectura 0.40 x H, muros 0.10 (NCF segun perfil 01 a 12)"], 1.8)
-    lam.llamada((ox_ + 0.3, yc_ + 0.07), (xt, oy_ + be / 2 + 0.85), ["paso por el cerco existente: abertura 0.60 (cuneta con sus muros); junta de tecnopor 1\" a ambos lados"], 1.8)
+    lam.llamada((ox_ + 0.3, oy_ + be / 2 + 1.0), (xt, oy_ + be / 2 + 1.15), [TXT_CUNETA_06C], 1.8)
+    lam.llamada((ox_ + 0.3, yc_ + 0.07), (xt, oy_ + be / 2 + 0.85), [TXT_CERCO_06C], 1.8)
     lam.llamada((ox_ + 0.2, oy_ + be / 2 - 0.07), (xt, oy_ + be / 2 + 0.55), ["ventana 0.40 x H en el muro lado predio del colector (sin losa de cierre: caida libre)"], 1.8)
     lam.llamada((ox_ + 0.35, oy_ + 0.2), (xt, oy_ + 0.25), ["registro de limpieza encima del empalme (tapa 0.68 x 0.68)"], 1.8)
     lam.llamada((ox_ + 1.2, oy_ - be / 2), (xt, oy_ - 0.2), ["colector b = %.2f, muros e = %.2f" % (D["b"], D["e_muro"])], 1.8)
