@@ -517,7 +517,7 @@ def construir(DXF, PLANTILLA, SALIDA):
                                  "Lamina DP-01 del colector (planta: tramo de cuneta que se descuenta) y memoria de calculo del colector, hoja CUNETAS"], 26)
             rr += 1
         _nota(wd, rr + 1, len(cols), "Nota: el acortamiento se aplica al ultimo tramo de cada eje (el que llega al frente); las alturas H se mantienen las del perfil. Las cunetas de los Ejes 02, 03, 05 y 07 no llegan al frente y no cambian.")
-    os.makedirs(os.path.dirname(SALIDA), exist_ok=True); wb.save(SALIDA)
+    SALIDA = os.path.abspath(SALIDA); os.makedirs(os.path.dirname(SALIDA), exist_ok=True); wb.save(SALIDA)
     reinyectar_vml(PLANTILLA, SALIDA)
     return E, SALIDA
 

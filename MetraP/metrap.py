@@ -17,6 +17,8 @@ VERSION = "1.0"
 
 
 def correr(dxf, plantilla, salida, config, escribir=print):
+    salida = os.path.abspath(salida)
+    if not salida.lower().endswith(".xlsx"): salida += ".xlsx"
     E, fn, pend, log = ME.ejecutar(dxf, plantilla, salida, config)
     for l in log: escribir(l)
     escribir("")
@@ -54,17 +56,30 @@ def gui():
     frm.rowconfigure(5, weight=1)
     btn = ttk.Button(frm, text="METRAR")
 
+    import queue
+    cola = queue.Queue()
+
     def escribir(s):
-        txt.insert("end", s + "\n"); txt.see("end"); root.update_idletasks()
+        cola.put(("txt", s))                     # el hilo de calculo solo encola; la ventana se actualiza en el hilo principal
+
+    def vaciar_cola():
+        try:
+            while True:
+                tipo, dato = cola.get_nowait()
+                if tipo == "txt": txt.insert("end", dato + "\n"); txt.see("end")
+                elif tipo == "ok": btn.config(state="normal"); messagebox.showinfo("MetraP", "Metrado generado:\n" + dato)
+                elif tipo == "error": btn.config(state="normal"); messagebox.showerror("MetraP", dato)
+        except queue.Empty:
+            pass
+        root.after(100, vaciar_cola)
+    root.after(100, vaciar_cola)
 
     def tarea():
         try:
             fn = correr(v_dxf.get(), v_pla.get(), v_sal.get(), v_cfg.get() or None, escribir)
-            messagebox.showinfo("MetraP", "Metrado generado:\n" + fn)
+            cola.put(("ok", fn))
         except Exception as e:
-            escribir("ERROR: " + str(e)); escribir(traceback.format_exc()); messagebox.showerror("MetraP", str(e))
-        finally:
-            btn.config(state="normal")
+            escribir("ERROR: " + str(e)); escribir(traceback.format_exc()); cola.put(("error", str(e)))
 
     def iniciar():
         if not (v_dxf.get() and os.path.exists(v_dxf.get())): messagebox.showwarning("MetraP", "Elija el plano DXF"); return
