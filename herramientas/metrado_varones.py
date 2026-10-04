@@ -166,10 +166,26 @@ def construir():
             for off in (0, 2, 4, 6, 8): we["%s%d" % (col, r + off)] = 0
     # ---------------- METRADO ACERO (filas 11-37), CURADO (7-36), REJILLAS (7-36): una fila por tramo
     wa = wb["METRADO ACERO"]; wk = wb["METRADO DE CURADO"]; wj = wb["METRADO DE REJILLAS"]
+    # Acero solo donde la altura (medida desde el NCT) supera 0.40 m; los tramos tapados llevan acero siempre
+    # (cuerpo y tapa). Un tramo abierto que pasa de 0.40 dentro de su longitud se metra desde el punto donde H = 0.40.
+    H_MIN = 0.40
     filas = []
     for e in E:
-        for i, t in enumerate(e["tramos"]):
-            filas.append((e, i, t))
+        d = D[e["nombre"]]; k = 0
+        for t in e["tramos"]:
+            if t["tipo"] == "TAPADA":
+                filas.append((e, k, t)); k += 1
+            elif t["Hf"] >= H_MIN - 1e-9:
+                if t["Hi"] >= H_MIN - 1e-9:
+                    filas.append((e, k, t)); k += 1
+                else:
+                    x40 = t["a"]
+                    while H_en(d, x40) < H_MIN - 1e-9 and x40 < t["b"]: x40 += 0.01
+                    x40 = round(x40, 2)
+                    cerca = [p for p in d.get("prog", []) if abs(p - x40) < 0.3]
+                    if cerca: x40 = cerca[0]
+                    t2 = dict(t); t2.update(a=x40, L=round(t["b"] - x40, 2), Hi=round(H_en(d, x40), 2), sec_i=sec_cercana(d, x40)["sec"])
+                    filas.append((e, k, t2)); k += 1
     assert len(filas) <= 27, "mas tramos que filas en la plantilla"
     sep_long = {}
     for e in E:
@@ -181,7 +197,6 @@ def construir():
             e, j, t = filas[i]
             Hm = (t["Hi"] + t["Hf"]) / 2
             sep = 0.20 if Hm < 0.45 else (0.22 if Hm < 0.60 else 0.25)
-            sep = {True: sep}[True]
             wa["A%d" % ra] = i + 1; wa["B%d" % ra] = "EJE %02d" % e["num"]; wa["C%d" % ra] = "TRAMO %02d" % (j + 1); wa["D%d" % ra] = t["tipo"]
             wa["E%d" % ra] = "SEC %02d" % t["sec_i"]; wa["F%d" % ra] = "SEC %02d" % t["sec_f"]; wa["G%d" % ra] = t["L"]; wa["H%d" % ra] = '3/8"'
             wa["J%d" % ra] = sep
@@ -249,4 +264,9 @@ if __name__ == "__main__":
     for e in E:
         print("%s L=%.2f Hprom=%.3f area muro=%.2f tapada=%.2f  NCF %.2f -> %.2f" % (e["nombre"], e["L"], e["Hprom"], e["area"], e["L_tap"], e["NCF_ini"], e["NCF_fin"]))
         for t in e["tramos"]: print("    %-8s %7.2f - %7.2f  L=%6.2f  H %.2f -> %.2f  sec %s-%s" % (t["tipo"], t["a"], t["b"], t["L"], t["Hi"], t["Hf"], t["sec_i"], t["sec_f"]))
+    import openpyxl as _o
+    wa = _o.load_workbook(fn)["METRADO ACERO"]
+    print("FILAS DE ACERO:")
+    for r in range(11, 38):
+        if wa["B%d" % r].value: print("   ", wa["B%d" % r].value, wa["C%d" % r].value, wa["D%d" % r].value, wa["E%d" % r].value, wa["F%d" % r].value, "L=", wa["G%d" % r].value, "H", wa["Q%d" % r].value, wa["R%d" % r].value)
     print("PENDIENTES:"); [print(" -", p) for p in PENDIENTES]
