@@ -1,0 +1,22 @@
+{
+  "proyecto": "CREACIÓN DEL SERVICIO DE PROTECCIÓN INTEGRAL A NIÑAS, NIÑOS Y ADOLESCENTES SIN CUIDADOS PARENTALES O EN RIESGO DE PERDERLOS EN CENTRO DE ACOGIDA RESIDENCIAL - VARONES DISTRITO DE MORALES DE LA PROVINCIA DE SAN MARTÍN DEL DEPARTAMENTO DE SAN MARTÍN, con CUI N.° 2705619",
+  "entidad": null,
+  "ubicacion": null,
+  "capa_ejes": "A-AREA-IDEN",
+  "capa_progresivas": "GRID_TEXT",
+  "x0_progresivas": null,
+  "x_max_perfiles": null,
+  "color_abierto": 5,
+  "color_cerrado": 84,
+  "ancho_interior": 0.40,
+  "espesor_muro": 0.10,
+  "espesor_losa": 0.10,
+  "h_minima_acero": 0.40,
+  "sep_transversal_tapa": 0.25,
+  "ancho_transversal_tapa": 0.56,
+  "separaciones_marco": [[0.45, 0.20], [0.60, 0.22], [99, 0.25]],
+  "correcciones_ncf": {"EJE 04": {"ultima": 260.42}},
+  "acortamientos": {"9": [0.04, "colector"], "8": [0.10, "colector"], "6": [0.26, "colector"], "4": [3.39, "colector"], "1": [2.77, "caja"]},
+  "tapas_por_tramo_tapado": 1,
+  "nombre_hoja_descuentos": "CUNETAS - LLEGADA AL COLECTOR"
+}
