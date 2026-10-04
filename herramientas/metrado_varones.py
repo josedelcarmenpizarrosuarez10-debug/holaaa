@@ -191,8 +191,9 @@ def construir():
     for e in E:
         for s in D[e["nombre"]]["sec"]:
             sep_long[s["sec"]] = None
+    todos = [(e, i, t) for e in E for i, t in enumerate(e["tramos"])]      # curado y rejillas: todos los tramos
     for i in range(27):
-        ra, rk, rj = 11 + i, 7 + i, 7 + i
+        ra = 11 + i
         if i < len(filas):
             e, j, t = filas[i]
             Hm = (t["Hi"] + t["Hf"]) / 2
@@ -206,12 +207,17 @@ def construir():
                 wa["X%d" % ra] = '3/8"'; wa["Y%d" % ra] = 0.56; wa["Z%d" % ra] = SEP_TRANSV; wa["AA%d" % ra] = 0.56; wa["AB%d" % ra] = 0.56
             else:
                 wa["X%d" % ra] = None; wa["Y%d" % ra] = ""; wa["Z%d" % ra] = None; wa["AA%d" % ra] = None; wa["AB%d" % ra] = None
+        else:
+            limpiar(wa, ["%s%d" % (c, ra) for c in ("A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "P", "Q", "R", "X", "Z", "AA", "AB")]); wa["Y%d" % ra] = ""
+    for i in range(30):
+        rk = rj = 7 + i
+        if i < len(todos):
+            e, j, t = todos[i]
             for ws_, r in ((wk, rk), (wj, rj)):
                 ws_["A%d" % r] = i + 1; ws_["B%d" % r] = "EJE %02d" % e["num"]; ws_["C%d" % r] = "TRAMO %02d" % (j + 1); ws_["D%d" % r] = t["tipo"]; ws_["E%d" % r] = t["L"]
             wk["F%d" % rk] = B_INT; wk["G%d" % rk] = t["Hi"]; wk["H%d" % rk] = t["Hf"]
             wj["F%d" % rj] = 0
         else:
-            limpiar(wa, ["%s%d" % (c, ra) for c in ("A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "P", "Q", "R", "X", "Z", "AA", "AB")]); wa["Y%d" % ra] = ""
             limpiar(wk, ["%s%d" % (c, rk) for c in ("A", "B", "C", "D", "E", "F", "G", "H")])
             limpiar(wj, ["%s%d" % (c, rj) for c in ("A", "B", "C", "D", "E", "F")])
     # ---------------- JUNTA DE DILATACION: filas 13-24, un eje por fila (D longitud; E apunta al bloque de CONCRETO)
