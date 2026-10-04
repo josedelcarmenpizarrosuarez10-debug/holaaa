@@ -1,16 +1,295 @@
 {
  "fuente": "PERFIL_CAR_VARONES.dxf (perfiles longitudinales y secciones transversales de cunetas, CAR Varones CUI 2705619)",
  "lectura": "x del perfil = progresiva en m (origen 2087.48); azul (color 5) = tramo abierto; verde (84) = tramo cerrado; magenta (6) = losa de fondo / acero transversal; circulos azules = 3/8 longitudinal; NCT = nivel de piso; NCF = cota de fondo; H = altura interior; EL = espesor de losa; EM = espesor de muro",
- "seccion_tipo": {"ancho_interior": 0.40, "muros": 0.10, "losa_fondo": 0.10, "losa_tapa": 0.10, "ancho_exterior": 0.60, "pendiente": 0.005, "acero_transversal": "3/8 @0.25", "acero_longitudinal": "3/8 @0.17 a 0.25 segun H", "inicio": "rejilla metalica movil 0.40 con platinas 1 x 3/16"},
+ "seccion_tipo": {
+  "ancho_interior": 0.4,
+  "muros": 0.1,
+  "losa_fondo": 0.1,
+  "losa_tapa": 0.1,
+  "ancho_exterior": 0.6,
+  "pendiente": 0.005,
+  "acero_transversal": "3/8 @0.25",
+  "acero_longitudinal": "3/8 @0.17 a 0.25 segun H",
+  "inicio": "rejilla metalica movil 0.40 con platinas 1 x 3/16"
+ },
  "ejes": [
-  {"eje": "01", "L": 114.30, "NPT": [261.25, 261.15], "NCF_ini": 260.95, "NCF_fin": 260.38, "H_ini": 0.30, "H_fin": 0.77, "tramos": [["abierto", 0.0, 13.20], ["cerrado", 13.20, 19.20], ["abierto", 19.20, 77.30], ["cerrado", 77.30, 114.30]], "secciones": [1,2,3,4,5,6,7]},
-  {"eje": "02", "L": 34.25, "NPT": [261.25], "NCF_ini": 260.95, "NCF_fin": 260.78, "H_ini": 0.30, "H_fin": 0.47, "tramos": [["abierto", 0.0, 34.25]], "secciones": [8,9,10]},
-  {"eje": "03", "L": 22.40, "NPT": [261.25], "NCF_ini": 260.95, "NCF_fin": 260.83, "H_ini": 0.30, "H_fin": 0.42, "tramos": [["abierto", 0.0, 22.40]], "secciones": [11,12,13]},
-  {"eje": "04", "L": 105.70, "NPT": [261.25, 261.15], "NCF_ini": 260.95, "NCF_fin": 259.66, "H_ini": 0.30, "H_fin": 0.72, "tramos": [["abierto", 0.0, 13.65], ["cerrado", 13.65, 19.15], ["abierto", 19.15, 77.15], ["cerrado", 77.15, 105.70]], "secciones": [14,15,16,17,18,19,20], "nota": "NCF final 259.66 segun rotulo de la seccion 20; con 0.5 % desde 260.95 saldria 260.42: revisar"},
-  {"eje": "05", "L": 42.20, "NPT": [261.25], "NCF_ini": 260.95, "NCF_fin": 260.74, "H_ini": 0.30, "H_fin": 0.51, "tramos": [["abierto", 0.0, 32.30], ["cerrado", 32.30, 42.20]], "secciones": [21,22,23,24]},
-  {"eje": "06", "L": 98.95, "NPT": [261.25, 261.15], "NCF_ini": 260.95, "NCF_fin": 260.46, "H_ini": 0.30, "H_fin": 0.69, "tramos": [["abierto", 0.0, 32.50], ["cerrado", 32.50, 98.95]], "secciones": [25,26,27,28,29,30]},
-  {"eje": "07", "L": 23.60, "NPT": [261.25], "NCF_ini": 260.90, "NCF_fin": 260.84, "H_ini": 0.30, "H_fin": 0.41, "tramos": [["abierto", 0.0, 23.60]], "secciones": [31,32,33]},
-  {"eje": "08", "L": 60.70, "NPT": [261.25], "NCF_ini": 260.95, "NCF_fin": 260.65, "H_ini": 0.30, "H_fin": 0.60, "tramos": [["abierto", 0.0, 49.85], ["cerrado", 49.85, 60.70]], "secciones": [34,35,36,37]},
-  {"eje": "09", "L": 42.70, "NPT": [261.20, 261.25], "NCF_ini": 260.90, "NCF_fin": 260.69, "H_ini": 0.30, "H_fin": 0.56, "tramos": [["abierto", 0.0, 36.00], ["cerrado", 36.00, 42.70]], "secciones": [38,39,40,41,42,43]}
+  {
+   "eje": "01",
+   "L": 114.3,
+   "NPT": [
+    261.25,
+    261.15
+   ],
+   "NCF_ini": 260.95,
+   "NCF_fin": 260.38,
+   "H_ini": 0.3,
+   "H_fin": 0.77,
+   "tramos": [
+    [
+     "abierto",
+     0.0,
+     13.2
+    ],
+    [
+     "cerrado",
+     13.2,
+     19.2
+    ],
+    [
+     "abierto",
+     19.2,
+     77.3
+    ],
+    [
+     "cerrado",
+     77.3,
+     114.3
+    ]
+   ],
+   "secciones": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  },
+  {
+   "eje": "02",
+   "L": 34.25,
+   "NPT": [
+    261.25
+   ],
+   "NCF_ini": 260.95,
+   "NCF_fin": 260.78,
+   "H_ini": 0.3,
+   "H_fin": 0.47,
+   "tramos": [
+    [
+     "abierto",
+     0.0,
+     34.25
+    ]
+   ],
+   "secciones": [
+    8,
+    9,
+    10
+   ]
+  },
+  {
+   "eje": "03",
+   "L": 22.4,
+   "NPT": [
+    261.25
+   ],
+   "NCF_ini": 260.95,
+   "NCF_fin": 260.83,
+   "H_ini": 0.3,
+   "H_fin": 0.42,
+   "tramos": [
+    [
+     "abierto",
+     0.0,
+     22.4
+    ]
+   ],
+   "secciones": [
+    11,
+    12,
+    13
+   ]
+  },
+  {
+   "eje": "04",
+   "L": 105.7,
+   "NPT": [
+    261.25,
+    261.15
+   ],
+   "NCF_ini": 260.95,
+   "NCF_fin": 260.42,
+   "H_ini": 0.3,
+   "H_fin": 0.72,
+   "tramos": [
+    [
+     "abierto",
+     0.0,
+     13.65
+    ],
+    [
+     "cerrado",
+     13.65,
+     19.15
+    ],
+    [
+     "abierto",
+     19.15,
+     77.15
+    ],
+    [
+     "cerrado",
+     77.15,
+     105.7
+    ]
+   ],
+   "secciones": [
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+   ],
+   "nota": "NCF final 260.42 (0.5 % desde 260.95); el rotulo de la seccion 20 del DXF decia 259.66 y fue corregido por el proyectista"
+  },
+  {
+   "eje": "05",
+   "L": 42.2,
+   "NPT": [
+    261.25
+   ],
+   "NCF_ini": 260.95,
+   "NCF_fin": 260.74,
+   "H_ini": 0.3,
+   "H_fin": 0.51,
+   "tramos": [
+    [
+     "abierto",
+     0.0,
+     32.3
+    ],
+    [
+     "cerrado",
+     32.3,
+     42.2
+    ]
+   ],
+   "secciones": [
+    21,
+    22,
+    23,
+    24
+   ]
+  },
+  {
+   "eje": "06",
+   "L": 98.95,
+   "NPT": [
+    261.25,
+    261.15
+   ],
+   "NCF_ini": 260.95,
+   "NCF_fin": 260.46,
+   "H_ini": 0.3,
+   "H_fin": 0.69,
+   "tramos": [
+    [
+     "abierto",
+     0.0,
+     32.5
+    ],
+    [
+     "cerrado",
+     32.5,
+     98.95
+    ]
+   ],
+   "secciones": [
+    25,
+    26,
+    27,
+    28,
+    29,
+    30
+   ]
+  },
+  {
+   "eje": "07",
+   "L": 23.6,
+   "NPT": [
+    261.25
+   ],
+   "NCF_ini": 260.9,
+   "NCF_fin": 260.84,
+   "H_ini": 0.3,
+   "H_fin": 0.41,
+   "tramos": [
+    [
+     "abierto",
+     0.0,
+     23.6
+    ]
+   ],
+   "secciones": [
+    31,
+    32,
+    33
+   ]
+  },
+  {
+   "eje": "08",
+   "L": 60.7,
+   "NPT": [
+    261.25
+   ],
+   "NCF_ini": 260.95,
+   "NCF_fin": 260.65,
+   "H_ini": 0.3,
+   "H_fin": 0.6,
+   "tramos": [
+    [
+     "abierto",
+     0.0,
+     49.85
+    ],
+    [
+     "cerrado",
+     49.85,
+     60.7
+    ]
+   ],
+   "secciones": [
+    34,
+    35,
+    36,
+    37
+   ]
+  },
+  {
+   "eje": "09",
+   "L": 42.7,
+   "NPT": [
+    261.2,
+    261.25
+   ],
+   "NCF_ini": 260.9,
+   "NCF_fin": 260.69,
+   "H_ini": 0.3,
+   "H_fin": 0.56,
+   "tramos": [
+    [
+     "abierto",
+     0.0,
+     36.0
+    ],
+    [
+     "cerrado",
+     36.0,
+     42.7
+    ]
+   ],
+   "secciones": [
+    38,
+    39,
+    40,
+    41,
+    42,
+    43
+   ]
+  }
  ]
 }

@@ -14,7 +14,16 @@ ACERO = {  # tipo: (marco, long, losa_sup e, muro e, descripcion)
     "MOTOS": ('marco 3/8" @0.15', 'long. 3/8" @0.25', D["e_losa"], D["e_muro"], "CRUCE DE MOTOS"),
     "CAMION": ('doble marco 1/2" @0.15', 'long. 3/8" @0.20', D["e_losa_camion"], D["e_muro"], "CRUCE DE CAMIONES"),
 }
+NOTAS_DP04 = None
 SECCIONES = [(0.50, "S-01"), (10.0, "S-02"), (20.0, "S-03"), (28.8, "S-04"), (40.0, "S-05"), (50.0, "S-06"), (60.0, "S-07"), (68.5, "S-08")]
+
+
+TXT_REGISTROS = "7 und (RS-01 a RS-07) + 3 en las cajas CL y CC"
+NOTA_EMPALMES = "* cuneta Eje 11: entra al tramo diagonal junto al registro RS-06; cuneta Eje 12: entra a la caja de caida CC."
+REG_SIN = "RS-06*"
+P_EJ_EMPALME = 11.27
+TXT_EJ_EMPALME = "ESC. 1/10 - ejemplo cuneta Eje 02 (0+011.27); en las demas varia H y la cota de fondo"
+NOTA_PROLONG = ["NOTA: las cunetas de los Ejes 11 y 12 se prolongan 1.88 y 5.39 m hasta el muro del colector con su misma seccion;", "esa prolongacion se metra en la partida de cunetas del proyecto (no forma parte de la partida 01.04.04 del colector)."]
 
 
 def geometria(p):
@@ -108,9 +117,9 @@ def dp04(doc, ox, oy, R, T):
             lam.titulo_vista(xmm + 10, ymm - 60, "SECCION %s" % nm, "PROG. %s - CF %.3f - %s - ESC. 1/25" % (prog_txt(p), g["cf"], ACERO[g["tipo"]][4]), 100)
         lam.leyenda(32, 150, [("achurado", "CONCRETO-ACHURADO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100 kg/cm2"),
                               ("linea", "ACERO", "acero transversal: marco cerrado (rojo)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal 3/8\" (circulo a diametro real)"),
-                              ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", "piso terminado +260.60"),
+                              ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", "piso terminado +%.2f" % D["NPT"]),
                               ("linea", "TERRENO-EXISTENTE", "terreno existente"), ("linea", "EXCAVACION", "limite de excavacion"), ("rect", "CERCO", "cerco perimetrico existente")], 1.8)
-        lam.notas(300, 150, "NOTAS", ["1. Altura interior h segun el perfil longitudinal (1.40 m en 0+000 a 1.61 m en el brink).",
+        lam.notas(300, 150, "NOTAS", NOTAS_DP04 or ["1. Altura interior h segun el perfil longitudinal (1.40 m en 0+000 a 1.61 m en el brink).",
                                         "2. Tramo normal y cruce de motos: un solo marco cerrado en el eje de muros y losas (una capa, E.060 14.3.4); recubrimiento minimo 0.04 m en muros y losa de fondo y 0.025 m en la losa superior.",
                                         "3. Junta de tecnopor de 1\" entre el muro lado predio y el cimiento del cerco; junta de 1\" entre la losa superior y el piso adyacente.",
                                         "4. El cruce de camiones (S-04) lleva losas e=0.25 y doble marco de 1/2\" @0.15 (marco exterior e interior, recubrimiento 0.04); el cruce de motos (S-05) marco unico de 3/8\" @0.15.",
@@ -236,7 +245,7 @@ def dp06b(doc, ox, oy, R, T):
     lam.llamada((ox_ + 0.12, oy_), (xt, oy_ - 0.05), ['asas: 2 de 3/8" liso, embutidas'], 1.8)
     lam.llamada((ox_ + 0.40 * 0.707, oy_ - 0.40 * 0.707), (xt, oy_ - 0.22), ['refuerzo de borde: 2 barras 1/2" por lado, L=1.40'], 1.8)
     lam.llamada((ox_ + 0.45, oy_ - 0.45), (xt, oy_ - 0.38), ["borde engrosado 0.15 x 0.10 bajo la losa (oculto)"], 1.8)
-    lam.titulo_vista(120, 352, "A. REGISTRO DE LIMPIEZA - PLANTA", "ESC. 1/10 - 7 und (RS-01 a RS-07) + 3 en las cajas CL y CC", 120)
+    lam.titulo_vista(120, 352, "A. REGISTRO DE LIMPIEZA - PLANTA", "ESC. 1/10 - " + TXT_REGISTROS, 120)
     # B. corte por el registro
     ox_, oy_ = lam.P(120, 150); h = 1.50; et = D["e_losa"]; em = D["e_muro"]; ef = D["e_fondo"]
     xl, xr = ox_ - be / 2, ox_ + be / 2; zb = oy_; zf = zb + ef; zt = zf + h; zs = zt + et
@@ -251,7 +260,7 @@ def dp06b(doc, ox, oy, R, T):
     lam.rect(ox_ - 0.34, zs - 0.08, ox_ + 0.34, zs, "REGISTRO-TAPA"); lam.achurado([(ox_ - 0.34, zs - 0.08), (ox_ + 0.34, zs - 0.08), (ox_ + 0.34, zs), (ox_ - 0.34, zs)], escala_mm=0.4)
     lam.poli([(ox_ - 0.35, zs - 0.08), (ox_ - 0.35, zs), (ox_ - 0.30, zs)], "MARCO-METALICO", ancho=0.006); lam.poli([(ox_ + 0.35, zs - 0.08), (ox_ + 0.35, zs), (ox_ + 0.30, zs)], "MARCO-METALICO", ancho=0.006)
     lam.poli([(xl - 0.6, zs), (xl, zs)], "TERRENO", ancho=0.3 * f); lam.poli([(xr, zs), (xr + 0.6, zs)], "TERRENO", ancho=0.3 * f)
-    lam.nivel((xr + 0.3, zs), D["NPT"], texto="NPT +260.60")
+    lam.nivel((xr + 0.3, zs), D["NPT"], texto="NPT +%.2f" % D["NPT"])
     lam.nivel((ox_, zf), 0, texto="CF (ver perfil)")
     lam.cota((ox_ - 0.35, zs), (ox_ + 0.35, zs), 10, texto="0.70"); lam.cota((ox_ - 0.30, zt), (ox_ + 0.30, zt), -6, texto="0.60")
     lam.cota((xl, zt), (xl, zs), -6, horizontal=False); lam.cota((xl, zf), (xl, zt), -6, horizontal=False, texto="h"); lam.cota((xl, zb), (xl, zf), -6, horizontal=False)
@@ -329,19 +338,19 @@ def dp06c(doc, ox, oy, R, T):
     lam.llamada((ox_ + 0.3, yc_ + 0.07), (xt, oy_ + be / 2 + 0.85), ["paso por el cerco existente: abertura 0.60 (cuneta con sus muros); junta de tecnopor 1\" a ambos lados"], 1.8)
     lam.llamada((ox_ + 0.2, oy_ + be / 2 - 0.07), (xt, oy_ + be / 2 + 0.55), ["ventana 0.40 x H en el muro lado predio del colector (sin losa de cierre: caida libre)"], 1.8)
     lam.llamada((ox_ + 0.35, oy_ + 0.2), (xt, oy_ + 0.25), ["registro de limpieza encima del empalme (tapa 0.68 x 0.68)"], 1.8)
-    lam.llamada((ox_ + 1.2, oy_ - be / 2), (xt, oy_ - 0.2), ["colector b = 0.80, muros e = 0.15"], 1.8)
-    lam.textos((xt, oy_ - 0.65), ["NOTA: las cunetas de los Ejes 11 y 12 se prolongan 1.88 y 5.39 m hasta el muro del colector con su misma seccion;", "esa prolongacion se metra en la partida de cunetas del proyecto (no forma parte de la partida 01.04.04 del colector)."], 1.8)
+    lam.llamada((ox_ + 1.2, oy_ - be / 2), (xt, oy_ - 0.2), ["colector b = %.2f, muros e = %.2f" % (D["b"], D["e_muro"])], 1.8)
+    lam.textos((xt, oy_ - 0.65), NOTA_PROLONG, 1.8)
     lam.cota((ox_ - 0.20, oy_ + be / 2 + 1.2), (ox_ + 0.20, oy_ + be / 2 + 1.2), 8, texto="0.40"); lam.cota((ox_ - 0.30, oy_ + be / 2 + 1.2), (ox_ + 0.30, oy_ + be / 2 + 1.2), 14, texto="0.60")
     lam.cota((ox_ - 1.5, oy_ - be / 2), (ox_ - 1.5, oy_ + be / 2), -8, horizontal=False); lam.cota((ox_ - 1.5, oy_ - D["b"] / 2), (ox_ - 1.5, oy_ + D["b"] / 2), -4, horizontal=False)
     lam.cota((ox_ - 0.35, oy_ - be / 2), (ox_ + 0.35, oy_ - be / 2), -8, texto="0.70")
     lam.titulo_vista(230, 300, "E1. EMPALME DE CUNETA - PLANTA", "ESC. 1/10 - losa superior retirada para mostrar la ventana", 140)
     # E2. corte transversal por el empalme (mirando aguas abajo): colector + ventana + cuneta + cerco
-    p = 11.27; g = geometria(p); ef = D["e_fondo"]; es = D["e_solado"]; em = g["em"]; et = g["et"]; h = g["h"]
+    p = P_EJ_EMPALME; g = geometria(p); ef = D["e_fondo"]; es = D["e_solado"]; em = g["em"]; et = g["et"]; h = g["h"]
     ox_, oy_ = lam.P(230, 60); cy = oy_; z0 = cy + es; zf = z0 + ef; zt = zf + h; zs = zt + et
     xl, xr = ox_ - be / 2, ox_ + be / 2
     lam.rect(xl - 0.05, cy, xr + 0.05, z0, "SOLADO")
     # muro izquierdo completo, muro derecho con ventana (de zf+... hasta zt): la cuneta llega con NCF
-    NCF = [c for c in R["cunetas"] if abs(c["prog"] - p) < 0.5][0]["NCF_fin"]; zc = zf + (NCF - g["cf"]); H = 260.60 - NCF
+    NCF = [c for c in R["cunetas"] if abs(c["prog"] - p) < 0.5][0]["NCF_fin"]; zc = zf + (NCF - g["cf"]); H = D["NPT"] - NCF
     lam.poli([(xl, z0), (xr, z0), (xr, zc - 0.10), (xr - em, zc - 0.10), (xr - em, zf), (xl + em, zf), (xl + em, zt), (xr - em, zt), (xr - em, zt), (xr, zt), (xr, zs), (xl, zs)], "CONCRETO", cerrada=True, ancho=0.004)
     for pts in ([(xl, z0), (xr, z0), (xr, zf), (xl, zf)], [(xl, zf), (xl + em, zf), (xl + em, zs), (xl, zs)], [(xr - em, zf), (xr, zf), (xr, zc - 0.10), (xr - em, zc - 0.10)],
                 [(xl + em, zt), (xr, zt), (xr, zs), (xl + em, zs)]):
@@ -356,7 +365,7 @@ def dp06c(doc, ox, oy, R, T):
     lam.poli([(xr - em, zc), (xr - em + 0.05, zc + 0.02)], "FLUJO"); lam.bloque("SIMB-FLECHA", (xr - 0.35, zc + 0.15), f * 0.8, rot=-135, capa="FLUJO")
     y = perfil_en(R, p, "NA") - g["cf"]; lam.linea((xl + em, zf + y), (xr - em, zf + y), "AGUA"); lam.bloque("SIMB-AGUA", (ox_, zf + y), f)
     lam.poli([(xl - 0.8, zs), (xl, zs)], "TERRENO", ancho=0.3 * f); lam.poli([(xq + 0.9, zs), (xq + 1.6, zs), (xq + 1.6, zs)], "TERRENO", ancho=0.3 * f)
-    lam.nivel((xl - 0.5, zs), D["NPT"], texto="NPT +260.60", lado=-1); lam.nivel((xq + 0.4, zc), NCF, texto="NCF cuneta (ej. %.2f)" % NCF, lado=1)
+    lam.nivel((xl - 0.5, zs), D["NPT"], texto="NPT +%.2f" % D["NPT"], lado=-1); lam.nivel((xq + 0.4, zc), NCF, texto="NCF cuneta (ej. %.2f)" % NCF, lado=1)
     lam.nivel((ox_, zf), g["cf"], texto="CF colector (ej. %.3f)" % g["cf"], lado=1, hmm=1.6)
     lam.cota((xq, zc), (xq + 0.8, zc), -6, texto="0.40"); lam.cota((xq + 0.9, zc), (xq + 0.9, zs), 6, horizontal=False, texto="H")
     lam.cota((xr - em, zc), (xr - em, zt), 4, horizontal=False, texto="ventana"); lam.cota((xl, cy), (xr, cy), -8)
@@ -367,10 +376,10 @@ def dp06c(doc, ox, oy, R, T):
     lam.llamada((xq + 0.4, zc + 0.05), (xt, zs - 0.7), ["cuneta 0.40 x H: llega con su NCF y vierte en caida libre al colector"], 1.8)
     lam.llamada((ox_, zf + y), (xt, zs - 1.1), ["NA del colector siempre bajo el fondo de la cuneta (ver hoja CUNETAS de la memoria)"], 1.8)
     lam.llamada((ox_ + 0.2, zf + 0.02), (xt, zf - 0.1), ["caida libre al fondo: losa de fondo con acabado pulido en 1.00 m"], 1.8)
-    lam.titulo_vista(230, 20, "E2. EMPALME DE CUNETA - CORTE TRANSVERSAL (MIRANDO AGUAS ABAJO)", "ESC. 1/10 - ejemplo cuneta Eje 02 (0+011.27); en las demas varia H y la cota de fondo", 220)
+    lam.titulo_vista(230, 20, "E2. EMPALME DE CUNETA - CORTE TRANSVERSAL (MIRANDO AGUAS ABAJO)", TXT_EJ_EMPALME, 220)
     lam.leyenda(610, 300, [("achurado", "CONCRETO-ACHURADO", "concreto armado del colector f'c=210"), ("achurado", "TERRENO-ACHURADO", "cuneta y cerco existentes (arquitectura)"),
                            ("linea", "CUNETA", "cuneta de arquitectura"), ("linea", "JUNTAS", "junta de tecnopor 1\""), ("linea", "AGUA", "nivel de agua"), ("bloque:SIMB-FLECHA", "FLUJO", "sentido del flujo")], 1.8)
-    lam.notas(610, 220, "CUADRO DE EMPALMES", ["CUNETA      PROG.       NCF LLEGA   H VENTANA  REGISTRO"] + ["%-10s  %s   %.2f       %.2f       %s" % (c["nombre"].split(" (")[0], prog_txt(c["prog"]), c["NCF_fin"], D["NPT"] - D["e_losa"] - c["NCF_fin"], [r["nombre"] for r in R["registros"] if abs(r["prog"] - c["prog"]) < 1.5][0] if any(abs(r["prog"] - c["prog"]) < 1.5 for r in R["registros"]) else "RS-06*") for c in R["cunetas"]] + ["* cuneta Eje 11: entra al tramo diagonal junto al registro RS-06; cuneta Eje 12: entra a la caja de caida CC."], 1.7)
+    lam.notas(610, 220, "CUADRO DE EMPALMES", ["CUNETA      PROG.       NCF LLEGA   H VENTANA  REGISTRO"] + ["%-10s  %s   %.2f       %.2f       %s" % (c["nombre"].split(" (")[0], prog_txt(c["prog"]), c["NCF_fin"], D["NPT"] - D["e_losa"] - c["NCF_fin"], [r["nombre"] for r in R["registros"] if abs(r["prog"] - c["prog"]) < 1.5][0] if any(abs(r["prog"] - c["prog"]) < 1.5 for r in R["registros"]) else REG_SIN) for c in R["cunetas"]] + [NOTA_EMPALMES], 1.7)
     return lam
 
 

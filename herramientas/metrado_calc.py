@@ -21,8 +21,12 @@ L_BARRA = 9.00
 FRANJA_RELLENO = 1.00    # franja adyacente al muro lado via nivelada hasta NPT
 
 
+TERRENO_JSON = os.path.join(RAIZ, "entregables", "_calc", "terreno.json")
+EXTRA_REG = 3            # registros fuera de la losa del colector (Solange: 1 en CL + 2 en CC)
+
+
 def terreno():
-    T = json.load(open(os.path.join(RAIZ, "entregables", "_calc", "terreno.json")))
+    T = json.load(open(TERRENO_JSON))
     return [t["p"] for t in T], [t["z"] for t in T]
 
 
@@ -35,6 +39,7 @@ def cortes():
 
 
 GANCHO = 0.30
+NOMBRE_TRAMO_FINAL = "tramo recto final"
 
 
 def perimetros_marco(zona, be, em, ef, h, et):
@@ -95,7 +100,7 @@ def segmentos():
         zona = ts[0]["zona"]
         nombre = {"NORMAL": "tramo normal", "MOTOS": "cruce de motos", "CAMION": "cruce de camiones"}[zona]
         if a >= dz.P_B1 - 1e-6 and b <= dz.P_B2 + 1e-6: nombre = "tramo diagonal (quiebres)"
-        elif a >= dz.P_B2 - 1e-6: nombre = "tramo recto final"
+        elif a >= dz.P_B2 - 1e-6: nombre = NOMBRE_TRAMO_FINAL
         h = round(sum(t["h"] * t["L"] for t in ts) / Ls, 3)
         Hz = round(sum(max(0.0, t["terreno"] - (t["cf"] - t["ef"] - D["e_solado"])) * t["L"] for t in ts) / Ls, 3)
         dnpt = round(sum(max(0.0, D["NPT"] - t["terreno"]) * t["L"] for t in ts) / Ls, 3)
@@ -112,11 +117,11 @@ def segmentos():
 
 
 def registros():
-    n = len([r for r in dz.REGISTROS if r["tipo"] == "registro"]) + 3   # 7 + 1 en CL + 2 en CC
+    n = len([r for r in dz.REGISTROS if r["tipo"] == "registro"]) + EXTRA_REG   # Solange: 7 + 1 en CL + 2 en CC
     return dict(n=n, contramarco_m=2.80 * n, contramarco_kg=2.80 * n * ANG["2x2x3/16"], marco_m=2.72 * n, marco_kg=2.72 * n * ANG["1.5x1.5x1/8"],
                 tapa_conc=0.68 * 0.68 * 0.08 * n, borde_conc=3.00 * 0.15 * 0.10 * n,
                 acero_borde_kg=8 * 1.40 * n * PESO["1/2"], acero_tapa_kg=14 * 0.62 * n * PESO["3/8"], asas_kg=2 * 0.40 * n * PESO["3/8"], anclajes_kg=8 * 0.20 * n * PESO["3/8"],
-                pintura_m2=(2.80 * 0.203 + 2.72 * 0.152) * n, losa_descuento=0.70 * 0.70 * D["e_losa"] * (n - 3))   # las 3 aberturas de las cajas ya se descuentan en cajas()
+                pintura_m2=(2.80 * 0.203 + 2.72 * 0.152) * n, losa_descuento=0.70 * 0.70 * D["e_losa"] * (n - EXTRA_REG))   # las aberturas de las cajas ya se descuentan en cajas()
 
 
 MALLA_S = 0.20          # malla 3/8" @0.20 en ambas caras de losas y muros de las cajas (lamina DP-07)
@@ -220,6 +225,7 @@ def cuadro_doblado():
         ("Tapas de registro (incluye asas)", "recta / U", '3/8"', "0.10", "0.62 / 0.40", 14 * 0.62 * Rg["n"] + 2 * 0.40 * Rg["n"], Rg["acero_tapa_kg"] + Rg["asas_kg"]),
         ("Anclajes de contramarco", "L", '3/8"', "8 por registro", "0.20", 8 * 0.20 * Rg["n"], Rg["anclajes_kg"]),
     ]
+    filas = [fl for fl in filas if fl[6] > 1e-6]
     tot38 = sum(fl[6] for fl in filas if fl[2] == '3/8"'); tot12 = sum(fl[6] for fl in filas if fl[2] == '1/2"')
     return filas, tot38, tot12
 
