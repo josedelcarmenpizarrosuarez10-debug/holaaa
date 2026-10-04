@@ -1,4 +1,4 @@
-# MetraP 1.0 - Metrado de cunetas desde un plano DXF
+# MetraP 2.0 - Metrado de cunetas desde un plano DXF (interfaz moderna)
 
 MetraP lee un plano DXF con los **perfiles longitudinales de las cunetas** (y sus secciones) y llena,
 hoja por hoja, la **plantilla Excel de metrados del proyecto** (misma estructura de la planilla de
@@ -10,7 +10,8 @@ mismas fórmulas, formato y encabezados de la planilla original.
 
 | Archivo | Para qué sirve |
 |---|---|
-| `metrap.py` | Programa: interfaz gráfica (sin argumentos) o línea de comandos. |
+| `metrap_app.py` | **Programa principal (2.0)**: interfaz moderna PyQt6 con páginas Proyecto, Perfiles, Metrado, Planilla y Exportar. |
+| `metrap.py` | Versión básica 1.0 (tkinter) y línea de comandos; sigue funcionando con el mismo motor. |
 | `metrap_engine.py` | Motor: lectura del DXF, cálculo de tramos, alturas, acero, y llenado de la plantilla. |
 | `metrap_config.json` | Configuración del proyecto (capas, colores, umbral de acero, acortamientos, nombre del proyecto). |
 | `plantilla/PLANTILLA_METRADO_CUNETAS.xlsx` | Plantilla Excel del proyecto (se copia; nunca se modifica). |
@@ -45,9 +46,21 @@ mismas fórmulas, formato y encabezados de la planilla original.
 - **Correcciones de NCF** (`correcciones_ncf`): fuerza el NCF de la última sección de un eje cuando el rótulo del plano está mal.
 - Lo que no está en el DXF (montantes, sumideros, dados, tapas de registro) queda en 0 y se lista como PENDIENTE.
 
-## 4. Uso
+## 4. Uso (MetraP 2.0)
 
-Interfaz gráfica: doble clic en `MetraP.exe` (o `python metrap.py`). Elegir DXF, plantilla, archivo de salida y configuración; pulsar METRAR.
+Doble clic en `MetraP.exe` (o `python metrap_app.py`). La ventana tiene cinco páginas en la barra lateral:
+
+1. **Proyecto**: elegir el plano DXF, la plantilla Excel y el archivo de salida; nombre del proyecto, altura mínima con acero,
+   tapas por tramo tapado, acero transversal de tapa y la tabla de acortamientos (todo editable sin tocar archivos; se puede
+   cargar y guardar como `.json`). Botón **LEER PLANO Y CALCULAR**.
+2. **Perfiles**: lista de ejes con su longitud; para cada eje, tarjetas (longitud metrada, abierto, tapado, H promedio, área de
+   muro, NCF inicio/fin), el dibujo del perfil (NCT, NCF, tramos abiertos en azul, tapados en verde, franja roja donde lleva
+   acero, secciones con su H) y la tabla de tramos.
+3. **Metrado**: tarjetas con los totales de las partidas principales (concreto, encofrado, acero, curado, rejillas, juntas,
+   excavación, solado) y pestañas con los tramos con acero, el resumen de partidas y los datos pendientes.
+4. **Planilla**: cada hoja del Excel tal como se va a guardar (colores, negritas, celdas combinadas) con las fórmulas ya calculadas.
+5. **Exportar**: **GUARDAR EXCEL** (planilla completa con fórmulas, formato e imágenes de encabezado), **Abrir en Excel**,
+   **VISTA PREVIA E IMPRIMIR** y **Guardar resumen en PDF**.
 
 Consola:
 ```
@@ -63,21 +76,24 @@ dibujo usa otras capas o colores, `capa_ejes`, `capa_progresivas`, `color_abiert
 2. Abrir la carpeta `MetraP` y ejecutar `build_exe.bat` (doble clic). Hace:
    ```
    pip install -r requirements.txt
-   pyinstaller --onefile --windowed --name MetraP --add-data "plantilla\PLANTILLA_METRADO_CUNETAS.xlsx;plantilla" --add-data "metrap_config.json;." --hidden-import ezdxf --hidden-import openpyxl --collect-all ezdxf metrap.py
+   pyinstaller --onefile --windowed --name MetraP --add-data "plantilla\PLANTILLA_METRADO_CUNETAS.xlsx;plantilla" --add-data "metrap_config.json;." --hidden-import ezdxf --hidden-import openpyxl --hidden-import matplotlib.backends.backend_qtagg --hidden-import PyQt6.QtPrintSupport --collect-all ezdxf --collect-all pycel --collect-submodules openpyxl metrap_app.py
    ```
-3. El ejecutable queda en `dist\MetraP.exe`. Copiar junto a él `metrap_config.json` si se quiere editar la configuración sin recompilar.
+3. El ejecutable queda en `dist\MetraP.exe` (pesa unos 150 MB por Qt y matplotlib; es normal). Copiar junto a él `metrap_config.json` si se quiere editar la configuración sin recompilar.
 
 ## 6. Indicaciones para pedirle a ChatGPT (u otro asistente) que genere el .exe
 
 Pegar este texto junto con la carpeta:
 
-> Tengo un programa en Python llamado MetraP (archivos `metrap.py`, `metrap_engine.py`, `metrap_config.json`,
-> carpeta `plantilla` con un .xlsx y `requirements.txt`). Usa `ezdxf`, `openpyxl` y `tkinter`. Necesito un
-> ejecutable único para Windows (`MetraP.exe`) con interfaz gráfica, que incluya dentro la plantilla
+> Tengo un programa en Python llamado MetraP 2.0 (archivos `metrap_app.py` [principal], `metrap_engine.py`,
+> `metrap_config.json`, carpeta `plantilla` con un .xlsx, `requirements.txt` y `build_exe.bat`). Usa `PyQt6`
+> (incluido `QtPrintSupport`), `matplotlib` con el backend `qtagg`, `numpy`, `pycel`, `ezdxf` y `openpyxl`.
+> Necesito un ejecutable único para Windows (`MetraP.exe`), `--onefile --windowed`, que incluya dentro la plantilla
 > `plantilla/PLANTILLA_METRADO_CUNETAS.xlsx` y `metrap_config.json` como datos (`--add-data`), con
-> `--onefile --windowed` y `--collect-all ezdxf`. El programa ya resuelve la ruta de recursos con `sys._MEIPASS`.
-> Dame los pasos exactos con PyInstaller 6 y, si algo falla al abrir el .exe (por ejemplo falta de un
-> submódulo de ezdxf), la corrección en el comando. No cambies la lógica de cálculo de `metrap_engine.py`.
+> `--collect-all ezdxf --collect-all pycel --collect-submodules openpyxl` y los hidden imports
+> `matplotlib.backends.backend_qtagg` y `PyQt6.QtPrintSupport`. El programa ya resuelve la ruta de recursos con
+> `sys._MEIPASS`. Ejecuta `build_exe.bat` o dame los pasos exactos con PyInstaller 6 y, si algo falla al abrir el
+> .exe (por ejemplo un plugin de Qt o un submódulo que falte), la corrección en el comando. No cambies la lógica de
+> cálculo de `metrap_engine.py` ni el diseño de `metrap_app.py`.
 
 ## 7. Validación
 

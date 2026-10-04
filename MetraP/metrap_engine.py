@@ -353,10 +353,9 @@ def limpiar(ws, celdas):
     for c in celdas: ws[c].value = None
 
 
-def construir(DXF, PLANTILLA, SALIDA):
+def analizar(DXF):
+    """Lee el DXF y devuelve (D, E): perfiles crudos por eje y ejes con sus tramos, alturas, areas y descuentos."""
     PENDIENTES.clear(); LOG.clear()
-    B_INT, E_MURO, E_LOSA = CFG["ancho_interior"], CFG["espesor_muro"], CFG["espesor_losa"]; B_EXT = B_INT + 2 * E_MURO
-    SEP_TRANSV = CFG["sep_transversal_tapa"]
     DESCUENTOS = {int(k): (float(v[0]), v[1]) for k, v in CFG["acortamientos"].items()}
     D = leer_dxf(DXF)
     nombres = sorted(D.keys())                       # EJE 01 .. EJE 09
@@ -372,6 +371,37 @@ def construir(DXF, PLANTILLA, SALIDA):
                                sec_i=sec_cercana(d, a)["sec"], sec_f=sec_cercana(d, b)["sec"]))
         E.append(dict(nombre=n, num=num, L=round(L, 2), L_dib=round(L_dib, 2), desc=DESCUENTOS.get(num, (0.0, ""))[0], entra_en=DESCUENTOS.get(num, (0.0, ""))[1], tramos=tramos, area=area_muro(d, 0, L), L_tap=round(sum(t["L"] for t in tramos if t["tipo"] == "TAPADA"), 2),
                       L_ab=round(sum(t["L"] for t in tramos if t["tipo"] == "ABIERTA"), 2), Hprom=area_muro(d, 0, L) / L, NCF_ini=d["sec"][0]["NCF"], NCF_fin=d["sec"][-1]["NCF"]))
+    return D, E
+
+
+def filas_acero(D, E):
+    """Tramos que llevan acero: solo donde H (desde el NCT) > h_minima_acero; los tapados siempre."""
+    H_MIN = CFG["h_minima_acero"]
+    filas = []
+    for e in E:
+        d = D[e["nombre"]]; k = 0
+        for t in e["tramos"]:
+            if t["tipo"] == "TAPADA":
+                filas.append((e, k, t)); k += 1
+            elif t["Hf"] >= H_MIN - 1e-9:
+                if t["Hi"] >= H_MIN - 1e-9:
+                    filas.append((e, k, t)); k += 1
+                else:
+                    x40 = t["a"]
+                    while H_en(d, x40) < H_MIN - 1e-9 and x40 < t["b"]: x40 += 0.01
+                    x40 = round(x40, 2)
+                    cerca = [p for p in d.get("prog", []) if abs(p - x40) < 0.3]
+                    if cerca: x40 = cerca[0]
+                    t2 = dict(t); t2.update(a=x40, L=round(t["b"] - x40, 2), Hi=round(H_en(d, x40), 2), sec_i=sec_cercana(d, x40)["sec"])
+                    filas.append((e, k, t2)); k += 1
+    return filas
+
+
+def construir(DXF, PLANTILLA, SALIDA, DE=None):
+    B_INT, E_MURO, E_LOSA = CFG["ancho_interior"], CFG["espesor_muro"], CFG["espesor_losa"]; B_EXT = B_INT + 2 * E_MURO
+    SEP_TRANSV = CFG["sep_transversal_tapa"]
+    DESCUENTOS = {int(k): (float(v[0]), v[1]) for k, v in CFG["acortamientos"].items()}
+    D, E = DE if DE else analizar(DXF)
     wb = openpyxl.load_workbook(PLANTILLA)
     # ---------------- RESUMEN (datos del proyecto)
     wr = wb["RESUMEN"]
@@ -407,26 +437,7 @@ def construir(DXF, PLANTILLA, SALIDA):
             for off in (0, 2, 4, 6, 8): we["%s%d" % (col, r + off)] = 0
     # ---------------- METRADO ACERO (filas 11-37), CURADO (7-36), REJILLAS (7-36): una fila por tramo
     wa = wb["METRADO ACERO"]; wk = wb["METRADO DE CURADO"]; wj = wb["METRADO DE REJILLAS"]
-    # Acero solo donde la altura (medida desde el NCT) supera 0.40 m; los tramos tapados llevan acero siempre
-    # (cuerpo y tapa). Un tramo abierto que pasa de 0.40 dentro de su longitud se metra desde el punto donde H = 0.40.
-    H_MIN = CFG["h_minima_acero"]
-    filas = []
-    for e in E:
-        d = D[e["nombre"]]; k = 0
-        for t in e["tramos"]:
-            if t["tipo"] == "TAPADA":
-                filas.append((e, k, t)); k += 1
-            elif t["Hf"] >= H_MIN - 1e-9:
-                if t["Hi"] >= H_MIN - 1e-9:
-                    filas.append((e, k, t)); k += 1
-                else:
-                    x40 = t["a"]
-                    while H_en(d, x40) < H_MIN - 1e-9 and x40 < t["b"]: x40 += 0.01
-                    x40 = round(x40, 2)
-                    cerca = [p for p in d.get("prog", []) if abs(p - x40) < 0.3]
-                    if cerca: x40 = cerca[0]
-                    t2 = dict(t); t2.update(a=x40, L=round(t["b"] - x40, 2), Hi=round(H_en(d, x40), 2), sec_i=sec_cercana(d, x40)["sec"])
-                    filas.append((e, k, t2)); k += 1
+    filas = filas_acero(D, E)
     assert len(filas) <= 27, "mas tramos que filas en la plantilla"
     sep_long = {}
     for e in E:
@@ -524,10 +535,10 @@ def construir(DXF, PLANTILLA, SALIDA):
 
 
 
-def ejecutar(dxf, plantilla, salida, config=None):
+def ejecutar(dxf, plantilla, salida, config=None, DE=None):
     """Punto de entrada: devuelve (ejes, ruta de salida, pendientes, log)."""
-    cargar_config(config)
-    E, fn = construir(dxf, plantilla, salida)
+    if config is not None or not DE: cargar_config(config)
+    E, fn = construir(dxf, plantilla, salida, DE)
     for e in E:
         log("%s L=%.2f (dibujada %.2f, descuento %.2f) Hprom=%.3f area muro=%.2f tapada=%.2f  NCF %.2f -> %.2f" % (e["nombre"], e["L"], e["L_dib"], e["desc"], e["Hprom"], e["area"], e["L_tap"], e["NCF_ini"], e["NCF_fin"]))
         for t in e["tramos"]: log("    %-8s %7.2f - %7.2f  L=%6.2f  H %.2f -> %.2f  sec %s-%s" % (t["tipo"], t["a"], t["b"], t["L"], t["Hi"], t["Hf"], t["sec_i"], t["sec_f"]))
