@@ -113,16 +113,16 @@ def construir():
     # ------------------------------------------------------------------ 2. trazo
     titulo2(doc, "Trazo y emplazamiento")
     parrafo(doc, "El colector arranca en el poste derecho del portón de camiones cisterna (0+000.00, junto al Eje 09), único ingreso "
-                 "vehicular del predio, y corre por fuera del cerco perimetral proyectado, dentro del predio, con su eje a %.3f m del "
-                 "paramento del cerco y junta de tecnopor de 1\" entre el muro y el cimiento. La losa superior queda al ras del piso "
-                 "terminado del frente (+%.2f msnm) en toda su longitud. En la progresiva 0+%06.2f (registro RV-11) el trazo deja de "
-                 "seguir al cerco y entra perpendicular al lindero hasta la cara este de la caja CL (0+%06.2f), cruzando el cerco "
-                 "proyectado en 0+%06.2f, donde se deja un paso de 0.95 m. La longitud total es de %.2f m."
-                 % (D["eje_desde_cerco"], D["NPT"], g["P_QUIEBRE"], g["P_FIN"], g["P_CRUCE_CERCO"], g["P_FIN"]))
+                 "vehicular del predio, y corre dentro del predio bajo el piso exterior del frente, que en el CAR Varones no tiene cerco "
+                 "perimetral, con su eje a %.3f m de la línea de referencia del frente (límite de las áreas exteriores del plano de "
+                 "arquitectura). La losa superior queda al ras del piso terminado (+%.2f msnm) en toda su longitud, con junta de "
+                 "tecnopor de 1\" contra el piso adyacente a ambos lados. En la progresiva 0+%06.2f (registro RV-11) el trazo deja esa "
+                 "línea y entra perpendicular al lindero hasta la cara este de la caja CL (0+%06.2f). La longitud total es de %.2f m."
+                 % (D["eje_desde_cerco"], D["NPT"], g["P_QUIEBRE"], g["P_FIN"], g["P_FIN"]))
     parrafo(doc, "El único cruce de circulación es el portón de camiones cisterna, de 5.78 m (progresivas 0+000.00 a 0+006.08 con la "
                  "transición de 0.30 m); el resto del colector queda bajo piso exterior con cargas peatonales. Las coordenadas UTM "
                  "WGS84 18S de la lámina DP-01 están en el mismo sistema del tramo del Hogar de Refugio y son referenciales; el "
-                 "trazo se replantea en obra desde el cerco y desde la caja CL.")
+                 "trazo se replantea en obra desde la caja CL, el portón de camiones y las cunetas que llegan.")
     tabla(doc, ["ELEMENTO", "PROGRESIVA", "DESCRIPCIÓN"], [[r["nombre"], "0+%06.2f" % r["prog"], r["tipo"] + ": " + r["nota"]] for r in DJ["registros"]], anchos=[3.0, 3.0, 9.5])
     leyenda(doc, "%s: Registros y puntos singulares del tramo." % NUM.tabla()); fuente(doc)
     if os.path.exists(os.path.join(FIG, "DP-01.png")):
@@ -188,8 +188,8 @@ def construir():
                  "01 entra a la caja CL por una ventana de 0.40 × %.2f en su muro norte. En el plano de arquitectura las cunetas "
                  "están dibujadas hasta la franja exterior del frente, que ahora ocupa el colector: cada cuneta termina en la cara "
                  "del muro (del colector o de la CL) y el tramo que caía dentro de la estructura se descuenta en el metrado de "
-                 "cunetas (0.24, 0.09, 0.24, 3.12 y 2.77 m). En todos los casos la cota de fondo de la cuneta queda por encima del "
-                 "nivel de agua del receptor." % c01["H_ventana"])
+                 "cunetas (%s m). En todos los casos la cota de fondo de la cuneta queda por encima del "
+                 "nivel de agua del receptor." % (c01["H_ventana"], ", ".join("%.2f" % -c["ajuste_L"] for c in cun)))
     filas = [["Eje %s" % c["perfil"], "0+%06.2f" % c["prog"] if c["entra_en"] == "colector" else "caja CL", f2(c["NCF_fin"]), f2(c["H"]), "%.1f" % c["Q"], f2(-c["ajuste_L"]), f3(c["NA_colector"]), f2(c["caida_libre"])] for c in cun]
     tabla(doc, ["CUNETA", "EMPALME", "NCF EN EL MURO (msnm)", "H (m)", "Q (L/s)", "ACORTAMIENTO (m)", "NIVEL DE AGUA RECEPTOR (msnm)", "CAÍDA LIBRE (m)"], filas, tam=9, anchos=[1.8, 2.0, 2.2, 1.3, 1.5, 2.2, 2.4, 1.8])
     leyenda(doc, "%s: Empalme de las cunetas al colector y a la caja CL." % NUM.tabla())
@@ -247,7 +247,7 @@ def construir():
     vineta(doc, "Colector cubierto, con losa superior al ras del piso terminado (+%.2f msnm), sin lloraderos; registros de limpieza "
                 "(RV-01 a RV-11) a no más de 12 m, en cada llegada de cuneta y en el quiebre, fuera del cruce de camiones, con tapa de "
                 "concreto armado de 0.68 × 0.68 × 0.08 m, contramarco de ángulo de 2\" × 2\" × 3/16\" y marco de 1 ½\" × 1 ½\" × 1/8\" (láminas DD-01 y DD-02)." % D["NPT"])
-    vineta(doc, "Juntas de dilatación cada 4.00 m con tecnopor de 1\" y sello elastomérico; tecnopor de 1\" entre el colector y el cerco, en el paso del cerco proyectado, con el piso adyacente y con la caja CL (lámina DD-03).")
+    vineta(doc, "Juntas de dilatación cada 4.00 m con tecnopor de 1\" y sello elastomérico; tecnopor de 1\" entre la losa y el piso adyacente a ambos lados y en el contacto con la caja CL (lámina DD-03).")
     vineta(doc, "Empalme de cunetas por ventana de 0.40 × H en el muro del lado del predio, con caída al fondo, junta de 1\" y registro sobre el empalme (láminas DP-06C y DD-04).")
     vineta(doc, "Concreto f'c = 210 kg/cm² en colector y tapas; solado f'c = 100 kg/cm² de 0.05 m; acero fy = 4200 kg/cm²; recubrimiento de 4 cm; traslapes de 0.40 m (3/8\") y 0.50 m (1/2\").")
     vineta(doc, "Si la caja CL se construye antes que el colector, sus ventanas este y norte se dejan tapadas con muro de ladrillo pandereta sin mortero de unión a la caja, para retirarlo al empalmar; si se construye después, el colector termina en tapón provisional.")

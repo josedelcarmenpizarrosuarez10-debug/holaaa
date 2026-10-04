@@ -24,6 +24,8 @@ REG_SIN = "RS-06*"
 P_EJ_EMPALME = 11.27
 SUB_DP06C = "VENTANA EN EL MURO LADO PREDIO, CAIDA AL FONDO, JUNTAS Y REGISTRO - CUNETAS EJES 01, 02, 06, 07, 11 Y 12 - ESC. 1/10"
 TXT_CUNETA_06C = "cuneta de arquitectura 0.40 x H, muros 0.10 (NCF segun perfil 01 a 12)"
+CON_CERCO = True
+TXT_JUNTA_06C = "junta de tecnopor 1\" entre colector, cuneta y cerco"
 TXT_CERCO_06C = "paso por el cerco existente: abertura 0.60 (cuneta con sus muros); junta de tecnopor 1\" a ambos lados"
 TXT_EJ_EMPALME = "ESC. 1/10 - ejemplo cuneta Eje 02 (0+011.27); en las demas varia H y la cota de fondo"
 NOTA_PROLONG = ["NOTA: las cunetas de los Ejes 11 y 12 se prolongan 1.88 y 5.39 m hasta el muro del colector con su misma seccion;", "esa prolongacion se metra en la partida de cunetas del proyecto (no forma parte de la partida 01.04.04 del colector)."]
@@ -74,7 +76,7 @@ def seccion(lam, xmm, ymm, p, R, T, esc_txt="1/25", nombre=None, con_cerco=True,
     lam.poli([(xl - 1.0, zterr - 0.03), (xl - 0.5, zterr), (xl - 0.15, zterr + 0.02)], "TERRENO-EXISTENTE")
     lam.poli([(xl - 1.0, zterr - 0.03), (xl - 0.25, zterr - 0.03), (xl - 0.25, cy - 0.05), (xr + 0.25, cy - 0.05), (xr + 0.25, zs - 0.9)], "EXCAVACION")
     # cerco perimetrico al lado predio, con junta de tecnopor 1"
-    xc = xr + D["junta_cerco"]
+    xc = xr + D["junta_cerco"]; con_cerco = con_cerco and CON_CERCO
     if con_cerco:
         lam.rect(xc, zs - 0.6, xc + 0.15, zs + 0.6, "CERCO"); lam.rect(xc, zs - 0.9, xc + 0.40, zs - 0.6, "CERCO")
         lam.achurado([(xc, zs - 0.6), (xc + 0.15, zs - 0.6), (xc + 0.15, zs + 0.6), (xc, zs + 0.6)], "TERRENO-ACHURADO", escala_mm=0.4)
@@ -121,7 +123,7 @@ def dp04(doc, ox, oy, R, T):
         lam.leyenda(32, 150, [("achurado", "CONCRETO-ACHURADO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100 kg/cm2"),
                               ("linea", "ACERO", "acero transversal: marco cerrado (rojo)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal 3/8\" (circulo a diametro real)"),
                               ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", "piso terminado +%.2f" % D["NPT"]),
-                              ("linea", "TERRENO-EXISTENTE", "terreno existente"), ("linea", "EXCAVACION", "limite de excavacion"), ("rect", "CERCO", "cerco perimetrico existente")], 1.8)
+                              ("linea", "TERRENO-EXISTENTE", "terreno existente"), ("linea", "EXCAVACION", "limite de excavacion")] + ([("rect", "CERCO", "cerco perimetrico existente")] if CON_CERCO else []), 1.8)
         lam.notas(300, 150, "NOTAS", NOTAS_DP04 or ["1. Altura interior h segun el perfil longitudinal (1.40 m en 0+000 a 1.61 m en el brink).",
                                         "2. Tramo normal y cruce de motos: un solo marco cerrado en el eje de muros y losas (una capa, E.060 14.3.4); recubrimiento minimo 0.04 m en muros y losa de fondo y 0.025 m en la losa superior.",
                                         "3. Junta de tecnopor de 1\" entre el muro lado predio y el cimiento del cerco; junta de 1\" entre la losa superior y el piso adyacente.",
@@ -330,10 +332,12 @@ def dp06c(doc, ox, oy, R, T):
     lam.rect(ox_ - 0.30, oy_ + D["b"] / 2, ox_ + 0.30, oy_ + be / 2 + 1.2, "CUNETA"); lam.rect(ox_ - 0.20, oy_ + D["b"] / 2, ox_ + 0.20, oy_ + be / 2 + 1.2, "CUNETA-OCULTA")
     lam.rect(ox_ - 0.20, oy_ + D["b"] / 2, ox_ + 0.20, oy_ + be / 2, "CONCRETO-OCULTO")   # ventana en el muro
     yc_ = oy_ + be / 2 + D["junta_cerco"]
-    lam.linea((ox_ - 0.35, yc_), (ox_ + 0.35, yc_), "JUNTAS"); lam.linea((ox_ - 0.35, yc_ + 0.15), (ox_ + 0.35, yc_ + 0.15), "JUNTAS")
-    lam.rect(ox_ - 1.5, yc_, ox_ - 0.30, yc_ + 0.15, "CERCO"); lam.rect(ox_ + 0.30, yc_, ox_ + 1.5, yc_ + 0.15, "CERCO")
-    lam.achurado([(ox_ - 1.5, yc_), (ox_ - 0.30, yc_), (ox_ - 0.30, yc_ + 0.15), (ox_ - 1.5, yc_ + 0.15)], "TERRENO-ACHURADO", escala_mm=0.4)
-    lam.achurado([(ox_ + 0.30, yc_), (ox_ + 1.5, yc_), (ox_ + 1.5, yc_ + 0.15), (ox_ + 0.30, yc_ + 0.15)], "TERRENO-ACHURADO", escala_mm=0.4)
+    lam.linea((ox_ - 0.35, yc_), (ox_ + 0.35, yc_), "JUNTAS")
+    if CON_CERCO:
+        lam.linea((ox_ - 0.35, yc_ + 0.15), (ox_ + 0.35, yc_ + 0.15), "JUNTAS")
+        lam.rect(ox_ - 1.5, yc_, ox_ - 0.30, yc_ + 0.15, "CERCO"); lam.rect(ox_ + 0.30, yc_, ox_ + 1.5, yc_ + 0.15, "CERCO")
+        lam.achurado([(ox_ - 1.5, yc_), (ox_ - 0.30, yc_), (ox_ - 0.30, yc_ + 0.15), (ox_ - 1.5, yc_ + 0.15)], "TERRENO-ACHURADO", escala_mm=0.4)
+        lam.achurado([(ox_ + 0.30, yc_), (ox_ + 1.5, yc_), (ox_ + 1.5, yc_ + 0.15), (ox_ + 0.30, yc_ + 0.15)], "TERRENO-ACHURADO", escala_mm=0.4)
     lam.rect(ox_ - 0.35, oy_ - 0.35, ox_ + 0.35, oy_ + 0.35, "MARCO-METALICO", const_width=0.006); lam.rect(ox_ - 0.30, oy_ - 0.30, ox_ + 0.30, oy_ + 0.30, "REGISTRO")
     lam.bloque("SIMB-FLECHA", (ox_, oy_ + be / 2 + 0.8), f, rot=-90, capa="FLUJO"); lam.bloque("SIMB-FLECHA", (ox_ - 1.0, oy_), f, rot=180, capa="FLUJO")
     xt = ox_ + 1.7
@@ -374,7 +378,7 @@ def dp06c(doc, ox, oy, R, T):
     lam.cota((xr - em, zc), (xr - em, zt), 4, horizontal=False, texto="ventana"); lam.cota((xl, cy), (xr, cy), -8)
     lam.cota((xr, zc - 0.10), (xq, zc - 0.10), -14, texto='1"')
     xt = xq + 1.8
-    lam.llamada((xr, zc + 0.6), (xt, zs + 0.1), ["junta de tecnopor 1\" entre colector, cuneta y cerco"], 1.8)
+    lam.llamada((xr, zc + 0.6), (xt, zs + 0.1), [TXT_JUNTA_06C], 1.8)
     lam.llamada((xr - em / 2, zc + 0.3), (xt, zs - 0.3), ["ventana 0.40 x (zt - NCF) en el muro lado predio; sin dintel adicional (losa superior monolitica)"], 1.8)
     lam.llamada((xq + 0.4, zc + 0.05), (xt, zs - 0.7), ["cuneta 0.40 x H: llega con su NCF y vierte en caida libre al colector"], 1.8)
     lam.llamada((ox_, zf + y), (xt, zs - 1.1), ["NA del colector siempre bajo el fondo de la cuneta (ver hoja CUNETAS de la memoria)"], 1.8)

@@ -145,7 +145,7 @@ def da(doc, ox, oy, R, T):
              ["Tapas de concreto 0.68 x 0.68 x 0.08", "und / m3", "%d / %.2f" % (Rg["n"], Rg["tapa_conc"])], ["Acero en tapas, bordes, asas y anclajes", "kg", "%.1f" % (Rg["acero_borde_kg"] + Rg["acero_tapa_kg"] + Rg["asas_kg"] + Rg["anclajes_kg"])],
              ["Pintura anticorrosiva y esmalte en angulos", "m2", "%.2f" % Rg["pintura_m2"]],
              ["Junta de dilatacion e=1\" con sello (%d und x %.2f m)" % (J["n"], J["L_dilat"] / J["n"]), "m", "%.2f" % J["L_dilat"]],
-             ["Junta de tecnopor e=1\" con el cerco (muro)", "m", "%.2f" % J["L_tecnopor_cerco"]], ["Junta de tecnopor e=1\" con el piso adyacente", "m", "%.2f" % J["L_tecnopor_piso"]],
+             ["Junta de tecnopor e=1\" con el cerco (muro)" if J.get("L_tecnopor_cerco", 0) > 0 else "Junta de tecnopor e=1\" con la caja CL (perimetro de la seccion)", "m", "%.2f" % (J["L_tecnopor_cerco"] if J.get("L_tecnopor_cerco", 0) > 0 else J.get("L_tecnopor_cl", 0))], ["Junta de tecnopor e=1\" con el piso adyacente", "m", "%.2f" % J["L_tecnopor_piso"]],
              ["Empalme de cuneta al colector (ventana + caida)", "und", "%d" % Rs["empalmes"]]]
     lam.tabla(32, 200, ["PARTIDA", "UND", "METRADO"], filas, [120, 18, 26], 1.7, 4.6, "RESUMEN DE ACERO, REGISTROS, JUNTAS Y EMPALMES")
     lams.append(lam)

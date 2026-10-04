@@ -35,10 +35,10 @@ def _juntas():
     n = int(dz.P_FIN // 4.0)
     hmax = H_MAX if H_MAX else dz.techo(dz.P_FIN) - dz.fondo(dz.P_FIN)
     per = 2 * (D["b"] + 2 * D["e_muro"]) + 2 * (D["e_fondo"] + hmax + D["e_losa"])
-    # tecnopor con el cerco: donde el colector va pegado al cerco (0+000 al quiebre) + paso del cerco proyectado en el tramo de empalme
-    # tecnopor con el piso: ambos bordes de la losa en toda la longitud + contacto con la CL (muro este, 1.30 m)
-    return dict(n=n, L_dilat=n * per, L_tecnopor_cerco=dz.P_QUIEBRE + 2 * (D["e_fondo"] + hmax + D["e_losa"]),
-                L_tecnopor_piso=2 * dz.P_FIN + (dz.D["CL_ancho"] + 2 * D["e_muro"]))
+    # no hay cerco perimetrico en el frente de Varones: tecnopor solo en los dos bordes de la losa con el piso adyacente y en el
+    # contacto del colector con el muro este de la caja CL (perimetro de la seccion)
+    per_cl = 2 * (D["b"] + 2 * D["e_muro"]) + 2 * (D["e_fondo"] + hmax + D["e_losa"])
+    return dict(n=n, L_dilat=n * per, L_tecnopor_cerco=0.0, L_tecnopor_cl=per_cl, L_tecnopor_piso=2 * dz.P_FIN + per_cl)
 
 
 MC.juntas = _juntas
@@ -51,14 +51,20 @@ DS.REG_SIN = "CL*"
 DS.P_EJ_EMPALME = 46.02
 DS.SUB_DP06C = "VENTANA EN EL MURO LADO PREDIO, CAIDA AL FONDO, JUNTAS Y REGISTRO - CUNETAS EJES 09, 08, 06 Y 04 - ESC. 1/10"
 DS.TXT_CUNETA_06C = "cuneta de arquitectura 0.40 x H, muros 0.10 (NCF segun perfil CAR VARONES, Ejes 09, 08, 06 y 04)"
-DS.TXT_CERCO_06C = "paso por el cerco proyectado: abertura 0.60 (cuneta con sus muros); junta de tecnopor 1\" a ambos lados"
+DS.TXT_CERCO_06C = "no hay cerco perimetrico: la cuneta llega directamente al muro del colector con junta de tecnopor 1\""
+DS.TXT_JUNTA_06C = "junta de tecnopor 1\" entre el colector y la cuneta"
+DS.CON_CERCO = False
+DD.CON_CERCO = False
+DD.TIT_DD03_C = "C. JUNTA DE TECNOPOR CON EL PISO ADYACENTE"
 DD.EJ_DD04 = 46.02
 DS.TXT_EJ_EMPALME = "ESC. 1/10 - ejemplo cuneta Eje 06 (0+046.02, registro RV-06); en las demas varia H y la cota de fondo"
-DS.NOTA_PROLONG = ["NOTA: las cunetas de los Ejes 09, 08, 06 y 04 se acortan 0.24, 0.09, 0.24 y 3.12 m respecto del plano de arquitectura: terminan en la cara",
+_AC = {c["perfil"]: -c["ajuste_L"] for c in dz.CUNETAS}
+DESC_TXT = ", ".join("%.2f" % _AC[k] for k in ("09", "08", "06", "04", "01"))
+DS.NOTA_PROLONG = ["NOTA: las cunetas de los Ejes 09, 08, 06 y 04 se acortan %s m respecto del plano de arquitectura: terminan en la cara" % ", ".join("%.2f" % _AC[k] for k in ("09", "08", "06", "04")),
                    "del muro lado predio del colector (el tramo que caia dentro del colector se descuenta en la partida de cunetas del proyecto)."]
 DS.NOTAS_DP04 = ["1. Altura interior h segun el perfil longitudinal: 0.70 m en el cruce de camiones (losa e=0.25), 0.85 m en 0+006.08 y 1.17 m en la llegada a la CL.",
                  "2. Tramo normal: un solo marco cerrado 3/8\" @0.20 en el eje de muros y losas (una capa, E.060 14.3.4); recubrimiento 0.04 m en muros y losa de fondo y 0.025 m en la losa superior.",
-                 "3. Junta de tecnopor de 1\" entre el muro lado predio y el cimiento del cerco; junta de 1\" entre la losa superior y el piso adyacente (+261.15).",
+                 "3. El frente del CAR Varones no tiene cerco perimetrico: el colector queda bajo el piso exterior (+261.15) con junta de tecnopor de 1\" entre la losa superior y el piso adyacente a ambos lados.",
                  "4. El cruce de camiones cisterna (S-01, 0+000.00 - 0+006.08) lleva losas e=0.25 y doble marco de 1/2\" @0.15 (marco exterior e interior, recubrimiento 0.04).",
                  "5. Los registros no se ubican dentro del cruce de camiones. No hay cruce de motos en este tramo."]
 
@@ -74,7 +80,7 @@ DQ.ESPECIFICACIONES = [
     "TRASLAPES: 3/8\" = 0.40 m ; 1/2\" = 0.50 m, alternados. Barras longitudinales de 9.00 m.",
     "LOSA SUPERIOR: vaciada monoliticamente con los muros en todo el colector; acabado frotachado y brunado (a nivel del piso terminado +261.15).",
     "REGISTROS: marco y contramarco de angulo 2\"x2\"x3/16\" y 1 1/2\"x1 1/2\"x1/8\" con anclajes, pintura anticorrosiva y esmalte; tapas de concreto 0.68 x 0.68 x 0.08 con asas.",
-    "JUNTAS: cada 4.00 m, e = 1\", relleno de poliestireno expandido y sello elastomerico de poliuretano. Tecnopor de 1\" entre el colector y el cerco, las cunetas, la caja CL y el piso adyacente.",
+    "JUNTAS: cada 4.00 m, e = 1\", relleno de poliestireno expandido y sello elastomerico de poliuretano. Tecnopor de 1\" entre el colector y las cunetas, la caja CL y el piso adyacente (no hay cerco perimetrico en el frente).",
     "CURADO: humedo minimo 7 dias; no transitar sobre la losa antes de 14 dias; no cargar con camiones antes de 28 dias.",
     "RELLENO: material propio seleccionado, capas de 0.15 m, 95 % del Proctor modificado; incluye la nivelacion del retiro hasta la cota de la losa.",
     "EXCAVACION: zanja de 1.40 m de ancho (0.25 m a cada lado del muro); entibar si el suelo lo requiere (profundidades de 1.10 a 1.75 m).",
@@ -92,7 +98,7 @@ DD.TXT_REG_A = "1 por registro: 11 en la losa del colector (RV-01 a RV-11)"
 DD.TXT_REG_B = "11 und (RV-01 a RV-11)"
 DD.TXT_JUNTA_CAJAS = ("El colector lleva tecnopor en su contacto con la caja CL", "del Hogar de Refugio (muro este, 1.30 x 1.52).")
 DD.TXT_DD04_SUB = "4 EMPALMES AL COLECTOR (CUNETAS EJES 09, 08, 06 Y 04) - LA CUNETA DEL EJE 01 ENTRA A LA CAJA CL (DP-07) - ESC. INDICADAS"
-DD.TXT_DD03_C = "ESC. 1/10 - tramo 0+000.00 a %s (pegado al cerco)" % P(dz.P_QUIEBRE)
+DD.TXT_DD03_C = "ESC. 1/10 - en toda la longitud del colector, a ambos lados (no hay cerco perimetrico)"
 DD.N_EMPALMES_TXT = "4 und"
 DD.TXT_DD04_CUNETA = "(acortadas hasta la cara del muro del colector)"
 

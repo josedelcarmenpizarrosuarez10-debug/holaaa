@@ -64,9 +64,9 @@ def dp01(doc, ox, oy, R, T, BP):
     for s in BS["arq"]:
         for seg in recortar(s["pts"], wins): lam.poli(seg, s["layer"])
     for seg in recortar(BS["lote_sur"], win): lam.poli(seg, "LINDERO")
-    # cercos: Solange (horizontal) y Varones (frente proyectado)
+    # cerco de Solange (existente) y linea de referencia del frente de Varones (no hay cerco perimetrico en Varones)
     lam.poli([(xw0, SOL.Y_CERCO), (SOL.X_NE, SOL.Y_CERCO)], "CERCO", ancho=0.08)
-    lam.poli(dz.CERCO, "CERCO", ancho=0.08)
+    lam.poli(dz.BORDE, "LINDERO")
     lam.linea((SOL.X_NE, SOL.Y_CERCO), (SOL.X_NE, SOL.Y_CERCO - 7.0), "LINDERO")
     # --- colector de Solange (referencia) y caja CL
     yS = SOL.Y_EJE; bS = DS_["b"]; beS = DS_["b_ext"]
@@ -124,7 +124,7 @@ def dp01(doc, ox, oy, R, T, BP):
                      ("entra al colector en %s (%s); se acorta %.2f m" % (prog_txt(p), reg, -c["ajuste_L"])) if c["entra_en"] == "colector"
                      else "entra a la caja CL por su muro norte; se acorta %.2f m" % (-c["ajuste_L"])], 1.6)
     # progresivas cada 10 m y puntos singulares
-    for p in list(np.arange(0, dz.P_FIN, 10.0)) + [dz.ZONAS[0]["p2"], dz.P_QUIEBRE, dz.P_CRUCE_CERCO, dz.P_FIN]:
+    for p in list(np.arange(0, dz.P_FIN, 10.0)) + [dz.ZONAS[0]["p2"], dz.P_QUIEBRE, dz.P_FIN]:
         a, b_ = _pe(p, -D["b_ext"] / 2 - 0.3), _pe(p, -D["b_ext"] / 2 - 1.2)
         lam.linea(a, b_, "PROGRESIVAS")
         lam.texto(_pe(p, -D["b_ext"] / 2 - 1.5), prog_txt(p), 1.5, "PROGRESIVAS", TA.TOP_CENTER, rot=dz.eje_local(p)[2] - 180)
@@ -132,8 +132,8 @@ def dp01(doc, ox, oy, R, T, BP):
         lam.bloque("SIMB-FLECHA", _pe(p, 0), 0.12, rot=dz.eje_local(p)[2], capa="FLUJO")
     # quiebre, cruce del cerco y empalme
     lam.llamada(dz.eje_local(dz.P_QUIEBRE)[:2], (dz.eje_local(dz.P_QUIEBRE)[0] + 14.0, SOL.Y_CERCO - 9.0),
-                ["QUIEBRE %s (registro RV-11): el colector deja de seguir al cerco y entra horizontal a la CL" % prog_txt(dz.P_QUIEBRE),
-                 "cruce del cerco proyectado de Varones en %s: paso de 0.95 m con junta de tecnopor 1\"" % prog_txt(dz.P_CRUCE_CERCO)], 1.6)
+                ["QUIEBRE %s (registro RV-11): el colector deja la linea del frente y entra horizontal a la CL" % prog_txt(dz.P_QUIEBRE),
+                 "tramo de empalme %s a %s bajo el piso exterior (+261.15), sin cerco" % (prog_txt(dz.P_QUIEBRE), prog_txt(dz.P_FIN))], 1.6)
     lam.llamada((dz.X_CL_ESTE, yS - 0.3), (dz.X_CL_ESTE + 8.0, SOL.Y_CERCO - 13.0),
                 ["EMPALME %s: entrega a la caja de llegada CL del colector del Hogar de Refugio (CUI 2675514)" % prog_txt(dz.P_FIN),
                  "ventana 0.60 x 1.17 en el muro este de la CL, cota de fondo %.3f; la CL recibe %.1f + %.1f = %.1f L/s (ver DP-07)" % (dz.fondo(dz.P_FIN), R["Q"], R["Q_directo_CL"], R["Q_CL"])], 1.6)
@@ -165,16 +165,16 @@ def dp01(doc, ox, oy, R, T, BP):
                            ("linea", "EJE-COLECTOR", "eje del colector"), ("bloque:REGISTRO-PLANTA", "REGISTRO", "registro de limpieza con tapa removible"),
                            ("linea", "JUNTAS", "junta de dilatacion cada 4.00 m"), ("rect", "CRUCE-VEHICULAR", "cruce de camiones cisterna (porton)"),
                            ("linea", "CUNETA", "cuneta de arquitectura (tramo que se construye)"), ("linea", "CUNETA-OCULTA", "tramo de cuneta que se descuenta"),
-                           ("linea2", "CERCO", "cerco perimetrico (proyectado / existente)"), ("linea", "LINDERO", "linderos"),
+                           ("linea2", "CERCO", "cerco existente del Hogar de Refugio"), ("linea", "LINDERO", "linderos y linea de referencia del frente (sin cerco)"),
                            ("linea", "ARQ-BASE", "arquitectura (referencia)"), ("bloque:SIMB-FLECHA", "FLUJO", "sentido del flujo")], 1.7)
     lam.notas(500, 250, "NOTAS", [
         "1. Colector de concreto armado f'c=210 kg/cm2, cubierto, losa superior monolitica con los muros y al ras del piso terminado +261.15.",
-        "2. Va por fuera del cerco proyectado, dentro del predio: muro lado predio a 0.025 m del cerco (tecnopor 1\"); eje a 0.475 m del cerco.",
+        "2. El frente del CAR Varones no tiene cerco perimetrico: el colector va bajo el piso exterior, con su eje a 0.475 m de la linea de referencia del frente (limite de las areas exteriores del plano de arquitectura).",
         "3. Progresivas desde el poste derecho del porton de camiones (0+000, junto al Eje 09) crecientes hacia la caja CL del Hogar de Refugio.",
         "4. Registros con tapa removible al ras, en cada empalme de cuneta, en el quiebre y cada 12.00 m como maximo (11 und).",
         "5. Cotas en m.s.n.m. Fondo 260.20 (0+000) a %.3f (llegada a la CL), S = 0.30 %%; fondo de la CL 258.80 (caida %.2f m)." % (dz.fondo(dz.P_FIN), dz.fondo(dz.P_FIN) - D["CL_piso"]),
         "6. Las cunetas de los Ejes 09, 08, 06 y 04 entran por ventana en el muro lado predio; la del Eje 01 cae a la caja CL. El tramo",
-        "   de cada cuneta que caia dentro del colector se descuenta en la partida de cunetas (0.24, 0.09, 0.24, 3.12 y 2.77 m).",
+        "   de cada cuneta que caia dentro del colector se descuenta en la partida de cunetas (%s m)." % C.DESC_TXT,
         "7. La caja CL es parte del expediente del Hogar de Refugio (CUI 2675514); su tapa queda en +261.15 (piso del CAR Varones).",
         "8. Perfil en DP-02, secciones en DP-04, registro en DP-06B, empalme de cunetas en DP-06C, empalme con la CL en DP-07, acero y especificaciones en DP-08.",
     ], 1.6)
@@ -253,10 +253,6 @@ def perfil(lam, xmm, ymm, p1, p2, R, T, titulo=None, paso_tabla=5.0):
     if p1 < dz.P_QUIEBRE < p2:
         lam.linea((X(dz.P_QUIEBRE), Y(NPT) + 11 * f), (X(dz.P_QUIEBRE), Y(NPT) + 16 * f), "LLAMADAS")
         lam.texto((X(dz.P_QUIEBRE) + 0.8 * f, Y(NPT) + 17 * f), "QUIEBRE %s" % prog_txt(dz.P_QUIEBRE), 1.5, "TEXTOS", TA.LEFT, rot=90)
-    if p1 < dz.P_CRUCE_CERCO < p2:
-        xc = X(dz.P_CRUCE_CERCO)
-        lam.rect(xc - 0.075, Y(NPT), xc + 0.075, Y(NPT + 0.6), "CERCO"); lam.achurado([(xc - 0.075, Y(NPT)), (xc + 0.075, Y(NPT)), (xc + 0.075, Y(NPT + 0.6)), (xc - 0.075, Y(NPT + 0.6))], "TERRENO-ACHURADO", escala_mm=0.4)
-        lam.texto((xc + 0.8 * f, Y(NPT + 0.65)), "cerco proyectado: paso del colector %s" % prog_txt(dz.P_CRUCE_CERCO), 1.4, "TEXTOS", TA.LEFT, rot=90)
     # ---------- llegada a la caja CL de Solange (receptor) al final del tramo
     if p2 >= dz.P_FIN - 1e-6:
         e = DS_["e_muro"]; zp = D["CL_piso"]; Li = DS_["CL_largo"]; tCL = D["NPT_CL"]; eL = DS_["e_losa"]
@@ -401,10 +397,6 @@ def dp07(doc, ox, oy, R, T):
     # registro de la CL (tapa 0.68) y lindero
     lam.bloque("REGISTRO-PLANTA", Pp(uE / 2, 0), 1.0)
     lam.linea(Pp(0, -Bi / 2 - e - 1.2), Pp(0, Bi / 2 + e + 1.9), "LINDERO"); lam.texto(Pp(-0.05, Bi / 2 + e + 1.75), "LINDERO (x = 349162.00)", 1.5, "LINDERO", TA.RIGHT)
-    # cerco proyectado de Varones (cruza el tramo de empalme en 0+102.11): se dibuja su traza
-    cx = R["caja_llegada"]["cruce_cerco"]["x"] - SOL.X_NE
-    a_, b_ = np.array(dz.CERCO[-2]), np.array(dz.CERCO[-1]); dcer = (b_ - a_) / np.linalg.norm(b_ - a_)
-    lam.poli([Pp(cx + dcer[0] * 1.8, dcer[1] * 1.8), Pp(cx - dcer[0] * 1.8, -dcer[1] * 1.8)], "CERCO", ancho=0.02)
     # cortes
     for (u, v1, v2, nm) in ((uE + 2.3, -Bi / 2 - e - 0.5, Bi / 2 + e + 0.5, "B"),):
         lam.linea(Pp(u, v1), Pp(u, v2), "CORTES"); lam.texto(Pp(u + 0.05, v2 + 0.05), nm, 2.5, "CORTES"); lam.texto(Pp(u + 0.05, v1 - 0.25), nm, 2.5, "CORTES")
@@ -427,7 +419,6 @@ def dp07(doc, ox, oy, R, T):
     lam.llamada(Pp(uE + jt / 2, be / 2), Pp(xt, 1.05), ["tecnopor 1\" entre el colector de Varones y la CL (muro este, todo el perimetro)"], 1.7)
     lam.llamada(Pp(uE - e / 2, b / 2 + 0.05), Pp(xt, 0.7), ["ventana 0.60 x %.2f en el muro este de la CL (de %.3f a %.2f):" % (zt - cf, cf, zt), "el colector entra con su seccion completa"], 1.7)
     lam.llamada(Pp(uE + 2.6, -be / 2), Pp(xt, -0.75), ["colector CAR Varones b=0.60, muros 0.15; tramo de empalme", "%s a %s (horizontal en planta)" % (prog_txt(dz.P_QUIEBRE), prog_txt(dz.P_FIN))], 1.7)
-    lam.llamada(Pp(cx - dcer[0] * 1.5, -dcer[1] * 1.5), Pp(xt, -1.35), ["cerco proyectado del CAR Varones: deja paso de 0.95 m al colector (%s);" % prog_txt(dz.P_CRUCE_CERCO), "tecnopor 1\" a ambos lados"], 1.7)
     # izquierda (lado Hogar de Refugio) y abajo
     lam.llamada(Pp(e / 2, -DS_["b"] / 2 - 0.08), Pp(-0.3, -1.75), ["salida al colector del Hogar de Refugio: ventana 0.80 x 1.40", "en el muro oeste (lindero), fondo %.2f" % DS_["CF0"]], 1.7, al=TA.RIGHT)
     lam.llamada(Pp(uE / 2, -0.3), Pp(uE / 2 + 0.4, -1.75), ["registro de la CL con tapa 0.68 x 0.68 al ras de +%.2f (piso del CAR Varones)" % tCL], 1.7)
@@ -520,7 +511,7 @@ def dp07(doc, ox, oy, R, T):
     # leyenda, cuadro y notas
     lam.leyenda(600, 565, [("achurado", "CONCRETO-ACHURADO", "concreto armado f'c=210 (CL: expediente del Hogar de Refugio)"), ("rect", "ARQ-BASE", "colector del Hogar de Refugio (referencia)"),
                            ("achurado", "TERRENO-ACHURADO", "cuneta de arquitectura (Eje 01)"), ("relleno", "ISO-CUNETA", "ventana de llegada de cuneta"), ("linea", "JUNTAS", "junta de tecnopor 1\""),
-                           ("relleno", "AGUA-RELLENO", "agua (nivel de diseno)"), ("linea2", "CERCO", "cerco proyectado"), ("linea", "LINDERO", "lindero entre predios"), ("bloque:SIMB-FLECHA", "FLUJO", "sentido del flujo")], 1.7)
+                           ("relleno", "AGUA-RELLENO", "agua (nivel de diseno)"), ("linea", "LINDERO", "lindero entre predios"), ("bloque:SIMB-FLECHA", "FLUJO", "sentido del flujo")], 1.7)
     filas = [["Colector CAR Varones", prog_txt(dz.P_FIN), "%.1f" % R["Q"], "%.3f" % cf, "ventana este 0.60 x %.2f" % (zt - cf), "%.2f" % (cf - NA_CL)],
              ["Cuneta Eje 01", "muro norte", "%.1f" % c01["Q"], "%.2f" % c01["NCF_fin"], "ventana norte 0.40 x %.2f" % c01["H_ventana"], "%.2f" % c01["caida_libre"]],
              ["TOTAL a la CL", "", "%.1f" % R["Q_CL"], "", "poza: piso %.2f, NA %.3f" % (zp, NA_CL), ""]]
@@ -532,7 +523,7 @@ def dp07(doc, ox, oy, R, T):
         "   0.40 x %.2f (NCF %.2f). El CAR Varones entrega %.1f L/s (colector) + %.1f L/s (cuneta Eje 01) = %.1f L/s." % (c01["H_ventana"], c01["NCF_fin"], R["Q"], R["Q_directo_CL"], R["Q_CL"]),
         "3. Si la CL se construye antes que el colector de Varones, las ventanas se dejan tapadas con muro de ladrillo pandereta (sin",
         "   mortero de union a la CL) para retirarlo al empalmar; si se construye despues, el colector de Varones termina en tapon provisional.",
-        "4. Juntas de tecnopor 1\" en todo el contacto entre estructuras de distinto expediente (colector - CL, cuneta - CL, colector - cerco).",
+        "4. Juntas de tecnopor 1\" en todo el contacto entre estructuras de distinto expediente (colector - CL, cuneta - CL). No hay cerco perimetrico en el frente de Varones.",
         "5. El tramo de empalme %s a %s es horizontal en planta y mantiene la pendiente 0.30 %%; registro RV-11 en el quiebre." % (prog_txt(dz.P_QUIEBRE), prog_txt(dz.P_FIN)),
     ], 1.6)
     return lam

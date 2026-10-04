@@ -30,7 +30,8 @@ D = dict(
     NPT_CL=261.15,              # cota de la tapa de la CL (piso terminado de Varones)
     L_empalme=0.0,              # largo del tramo final horizontal (se calcula)
     CF0=260.20, S=0.003,        # cota de fondo en 0+000 y pendiente
-    junta_cerco=0.025, llenado_max=0.85, BL_min=0.05,
+    junta_cerco=0.025,          # holgura entre el muro norte del colector y la linea de referencia del frente (no hay cerco)
+    llenado_max=0.85, BL_min=0.05,
     # caja de llegada CL de Solange (receptor)
     CL_piso=_sol.D["CF0"] - _sol.D["CL_poza"], CL_CF0=_sol.D["CF0"], CL_NA=None, CL_largo=_sol.D["CL_largo"], CL_ancho=_sol.D["CL_ancho"],
     porton_camiones=5.78,
@@ -40,7 +41,8 @@ D["eje_desde_cerco"] = D["junta_cerco"] + D["e_muro"] + D["b"] / 2   # 0.475
 
 # ----------------------------------------------------------------------------- 1. geometria en planta
 FR = json.load(open(os.path.join(RAIZ, "insumos", "katiuska", "frente_varones_marco_solange.json")))
-CERCO = [tuple(p) for p in FR["cerco"]]                     # poste derecho del porton -> esquina de la CL
+CERCO = [tuple(p) for p in FR["cerco"]]                     # linea de referencia del frente (limite de las areas exteriores del plano de arquitectura); el CAR Varones NO tiene cerco perimetrico en este frente
+BORDE = CERCO
 X_NE, Y_CERCO = _sol.X_NE, _sol.Y_CERCO                     # lindero con Solange y cerco sur de Solange
 Y_EJE_CL = _sol.Y_EJE                                       # eje del colector de Solange (= eje de la CL)
 X_SO = X_NE                                                  # (compatibilidad)
@@ -78,14 +80,19 @@ P_EMPALME = P_QUIEBRE
 P_BRINK = P_FIN                          # compatibilidad: el "brink" (caida libre a la CL) es el fin
 P_B1 = P_QUIEBRE; P_B2 = P_QUIEBRE       # compatibilidad con metrado_calc.segmentos
 L_FRENTE = P_FIN
-# cruce del tramo de empalme con la linea del cerco proyectado de Varones (el cerco converge al lindero frontal)
-def _cruce_cerco():
-    a, b = np.array(CERCO[-2]), np.array(CERCO[-1]); c, d = np.array(EJE[-2]), np.array(EJE[-1])
-    den = (b[0] - a[0]) * (d[1] - c[1]) - (b[1] - a[1]) * (d[0] - c[0])
-    t = ((c[0] - a[0]) * (d[1] - c[1]) - (c[1] - a[1]) * (d[0] - c[0])) / den
-    q = a + t * (b - a); return (float(q[0]), float(q[1]))
-X_CRUCE_CERCO = _cruce_cerco()
-P_CRUCE_CERCO = round(P_QUIEBRE + float(np.hypot(X_CRUCE_CERCO[0] - EJE[-2][0], X_CRUCE_CERCO[1] - EJE[-2][1])), 2)
+
+
+def cruce_vertical(x, lateral=0.0):
+    """Las cunetas del plano son rectas norte-sur (x = constante). Devuelve (progresiva, y) del punto donde la vertical x
+    corta la polilinea del eje desplazada `lateral` m hacia el predio (norte); lateral = b/2 + e_muro es la cara del muro."""
+    for i in range(len(_seg)):
+        a, b = _P[i], _P[i + 1]; d = (b - a) / _seg[i]; n = np.array([-d[1], d[0]])
+        if n[1] < 0: n = -n
+        a2, b2 = a + n * lateral, b + n * lateral
+        if min(a2[0], b2[0]) - 1e-6 <= x <= max(a2[0], b2[0]) + 1e-6 and abs(b2[0] - a2[0]) > 1e-9:
+            t = (x - a2[0]) / (b2[0] - a2[0]); y = a2[1] + t * (b2[1] - a2[1])
+            return float(_prog[i] + t * _seg[i]), float(y)
+    return None
 
 
 def eje_local(p):
@@ -138,7 +145,8 @@ _anchos = {k: _lim[i] - _lim[i + 1] for i, k in enumerate(_orden)}
 _W = sum(_anchos.values())
 CUNETAS = []
 for k in _orden:
-    e = _ej[k]; x, y = _FIN[k]; pr, dist = prog_de(x, y)
+    e = _ej[k]; x, y = _FIN[k]
+    cv = cruce_vertical(x); pr = cv[0] if cv else prog_de(x, y)[0]; dist = y - cv[1] if cv else prog_de(x, y)[1]
     frac = _anchos[k] / _W
     c = dict(perfil=k, nombre="Eje %s" % k, x=x, y=y, L=e["L"], NCF=e["NCF_fin"], NCT=e["NPT"][-1], ancho=0.40,
              H=round(e["NPT"][-1] - e["NCF_fin"], 2), prog=round(pr, 2), dist_eje=round(dist, 2),
@@ -146,6 +154,8 @@ for k in _orden:
     # la cuneta termina en la cara del muro del colector (lado predio): distancia desde su extremo dibujado
     cara_muro = D["b"] / 2 + D["e_muro"]           # 0.45 desde el eje
     c["entra_en"] = "colector"
+    cvm = cruce_vertical(x, cara_muro)
+    if cvm: dist = (y - cvm[1]) + cara_muro          # distancia vertical del extremo dibujado a la cara del muro (+ cara_muro para que ajuste = dist - cara_muro)
     if x > X_NE and pr > P_FIN - 0.5:
         # la cuneta cae sobre la CL de Solange: entra por la ventana del muro norte de la CL (cara exterior a 0.65 del eje)
         cara_muro = D["CL_ancho"] / 2 + D["e_muro"]; c["entra_en"] = "CL"; dist = y - Y_EJE_CL   # la cuneta baja en direccion N-S hasta el muro norte de la CL
@@ -270,7 +280,7 @@ def disenar():
     sol = json.load(open(os.path.join(RAIZ, "entregables", "_calc", "diseno.json")))
     NA_CL = sol["perfil"][0]["NA"]; D["CL_NA"] = NA_CL
     res["caja_llegada"] = dict(z_piso=D["CL_piso"], caida=zB - D["CL_piso"], NA_CL=NA_CL, caida_libre=zB - NA_CL, ventana_alfeizar=zB, ventana_ancho=b, ventana_alto=techo(P_FIN) - zB,
-                               techo_CL=D["NPT_CL"] - _sol.D["e_losa"], x_cara_este=X_CL_ESTE, cruce_cerco=dict(p=P_CRUCE_CERCO, x=X_CRUCE_CERCO[0], y=X_CRUCE_CERCO[1]))
+                               techo_CL=D["NPT_CL"] - _sol.D["e_losa"], x_cara_este=X_CL_ESTE)
     for c in CUNETAS:
         if c["entra_en"] == "CL":
             c["NA_colector"] = NA_CL; c["caida_libre"] = round(c["NCF_fin"] - NA_CL, 3); c["h_colector"] = round(D["NPT_CL"] - _sol.D["e_losa"] - D["CL_piso"], 3)
@@ -280,7 +290,7 @@ def disenar():
         e = min(perfil, key=lambda e: abs(e["p"] - c["prog"]))
         c["NA_colector"] = e["NA"]; c["caida_libre"] = round(c["NCF_fin"] - e["NA"], 3); c["h_colector"] = round(e["h"], 3); c["H_ventana"] = round(e["techo"] - c["NCF_fin"], 2)
     res["cunetas"] = CUNETAS; res["registros"] = REGISTROS; res["zonas"] = ZONAS
-    res["geom"] = dict(EJE=EJE, CERCO=CERCO, P_FIN=P_FIN, P_QUIEBRE=P_QUIEBRE, P_CRUCE_CERCO=P_CRUCE_CERCO, X_CL_ESTE=X_CL_ESTE, P_BRINK=P_BRINK, P_B1=P_B1, P_B2=P_B2, X_NE=X_NE, Y_CERCO=Y_CERCO, Y_EJE_CL=Y_EJE_CL, L_FRENTE=L_FRENTE, R01_UTM=R01_UTM, AZ_FRENTE=AZ_FRENTE)
+    res["geom"] = dict(EJE=EJE, BORDE=BORDE, P_FIN=P_FIN, P_QUIEBRE=P_QUIEBRE, X_CL_ESTE=X_CL_ESTE, P_BRINK=P_BRINK, P_B1=P_B1, P_B2=P_B2, X_NE=X_NE, Y_CERCO=Y_CERCO, Y_EJE_CL=Y_EJE_CL, L_FRENTE=L_FRENTE, R01_UTM=R01_UTM, AZ_FRENTE=AZ_FRENTE)
     res["datos"] = D
     return res
 

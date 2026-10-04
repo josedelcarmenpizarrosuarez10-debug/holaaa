@@ -58,7 +58,7 @@ PARAMETROS = [
     ("jd", "Espaciamiento de juntas de dilatacion", 4.00, "m", "Lamina DP-01, nota; DP-02"),
     ("hmax", "Altura interior maxima del colector (para el perimetro de la junta)", round(dz.techo(dz.P_FIN) - dz.fondo(dz.P_FIN), 2), "m", "Lamina DP-02 (perfil): llegada a la CL"),
     ("PF", "Progresiva final (cara este de la caja CL)", round(dz.P_FIN, 2), "m", "Lamina DP-01"),
-    ("PQ", "Progresiva del quiebre (fin del tramo pegado al cerco)", round(dz.P_QUIEBRE, 2), "m", "Lamina DP-01"),
+    ("PQ", "Progresiva del quiebre (inicio del tramo de empalme)", round(dz.P_QUIEBRE, 2), "m", "Lamina DP-01"),
     ("CLb", "Ancho exterior del muro este de la caja CL (contacto con el colector)", round(dz.D["CL_ancho"] + 2 * dz.D["e_muro"], 2), "m", "Lamina DP-07"),
 ]
 
@@ -278,8 +278,7 @@ def hoja_juntas(wb, P, mt):
     cols = [("N°", 5, "txt", None), ("ELEMENTO", 48, "txt", None), ("PROGRESIVA / DETALLE", 22, "txt", None), ("VECES", 9, "auto", "0"), ("LONGITUD (m)", 12, "auto", "0.00"), ("PARCIAL (m)", 12, "form", "0.00"), ("SUSTENTO", 52, "sust", None)]
     n = len(cols)
     r = cabecera(ws, "COLECTOR PLUVIAL FRONTAL - JUNTAS Y EMPALMES DE CUNETAS", n,
-                 "Laminas DP-01, DP-02, DP-06C, DP-07 y DD-03. Junta de dilatacion de 1\" cada 4.00 m en todo el perimetro de la seccion (tecnopor + sellador elastomerico). Junta de tecnopor de 1\" entre el colector y el cimiento del cerco, en el paso del cerco proyectado, "
-                 "entre el borde de la losa y el piso adyacente y en el contacto con la caja CL. Empalme de cada cuneta por ventana en el muro lado predio con caida libre al fondo (sin dintel adicional).")
+                 "Laminas DP-01, DP-02, DP-06C, DP-07 y DD-03. Junta de dilatacion de 1\" cada 4.00 m en todo el perimetro de la seccion (tecnopor + sellador elastomerico). Junta de tecnopor de 1\" entre el borde de la losa y el piso adyacente (no hay cerco perimetrico) y en el contacto con la caja CL. Empalme de cada cuneta por ventana en el muro lado predio con caida libre al fondo (sin dintel adicional).")
     encabezado(ws, r, cols, 30); r0 = r + 1
     rr = r0
     subtitulo(ws, rr, n, "JUNTA DE DILATACION e=1\" CON TECNOPOR Y SELLADOR ELASTOMERICO (perimetro = 2 x ancho exterior + 2 x (e fondo + h max + e losa))"); rr += 1
@@ -287,12 +286,10 @@ def hoja_juntas(wb, P, mt):
     r_jd = rr
     fila(ws, rr, cols, [1, "Juntas de dilatacion cada 4.00 m entre 0+004.00 y 0+%06.2f" % (int(dz.P_FIN // 4) * 4), "=\"n = ENTERO(\"&TEXT(%s,\"0.00\")&\" / 4.00)\"" % P["PF"], "=INT(%s/%s)" % (P["PF"], P["jd"]), "=" + per, "=D%d*E%d" % (rr, rr), "DP-01; DP-02 (juntas en el perfil); DD-03; perimetro de la seccion"], 30); rr += 1
     rt1 = rr; barra_total(ws, rt1, n, "TOTAL JUNTA DE DILATACION (m)", {"F": "=SUM(F%d:F%d)" % (r_jd, rt1 - 1)}); rr += 2
-    subtitulo(ws, rr, n, "JUNTA DE TECNOPOR e=1\" ENTRE COLECTOR, CERCO, PISO ADYACENTE Y CAJA CL"); rr += 1
+    subtitulo(ws, rr, n, "JUNTA DE TECNOPOR e=1\" ENTRE COLECTOR, PISO ADYACENTE Y CAJA CL (el frente de Varones no tiene cerco perimetrico)"); rr += 1
     r_jt = rr
-    fila(ws, rr, cols, [1, "Contra el cimiento del cerco (tramo pegado al cerco, 0+000 al quiebre)", "=\"0+000.00 a 0+\"&TEXT(%s,\"000.00\")" % P["PQ"], 1, "=%s" % P["PQ"], "=D%d*E%d" % (rr, rr), "DP-01, DP-04 (junta entre muro y cimiento del cerco)"], 30); rr += 1
-    fila(ws, rr, cols, [2, "Paso del cerco proyectado en el tramo de empalme (ambas caras del colector, altura del cajon)", "0+%06.2f" % dz.P_CRUCE_CERCO, 2, "=%s+%s+%s" % (P["ef"], P["hmax"], P["et"]), "=D%d*E%d" % (rr, rr), "DP-01, DP-07: paso de 0.95 m con tecnopor a ambos lados"], 30); rr += 1
-    fila(ws, rr, cols, [3, "Borde de la losa con el piso adyacente: colector (ambos lados)", "=\"2 x 0+\"&TEXT(%s,\"000.00\")" % P["PF"], 2, "=%s" % P["PF"], "=D%d*E%d" % (rr, rr), "DP-04: junta de tecnopor en el borde de la losa superior"], 30); rr += 1
-    fila(ws, rr, cols, [4, "Contacto del colector con el muro este de la caja CL (perimetro de la seccion)", "0+%06.2f" % dz.P_FIN, 1, "=" + per.replace("+%s)" % P["hmax"], "+%s)" % P["hmax"]), "=D%d*E%d" % (rr, rr), "DP-07: tecnopor en todo el contacto colector - CL"], 30); rr += 1
+    fila(ws, rr, cols, [1, "Borde de la losa con el piso adyacente: colector (ambos lados)", "=\"2 x 0+\"&TEXT(%s,\"000.00\")" % P["PF"], 2, "=%s" % P["PF"], "=D%d*E%d" % (rr, rr), "DP-04, DD-03: junta de tecnopor en el borde de la losa superior"], 30); rr += 1
+    fila(ws, rr, cols, [2, "Contacto del colector con el muro este de la caja CL (perimetro de la seccion)", "0+%06.2f" % dz.P_FIN, 1, "=" + per.replace("+%s)" % P["hmax"], "+%s)" % P["hmax"]), "=D%d*E%d" % (rr, rr), "DP-07: tecnopor en todo el contacto colector - CL"], 30); rr += 1
     rt2 = rr; barra_total(ws, rt2, n, "TOTAL JUNTA DE TECNOPOR (m)", {"F": "=SUM(F%d:F%d)" % (r_jt, rt2 - 1)}); rr += 2
     subtitulo(ws, rr, n, "EMPALME DE CUNETA AL COLECTOR (ventana 0.40 x H en el muro lado predio, caida libre y registro encima) - laminas DP-06C y DD-04"); rr += 1
     r_e = rr
@@ -359,7 +356,7 @@ def construir():
     pl.partida(I(".05.07"), "PINTURA ANTICORROSIVA Y ESMALTE EN ANGULOS", "m²", None, total="=+%s!E%d" % (RT, rf["pintura"]))
     pl.titulo(I(".06"), "JUNTAS Y EMPALMES")
     pl.partida(I(".06.01"), "JUNTA DE DILATACION E=1\" CON TECNOPOR Y SELLADOR ELASTOMERICO", "m", None, total="=+%s!F%d" % (JE, je["dilat"]))
-    pl.partida(I(".06.02"), "JUNTA DE TECNOPOR E=1\" ENTRE COLECTOR, CERCO, PISO ADYACENTE Y CAJA CL", "m", None, total="=+%s!F%d" % (JE, je["tecnopor"]))
+    pl.partida(I(".06.02"), "JUNTA DE TECNOPOR E=1\" ENTRE COLECTOR, PISO ADYACENTE Y CAJA CL", "m", None, total="=+%s!F%d" % (JE, je["tecnopor"]))
     pl.partida(I(".06.03"), "EMPALME DE CUNETA AL COLECTOR (ventana en muro y caida)", "und", None, total="=+%s!F%d" % (JE, je["empalmes"]))
     MX.hoja_insumos(wb, pl.refs)
     # RESUMEN

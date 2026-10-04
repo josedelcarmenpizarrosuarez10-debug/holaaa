@@ -63,6 +63,8 @@ TXT_REG_B = "10 und (RS-01 a RS-07, CL y 2 en CC)"
 TXT_JUNTA_CAJAS = ("Las cajas CL y CC llevan tecnopor en su contacto", "con el colector (en el perimetro de la caja).")
 TXT_DD04_SUB = "PARTIDA 01.04.04.06.03 - 6 EMPALMES (CUNETAS EJES 01, 02, 06, 07, 11 Y 12) - ESC. INDICADAS"
 TXT_DD03_C = "ESC. 1/10 - tramo 0+000.00 a 0+058.81 (pegado al cerco)"
+CON_CERCO = True
+TIT_DD03_C = "C. JUNTA DE TECNOPOR CONTRA EL CERCO"
 N_EMPALMES_TXT = "6 und"
 EJ_DD04 = 11.27
 TXT_DD04_CUNETA = "(Ejes 11 y 12 prolongadas hasta el muro)"
@@ -327,17 +329,24 @@ def dd03(doc, ox, oy, R, T):
     zs = ef + h + et; xc = em + D["junta_cerco"]
     hatch_conc(lam, [P(0, 0), P(em, 0), P(em, zs), P(0, zs)], 0.5); lam.rect(*P(-0.35, ef), *P(0, ef + h), "CONCRETO-OCULTO")
     cerco1 = [P(xc, zs - 0.6), P(xc + 0.15, zs - 0.6), P(xc + 0.15, zs + 0.6), P(xc, zs + 0.6)]; cerco2 = [P(xc, zs - 0.9), P(xc + 0.40, zs - 0.9), P(xc + 0.40, zs - 0.6), P(xc, zs - 0.6)]
-    for c_ in (cerco1, cerco2): lam.poli(c_, "CERCO", cerrada=True); lam.achurado(c_, "TERRENO-ACHURADO", escala_mm=0.4)
+    for c_ in (cerco1, cerco2):
+        if CON_CERCO: lam.poli(c_, "CERCO", cerrada=True); lam.achurado(c_, "TERRENO-ACHURADO", escala_mm=0.4)
+    if not CON_CERCO:
+        lam.poli([P(xc, zs), P(xc + 1.2, zs)], "TERRENO", ancho=0.003); lam.poli([P(xc, zs - 0.10), P(xc + 1.2, zs - 0.10)], "TERRENO-EXISTENTE")
     tecnopor(lam, [P(em, zs - 0.9), P(xc, zs - 0.9), P(xc, zs), P(em, zs)])
     lam.poli([P(-0.4, zs), P(0, zs)], "TERRENO", ancho=0.002); lam.nivel(P(-0.25, zs), D["NPT"], texto="NPT +%.2f" % D["NPT"], lado=-1)
     lam.cota(P(em, zs - 0.9), P(xc, zs - 0.9), -6, texto="1\""); lam.cota(P(xc + 0.45, zs - 0.9), P(xc + 0.45, zs), 6, horizontal=False, texto="0.90")
     lam.texto(P(-0.17, ef + h / 2), "INTERIOR DEL COLECTOR", 1.6, "TEXTOS", TA.MIDDLE_CENTER, rot=90)
     xt = 430
-    LL(lam, P(xc + 0.07, zs + 0.3), xt, 318, ["muro del cerco existente"])
-    LL(lam, P(em + D["junta_cerco"] / 2, zs - 0.45), xt, 300, ["tecnopor de 1\" entre el muro lado predio y el", "cimiento del cerco: altura 0.90 (0.90 m2 por metro)"])
-    LL(lam, P(xc + 0.2, zs - 0.75), xt, 282, ["cimiento del cerco (no se toca; se protege", "durante la excavacion)"])
+    if CON_CERCO:
+        LL(lam, P(xc + 0.07, zs + 0.3), xt, 318, ["muro del cerco existente"])
+        LL(lam, P(em + D["junta_cerco"] / 2, zs - 0.45), xt, 300, ["tecnopor de 1\" entre el muro lado predio y el", "cimiento del cerco: altura 0.90 (0.90 m2 por metro)"])
+        LL(lam, P(xc + 0.2, zs - 0.75), xt, 282, ["cimiento del cerco (no se toca; se protege", "durante la excavacion)"])
+    else:
+        LL(lam, P(xc + 0.6, zs - 0.05), xt, 318, ["piso terminado adyacente (+%.2f); no hay cerco" % D["NPT"]])
+        LL(lam, P(em + D["junta_cerco"] / 2, zs - 0.05), xt, 300, ["tecnopor de 1\" entre la losa superior y el piso", "adyacente, a ambos lados del colector"])
     LL(lam, P(em / 2, zs - 1.2), xt, 264, ["muro del colector e = 0.15 vaciado contra la", "plancha (encofrado perdido)"])
-    lam.titulo_vista(360, 25, "C. JUNTA DE TECNOPOR CONTRA EL CERCO", TXT_DD03_C, 170)
+    lam.titulo_vista(360, 25, TIT_DD03_C, TXT_DD03_C, 170)
     # ---------------- D. junta de tecnopor en el borde de la losa con el piso (1/5)
     k = 2.0; ox_, oy_ = lam.P(560, 330)
     P = lambda x, y: (ox_ + x * k, oy_ + y * k)
@@ -359,7 +368,8 @@ def dd03(doc, ox, oy, R, T):
     filas = [["Plancha de tecnopor 1\" (seccion %.2f x %.2f menos el hueco %.2f x %.2f)" % (be, ef + h + et, b, h), "m2", "%.3f (%.3f/m)" % (a_tec, a_tec / per), f2(J["n"] * a_tec), "01.04.04.06.01 (por metro de junta: perimetro %.2f m)" % per],
              ["Sello de poliuretano 25 x 25 mm (caras interiores 2h + %.2f y superior %.2f)" % (b, be), "m", "%.2f (%.3f/m)" % (sello, sello / per), f2(J["n"] * sello), "01.04.04.06.01: 0.63 L por metro de sello (aprox. 0.75 kg)"],
              ["Imprimante para el sello (0.10 L por metro de cordon)", "L", f2(sello * 0.10), f2(J["n"] * sello * 0.10), "insumo del ACU"],
-             ["Tecnopor 1\" contra el cerco: altura 0.90 x %.2f m" % J["L_tecnopor_cerco"], "m2", "0.90 por m", f2(0.90 * J["L_tecnopor_cerco"]), "01.04.04.06.02 (tramo pegado al cerco)"],
+             (["Tecnopor 1\" contra el cerco: altura 0.90 x %.2f m" % J["L_tecnopor_cerco"], "m2", "0.90 por m", f2(0.90 * J["L_tecnopor_cerco"]), "01.04.04.06.02 (tramo pegado al cerco)"] if CON_CERCO else
+              ["Tecnopor 1\" en el contacto con la caja CL (seccion del colector menos el hueco)", "m2", f2(a_tec), f2(a_tec), "01.04.04.06.02 (empalme con la CL)"]),
              ["Tecnopor 1\" en el borde de la losa con el piso: altura 0.10 x %.2f m" % J["L_tecnopor_piso"], "m2", "0.10 por m", f2(0.10 * J["L_tecnopor_piso"]), "01.04.04.06.02 (ambos lados del colector y cajas)"]]
     cuadro(lam, 430, 165, "COMPONENTES POR JUNTA DE DILATACION (perimetro %.2f m) Y TOTAL (%d und); JUNTAS DE TECNOPOR POR METRO" % (per, J["n"]), filas, (104, 12, 30, 22, 78))
     lam.notas(430, 225, "PROCEDIMIENTO", [

@@ -48,7 +48,6 @@ def hoja_datos(wb, R):
         ("Cota de fondo inicial (0+000, poste derecho del porton)", D["CF0"], "msnm", "Fijada por la cuneta mas alta (Eje 09, NCF 260.69) y la losa superior e=0.25 del cruce: h = 0.70 m", "CF0"),
         ("Pendiente S", D["S"], "m/m", "Adoptada 0.30 %: igual al tramo del Hogar de Refugio; regimen subcritico y fondo sobre el NA de la CL", "S"),
         ("Progresiva del quiebre (inicio del tramo de empalme horizontal)", round(dz.P_QUIEBRE, 2), "m", "Registro RV-11; de ahi el colector entra perpendicular al lindero", "pq"),
-        ("Progresiva del cruce del cerco proyectado", round(dz.P_CRUCE_CERCO, 2), "m", "Paso de 0.95 m en el cerco", "pcc"),
         ("Progresiva final (cara este de la caja CL del Hogar de Refugio)", round(dz.P_FIN, 2), "m", "x = 349163.80 del sistema local; la CL ocupa de 349162.00 a 349163.80", "pf"),
         ("Longitud total del colector", "=DATOS!$B${pf}", "m", "", "L"),
         ("NPT del frente (cara superior de la losa)", D["NPT"], "msnm", "Arquitectura: piso terminado de los Ejes 01, 04 y 06 y de las areas exteriores (salvo veredas)", "NPT"),
@@ -170,10 +169,8 @@ def hoja_empalme(wb, R):
         ("Caudal previsto por el expediente del Hogar de Refugio para el CAR Varones", "=DATOS!$B${Qref}", "L/s", ""),
         ("Verificacion", "=IF(ABS(B37-B38)<0.05,\"CUMPLE (coinciden)\",\"REVISAR\")", "", "los tres expedientes usan el mismo caudal"),
         ("",),
-        ("E. CRUCE DEL CERCO PROYECTADO Y JUNTAS",),
-        ("Progresiva del cruce del cerco", "=DATOS!$B${pcc}", "m", "el cerco de Varones converge al lindero frontal y cruza el tramo de empalme"),
-        ("Ancho del paso en el cerco", "=DATOS!$B${b}+2*DATOS!$B${em}+2*0.025", "m", "ancho exterior del colector + tecnopor 1\" a cada lado"),
-        ("Tramo de empalme (del quiebre a la CL)", "=DATOS!$B${pf}-DATOS!$B${pq}", "m", "horizontal en planta, perpendicular al lindero"),
+        ("E. TRAMO DE EMPALME",),
+        ("Tramo de empalme (del quiebre a la CL)", "=DATOS!$B${pf}-DATOS!$B${pq}", "m", "horizontal en planta, perpendicular al lindero; bajo el piso exterior (+261.15); el frente de Varones no tiene cerco perimetrico"),
     ]
     r = 5
     for f in rows:
@@ -423,7 +420,7 @@ def hoja_cumplimiento(wb, R, rlast):
         ("CONSTRUCTIVOS",),
         ("Registros de limpieza", "RNE CE.040 (accesibilidad para mantenimiento)", "Separacion <= 12 m, en cada llegada de cuneta y en el quiebre; fuera del cruce de camiones", "11 registros", "CUMPLE"),
         ("Juntas de dilatacion", "Practica de los colectores vecinos", "Cada 4.00 m con tecnopor 1\" y sello", "26 juntas", "CUMPLE"),
-        ("Emplazamiento", "Lindero y faja de la carretera Oasis", "Dentro del predio, pegado por fuera del cerco proyectado, sin invadir la via; paso en el cerco en el tramo de empalme", "eje a 0.475 m del cerco", "CUMPLE"),
+        ("Emplazamiento", "Lindero y faja de la carretera Oasis", "Dentro del predio, bajo el piso exterior del frente (sin cerco perimetrico), sin invadir la via", "eje a 0.475 m de la linea del frente", "CUMPLE"),
     ]
     r = 5
     for f in filas:
@@ -440,7 +437,7 @@ def hoja_cumplimiento(wb, R, rlast):
               "2. Caudal: el colector conduce 221.7 L/s y la cuneta del Eje 01 entrega 37.0 L/s directamente a la CL; el total (258.7 L/s) es el dato de la memoria de hidrologia del CAR Varones y el aporte considerado por el Hogar de Refugio (560.6 L/s) y, aguas abajo, por el CAR Mujeres.",
               "3. Nivel de agua en la CL (259.606): resultado del perfil de flujo del tramo del Hogar de Refugio; el colector de Varones descarga en caida libre, por lo que un cambio moderado de ese nivel no altera este tramo.",
               "4. Capacidad portante: la presion transmitida es menor que 0.50 kg/cm2; el EMS del proyecto, exigido por la norma E.050, la confirma (no hay EMS disponible al elaborar esta memoria).",
-              "5. Coordenadas UTM: mismo sistema del tramo del Hogar de Refugio (R-01 del CAR Mujeres y azimut 49.54 del lindero); el trazo se replantea en obra desde el cerco (eje a 0.475 m) y desde la CL.",
+              "5. Coordenadas UTM: mismo sistema del tramo del Hogar de Refugio (R-01 del CAR Mujeres y azimut 49.54 del lindero); el trazo se replantea en obra desde la caja CL, el porton de camiones y las cunetas que llegan (cuadro de coordenadas de DP-01).",
               "6. Cotas de fondo de las cunetas: tomadas del plano PERFIL CAR VARONES (Ejes 01 a 09); todas caen libremente al colector o a la CL."]:
         celda(ws, f"A{r}", t, NEGRO); r += 1
     ws.freeze_panes = "A5"
@@ -486,7 +483,7 @@ def hoja_memoria(wb, R, rlast):
         r += 1
     r += 1
     celda(ws, f"A{r}", "NOTAS", NEG)
-    for n in ["Las cunetas de arquitectura (Ejes 09, 08, 06, 04 y 01) se acortan 0.24, 0.09, 0.24, 3.12 y 2.77 m respecto del plano: terminan en la cara del muro del colector o de la CL; ese descuento se aplica en la partida de cunetas del proyecto.",
+    for n in ["Las cunetas de arquitectura (Ejes 09, 08, 06, 04 y 01) se acortan %s m respecto del plano: terminan en la cara del muro del colector o de la CL; ese descuento se aplica en la partida de cunetas del proyecto." % ", ".join("%.2f" % -c["ajuste_L"] for c in R["cunetas"]),
               "La ubicacion UTM es referencial (mismo sistema del tramo del Hogar de Refugio). Verificar en campo.",
               "No se dispone del estudio de mecanica de suelos: la presion transmitida se compara con 0.50 kg/cm2 y debe confirmarse con el EMS del proyecto."]:
         r += 1; celda(ws, f"B{r}", n, NEGRO, al="left"); ws.row_dimensions[r].height = 30
