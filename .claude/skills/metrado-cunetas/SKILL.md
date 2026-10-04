@@ -53,3 +53,7 @@ estructura, solo los datos de entrada; los bloques de ejes sobrantes se dejan en
 - Comprobar el orden de elementos de cada hoja (legacyDrawingHF despues de rowBreaks) y reinyectar las
   imagenes de encabezado con `metrado_xlsx.reinyectar_vml`.
 - Mostrar al usuario la tabla por eje (L, tramos, H inicio/fin, NCF) y los totales del RESUMEN.
+
+## Cunetas que llegan a un colector frontal (aprendido en CAR Varones)
+- Las cunetas dibujadas hasta la franja exterior terminan en la cara del muro lado predio del colector (o en el muro de la caja receptora). El tramo que caía dentro del colector se descuenta del último tramo del eje (`DESCUENTOS` en `herramientas/metrado_varones.py`, leídos de `entregables_varones/_calc/diseno.json`) y se documenta en la hoja "CUNETAS - LLEGADA AL COLECTOR".
+- La partida del colector se agrega aparte (`herramientas/varones/metrado_v.py`) con hojas COLECTOR *, sin mezclar con las partidas de cunetas.

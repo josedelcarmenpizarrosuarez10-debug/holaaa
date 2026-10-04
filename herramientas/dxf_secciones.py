@@ -97,7 +97,7 @@ def seccion(lam, xmm, ymm, p, R, T, esc_txt="1/25", nombre=None, con_cerco=True,
                  ("%s: acero transversal" % ACERO[g["tipo"]][0] + (" (ambas caras)" if g["tipo"] == "CAMION" else ""), (rects[0][0], zt - 0.12)),
                  ("%s: acero longitudinal" % ACERO[g["tipo"]][1], (rects[0][0], zt - 0.42)),
                  ("muro e=%.2f, h=%.2f" % (em, h), (xl + em / 2, zt - 0.75)),
-                 ("NA %.3f (Q=%.1f L/s)" % (na, R["Q"]), (xl + em + 0.10, zf + y)),
+                 ("NA %.3f (Q=%.1f L/s)" % (na, perfil_en(R, p, "Q") * 1000 if "Q" in R["perfil"][0] else R["Q"]), (xl + em + 0.10, zf + y)),
                  ("losa de fondo e=%.2f" % ef, (xl - 0.02, zf - ef / 2)),
                  ("solado f'c=100 e=%.2f" % es, (xl - 0.06, cy + es / 2))]
         filas.sort(key=lambda fr: -fr[1][1])
