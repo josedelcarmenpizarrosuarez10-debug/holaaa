@@ -17,6 +17,14 @@ PLANTILLA = os.path.join(RAIZ, "insumos", "solange", "METRADO_DRENAJE_PLUVIAL_MU
 DXF = os.path.join(RAIZ, "insumos", "katiuska", "PERFIL_CAR_VARONES.dxf")
 SALIDA = os.path.join(RAIZ, "entregables", "METRADO_DRENAJE_PLUVIAL_CAR_VARONES_CUNETAS.xlsx")
 X0 = 2087.48            # origen de progresivas en el DXF
+# Acortamiento de las cunetas que llegan al frente: terminan en la cara del muro lado predio del colector (Ejes 09, 08,
+# 06 y 04) o en el muro norte de la caja CL (Eje 01). Valores del diseno del colector (entregables_varones/_calc/diseno.json).
+def _descuentos():
+    fn = os.path.join(RAIZ, "entregables_varones", "_calc", "diseno.json")
+    if not os.path.exists(fn): return {}
+    R = json.load(open(fn, encoding="utf8"))
+    return {int(c["perfil"]): (round(-c["ajuste_L"], 2), c["entra_en"]) for c in R["cunetas"] if c["ajuste_L"] < 0}
+DESCUENTOS = _descuentos()
 B_INT, E_MURO, E_LOSA, B_EXT = 0.40, 0.10, 0.10, 0.60
 SEP_TRANSV = 0.25
 PENDIENTES = []
@@ -126,17 +134,20 @@ def construir():
     E = []
     for n in nombres:
         d = D[n]; tr = tramos_eje(d); L = tr[-1][2]
+        num = int(n.split()[1]); L_dib = L
+        if num in DESCUENTOS:
+            dL = DESCUENTOS[num][0]; L = round(L - dL, 2); tr[-1][2] = L            # el ultimo tramo termina en el muro del colector / de la CL
         tramos = []
         for i, (t, a, b) in enumerate(tr):
             tramos.append(dict(tipo=t, a=a, b=b, L=round(b - a, 2), Hi=round(H_en(d, a), 2), Hf=round(H_en(d, b), 2), area=area_muro(d, a, b),
                                sec_i=sec_cercana(d, a)["sec"], sec_f=sec_cercana(d, b)["sec"]))
-        E.append(dict(nombre=n, num=int(n.split()[1]), L=round(L, 2), tramos=tramos, area=area_muro(d, 0, L), L_tap=round(sum(t["L"] for t in tramos if t["tipo"] == "TAPADA"), 2),
+        E.append(dict(nombre=n, num=num, L=round(L, 2), L_dib=round(L_dib, 2), desc=DESCUENTOS.get(num, (0.0, ""))[0], entra_en=DESCUENTOS.get(num, (0.0, ""))[1], tramos=tramos, area=area_muro(d, 0, L), L_tap=round(sum(t["L"] for t in tramos if t["tipo"] == "TAPADA"), 2),
                       L_ab=round(sum(t["L"] for t in tramos if t["tipo"] == "ABIERTA"), 2), Hprom=area_muro(d, 0, L) / L, NCF_ini=d["sec"][0]["NCF"], NCF_fin=d["sec"][-1]["NCF"]))
     wb = openpyxl.load_workbook(PLANTILLA)
     # ---------------- RESUMEN (datos del proyecto)
     wr = wb["RESUMEN"]
-    wr["B5"] = "CENTRO DE ACOGIDA RESIDENCIAL (CAR) VARONES - DISTRITO DE MORALES, PROVINCIA Y DEPARTAMENTO DE SAN MARTIN, con CUI N.° 2705619"
-    PENDIENTES.append("RESUMEN!B5: nombre completo del proyecto CAR Varones (se puso un nombre provisional con el CUI 2705619).")
+    wr["B5"] = ("CREACIÓN DEL SERVICIO DE PROTECCIÓN INTEGRAL A NIÑAS, NIÑOS Y ADOLESCENTES SIN CUIDADOS PARENTALES O EN RIESGO DE PERDERLOS EN CENTRO DE ACOGIDA "
+                "RESIDENCIAL - VARONES DISTRITO DE MORALES DE LA PROVINCIA DE SAN MARTÍN DEL DEPARTAMENTO DE SAN MARTÍN, con CUI N.° 2705619")
     # ---------------- CONCRETO EN CUNETAS: bloques de 12 filas; ejes 1-6 columna E, 7-12 columna M
     wc = wb["CONCRETO EN CUNETAS"]
     for k in range(12):
@@ -259,6 +270,23 @@ def construir():
     n_tap = sum(1 for e in E for t in e["tramos"] if t["tipo"] == "TAPADA")
     wb["PARAMETROS"]["B4"] = n_tap; wb["PARAMETROS"]["D4"] = "Provisional: 1 tapa por tramo tapado (%d tramos); confirmar con el plano" % n_tap
     PENDIENTES.append("PARAMETROS!B4: tapas de registro en cunetas tapadas = %d (1 por tramo tapado, provisional)." % n_tap)
+    # ---------------- hoja de sustento del acortamiento de las cunetas que llegan al colector
+    if DESCUENTOS:
+        from metrado_xlsx import cabecera as _cab, encabezado as _enc, fila as _fila, nota as _nota, celda as _celda
+        wd = wb.create_sheet("CUNETAS - LLEGADA AL COLECTOR", wb.sheetnames.index("PARAMETROS"))
+        cols = [("N°", 5, "txt", None), ("CUNETA", 14, "txt", None), ("LONGITUD DIBUJADA (m)", 14, "dato", "0.00"), ("ACORTAMIENTO (m)", 14, "dato", "0.00"), ("LONGITUD METRADA (m)", 14, "form", "0.00"),
+                ("TERMINA EN", 30, "txt", None), ("SUSTENTO", 70, "sust", None)]
+        r = _cab(wd, "CUNETAS - ACORTAMIENTO EN LA LLEGADA AL COLECTOR PLUVIAL FRONTAL", len(cols),
+                 "Las cunetas estan dibujadas hasta la franja exterior del frente. El colector pluvial frontal ocupa esa franja, por lo que cada cuneta termina en la cara del muro "
+                 "lado predio del colector (ventana de empalme, lamina DP-06C) o en el muro norte de la caja de llegada CL del Hogar de Refugio (Eje 01, lamina DP-07). "
+                 "El tramo que caia dentro del colector se descuenta de la longitud de la cuneta en todas las hojas de este metrado (concreto, encofrado, acero, curado, rejillas, juntas, movimiento de tierras).")
+        _enc(wd, r, cols, 40); rr = r + 1
+        for i, e in enumerate([e for e in E if e["desc"] > 0]):
+            _fila(wd, rr, cols, [i + 1, "EJE %02d" % e["num"], e["L_dib"], e["desc"], "=C%d-D%d" % (rr, rr),
+                                 "muro del colector (ventana)" if e["entra_en"] == "colector" else "muro norte de la caja CL",
+                                 "Lamina DP-01 del colector (planta: tramo de cuneta que se descuenta) y memoria de calculo del colector, hoja CUNETAS"], 26)
+            rr += 1
+        _nota(wd, rr + 1, len(cols), "Nota: el acortamiento se aplica al ultimo tramo de cada eje (el que llega al frente); las alturas H se mantienen las del perfil. Las cunetas de los Ejes 02, 03, 05 y 07 no llegan al frente y no cambian.")
     os.makedirs(os.path.dirname(SALIDA), exist_ok=True); wb.save(SALIDA)
     reinyectar_vml(PLANTILLA, SALIDA)
     return E, SALIDA
@@ -268,7 +296,7 @@ if __name__ == "__main__":
     E, fn = construir()
     print(fn)
     for e in E:
-        print("%s L=%.2f Hprom=%.3f area muro=%.2f tapada=%.2f  NCF %.2f -> %.2f" % (e["nombre"], e["L"], e["Hprom"], e["area"], e["L_tap"], e["NCF_ini"], e["NCF_fin"]))
+        print("%s L=%.2f (dibujada %.2f, descuento %.2f) Hprom=%.3f area muro=%.2f tapada=%.2f  NCF %.2f -> %.2f" % (e["nombre"], e["L"], e["L_dib"], e["desc"], e["Hprom"], e["area"], e["L_tap"], e["NCF_ini"], e["NCF_fin"]))
         for t in e["tramos"]: print("    %-8s %7.2f - %7.2f  L=%6.2f  H %.2f -> %.2f  sec %s-%s" % (t["tipo"], t["a"], t["b"], t["L"], t["Hi"], t["Hf"], t["sec_i"], t["sec_f"]))
     import openpyxl as _o
     wa = _o.load_workbook(fn)["METRADO ACERO"]

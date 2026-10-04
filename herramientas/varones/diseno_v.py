@@ -255,7 +255,7 @@ def disenar():
     # control aguas abajo: caida libre a la CL -> tirante critico en el fin del colector
     zB = fondo(P_FIN); yc_b = yc(Q, b)
     res["brink"] = dict(p=P_FIN, z=zB, yc=yc_b, NA=zB + yc_b)
-    est = sorted(set([round(x, 2) for x in np.arange(0, P_FIN, 1.0)] + [P_FIN, P_QUIEBRE] + [c["prog"] for c in CUNETAS]
+    est = sorted(set(round(x, 2) for x in list(np.arange(0, P_FIN, 1.0)) + [P_FIN, P_QUIEBRE] + [c["prog"] for c in CUNETAS]
                      + [r["prog"] for r in REGISTROS if r["prog"] < P_FIN] + [z["p2"] for z in ZONAS]), reverse=True)
     perfil = paso_estandar(est, yc_b)
     for e in perfil:
