@@ -362,11 +362,14 @@ def construir():
 
     titulo2(doc, "Caja de llegada CL del aporte externo")
     parrafo(doc, "En el inicio del tramo (0+000) se dispone una caja de llegada de %.2f × %.2f m interiores que recibe el colector "
-                 "del proyecto aguas arriba y la cuneta del Eje 01. La cota de fondo de llegada del aporte externo se toma de "
-                 "manera referencial en %.2f msnm, por confirmar con el expediente del proyecto CUI 2705619; el aporte cae en "
-                 "una poza de %.2f m de profundidad bajo la cota de fondo del canal (piso %.2f msnm), que mantiene un colchón "
-                 "de agua de %.2f m con el nivel de agua del inicio del colector (%.3f msnm) y amortigua el chorro antes de "
-                 "que el flujo ingrese al canal." % (D["CL_largo"], D["CL_ancho"], D["CF_varones_sup"], D["CL_poza"], cl["z_piso"], cl["tirante_poza"], cl["NA_salida"]))
+                 "del CAR Varones (CUI 2705619) y la cuneta del Eje 01 de ese proyecto. Según el expediente del CAR Varones, su colector "
+                 "(b = 0.60 m) llega con cota de fondo %.3f msnm a la cara este de la caja, por una ventana de 0.60 × 1.17 m hasta el techo "
+                 "de la CL, y la cuneta del Eje 01 (37.0 L/s) entra por una ventana de 0.40 × 0.66 m en el muro norte (NCF %.3f msnm); en "
+                 "conjunto entregan los 258.7 L/s considerados. La caja queda del lado del CAR Varones (x = 349162.00 a 349163.80 del "
+                 "sistema local), por lo que su tapa se fija en +%.2f msnm, al ras del piso terminado de ese proyecto, con un escalón de "
+                 "0.55 m respecto del piso de este tramo (+%.2f). El aporte cae en una poza de %.2f m de profundidad bajo la cota de fondo "
+                 "del canal (piso %.2f msnm), que mantiene un colchón de agua de %.2f m con el nivel de agua del inicio del colector (%.3f msnm) "
+                 "y amortigua el chorro antes de que el flujo ingrese al canal." % (D["CL_largo"], D["CL_ancho"], D["CF_varones_sup"], D["E01_NCF"], D["NPT_CL"], D["NPT"], D["CL_poza"], cl["z_piso"], cl["tirante_poza"], cl["NA_salida"]))
     if os.path.exists(os.path.join(FIG, "DP-07.png")):
         imagen(doc, os.path.join(FIG, "DP-07.png"), 15.5, "%s: Caja de llegada CL y caja de caída CC (lámina DP-07)." % NUM.imagen())
 
@@ -503,8 +506,9 @@ def construir():
     vineta(doc, "La estructura cumple las verificaciones de flexión y cortante de la norma E.060 para cargas peatonales y para las "
                 "cargas vehiculares de los dos cruces, con un solo marco en el tramo normal y de motos y doble marco en el cruce de "
                 "camiones, sin sobredimensionar el acero.")
-    vineta(doc, "El aporte del proyecto aguas arriba y la cota de fondo de su llegada (%.2f msnm) son datos referenciales de ese "
-                "proyecto y deben confirmarse con su expediente; la ubicación UTM del trazo debe verificarse en el replanteo." % D["CF_varones_sup"])
+    vineta(doc, "El aporte del CAR Varones (258.7 L/s) y la cota de fondo de su llegada (%.3f msnm) provienen del expediente de ese "
+                "proyecto, con el que este tramo queda coordinado (caja CL con tapa en +%.2f y ventanas este y norte); la ubicación UTM "
+                "del trazo debe verificarse en el replanteo." % (D["CF_varones_sup"], D["NPT_CL"]))
 
     doc.save(DEST)
     return n_parrafos_orig, n_tablas_orig

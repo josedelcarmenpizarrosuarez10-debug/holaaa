@@ -191,8 +191,12 @@ def dp01(doc, ox, oy, R, T, BP):
     for p in (15, 35, 55, 63.5):
         lam.bloque("SIMB-FLECHA", _pe(p, 0), 0.12, rot=dz.eje_local(p)[2], capa="FLUJO")
     # llegada de CAR Varones
-    lam.llamada((x0 + D["CL_largo"] + D["e_muro"], y0), (x0 + 9, y0 - 6.5),
-                ["LLEGADA DEL COLECTOR DE CAR VARONES (CUI 2705619): 258.7 L/s", "entra por la cara NE de la caja de llegada CL (cota referencial 260.18, por confirmar)"], 1.6)
+    lam.llamada((x0 + D["CL_largo"] + 2 * D["e_muro"], y0), (x0 + 9, y0 - 6.5),
+                ["LLEGADA DEL CAR VARONES (CUI 2705619): colector b = 0.60 por la cara este de la CL (ventana 0.60 x 1.17, fondo %.3f) 221.7 L/s" % D["CF_varones_sup"],
+                 "+ cuneta Eje 01 de Varones por el muro norte (ventana 0.40 x 0.66) 37.0 L/s = 258.7 L/s; tapa de la CL en +%.2f (piso de Varones)" % D["NPT_CL"]], 1.6)
+    xe1 = x0 + D["CL_largo"] + 2 * D["e_muro"] - D["E01_u"]
+    lam.poli([(xe1 - 0.3, y0 + 0.5 + D["e_muro"]), (xe1 - 0.3, y0 + 0.5 + D["e_muro"] + 1.5)], "CUNETA"); lam.poli([(xe1 + 0.3, y0 + 0.5 + D["e_muro"]), (xe1 + 0.3, y0 + 0.5 + D["e_muro"] + 1.5)], "CUNETA")
+    lam.bloque("SIMB-FLECHA", (xe1, y0 + 0.5 + D["e_muro"] + 0.9), 0.08, rot=-90, capa="FLUJO")
     # entrega a CAR Mujeres
     lam.llamada((xf, yb), (xf - 2, yb - 10.0), ["ENTREGA AL REGISTRO R-01 DEL COLECTOR DE CAR MUJERES (CUI 2717013)", "CF 258.72 = fondo del umbral de la poza; Q entregado 560.6 L/s"], 1.6, al=TA.LEFT)
     lam.texto((xf - 1.0, yb + 1.3), "R-01 (CAR Mujeres)", 1.6, "ARQ-TEXTO", TA.RIGHT)
@@ -218,7 +222,7 @@ def dp01(doc, ox, oy, R, T, BP):
     for rg in R["registros"]:
         p = rg["prog"]; x, y, _ = dz.eje_local(p); Eu, Nu = dz.local_a_utm(x, y)
         cf = dz.fondo(min(p, dz.P_BRINK)) if rg["nombre"] != "CC" else D["CF_R01"] - D["CC_poza_prof"]
-        filas.append([rg["nombre"], prog_txt(p), "%.3f" % Eu, "%.3f" % Nu, "%.3f" % cf, "%.3f" % D["NPT"], rg["nota"]])
+        filas.append([rg["nombre"], prog_txt(p), "%.3f" % Eu, "%.3f" % Nu, "%.3f" % cf, "%.3f" % (D["NPT_CL"] if rg["nombre"] == "CL" else D["NPT"]), rg["nota"]])
     x, y, _ = dz.eje_local(dz.P_FIN); Eu, Nu = dz.local_a_utm(x, y)
     filas.append(["R-01 (receptor)", prog_txt(dz.P_FIN), "%.3f" % Eu, "%.3f" % Nu, "%.3f" % D["CF_R01"], "%.3f" % D["NPT_wilma"], "0+000 del tramo CAR Mujeres"])
     lam.tabla(32, 560, ["PUNTO", "PROGRESIVA", "ESTE", "NORTE", "COTA FONDO", "COTA TAPA", "OBSERVACION"], filas, [22, 20, 24, 26, 20, 20, 92], 1.7, 4.2, "CUADRO DE COORDENADAS DE REGISTROS Y CAJAS")
@@ -236,7 +240,7 @@ def dp01(doc, ox, oy, R, T, BP):
         "3. Progresivas a lo largo del eje desde la caja de llegada CL (limite con CAR Varones), crecientes hacia la entrega al CAR Mujeres.",
         "4. Registros de limpieza con tapa removible a ras del piso terminado, en cada empalme de cuneta, en los quiebres y cada 12.00 m como maximo.",
         "5. Cotas en m.s.n.m. Cara superior de la losa = piso terminado del frente +260.60. Fondo 259.10 (0+000) a 258.89 (brink), S = 0.30 %.",
-        "6. Cajas: CL de llegada (0+000) con poza de 0.30 m; CC de caida con poza de 0.40 m bajo el fondo del receptor y umbral de salida.",
+        "6. Cajas: CL de llegada (0+000) con poza de 0.30 m y tapa en +261.15 (queda del lado del CAR Varones); CC de caida con poza de 0.40 m bajo el fondo del receptor y umbral de salida.",
         "7. Las cunetas de arquitectura (perfiles 01 a 12) entran por ventana en el muro lado predio; las de los Ejes 11 y 12 se prolongan fuera del cerco.",
         "8. Ver perfil en DP-02 y DP-03, secciones en DP-04 a DP-06, cajas en DP-07, acero y especificaciones en DP-08, isometricos en DP-09 y DP-10.",
     ], 1.7)
@@ -328,31 +332,43 @@ def perfil_tramo(lam, xmm, ymm, p1, p2, R, T, escH, escV, con_tabla=True, paso_t
             yb = Y(NPT) + 2.0 * lam.f
             lam.linea((X(a), yb), (X(b_), yb), "CRUCE-VEHICULAR"); lam.linea((X(a), yb - 1.0 * lam.f), (X(a), yb + 1.0 * lam.f), "CRUCE-VEHICULAR"); lam.linea((X(b_), yb - 1.0 * lam.f), (X(b_), yb + 1.0 * lam.f), "CRUCE-VEHICULAR")
             lam.texto((X((a + b_) / 2), yb + 1.5 * lam.f), "CRUCE DE CAMIONES: losa e=0.25, doble marco 1/2\"" if z["tipo"] == "CAMION" else "CRUCE DE MOTOS: marco 3/8\" @0.15", 1.5, "CRUCE-VEHICULAR", TA.BOTTOM_CENTER)
-    # ---------- caja de llegada CL (0+000) y llegada del aporte externo
+    # ---------- caja de llegada CL (0+000) y llegada del colector del CAR Varones (expediente CUI 2705619)
     if p1 <= 0.0:
-        e = D["e_muro"]; zp = D["CF0"] - D["CL_poza"]
+        e = D["e_muro"]; zp = D["CF0"] - D["CL_poza"]; tCL = D["NPT_CL"]; eL = D["e_losa"]
+        zv1 = D["CF_varones_sup"]; zv2 = tCL - eL                 # ventana este: del fondo del colector de Varones al techo de la CL (sin dintel)
         xb = X(0) - e * fx                      # escalon de la poza: murete e=0.15 bajo el fondo del colector
-        xi = xb - D["CL_largo"] * fx; xo = xi - e * fx
-        lam.rect(xo, Y(zp - ef), X(0), Y(NPT), "CONCRETO")
+        xi = xb - D["CL_largo"] * fx; xo = xi - e * fx     # xi = cara interior del muro este; xo = cara este (exterior, lado Varones)
+        lam.poli([(xo, Y(zp - ef)), (X(0), Y(zp - ef)), (X(0), Y(NPT)), (X(0), Y(tCL)), (xo, Y(tCL)), (xo, Y(zv2)), (xo, Y(zv1)), (xo, Y(zp - ef))], "CONCRETO")
         lam.achurado([(xo, Y(zp - ef)), (X(0), Y(zp - ef)), (X(0), Y(zp)), (xo, Y(zp))], escala_mm=0.5)       # fondo de la caja
         lam.achurado([(xb, Y(zp)), (X(0), Y(zp)), (X(0), Y(D["CF0"])), (xb, Y(D["CF0"]))], escala_mm=0.5)      # murete del escalon + fondo del colector
-        lam.linea((xb, Y(zp)), (xb, Y(D["CF0"])), "CONCRETO"); lam.linea((xb, Y(D["CF0"])), (X(0), Y(D["CF0"])), "CONCRETO")
-        lam.achurado([(xo, Y(zp)), (xi, Y(zp)), (xi, Y(D["CF_varones_sup"])), (xo, Y(D["CF_varones_sup"]))], escala_mm=0.5)   # muro de llegada bajo la ventana
-        lam.achurado([(xo, Y(D["CF_varones_sup"] + 0.70)), (xi, Y(D["CF_varones_sup"] + 0.70)), (xi, Y(NPT)), (xo, Y(NPT))], escala_mm=0.5)
-        lam.achurado([(xo, Y(NPT - D["e_losa"])), (X(0) - 0.35 * fx, Y(NPT - D["e_losa"])), (X(0) - 0.35 * fx, Y(NPT)), (xo, Y(NPT))], escala_mm=0.5)   # losa de la caja
-        lam.rect(X(0) - 0.35 * fx - 0.34 * fx, Y(NPT - 0.08), X(0) - 0.35 * fx + 0.34 * fx, Y(NPT), "REGISTRO-TAPA")
-        lam.linea((xi, Y(zp)), (xi, Y(D["CF_varones_sup"])), "CONCRETO"); lam.linea((xi, Y(D["CF_varones_sup"] + 0.70)), (xi, Y(NPT - D["e_losa"])), "CONCRETO")
+        lam.achurado([(xo, Y(zp)), (xi, Y(zp)), (xi, Y(zv1)), (xo, Y(zv1))], escala_mm=0.5)                      # muro este bajo la ventana
+        lam.achurado([(X(0) - e * fx, Y(NPT - eL)), (X(0), Y(NPT - eL)), (X(0), Y(zv2)), (X(0) - e * fx, Y(zv2))], escala_mm=0.5)   # muro oeste sobre la salida al colector
+        xr1 = X(0) - 0.90 * fx                                                                                     # registro de la CL
+        lam.achurado([(xo, Y(zv2)), (xr1 - 0.35 * fx, Y(zv2)), (xr1 - 0.35 * fx, Y(tCL)), (xo, Y(tCL))], escala_mm=0.5)
+        lam.achurado([(xr1 + 0.35 * fx, Y(zv2)), (X(0), Y(zv2)), (X(0), Y(tCL)), (xr1 + 0.35 * fx, Y(tCL))], escala_mm=0.5)
+        lam.rect(xr1 - 0.34 * fx, Y(tCL - 0.08), xr1 + 0.34 * fx, Y(tCL), "REGISTRO-TAPA")
+        lam.linea((xi, Y(zp)), (xi, Y(zv1)), "CONCRETO"); lam.linea((xi, Y(zv1)), (xo, Y(zv1)), "CONCRETO"); lam.linea((xo, Y(zv2)), (X(0) - e * fx, Y(zv2)), "CONCRETO")
+        lam.linea((X(0) - e * fx, Y(NPT - eL)), (X(0) - e * fx, Y(zv2)), "CONCRETO"); lam.linea((X(0) - e * fx, Y(NPT - eL)), (X(0), Y(NPT - eL)), "CONCRETO")
         lam.poli([(xo, Y(zp - ef - es)), (X(0), Y(zp - ef - es))], "SOLADO")
-        # colector del CAR Varones (referencia): llega por la ventana del muro
-        lam.rect(xo - 1.2 * fx, Y(D["CF_varones_sup"] - 0.15), xo, Y(D["CF_varones_sup"] + 0.70 + 0.10), "ARQ-BASE")
-        lam.rect(xo - 1.2 * fx, Y(D["CF_varones_sup"]), xo, Y(D["CF_varones_sup"] + 0.70), "ARQ-BASE")
-        lam.poli([(xo - 1.2 * fx, Y(D["CF_varones_sup"] + 0.35)), (xo, Y(D["CF_varones_sup"] + 0.35)), (xi + 0.3 * fx, Y(D["CF_varones_sup"] + 0.1)), (xi + 0.6 * fx, Y(zp + R["caja_llegada"]["tirante_poza"]))], "AGUA")
+        # ventana del muro norte (fondo de la vista) para la cuneta Eje 01 del CAR Varones
+        xe1 = xo + D["E01_u"] * fx
+        lam.rect(xe1 - D["E01_b"] / 2 * fx, Y(D["E01_NCF"]), xe1 + D["E01_b"] / 2 * fx, Y(zv2), "CUNETA")
+        lam.relleno([(xe1 - 0.20 * fx, Y(D["E01_NCF"])), (xe1 + 0.20 * fx, Y(D["E01_NCF"])), (xe1 + 0.20 * fx, Y(zv2)), (xe1 - 0.20 * fx, Y(zv2))], "ISO-CUNETA")
+        lam.texto((xe1 - 1.0 * lam.f, Y(tCL) + 6 * lam.f), "CUNETA EJE 01 DE VARONES - NCF %.3f (ventana 0.40 x %.2f)" % (D["E01_NCF"], zv2 - D["E01_NCF"]), 1.5, "CUNETA", TA.LEFT, rot=90)
+        # colector del CAR Varones (referencia): llega con su seccion completa por la ventana del muro este
+        lam.rect(xo - 1.2 * fx, Y(zv1 - 0.15), xo, Y(tCL), "ARQ-BASE"); lam.rect(xo - 1.2 * fx, Y(zv1), xo, Y(zv2), "ARQ-BASE")
+        lam.poli([(xo - 1.2 * fx, Y(tCL)), (xo, Y(tCL))], "TERRENO", ancho=0.35 * lam.f)
+        na_v = zv1 + 0.24
+        lam.poli([(xo - 1.2 * fx, Y(na_v)), (xo, Y(na_v)), (xi + 0.3 * fx, Y(na_v - 0.15)), (xi + 0.6 * fx, Y(zp + R["caja_llegada"]["tirante_poza"]))], "AGUA")
         lam.relleno([(xi, Y(zp)), (xb, Y(zp)), (xb, Y(D["CF0"])), (X(0), Y(D["CF0"])), (X(0), Y(perfil_en(R, 0.0, "NA"))), (xi, Y(perfil_en(R, 0.0, "NA")))], "AGUA-RELLENO")
-        lam.llamada((xo - 0.6 * fx, Y(D["CF_varones_sup"] + 0.8)), (xo + 0.2 * fx, Y(NPT + 0.9)), ["COLECTOR CAR VARONES (CUI 2705619), referencia", "cota de fondo de llegada %.2f por confirmar" % D["CF_varones_sup"]], 1.6, al=TA.LEFT)
-        lam.llamada((xi + 0.5 * fx, Y(zp)), (xo + 0.1 * fx, Y(zp - 0.75)), ["CAJA DE LLEGADA CL: interior %.2f x %.2f" % (D["CL_largo"], D["CL_ancho"]), "poza %.2f m, piso %.2f; colchon de agua %.2f m" % (D["CL_poza"], zp, R["caja_llegada"]["tirante_poza"])], 1.6, al=TA.LEFT)
-        lam.nivel((xi + 0.3 * fx, Y(zp)), zp, lado=1)
-        lam.cota((xi, Y(zp)), (xi, Y(D["CF_varones_sup"])), -8, horizontal=False, texto="%.2f" % (D["CF_varones_sup"] - zp))
+        lam.llamada((xo - 0.6 * fx, Y(zv2 - 0.3)), (xo + 0.2 * fx, Y(tCL + 1.0)), ["COLECTOR DEL CAR VARONES (CUI 2705619), referencia: b = 0.60, fondo %.3f, losa +%.2f" % (zv1, tCL), "ventana este 0.60 x %.2f hasta el techo de la CL (sin dintel); Q = 221.7 L/s" % (zv2 - zv1)], 1.6, al=TA.LEFT)
+        lam.llamada((xi + 0.5 * fx, Y(zp)), (xo + 0.1 * fx, Y(zp - 0.75)), ["CAJA DE LLEGADA CL: interior %.2f x %.2f, tapa en +%.2f (piso del CAR Varones)" % (D["CL_largo"], D["CL_ancho"], tCL), "poza %.2f m, piso %.2f; colchon de agua %.2f m" % (D["CL_poza"], zp, R["caja_llegada"]["tirante_poza"])], 1.6, al=TA.LEFT)
+        lam.nivel((xi + 0.3 * fx, Y(zp)), zp, lado=1); lam.nivel((xo - 0.9 * fx, Y(zv1)), zv1, texto="CF %.3f" % zv1, lado=1, hmm=1.6)
+        lam.nivel((xr1 + 0.5 * fx, Y(tCL)), tCL, texto="tapa CL +%.2f" % tCL, lado=1)
+        lam.cota((xi, Y(zp)), (xi, Y(zv1)), -8, horizontal=False, texto="caida %.2f" % (zv1 - zp))
+        lam.cota((X(0) + 0.3 * fx, Y(NPT)), (X(0) + 0.3 * fx, Y(tCL)), 6, horizontal=False, texto="0.55")
         lam.cota((xo, Y(zp - ef - es)), (xi, Y(zp - ef - es)), -6); lam.cota((xi, Y(zp - ef - es)), (xb, Y(zp - ef - es)), -6); lam.cota((xb, Y(zp - ef - es)), (X(0), Y(zp - ef - es)), -6)
+        lam.linea((X(0), Y(zp - ef - es - 0.3)), (X(0), Y(tCL + 0.6)), "LINDERO"); lam.texto((X(0) - 0.05, Y(tCL + 0.35)), "LINDERO", 1.4, "LINDERO", TA.RIGHT, rot=90)
     # ---------- caja de caida CC y colector receptor
     if p2 >= dz.P_BRINK - 1e-6:
         e = D["e_muro"]; zp = D["CF_R01"] - D["CC_poza_prof"]; pb, pf = dz.P_BRINK, dz.P_FIN

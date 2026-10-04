@@ -137,10 +137,14 @@ def cajas():
     ps, zs = terreno(); e = D["e_muro"]; ef = D["e_fondo"]
     out = {}
     # CL: interior 1.50 x 1.00, piso CF0-0.30, losa superior NPT-0.10
-    Li, Bi = D["CL_largo"], D["CL_ancho"]; piso = D["CF0"] - D["CL_poza"]; H = D["NPT"] - D["e_losa"] - piso
+    # CL: interior 1.50 x 1.00, piso CF0-0.30, tapa en NPT_CL (261.15, piso del CAR Varones); ventanas: salida al colector (0.80 x 1.40),
+    # llegada del colector de Varones en el muro este (0.60 x (techo - CF_varones)) y cuneta Eje 01 de Varones en el muro norte (0.40 x (techo - NCF))
+    Li, Bi = D["CL_largo"], D["CL_ancho"]; piso = D["CF0"] - D["CL_poza"]; techo = D["NPT_CL"] - D["e_losa"]; H = techo - piso
     terr = float(np.interp(0.0, ps, zs))
     out["CL"] = dict(nombre="Caja de llegada CL", Li=Li, Bi=Bi, H=H, piso=piso,
-                     c_fondo=(Li + 2 * e) * (Bi + 2 * e) * ef, c_muros=(2 * (Li + 2 * e) + 2 * Bi) * e * H - 0.80 * (D["NPT"] - D["e_losa"] - D["CF0"]) * e + e * Bi * (D["CF0"] - piso),
+                     c_fondo=(Li + 2 * e) * (Bi + 2 * e) * ef,
+                     c_muros=(2 * (Li + 2 * e) + 2 * Bi) * e * H - D["b"] * (D["NPT"] - D["e_losa"] - D["CF0"]) * e - D["b_varones"] * (techo - D["CF_varones_sup"]) * e
+                             - D["E01_b"] * (techo - D["E01_NCF"]) * e + e * Bi * (D["CF0"] - piso),
                      c_losa=(Li + 2 * e) * (Bi + 2 * e) * D["e_losa"] - 0.49 * D["e_losa"],
                      excav=(Li + 2 * e + 2 * SOBREEXC) * (Bi + 2 * e + 2 * SOBREEXC) * max(0.0, terr - (piso - ef - D["e_solado"])),
                      solado=(Li + 2 * e + 0.1) * (Bi + 2 * e + 0.1), encof=2 * (2 * (Li + Bi) * H) + Li * Bi + Bi * D["CL_poza"], acabado=(Li + 2 * e) * (Bi + 2 * e),

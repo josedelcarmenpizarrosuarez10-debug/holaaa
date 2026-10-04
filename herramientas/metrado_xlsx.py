@@ -169,7 +169,11 @@ PARAMETROS = [
     ("CL_B", "Caja de llegada CL: ancho interior", D["CL_ancho"], "m", "Lamina DP-07"),
     ("CL_pz", "Caja de llegada CL: profundidad de la poza bajo el fondo del colector", D["CL_poza"], "m", "Lamina DP-07"),
     ("CF0", "Cota de fondo del colector en el arranque (0+000)", D["CF0"], "msnm", "Lamina DP-02; memoria, hoja PERFIL_FLUJO"),
-    ("CL_v", "Caja de llegada CL: ancho de la ventana de llegada del colector CAR Varones", 0.80, "m", "Lamina DP-07 (corte)"),
+    ("CL_v", "Caja de llegada CL: ancho de la ventana de llegada del colector CAR Varones (muro este)", D["b_varones"], "m", "Lamina DP-07 (corte); expediente del CAR Varones (CUI 2705619): colector b = 0.60"),
+    ("CFv", "Cota de fondo de llegada del colector CAR Varones (alfeizar de la ventana este)", D["CF_varones_sup"], "msnm", "Expediente del CAR Varones: 260.20 - 0.3 % x 105.29 m; lamina DP-07"),
+    ("CLt", "Caja de llegada CL: cota de la tapa (piso terminado del CAR Varones)", D["NPT_CL"], "msnm", "La CL queda del lado del CAR Varones (x = 349162.00 a 349163.80), cuyo piso es +261.15; lamina DP-07"),
+    ("E01b", "Ventana en el muro norte de la CL para la cuneta Eje 01 del CAR Varones: ancho", D["E01_b"], "m", "Lamina DP-07; expediente del CAR Varones"),
+    ("E01z", "Ventana de la cuneta Eje 01 del CAR Varones: cota de fondo (NCF)", D["E01_NCF"], "msnm", "Lamina DP-07; expediente del CAR Varones"),
     ("CC_L", "Caja de caida CC: largo interior de la poza", D["CC_poza_largo"], "m", "Lamina DP-07"),
     ("CC_B", "Caja de caida CC: ancho interior", D["CC_ancho"], "m", "Lamina DP-07"),
     ("CC_pz", "Caja de caida CC: profundidad de la poza bajo el fondo del receptor R-01", D["CC_poza_prof"], "m", "Lamina DP-07"),
@@ -240,7 +244,7 @@ def hoja_mov_tierras(wb, segs, P):
     for i, k in enumerate(("CL", "CC")):
         rr = rc + 2 + i; R = str(rr); c_ = C[k]
         piso = "=%s-%s" % (P["CF0"], P["CL_pz"]) if k == "CL" else "=%s-%s" % (P["CFR"], P["CC_pz"])
-        vals = [i + 1, c_["nombre"], prog(0.0 if k == "CL" else dz.P_BRINK), "=%s" % P[k + "_L"], "=%s" % P[k + "_B"], "=%s-%s-G%s" % (P["NPT"], P["et"], R), piso, terr[k],
+        vals = [i + 1, c_["nombre"], prog(0.0 if k == "CL" else dz.P_BRINK), "=%s" % P[k + "_L"], "=%s" % P[k + "_B"], "=%s-%s-G%s" % (P["CLt"] if k == "CL" else P["NPT"], P["et"], R), piso, terr[k],
                 "=D%s+2*%s+2*%s" % (R, em, sob), "=E%s+2*%s+2*%s" % (R, em, sob), "=H%s-(G%s-%s-%s)" % (R, R, P["ef"], es),
                 "=(D%s+2*%s)*(E%s+2*%s)*(F%s+%s+%s+%s)" % (R, em, R, em, R, P["et"], P["ef"], es),
                 "=I%s*J%s" % (R, R), "=I%s*J%s*K%s" % (R, R, R), "=(D%s+2*%s+0.10)*(E%s+2*%s+0.10)" % (R, em, R, em), "=MAX(0,N%s-L%s)" % (R, R), 0.0,
@@ -315,12 +319,14 @@ def hoja_concreto(wb, segs, P, mt):
         el(nombre + ": muros largos", "exterior x e x H", "=%s+2*%s" % (Li, em), "=%s" % em, "=%s" % H, 2, 9, "DP-07: dos muros largos de e=0.15, altura interior H")
         el(nombre + ": muros cortos", "interior x e x H", "=%s" % Bi, "=%s" % em, "=%s" % H, nmur, 9, "DP-07: muro(s) de cierre; en CC el lado de llegada lo cierra el colector" if k == "CC" else "DP-07: dos muros de cierre de e=0.15")
         if k == "CL":
-            el(nombre + ": descuento ventana de llegada", "ancho x alto x e", "=%s" % P["CL_v"], "=%s" % em, "=%s-%s-%s" % (P["NPT"], P["et"], P["CF0"]), -1, 9, "DP-07 (corte): ventana del colector de CAR Varones hasta la losa")
+            el(nombre + ": descuento ventana de salida al colector", "ancho x alto x e", "=%s" % P["b"], "=%s" % em, "=%s-%s-%s" % (P["NPT"], P["et"], P["CF0"]), -1, 9, "DP-07 (corte): salida al colector (muro oeste), 0.80 x 1.40 hasta la losa del colector")
+            el(nombre + ": descuento ventana de llegada del CAR Varones", "ancho x alto x e", "=%s" % P["CL_v"], "=%s" % em, "=%s-%s-%s" % (P["CLt"], P["et"], P["CFv"]), -1, 9, "DP-07 (corte): ventana del colector del CAR Varones en el muro este, 0.60 x 1.17 hasta el techo de la CL")
+            el(nombre + ": descuento ventana cuneta Eje 01 (CAR Varones)", "ancho x alto x e", "=%s" % P["E01b"], "=%s" % em, "=%s-%s-%s" % (P["CLt"], P["et"], P["E01z"]), -1, 9, "DP-07 (planta y corte): ventana 0.40 x 0.66 en el muro norte")
             el(nombre + ": murete del escalon de la poza", "ancho x e x desnivel", "=%s" % Bi, "=%s" % em, "=%s" % P["CL_pz"], 1, 9, "DP-07 (corte): murete e=0.15 entre el fondo del colector y el piso de la poza")
         else:
             el(nombre + ": descuento ventana de salida", "ancho x alto x e", "=%s" % P["CC_v"], "=%s" % em, "=%s+0.50-%s" % (P["NAR"], P["CFR"]), -1, 9, "DP-07 (corte): ventana de salida al receptor R-01 (0.50 m sobre el nivel de agua)")
             el(nombre + ": murete del escalon de la poza", "ancho x e x desnivel", "=%s" % Bi, "=%s" % em, "=%s-(%s-%s)" % (P["CFB"], P["CFR"], P["CC_pz"]), 1, 9, "DP-07 (corte): murete e=0.15 entre el fondo del colector y el piso de la poza")
-        el(nombre + ": losa superior", "exterior x e", "=%s+2*%s" % (Li, em), "=%s+2*%s" % (Bi, em), "=%s" % P["et"], 1, 10, "DP-07: losa superior e=0.10 a nivel del piso terminado")
+        el(nombre + ": losa superior", "exterior x e", "=%s+2*%s" % (Li, em), "=%s+2*%s" % (Bi, em), "=%s" % P["et"], 1, 10, "DP-07: losa superior e=0.10 a nivel del piso terminado (CL en +261.15, CC en +260.60)")
         el(nombre + ": descuento aberturas de registro", "0.70 x 0.70 x e", "=%s" % P["ab"], "=%s" % P["ab"], "=%s" % P["et"], -1 if k == "CL" else -2, 10, "DP-06B: %d abertura(s) de registro en la losa" % (1 if k == "CL" else 2))
         el(nombre + ": acabado de losa superior", "exterior", "=%s+2*%s" % (Li, em), "=%s+2*%s" % (Bi, em), 1, 1, 11, "DP-07: losa superior frotachada y brunada", "=D%d*E%d" % (rr, rr))
         el(nombre + ": curado", "caras int. + fondo + losa", "=2*(%s+%s)" % (Li, Bi), "=%s" % H, 1, 1, 12, "Caras interiores de muros (perimetro x H) + fondo interior + losa superior", "=D%d*E%d+%s*%s+(%s+2*%s)*(%s+2*%s)" % (rr, rr, Li, Bi, Li, em, Bi, em))

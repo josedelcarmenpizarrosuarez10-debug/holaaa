@@ -100,7 +100,9 @@ def hoja_datos(wb, R):
         ("Nivel de agua del receptor en su 0+000", D["NA_R01"], "msnm", "Memoria del tramo CAR Mujeres (Q = 626 L/s en 0+000)", "NAr"),
         ("Ancho interior del receptor", D["b_wilma"], "m", "", "br"),
         ("APORTE EXTERNO: COLECTOR DEL CAR VARONES (CUI 2705619)",),
-        ("Cota de fondo de llegada (referencial, por confirmar)", D["CF_varones_sup"], "msnm", "Supuesta: 260.69 - 0.5 % x 102.36 m. Dato de la memoria del proyecto CUI 2705619", "CFv"),
+        ("Cota de fondo de llegada del colector del CAR Varones (cara este de la CL)", D["CF_varones_sup"], "msnm", "Expediente del CAR Varones (CUI 2705619): 260.20 - 0.3 % x 105.29 m; ventana este de la CL de 0.60 x 1.17", "CFv"),
+        ("Cota de la tapa de la caja CL (piso terminado del CAR Varones)", D["NPT_CL"], "msnm", "La CL queda del lado del CAR Varones (x = 349162.00 a 349163.80); su tapa va al ras de ese piso (+261.15)", "CLt"),
+        ("Cuneta Eje 01 del CAR Varones: cota de fondo en el muro norte de la CL", D["E01_NCF"], "msnm", "Entra directamente a la CL por ventana 0.40 x 0.66 (37.0 L/s de los 258.7)", "E01"),
         ("CAJAS",),
         ("Caja de llegada CL: profundidad de poza bajo el fondo", D["CL_poza"], "m", "Colchon de agua para la caida del aporte externo", "pcl"),
         ("Caja de caida CC: profundidad de poza bajo el fondo del receptor", D["CC_poza_prof"], "m", "Poza de disipacion deprimida", "pcc"),
@@ -189,7 +191,7 @@ def hoja_empalme(wb, R):
         ("Nivel de agua en el receptor", "=DATOS!B38", "msnm", "regimen subcritico aguas abajo del umbral (F = 0.67 en el receptor)"),
         ("",),
         ("B. CAJA DE LLEGADA CL (0+000) - CAIDA DEL APORTE DE CAR VARONES",),
-        ("Cota de fondo de llegada del aporte externo", "=DATOS!B41", "msnm", "referencial, por confirmar con el proyecto CUI 2705619"),
+        ("Cota de fondo de llegada del aporte externo", "=DATOS!B41", "msnm", "expediente del CAR Varones (CUI 2705619): colector b = 0.60, fondo 259.884 en la cara este de la CL"),
         ("Piso de la poza de la caja", "=DATOS!B19-DATOS!B44", "msnm", "CF0 - profundidad de poza"),
         ("Caida del aporte externo", "=B26-B27", "m", ""),
         ("Nivel de agua en la caja (= inicio del colector)", "=PERFIL_FLUJO!G200", "msnm", "nivel de agua en 0+000 (hoja PERFIL_FLUJO, ultima fila)"),
@@ -451,8 +453,9 @@ def hoja_cumplimiento(wb, rlast):
         ("Capacidad de la seccion con llenado del 85 % (margen frente al caudal de diseno)", "Manning; criterio de llenado maximo adoptado", "Q85 = (1/n) A R^(2/3) S^(1/2) con y = 0.85 h minima; margen = Q85 / Q diseno",
          "=1000*DATOS!$B$14*0.85*%s*(DATOS!$B$14*0.85*%s/(DATOS!$B$14+2*0.85*%s))^(2/3)*SQRT(DATOS!$B$20)/DATOS!$B$32" % (E("Hmin"), E("Hmin"), E("Hmin")),
          "=\"CUMPLE (margen \"&TEXT(1000*DATOS!$B$14*0.85*%s*(DATOS!$B$14*0.85*%s/(DATOS!$B$14+2*0.85*%s))^(2/3)*SQRT(DATOS!$B$20)/DATOS!$B$32/CAUDALES!$B$12,\"0.0\")&\" veces el caudal de diseno)\"" % (E("Hmin"), E("Hmin"), E("Hmin"))),
-        ("Cota de llegada del aporte externo (CAR Varones) dentro del rango admisible de la caja CL", "Compatibilidad con el expediente del CAR Varones (CUI 2705619)", "Entre el nivel de agua en 0+000 + 0.10 (caida libre) y la cara inferior de la losa; cualquier cota en ese rango no cambia la seccion ni el armado",
-         "=DATOS!$B$41", "=IF(AND(DATOS!$B$41>=PERFIL_FLUJO!G200+0.10,DATOS!$B$41<=DATOS!$B$25-DATOS!$B$17),\"CUMPLE (rango \"&TEXT(PERFIL_FLUJO!G200+0.10,\"0.00\")&\" a \"&TEXT(DATOS!$B$25-DATOS!$B$17,\"0.00\")&\" msnm)\",\"VERIFICAR\")"),
+        ("Cota de llegada del colector del CAR Varones: caida libre sobre el NA de la CL y bajo el techo de la caja", "Compatibilidad con el expediente del CAR Varones (CUI 2705619)", "Entre el nivel de agua en 0+000 + 0.10 (caida libre) y el techo de la CL (tapa 261.15 - losa 0.10); ventana este 0.60 x 1.17",
+         "=DATOS!$B$41", "=IF(AND(DATOS!$B$41>=PERFIL_FLUJO!G200+0.10,DATOS!$B$41<=DATOS!$B$50-DATOS!$B$17),\"CUMPLE (rango \"&TEXT(PERFIL_FLUJO!G200+0.10,\"0.00\")&\" a \"&TEXT(DATOS!$B$50-DATOS!$B$17,\"0.00\")&\" msnm)\",\"VERIFICAR\")"),
+        ("Cuneta Eje 01 del CAR Varones: caida libre a la CL", "Compatibilidad con el expediente del CAR Varones", "NCF en el muro norte > NA de la CL", "=DATOS!$B$51", "=IF(DATOS!$B$51>PERFIL_FLUJO!G200,\"CUMPLE (caida libre \"&TEXT(DATOS!$B$51-PERFIL_FLUJO!G200,\"0.00\")&\" m)\",\"VERIFICAR\")"),
         ("ENTREGA AL COLECTOR RECEPTOR (CAR MUJERES, CUI 2717013)",),
         ("Cota de fondo de llegada >= cota de fondo del R-01", "Compatibilidad con el expediente del receptor", "CF llegada 258.89 >= 258.72", "=EMPALME!B8", "=IF(EMPALME!B8>=DATOS!$B$37,\"CUMPLE\",\"NO CUMPLE\")"),
         ("Caudal entregado <= caudal previsto por el receptor", "Compatibilidad con el expediente del receptor", "Q <= 560.7 L/s", "=CAUDALES!$B$12", "=IF(CAUDALES!$B$12<=560.7,\"CUMPLE\",\"NO CUMPLE\")"),
@@ -492,7 +495,7 @@ def hoja_cumplimiento(wb, rlast):
     celda(ws, f"A{r}", "Requisitos que no cumplen o por verificar", NEG); celda(ws, f"B{r}", f'=COUNTIF(E5:E{r-2},"NO CUMPLE*")+COUNTIF(E5:E{r-2},"VERIFICAR*")', NEG)
     r += 2
     celda(ws, f"A{r}", "DATOS DE OTROS EXPEDIENTES Y COMO QUEDAN CUBIERTOS EN ESTE DISENO", NEG, fill=GRIS); r += 1
-    for t in ["1. Cota de llegada del colector del CAR Varones (CUI 2705619): se adopta 260.18 msnm (dato de ese expediente). La caja CL admite cualquier cota entre el nivel de agua en 0+000 + 0.10 y la cara inferior de la losa (ver fila del cuadro); dentro de ese rango no cambia la seccion, el armado ni el metrado.",
+    for t in ["1. Llegada del colector del CAR Varones (CUI 2705619): cota de fondo 259.884 msnm en la cara este de la CL (ventana 0.60 x 1.17 hasta el techo de la CL) y cuneta Eje 01 de Varones por el muro norte (ventana 0.40 x 0.66, NCF 260.394). Como la CL queda del lado de Varones, su tapa se fija en +261.15 (piso de ese proyecto); el colector de Varones entrega 221.7 + 37.0 = 258.7 L/s.",
               "2. Caudal del CAR Varones (258.7 L/s): dato de su memoria y base del colector receptor (560.7 L/s). La seccion de este tramo tiene capacidad para mas del doble del caudal de diseno con llenado del 85 % (ver fila del cuadro), de modo que una variacion de ese dato no compromete el tramo.",
               "3. Capacidad portante: la presion transmitida (0.33 kg/cm2) es menor que 0.50 kg/cm2, valor minimo usual de suelos blandos; el EMS del proyecto, exigido por la norma E.050, la confirma.",
               "4. Coordenadas UTM: obtenidas del registro R-01 del CAR Mujeres (CUI 2717013) y del rumbo del lindero (azimut 49.54); el trazo queda definido por su posicion fisica (eje a 0.575 m del cerco) y se replantea en obra desde ese cerco.",
@@ -539,7 +542,7 @@ def hoja_memoria(wb, R, rlast):
         r += 1
     r += 1
     celda(ws, f"A{r}", "NOTAS", NEG)
-    notas = ["La cota de llegada del CAR Varones (260.18) es un supuesto (260.69 - 0.5 % x 102.36 m) y debe confirmarse con el proyecto CUI 2705619; solo afecta a la altura de la caida en la caja de llegada.",
+    notas = ["La llegada del CAR Varones (CUI 2705619) queda definida por su expediente: colector b = 0.60 con fondo 259.884 en la cara este de la CL y cuneta Eje 01 directa a la CL; la CL lleva su tapa en +261.15 (piso de Varones) y ventanas este 0.60 x 1.17 y norte 0.40 x 0.66.",
              "La ubicacion UTM es referencial: el plano de arquitectura se georreferencio haciendo coincidir el R-01 del CAR Mujeres con la esquina sur-oeste del frente y el rumbo del lindero (azimut 49.54). Verificar en campo.",
              "Las cunetas de arquitectura se toman como dato (perfiles 01 a 12 del plano PLANTA GENERAL REFUGIO, version 03-10-2026)."]
     for n in notas:
@@ -554,7 +557,7 @@ def construir(fn=os.path.join(RAIZ, "entregables", "MEMORIA_CALCULO_COLECTOR_HOG
     ws, rlast = hoja_perfil(wb, R); hoja_estructural(wb, R); hoja_cumplimiento(wb, rlast); hoja_memoria(wb, R, rlast)
     OLD = {6: "TR", 11: "I", 12: "FS", 14: "b", 15: "em", 16: "ef", 17: "et", 18: "ec", 19: "CF0", 20: "S", 23: "pb", 25: "NPT",
            26: "pc1", 27: "pc2", 28: "pm1", 29: "pm2", 32: "n", 33: "llen", 34: "BLmin", 37: "CFr", 38: "NAr", 41: "CFv",
-           44: "pcl", 45: "pcc", 46: "Lcc"}
+           44: "pcl", 45: "pcc", 46: "Lcc", 50: "CLt", 51: "E01"}
     import re
     def tr(m):
         return "DATOS!" + m.group(1) + "B" + m.group(2) + str(ROW[OLD[int(m.group(3))]])

@@ -27,7 +27,7 @@ ESPECIFICACIONES = ["CONCRETO ARMADO: f'c = 210 kg/cm2 (colector, cajas y tapas)
            "CURADO: humedo minimo 7 dias; no transitar sobre la losa antes de 14 dias; no cargar con camiones antes de 28 dias.",
            "RELLENO: material propio seleccionado, capas de 0.15 m, 95 % del Proctor modificado; incluye la nivelacion del retiro hasta la cota de la losa.",
            "EXCAVACION: zanja de 1.60 m de ancho (0.25 m a cada lado del muro); entibar si la profundidad supera 1.50 m o el suelo lo requiere.",
-           "VERIFICAR la cota de llegada del colector de CAR Varones (CUI 2705619) antes de vaciar la caja de llegada; verificar en campo la ubicacion del R-01 del CAR Mujeres (CUI 2717013)."]
+           "EMPALME CON EL CAR VARONES (CUI 2705619): caja CL con tapa en +261.15, ventana este 0.60 x 1.17 (fondo 259.884) y ventana norte 0.40 x 0.66 para su cuneta Eje 01; tecnopor 1\" en los contactos. Verificar en campo la ubicacion del R-01 del CAR Mujeres (CUI 2717013)."]
 TXT_CAJAS = " + cajas"
 NOTAS_DP08 = ["1. Dimensiones en metros y cotas en m.s.n.m., salvo indicacion.", "2. El colector esta dimensionado para 560.6 L/s (CAR Varones 258.7 + Hogar de Refugio 301.9; TR 25 anos).",
              "3. Verificaciones hidraulica y estructural segun memoria de calculo del proyecto (RNE CE.040, E.020, E.060; AASHTO LRFD HL-93).",

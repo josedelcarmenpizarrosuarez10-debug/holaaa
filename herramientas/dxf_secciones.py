@@ -202,7 +202,7 @@ def dp06a(doc, ox, oy, R, T):
     lam = B.Lamina(doc, ox, oy, 10, "DP-06A", "DETALLES TIPICOS DEL COLECTOR", "SECCIONES TIPICAS: TRAMO NORMAL, CRUCE DE MOTOS, CRUCE DE CAMIONES Y TRAMO DIAGONAL - ESC. 1/10")
     casos = [(10.0, "A-A: TRAMO NORMAL"), (40.0, "B-B: CRUCE DE MOTOS"), (28.8, "C-C: CRUCE DE CAMIONES")]
     for j, (p, nm) in enumerate(casos):
-        xmm = 165 + j * 268; ymm = 300
+        xmm = 165 + j * 250; ymm = 300
         seccion(lam, xmm, ymm, p, R, T, esc_txt="1/10", con_cerco=True, hmm_txt=1.6, dist_cota=8, dx_ll=0.12)
         g = geometria(p)
         lam.titulo_vista(xmm + 40, ymm - 45, "SECCION TIPICA %s" % nm, "ESC. 1/10 - h segun perfil (aqui %.2f m, prog. %s)" % (g["h"], prog_txt(p)), 150)

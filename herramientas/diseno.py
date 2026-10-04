@@ -40,8 +40,12 @@ D = dict(
     llenado_max=0.85, BL_min=0.05,
     # receptor (CAR Mujeres)
     CF_R01=258.72, NA_R01=259.062, b_wilma=1.50, NPT_wilma=259.25,
-    # aporte externo (CAR Varones): cota de llegada supuesta
-    CF_varones_sup=260.18,
+    # aporte externo (CAR Varones): cota de fondo de llegada y ventanas en la caja CL (expediente del CAR Varones, CUI 2705619)
+    CF_varones_sup=259.884,     # fondo del colector de Varones en la cara este de la CL (260.20 - 0.3 % x 105.29)
+    b_varones=0.60,             # ancho del colector de Varones = ancho de la ventana este
+    NPT_CL=261.15,              # tapa de la CL al ras del piso del CAR Varones (la CL queda del lado de Varones, x = 349162.00 a 349163.80)
+    E01_NCF=260.394, E01_b=0.40, E01_u=1.20,   # cuneta Eje 01 de Varones: entra por el muro norte de la CL (NCF, ancho, distancia desde la cara este)
+    Q_varones_colector=221.7, Q_varones_directo=37.0,   # 221.7 por el colector + 37.0 por la cuneta Eje 01 = 258.7
     # caja de llegada CL (0+000) y caja de caida CC (empalme)
     CL_largo=1.50, CL_ancho=1.00, CL_poza=0.30,
     CC_transicion=0.0, CC_poza_largo=3.50, CC_poza_prof=0.40, CC_ancho=1.50,
