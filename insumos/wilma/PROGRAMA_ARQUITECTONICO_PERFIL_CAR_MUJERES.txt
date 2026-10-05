@@ -1,0 +1,110 @@
+I. ADECUADA INFRAESTRUCTURA PARA LA PRESTACIÓN DEL SERVICIO DE ACOGIDA EN RESIDENCIA - MUJERES
+ACTIVO | AMBIENTE | CANT. | DIMENSIÓN NETA | UND. | DIMENSIÓN TOTAL
+AMBIENTES ADMINISTRATIVOS | Hall | 1.00 | 37.72 | m2 | 37.72
+AMBIENTES ADMINISTRATIVOS | Dirección General | 1.00 | 14.00 | m2 | 14.00
+AMBIENTES ADMINISTRATIVOS | Sala de Reuniones | 1.00 | 18.30 | m2 | 18.30
+AMBIENTES ADMINISTRATIVOS | Secretaría General | 1.00 | 8.30 | m2 | 8.30
+AMBIENTES ADMINISTRATIVOS | Sala de Espera | 1.00 | 13.15 | m2 | 13.15
+AMBIENTES ADMINISTRATIVOS | S.H. Mujeres | 1.00 | 3.60 | m2 | 3.60
+AMBIENTES ADMINISTRATIVOS | S.H. Varones | 1.00 | 3.60 | m2 | 3.60
+AMBIENTES ADMINISTRATIVOS | Circulación | 1.00 | 19.60 | m2 | 19.60
+AMBIENTES DE ASISTENCIA TECNICA ESPECIALIZADA | Área Psicológica | 1.00 | 27.35 | m2 | 27.35
+AMBIENTES DE ASISTENCIA TECNICA ESPECIALIZADA | Consultorio de Nutrición | 1.00 | 32.30 | m2 | 32.30
+AMBIENTES DE ASISTENCIA TECNICA ESPECIALIZADA | Asesoría Legal | 1.00 | 17.70 | m2 | 17.70
+AMBIENTES DE ASISTENCIA TECNICA ESPECIALIZADA | Asistencia Social | 1.00 | 17.40 | m2 | 17.40
+AMBIENTES DE ASISTENCIA TECNICA ESPECIALIZADA | Tópico | 1.00 | 15.70 | m2 | 15.70
+AMBIENTES DE ASISTENCIA TECNICA ESPECIALIZADA | Biblioteca | 1.00 | 95.10 | m2 | 95.10
+AMBIENTES DE ASISTENCIA TECNICA ESPECIALIZADA | SS.HH. Mujeres | 1.00 | 14.00 | m2 | 14.00
+AMBIENTES DE ASISTENCIA TECNICA ESPECIALIZADA | SS.HH. Varones | 1.00 | 16.90 | m2 | 16.90
+AMBIENTES DE ASISTENCIA TECNICA ESPECIALIZADA | S.H. Personas c/disc. | 1.00 | 6.16 | m2 | 6.16
+AMBIENTES DE ASISTENCIA TECNICA ESPECIALIZADA | SUM | 1.00 | 239.60 | m2 | 239.60
+EDIFICACIONES | Dormitorio compartido - Tipo 1 | 2.00 | 28.80 | m2 | 57.60
+EDIFICACIONES | S.H. Dormitorio compartido - Tipo 1 | 1.00 | 15.66 | m2 | 15.66
+EDIFICACIONES | Dormitorio personal | 1.00 | 14.82 | m2 | 14.82
+EDIFICACIONES | S.H. Dormitorio personal | 1.00 | 3.00 | m2 | 3.00
+EDIFICACIONES | Hall techado | 1.00 | 26.23 | m2 | 26.23
+EDIFICACIONES | Sala de estar | 1.00 | 34.65 | m2 | 34.65
+EDIFICACIONES | Comedor | 1.00 | 25.90 | m2 | 25.90
+EDIFICACIONES | Cocina | 1.00 | 22.12 | m2 | 22.12
+EDIFICACIONES | Lavandería | 1.00 | 14.75 | m2 | 14.75
+EDIFICACIONES | Depósito de residencia | 1.00 | 5.80 | m2 | 5.80
+EDIFICACIONES | Dormitorio compartido - Tipo 1 | 2.00 | 28.80 | m2 | 57.60
+EDIFICACIONES | S.H. Dormitorio compartido - Tipo 1 | 1.00 | 15.66 | m2 | 15.66
+EDIFICACIONES | Dormitorio personal | 1.00 | 14.82 | m2 | 14.82
+EDIFICACIONES | S.H. Dormitorio personal | 1.00 | 3.00 | m2 | 3.00
+EDIFICACIONES | Hall techado | 1.00 | 26.23 | m2 | 26.23
+EDIFICACIONES | Sala de estar | 1.00 | 34.65 | m2 | 34.65
+EDIFICACIONES | Comedor | 1.00 | 25.90 | m2 | 25.90
+EDIFICACIONES | Cocina | 1.00 | 22.12 | m2 | 22.12
+EDIFICACIONES | Lavandería | 1.00 | 14.75 | m2 | 14.75
+EDIFICACIONES | Depósito de residencia | 1.00 | 5.80 | m2 | 5.80
+EDIFICACIONES | Dormitorio compartido - Tipo 1 | 2.00 | 28.80 | m2 | 57.60
+EDIFICACIONES | S.H. Dormitorio compartido - Tipo 1 | 1.00 | 15.66 | m2 | 15.66
+EDIFICACIONES | Dormitorio personal | 1.00 | 14.82 | m2 | 14.82
+EDIFICACIONES | S.H. Dormitorio personal | 1.00 | 3.00 | m2 | 3.00
+EDIFICACIONES | Hall techado | 1.00 | 26.23 | m2 | 26.23
+EDIFICACIONES | Sala de estar | 1.00 | 34.65 | m2 | 34.65
+EDIFICACIONES | Comedor | 1.00 | 25.90 | m2 | 25.90
+EDIFICACIONES | Cocina | 1.00 | 22.12 | m2 | 22.12
+EDIFICACIONES | Lavandería | 1.00 | 14.75 | m2 | 14.75
+EDIFICACIONES | Depósito de residencia | 1.00 | 5.80 | m2 | 5.80
+EDIFICACIONES | Dormitorio compartido - Tipo 1 | 2.00 | 28.80 | m2 | 57.60
+EDIFICACIONES | S.H. Dormitorio compartido - Tipo 1 | 1.00 | 15.66 | m2 | 15.66
+EDIFICACIONES | Dormitorio personal | 1.00 | 14.82 | m2 | 14.82
+EDIFICACIONES | S.H. Dormitorio personal | 1.00 | 3.00 | m2 | 3.00
+EDIFICACIONES | Hall techado | 1.00 | 26.23 | m2 | 26.23
+EDIFICACIONES | Sala de estar | 1.00 | 34.65 | m2 | 34.65
+EDIFICACIONES | Comedor | 1.00 | 25.90 | m2 | 25.90
+EDIFICACIONES | Cocina | 1.00 | 22.12 | m2 | 22.12
+EDIFICACIONES | Lavandería | 1.00 | 14.75 | m2 | 14.75
+EDIFICACIONES | Depósito de residencia | 1.00 | 5.80 | m2 | 5.80
+LOSA DEPORTIVA TECHADA | Losa deportiva | 1.00 | 566.50 | m2 | 566.50
+LOSA DEPORTIVA TECHADA | Tribuna | 1.00 | 118.55 | m2 | 118.55
+SS.HH . Y/O VESTIDORES | SS.HH. + Duchas + Vestidores - Mujeres | 1.00 | 23.40 | m2 | 23.40
+SS.HH . Y/O VESTIDORES | SS.HH. + Duchas + Vestidores - Hombres | 1.00 | 25.80 | m2 | 25.80
+SS.HH . Y/O VESTIDORES | S.H. Personas c/disc. | 1.00 | 6.67 | m2 | 6.67
+ALMACÉN O DEPÓSITO | Archivo | 1.00 | 11.10 | m2 | 11.10
+ALMACÉN O DEPÓSITO | Depósito - SUM | 1.00 | 15.48 | m2 | 15.48
+ALMACÉN O DEPÓSITO | Almacén 01 | 1.00 | 3.62 | m2 | 3.62
+ALMACÉN O DEPÓSITO | Almacén 02 | 1.00 | 11.20 | m2 | 11.20
+ALMACÉN O DEPÓSITO | Cuarto de Limpieza + Depósito | 1.00 | 8.95 | m2 | 8.95
+ALMACÉN O DEPÓSITO | Almacén de herramientas | 1.00 | 13.30 | m2 | 13.30
+ALMACÉN O DEPÓSITO | Almacén de donaciones | 1.00 | 22.60 | m2 | 22.60
+AMBIENTES DE MANTENIMIENTO Y VIGILANCIA | Oficina de Monitoreo | 1.00 | 14.00 | m2 | 14.00
+AMBIENTES DE MANTENIMIENTO Y VIGILANCIA | Data Center | 1.00 | 5.10 | m2 | 5.10
+AMBIENTES DE MANTENIMIENTO Y VIGILANCIA | Sub Estación | 1.00 | 8.05 | m2 | 8.05
+AMBIENTES DE MANTENIMIENTO Y VIGILANCIA | Grupo Electrógeno | 1.00 | 10.91 | m2 | 10.91
+AMBIENTES DE MANTENIMIENTO Y VIGILANCIA | Cuarto de Máquinas | 1.00 | 5.80 | m2 | 5.80
+AMBIENTES DE MANTENIMIENTO Y VIGILANCIA | Garita | 1.00 | 9.30 | m2 | 9.30
+AMBIENTES DE MANTENIMIENTO Y VIGILANCIA | S.H. Garita | 1.00 | 2.10 | m2 | 2.10
+ESPACIO DE CIRCULACIÓN PEATONAL  HORIZONTAL | Ingreso peatonal y vehicular | 1.00 | 14.42 | m2 | 14.42
+ESPACIO DE CIRCULACIÓN PEATONAL  HORIZONTAL | Circulaciones - Primer piso | 1.00 | 2391.13 | m2 | 2391.13
+CERCOS Y PORTADAS | Cerco perimétrico  (albañilería confinada) | 1.00 | 302.47 | m | 302.47
+CERCOS Y PORTADAS | Cerco perimétrico (tubos metálicos) | 1.00 | 95.06 | m | 95.06
+CERCOS Y PORTADAS | Portada de ingreso principal | 1.00 | Und. | 1.00
+AREA NETA TOTAL (TECHADA) | 86.00 |  | 4770.58
+
+OBRAS EXTERIORES | 
+INSTALACIONES EXTERIORES DE SERVICIOS BASICOS | Cisterna | 1.00 | 32.00 | m3 | 32.00
+INSTALACIONES EXTERIORES DE SERVICIOS BASICOS | Tanque Elevado | 1.00 | 15.00 | m3 | 15.00
+INSTALACIONES EXTERIORES DE SERVICIOS BASICOS | Instalaciones sanitarias exteriores | 1.00 | glb | 1.00
+INSTALACIONES EXTERIORES DE SERVICIOS BASICOS | Instalaciones eléctricas exteriores | 1.00 | glb | 1.00
+INSTALACIONES EXTERIORES DE SERVICIOS BASICOS | Canaletas para drenaje pluvial | 1.00 | 500.00 | m | 361.72
+INSTALACIONES EXTERIORES DE SERVICIOS BASICOS | Cunetas de drenaje pluvial | 1.00 | 250.00 | m | 250.00
+INSTALACIONES EXTERIORES DE SERVICIOS BASICOS | Tachos ecológicos | 1.00 | 7.00 | und | 7.00
+INSTALACIONES EXTERIORES DE SERVICIOS BASICOS | Postes de iluminación led solar | 1.00 | 10.00 | und | 10.00
+ESPACIO DE SOCIALIZACIÓN | Áreas verdes | 1.00 | 3317.78 | m2 | 3317.78
+ESPACIO DE SOCIALIZACIÓN | Árbol Tipo 1 | 1.00 | 7.00 | und | 7.00
+ESPACIO DE SOCIALIZACIÓN | Árbol Tipo 2 | 1.00 | 86.00 | und | 86.00
+ESPACIO DE SOCIALIZACIÓN | Bancas de madera | 1.00 | 5.00 | und | 5.00
+ESPACIOS DE CIRCULACIÓN HORIZONTAL Y VERTICAL | Área de estacionamientos de autos, motos y bicicletas | 1.00 | 315.00 | m2 | 315.00
+TOTAL |  | 13.00 | 
+
+OTROS | 
+ | Obras Provisionales | 1.00 | glb | 1.00
+ | Trabajos Preliminares | 1.00 | m | 1.00
+ | Seguridad y Salud | 1.00 | glb | 1.00
+ | Flete Terrestre | 1.00 | glb | 1.00
+ | Mitigación Ambiental | 1.00 | glb | 1.00
+ | Señalética de seguridad | 1.00 | glb | 1.00
+TOTAL |  | 6.00 | 
