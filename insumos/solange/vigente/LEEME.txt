@@ -17,3 +17,6 @@ CRITERIO DE TRABAJO (indicado por el Ing. José Pizarro, 06/10/2026)
 - Al comparar con Delphin: los nombres de Delphin son la referencia de redacción; las diferencias de cantidad
   son normales y no indican error. Solo se cambian nombres cuando la obra es la misma; si la partida describe
   una obra distinta (dimensión, material, espesor, unidad) o no existe en este proyecto, se consulta antes.
+
+07/10/2026 - Nombres adaptados a la estructura Delphin (39 celdas: nombres de partidas y unidad ml -> m en rejilla y junta).
+Sin cambios en cantidades, fórmulas ni códigos; los 55 totales del RESUMEN verificados iguales antes y después.
