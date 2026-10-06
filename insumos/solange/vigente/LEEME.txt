@@ -1,0 +1,11 @@
+METRADO VIGENTE - HOGAR DE REFUGIO TEMPORAL "MUJERES VIOLENTADAS" (CUI 2675514)
+Archivo: METRADO_DRENAJE_MUJERES_VIOLENTADAS_VIGENTE.xlsx
+Recibido del Ing. José Pizarro el 06/10/2026. Es la versión de referencia del usuario:
+cualquier cambio futuro se hace SOBRE ESTE ARCHIVO y solo en lo que se pida.
+
+Diferencias con la versión entregada el 04/10 (entregables/METRADO_DRENAJE_PLUVIAL_MUJERES_VIOLENTADAS_CON_COLECTOR.xlsx):
+- Hoja nueva METRADO CANALETAS (canaleta galvanizada 0.25 x 0.20, soportes, tapas laterales, boquillas).
+- Montantes / falsas columnas: 52 und (antes 62); hoja METRADO MONTANTES reformulada.
+- Partida 01.04.03.05 renumerada por el ingreso de las canaletas.
+- Colector pluvial frontal (01.04.04, hojas COLECTOR ...): mismos valores; solo cambia la escritura 0.1 / 0.10
+  en fórmulas y las referencias de COLECTOR INSUMOS, desplazadas 2 filas por las nuevas filas de canaletas.
