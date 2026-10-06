@@ -9,3 +9,11 @@ Diferencias con la versión entregada el 04/10 (entregables/METRADO_DRENAJE_PLUV
 - Partida 01.04.03.05 renumerada por el ingreso de las canaletas.
 - Colector pluvial frontal (01.04.04, hojas COLECTOR ...): mismos valores; solo cambia la escritura 0.1 / 0.10
   en fórmulas y las referencias de COLECTOR INSUMOS, desplazadas 2 filas por las nuevas filas de canaletas.
+
+CRITERIO DE TRABAJO (indicado por el Ing. José Pizarro, 06/10/2026)
+- En la oficina, el presupuesto en Delphin del Hogar de Refugio (CUI 2675514) usa como base la ESTRUCTURA
+  de partidas del CAR Mujeres (CUI 2717013): mismos nombres, códigos y agrupación de partidas.
+- Las CANTIDADES son las del metrado propio del Hogar de Refugio (este archivo), nunca las del CAR Mujeres.
+- Al comparar con Delphin: los nombres de Delphin son la referencia de redacción; las diferencias de cantidad
+  son normales y no indican error. Solo se cambian nombres cuando la obra es la misma; si la partida describe
+  una obra distinta (dimensión, material, espesor, unidad) o no existe en este proyecto, se consulta antes.
