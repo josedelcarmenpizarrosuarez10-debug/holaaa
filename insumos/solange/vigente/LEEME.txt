@@ -20,3 +20,10 @@ CRITERIO DE TRABAJO (indicado por el Ing. José Pizarro, 06/10/2026)
 
 07/10/2026 - Nombres adaptados a la estructura Delphin (39 celdas: nombres de partidas y unidad ml -> m en rejilla y junta).
 Sin cambios en cantidades, fórmulas ni códigos; los 55 totales del RESUMEN verificados iguales antes y después.
+
+07/10/2026 - Concreto del colector unificado en una sola partida, como en Delphin:
+  01.04.04.04.01 CONCRETO f'c=210 kg/cm2 PARA COLECTOR = 58.31 m³ (losa de fondo 13.06 + muros 35.86 + losa superior 9.39).
+  RESUMEN: se quitan las filas de muros y losa superior; encofrado, acero, acabado y curado pasan a .02 a .05.
+  PLANILLA: el sustento se mantiene completo bajo la partida única (subtítulos "Losa de fondo", "Muros:", "Losa superior").
+  COLECTOR INSUMOS: mismo desglose por elemento, cada bloque toma su propio subtotal de la PLANILLA.
+  Las demás cantidades del RESUMEN no cambian (verificado con recálculo).
