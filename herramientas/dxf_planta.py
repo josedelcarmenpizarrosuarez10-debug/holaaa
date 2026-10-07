@@ -265,6 +265,7 @@ def perfil_tramo(lam, xmm, ymm, p1, p2, R, T, escH, escV, con_tabla=True, paso_t
     ps = sorted(set([p1, p2] + [q for q in ps if p1 - 1e-6 <= q <= p2 + 1e-6]))
     NPT = D["NPT"]; ef = D["e_fondo"]; es = D["e_solado"]
     regs = [rg for rg in R["registros"] if p1 - 1e-6 <= rg["prog"] <= p2 + 1e-6 and rg["nombre"] not in ("CL", "CC")]
+    etiquetas = []        # (x, y, [lineas], color): texto horizontal en la franja superior, sin cruces
     # el canal (fondo, solado y agua del colector) termina en la caida libre a la caja CC; de ahi en adelante dibuja la caja
     psc = [q for q in ps if q <= dz.P_BRINK + 1e-6]
     if len(psc) < 2: psc = ps[:2]
@@ -306,8 +307,7 @@ def perfil_tramo(lam, xmm, ymm, p1, p2, R, T, escH, escV, con_tabla=True, paso_t
             lam.rect(xa, Y(zt - 0.10), xb, Y(zt), "CONCRETO"); lam.achurado([(xa, Y(zt - 0.10)), (xb, Y(zt - 0.10)), (xb, Y(zt)), (xa, Y(zt))], escala_mm=0.5)
         lam.rect(X(p - 0.34), Y(NPT - 0.08), X(p + 0.34), Y(NPT), "REGISTRO-TAPA")
         lam.linea((X(p - 0.35), Y(NPT - 0.10)), (X(p - 0.35), Y(NPT)), "MARCO-METALICO"); lam.linea((X(p + 0.35), Y(NPT - 0.10)), (X(p + 0.35), Y(NPT)), "MARCO-METALICO")
-        lam.linea((X(p), Y(NPT)), (X(p), Y(NPT) + 5 * lam.f), "LLAMADAS")
-        lam.texto((X(p) + 0.8 * lam.f, Y(NPT) + 6 * lam.f), "%s  %s" % (rg["nombre"], prog_txt(p)), 1.6, "REGISTRO", TA.LEFT, rot=90)
+        etiquetas.append((X(p), Y(NPT), ["%s  %s" % (rg["nombre"], prog_txt(p))], 30))
     # ---------- cunetas que llegan: ventana 0.40 x H en el muro lejano (lado predio) y caida al fondo
     for c in R["cunetas"]:
         p = c["prog"]
@@ -317,9 +317,7 @@ def perfil_tramo(lam, xmm, ymm, p1, p2, R, T, escH, escV, con_tabla=True, paso_t
         lam.relleno([(X(p - 0.20), Y(zv)), (X(p + 0.20), Y(zv)), (X(p + 0.20), Y(zt)), (X(p - 0.20), Y(zt))], "ISO-CUNETA")
         lam.linea((X(p - 0.20), Y(zv)), (X(p + 0.20), Y(zv)), "CUNETA")      # fondo de la cuneta en la ventana (NCF)
         lam.bloque("SIMB-FLECHA", (X(p), Y((zv + perfil_en(R, p, "NA")) / 2)), lam.f * 0.7, rot=-90, capa="FLUJO")
-        lam.linea((X(p), Y(NPT)), (X(p), Y(NPT) + 5 * lam.f), "LLAMADAS")
-        lam.texto((X(p) - 1.0 * lam.f, Y(NPT) + 6 * lam.f), "CUNETA %s - NCF %.2f" % (c["nombre"].split(" (")[0].upper(), zv), 1.6, "CUNETA", TA.LEFT, rot=90)
-        lam.texto((X(p) - 3.6 * lam.f, Y(NPT) + 6 * lam.f), "ventana 0.40 x %.2f (perfil %s)" % (zt - zv, c["perfil"]), 1.4, "CUNETA", TA.LEFT, rot=90)
+        etiquetas.append((X(p), Y(NPT), ["CUNETA %s - NCF %.2f" % (c["nombre"].split(" (")[0].upper(), zv), "ventana 0.40 x %.2f (perfil %s)" % (zt - zv, c["perfil"])], 94))
     # ---------- juntas de dilatacion cada 4.00 m
     for pj in np.arange(4.0, dz.P_BRINK - 0.5, 4.0):
         if p1 < pj < p2:
@@ -354,21 +352,21 @@ def perfil_tramo(lam, xmm, ymm, p1, p2, R, T, escH, escV, con_tabla=True, paso_t
         xe1 = xo + D["E01_u"] * fx
         lam.rect(xe1 - D["E01_b"] / 2 * fx, Y(D["E01_NCF"]), xe1 + D["E01_b"] / 2 * fx, Y(zv2), "CUNETA")
         lam.relleno([(xe1 - 0.20 * fx, Y(D["E01_NCF"])), (xe1 + 0.20 * fx, Y(D["E01_NCF"])), (xe1 + 0.20 * fx, Y(zv2)), (xe1 - 0.20 * fx, Y(zv2))], "ISO-CUNETA")
-        lam.texto((xe1 - 1.0 * lam.f, Y(tCL) + 6 * lam.f), "CUNETA EJE 01 DE VARONES - NCF %.3f (ventana 0.40 x %.2f)" % (D["E01_NCF"], zv2 - D["E01_NCF"]), 1.5, "CUNETA", TA.LEFT, rot=90)
+        etiquetas.append((xe1, Y(tCL), ["CUNETA EJE 01 DE VARONES - NCF %.3f" % D["E01_NCF"], "ventana 0.40 x %.2f en el muro norte de la CL" % (zv2 - D["E01_NCF"])], 94))
         # colector del CAR Varones (referencia): llega con su seccion completa por la ventana del muro este
-        lam.rect(xo - 1.2 * fx, Y(zv1 - 0.15), xo, Y(tCL), "ARQ-BASE"); lam.rect(xo - 1.2 * fx, Y(zv1), xo, Y(zv2), "ARQ-BASE")
-        lam.poli([(xo - 1.2 * fx, Y(tCL)), (xo, Y(tCL))], "TERRENO", ancho=0.35 * lam.f)
+        lam.rect(xo - 0.8 * fx, Y(zv1 - 0.15), xo, Y(tCL), "ARQ-BASE"); lam.rect(xo - 0.8 * fx, Y(zv1), xo, Y(zv2), "ARQ-BASE")
+        lam.poli([(xo - 0.8 * fx, Y(tCL)), (xo, Y(tCL))], "TERRENO", ancho=0.35 * lam.f)
         na_v = zv1 + 0.24
-        lam.poli([(xo - 1.2 * fx, Y(na_v)), (xo, Y(na_v)), (xi + 0.3 * fx, Y(na_v - 0.15)), (xi + 0.6 * fx, Y(zp + R["caja_llegada"]["tirante_poza"]))], "AGUA")
+        lam.poli([(xo - 0.8 * fx, Y(na_v)), (xo, Y(na_v)), (xi + 0.3 * fx, Y(na_v - 0.15)), (xi + 0.6 * fx, Y(zp + R["caja_llegada"]["tirante_poza"]))], "AGUA")
         lam.relleno([(xi, Y(zp)), (xb, Y(zp)), (xb, Y(D["CF0"])), (X(0), Y(D["CF0"])), (X(0), Y(perfil_en(R, 0.0, "NA"))), (xi, Y(perfil_en(R, 0.0, "NA")))], "AGUA-RELLENO")
-        lam.llamada((xo - 0.6 * fx, Y(zv2 - 0.3)), (xo + 0.2 * fx, Y(tCL + 1.0)), ["COLECTOR DEL CAR VARONES (CUI 2705619), referencia: b = 0.60, fondo %.3f, losa +%.2f" % (zv1, tCL), "ventana este 0.60 x %.2f hasta el techo de la CL (sin dintel); Q = 221.7 L/s" % (zv2 - zv1)], 1.6, al=TA.LEFT)
+        etiquetas.append((xo - 0.6 * fx, Y(tCL), ["COLECTOR CAR VARONES (CUI 2705619), referencia: b = 0.60", "fondo %.3f, losa +%.2f; ventana este 0.60 x %.2f; Q = 221.7 L/s" % (zv1, tCL, zv2 - zv1)], 8))
         lam.llamada((xi + 0.5 * fx, Y(zp)), (xo + 0.1 * fx, Y(zp - 0.75)), ["CAJA DE LLEGADA CL: interior %.2f x %.2f, tapa en +%.2f (piso del CAR Varones)" % (D["CL_largo"], D["CL_ancho"], tCL), "poza %.2f m, piso %.2f; colchon de agua %.2f m" % (D["CL_poza"], zp, R["caja_llegada"]["tirante_poza"])], 1.6, al=TA.LEFT)
         lam.nivel((xi + 0.3 * fx, Y(zp)), zp, lado=1); lam.nivel((xo - 0.9 * fx, Y(zv1)), zv1, texto="CF %.3f" % zv1, lado=1, hmm=1.6)
         lam.nivel((xr1 + 0.5 * fx, Y(tCL)), tCL, texto="tapa CL +%.2f" % tCL, lado=1)
         lam.cota((xi, Y(zp)), (xi, Y(zv1)), -8, horizontal=False, texto="caida %.2f" % (zv1 - zp))
         lam.cota((X(0) + 0.3 * fx, Y(NPT)), (X(0) + 0.3 * fx, Y(tCL)), 6, horizontal=False, texto="0.55")
         lam.cota((xo, Y(zp - ef - es)), (xi, Y(zp - ef - es)), -6); lam.cota((xi, Y(zp - ef - es)), (xb, Y(zp - ef - es)), -6); lam.cota((xb, Y(zp - ef - es)), (X(0), Y(zp - ef - es)), -6)
-        lam.linea((X(0), Y(zp - ef - es - 0.3)), (X(0), Y(tCL + 0.6)), "LINDERO"); lam.texto((X(0) - 0.05, Y(tCL + 0.35)), "LINDERO", 1.4, "LINDERO", TA.RIGHT, rot=90)
+        lam.linea((X(0), Y(zp - ef - es - 0.3)), (X(0), Y(tCL + 0.12)), "LINDERO"); etiquetas.append((X(0), Y(tCL + 0.12), ["LINDERO"], 6))
     # ---------- caja de caida CC y colector receptor
     if p2 >= dz.P_BRINK - 1e-6:
         e = D["e_muro"]; zp = D["CF_R01"] - D["CC_poza_prof"]; pb, pf = dz.P_BRINK, dz.P_FIN
@@ -387,19 +385,19 @@ def perfil_tramo(lam, xmm, ymm, p1, p2, R, T, escH, escV, con_tabla=True, paso_t
             lam.rect(X(pr - 0.34), Y(NPT - 0.08), X(pr + 0.34), Y(NPT), "REGISTRO-TAPA")
         # agua: caida libre, resalto ahogado y salida sobre el umbral
         y1 = R["poza"]["y1"]; nab = perfil_en(R, pb, "NA")
-        agua = [(X(pb), Y(nab)), (X(pb + 0.45), Y(zp + y1 + 0.05)), (X(pb + 0.9), Y(zp + y1)), (X(pb + 1.6), Y(zp + R["poza"]["y2"] * 0.7)), (X(pb + 2.4), Y(D["NA_R01"])), (xf, Y(D["NA_R01"])), (xfe + 1.0 * fx, Y(D["NA_R01"]))]
-        lam.relleno([(X(pb), Y(zp)), (X(pf - 0.25), Y(zp)), (X(pf - 0.25), Y(D["CF_R01"])), (xfe + 1.0 * fx, Y(D["CF_R01"]))] + list(reversed(agua)), "AGUA-RELLENO")
+        agua = [(X(pb), Y(nab)), (X(pb + 0.45), Y(zp + y1 + 0.05)), (X(pb + 0.9), Y(zp + y1)), (X(pb + 1.6), Y(zp + R["poza"]["y2"] * 0.7)), (X(pb + 2.4), Y(D["NA_R01"])), (xf, Y(D["NA_R01"])), (xfe + 0.6 * fx, Y(D["NA_R01"]))]
+        lam.relleno([(X(pb), Y(zp)), (X(pf - 0.25), Y(zp)), (X(pf - 0.25), Y(D["CF_R01"])), (xfe + 0.6 * fx, Y(D["CF_R01"]))] + list(reversed(agua)), "AGUA-RELLENO")
         lam.poli(agua, "AGUA")
         lam.rect(X(pf - 0.25), Y(zp), xf, Y(D["CF_R01"]), "POZA"); lam.achurado([(X(pf - 0.25), Y(zp)), (xf, Y(zp)), (xf, Y(D["CF_R01"])), (X(pf - 0.25), Y(D["CF_R01"]))], escala_mm=0.2)
         # colector receptor CAR Mujeres (referencia)
-        xr2 = xfe + 1.0 * fx
+        xr2 = xfe + 0.6 * fx
         lam.rect(xfe, Y(D["CF_R01"] - 0.15), xr2, Y(D["NPT_wilma"]), "ARQ-BASE"); lam.rect(xfe, Y(D["CF_R01"]), xr2, Y(D["NPT_wilma"] - 0.10), "ARQ-BASE")
         lam.poli([(xfe, Y(NPT)), (xr2, Y(NPT))], "TERRENO-EXISTENTE")
-        lam.llamada((xfe + 0.5 * fx, Y(D["NPT_wilma"])), (xfe + 0.5 * fx, Y(NPT + 0.9)), ["COLECTOR CAR MUJERES (CUI 2717013), referencia", "R-01: cota de fondo %.2f, losa %.2f, b=%.2f" % (D["CF_R01"], D["NPT_wilma"], D["b_wilma"])], 1.6, al=TA.RIGHT)
-        lam.llamada((X(pb + 1.5), Y(zp)), (X(pb + 1.5), Y(zp - 0.75)), ["CAJA DE CAIDA CC: poza %.2f x %.2f, piso %.2f" % (D["CC_ancho"], D["CC_poza_largo"], zp), "umbral 0.25 x 0.40 a %.2f; resalto ahogado (y2 %.2f < %.2f)" % (D["CF_R01"], R["poza"]["y2"], R["poza"]["tirante_disp"])], 1.6, al=TA.LEFT)
-        lam.nivel((xf + 0.5 * fx, Y(D["CF_R01"])), D["CF_R01"], texto="CF %.2f (R-01)" % D["CF_R01"], lado=1)
+        etiquetas.append((xfe + 0.5 * fx, Y(D["NPT_wilma"]), ["COLECTOR CAR MUJERES (CUI 2717013), referencia", "R-01: cota de fondo %.2f, losa %.2f, b=%.2f" % (D["CF_R01"], D["NPT_wilma"], D["b_wilma"])], 8))
+        lam.llamada((X(pb + 1.5), Y(zp)), (X(pb + 0.6), Y(zp - 0.75)), ["CAJA DE CAIDA CC: poza %.2f x %.2f, piso %.2f" % (D["CC_ancho"], D["CC_poza_largo"], zp), "umbral 0.25 x 0.40 a %.2f; resalto ahogado (y2 %.2f < %.2f)" % (D["CF_R01"], R["poza"]["y2"], R["poza"]["tirante_disp"])], 1.6, al=TA.RIGHT)
+        lam.nivel((xf + 0.3 * fx, Y(D["CF_R01"])), D["CF_R01"], texto="CF %.2f (R-01)" % D["CF_R01"], lado=-1)
         lam.nivel((X(pb + 2.2), Y(zp)), zp, lado=1)
-        lam.cota((X(pb), Y(zp)), (X(pb), Y(fz(pb))), -8, horizontal=False, texto="caida %.2f" % (fz(pb) - zp))
+        lam.cota((X(pb), Y(zp)), (X(pb), Y(fz(pb))), 9, horizontal=False, texto="caida %.2f" % (fz(pb) - zp))
         lam.cota((X(pb), Y(zp - ef - es)), (X(pf), Y(zp - ef - es)), -6, texto="%.2f" % (pf - pb)); lam.cota((xm, Y(zp - ef - es)), (X(pb), Y(zp - ef - es)), -6); lam.cota((X(pf), Y(zp - ef - es)), (xfe, Y(zp - ef - es)), -6)
     # ---------- cotas de altura interior
     for pm in ([p1 + 0.3 * (p2 - p1), p1 + 0.7 * (p2 - p1)] if detalle else [p1 + 0.5 * (p2 - p1)]):
@@ -410,17 +408,41 @@ def perfil_tramo(lam, xmm, ymm, p1, p2, R, T, escH, escV, con_tabla=True, paso_t
     lam.poli([(X(t["p"]), Y(t["z"])) for t in T if p1 - 1e-6 <= t["p"] <= p2 + 1e-6], "TERRENO-EXISTENTE")
     for p in (p1, p2):
         pp = min(p, dz.P_BRINK)
-        lam.nivel((X(p), Y(fz(pp))), fz(pp), texto="CF %.2f" % fz(pp), lado=1 if p == p1 else -1)
-        lam.nivel((X(p), Y(perfil_en(R, p, "NA"))), perfil_en(R, p, "NA"), texto="NA %.3f" % perfil_en(R, p, "NA"), lado=1 if p == p1 else -1)
+        lam.nivel((X(pp), Y(fz(pp))), fz(pp), texto="CF %.2f" % fz(pp), lado=1 if p == p1 else -1)
+        lam.nivel((X(pp), Y(perfil_en(R, pp, "NA"))), perfil_en(R, pp, "NA"), texto="NA %.3f" % perfil_en(R, pp, "NA"), lado=1 if p == p1 else -1)
     lam.nivel((X(p1 + 2.5), Y(NPT)), NPT, texto="NPT +%.2f (losa superior = piso terminado)" % NPT)
     lam.texto((X(p1 + 1.0), Y(fz(p1 + 1.0)) - 4.5 * lam.f), "S = %.2f %%" % (D["S"] * 100), 1.8, "TEXTOS", TA.LEFT)
+    # ---------- etiquetas en la franja superior: horizontales, por filas, sin que textos ni lineas se crucen
+    if etiquetas:
+        h_txt = 1.6 * B.K_TXT["TEXTOS"]; ch = 0.62 * h_txt * lam.f; lh = 1.55 * h_txt * lam.f
+        fila_h = 2 * lh + 1.8 * lam.f
+        y0 = max(e[1] for e in etiquetas) + 7.0 * lam.f
+        y0 = max(y0, Y(max(NPT, D["NPT_CL"] if p1 <= 0.0 else NPT)) + 7.0 * lam.f)
+        puestos = []                    # (x_linea, a, b, fila)
+        x_max = lam.ox + 826 * lam.f    # borde interior del marco
+        for x, ya, lineas, col in sorted(etiquetas, key=lambda e: -e[0]):
+            w = max(len(t) for t in lineas) * ch + 2.0 * lam.f
+            izq = x + w > x_max                      # cerca del borde derecho: el texto va a la izquierda de la linea
+            a, b = (x - w, x) if izq else (x, x + w)
+            fila = 0
+            while True:
+                choca = any(r == fila and not (b < pa - 2 * lam.f or a > pb + 2 * lam.f) for xl, pa, pb, r in puestos) or \
+                        any(r > fila and a - 1.5 * lam.f <= xl <= b + 1.5 * lam.f for xl, pa, pb, r in puestos)
+                if not choca or fila >= 8: break
+                fila += 1
+            puestos.append((x, a, b, fila))
+            yb = y0 + fila * fila_h
+            lam.linea((x, ya), (x, yb), "LLAMADAS"); lam.circulo((x, ya), 0.5 * lam.f, "LLAMADAS")
+            for i, t in enumerate(reversed(lineas)):
+                if izq: lam.texto((x - 0.8 * lam.f, yb + 0.6 * lam.f + i * lh), t, 1.6, "TEXTOS", TA.BOTTOM_RIGHT, color=col)
+                else: lam.texto((x + 0.8 * lam.f, yb + 0.6 * lam.f + i * lh), t, 1.6, "TEXTOS", TA.BOTTOM_LEFT, color=col)
     # ---------- escala vertical de cotas
-    xs = X(p1) - ((D["CL_largo"] + 2 * D["e_muro"] + 1.2 + 0.4) * fx if p1 <= 0.0 else 0.0)   # escala de cotas fuera de la caja CL
+    xs = X(p1) - ((D["CL_largo"] + 2 * D["e_muro"] + 0.8 + 0.1) * fx if p1 <= 0.0 else 0.0)   # escala de cotas fuera de la caja CL
     for z in np.arange(258.0, 261.01, 0.5):
         lam.linea((xs - 3 * lam.f, Y(z)), (xs - 1 * lam.f, Y(z)), "GUITARRA")
         lam.texto((xs - 4 * lam.f, Y(z)), "%.2f" % z, 1.4, "TEXTOS", TA.MIDDLE_RIGHT)
     lam.linea((xs - 1 * lam.f, Y(257.6)), (xs - 1 * lam.f, Y(261.0)), "GUITARRA")
-    if titulo: lam.texto((X(p1), Y(261.0) + 44 * lam.f), titulo, 3.0, "TITULOS")
+    if titulo: lam.texto((X(p1), Y(261.0) + 52 * lam.f), titulo, 3.0, "TITULOS")
     # ---------- tabla (guitarra)
     if con_tabla:
         sing_r = [r["prog"] for r in R["registros"] if p1 <= r["prog"] <= p2]
@@ -431,9 +453,11 @@ def perfil_tramo(lam, xmm, ymm, p1, p2, R, T, escH, escV, con_tabla=True, paso_t
         filas = ["PROGRESIVA", "TERRENO", "LOSA SUP. / NPT", "FONDO", "NIVEL AGUA", "ALTURA h", "PROF. EXCAV."]
         yt = Y(257.6) - 6 * lam.f; dy = 6.0 * lam.f
         for i, fnm in enumerate(filas):
-            lam.texto((X(p1) - 4 * lam.f, yt - (i + 0.5) * dy), fnm, 1.5, "TEXTOS", TA.MIDDLE_RIGHT)
-            lam.linea((X(p1) - 30 * lam.f, yt - i * dy), (X(p2), yt - i * dy), "GUITARRA")
-        lam.linea((X(p1) - 30 * lam.f, yt - len(filas) * dy), (X(p2), yt - len(filas) * dy), "GUITARRA")
+            lam.texto((X(p1) - 13 * lam.f, yt - (i + 0.5) * dy), fnm, 1.5, "TEXTOS", TA.MIDDLE_RIGHT)
+            lam.linea((X(p1) - 36 * lam.f, yt - i * dy), (X(p2) + 9 * lam.f, yt - i * dy), "GUITARRA")
+        lam.linea((X(p1) - 36 * lam.f, yt - len(filas) * dy), (X(p2) + 9 * lam.f, yt - len(filas) * dy), "GUITARRA")
+        for xv in (X(p1) - 36 * lam.f, X(p1) - 11 * lam.f, X(p2) + 9 * lam.f):
+            lam.linea((xv, yt), (xv, yt - len(filas) * dy), "GUITARRA")
         for p in cols:
             pp = min(p, dz.P_BRINK)
             vals = [prog_txt(p), "%.3f" % terreno_en(T, p), "%.3f" % NPT, "%.3f" % fz(pp), "%.3f" % perfil_en(R, p, "NA"),
@@ -450,8 +474,8 @@ def dp02(doc, ox, oy, R, T):
     lam = B.Lamina(doc, ox, oy, 50, "DP-02", "PERFIL LONGITUDINAL GENERAL DEL COLECTOR",
                    "ESCALA REAL 1/50 (H = V) - CORTE POR EL EJE EN DOS FRANJAS: NIVELES DE DISENO, PERFIL HIDRAULICO, CAJAS, REGISTROS Y EMPALMES (0+000.00 - %s)" % prog_txt(dz.P_FIN))
     pm = 36.0
-    perfil_tramo(lam, 72, 450, 0.0, pm, R, T, 50, 50, True, 5.0, "FRANJA 1: %s A %s - CORTE POR EL EJE DEL COLECTOR (ESC. 1/50, H = V)" % (prog_txt(0.0), prog_txt(pm)))
-    perfil_tramo(lam, 45, 262, pm, dz.P_FIN, R, T, 50, 50, True, 5.0, "FRANJA 2: %s A %s - CORTE POR EL EJE DEL COLECTOR (ESC. 1/50, H = V)" % (prog_txt(pm), prog_txt(dz.P_FIN)))
+    perfil_tramo(lam, 92, 450, 0.0, pm, R, T, 50, 50, True, 5.0, "FRANJA 1: %s A %s - CORTE POR EL EJE DEL COLECTOR (ESC. 1/50, H = V)" % (prog_txt(0.0), prog_txt(pm)))
+    perfil_tramo(lam, 62, 262, pm, dz.P_FIN, R, T, 50, 50, True, 5.0, "FRANJA 2: %s A %s - CORTE POR EL EJE DEL COLECTOR (ESC. 1/50, H = V)" % (prog_txt(pm), prog_txt(dz.P_FIN)))
     lam.leyenda(32, 150, [("linea2", "TERRENO", "piso terminado / losa superior (NPT +260.60)"), ("linea", "TERRENO-EXISTENTE", "terreno existente (superficie topografica)"),
                           ("achurado", "CONCRETO-ACHURADO", "concreto armado cortado (losas, cajas)"), ("linea", "SOLADO", "solado e=0.05 y limite de excavacion"),
                           ("relleno", "AGUA-RELLENO", "agua: nivel de diseno (Q = 560.6 L/s)"), ("rect", "REGISTRO-TAPA", "tapa de registro 0.68 x 0.68 x 0.08"),
@@ -475,7 +499,7 @@ def dp03(doc, ox, oy, R, T):
         lam = B.Lamina(doc, ox + k * 60, oy, 50, cod, "PERFIL LONGITUDINAL DETALLADO DEL COLECTOR",
                        "TRAMOS %s - ESCALA REAL 1/50 (H = V)" % ("1 Y 2 (0+000.00 - 0+040.00)" if k == 0 else "3 Y 4 (0+040.00 - %s)" % prog_txt(dz.P_FIN)))
         for j, (p1, p2) in enumerate(pares):
-            perfil_tramo(lam, 90, 420 - j * 230, p1, p2, R, T, 50, 50, True, 5.0, "TRAMO %d: %s A %s" % (tramos.index((p1, p2)) + 1, prog_txt(p1), prog_txt(p2)))
+            perfil_tramo(lam, 112 if p1 <= 0.0 else 70, 420 - j * 230, p1, p2, R, T, 50, 50, True, 5.0, "TRAMO %d: %s A %s" % (tramos.index((p1, p2)) + 1, prog_txt(p1), prog_txt(p2)))
         lam.leyenda(650, 330, [("achurado", "CONCRETO-ACHURADO", "concreto armado cortado"), ("linea", "SOLADO", "solado e=0.05"), ("rect", "REGISTRO-TAPA", "tapa de registro"),
                                ("relleno", "AGUA-RELLENO", "agua (nivel de diseno)"), ("linea2", "TERRENO", "piso terminado +260.60"), ("linea", "TERRENO-EXISTENTE", "terreno existente"),
                                ("relleno", "ISO-CUNETA", "ventana de llegada de cuneta"), ("linea", "JUNTAS", "junta de dilatacion cada 4.00 m")], 1.8)
