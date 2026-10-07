@@ -38,3 +38,10 @@ Sin cambios en cantidades, fórmulas ni códigos; los 55 totales del RESUMEN ver
   .04 soporte de platina F°G° 1"x1/8", .05 tapa lateral, .06 boquilla a montante 4"). Insumos calculados con los
   parametros de la hoja METRADO CANALETAS. C.U. referenciales sin IGV: 40.64 / 16.79 / 16.03 / 27.92 S/.
   Ninguna otra hoja cambia (verificado celda por celda con recalculo).
+
+07/10/2026 - Registros del colector en una sola partida por unidad (pedido del Ing. Pedro, igual que Delphin):
+  01.04.04.05.01 TAPA DE REGISTRO 0.68x0.68 C/MARCO Y CONTRAMARCO = 10 und (7 en losa + 1 en CL + 2 en CC).
+  RESUMEN: se quitan las 6 partidas de componentes; juntas suben a filas 72-74. PLANILLA: sustento por registro.
+  Hoja nueva DESAGREGADO TAPA REGISTRO: ubicacion de los 10 registros y componentes por tapa (angulos 15.14 kg,
+  concreto 0.037 m3, acero 17.34 kg, pintura 0.98 m2) con control CONFORME contra las hojas del colector.
+  ACU TAPA REGISTRO y COLECTOR INSUMOS enlazados a las hojas fuente (mismos valores). Demas cantidades sin cambio.
