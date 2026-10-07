@@ -33,3 +33,8 @@ Sin cambios en cantidades, fórmulas ni códigos; los 55 totales del RESUMEN ver
   (01.04.04.05.01 a .07) se mantienen igual. Cantidad por tapa = metrado / 10 tapas; ratios de COLECTOR INSUMOS.
   Costo unitario directo referencial: S/ 383.29 por tapa (precios sin IGV, mercado Tarapoto 2026; MO CAPECO).
   Ninguna otra hoja cambia (verificado celda por celda con recalculo).
+
+07/10/2026 - Nueva hoja al final: ACU CANALETAS (4 analisis: 01.04.03.05.01.03 canaleta 0.25x0.20 e=0.9mm por m,
+  .04 soporte de platina F°G° 1"x1/8", .05 tapa lateral, .06 boquilla a montante 4"). Insumos calculados con los
+  parametros de la hoja METRADO CANALETAS. C.U. referenciales sin IGV: 40.64 / 16.79 / 16.03 / 27.92 S/.
+  Ninguna otra hoja cambia (verificado celda por celda con recalculo).
