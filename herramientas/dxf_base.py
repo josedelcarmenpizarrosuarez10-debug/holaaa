@@ -38,7 +38,7 @@ CAPAS = [
     ("ISO-AGUA", 150, "CONTINUOUS"), ("ISO-TERRENO", 94, "CONTINUOUS"), ("ISO-PIEDRA", 34, "CONTINUOUS"),
     ("ISO-CUNETA", 94, "CONTINUOUS"), ("ISO-CERCO", 14, "CONTINUOUS"),
 ]
-ESCALAS = [10, 15, 20, 25, 50, 100, 200, 250]
+ESCALAS = [10, 15, 20, 25, 50, 100, 175, 200, 250]
 COLOR_RGB = {
     "ISO-CONCRETO-SUP": (232, 232, 232), "ISO-CONCRETO-LAT1": (206, 206, 206), "ISO-CONCRETO-LAT2": (178, 178, 178),
     "ISO-TAPA": (248, 244, 230), "ISO-AGUA": (130, 190, 240), "ISO-TERRENO": (214, 226, 196), "ISO-PIEDRA": (196, 176, 146),
@@ -230,6 +230,8 @@ class Lamina:
 
     def llamada(self, p_obj, p_txt, lineas, hmm=2.0, capa="LLAMADAS", al=TA.LEFT):
         """Llamada con flecha: texto en p_txt, tramo horizontal de apoyo y linea con punta de flecha hasta el objeto."""
+        if getattr(self, "_col", None) is not None:
+            self._col.append((p_obj, p_txt, lineas, hmm, al)); return
         apoyo = 4.0 * self.f
         if al == TA.LEFT:
             p_ap = (p_txt[0] - apoyo, p_txt[1]); self.linea(p_txt, p_ap, capa)
@@ -268,7 +270,7 @@ class Lamina:
         t(x0 + 2, y1 - 8, PROYECTO[0], 1.6); t(x0 + 2, y1 - 11.5, PROYECTO[1], 1.6)
         t(x0 + 2, y1 - 17.5, "ENTIDAD: GERENCIA TERRITORIAL BAJO MAYO - TARAPOTO", 1.6)
         t(x0 + 2, y1 - 27, UBICACION, 1.8); t(x0 + 2, y1 - 33, ESPECIALIDAD, 1.8)
-        t(x0 + 2, y1 - 44.5, "PLANO:", 2.0); t(x0 + 14, y1 - 44.5, self.titulo, 2.4)
+        t(x0 + 2, y1 - 44.5, "PLANO:", 2.0); t(x0 + 14, y1 - 44.5, self.titulo, 2.4 if len(self.titulo) <= 62 else max(1.5, 2.4 * 62 / len(self.titulo)))
         t(x0 + 14, y1 - 49, self.subtitulo, 1.8)
         t(x0 + 2, y1 - 57.5, "PROYECTISTA: ______________________        CIP: ________", 1.8)
         t(x0 + 2, y1 - 68, "ELABORADO: " + ELABORADO, 1.8)
@@ -309,11 +311,135 @@ class Lamina:
             y -= 5.5
         return y
 
-    def notas(self, xmm, ymm, titulo, lineas, hmm=2.0):
+    def franja(self, items, y0, abajo=True, hmm=1.6, xmin_mm=27, xmax_mm=826, max_filas=30):
+        """Etiquetas horizontales ordenadas en filas (sin cruces de textos ni lineas).
+        items: (x, y, [lineas], color) en coordenadas del modelo; y0: borde de la franja (modelo).
+        abajo=True: las filas crecen hacia abajo desde y0 (texto colgado); False: hacia arriba."""
+        h_txt = hmm * K_TXT["TEXTOS"]; ch = 0.72 * h_txt * self.f; lh = 1.55 * h_txt * self.f
+        nmax = max(len(it[2]) for it in items) if items else 1
+        fila_h = nmax * lh + 2.2 * self.f
+        x_max = self.ox + xmax_mm * self.f; x_min = self.ox + xmin_mm * self.f
+        puestos = []
+        for x, ya, lineas, col in sorted(items, key=lambda e: -e[0]):
+            w = max(len(t) for t in lineas) * ch + 2.0 * self.f
+            g = 1.5 * self.f
+            def libre(fila, a, b):
+                for xl, pa, pb, r in puestos:
+                    if r == fila and not (b < pa - g or a > pb + g): return False      # texto sobre texto
+                    if r > fila and a - g <= xl <= b + g: return False                 # texto sobre una linea que baja mas
+                    if r < fila and pa - g <= x <= pb + g: return False                # mi linea cruza un texto
+                return True
+            elegido = None
+            lim = int(((self.oy + 582 * self.f - y0) if not abajo else (y0 - self.oy - 12 * self.f)) / fila_h) - 1
+            opciones = [x + w > x_max, not (x + w > x_max)]   # primero a la derecha (izquierda solo junto al borde)
+            for izq in opciones:
+                a, b = (x - w, x) if izq else (x, x + w)
+                if izq and a < x_min: continue
+                for fila in range(min(max_filas, max(lim, 1))):
+                    if libre(fila, a, b): elegido = (fila, izq, a, b); break
+                if elegido: break
+            if not elegido:          # sin sitio libre: fila mas alta permitida, al lado con menos choques
+                izq = x + w > x_max; a, b = (x - w, x) if izq else (x, x + w); elegido = (max(lim - 1, 0), izq, a, b)
+            fila, izq, a, b = elegido
+            puestos.append((x, a, b, fila))
+            yb = y0 - fila * fila_h if abajo else y0 + fila * fila_h
+            self.linea((x, ya), (x, yb), "LLAMADAS"); self.circulo((x, ya), 0.6 * self.f, "LLAMADAS")
+            n = len(lineas)
+            for i, t in enumerate(lineas):
+                yy = (yb - 0.8 * self.f - i * lh) if abajo else (yb + 0.8 * self.f + (n - 1 - i) * lh)
+                al = (TA.TOP_RIGHT if abajo else TA.BOTTOM_RIGHT) if izq else (TA.TOP_LEFT if abajo else TA.BOTTOM_LEFT)
+                self.texto((x - 0.9 * self.f if izq else x + 0.9 * self.f, yy), t, hmm, "TEXTOS", al, color=col)
+        nf = 1 + max([p[3] for p in puestos] + [0])
+        return y0 - nf * fila_h if abajo else y0 + nf * fila_h
+
+    def juntar_llamadas(self):
+        """Desde aqui las llamadas se guardan; volcar_llamadas() las coloca en columnas sin cruces."""
+        self._col = []
+
+    def volcar_llamadas(self):
+        import textwrap
+        col, self._col = self._col or [], None
+        grupos = {}
+        for p_obj, p_txt, lineas, hmm, al in col:
+            grupos.setdefault((round(p_txt[0], 2), al), []).append((p_obj, p_txt, lineas, hmm))
+        for (xt, al), its in grupos.items():
+            hmm = max(i[3] for i in its)
+            def nl(ls): return sum(len(textwrap.wrap(l, 62)) if len(l) > 70 else 1 for l in ls)
+            paso = max(nl(i[2]) for i in its) * 1.6 * hmm * K_TXT["TEXTOS"] * self.f + 2.5 * self.f
+            ytop = max(i[1][1] for i in its); ybot = min(i[1][1] for i in its)
+            if len(its) > 1 and (ytop - ybot) / (len(its) - 1) < paso: ybot = ytop - paso * (len(its) - 1)
+            self.columna_llamadas([(i[0], i[2]) for i in its], xt, ytop, ybot, hmm, al)
+
+    def columna_llamadas(self, items, xt, ytop, ybot, hmm=2.0, al=TA.LEFT):
+        """Llamadas en columna (texto en xt, de ytop a ybot) sin cruces: orden por altura y
+        permutaciones de vecinos mientras dos lineas se crucen. items: [(punto, [lineas])]."""
+        n = len(items)
+        if n == 0: return
+        ys = [ytop - i * (ytop - ybot) / max(n - 1, 1) for i in range(n)]
+        orden = sorted(range(n), key=lambda i: -items[i][0][1])
+        def cruza(p1, q1, p2, q2):
+            def o(a, b, c): return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+            return o(p1, q1, p2) * o(p1, q1, q2) < 0 and o(p2, q2, p1) * o(p2, q2, q1) < 0
+        for _ in range(4 * n):
+            cambio = False
+            for k in range(n - 1):
+                i, j = orden[k], orden[k + 1]
+                if cruza(items[i][0], (xt, ys[k]), items[j][0], (xt, ys[k + 1])):
+                    orden[k], orden[k + 1] = j, i; cambio = True
+            if not cambio: break
+        for k, i in enumerate(orden):
+            lin = items[i][1] if isinstance(items[i][1], list) else [items[i][1]]
+            self.llamada(items[i][0], (xt, ys[k]), lin, hmm, al=al)
+
+    def leyenda2(self, xmm, ymm, items, hmm=2.0, titulo="LEYENDA", ancho_col=0, filas_col=99):
+        """Leyenda con muestras grandes de color. items: (tipo, capa, texto, color_opcional).
+        tipo: linea, linea2 (gruesa), discontinua, rect, relleno, concreto, punto, bloque:NOMBRE."""
+        self.texto(self.P(xmm, ymm), titulo, 3.0, "TITULOS", TA.LEFT)
+        self.linea(self.P(xmm, ymm - 2), self.P(xmm + 32, ymm - 2), "TITULOS")
+        paso = 6.0 * K_TXT["LEYENDA"] * hmm / 2.0
+        for k, it in enumerate(items):
+            tipo, capa, txt = it[:3]; col = it[3] if len(it) > 3 else None
+            cx = xmm + (k // filas_col) * ancho_col; y = ymm - 8 - (k % filas_col) * paso
+            p1, p2 = self.P(cx, y - 1.6), self.P(cx + 14, y + 2.4)
+            kw = {"color": col} if col is not None else {}
+            if tipo in ("linea", "discontinua"):
+                self.linea(self.P(cx, y + 0.4), self.P(cx + 14, y + 0.4), capa, **kw)
+            elif tipo == "linea2":
+                self.poli([self.P(cx, y + 0.4), self.P(cx + 14, y + 0.4)], capa, ancho=0.7 * self.f, **kw)
+            elif tipo == "rect":
+                self.rect(p1[0], p1[1], p2[0], p2[1], capa, **kw)
+            elif tipo in ("relleno", "concreto"):
+                pts = [p1, (p2[0], p1[1]), p2, (p1[0], p2[1])]
+                self.relleno(pts, "CONCRETO-ACHURADO" if tipo == "concreto" else capa)
+                self.rect(p1[0], p1[1], p2[0], p2[1], "CONCRETO" if tipo == "concreto" else capa)
+            elif tipo == "punto":
+                self.circulo(self.P(cx + 7, y + 0.4), 1.0 * self.f, capa)
+                h = self.msp.add_hatch(color=col or 1, dxfattribs={"layer": capa})
+                h.paths.add_edge_path().add_arc(self.P(cx + 7, y + 0.4), 1.0 * self.f, 0, 360)
+            elif tipo.startswith("bloque:"):
+                nb = tipo.split(":")[1]
+                self.bloque(nb, self.P(cx + 7, y + 0.4), 1.0 if nb.startswith("ACERO") else self.f, capa=capa)
+            self.texto(self.P(cx + 17, y + 0.4), txt, hmm, "LEYENDA", TA.MIDDLE_LEFT)
+        return ymm - 8 - min(len(items), filas_col) * paso
+
+    def notas(self, xmm, ymm, titulo, lineas, hmm=2.0, ancho_mm=None, legado=False):
+        """Notas con ajuste de linea: si ancho_mm no se da, se usa el espacio hasta el borde derecho (o el rotulo).
+        legado=True: formato anterior (laminas que no se tocan: perfiles longitudinales)."""
+        import textwrap
         self.texto(self.P(xmm, ymm), titulo, 3.0, "TITULOS")
         self.linea(self.P(xmm, ymm - 2), self.P(xmm + 25, ymm - 2), "TITULOS")
-        for i, t in enumerate(lineas):
-            self.texto(self.P(xmm, ymm - 7 - i * 4.2), t, hmm, "TEXTOS-NOTAS")
+        if legado:
+            for i, t in enumerate(lineas):
+                self.texto(self.P(xmm, ymm - 7 - i * 4.2), t, hmm, "TEXTOS-NOTAS")
+            return ymm - 7 - len(lineas) * 4.2
+        if ancho_mm is None: ancho_mm = (826 if ymm - 7 - 4.2 * len(lineas) > 110 else 640) - xmm
+        nch = max(30, int(ancho_mm / (0.80 * hmm * K_TXT["TEXTOS-NOTAS"])))
+        k = 0
+        for t in lineas:
+            partes = textwrap.wrap(t, nch, subsequent_indent="   ") or [""]
+            for p in partes:
+                self.texto(self.P(xmm, ymm - 7 - k * 4.2 * hmm / 1.8), p, hmm, "TEXTOS-NOTAS"); k += 1
+        return ymm - 7 - k * 4.2 * hmm / 1.8
 
     def tabla(self, xmm, ymm, cabeceras, filas, anchos_mm, hmm=1.8, alto_mm=4.5, titulo=None):
         """Tabla con lineas; devuelve y final (mm)."""
@@ -325,13 +451,17 @@ class Lamina:
         x = xmm
         for a in anchos_mm + [0]:
             self.linea(self.P(x, ymm), self.P(x, ymm - n * alto_mm), "TEXTOS"); x += a
+        def h_ok(txt, ancho):          # letra que entra en la celda (ancho de Arial ~ 0.56 h por caracter)
+            h = hmm
+            while h > 1.2 and len(str(txt)) * 0.78 * h * K_TXT["TEXTOS"] > ancho - 1.5: h -= 0.1
+            return h
         x = xmm
         for j, h in enumerate(cabeceras):
-            self.texto(self.P(x + anchos_mm[j] / 2, ymm - alto_mm / 2), h, hmm, "TEXTOS", TA.MIDDLE_CENTER); x += anchos_mm[j]
+            self.texto(self.P(x + anchos_mm[j] / 2, ymm - alto_mm / 2), h, h_ok(h, anchos_mm[j]), "TEXTOS", TA.MIDDLE_CENTER); x += anchos_mm[j]
         for i, fr in enumerate(filas):
             x = xmm
             for j, v in enumerate(fr):
-                self.texto(self.P(x + anchos_mm[j] / 2, ymm - (i + 1.5) * alto_mm), str(v), hmm, "TEXTOS", TA.MIDDLE_CENTER); x += anchos_mm[j]
+                self.texto(self.P(x + anchos_mm[j] / 2, ymm - (i + 1.5) * alto_mm), str(v), h_ok(v, anchos_mm[j]), "TEXTOS", TA.MIDDLE_CENTER); x += anchos_mm[j]
         return ymm - n * alto_mm
 
 

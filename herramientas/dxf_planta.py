@@ -103,6 +103,7 @@ def dp01(doc, ox, oy, R, T, BP):
     lam = B.Lamina(doc, ox, oy, esc, "DP-01", "PLANTA DEL COLECTOR PLUVIAL",
                    "TRAMO HOGAR DE REFUGIO (0+000.00 - %s) - TRAZO, REGISTROS, CAJAS Y EMPALME CON CAR MUJERES" % prog_txt(dz.P_FIN))
     D = dz.D; msp = lam.msp
+    ets = []                                   # etiquetas de la franja inferior (x, y, lineas, color)
     # --- base de arquitectura (coordenadas locales reales), recortada a la ventana de dibujo
     win = (dz.X_SO - 36, dz.Y_CERCO - 22, dz.X_NE + 22, dz.Y_CERCO + 38)
     winw = (dz.X_SO - 36, dz.Y_CERCO - 22, dz.X_SO + 2, dz.Y_CERCO + 14)
@@ -147,9 +148,8 @@ def dp01(doc, ox, oy, R, T, BP):
         if nm in ("CL", "CC"): continue
         c = dz.eje_local(p)[:2]
         lam.bloque("REGISTRO-PLANTA", c, 1.0, rot=dz.eje_local(p)[2])
-        lam.texto(_pe(p, -1.3), nm, 1.8, "REGISTRO", TA.MIDDLE_CENTER)
-    lam.texto(_pe(0.75, -1.6), "CL", 1.8, "REGISTRO", TA.MIDDLE_CENTER)
-    lam.texto(((xb + xf) / 2, yb - 1.5), "CC", 1.8, "REGISTRO", TA.MIDDLE_CENTER)
+        if not any(abs(cu["prog"] - p) < 1.5 for cu in R["cunetas"]):
+            ets.append((c[0], c[1], ["%s  %s" % (nm, prog_txt(p)), "registro de limpieza (%s)" % rg["nota"]], 30))
     # tapas de registro de las cajas (0.68) en planta
     lam.bloque("REGISTRO-PLANTA", (x0 + 0.75, y0), 1.0); lam.bloque("REGISTRO-PLANTA", (xf + 1.0, yb), 1.0); lam.bloque("REGISTRO-PLANTA", (xb - 0.6, yb), 1.0)
     # juntas cada 4 m
@@ -162,7 +162,7 @@ def dp01(doc, ox, oy, R, T, BP):
         pts = [_pe(z["p1"], D["b_ext"] / 2 + 0.1), _pe(z["p2"], D["b_ext"] / 2 + 0.1), _pe(z["p2"], -D["b_ext"] / 2 - 0.1), _pe(z["p1"], -D["b_ext"] / 2 - 0.1)]
         lam.poli(pts, "CRUCE-VEHICULAR", cerrada=True, ancho=0.03)
         txt = "CRUCE DE CAMIONES %s - %s: losa e=0.25, muros e=0.15, doble marco 1/2\" @0.15" % (prog_txt(z["p1"]), prog_txt(z["p2"])) if z["tipo"] == "CAMION" else "CRUCE DE MOTOS %s - %s: marco 3/8\" @0.15" % (prog_txt(z["p1"]), prog_txt(z["p2"]))
-        lam.llamada(_pe((z["p1"] + z["p2"]) / 2, -D["b_ext"] / 2 - 0.1), _pe((z["p1"] + z["p2"]) / 2 + (8 if z["tipo"] == "CAMION" else -8), -D["b_ext"] / 2 - (4.0 if z["tipo"] == "CAMION" else 6.5)), [txt], 1.6)
+        ets.append((*_pe((z["p1"] + z["p2"]) / 2, -D["b_ext"] / 2 - 0.1), txt.split(": "), 30))
     # cunetas que llegan: prolongacion + ventana
     for c in R["cunetas"]:
         p = c["prog"]; x = c["x"]
@@ -178,10 +178,10 @@ def dp01(doc, ox, oy, R, T, BP):
             lam.poli([(a[0] - 0.2, a[1]), (b_[0] - 0.2, b_[1])], "CUNETA-OCULTA"); lam.poli([(a[0] + 0.2, a[1]), (b_[0] + 0.2, b_[1])], "CUNETA-OCULTA")
         lam.bloque("SIMB-FLECHA", (x, dz.Y_CERCO + 1.2), 0.08, rot=-90, capa="FLUJO")
         k = [cc["perfil"] for cc in R["cunetas"]].index(c["perfil"])
-        lam.llamada((x, dz.Y_CERCO + 1.9), (x + 2.0, dz.Y_CERCO + 3.6 + 2.6 * (k % 3)),
+        ets.append((x, dz.Y_CERCO + 1.9,
                     ["CUNETA %s - perfil %s: 0.40 x %.2f, NCF %.2f" % (c["nombre"].split(" (")[0], c["perfil"], c["H"], c["NCF"]),
                      "empalme en %s (%s)%s" % (prog_txt(p), [r["nombre"] for r in R["registros"] if abs(r["prog"] - p) < 1.5][0] if any(abs(r["prog"] - p) < 1.5 for r in R["registros"]) else "registro",
-                                              "; prolongacion %.2f m" % c["prolong"] if c["prolong"] > 0.1 else "")], 1.6)
+                                              "; prolongacion %.2f m" % c["prolong"] if c["prolong"] > 0.1 else "")], 94))
     # progresivas cada 10 m y puntos singulares
     for p in list(np.arange(0, dz.P_BRINK, 10.0)) + [dz.P_B1, dz.P_B2, dz.P_BRINK, dz.P_FIN]:
         a, b_ = _pe(p, -D["b_ext"] / 2 - 0.3), _pe(p, -D["b_ext"] / 2 - 1.2)
@@ -191,21 +191,22 @@ def dp01(doc, ox, oy, R, T, BP):
     for p in (15, 35, 55, 63.5):
         lam.bloque("SIMB-FLECHA", _pe(p, 0), 0.12, rot=dz.eje_local(p)[2], capa="FLUJO")
     # llegada de CAR Varones
-    lam.llamada((x0 + D["CL_largo"] + 2 * D["e_muro"], y0), (x0 + 9, y0 - 6.5),
-                ["LLEGADA DEL CAR VARONES (CUI 2705619): colector b = 0.60 por la cara este de la CL (ventana 0.60 x 1.17, fondo %.3f) 221.7 L/s" % D["CF_varones_sup"],
-                 "+ cuneta Eje 01 de Varones por el muro norte (ventana 0.40 x 0.66) 37.0 L/s = 258.7 L/s; tapa de la CL en +%.2f (piso de Varones)" % D["NPT_CL"]], 1.6)
+    ets.append((x0 + 0.75, y0, ["CAJA DE LLEGADA CL (0+000.00): recibe el colector del CAR Varones (CUI 2705619)",
+                "b = 0.60, fondo %.3f, 221.7 L/s + cuneta Eje 01 de Varones 37.0 L/s; tapa +%.2f" % (D["CF_varones_sup"], D["NPT_CL"])], 30))
     xe1 = x0 + D["CL_largo"] + 2 * D["e_muro"] - D["E01_u"]
     lam.poli([(xe1 - 0.3, y0 + 0.5 + D["e_muro"]), (xe1 - 0.3, y0 + 0.5 + D["e_muro"] + 1.5)], "CUNETA"); lam.poli([(xe1 + 0.3, y0 + 0.5 + D["e_muro"]), (xe1 + 0.3, y0 + 0.5 + D["e_muro"] + 1.5)], "CUNETA")
     lam.bloque("SIMB-FLECHA", (xe1, y0 + 0.5 + D["e_muro"] + 0.9), 0.08, rot=-90, capa="FLUJO")
     # entrega a CAR Mujeres
-    lam.llamada((xf, yb), (xf - 2, yb - 10.0), ["ENTREGA AL REGISTRO R-01 DEL COLECTOR DE CAR MUJERES (CUI 2717013)", "CF 258.72 = fondo del umbral de la poza; Q entregado 560.6 L/s"], 1.6, al=TA.LEFT)
+    ets.append((xf + 0.4, yb - 0.4, ["CAJA DE CAIDA CC (%s): entrega al R-01 del CAR Mujeres (CUI 2717013)" % prog_txt(dz.P_BRINK),
+                "umbral CF 258.72; Q entregado 560.6 L/s"], 30))
     lam.texto((xf - 1.0, yb + 1.3), "R-01 (CAR Mujeres)", 1.6, "ARQ-TEXTO", TA.RIGHT)
     # textos de ubicacion
-    lam.texto((dz.X_NE - 35, dz.Y_CERCO - 7.5), "HOGAR DE REFUGIO TEMPORAL MUJERES VIOLENTADAS - FRENTE SUR (cerco perimetrico)", 2.2, "TEXTOS", TA.MIDDLE_CENTER)
-    lam.texto((dz.X_NE - 35, dz.Y_CERCO - 13.5), "CARRETERA OASIS", 2.4, "TEXTOS", TA.MIDDLE_CENTER)
+    ets.append((dz.X_NE - 47, dz.Y_CERCO, ["CERCO PERIMETRICO - FRENTE SUR", "Hogar de Refugio Temporal Mujeres Violentadas"], 14))
+    ets.append((dz.X_NE - 28, dz.Y_CERCO - 7.0, ["CARRETERA OASIS"], 7))
     lam.texto((dz.X_SO - 14, dz.Y_CERCO + 10), "CAR MUJERES (CUI 2717013)", 2.0, "ARQ-TEXTO", TA.MIDDLE_CENTER)
     lam.texto((dz.X_NE + 12, dz.Y_CERCO + 10), "CAR VARONES (CUI 2705619)", 2.0, "ARQ-TEXTO", TA.MIDDLE_CENTER)
-    lam.texto((dz.X_NE - 35, dz.Y_CERCO - 10.5), "COLECTOR CUBIERTO DE CONCRETO ARMADO b = 0.80 m, h = 1.40 a 1.61 m, S = 0.30 % - LOSA SUPERIOR A NIVEL DEL PISO TERMINADO +260.60", 1.8, "TEXTOS", TA.MIDDLE_CENTER)
+    ets.append((*_pe(45.0, -D["b_ext"] / 2), ["COLECTOR CUBIERTO DE CONCRETO ARMADO b = 0.80 m, h = 1.40 a 1.61 m", "S = 0.30 %; losa superior a nivel del piso terminado +260.60"], 250))
+    lam.franja(ets, dz.Y_CERCO - 10.5, abajo=True, hmm=1.7)
     # grilla UTM (cruces cada 25 m) y rotulos
     E0, N0 = dz.local_a_utm(dz.X_NE - 35, dz.Y_CERCO)
     for Eg in np.arange(math.floor((E0 - 70) / 25) * 25, E0 + 75, 25):
@@ -228,13 +229,14 @@ def dp01(doc, ox, oy, R, T, BP):
     lam.tabla(32, 560, ["PUNTO", "PROGRESIVA", "ESTE", "NORTE", "COTA FONDO", "COTA TAPA", "OBSERVACION"], filas, [22, 20, 24, 26, 20, 20, 92], 1.7, 4.2, "CUADRO DE COORDENADAS DE REGISTROS Y CAJAS")
     lam.texto(lam.P(32, 560 - 4.2 * (len(filas) + 1) - 6), "Coordenadas UTM WGS84 - Zona 18 Sur. Ubicacion referencial: el plano de arquitectura se georreferencio con el R-01 del CAR Mujeres y el rumbo de su lindero (azimut 49.54); verificar en campo.", 1.5, "TEXTOS-NOTAS")
     # leyenda y notas
-    lam.leyenda(32, 150, [("linea2", "CONCRETO", "muro exterior del colector"), ("linea", "CONCRETO-OCULTO", "cara interior (bajo losa superior)"),
-                          ("linea", "EJE-COLECTOR", "eje del colector"), ("bloque:REGISTRO-PLANTA", "REGISTRO", "registro de limpieza con tapa removible"),
-                          ("linea", "JUNTAS", "junta de dilatacion cada 4.00 m"), ("rect", "CRUCE-VEHICULAR", "cruce vehicular (motos / camiones)"),
-                          ("rect", "POZA", "poza de disipacion (caja de caida)"), ("linea", "CUNETA", "cuneta de arquitectura que llega al colector"),
-                          ("linea2", "CERCO", "cerco perimetrico del predio"), ("linea", "LINDERO", "lindero con la Crta. Oasis"),
-                          ("linea", "ARQ-BASE", "arquitectura (referencia)"), ("bloque:SIMB-FLECHA", "FLUJO", "sentido del flujo")], 1.8)
-    lam.notas(300, 150, "NOTAS", [
+    lam.leyenda2(32, 150, [("linea2", "CONCRETO", "muro exterior del colector"), ("discontinua", "CONCRETO-OCULTO", "cara interior (bajo la losa superior)"),
+                           ("linea", "EJE-COLECTOR", "eje del colector y progresivas"), ("bloque:REGISTRO-PLANTA", "REGISTRO", "registro de limpieza con tapa 0.68 x 0.68"),
+                           ("discontinua", "JUNTAS", "junta de dilatacion cada 4.00 m"), ("rect", "CRUCE-VEHICULAR", "cruce vehicular (motos / camiones)"),
+                           ("rect", "POZA", "poza de disipacion (caja de caida CC)"), ("linea2", "CUNETA", "cuneta de arquitectura que llega al colector"),
+                           ("linea2", "CERCO", "cerco perimetrico del predio"), ("discontinua", "LINDERO", "lindero con la Carretera Oasis"),
+                           ("linea", "ARQ-BASE", "arquitectura y colectores vecinos (referencia)"), ("bloque:SIMB-FLECHA", "FLUJO", "sentido del flujo")], 1.8,
+                  ancho_col=125, filas_col=6)
+    lam.notas(300, 92, "NOTAS", [
         "1. Colector de concreto armado f'c=210 kg/cm2, cubierto en todo su recorrido, losa superior vaciada monoliticamente con los muros.",
         "2. El colector va por fuera del cerco, dentro del predio: muro lado predio a 0.025 m del cerco (junta de tecnopor de 1\"). Eje a 0.575 m del cerco.",
         "3. Progresivas a lo largo del eje desde la caja de llegada CL (limite con CAR Varones), crecientes hacia la entrega al CAR Mujeres.",
@@ -488,7 +490,7 @@ def dp02(doc, ox, oy, R, T):
         "4. Registros con tapa de concreto 0.68 x 0.68 x 0.08, borde engrosado 0.15 x 0.10 y contramarco metalico (DP-06B). No hay registros dentro de los cruces vehiculares.",
         "5. Relleno nivelado del retiro hasta la cota de la losa (+260.60) donde el terreno existente queda por debajo.",
         "6. Perfil por tramos de 20 m en las laminas DP-03A y DP-03B (misma escala); cajas en DP-07; empalme de cunetas en DP-06C.",
-    ], 1.7)
+    ], 1.7, legado=True)
     return lam
 
 
@@ -503,6 +505,6 @@ def dp03(doc, ox, oy, R, T):
         lam.leyenda(650, 330, [("achurado", "CONCRETO-ACHURADO", "concreto armado cortado"), ("linea", "SOLADO", "solado e=0.05"), ("rect", "REGISTRO-TAPA", "tapa de registro"),
                                ("relleno", "AGUA-RELLENO", "agua (nivel de diseno)"), ("linea2", "TERRENO", "piso terminado +260.60"), ("linea", "TERRENO-EXISTENTE", "terreno existente"),
                                ("relleno", "ISO-CUNETA", "ventana de llegada de cuneta"), ("linea", "JUNTAS", "junta de dilatacion cada 4.00 m")], 1.8)
-        lam.notas(650, 240, "NOTAS", ["1. Escala real: horizontal = vertical.", "2. Cotas en m.s.n.m.; progresivas desde la caja CL.", "3. Prof. excav. medida desde el terreno existente al fondo del solado."], 1.7)
+        lam.notas(650, 240, "NOTAS", ["1. Escala real: horizontal = vertical.", "2. Cotas en m.s.n.m.; progresivas desde la caja CL.", "3. Prof. excav. medida desde el terreno existente al fondo del solado."], 1.7, legado=True)
         lams.append(lam)
     return lams

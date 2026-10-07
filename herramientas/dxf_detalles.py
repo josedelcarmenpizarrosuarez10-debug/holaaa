@@ -78,6 +78,7 @@ def f3(v): return "%.3f" % v
 def dd01(doc, ox, oy, R, T):
     lam = B.Lamina(doc, ox, oy, 10, "DD-01", "DETALLE CONSTRUCTIVO: CONTRAMARCO METALICO L 2\"x2\"x3/16\" CON ANCLAJES",
                    "PARTIDAS 01.04.04.05.01, 01.04.04.05.03 (parte) y 01.04.04.05.06 (parte) - 10 REGISTROS - ESC. INDICADAS")
+    lam.juntar_llamadas()
     leg, t = L2
     # ---------------- A. planta del contramarco (1/5)
     k = 2.0; ox_, oy_ = lam.P(150, 430)
@@ -174,7 +175,8 @@ def dd01(doc, ox, oy, R, T):
              ["Pintura anticorrosiva + esmalte (desarrollo 0.203 m2/m x 2.80 m)", "m2", f2(2.80 * 0.203), f2(n * 2.80 * 0.203), "01.04.04.05.07 PINTURA (parte)"],
              ["Mano de obra de habilitacion, soldadura y colocacion", "und", "1", "%d" % n, "01.04.04.05.01 CONTRAMARCO (und)"]]
     cuadro(lam, 330, 200, "CUADRO DE COMPONENTES POR CONTRAMARCO (1 und) Y TOTAL (%d und)" % MC.registros()["n"], filas)
-    lam.leyenda(330, 150, [("relleno", "MARCO-METALICO", "angulo metalico"), ("linea", "ACERO", "anclaje 3/8\""), ("linea", "ACERO-LONG", "refuerzo de borde 1/2\" (proyeccion)"), ("achurado", "CONCRETO-ACHURADO", "concreto f'c=210"), ("rect", "REGISTRO-TAPA", "tapa (referencia, ver DD-02)")], 1.8)
+    lam.leyenda2(560, 150, [("relleno", "MARCO-METALICO", "angulo metalico"), ("linea2", "ACERO", "anclaje 3/8\""), ("linea2", "ACERO-LONG", "refuerzo de borde 1/2\" (proyeccion)"), ("concreto", "CONCRETO", "concreto f'c=210"), ("rect", "REGISTRO-TAPA", "tapa (referencia, ver DD-02)")], 1.8)
+    lam.volcar_llamadas()
     return lam
 
 
@@ -182,6 +184,7 @@ def dd01(doc, ox, oy, R, T):
 def dd02(doc, ox, oy, R, T):
     lam = B.Lamina(doc, ox, oy, 10, "DD-02", "DETALLE CONSTRUCTIVO: MARCO METALICO L 1 1/2\"x1 1/2\"x1/8\" Y TAPA DE CONCRETO ARMADO 0.68 x 0.68 x 0.08",
                    "PARTIDAS 01.04.04.05.02, .05.03 (parte), .05.04, .05.05, .05.06 (parte) y .05.07 - 10 TAPAS - ESC. INDICADAS")
+    lam.juntar_llamadas()
     leg, t = L15; a = TAPA / 2
     # ---------------- A. planta de la tapa (1/5)
     k = 2.0; ox_, oy_ = lam.P(150, 430)
@@ -278,7 +281,8 @@ def dd02(doc, ox, oy, R, T):
              ["Pintura total por registro: contramarco 0.57 + marco 0.41", "m2", f2(2.80 * 0.203 + 2.72 * 0.152), f2(n * (2.80 * 0.203 + 2.72 * 0.152)), "01.04.04.05.07 PINTURA (total)"],
              ["Fabricacion, curado y colocacion de la tapa", "und", "1", "%d" % n, "01.04.04.05.04 TAPA (und); marco: 01.04.04.05.02 (und)"]]
     cuadro(lam, 330, 245, "CUADRO DE COMPONENTES POR TAPA CON MARCO (1 und) Y TOTAL (%d und)" % MC.registros()["n"], filas)
-    lam.leyenda(330, 180, [("relleno", "MARCO-METALICO", "angulo metalico / asa"), ("linea", "ACERO", "barra 3/8\" (sentido X)"), ("linea", "ACERO-LONG", "barra 3/8\" (sentido Y)"), ("achurado", "CONCRETO-ACHURADO", "concreto f'c=210 de la tapa"), ("relleno", "ISO-TAPA", "cajuela del asa")], 1.8)
+    lam.leyenda2(560, 180, [("relleno", "MARCO-METALICO", "angulo metalico / asa"), ("linea2", "ACERO", "barra 3/8\" (sentido X)"), ("linea2", "ACERO-LONG", "barra 3/8\" (sentido Y)"), ("concreto", "CONCRETO", "concreto f'c=210 de la tapa"), ("relleno", "ISO-TAPA", "cajuela del asa")], 1.8)
+    lam.volcar_llamadas()
     return lam
 
 
@@ -286,6 +290,7 @@ def dd02(doc, ox, oy, R, T):
 def dd03(doc, ox, oy, R, T):
     lam = B.Lamina(doc, ox, oy, 10, "DD-03", "DETALLE CONSTRUCTIVO: JUNTA DE DILATACION E=1\" CON SELLADOR Y JUNTAS DE TECNOPOR",
                    "PARTIDAS 01.04.04.06.01 y 01.04.04.06.02 - 17 JUNTAS DE DILATACION CADA 4.00 m - ESC. INDICADAS")
+    lam.juntar_llamadas()
     b, em, ef, et = D["b"], D["e_muro"], D["e_fondo"], D["e_losa"]; be = b + 2 * em; h = round(max(e["h"] for e in R["perfil"] if e.get("zona") != "CAMION"), 2); J = MC.juntas(); e_j = 0.025; per_j = J["L_dilat"] / J["n"]
     # ---------------- A. seccion del colector en la junta (1/10)
     k = 1.0; ox_, oy_ = lam.P(130, 300)
@@ -377,7 +382,8 @@ def dd03(doc, ox, oy, R, T):
         "2. Vaciar el tramo siguiente contra la plancha. El acero longitudinal termina a 0.05 de cada lado; los marcos se colocan a cada lado de la junta.",
         "3. Retirar 25 mm de tecnopor en las caras interiores y en la cara superior; limpiar, imprimar y aplicar el sello de poliuretano 25 x 25 mm con pistola; alisar.",
         "4. Juntas de tecnopor (02): plancha de 1\" pegada al cimiento del cerco antes de vaciar el muro; plancha de 1\" x 0.10 en el borde de la losa antes de vaciar el piso."], 1.8)
-    lam.leyenda(60, 235, [("achurado", "CONCRETO-ACHURADO", "concreto f'c=210"), ("achurado", "JUNTAS", "tecnopor 1\""), ("relleno", "CORTES", "sello elastomerico"), ("rect", "CERCO", "cerco existente"), ("linea", "ACERO-LONG", "barra longitudinal 3/8\""), ("rect", "RELLENO", "relleno compactado")], 1.8)
+    lam.leyenda2(60, 235, [("concreto", "CONCRETO", "concreto f'c=210"), ("rect", "JUNTAS", "tecnopor 1\""), ("relleno", "CORTES", "sello elastomerico"), ("rect", "CERCO", "cerco existente"), ("linea2", "ACERO-LONG", "barra longitudinal 3/8\""), ("rect", "RELLENO", "relleno compactado")], 1.8)
+    lam.volcar_llamadas()
     return lam
 
 
@@ -387,6 +393,7 @@ def dd04(doc, ox, oy, R, T):
                    TXT_DD04_SUB)
     b, em, ef, et = D["b"], D["e_muro"], D["e_fondo"], D["e_losa"]; be = b + 2 * em
     cun = [c for c in R["cunetas"] if c.get("entra_en", "colector") == "colector"]; ej = min(cun, key=lambda c: abs(c["prog"] - EJ_DD04)); Hc = ej["H"]; NCF = ej["NCF_fin"]; cf = dz.fondo(ej["prog"]); h = dz.techo(ej["prog"]) - cf; zc = ef + (NCF - cf); Hv = ef + h - zc; e_j = 0.025
+    lam.juntar_llamadas()
     # ---------------- A. elevacion interior del muro con la ventana (1/10)
     k = 1.0; ox_, oy_ = lam.P(150, 330)
     P = lambda x, y: (ox_ + x * k, oy_ + y * k)
@@ -488,7 +495,8 @@ def dd04(doc, ox, oy, R, T):
         "2. Vaciar el muro y la losa superior monoliticos; retirar el cajon a los 2 dias, perfilar y resanar los bordes de la ventana.",
         "3. Empalmar la cuneta (o su prolongacion) contra el muro con la plancha de tecnopor de 1\" en todo su contorno; sellar el contorno exterior con poliuretano.",
         "4. Pulir el fondo del colector en 1.00 m bajo la caida. Colocar el registro de limpieza sobre el empalme (DD-01 y DD-02)."], 1.8)
-    lam.leyenda(300, 115, [("achurado", "CONCRETO-ACHURADO", "concreto del colector f'c=210"), ("achurado", "TERRENO-ACHURADO", "cuneta existente (arquitectura)"), ("relleno", "ISO-CUNETA", "ventana de empalme"), ("achurado", "JUNTAS", "tecnopor 1\""), ("relleno", "CORTES", "sello elastomerico / acabado pulido"), ("linea", "ACERO", "marcos 3/8\""), ("linea", "ACERO-LONG", "refuerzo de borde 3/8\""), ("linea", "AGUA", "agua")], 1.8)
+    lam.leyenda2(300, 115, [("concreto", "CONCRETO", "concreto del colector f'c=210"), ("rect", "TERRENO-ACHURADO", "cuneta existente (arquitectura)"), ("relleno", "ISO-CUNETA", "ventana de empalme"), ("rect", "JUNTAS", "tecnopor 1\""), ("relleno", "CORTES", "sello elastomerico / acabado pulido"), ("linea2", "ACERO", "marcos 3/8\""), ("linea2", "ACERO-LONG", "refuerzo de borde 3/8\""), ("linea", "AGUA", "agua")], 1.8, ancho_col=120, filas_col=4)
+    lam.volcar_llamadas()
     return lam
 
 

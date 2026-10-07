@@ -37,7 +37,7 @@ def geometria(p):
     return dict(tipo=tipo, cf=cf, techo=techo, h=h, et=ACERO[tipo][2], em=ACERO[tipo][3])
 
 
-def seccion(lam, xmm, ymm, p, R, T, esc_txt="1/25", nombre=None, con_cerco=True, hmm_txt=1.8, dist_cota=6, llamadas=True, dx_ll=0.80):
+def seccion(lam, xmm, ymm, p, R, T, esc_txt="1/25", nombre=None, con_cerco=True, hmm_txt=1.8, dist_cota=6, llamadas=True, dx_ll=0.80, contexto=True):
     """Seccion transversal mirando aguas abajo: izquierda = lado via (lindero), derecha = lado predio (cerco).
     Origen (xmm, ymm) = fondo del solado en el eje. Cotas por fuera (abajo y derecha), llamadas con flecha a la izquierda."""
     g = geometria(p); f = lam.f
@@ -71,10 +71,12 @@ def seccion(lam, xmm, ymm, p, R, T, esc_txt="1/25", nombre=None, con_cerco=True,
     na = perfil_en(R, p, "NA"); y = na - g["cf"]
     lam.linea((xl + em, zf + y), (xr - em, zf + y), "AGUA"); lam.bloque("SIMB-AGUA", (cx, zf + y), f)
     # piso terminado a ambos lados y terreno existente lado via
-    lam.poli([(xl - 1.0, zs), (xl, zs)], "TERRENO", ancho=0.3 * f); lam.poli([(xr, zs), (xr + 1.0, zs)], "TERRENO", ancho=0.3 * f)
+    ext = 1.0 if contexto else 0.25
+    lam.poli([(xl - min(0.45, ext), zs), (xl, zs)], "TERRENO", ancho=0.3 * f); lam.poli([(xr, zs), (xr + ext, zs)], "TERRENO", ancho=0.3 * f)
     zterr = zs - (D["NPT"] - terreno_en(T, p))
-    lam.poli([(xl - 1.0, zterr - 0.03), (xl - 0.5, zterr), (xl - 0.15, zterr + 0.02)], "TERRENO-EXISTENTE")
-    lam.poli([(xl - 1.0, zterr - 0.03), (xl - 0.25, zterr - 0.03), (xl - 0.25, cy - 0.05), (xr + 0.25, cy - 0.05), (xr + 0.25, zs - 0.9)], "EXCAVACION")
+    if contexto:
+        lam.poli([(xl - 1.0, zterr - 0.03), (xl - 0.5, zterr), (xl - 0.15, zterr + 0.02)], "TERRENO-EXISTENTE")
+        lam.poli([(xl - 1.0, zterr - 0.03), (xl - 0.25, zterr - 0.03), (xl - 0.25, cy - 0.05), (xr + 0.25, cy - 0.05), (xr + 0.25, zs - 0.9)], "EXCAVACION")
     # cerco perimetrico al lado predio, con junta de tecnopor 1"
     xc = xr + D["junta_cerco"]; con_cerco = con_cerco and CON_CERCO
     if con_cerco:
@@ -82,7 +84,7 @@ def seccion(lam, xmm, ymm, p, R, T, esc_txt="1/25", nombre=None, con_cerco=True,
         lam.achurado([(xc, zs - 0.6), (xc + 0.15, zs - 0.6), (xc + 0.15, zs + 0.6), (xc, zs + 0.6)], "TERRENO-ACHURADO", escala_mm=0.4)
         lam.achurado([(xc, zs - 0.9), (xc + 0.40, zs - 0.9), (xc + 0.40, zs - 0.6), (xc, zs - 0.6)], "TERRENO-ACHURADO", escala_mm=0.4)
         lam.relleno([(xr, zs - 0.9), (xc, zs - 0.9), (xc, zs), (xr, zs)], "JUNTAS")
-        lam.texto((xc + 0.22, zs + 0.12), "CERCO EXISTENTE", 1.5, "TEXTOS", TA.LEFT, rot=90)
+        lam.texto((xc + 0.20, zs + 0.40), "CERCO EXISTENTE", 1.5, "TEXTOS", TA.LEFT)
     # cotas: abajo (parciales y total) y a la derecha (parciales y total), fuera del cerco
     lam.cota((xl, cy), (xl + em, cy), -dist_cota); lam.cota((xl + em, cy), (xr - em, cy), -dist_cota); lam.cota((xr - em, cy), (xr, cy), -dist_cota)
     lam.cota((xl, cy), (xr, cy), -2.2 * dist_cota)
@@ -102,11 +104,13 @@ def seccion(lam, xmm, ymm, p, R, T, esc_txt="1/25", nombre=None, con_cerco=True,
                  ("NA %.3f (Q=%.1f L/s)" % (na, perfil_en(R, p, "Q") * 1000 if "Q" in R["perfil"][0] else R["Q"]), (xl + em + 0.10, zf + y)),
                  ("losa de fondo e=%.2f" % ef, (xl - 0.02, zf - ef / 2)),
                  ("solado f'c=100 e=%.2f" % es, (xl - 0.06, cy + es / 2))]
+        if not contexto: filas = [fr for fr in filas if not fr[0].startswith("terreno")]
         filas.sort(key=lambda fr: -fr[1][1])
         ytop, ybot = zs + 0.25, cy - 0.05
         for k, (txt, anc) in enumerate(filas):
             lam.llamada(anc, (xt, ytop - k * (ytop - ybot) / (len(filas) - 1)), [txt], hmm_txt, al=TA.RIGHT)
-        lam.texto((xl - 0.6, zs + 0.55), "LADO VIA (LINDERO)", 1.6, "TEXTOS"); lam.texto((xr + 0.55, zs + 0.55), "LADO PREDIO", 1.6, "TEXTOS")
+        if contexto: lam.texto((xl - 0.6, zs + 0.70), "LADO VIA (LINDERO)", 1.6, "TEXTOS"); lam.texto((xr + 0.25, zs + 0.70), "LADO PREDIO", 1.6, "TEXTOS")
+        else: lam.texto((xl, zs + 0.06), "LADO VIA", 1.6, "TEXTOS", TA.BOTTOM_RIGHT); lam.texto((xr, zs + 0.06), "LADO PREDIO", 1.6, "TEXTOS", TA.BOTTOM_LEFT)
     return dict(cx=cx, cy=cy, zs=zs, zf=zf, zt=zt, xl=xl, xr=xr, g=g)
 
 
@@ -116,15 +120,16 @@ def dp04(doc, ox, oy, R, T):
         lam = B.Lamina(doc, ox + k * 30, oy, 15, "DP-04%s" % "AB"[k], "SECCIONES TRANSVERSALES DEL COLECTOR",
                        "SECCIONES %s CON DISTRIBUCION DE ACERO - ESC. 1/15" % ("S-01 A S-04" if k == 0 else "S-05 A S-08"))
         for j, (p, nm) in enumerate(SECCIONES[k * 4:(k + 1) * 4]):
-            xmm = 215 + (j % 2) * 400; ymm = 405 if j < 2 else 190
+            xmm = 215 + (j % 2) * 400; ymm = 405 if j < 2 else 178
             seccion(lam, xmm, ymm, p, R, T, hmm_txt=2.0, dist_cota=7, dx_ll=0.55)
             g = geometria(p)
             lam.titulo_vista(xmm + 25, ymm - 33, "SECCION %s" % nm, "PROG. %s - CF %.3f - %s - ESC. 1/15" % (prog_txt(p), g["cf"], ACERO[g["tipo"]][4]), 130)
-        lam.leyenda(32, 128, [("achurado", "CONCRETO-ACHURADO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100 kg/cm2"),
-                              ("linea", "ACERO", "acero transversal: marco cerrado (rojo)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal 3/8\" (circulo a diametro real)"),
-                              ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", "piso terminado +%.2f" % D["NPT"]),
-                              ("linea", "TERRENO-EXISTENTE", "terreno existente"), ("linea", "EXCAVACION", "limite de excavacion")] + ([("rect", "CERCO", "cerco perimetrico existente")] if CON_CERCO else []), 1.8)
-        lam.notas(250, 128, "NOTAS", NOTAS_DP04 or ["1. Altura interior h segun el perfil longitudinal (1.40 m en 0+000 a 1.61 m en el brink).",
+        lam.leyenda2(32, 128, [("concreto", "CONCRETO", "concreto armado f'c=210 kg/cm2 (muros y losas)"), ("rect", "SOLADO", "solado f'c=100 kg/cm2, e=0.05"),
+                               ("linea2", "ACERO", "acero transversal: marco cerrado (rojo)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal 3/8\" (diametro real)"),
+                               ("linea", "AGUA", "nivel de agua de diseno (Q = 560.6 L/s)"), ("linea2", "TERRENO", "piso terminado +%.2f" % D["NPT"]),
+                               ("discontinua", "TERRENO-EXISTENTE", "terreno existente"), ("discontinua", "EXCAVACION", "limite de excavacion")] + ([("rect", "CERCO", "cerco perimetrico existente")] if CON_CERCO else []), 1.8,
+                      ancho_col=110, filas_col=5)
+        lam.notas(262, 128, "NOTAS", NOTAS_DP04 or ["1. Altura interior h segun el perfil longitudinal (1.40 m en 0+000 a 1.61 m en el brink).",
                                         "2. Tramo normal y cruce de motos: un solo marco cerrado en el eje de muros y losas (una capa, E.060 14.3.4); recubrimiento minimo 0.04 m en muros y losa de fondo y 0.025 m en la losa superior.",
                                         "3. Junta de tecnopor de 1\" entre el muro lado predio y el cimiento del cerco; junta de 1\" entre la losa superior y el piso adyacente.",
                                         "4. El cruce de camiones (S-04) lleva losas e=0.25 y doble marco de 1/2\" @0.15 (marco exterior e interior, recubrimiento 0.04); el cruce de motos (S-05) marco unico de 3/8\" @0.15.",
@@ -187,17 +192,28 @@ def iso_colector(lam, xmm, ymm, p, R, L=1.0, esc=1.0, con_tapa=True, con_agua=Tr
 def dp05(doc, ox, oy, R, T):
     lams = []
     for k in range(2):
-        lam = B.Lamina(doc, ox + k * 30, oy, 25, "DP-05%s" % "AB"[k], "ISOMETRICOS DE LAS SECCIONES TRANSVERSALES",
-                       "SECCIONES %s - TRAMOS DE 1.00 m CON REGISTRO Y ACERO EN LA CARA DE CORTE" % ("S-01 A S-04" if k == 0 else "S-05 A S-08"))
+        lam = B.Lamina(doc, ox + k * 30, oy, 20, "DP-05%s" % "AB"[k], "ISOMETRICOS DE LAS SECCIONES TRANSVERSALES",
+                       "SECCIONES %s - TRAMOS DE 1.00 m CON REGISTRO Y ACERO EN LA CARA DE CORTE - ESC. 1/20" % ("S-01 A S-04" if k == 0 else "S-05 A S-08"))
         for j, (p, nm) in enumerate(SECCIONES[k * 4:(k + 1) * 4]):
-            xmm = 90 + j * 185; ymm = 300; g = geometria(p)
-            iso_colector(lam, xmm, ymm, p, R, 1.0, 1.0, etiquetas=["CF %.3f" % g["cf"], "losa superior %.2f" % D["NPT"], "NA %.3f" % perfil_en(R, p, "NA"),
-                                                                     ACERO[g["tipo"]][0], ACERO[g["tipo"]][1], "registro: tapa 0.68 x 0.68, luz 0.60", "h interior %.2f m" % g["h"]])
-            lam.titulo_vista(xmm + 30, ymm - 60, "ISOMETRICO %s" % nm, "PROG. %s - interior 0.80 x %.2f m - %s" % (prog_txt(p), g["h"], ACERO[g["tipo"]][4]), 100)
-        lam.leyenda(32, 150, [("relleno", "ISO-CONCRETO-SUP", "concreto armado (cara superior)"), ("relleno", "ISO-CONCRETO-LAT1", "concreto armado (cara frontal / corte)"),
-                              ("relleno", "ISO-CONCRETO-LAT2", "concreto armado (cara lateral)"), ("relleno", "ISO-TAPA", "tapa de registro removible"),
-                              ("relleno", "ISO-AGUA", "agua (nivel de diseno)"), ("linea", "ACERO", "acero en la cara de corte")], 1.8)
-        lam.notas(300, 150, "NOTAS", ["1. Vistas isometricas sin escala; medidas reales en las laminas DP-04 y DP-06.", "2. Se muestra 1.00 m de colector cortado en la progresiva indicada."], 1.7)
+            xmm = 120 + (j % 2) * 400; ymm = 470 if j < 2 else 250; g = geometria(p)
+            Tf = iso_colector(lam, xmm, ymm, p, R, 1.0, 1.0)
+            be = D["b"] + 2 * g["em"]; ef = D["e_fondo"]; e = g["em"]; h = g["h"]; et = g["et"]; L = 1.0
+            y = perfil_en(R, p, "NA") - g["cf"]
+            anc = [(Tf(be / 2, L / 2, ef + h + et), "registro: tapa 0.68 x 0.68 a ras de la losa"),
+                   (Tf(0.12, 0.15, ef + h + et), "losa superior e=%.2f - NPT +%.2f" % (et, D["NPT"])),
+                   (Tf(e / 2, L, ef + h * 0.75), ACERO[g["tipo"]][0] + ": acero transversal"),
+                   (Tf(be, L * 0.5, ef + h * 0.55), "muro e=%.2f, h interior %.2f m" % (e, h)),
+                   (Tf(be / 2, L * 0.6, ef + y), "agua: NA %.3f (Q = 560.6 L/s)" % perfil_en(R, p, "NA")),
+                   (Tf(be - e / 2, L, ef + h * 0.30), ACERO[g["tipo"]][1] + ": acero longitudinal"),
+                   (Tf(be / 2, L, ef / 2), "losa de fondo e=%.2f - CF %.3f" % (ef, g["cf"]))]
+            lam.columna_llamadas(anc, lam.P(xmm + 70, 0)[0], lam.P(0, ymm + 84)[1], lam.P(0, ymm - 46)[1], 2.0)
+            lam.titulo_vista(xmm + 55, ymm - 64, "ISOMETRICO %s" % nm, "PROG. %s - interior 0.80 x %.2f m - %s" % (prog_txt(p), g["h"], ACERO[g["tipo"]][4]), 150)
+        lam.leyenda2(32, 150, [("relleno", "ISO-CONCRETO-SUP", "concreto armado: cara superior"), ("relleno", "ISO-CONCRETO-LAT1", "concreto armado: cara de corte"),
+                               ("relleno", "ISO-CONCRETO-LAT2", "concreto armado: cara lateral"), ("relleno", "ISO-TAPA", "tapa de registro 0.68 x 0.68"),
+                               ("relleno", "ISO-AGUA", "agua (nivel de diseno)"), ("linea2", "ACERO", "acero transversal (marco) en la cara de corte"),
+                               ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal 3/8\" (puntos)")], 1.8, ancho_col=120, filas_col=4)
+        lam.notas(300, 150, "NOTAS", ["1. Vistas isometricas de 1.00 m de colector cortado en la progresiva indicada; medidas reales en DP-04 y DP-06A.",
+                                      "2. Se ve la cara interior del muro lado via, el agua al nivel de diseno y el acero en la cara de corte."], 1.7)
         lams.append(lam)
     return lams
 
@@ -207,14 +223,14 @@ def dp06a(doc, ox, oy, R, T):
     lam = B.Lamina(doc, ox, oy, 10, "DP-06A", "DETALLES TIPICOS DEL COLECTOR", "SECCIONES TIPICAS: TRAMO NORMAL, CRUCE DE MOTOS, CRUCE DE CAMIONES Y TRAMO DIAGONAL - ESC. 1/10")
     casos = [(10.0, "A-A: TRAMO NORMAL"), (40.0, "B-B: CRUCE DE MOTOS"), (28.8, "C-C: CRUCE DE CAMIONES")]
     for j, (p, nm) in enumerate(casos):
-        xmm = 165 + j * 250; ymm = 300
-        seccion(lam, xmm, ymm, p, R, T, esc_txt="1/10", con_cerco=True, hmm_txt=1.6, dist_cota=8, dx_ll=0.12)
+        xmm = 178 + j * 262; ymm = 315
+        seccion(lam, xmm, ymm, p, R, T, esc_txt="1/10", con_cerco=False, hmm_txt=1.8, dist_cota=8, dx_ll=0.12, contexto=False)
         g = geometria(p)
-        lam.titulo_vista(xmm + 40, ymm - 45, "SECCION TIPICA %s" % nm, "ESC. 1/10 - h segun perfil (aqui %.2f m, prog. %s)" % (g["h"], prog_txt(p)), 150)
-    lam.leyenda(32, 110, [("achurado", "CONCRETO-ACHURADO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100 kg/cm2 e=0.05"),
-                          ("linea", "ACERO", "acero transversal: marco cerrado (rojo)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal 3/8\" visto en la cara de corte"), ("linea", "AGUA", "nivel de agua de diseno"),
-                          ("rect", "CERCO", "cerco perimetrico existente"), ("linea", "JUNTAS", "junta de tecnopor 1\"")], 1.8)
-    lam.notas(300, 110, "NOTAS", ["1. Muros e=0.15 en todo el tramo; losa de fondo e=0.15; losa superior e=0.10 (e=0.25 en el cruce de camiones).",
+        lam.titulo_vista(xmm, ymm - 42, "SECCION TIPICA %s" % nm, "ESC. 1/10 - h segun perfil (aqui %.2f m, prog. %s)" % (g["h"], prog_txt(p)), 150)
+    lam.leyenda2(32, 150, [("concreto", "CONCRETO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100 kg/cm2, e=0.05"),
+                           ("linea2", "ACERO", "acero transversal: marco cerrado (rojo)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal 3/8\" en la cara de corte"),
+                           ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", "piso terminado +260.60")], 1.8, ancho_col=120, filas_col=3)
+    lam.notas(300, 150, "NOTAS", ["1. Muros e=0.15 en todo el tramo; losa de fondo e=0.15; losa superior e=0.10 (e=0.25 en el cruce de camiones).",
                                     "2. Tramo normal y motos: marco unico en el eje de la seccion. En el cruce de camiones el acero va en ambas caras (doble marco 1/2\" @0.15) y la losa superior es e=0.25.",
                                     "3. El tramo diagonal (quiebres a 45 grados) tiene la seccion tipica A-A; en las esquinas las barras llevan ganchos de 0.40 m (ver DP-09).",
                                     "4. Empalme de las cunetas: ver DP-06C. Registro, tapa y junta: ver DP-06B."], 1.7)
@@ -355,7 +371,7 @@ def dp06c(doc, ox, oy, R, T):
     lam = B.Lamina(doc, ox, oy, 10, "DP-06C", "DETALLE DEL EMPALME DE CUNETA AL COLECTOR", SUB_DP06C)
     f = lam.f; be = D["b_ext"]
     # E1. planta
-    ox_, oy_ = lam.P(230, 400)
+    ox_, oy_ = lam.P(230, 382)
     lam.rect(ox_ - 1.5, oy_ - be / 2, ox_ + 1.5, oy_ + be / 2, "CONCRETO", const_width=0.004); lam.rect(ox_ - 1.5, oy_ - D["b"] / 2, ox_ + 1.5, oy_ + D["b"] / 2, "CONCRETO-OCULTO")
     lam.linea((ox_ - 1.5, oy_), (ox_ + 1.5, oy_), "EJE-COLECTOR")
     lam.rect(ox_ - 0.30, oy_ + D["b"] / 2, ox_ + 0.30, oy_ + be / 2 + 1.2, "CUNETA"); lam.rect(ox_ - 0.20, oy_ + D["b"] / 2, ox_ + 0.20, oy_ + be / 2 + 1.2, "CUNETA-OCULTA")
@@ -379,10 +395,10 @@ def dp06c(doc, ox, oy, R, T):
     lam.cota((ox_ - 0.20, oy_ + be / 2 + 1.2), (ox_ + 0.20, oy_ + be / 2 + 1.2), 8, texto="0.40"); lam.cota((ox_ - 0.30, oy_ + be / 2 + 1.2), (ox_ + 0.30, oy_ + be / 2 + 1.2), 14, texto="0.60")
     lam.cota((ox_ - 1.5, oy_ - be / 2), (ox_ - 1.5, oy_ + be / 2), -8, horizontal=False); lam.cota((ox_ - 1.5, oy_ - D["b"] / 2), (ox_ - 1.5, oy_ + D["b"] / 2), -4, horizontal=False)
     lam.cota((ox_ - 0.35, oy_ - be / 2), (ox_ + 0.35, oy_ - be / 2), -8, texto="0.70")
-    lam.titulo_vista(230, 300, "E1. EMPALME DE CUNETA - PLANTA", "ESC. 1/10 - losa superior retirada para mostrar la ventana", 140)
+    lam.titulo_vista(230, 284, "E1. EMPALME DE CUNETA - PLANTA", "ESC. 1/10 - losa superior retirada para mostrar la ventana", 140)
     # E2. corte transversal por el empalme (mirando aguas abajo): colector + ventana + cuneta + cerco
     p = P_EJ_EMPALME; g = geometria(p); ef = D["e_fondo"]; es = D["e_solado"]; em = g["em"]; et = g["et"]; h = g["h"]
-    ox_, oy_ = lam.P(230, 60); cy = oy_; z0 = cy + es; zf = z0 + ef; zt = zf + h; zs = zt + et
+    ox_, oy_ = lam.P(230, 78); cy = oy_; z0 = cy + es; zf = z0 + ef; zt = zf + h; zs = zt + et
     xl, xr = ox_ - be / 2, ox_ + be / 2
     lam.rect(xl - 0.05, cy, xr + 0.05, z0, "SOLADO")
     # muro izquierdo completo, muro derecho con ventana (de zf+... hasta zt): la cuneta llega con NCF
@@ -412,10 +428,16 @@ def dp06c(doc, ox, oy, R, T):
     lam.llamada((xq + 0.4, zc + 0.05), (xt, zs - 0.7), ["cuneta 0.40 x H: llega con su NCF y vierte en caida libre al colector"], 1.8)
     lam.llamada((ox_, zf + y), (xt, zs - 1.1), ["NA del colector siempre bajo el fondo de la cuneta (ver hoja CUNETAS de la memoria)"], 1.8)
     lam.llamada((ox_ + 0.2, zf + 0.02), (xt, zf - 0.1), ["caida libre al fondo: losa de fondo con acabado pulido en 1.00 m"], 1.8)
-    lam.titulo_vista(230, 20, "E2. EMPALME DE CUNETA - CORTE TRANSVERSAL (MIRANDO AGUAS ABAJO)", TXT_EJ_EMPALME, 220)
-    lam.leyenda(610, 300, [("achurado", "CONCRETO-ACHURADO", "concreto armado del colector f'c=210"), ("achurado", "TERRENO-ACHURADO", "cuneta y cerco existentes (arquitectura)"),
-                           ("linea", "CUNETA", "cuneta de arquitectura"), ("linea", "JUNTAS", "junta de tecnopor 1\""), ("linea", "AGUA", "nivel de agua"), ("bloque:SIMB-FLECHA", "FLUJO", "sentido del flujo")], 1.8)
-    lam.notas(610, 220, "CUADRO DE EMPALMES", ["CUNETA      PROG.       NCF LLEGA   H VENTANA  REGISTRO"] + ["%-10s  %s   %.2f       %.2f       %s" % (c["nombre"].split(" (")[0], prog_txt(c["prog"]), c["NCF_fin"], D["NPT"] - D["e_losa"] - c["NCF_fin"], [r["nombre"] for r in R["registros"] if abs(r["prog"] - c["prog"]) < 1.5][0] if any(abs(r["prog"] - c["prog"]) < 1.5 for r in R["registros"]) else REG_SIN) for c in R["cunetas"]] + [NOTA_EMPALMES], 1.7)
+    lam.titulo_vista(230, 40, "E2. EMPALME DE CUNETA - CORTE TRANSVERSAL (MIRANDO AGUAS ABAJO)", TXT_EJ_EMPALME, 220)
+    lam.leyenda2(600, 330, [("concreto", "CONCRETO", "concreto armado del colector f'c=210"), ("rect", "TERRENO-ACHURADO", "cuneta y cerco existentes (arquitectura)"),
+                            ("linea2", "CUNETA", "cuneta de arquitectura"), ("linea2", "JUNTAS", "junta de tecnopor 1\""), ("linea", "AGUA", "nivel de agua"),
+                            ("bloque:SIMB-FLECHA", "FLUJO", "sentido del flujo")], 1.8)
+    filas = [[c["nombre"].split(" (")[0], prog_txt(c["prog"]), "%.2f" % c["NCF_fin"], "%.2f" % (D["NPT"] - D["e_losa"] - c["NCF_fin"]),
+              [r["nombre"] for r in R["registros"] if abs(r["prog"] - c["prog"]) < 1.5][0] if any(abs(r["prog"] - c["prog"]) < 1.5 for r in R["registros"]) else REG_SIN] for c in R["cunetas"]]
+    yf = lam.tabla(600, 248, ["CUNETA", "PROGRESIVA", "NCF LLEGA", "H VENTANA", "REGISTRO"], filas, [26, 34, 30, 30, 30], 2.0, 5.5, "CUADRO DE EMPALMES")
+    import textwrap
+    for k, t in enumerate(textwrap.wrap(NOTA_EMPALMES, 85)):
+        lam.texto(lam.P(600, yf - 6 - k * 4.2), t, 1.7, "TEXTOS-NOTAS")
     return lam
 
 

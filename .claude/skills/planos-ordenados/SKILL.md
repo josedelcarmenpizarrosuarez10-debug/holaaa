@@ -80,3 +80,15 @@ abajo igual que los puntos que senalan, para que las lineas no se crucen.
 - Un mismo elemento se dibuja igual en todas las laminas (detalle, planta, perfil, isometrico, render).
 - Si dos laminas se contradicen, avisar al usuario con las opciones y recomendar la que coincide con su metrado;
   no cambiar el metrado sin que lo pida.
+
+## 10. Herramientas listas en dxf_base (usarlas siempre)
+- `lam.franja(items, y0, abajo=True|False)`: etiquetas horizontales en filas, sin cruces, dentro del marco
+  (planta, isometrico general). Si dos puntos caen casi en el mismo x, unir sus textos en una sola etiqueta.
+- `lam.juntar_llamadas()` ... `lam.volcar_llamadas()`: las llamadas de una vista se agrupan por columna de texto
+  y se reordenan para que ninguna linea cruce a otra (secciones, cajas, detalles).
+- `lam.columna_llamadas(items, xt, ytop, ybot)`: lo mismo, explicito.
+- `lam.leyenda2(...)`: leyenda con muestras grandes (concreto con relleno, lineas gruesas, barras), en 1 o 2 columnas.
+- `lam.notas(..., ancho_mm=)`: ajusta las lineas al ancho disponible; `legado=True` solo para laminas congeladas.
+- `lam.tabla(...)`: la letra se ajusta sola al ancho de cada celda.
+- Laminas congeladas (no tocar): comprobar con una huella (tipo, capa, punto, texto de cada entidad dentro de su
+  caja) antes y despues de regenerar; deben quedar identicas.
