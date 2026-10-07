@@ -221,7 +221,7 @@ def dp06a(doc, ox, oy, R, T):
     return lam
 
 
-def dp06b(doc, ox, oy, R, T):
+def dp06b_anterior(doc, ox, oy, R, T):
     lam = B.Lamina(doc, ox, oy, 10, "DP-06B", "DETALLES DE REGISTRO DE LIMPIEZA, TAPA, MARCO Y CONTRAMARCO", "REGISTRO CON TAPA REMOVIBLE, ANGULOS METALICOS, EMPALME DE CUNETA Y JUNTA DE DILATACION")
     f = lam.f
     # A. registro planta (eje de colector horizontal), b_ext 1.10
@@ -319,6 +319,35 @@ def dp06b(doc, ox, oy, R, T):
     lam.notas(300, 100, "MATERIALES POR REGISTRO", ['Contramarco angulo L 2"x2"x3/16": 4 x 0.70 = 2.80 m (10.2 kg); anclajes 3/8" L=0.20: 8 und', 'Marco de tapa angulo L 1 1/2"x1 1/2"x1/8": 4 x 0.68 = 2.72 m (5.0 kg)',
                                                      'Acero tapa 3/8" @0.10: 14 x 0.62 = 8.68 m (4.9 kg); asas 3/8" liso: 2 x 0.40 m', "Concreto tapa f'c=210: 0.68 x 0.68 x 0.08 = 0.037 m3",
                                                      'Refuerzo de borde 1/2": 8 x 1.40 = 11.20 m (11.1 kg); borde engrosado: perimetro 3.00 x 0.15 x 0.10 = 0.045 m3'], 1.7)
+    return lam
+
+
+def dp06b(doc, ox, oy, R, T):
+    """DP-06B rev. 01: la lamina detallada de render_tapa/dxf_tapa.py (papel A1 en mm) insertada a escala en su sitio."""
+    import subprocess, tempfile, ezdxf
+    from ezdxf.addons import Importer
+    from ezdxf.math import Matrix44
+    lam = B.Lamina(doc, ox, oy, 10, "DP-06B", "DETALLE DE REGISTRO DE LIMPIEZA - TAPA 0.68 x 0.68 C/MARCO Y CONTRAMARCO",
+                   "PLANTA, CORTE, ASIENTO DE LA TAPA, ARMADO, CONTRAMARCO, PERFILES, ISOMETRICO Y MATERIALES - ESC. INDICADAS")
+    fuente = os.path.join(tempfile.gettempdir(), "dp06b_fuente.dxf")
+    subprocess.run([sys.executable, os.path.join(AQUI, "render_tapa", "dxf_tapa.py"), fuente], check=True, capture_output=True)
+    src = ezdxf.readfile(fuente); sm = src.modelspace()
+    for d in list(sm.query("DIMENSION")): d.explode()
+    def fuera(e):
+        if e.dxf.layer in ("LAMINA", "MEMBRETE"): return True
+        try:
+            p = e.dxf.insert
+            return p.x >= 588 and p.y <= 92
+        except Exception:
+            return False
+    ents = [e for e in sm if not fuera(e)]
+    msp = doc.modelspace(); antes = {e.dxf.handle for e in msp}
+    imp = Importer(src, doc); imp.import_entities(ents, msp); imp.finalize()
+    M = Matrix44.chain(Matrix44.translate(-15, -12, 0), Matrix44.scale(0.984), Matrix44.translate(27, 12, 0),
+                       Matrix44.scale(lam.f), Matrix44.translate(lam.ox, lam.oy, 0))
+    for e in msp:
+        if e.dxf.handle not in antes:
+            e.transform(M)
     return lam
 
 

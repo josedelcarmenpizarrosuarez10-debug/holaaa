@@ -32,23 +32,23 @@ def modelo():
     # 1. losa superior del colector con rebaje y luz libre, muros
     L = Parte('losa', 'concreto')
     X = BI + BW
-    # capa superior (rebaje 0.70) z -0.08..0
-    L.box(-X, X, REB, HY, -ET, 0); L.box(-X, X, -HY, -REB, -ET, 0)
-    L.box(REB, X, -REB, REB, -ET, 0); L.box(-X, -REB, -REB, REB, -ET, 0)
-    # capa inferior (luz 0.60) z -0.10..-0.08
-    L.box(-X, X, LUZ, HY, -LOSA, -ET); L.box(-X, X, -HY, -LUZ, -LOSA, -ET)
-    L.box(LUZ, X, -LUZ, LUZ, -LOSA, -ET); L.box(-X, -LUZ, -LUZ, LUZ, -LOSA, -ET)
-    # borde engrosado 0.15 x 0.10 bajo la losa (de 0.60 a 0.90)
+    # abertura 0.70 x 0.70 en todo el espesor de la losa (z 0 a -0.10)
+    L.box(-X, X, REB, HY, -LOSA, 0); L.box(-X, X, -HY, -REB, -LOSA, 0)
+    L.box(REB, X, -REB, REB, -LOSA, 0); L.box(-X, -REB, -REB, REB, -LOSA, 0)
+    # borde engrosado 0.15 x 0.10 bajo la losa (de la luz 0.60 a 0.90); rellena tambien bajo el asiento del contramarco
     E = Parte('engrosado', 'concreto')
-    E.box(-BI, BI, LUZ, RING, -LOSA - ENG, -LOSA); E.box(-BI, BI, -RING, -LUZ, -LOSA - ENG, -LOSA)
-    E.box(LUZ, BI, -LUZ, LUZ, -LOSA - ENG, -LOSA); E.box(-BI, -LUZ, -LUZ, LUZ, -LOSA - ENG, -LOSA)
+    zt = -ET - CM_T; zv = -ET - CM_L
+    for (ri_, ro_, z0, z1) in ((LUZ, RING, -LOSA - ENG, zv), (REB, RING, zv, -LOSA), (LUZ, REB - CM_T, zv, zt)):
+        ro2 = min(ro_, BI) if ro_ > BI else ro_
+        E.box(-BI, BI, ri_, ro_, z0, z1); E.box(-BI, BI, -ro_, -ri_, z0, z1)
+        E.box(ri_, min(ro_, BI), -ri_, ri_, z0, z1); E.box(-min(ro_, BI), -ri_, -ri_, ri_, z0, z1)
     # muros
     M = Parte('muros', 'concreto')
     M.box(BI, X, -HY, HY, -LOSA - HW, -LOSA); M.box(-X, -BI, -HY, HY, -LOSA - HW, -LOSA)
     P['losa'], P['engrosado'], P['muros'] = L, E, M
     # 2. refuerzo de borde 1/2": 2 barras por lado, L = 1.40 (en x: 1.10 + ganchos de 0.15 dentro de los muros)
     R = Parte('refuerzo', 'acero')
-    c = (LUZ + RING) / 2
+    c = 0.40                                   # a 0.05 de la cara de la abertura
     for z in (-0.045, -LOSA - ENG + 0.045):
         for s in (-1, 1):
             R.bar((s * c, -0.70, z), (s * c, 0.70, z), D12)                  # barras en y (eje del colector)
@@ -56,21 +56,17 @@ def modelo():
             R.poly([(-xh, s * c, z - 0.15 if z > -0.1 else z + 0.15), (-xh, s * c, z), (xh, s * c, z),
                     (xh, s * c, z - 0.15 if z > -0.1 else z + 0.15)], D12)
     P['refuerzo'] = R
-    # 3. contramarco L 2"x2"x3/16": ala vertical en la cara del rebaje, ala horizontal enrasada con NPT hacia afuera
+    # 3. contramarco L 2"x2"x3/16": asiento de la tapa a 0.08 bajo el NPT; ala horizontal hacia adentro (asiento),
+    #    ala vertical hacia abajo con su cara exterior al ras de la abertura
     C = Parte('contramarco', 'angulo')
-    e = 0.0004
-    anillo(C, REB, REB + CM_T, -CM_L, e)                 # ala vertical
-    anillo(C, REB, REB + CM_L, -CM_T, e)                 # ala horizontal
+    anillo(C, REB - CM_L, REB, -ET - CM_T, -ET)          # ala horizontal (asiento)
+    anillo(C, REB - CM_T, REB, -ET - CM_L, -ET - CM_T)    # ala vertical
     P['contramarco'] = C
-    A = Parte('anclajes', 'acero')                       # 8 anclajes 3/8" L = 0.20 en L, soldados al ala vertical
+    A = Parte('anclajes', 'acero')                       # 8 anclajes 3/8" L = 0.20 soldados al ala vertical, inclinados hacia la losa
     for t in (-0.125, 0.125):
-        for sx, sy, ax in ((1, t, 'x'), (-1, t, 'x'), (t, 1, 'y'), (t, -1, 'y')):
-            if ax == 'x':
-                x0 = sx * (REB + CM_T + D38 / 2); x1 = sx * (REB + 0.15)
-                A.poly([(x0, sy, -0.03), (x1, sy, -0.03), (x1, sy, -0.08)], D38)
-            else:
-                y0 = sy * (REB + CM_T + D38 / 2); y1 = sy * (REB + 0.15)
-                A.poly([(sx, y0, -0.03), (sx, y1, -0.03), (sx, y1, -0.08)], D38)
+        for s_ in (-1, 1):
+            A.bar((s_ * (REB + D38 / 2), t, -0.115), (s_ * (REB + 0.18), t, -0.025), D38)
+            A.bar((t, s_ * (REB + D38 / 2), -0.115), (t, s_ * (REB + 0.18), -0.025), D38)
     P['anclajes'] = A
     # 4. tapa: concreto con bolsillos para asas
     T = Parte('tapa', 'tapa')

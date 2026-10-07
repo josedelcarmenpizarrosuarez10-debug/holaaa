@@ -19,7 +19,7 @@ L15 = (1.5 * IN, 1 / 8 * IN)        # angulo 1 1/2" x 1 1/2" x 1/8" : 38.1 x 3.1
 D38 = 0.0095; D12 = 0.0127
 AB = 0.70        # abertura en la losa (luz entre caras de concreto)
 TAPA = 0.68; ET = 0.08
-HOLG = 0.005
+HOLG = 0.01        # (0.70 - 0.68) / 2
 ASA = dict(ancho=0.12, pata=0.025, gancho=0.115)     # desarrollo 0.12 + 2 x 0.025 + 2 x 0.115 = 0.40
 CAJ = dict(largo=0.18, ancho=0.06, prof=0.03)        # cajuela del asa
 
@@ -113,11 +113,11 @@ def dd01(doc, ox, oy, R, T):
     # ---------------- B. seccion del contramarco colocado (1/2)
     k = 5.0; ox_, oy_ = lam.P(560, 470)
     P = lambda x, y: (ox_ + x * k, oy_ + y * k)
-    conc = [P(0, 0), P(0.30, 0), P(0.30, -0.10), P(0.10, -0.10), P(0.10, -0.20), P(0, -0.20)]
+    conc = [P(0, 0), P(0.30, 0), P(0.30, -0.10), P(0.10, -0.10), P(0.10, -0.20), P(-0.05, -0.20), P(-0.05, -ET - t), P(-t, -ET - t), P(-t, -ET - leg), P(0, -ET - leg)]
     hatch_conc(lam, conc, 0.8)
     L_sec(lam, P(0, -ET), leg, t, k, dx=-1, dy=-1)                                     # angulo invertido
-    barra(lam, P(-t, -ET - 0.03), P(0.20, -ET - 0.03), D38, k)                          # anclaje
-    lam.solido([P(-t, -ET - 0.022), P(0.012, -ET - 0.022), P(0.012, -ET - 0.038), P(-t, -ET - 0.038)], "MARCO-METALICO")
+    barra(lam, P(0, -0.115), P(0.18, -0.025), D38, k)                                  # anclaje inclinado hacia la losa
+    lam.solido([P(0, -0.107), P(0.012, -0.107), P(0.012, -0.123), P(0, -0.123)], "MARCO-METALICO")
     punto_barra(lam, P(0.05, -0.16), D12, k); punto_barra(lam, P(0.085, -0.16), D12, k)
     barra(lam, P(0.14, -0.05), P(0.30, -0.05), D38, k)
     tapa = [P(-0.30, -ET), P(-HOLG, -ET), P(-HOLG, 0), P(-0.30, 0)]
@@ -129,15 +129,15 @@ def dd01(doc, ox, oy, R, T):
     lam.cota(P(-leg + t, -ET), P(t, -ET), -5, texto='2"')
     lam.cota(P(0.30, -ET - leg), P(0.30, -ET), 5, horizontal=False, texto='2"'); lam.cota(P(0.30, -ET), P(0.30, 0), 5, horizontal=False, texto="0.08")
     lam.cota(P(0.30, -0.20), P(0.30, -0.10), 11, horizontal=False, texto="0.10"); lam.cota(P(0.30, -0.10), P(0.30, 0), 11, horizontal=False, texto="0.10")
-    lam.cota(P(0, -0.20), P(0.20, -0.20), -6, texto="0.20 (anclaje)"); lam.cota(P(-HOLG, 0), P(0, 0), 5, texto="5 mm")
+    lam.cota(P(0, -0.20), P(0.18, -0.20), -6, texto="0.18 (anclaje en proyeccion)"); lam.cota(P(-HOLG, 0), P(0, 0), 5, texto="1 cm")
     xt = 735
     LL(lam, P(-leg / 2, -ET - t / 2), xt, 560, ["ala horizontal: asiento de la tapa,", "a 0.08 bajo el NPT"])
     LL(lam, P(-t / 2, -ET - leg / 2), xt, 540, ["ala vertical embutida, cara exterior", "al ras de la abertura"])
-    LL(lam, P(0.10, -ET - 0.03), xt, 520, ["anclaje 3/8\" L = 0.20; cordon de", "soldadura 3/16\" x 25 mm a ambos lados"])
+    LL(lam, P(0.09, -0.07), xt, 520, ["anclaje 3/8\" L = 0.20 inclinado hacia la losa;", "cordon 3/16\" x 25 mm a ambos lados"])
     LL(lam, P(0.0675, -0.16), xt, 500, ["refuerzo de borde 2 x 1/2\" (DP-06B)"])
     LL(lam, P(0.22, -0.05), xt, 480, ["marcos del colector 3/8\" (DP-04)"])
     LL(lam, P(0.005, -0.005), xt, 460, ["chaflan 1 x 1 cm en la arista", "de la abertura"])
-    LL(lam, P(-0.15, -ET / 2), xt, 440, ["tapa 0.68 x 0.08 con su marco (DD-02),", "holgura 5 mm por lado"])
+    LL(lam, P(-0.15, -ET / 2), xt, 440, ["tapa 0.68 x 0.08 con su marco (DD-02),", "holgura 1 cm por lado"])
     lam.titulo_vista(560, 325, "B. SECCION DEL CONTRAMARCO COLOCADO", "ESC. 1/2 - angulo con el ala vertical hacia abajo; la tapa queda al ras del NPT", 190)
     # ---------------- C. despiece (1/5)
     k = 2.0; ox_, oy_ = lam.P(60, 245)
@@ -160,10 +160,10 @@ def dd01(doc, ox, oy, R, T):
     lam.notas(330, 255, "PROCEDIMIENTO", [
         "1. Cortar 4 piezas de angulo L 2\"x2\"x3/16\" de 0.71 m con los extremos a inglete de 45 y armar el cuadro de 0.70 x 0.70 (medida exterior de las alas verticales).",
         "2. Soldar las 4 esquinas con electrodo E6011 de 1/8\" (cordon 3/16\" por ambas caras); verificar escuadra (diagonales iguales) y planitud.",
-        "3. Soldar 8 anclajes 3/8\" L = 0.20 al ala vertical (2 por lado, a 0.175 de las esquinas), cordon 3/16\" x 25 mm a ambos lados.",
+        "3. Soldar 8 anclajes 3/8\" L = 0.20 a la cara exterior del ala vertical (2 por lado, a 0.175 de las esquinas), inclinados hacia la losa; cordon 3/16\" x 25 mm a ambos lados.",
         "4. Limpiar escoria; 2 manos de anticorrosivo epoxico y 2 de esmalte sintetico (partida 01.04.04.05.07), salvo en la zona de los anclajes.",
         "5. Fijar el contramarco al encofrado de la losa con el asiento a 0.08 bajo el NPT, nivelado y amarrado al refuerzo de borde; vaciar la losa con el borde engrosado.",
-        "6. Al desencofrar, retirar rebabas; la tapa con su marco debe asentar en las 4 alas con holgura de 5 mm por lado."], 1.8)
+        "6. Al desencofrar, retirar rebabas; la tapa con su marco debe asentar en las 4 alas con holgura de 1 cm por lado."], 1.8)
     n = MC.registros()["n"]
     L_ang = 4 * (AB + 2 * t); kg_ang = L_ang * MC.ANG["2x2x3/16"]; L_anc = 8 * 0.20; kg_anc = L_anc * MC.PESO["3/8"]; L_cord = 4 * 2 * leg + 8 * 2 * 0.025
     filas = [["Angulo L 2\"x2\"x3/16\" (4 piezas de 0.71 m, 3.63 kg/m)", "m / kg", "%.2f / %.2f" % (L_ang, kg_ang), "%.2f / %.2f" % (n * L_ang, n * kg_ang), "01.04.04.05.03 ANGULOS METALICOS (kg)"],
@@ -265,7 +265,7 @@ def dd02(doc, ox, oy, R, T):
         "3. Asas: 2 barras lisas 3/8\" en U (0.12 x 0.025, ganchos 0.115) amarradas bajo la parrilla; cajuela de 0.18 x 0.06 x 0.03 con molde para que no sobresalgan.",
         "4. Vaciado en molde metalico o de madera sobre superficie plana, con el marco como encofrado lateral: concreto f'c = 210 kg/cm2, piedra de 1/2\", vibrado.",
         "5. Curado humedo 7 dias; desmoldar a los 2 dias. Acabado superior frotachado. Pintar el marco con 2 manos de anticorrosivo y 2 de esmalte.",
-        "6. Colocar sobre el contramarco (DD-01): holgura 5 mm por lado; la tapa queda al ras del NPT. Marcar el numero de registro en la tapa."], 1.8)
+        "6. Colocar sobre el contramarco (DD-01): holgura 1 cm por lado; la tapa queda al ras del NPT. Marcar el numero de registro en la tapa."], 1.8)
     n = MC.registros()["n"]
     L_m = 4 * TAPA; kg_m = L_m * MC.ANG["1.5x1.5x1/8"]; L_p = 14 * 0.62; kg_p = L_p * MC.PESO["3/8"]; L_a = 2 * 0.40; kg_a = L_a * MC.PESO["3/8"]; vol = TAPA * TAPA * ET
     filas = [["Concreto f'c = 210 kg/cm2 (0.68 x 0.68 x 0.08)", "m3", f3(vol), f2(n * vol), "01.04.04.05.05 CONCRETO EN TAPAS"],

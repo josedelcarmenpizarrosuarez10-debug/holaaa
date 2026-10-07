@@ -19,7 +19,7 @@ d.text((M + 30, 96), 'Colector pluvial frontal - Hogar de Refugio Temporal "Muje
 
 TIT = {'v1': '1. REGISTRO ARMADO (vista general)', 'v2': '2. DESPIECE: CADA COMPONENTE SEPARADO',
        'v3': '3. CORTE POR EL REGISTRO: APOYO DE LA TAPA Y REFUERZOS', 'v4': '4. TAPA: ARMADO INTERIOR (concreto transparente)'}
-LAB = {'ap': 'apoyo 0.05', 'hg': 'holgura 1 cm', 'h': 'bolsillo del asa'}
+LAB = {'ap': 'asiento 0.05', 'hg': 'holgura 1 cm', 'h': 'bolsillo del asa'}
 OFF = {  # desplazamiento del numero respecto al punto (px)
     'v1': {'1': (-90, 60), '4': (60, 90), '9': (-40, -110), '8': (-120, -40), '7': (90, -90), '10': (90, 60)},
     'v2': {'1': (-110, 70), '4': (140, 40), '5': (140, 10), '6': (-170, 30), '7': (160, -30), '8': (160, 20), '9': (150, -20), '10': (110, 60)},
@@ -54,11 +54,11 @@ d.rectangle([M, y, SW - M, y + 50], fill=AZ)
 d.text((M + 20, y + 10), 'COMPONENTES (cantidades por registro)', font=f(28, True), fill='white')
 d.text((M + 1480, y + 10), 'DATOS CLAVE', font=f(28, True), fill='white')
 items = [
-    ('1', "Losa superior del colector e = 0.10 m, concreto f'c=210: rebaje 0.70 x 0.70 x 0.08 m y luz libre 0.60 x 0.60 m"),
+    ('1', "Losa superior del colector e = 0.10 m, concreto f'c=210: abertura 0.70 x 0.70 m en todo su espesor"),
     ('2', 'Borde engrosado 0.15 x 0.10 m bajo la losa, alrededor de la abertura (0.045 m3)'),
     ('3', 'Refuerzo de borde: 2 barras de 1/2" por lado, L = 1.40 m (8 barras, 11.1 kg)'),
-    ('4', 'Contramarco angulo L 2" x 2" x 3/16", luz 0.70 x 0.70, enrasado con el piso (2.80 m, 10.2 kg)'),
-    ('5', 'Anclajes de 3/8" L = 0.20 m soldados al contramarco, 2 por lado (8 und)'),
+    ('4', 'Contramarco angulo L 2" x 2" x 3/16": asiento de la tapa a 0.08 bajo el piso (2.80 m, 10.2 kg)'),
+    ('5', 'Anclajes de 3/8" L = 0.20 m soldados al contramarco e inclinados hacia la losa (8 und)'),
     ('6', 'Parrilla de la tapa: 7 + 7 barras de 3/8" @ 0.10 m, L = 0.62 m, recubrimiento 2.5 cm (4.9 kg)'),
     ('7', 'Asas: 2 barras de 3/8" liso de 0.40 m, embutidas en bolsillo (no sobresalen del piso)'),
     ('8', "Tapa de concreto f'c=210: 0.68 x 0.68 x 0.08 m (0.037 m3)"),
@@ -73,7 +73,7 @@ for i, (n, t) in enumerate(items):
     d.text((M + 74, ry + 3), t, font=f(23), fill=(30, 30, 30))
 datos = [
     'Holgura entre marco y contramarco: (0.70 - 0.68) / 2 = 1 cm por lado',
-    'Apoyo de la tapa sobre el concreto: (0.70 - 0.60) / 2 = 5 cm por lado',
+    'La tapa asienta sobre el ala del contramarco (2" = 5 cm por lado)',
     'Peso de la tapa: 0.037 m3 x 2,400 kg/m3 + marco 5.0 kg = 94 kg aprox.',
     'Se levanta entre 2 operarios con ganchos en las 2 asas',
     'Tapa a ras del piso terminado: no hay resaltes ni tropiezos',
