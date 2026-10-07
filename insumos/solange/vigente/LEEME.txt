@@ -27,3 +27,9 @@ Sin cambios en cantidades, fórmulas ni códigos; los 55 totales del RESUMEN ver
   PLANILLA: el sustento se mantiene completo bajo la partida única (subtítulos "Losa de fondo", "Muros:", "Losa superior").
   COLECTOR INSUMOS: mismo desglose por elemento, cada bloque toma su propio subtotal de la PLANILLA.
   Las demás cantidades del RESUMEN no cambian (verificado con recálculo).
+
+07/10/2026 - Nueva hoja al final: ACU TAPA REGISTRO (analisis de costo unitario de la partida Delphin
+  01.04.04.06.05.01 TAPA DE REGISTRO 0.68x0.68 C/MARCO Y CONTRAMARCO). Las partidas del metrado por componentes
+  (01.04.04.05.01 a .07) se mantienen igual. Cantidad por tapa = metrado / 10 tapas; ratios de COLECTOR INSUMOS.
+  Costo unitario directo referencial: S/ 383.29 por tapa (precios sin IGV, mercado Tarapoto 2026; MO CAPECO).
+  Ninguna otra hoja cambia (verificado celda por celda con recalculo).
