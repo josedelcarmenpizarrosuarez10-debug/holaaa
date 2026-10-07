@@ -20,10 +20,10 @@ ELABORADO = "HIDROCONSULT"
 CAPAS = [
     # (nombre, color ACI, tipo de linea). Paleta pensada para fondo blanco: sin amarillo ni cian claro.
     ("MARCO", 7, "CONTINUOUS"), ("ROTULO", 7, "CONTINUOUS"), ("ROTULO-TEXTO", 7, "CONTINUOUS"),
-    ("TITULOS", 7, "CONTINUOUS"), ("TEXTOS", 7, "CONTINUOUS"), ("TEXTOS-NOTAS", 7, "CONTINUOUS"),
-    ("LEYENDA", 7, "CONTINUOUS"), ("COTAS", 6, "CONTINUOUS"), ("NIVELES", 7, "CONTINUOUS"),
-    ("LLAMADAS", 8, "CONTINUOUS"), ("EJE-COLECTOR", 8, "CENTER"), ("CONCRETO", 94, "CONTINUOUS"),
-    ("CONCRETO-OCULTO", 94, "HIDDEN"), ("CONCRETO-ACHURADO", 8, "CONTINUOUS"), ("SOLADO", 8, "CONTINUOUS"),
+    ("TITULOS", 160, "CONTINUOUS"), ("TEXTOS", 7, "CONTINUOUS"), ("TEXTOS-NOTAS", 7, "CONTINUOUS"),
+    ("LEYENDA", 7, "CONTINUOUS"), ("COTAS", 94, "CONTINUOUS"), ("NIVELES", 7, "CONTINUOUS"),
+    ("LLAMADAS", 30, "CONTINUOUS"), ("EJE-COLECTOR", 1, "CENTER"), ("CONCRETO", 250, "CONTINUOUS"),
+    ("CONCRETO-OCULTO", 8, "HIDDEN"), ("CONCRETO-ACHURADO", 8, "CONTINUOUS"), ("SOLADO", 8, "CONTINUOUS"),
     ("ACERO", 1, "CONTINUOUS"), ("ACERO-LONG", 5, "CONTINUOUS"), ("ACERO-PUNTOS", 5, "CONTINUOUS"), ("REGISTRO", 32, "CONTINUOUS"),
     ("REGISTRO-TAPA", 30, "CONTINUOUS"), ("MARCO-METALICO", 32, "CONTINUOUS"), ("JUNTAS", 8, "DASHED"),
     ("CRUCE-VEHICULAR", 30, "CONTINUOUS"), ("CUNETA", 3, "CONTINUOUS"), ("CUNETA-OCULTA", 3, "HIDDEN"),
@@ -38,12 +38,23 @@ CAPAS = [
     ("ISO-AGUA", 150, "CONTINUOUS"), ("ISO-TERRENO", 94, "CONTINUOUS"), ("ISO-PIEDRA", 34, "CONTINUOUS"),
     ("ISO-CUNETA", 94, "CONTINUOUS"), ("ISO-CERCO", 14, "CONTINUOUS"),
 ]
-ESCALAS = [10, 20, 25, 50, 100, 200, 250]
+ESCALAS = [10, 15, 20, 25, 50, 100, 200, 250]
 COLOR_RGB = {
     "ISO-CONCRETO-SUP": (232, 232, 232), "ISO-CONCRETO-LAT1": (206, 206, 206), "ISO-CONCRETO-LAT2": (178, 178, 178),
     "ISO-TAPA": (248, 244, 230), "ISO-AGUA": (130, 190, 240), "ISO-TERRENO": (214, 226, 196), "ISO-PIEDRA": (196, 176, 146),
     "ISO-CUNETA": (168, 214, 168), "ISO-CERCO": (226, 200, 200), "AGUA-RELLENO": (205, 228, 246), "CONCRETO-ACHURADO": (120, 120, 120),
 }
+
+
+GROSOR = {  # centesimas de mm
+    "MARCO": 50, "ROTULO": 35, "TITULOS": 35, "CONCRETO": 50, "CONCRETO-OCULTO": 25, "ACERO": 35, "ACERO-LONG": 35,
+    "MARCO-METALICO": 40, "REGISTRO": 35, "REGISTRO-TAPA": 18, "CUNETA": 35, "TERRENO": 30, "COTAS": 18, "LLAMADAS": 18,
+    "AGUA": 25, "CERCO": 40, "POZA": 35, "CORTES": 50, "EJE-COLECTOR": 18, "ARQ-BASE": 13, "ARQ-TEXTO": 13, "GRILLA": 13,
+}
+# factor de altura de texto por capa (letra mas grande y legible en A1)
+K_TXT = {"TEXTOS": 1.35, "TEXTOS-NOTAS": 1.3, "LLAMADAS": 1.35, "NIVELES": 1.3, "LEYENDA": 1.3, "TITULOS": 1.35,
+         "ROTULO-TEXTO": 1.0, "PROGRESIVAS": 1.25, "CORTES": 1.3}
+COLOR_RGB["CONCRETO-ACHURADO"] = (226, 226, 226)
 
 
 def nuevo_documento():
@@ -57,16 +68,17 @@ def nuevo_documento():
         if n not in doc.layers:
             ly = doc.layers.add(n, color=c, linetype=lt)
             if n in COLOR_RGB: ly.rgb = COLOR_RGB[n]
+            if n in GROSOR: ly.dxf.lineweight = GROSOR[n]
     if "TITULOS" not in doc.styles:
-        doc.styles.add("TITULOS", font="romand.shx")
-    doc.styles.get("STANDARD").dxf.font = "romans.shx"
+        doc.styles.add("TITULOS", font="arialbd.ttf")
+    doc.styles.get("STANDARD").dxf.font = "arial.ttf"
     for e in ESCALAS:
         ds = doc.dimstyles.add(f"COT-{e}")
         ds.dxf.dimscale = e / 1000.0
-        ds.dxf.dimtxt = 2.5; ds.dxf.dimasz = 2.0; ds.dxf.dimexe = 1.5; ds.dxf.dimexo = 1.0; ds.dxf.dimgap = 0.8
+        ds.dxf.dimtxt = 3.0; ds.dxf.dimasz = 2.2; ds.dxf.dimexe = 1.6; ds.dxf.dimexo = 1.2; ds.dxf.dimgap = 1.0
         ds.dxf.dimtad = 1; ds.dxf.dimtih = 0; ds.dxf.dimtoh = 0; ds.dxf.dimdec = 2; ds.dxf.dimlfac = 1.0
         ds.dxf.dimclrd = 256; ds.dxf.dimclre = 256; ds.dxf.dimclrt = 7; ds.dxf.dimtxsty = "STANDARD"   # lineas de cota por capa (COTAS)
-        ds.dxf.dimtsz = 1.0                      # tic oblicuo (sin bloque de flecha)
+        ds.dxf.dimtsz = 1.4                      # tic oblicuo (sin bloque de flecha)
         ds.dxf.dimpost = "<>"; ds.dxf.dimapost = ""; ds.dxf.dimblk = ""; ds.dxf.dimblk1 = ""; ds.dxf.dimblk2 = ""   # grupos 3-7 presentes
         ds.dxf.dimzin = 0; ds.dxf.dimdsep = ord(".")
     crear_bloques(doc)
@@ -155,16 +167,17 @@ class Lamina:
         return e
 
     def texto(self, p, t, hmm=2.5, capa="TEXTOS", al=TA.LEFT, rot=0, estilo="STANDARD", color=None):
+        if capa in ("TITULOS",) and estilo == "STANDARD": estilo = "TITULOS"
         a = {"layer": capa, "style": estilo, "rotation": rot}
         if color is not None: a["color"] = color
-        e = self.msp.add_text(t, height=hmm * self.f, dxfattribs=a)
+        e = self.msp.add_text(t, height=hmm * K_TXT.get(capa, 1.0) * self.f, dxfattribs=a)
         e.set_placement(p, align=al)
         return e
 
     def textos(self, p, lineas, hmm=2.5, capa="TEXTOS", al=TA.LEFT, inter=1.6):
         x, y = p
         for i, t in enumerate(lineas):
-            self.texto((x, y - i * hmm * inter * self.f), t, hmm, capa, al)
+            self.texto((x, y - i * hmm * K_TXT.get(capa, 1.0) * inter * self.f), t, hmm, capa, al)
 
     def bloque(self, nombre, p, escala=None, rot=0, capa=None):
         s = escala if escala is not None else self.f
@@ -189,6 +202,8 @@ class Lamina:
         return dim
 
     def achurado(self, pts, capa="CONCRETO-ACHURADO", patron="ANSI31", escala_mm=1.0):
+        if capa == "CONCRETO-ACHURADO":          # concreto: relleno gris claro (va al fondo con el orden de dibujo)
+            return self.relleno(pts, capa)
         h = self.msp.add_hatch(dxfattribs={"layer": capa})
         h.set_pattern_fill(patron, scale=escala_mm * self.f * 25.4 / 25.4 * 10, angle=0)
         h.paths.add_polyline_path(pts, is_closed=True)
@@ -222,6 +237,8 @@ class Lamina:
             p_ap = (p_txt[0] + apoyo, p_txt[1]); self.linea(p_txt, p_ap, capa)
         self.flecha(p_ap, p_obj, capa)
         dx = 1.0 * self.f if al == TA.LEFT else -1.0 * self.f
+        import textwrap
+        lineas = [w for ln in lineas for w in (textwrap.wrap(ln, 62) if len(ln) > 70 else [ln])]
         self.textos((p_txt[0] + dx, p_txt[1] + 0.3 * hmm * self.f), lineas, hmm, "TEXTOS", al)
 
     def nivel(self, p, cota, texto=None, lado=1, hmm=2.0):
@@ -238,7 +255,7 @@ class Lamina:
     def marco(self):
         W, H = self.A1
         self.rect(*self.P(0, 0), *self.P(W, H), "MARCO")
-        self.rect(*self.P(25, 10), *self.P(W - 10, H - 10), "MARCO", const_width=0.6 * self.f)
+        self.rect(*self.P(25, 10), *self.P(W - 10, H - 10), "MARCO", const_width=0.8 * self.f)
 
     def rotulo(self):
         W, H = self.A1
@@ -262,7 +279,7 @@ class Lamina:
         t(x0 + 127, y1 - 79.5, "FECHA:", 1.8); t(x0 + 143, y1 - 79.5, FECHA, 2.0)
         t(x0 + 167, y1 - 79.5, "LAMINA:", 1.8)
         t(x0 + 2, y1 - 91, "FIRMA Y SELLO:", 1.8); t(x0 + 127, y1 - 91, "REVISION: 00", 1.8)
-        t(x0 + 167, y1 - 92, self.codigo, 6.0)
+        self.texto(self.P(x1 - 1.5, y0 + 1.5), self.codigo, 4.0, "TITULOS", TA.BOTTOM_RIGHT)
 
     def leyenda(self, xmm, ymm, items, hmm=2.0):
         """items: lista de (tipo, capa, texto); tipo: 'linea', 'rect', 'relleno', 'punto', 'circ', 'bloque:NOMBRE'."""

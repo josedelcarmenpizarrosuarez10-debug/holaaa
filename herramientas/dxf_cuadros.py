@@ -76,7 +76,7 @@ def da(doc, ox, oy, R, T):
     lams = []
     Tr, Rs = MC.resumen()
     # ---------------- DA-01
-    lam = B.Lamina(doc, ox, oy, 25, "DA-01", "DETALLE DE PARTIDAS: TRAZO, EXCAVACION, RELLENO Y ELIMINACION", "SECCION TIPICA DE ZANJA POR ZONA Y RESUMEN DE METRADO - ESC. 1/25")
+    lam = B.Lamina(doc, ox, oy, 20, "DA-01", "DETALLE DE PARTIDAS: TRAZO, EXCAVACION, RELLENO Y ELIMINACION", "SECCION TIPICA DE ZANJA POR ZONA Y RESUMEN DE METRADO - ESC. 1/20")
     f = lam.f
     for j, (p, nm) in enumerate(EJ_ZANJA):
         xmm = 120 + j * 230; ymm = 330
@@ -96,7 +96,7 @@ def da(doc, ox, oy, R, T):
         lam.llamada((xr + 0.25, cy + 0.3), (xt, zs - 0.6), ["excavacion de zanja %.2f x Hz (Hz = terreno - fondo del solado)" % (D["b_ext"] + 0.50)], 1.8)
         lam.llamada((xl - 0.25, zs - 0.05), (xt, zs - 1.0), ["trazo y replanteo: franja de %.2f m" % (D["b_ext"] + 0.50)], 1.8)
         lam.llamada((s["cx"], cy + 0.03), (xt, zs - 1.4), ["refine y nivelacion del fondo: ancho %.2f (solado)" % (D["b_ext"] + 0.10)], 1.8)
-        lam.titulo_vista(xmm + 15, ymm - 55, nm, "PROG. %s - ESC. 1/25" % prog_txt(p), 150)
+        lam.titulo_vista(xmm + 15, ymm - 55, nm, "PROG. %s - ESC. 1/20" % prog_txt(p), 150)
     filas = [["Trazo, niveles y replanteo", "m2", "%.2f" % Rs["trazo_m2"], "franja de %.2f m x L%s" % (D["b_ext"] + 0.50, TXT_CAJAS)],
              ["Excavacion de zanja", "m3", "%.2f" % Rs["excav_m3"], "%.2f x Hz x L por tramo (Hz desde el terreno existente)%s" % (D["b_ext"] + 0.50, TXT_CAJAS)],
              ["Refine y nivelacion de fondo", "m2", "%.2f" % Rs["refine_m2"], "%.2f x L%s" % (D["b_ext"] + 0.10, TXT_CAJAS)],
@@ -108,7 +108,7 @@ def da(doc, ox, oy, R, T):
                                   "3. Donde el terreno existente queda por debajo de la losa, el muro lado via se vacia con encofrado exterior y luego se rellena."], 1.7)
     lams.append(lam)
     # ---------------- DA-02
-    lam = B.Lamina(doc, ox + 30, oy, 25, "DA-02", "DETALLE DE PARTIDAS: SOLADO, CONCRETO ARMADO Y ENCOFRADO", "AREAS Y VOLUMENES POR METRO LINEAL EN CADA ZONA - ESC. 1/25")
+    lam = B.Lamina(doc, ox + 30, oy, 20, "DA-02", "DETALLE DE PARTIDAS: SOLADO, CONCRETO ARMADO Y ENCOFRADO", "AREAS Y VOLUMENES POR METRO LINEAL EN CADA ZONA - ESC. 1/20")
     for j, (p, nm) in enumerate(EJ_CONCRETO):
         xmm = 120 + j * 230; ymm = 330
         s = seccion(lam, xmm, ymm, p, R, T, llamadas=False, con_cerco=False)
@@ -120,14 +120,14 @@ def da(doc, ox, oy, R, T):
         lam.llamada((s["cx"] + 0.4, s["cy"] + 0.025), (xt, s["zs"] - 0.9), ["solado: %.2f m2/m" % (D["b_ext"] + 0.10)], 1.8)
         lam.llamada((s["xl"] + D["e_muro"] + 0.02, s["zf"] + h * 0.7), (xt, s["zs"] - 1.3), ["encofrado: caras interiores 2 x %.2f + exteriores 2 x %.2f + fondo de losa %.2f = %.2f m2/m" % (h, ef + h + et, D["b"], 2 * h + 2 * (ef + h + et) + D["b"])], 1.8)
         lam.llamada((s["cx"], s["zs"]), (xt, s["zs"] - 1.7), ["acabado frotachado y brunado: %.2f m2/m" % D["b_ext"]], 1.8)
-        lam.titulo_vista(xmm + 15, ymm - 55, nm, "PROG. %s - h = %.2f m - ESC. 1/25" % (prog_txt(p), h), 150)
+        lam.titulo_vista(xmm + 15, ymm - 55, nm, "PROG. %s - h = %.2f m - ESC. 1/20" % (prog_txt(p), h), 150)
     filas = [["Solado f'c=100 e=0.05", "m2", "%.2f" % Rs["solado_m2"]], ["Concreto f'c=210 - losa de fondo", "m3", "%.2f" % Rs["conc_fondo_m3"]],
              ["Concreto f'c=210 - muros", "m3", "%.2f" % Rs["conc_muros_m3"]], ["Concreto f'c=210 - losa superior (incluye bordes de registro)", "m3", "%.2f" % Rs["conc_losa_m3"]],
              ["Encofrado y desencofrado", "m2", "%.2f" % Rs["encof_m2"]], ["Acabado frotachado y brunado de losa superior", "m2", "%.2f" % Rs["acabado_m2"]]]
     lam.tabla(32, 200, ["PARTIDA", "UND", "METRADO"], filas, [110, 16, 26], 1.7, 4.8, "RESUMEN DE CONCRETO Y ENCOFRADO (colector%s)" % TXT_CAJAS)
     lams.append(lam)
     # ---------------- DA-03
-    lam = B.Lamina(doc, ox + 60, oy, 25, "DA-03", "DETALLE DE PARTIDAS: ACERO, REGISTROS, JUNTAS Y EMPALMES", "DESPIECE POR METRO, INSUMOS POR REGISTRO Y LONGITUDES DE JUNTA - ESC. 1/25")
+    lam = B.Lamina(doc, ox + 60, oy, 20, "DA-03", "DETALLE DE PARTIDAS: ACERO, REGISTROS, JUNTAS Y EMPALMES", "DESPIECE POR METRO, INSUMOS POR REGISTRO Y LONGITUDES DE JUNTA - ESC. 1/20")
     Rg = Rs["registros"]; J = Rs["juntas"]
     for j, (p, nm) in enumerate(EJ_ACERO):
         xmm = 120 + j * 230; ymm = 330
@@ -139,7 +139,7 @@ def da(doc, ox, oy, R, T):
         lam.llamada((s["xl"] + 0.04, s["zf"] + h / 2), (xt, s["zs"] - 0.1), ["= %.1f kg/m" % (tr["marcos_kg"] / tr["L"])], 1.8)
         lam.llamada((s["cx"], s["zs"] - 0.04), (xt, s["zs"] - 0.5), ["longitudinales 3/8\": %d barras = %.1f kg/m (con traslape 0.40 cada 9.00 m)" % (tr["long_n"], tr["long_kg"] / tr["L"])], 1.8)
         lam.llamada((s["cx"], s["zf"] + 0.04), (xt, s["zs"] - 0.9), ["total acero: %.1f kg/m" % ((tr["marcos_kg"] + tr["long_kg"]) / tr["L"])], 1.8)
-        lam.titulo_vista(xmm + 15, ymm - 55, nm, "PROG. %s - ESC. 1/25" % prog_txt(p), 150)
+        lam.titulo_vista(xmm + 15, ymm - 55, nm, "PROG. %s - ESC. 1/20" % prog_txt(p), 150)
     filas = [["Acero fy=4200 colector%s - 3/8\"" % (" y cajas" if TXT_CAJAS else ""), "kg", "%.1f" % Rs["acero_38_kg"]], ["Acero fy=4200 colector - 1/2\" (cruce de camiones)", "kg", "%.1f" % Rs["acero_12_kg"]],
              ["Registros: contramarco L 2\"x2\"x3/16\" (%d und)" % Rg["n"], "kg", "%.1f" % Rg["contramarco_kg"]], ["Registros: marco de tapa L 1 1/2\"x1 1/2\"x1/8\"", "kg", "%.1f" % Rg["marco_kg"]],
              ["Tapas de concreto 0.68 x 0.68 x 0.08", "und / m3", "%d / %.2f" % (Rg["n"], Rg["tapa_conc"])], ["Acero en tapas, bordes, asas y anclajes", "kg", "%.1f" % (Rg["acero_borde_kg"] + Rg["acero_tapa_kg"] + Rg["asas_kg"] + Rg["anclajes_kg"])],

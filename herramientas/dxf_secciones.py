@@ -113,18 +113,18 @@ def seccion(lam, xmm, ymm, p, R, T, esc_txt="1/25", nombre=None, con_cerco=True,
 def dp04(doc, ox, oy, R, T):
     lams = []
     for k in range(2):
-        lam = B.Lamina(doc, ox + k * 30, oy, 25, "DP-04%s" % "AB"[k], "SECCIONES TRANSVERSALES DEL COLECTOR",
-                       "SECCIONES %s CON DISTRIBUCION DE ACERO - ESC. 1/25" % ("S-01 A S-04" if k == 0 else "S-05 A S-08"))
+        lam = B.Lamina(doc, ox + k * 30, oy, 15, "DP-04%s" % "AB"[k], "SECCIONES TRANSVERSALES DEL COLECTOR",
+                       "SECCIONES %s CON DISTRIBUCION DE ACERO - ESC. 1/15" % ("S-01 A S-04" if k == 0 else "S-05 A S-08"))
         for j, (p, nm) in enumerate(SECCIONES[k * 4:(k + 1) * 4]):
-            xmm = 150 + j * 185; ymm = 300
-            seccion(lam, xmm, ymm, p, R, T)
+            xmm = 215 + (j % 2) * 400; ymm = 405 if j < 2 else 190
+            seccion(lam, xmm, ymm, p, R, T, hmm_txt=2.0, dist_cota=7, dx_ll=0.55)
             g = geometria(p)
-            lam.titulo_vista(xmm + 10, ymm - 60, "SECCION %s" % nm, "PROG. %s - CF %.3f - %s - ESC. 1/25" % (prog_txt(p), g["cf"], ACERO[g["tipo"]][4]), 100)
-        lam.leyenda(32, 150, [("achurado", "CONCRETO-ACHURADO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100 kg/cm2"),
+            lam.titulo_vista(xmm + 25, ymm - 33, "SECCION %s" % nm, "PROG. %s - CF %.3f - %s - ESC. 1/15" % (prog_txt(p), g["cf"], ACERO[g["tipo"]][4]), 130)
+        lam.leyenda(32, 128, [("achurado", "CONCRETO-ACHURADO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100 kg/cm2"),
                               ("linea", "ACERO", "acero transversal: marco cerrado (rojo)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal 3/8\" (circulo a diametro real)"),
                               ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", "piso terminado +%.2f" % D["NPT"]),
                               ("linea", "TERRENO-EXISTENTE", "terreno existente"), ("linea", "EXCAVACION", "limite de excavacion")] + ([("rect", "CERCO", "cerco perimetrico existente")] if CON_CERCO else []), 1.8)
-        lam.notas(300, 150, "NOTAS", NOTAS_DP04 or ["1. Altura interior h segun el perfil longitudinal (1.40 m en 0+000 a 1.61 m en el brink).",
+        lam.notas(250, 128, "NOTAS", NOTAS_DP04 or ["1. Altura interior h segun el perfil longitudinal (1.40 m en 0+000 a 1.61 m en el brink).",
                                         "2. Tramo normal y cruce de motos: un solo marco cerrado en el eje de muros y losas (una capa, E.060 14.3.4); recubrimiento minimo 0.04 m en muros y losa de fondo y 0.025 m en la losa superior.",
                                         "3. Junta de tecnopor de 1\" entre el muro lado predio y el cimiento del cerco; junta de 1\" entre la losa superior y el piso adyacente.",
                                         "4. El cruce de camiones (S-04) lleva losas e=0.25 y doble marco de 1/2\" @0.15 (marco exterior e interior, recubrimiento 0.04); el cruce de motos (S-05) marco unico de 3/8\" @0.15.",
