@@ -1,28 +1,39 @@
 PLANOS DEL COLECTOR PLUVIAL FRONTAL - CAR MUJERES (CUI 2717013) - VERSION ORDENADA
 =================================================================================
 
-Archivo: PLANOS_COLECTOR_PLUVIAL_CAR_MUJERES.dxf (16 laminas A1, escala real: 1 unidad = 1 m)
+Archivo: PLANOS_COLECTOR_PLUVIAL_CAR_MUJERES.dxf (17 laminas en A1, A2 y A3; escala real: 1 unidad = 1 m)
 Vistas previas: carpeta vistas_previas (PNG por lamina y 00_RESUMEN_TODAS.png)
 Generador: herramientas/mujeres/planos_m.py (datos en datos_m.py y base_m.json; detalle del registro en dxf_tapa_m.py)
 
-Laminas
--------
-DP-01   Planta del colector 1/200: trazo, registros R-01 a R-15, cruces, empalmes de cuneta, salida y cuadro UTM
-DP-02   Perfil longitudinal general 1/100 (H = V) en 2 franjas y cuadro hidraulico por tramos
-DP-03A  Perfil detallado 1/25 (H = V): tramos 1 a 3 (0+000.00 - 0+046.36)
-DP-03B  Perfil detallado 1/25 (H = V): tramos 4 a 6 (0+046.36 - 0+092.72)
-DP-03C  Perfil detallado 1/25 (H = V): tramos 7 a 9 (0+092.72 - 0+139.08)
-DP-04A  Secciones S-01 a S-08 1/20 con acero
-DP-04B  Secciones S-09 a S-15 1/20 y cuadro de secciones
-DP-05A  Isometricos de las secciones S-01 a S-08 1/25
-DP-05B  Isometricos de las secciones S-09 a S-15 1/25
-DP-06A  Secciones tipicas 1/10: vereda, cruce de autos, cruce de camiones y tramo final
-DP-06B  Registro de limpieza: tapa 0.68 x 0.68 con marco y contramarco, rebaje 0.70 x 0.08 (escalas indicadas)
-DP-06C  Empalme de cuneta al colector y junta de dilatacion (nueva: antes estaba mezclada en la DP-06B)
-DP-07   Estructura de salida con dos aleros y emboquillado 1/25 con cuadro de metrados del presupuesto
-DP-08   Cuadro de acero y partidas 1.4.4.6 (valores de la planilla), figuras de marcos, especificaciones y notas
-DP-09   Isometricos constructivos 1/25: colector en vereda, registro, empalme de cuneta y salida
-DP-10   Isometrico general 1/200 sin exageracion vertical
+Laminas (formato de papel y escala; el indice esta en la lamina DP-00)
+----------------------------------------------------------------------
+DP-00   A3  S/E      Indice de laminas y notas de impresion
+DP-01   A1  1/200    Planta del colector: trazo, registros R-01 a R-15, cruces, empalmes de cuneta, salida y cuadro UTM
+DP-02   A2  1/100    Perfil longitudinal general (H = V) en 3 franjas
+DP-03A  A1  1/25     Perfil detallado (H = V): tramos 1 a 3 (0+000.00 - 0+046.36)
+DP-03B  A1  1/25     Perfil detallado (H = V): tramos 4 a 6 (0+046.36 - 0+092.72)
+DP-03C  A1  1/25     Perfil detallado (H = V): tramos 7 a 9 (0+092.72 - 0+139.08)
+DP-04A  A1  1/15     Secciones S-01 a S-09 con acero
+DP-04B  A1  1/15     Secciones S-10 a S-15 y cuadro de secciones
+DP-05A  A1  1/20     Isometricos de las secciones S-01 a S-09
+DP-05B  A1  1/20     Isometricos de las secciones S-10 a S-15
+DP-06A  A1  1/10     Secciones tipicas: vereda, cruce de autos, cruce de camiones y tramo final
+DP-06B  A1  INDICADA Registro de limpieza: tapa 0.68 x 0.68 con marco y contramarco, rebaje 0.70 x 0.08
+DP-06C  A2  1/10     Empalme de cuneta al colector y junta de dilatacion
+DP-07   A1  1/15     Estructura de salida con dos aleros y emboquillado, con cuadro de metrados del presupuesto
+DP-08   A2  1/20     Cuadro de acero, partidas 1.4.4.6 (valores de la planilla), cuadro hidraulico, figuras de marcos,
+                     especificaciones y notas
+DP-09   A1  1/20     Isometricos constructivos: colector en vereda, registro, empalme de cuneta y salida
+DP-10   A1  1/200    Isometrico general sin exageracion vertical
+
+Impresion en AutoCAD
+--------------------
+- Cada lamina tiene su presentacion (pestana DP-00 ... DP-10) con el papel "ISO full bleed" de su formato y una ventana
+  bloqueada a la escala de la lamina. El espacio modelo queda configurado en A1.
+- Ctrl+P desde la pestana: area de impresion = Presentacion, escala 1:1, centrar. La configuracion trae "DWG To PDF.pc3"
+  solo para que AutoCAD encuentre los papeles ISO; para el plotter elegir la impresora propia con el mismo papel.
+- Tamanos: A0 = 1189 x 841 mm; A1 = 841 x 594 mm; A2 = 594 x 420 mm; A3 = 420 x 297 mm.
+- Para imprimir todas juntas: Publicar (PUBLISH) con las presentaciones del archivo.
 
 Metrados
 --------

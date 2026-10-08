@@ -127,10 +127,14 @@ def crear_bloques(doc):
 
 # ----------------------------------------------------------------------------
 class Lamina:
-    """Una lamina A1 (841 x 594 mm) dibujada en el modelo con origen (ox, oy) y escala 1:esc."""
+    """Una lamina ISO (A1 por defecto: 841 x 594 mm) dibujada en el modelo con origen (ox, oy) y escala 1:esc.
+    formato: A0, A1, A2 o A3 (horizontal). El atributo A1 guarda el tamano del papel de la lamina (W, H) en mm."""
+    FORMATOS = {"A0": (1189.0, 841.0), "A1": (841.0, 594.0), "A2": (594.0, 420.0), "A3": (420.0, 297.0)}
     A1 = (841.0, 594.0)
 
-    def __init__(self, doc, ox, oy, esc, codigo, titulo, subtitulo):
+    def __init__(self, doc, ox, oy, esc, codigo, titulo, subtitulo, formato="A1", escala_txt=None):
+        self.formato = formato; self.A1 = self.FORMATOS[formato]; self.W, self.H = self.A1
+        self.escala_txt = escala_txt or "1/%d" % esc
         self.doc, self.msp = doc, doc.modelspace()
         self.ox, self.oy, self.esc, self.f = ox, oy, esc, esc / 1000.0
         self.codigo, self.titulo, self.subtitulo = codigo, titulo, subtitulo
@@ -276,7 +280,7 @@ class Lamina:
         t(x0 + 2, y1 - 68, "ELABORADO: " + ELABORADO, 1.8)
         self.linea(self.P(x0 + 125, y1 - 62), self.P(x0 + 125, y0), "ROTULO")
         self.linea(self.P(x0 + 165, y1 - 74), self.P(x0 + 165, y0), "ROTULO")
-        t(x0 + 127, y1 - 68, "ESCALA:", 1.8); t(x0 + 143, y1 - 68, "1/%d" % self.esc, 2.4)
+        t(x0 + 127, y1 - 68, "ESCALA:", 1.8); t(x0 + 143, y1 - 68, self.escala_txt, 2.4)
         t(x0 + 2, y1 - 79.5, "REVISADO: ________________", 1.8)
         t(x0 + 127, y1 - 79.5, "FECHA:", 1.8); t(x0 + 143, y1 - 79.5, FECHA, 2.0)
         t(x0 + 167, y1 - 79.5, "LAMINA:", 1.8)
@@ -311,10 +315,11 @@ class Lamina:
             y -= 5.5
         return y
 
-    def franja(self, items, y0, abajo=True, hmm=1.6, xmin_mm=27, xmax_mm=826, max_filas=30):
+    def franja(self, items, y0, abajo=True, hmm=1.6, xmin_mm=27, xmax_mm=None, max_filas=30):
         """Etiquetas horizontales ordenadas en filas (sin cruces de textos ni lineas).
         items: (x, y, [lineas], color) en coordenadas del modelo; y0: borde de la franja (modelo).
         abajo=True: las filas crecen hacia abajo desde y0 (texto colgado); False: hacia arriba."""
+        if xmax_mm is None: xmax_mm = self.W - 15
         h_txt = hmm * K_TXT["TEXTOS"]; ch = 0.72 * h_txt * self.f; lh = 1.55 * h_txt * self.f
         nmax = max(len(it[2]) for it in items) if items else 1
         fila_h = nmax * lh + 2.2 * self.f
@@ -330,7 +335,7 @@ class Lamina:
                     if r < fila and pa - g <= x <= pb + g: return False                # mi linea cruza un texto
                 return True
             elegido = None
-            lim = int(((self.oy + 582 * self.f - y0) if not abajo else (y0 - self.oy - 12 * self.f)) / fila_h) - 1
+            lim = int(((self.oy + (self.H - 12) * self.f - y0) if not abajo else (y0 - self.oy - 12 * self.f)) / fila_h) - 1
             opciones = [x + w > x_max, not (x + w > x_max)]   # primero a la derecha (izquierda solo junto al borde)
             for izq in opciones:
                 a, b = (x - w, x) if izq else (x, x + w)
@@ -432,7 +437,7 @@ class Lamina:
             for i, t in enumerate(lineas):
                 self.texto(self.P(xmm, ymm - 7 - i * 4.2), t, hmm, "TEXTOS-NOTAS")
             return ymm - 7 - len(lineas) * 4.2
-        if ancho_mm is None: ancho_mm = (826 if ymm - 7 - 4.2 * len(lineas) > 110 else 640) - xmm
+        if ancho_mm is None: ancho_mm = (self.W - 15 if ymm - 7 - 4.2 * len(lineas) > 110 else self.W - 201) - xmm
         nch = max(30, int(ancho_mm / (0.80 * hmm * K_TXT["TEXTOS-NOTAS"])))
         k = 0
         for t in lineas:

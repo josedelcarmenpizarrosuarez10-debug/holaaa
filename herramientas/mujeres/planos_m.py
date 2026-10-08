@@ -20,7 +20,8 @@ B.PROYECTO = ("CREACION DEL SERVICIO DE PROTECCION INTEGRAL A NINAS, NINOS Y ADO
               "EN CENTRO DE ACOGIDA RESIDENCIAL - MUJERES, DISTRITO DE MORALES, PROVINCIA Y DEPARTAMENTO DE SAN MARTIN - CUI N. 2717013")
 B.UBICACION = "UBICACION: PREDIO RURAL LOS MANGOS - MORALES - SAN MARTIN - SAN MARTIN"
 SALIDA = os.path.join(dz.SAL, "PLANOS_COLECTOR_PLUVIAL_CAR_MUJERES.dxf")
-LAMINAS = {}
+from collections import OrderedDict
+LAMINAS = OrderedDict()
 pt = dz.prog_txt
 ROJO, AZUL, VERDE, NARANJA, MAGENTA, GRIS = 1, 5, 94, 30, 6, 8
 
@@ -324,14 +325,7 @@ def alto_perfil(p1, p2, f):
     zmin, zmax = zlim(p1, p2); return (zmax - zmin) / f
 
 
-def dp02(doc, ox, oy):
-    lam = B.Lamina(doc, ox, oy, 100, "DP-02", "PERFIL LONGITUDINAL GENERAL DEL COLECTOR",
-                   "ESCALA REAL (H = V) - 0+000.00 A 0+139.08 - NIVEL DE AGUA DE DISENO Y COTAS EN REGISTROS")
-    y = 530 - alto_perfil(0, 70, lam.f)
-    yb = perfil(lam, 72, y, 0.0, 70.0, detalle=False, titulo="PERFIL 1: 0+000.00 A 0+070.00", paso=None)
-    y = yb - 62 - alto_perfil(70, dz.L, lam.f)
-    yb = perfil(lam, 72, y, 70.0, dz.L, detalle=False, titulo="PERFIL 2: 0+070.00 A 0+139.08", paso=None)
-    # cuadro hidraulico por tramos (memoria de calculo)
+def cuadro_hidraulico():
     filas = []
     lims = [0.0, 37.95, 49.38, 60.15, dz.L]
     nom = ["R-01 (Eje 02) - R-05", "R-05 (Eje 07) - R-06", "R-06 (Eje 10) - R-07", "R-07 (Eje 12) - SALIDA"]
@@ -342,14 +336,24 @@ def dp02(doc, ox, oy):
         filas.append([nom[k], "%s - %s" % (pt(lims[k]), pt(lims[k + 1])), "%.1f" % q, "%.2f - %.2f" % (min(r[3] for r in rows), max(r[3] for r in rows)),
                       "%.2f - %.2f" % (min(r[5] for r in rows), max(r[5] for r in rows)), "%.2f" % max(r[6] for r in rows),
                       "%.0f %%" % (100 * max(r[7] for r in rows)), "%.3f" % min(r[8] for r in rows)])
-    lam.tabla(30, yb - 18, ["TRAMO", "PROGRESIVAS", "Q (L/s)", "TIRANTE y (m)", "VELOCIDAD (m/s)", "FROUDE MAX.", "LLENADO MAX.", "BORDE LIBRE MIN. (m)"],
-              filas, [52, 48, 22, 34, 36, 26, 28, 38], hmm=1.8, alto_mm=6.0, titulo="CUADRO HIDRAULICO POR TRAMOS (FLUJO GRADUALMENTE VARIADO, TR = 25 ANOS)")
-    lam.leyenda2(30, 100, LEY_PERFIL, hmm=1.9, ancho_col=100, filas_col=4)
-    lam.notas(250, 100, "NOTAS", [
-        "1. Perfil a escala real: horizontal = vertical = 1/100. Cotas en m.s.n.m.",
-        "2. Nivel de agua del perfil de flujo gradualmente variado (memoria de calculo); el caudal crece en cada cuneta que llega.",
-        "3. Cara superior de la losa = NPT de vereda +259.25 hasta 0+078.42; tramo final con h = 0.60 m.",
-        "4. Perfil detallado por tramos con acero, registros y juntas en las laminas DP-03A, DP-03B y DP-03C."], hmm=1.8, ancho_mm=390)
+    return ["TRAMO", "PROGRESIVAS", "Q (L/s)", "TIRANTE (m)", "V (m/s)", "FROUDE", "LLENADO", "B. LIBRE (m)"], filas
+
+
+def dp02(doc, ox, oy):
+    lam = B.Lamina(doc, ox, oy, 100, "DP-02", "PERFIL LONGITUDINAL GENERAL DEL COLECTOR",
+                   "ESCALA REAL (H = V) - 0+000.00 A 0+139.08 - NIVEL DE AGUA DE DISENO Y COTAS EN REGISTROS", formato="A2")
+    tr = [0.0, 46.36, 92.72, dz.L]
+    altos = [alto_perfil(tr[j], tr[j + 1], lam.f) for j in range(3)]
+    gap = max(0.0, (405 - 118 - sum(altos) - 3 * 70) / 2)
+    ytop = 405
+    for j in range(3):
+        y = ytop - 30 - altos[j]
+        yb = perfil(lam, 72, y, tr[j], tr[j + 1], detalle=False, titulo="PERFIL %d: %s A %s" % (j + 1, pt(tr[j]), pt(tr[j + 1])), paso=None)
+        ytop = yb - gap
+    yl = lam.leyenda2(30, 100, LEY_PERFIL, hmm=1.7, ancho_col=92, filas_col=4)
+    lam.notas(30, yl - 2, "NOTAS", [
+        "1. Escala real H = V = 1/100; cotas en m.s.n.m. Perfil detallado con acero y juntas en DP-03A a DP-03C.",
+        "2. Nivel de agua del perfil de flujo gradualmente variado (cuadro hidraulico en DP-08)."], hmm=1.6, ancho_mm=360)
     return lam
 
 
@@ -360,7 +364,7 @@ def dp03(doc, ox, oy):
     out = []
     for k, cod in enumerate(("DP-03A", "DP-03B", "DP-03C")):
         tr = TRAMOS_DP03[3 * k: 3 * k + 4]
-        lam = B.Lamina(doc, ox + k * 25.0, oy, 25, cod, "PERFIL LONGITUDINAL DETALLADO DEL COLECTOR",
+        lam = B.Lamina(doc, ox + k * 22.0, oy, 25, cod, "PERFIL LONGITUDINAL DETALLADO DEL COLECTOR",
                        "TRAMOS %d A %d (%s - %s) - ESCALA REAL (H = V) - ACERO, REGISTROS, JUNTAS Y EMPALMES" % (3 * k + 1, 3 * k + 3, pt(tr[0]), pt(tr[-1])))
         altos = [alto_perfil(tr[j], tr[j + 1], lam.f) for j in range(3)]
         gap = max(0.0, (575 - 112 - sum(altos) - 3 * 86) / 2)
@@ -412,7 +416,7 @@ def seccion(lam, cx, cy, p, detalle=False, num=None, xt=None):
     lam.bloque("SIMB-AGUA", (cx + bi * 0.45, z(na)), f)
     # terreno natural (TIN, referencia), vereda del lado del predio y suelo contra el muro del lado de la via
     ter = dz.terreno(p); pis = dz.NPT if p <= dz.P_VER else ter
-    ext_l = 0.35 if f < 0.015 else 0.55
+    ext_l = 0.35 if f < 0.02 else 0.55
     lam.poli([(cx - K - ext_l, z(ter)), (cx + K + ext_l, z(ter))], "TERRENO-EXISTENTE")
     if p <= dz.P_VER:
         lam.poli([(cx + K + 0.025, z(pis)), (cx + K + ext_l, z(pis))], "TERRENO")
@@ -493,38 +497,41 @@ def seccion(lam, cx, cy, p, detalle=False, num=None, xt=None):
 
 def dp04(doc, ox, oy):
     out = []
-    grupos = (("DP-04A", dz.SECCIONES[:8]), ("DP-04B", dz.SECCIONES[8:]))
+    grupos = (("DP-04A", dz.SECCIONES[:9]), ("DP-04B", dz.SECCIONES[9:]))
     for k, (cod, secs) in enumerate(grupos):
         n1, n2 = secs[0][0], secs[-1][0]
-        lam = B.Lamina(doc, ox + k * 20.0, oy, 20, cod, "SECCIONES TRANSVERSALES DEL COLECTOR",
-                       "SECCIONES S-%02d A S-%02d CON DISTRIBUCION DE ACERO - ESC. 1/20" % (n1, n2))
+        lam = B.Lamina(doc, ox + k * 13.0, oy, 15, cod, "SECCIONES TRANSVERSALES DEL COLECTOR",
+                       "SECCIONES S-%02d A S-%02d CON DISTRIBUCION DE ACERO - ESC. 1/15" % (n1, n2))
         f = lam.f
         for i, (n, p) in enumerate(secs):
-            col, fila = i % 4, i // 4
-            cxm = 30 + 46 + col * 201; cym = 450 - fila * 225
+            col, fila = i % 3, i // 3
+            cxm = 27 + 92 + col * 268; cym = 478 - fila * 160
             cx, cy = lam.P(cxm, cym)
-            bb = seccion(lam, cx, cy, p, num=n, xt=cx + 1.10 + 30 * f)
-            lam.titulo_vista(cxm + 45, (bb[1] - lam.oy) / f - 6, "SECCION S-%02d" % n,
-                             "PROG. %s - CF %.3f - %s - ESC. 1/20" % (pt(p), dz.CF(p), dz.tramo_txt(p)), ancho_mm=80)
-        if len(secs) < 8:
+            bb = seccion(lam, cx, cy, p, num=n, xt=cx + dz.b_ext(p) / 2 + 0.30 + 12 * f)
+            lam.titulo_vista(cxm + 30, (bb[1] - lam.oy) / f - 6, "SECCION S-%02d" % n,
+                             "PROG. %s - CF %.3f - %s - ESC. 1/15" % (pt(p), dz.CF(p), dz.tramo_txt(p)), ancho_mm=90)
+        if len(secs) < 9:
             filas = []
             for n, p in dz.SECCIONES:
                 em, ef, es = dz.esp(p); ac = dz.acero(p)
                 filas.append(["S-%02d" % n, pt(p), dz.tramo_txt(p).replace("CRUCE VEHICULAR (AUTOS)", "CRUCE DE AUTOS"), "%.2f" % dz.h(p),
                               "%.2f / %.2f / %.2f" % (em, ef, es), ("2 x " if ac["doble"] else "") + "%s @%.2f" % (ac["marco"], ac["sep"])])
-            lam.tabla(640, 318, ["SECCION", "PROGRESIVA", "TRAMO", "h", "MURO/FONDO/LOSA", "MARCOS"], filas, [16, 22, 46, 12, 34, 32],
+            lam.tabla(30, 236, ["SECCION", "PROGRESIVA", "TRAMO", "h", "MURO/FONDO/LOSA", "MARCOS"], filas, [18, 24, 50, 12, 36, 34],
                       hmm=1.6, alto_mm=4.6, titulo="CUADRO DE SECCIONES S-01 A S-15")
-        lam.leyenda2(30, 100, [("concreto", "CONCRETO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100 kg/cm2 e = 0.05"),
+            ley_x, ley_y = 320, 236
+        else:
+            ley_x, ley_y = 30, 100
+        yl = lam.leyenda2(ley_x, ley_y, [("concreto", "CONCRETO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100 kg/cm2 e = 0.05"),
                                ("linea2", "ACERO", "marco de acero (barra cerrada con ganchos)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "barra longitudinal (diametro real)"),
                                ("relleno", "AGUA-RELLENO", "agua con el caudal de diseno"), ("linea", "TERRENO", "vereda (NPT) y suelo contra el muro"),
                                ("discontinua", "TERRENO-EXISTENTE", "terreno natural en el eje (TIN)"), ("rect", "JUNTAS", "junta 1\" con tecnopor (lado predio)"),
-                               ("discontinua", "EXCAVACION", "limite de excavacion (0.05 a cada lado)")], hmm=1.9, ancho_col=110, filas_col=5)
-        lam.notas(262, 100, "NOTAS", [
-            "1. Escala real 1/20; cotas en m. Recubrimiento: acero centrado en elementos de 0.10 m; 4.5 cm al eje en el cruce de camiones.",
+                               ("discontinua", "EXCAVACION", "limite de excavacion (0.05 a cada lado)")], hmm=1.8, ancho_col=110, filas_col=5)
+        lam.notas(ley_x + (0 if len(secs) < 9 else 232), (yl - 4) if len(secs) < 9 else 100, "NOTAS", [
+            "1. Escala real 1/15; cotas en m. Acero centrado en elementos de 0.10 m; 4.5 cm al eje en el cruce de camiones.",
             "2. Altura interior h segun el perfil longitudinal (DP-02 y DP-03); seccion tipica con detalles en DP-06A.",
             "3. Marcos 3/8\" @0.20 en vereda y tramo final, @0.15 en cruces de autos; 2 marcos 1/2\" @0.15 en cruce de camiones.",
-            "4. El muro del lado de la via se vacia contra el terreno; junta de tecnopor 1\" con la vereda en el tramo 0+000 - 0+078.42."],
-            hmm=1.7, ancho_mm=375)
+            "4. Muro del lado de la via vaciado contra el terreno; tecnopor 1\" con la vereda de 0+000 a 0+078.42."],
+            hmm=1.7, ancho_mm=(300 if len(secs) < 9 else 370))
         out.append(lam)
     return out
 
@@ -661,24 +668,25 @@ def iso_seccion(lam, o, p, Ls=1.2, llamadas=True, xt=None):
 
 def dp05(doc, ox, oy):
     out = []
-    grupos = (("DP-05A", dz.SECCIONES[:8]), ("DP-05B", dz.SECCIONES[8:]))
+    grupos = (("DP-05A", dz.SECCIONES[:9]), ("DP-05B", dz.SECCIONES[9:]))
     for k, (cod, secs) in enumerate(grupos):
         n1, n2 = secs[0][0], secs[-1][0]
-        lam = B.Lamina(doc, ox + k * 25.0, oy, 25, cod, "ISOMETRICOS DE LAS SECCIONES TRANSVERSALES",
-                       "SECCIONES S-%02d A S-%02d - TRAMO DE 1.20 m CORTADO EN CADA SECCION, CON ACERO Y AGUA DE DISENO - ESC. 1/25" % (n1, n2))
+        lam = B.Lamina(doc, ox + k * 18.0, oy, 20, cod, "ISOMETRICOS DE LAS SECCIONES TRANSVERSALES",
+                       "SECCIONES S-%02d A S-%02d - TRAMO DE 1.20 m CORTADO EN CADA SECCION, CON ACERO Y AGUA DE DISENO - ESC. 1/20" % (n1, n2))
         f = lam.f
         for i, (n, p) in enumerate(secs):
-            col, fila = i % 4, i // 4
-            cxm = 30 + 62 + col * 201; cym = 405 - fila * 230
-            T = iso_seccion(lam, lam.P(cxm, cym), p, xt=lam.P(cxm + 70, 0)[0])
-            lam.titulo_vista(cxm + 40, cym - 62, "ISOMETRICO S-%02d" % n,
-                             "PROG. %s - interior %.2f x %.2f m - %s" % (pt(p), dz.b, dz.h(p), dz.tramo_txt(p)), ancho_mm=80)
-        lam.leyenda2(30, 100, [("relleno", "ISO-CONCRETO-SUP", "concreto: cara superior"), ("relleno", "ISO-CONCRETO-LAT1", "concreto: cara de corte (seccion)"),
-                               ("relleno", "ISO-CONCRETO-LAT2", "concreto: caras laterales"), ("relleno", "AGUA-RELLENO", "agua con el caudal de diseno"),
-                               ("linea2", "ACERO", "marco de acero en la cara de corte"), ("bloque:ACERO-38", "ACERO-PUNTOS", "barra longitudinal (diametro real)")],
-                     hmm=1.9, ancho_col=110, filas_col=3)
-        lam.notas(262, 100, "NOTAS", [
-            "1. Isometricos a escala real 1/25 (sin exageracion vertical); el tramo dibujado tiene 1.20 m de largo.",
+            col, fila = i % 3, i // 3
+            cxm = 27 + 78 + col * 268; cym = (498 - fila * 164) if len(secs) == 9 else (462 - fila * 200)
+            iso_seccion(lam, lam.P(cxm, cym), p, xt=lam.P(cxm + 96, 0)[0])
+            lam.titulo_vista(cxm + 60, cym - 52, "ISOMETRICO S-%02d" % n,
+                             "PROG. %s - interior %.2f x %.2f m - %s" % (pt(p), dz.b, dz.h(p), dz.tramo_txt(p)), ancho_mm=90)
+        yl = lam.leyenda2(30, 96,
+                          [("relleno", "ISO-CONCRETO-SUP", "concreto: cara superior"), ("relleno", "ISO-CONCRETO-LAT1", "concreto: cara de corte (seccion)"),
+                           ("relleno", "ISO-CONCRETO-LAT2", "concreto: caras laterales"), ("relleno", "AGUA-RELLENO", "agua con el caudal de diseno"),
+                           ("linea2", "ACERO", "marco de acero en la cara de corte"), ("bloque:ACERO-38", "ACERO-PUNTOS", "barra longitudinal (diametro real)")],
+                          hmm=1.9, ancho_col=110, filas_col=3)
+        lam.notas(262, 96, "NOTAS", [
+            "1. Isometricos a escala real 1/20 (sin exageracion vertical); el tramo dibujado tiene 1.20 m de largo.",
             "2. La cara de corte coincide con la seccion transversal de la lamina DP-04 en la misma progresiva.",
             "3. Lado de la via a la izquierda y lado del predio a la derecha de cada isometrico."], hmm=1.7, ancho_mm=375)
         out.append(lam)
@@ -688,52 +696,49 @@ def dp05(doc, ox, oy):
 # ============================================================================== DP-06C EMPALME DE CUNETA Y JUNTA DE DILATACION
 def dp06c(doc, ox, oy):
     lam = B.Lamina(doc, ox, oy, 10, "DP-06C", "DETALLE DEL EMPALME DE CUNETA AL COLECTOR Y DE LA JUNTA DE DILATACION",
-                   "EJES 02, 07, 10 Y 12 (4 und): PLANTA, CORTE POR LA CUNETA, VENTANA EN EL MURO Y JUNTA e = 1\" - ESC. INDICADAS")
-    f = lam.f; bi, K, e = dz.b / 2, dz.b_ext(10) / 2, 0.10
+                   "EJES 02, 07, 10 Y 12 (4 und): PLANTA, CORTE, VENTANA EN EL MURO Y JUNTA e = 1\" - ESC. 1/10", formato="A2")
+    f = lam.f; bi, K = dz.b / 2, dz.b_ext(10) / 2
     p_ej = 37.95; cf = dz.CF(p_ej); hh = dz.h(p_ej); top = dz.techo(p_ej); ncf = 258.74
     # ---------------- E1 planta (eje del colector horizontal; la cuneta llega desde el predio, arriba)
-    o = lam.P(150, 392)
+    o = lam.P(128, 262)
     X = lambda u: o[0] + u; Y = lambda v: o[1] + v
-    L = 0.95
+    L = 0.80; Lc = 0.45
     lam.relleno([(X(-L), Y(-K)), (X(L), Y(-K)), (X(L), Y(K)), (X(-L), Y(K))], "CONCRETO-ACHURADO")
     for v in (-K, K): lam.linea((X(-L), Y(v)), (X(L), Y(v)), "CONCRETO")
     for v in (-bi, bi): lam.linea((X(-L), Y(v)), (X(L), Y(v)), "CONCRETO-OCULTO")
-    lam.linea((X(-L - 0.1), Y(0)), (X(L + 0.1), Y(0)), "EJE-COLECTOR")
+    lam.linea((X(-L - 0.08), Y(0)), (X(L + 0.08), Y(0)), "EJE-COLECTOR")
     lam.bloque("REGISTRO-PLANTA", (X(0), Y(0)), 1.0)
-    lam.rect(X(-0.30), Y(K + 0.025), X(0.30), Y(K + 0.70), "CUNETA"); lam.rect(X(-0.20), Y(K + 0.025), X(0.20), Y(K + 0.70), "CUNETA-OCULTA")
+    lam.rect(X(-0.30), Y(K + 0.025), X(0.30), Y(K + Lc), "CUNETA"); lam.rect(X(-0.20), Y(K + 0.025), X(0.20), Y(K + Lc), "CUNETA-OCULTA")
     lam.rect(X(-0.20), Y(bi), X(0.20), Y(K), "CONCRETO-OCULTO")
     lam.rect(X(-0.30), Y(K), X(0.30), Y(K + 0.025), "JUNTAS")
-    lam.flecha((X(0.0), Y(K + 0.62)), (X(0.0), Y(K + 0.12)), "FLUJO", 3.0)
-    lam.flecha((X(0.45), Y(-0.20)), (X(0.85), Y(-0.20)), "FLUJO", 3.0)
-    lam.cota((X(-0.20), Y(K + 0.70)), (X(0.20), Y(K + 0.70)), 6); lam.cota((X(-0.30), Y(K + 0.70)), (X(0.30), Y(K + 0.70)), 13)
-    lam.cota((X(L), Y(-K)), (X(L), Y(K)), 8, horizontal=False)
-    lam.cota((X(L), Y(-bi)), (X(L), Y(bi)), 16, horizontal=False)
+    lam.flecha((X(0.0), Y(K + Lc - 0.05)), (X(0.0), Y(K + 0.10)), "FLUJO", 3.0)
+    lam.flecha((X(0.30), Y(-0.45)), (X(0.70), Y(-0.45)), "FLUJO", 3.0)
+    lam.cota((X(-0.20), Y(K + Lc)), (X(0.20), Y(K + Lc)), 5); lam.cota((X(-0.30), Y(K + Lc)), (X(0.30), Y(K + Lc)), 11)
+    lam.cota((X(-L), Y(-K)), (X(-L), Y(K)), -6, horizontal=False)
+    lam.cota((X(-L), Y(-bi)), (X(-L), Y(bi)), -13, horizontal=False)
     lam.juntar_llamadas()
-    xt = lam.P(275, 0)[0]
-    lam.llamada((X(0.25), Y(K + 0.5)), (xt, Y(K + 0.65)), ["cuneta 0.40 m que llega del eje (rejilla a nivel de vereda)"], 1.8)
-    lam.llamada((X(0.10), Y(bi + 0.05)), (xt, Y(K + 0.6)), ["ventana 0.40 x 0.30 en el muro del lado del predio"], 1.8)
-    lam.llamada((X(0.28), Y(K + 0.012)), (xt, Y(K + 0.3)), ["junta 1\" con sello elastomerico entre cuneta y colector"], 1.8)
-    lam.llamada((X(0.25), Y(0.25)), (xt, Y(0.0)), ["registro de limpieza encima del empalme (DP-06B)"], 1.8)
-    lam.llamada((X(-0.70), Y(-0.45)), (xt, Y(-0.5)), ["losa superior del colector (vereda)"], 1.8)
+    xt = lam.P(222, 0)[0]
+    lam.llamada((X(0.25), Y(K + 0.30)), (xt, Y(K + 0.42)), ["cuneta 0.40 que llega del eje"], 1.7)
+    lam.llamada((X(0.10), Y(bi + 0.05)), (xt, Y(K + 0.20)), ["ventana 0.40 x 0.30 en el muro"], 1.7)
+    lam.llamada((X(0.28), Y(K + 0.012)), (xt, Y(K - 0.02)), ["junta 1\" con sello elastomerico"], 1.7)
+    lam.llamada((X(0.25), Y(0.25)), (xt, Y(0.25)), ["registro encima del empalme (DP-06B)"], 1.7)
+    lam.llamada((X(-0.55), Y(-0.55)), (xt, Y(-0.35)), ["losa superior del colector"], 1.7)
     lam.volcar_llamadas()
-    lam.titulo_vista(150, 288, "E1. PLANTA DEL EMPALME", "ESC. 1/10 - ejemplo: Eje 07 en el registro R-05 (0+037.95)", ancho_mm=150)
+    lam.titulo_vista(128, 166, "E1. PLANTA DEL EMPALME", "ESC. 1/10 - ejemplo: Eje 07 en R-05 (0+037.95)", ancho_mm=120)
     # ---------------- E2 corte por el eje de la cuneta (transversal al colector)
-    o = lam.P(130, 205)
+    o = lam.P(398, 316)
     X = lambda u: o[0] + u; Z = lambda z: o[1] + (z - cf)
     bot = cf - 0.10
     ext = [(X(-K), Z(bot)), (X(K), Z(bot)), (X(K), Z(top)), (X(-K), Z(top))]
     inn = [(X(-bi), Z(cf)), (X(bi), Z(cf)), (X(bi), Z(cf + hh)), (X(-bi), Z(cf + hh))]
     ven = [(X(bi), Z(ncf)), (X(K), Z(ncf)), (X(K), Z(ncf + 0.30)), (X(bi), Z(ncf + 0.30))]
-    h_ = lam.msp.add_hatch(dxfattribs={"layer": "CONCRETO-ACHURADO"}); h_.rgb = B.COLOR_RGB["CONCRETO-ACHURADO"]; h_.set_solid_fill(rgb=B.COLOR_RGB["CONCRETO-ACHURADO"])
-    h_.paths.add_polyline_path(ext, is_closed=True, flags=1); h_.paths.add_polyline_path(inn, is_closed=True, flags=16)
+    _hatch_rgb(lam, ext, "CONCRETO-ACHURADO", [inn])
     lam.poli(ext, "CONCRETO", cerrada=True); lam.poli(inn, "CONCRETO", cerrada=True)
     lam.relleno(ven, "AGUA-RELLENO"); lam.poli(ven, "CONCRETO", cerrada=True)
     lam.rect(X(-K), Z(bot - 0.05), X(K), Z(bot), "SOLADO")
-    # registro encima (tapa en el rebaje)
     lam.rect(X(-0.34), Z(top - 0.08), X(0.34), Z(top), "REGISTRO")
-    # cuneta (referencia): interior 0.40 de alto H hasta la vereda, piso en NCF, muros 0.10
-    xc0 = K + 0.025; xc1 = xc0 + 1.10
-    lam.poli([(X(xc0), Z(ncf)), (X(xc1), Z(ncf + 0.004))], "CUNETA")
+    xc0 = K + 0.025; xc1 = xc0 + 0.55
+    lam.poli([(X(xc0), Z(ncf)), (X(xc1), Z(ncf + 0.002))], "CUNETA")
     lam.poli([(X(xc0), Z(ncf - 0.10)), (X(xc1), Z(ncf - 0.10))], "CUNETA")
     lam.poli([(X(xc0), Z(top)), (X(xc1), Z(top))], "TERRENO")
     lam.rect(X(K), Z(ncf - 0.10), X(xc0), Z(top), "JUNTAS")
@@ -741,66 +746,63 @@ def dp06c(doc, ox, oy):
     lam.flecha((X(bi + 0.02), Z(ncf + 0.03)), (X(bi - 0.12), Z(cf + 0.05)), "FLUJO", 2.5)
     na = dz.NA(p_ej)
     lam.relleno([(X(-bi), Z(cf)), (X(bi), Z(cf)), (X(bi), Z(na)), (X(-bi), Z(na))], "AGUA-RELLENO")
-    lam.cota((X(K), Z(ncf)), (X(K), Z(ncf + 0.30)), 14, horizontal=False)
+    lam.cota((X(K), Z(ncf)), (X(K), Z(ncf + 0.30)), -4, horizontal=False)
     lam.cota((X(-K), Z(cf)), (X(-K), Z(ncf)), -6, horizontal=False)
-    lam.cota((X(-K), Z(bot)), (X(K), Z(bot)), -8)
-    lam.nivel((X(xc0 + 0.6), Z(ncf)), ncf, "NCF %.2f" % ncf, hmm=1.7)
-    lam.nivel((X(-0.4), Z(cf)), cf, "CF %.3f" % cf, hmm=1.7)
-    lam.nivel((X(-0.55), Z(top)), top, "NPT +%.2f" % top, hmm=1.7)
+    lam.cota((X(-K), Z(bot - 0.05)), (X(K), Z(bot - 0.05)), -6)
+    lam.nivel((X(xc0 + 0.30), Z(ncf)), ncf, "NCF %.2f" % ncf, hmm=1.6)
+    lam.nivel((X(-0.45), Z(cf)), cf, "CF %.3f" % cf, hmm=1.6)
+    lam.nivel((X(-0.60), Z(top)), top, "NPT +%.2f" % top, hmm=1.6)
     lam.juntar_llamadas()
-    xt = lam.P(330, 0)[0]
-    lam.llamada((X(K - 0.05), Z(ncf + 0.20)), (xt, Z(top + 0.10)), ["ventana 0.40 x 0.30 dejada al vaciar el muro"], 1.8)
-    lam.llamada((X(K + 0.012), Z(ncf + 0.25)), (xt, Z(top)), ["junta 1\": poliestireno + sello elastomerico"], 1.8)
-    lam.llamada((X(bi - 0.05), Z(cf + 0.20)), (xt, Z(cf + 0.3)), ["caida libre al fondo del colector"], 1.8)
-    lam.llamada((X(0.0), Z(top - 0.04)), (xt, Z(top + 0.2)), ["tapa del registro (DP-06B)"], 1.8)
+    xt = lam.P(500, 0)[0]
+    lam.llamada((X(0.0), Z(top - 0.04)), (xt, Z(top + 0.14)), ["tapa del registro"], 1.6)
+    lam.llamada((X(K - 0.05), Z(ncf + 0.22)), (xt, Z(top + 0.04)), ["ventana 0.40 x 0.30"], 1.6)
+    lam.llamada((X(K + 0.012), Z(ncf + 0.25)), (xt, Z(top - 0.06)), ["junta 1\" + sello"], 1.6)
+    lam.llamada((X(bi - 0.06), Z(cf + 0.18)), (xt, Z(top - 0.16)), ["caida libre al colector"], 1.6)
     lam.volcar_llamadas()
-    lam.titulo_vista(150, 160, "E2. CORTE POR EL EJE DE LA CUNETA", "ESC. 1/10 - cotas del Eje 07 (R-05)", ancho_mm=150)
-    # ---------------- E3 vista del muro del lado del predio (elevacion interior) con la ventana
-    o = lam.P(520, 440); X = lambda u: o[0] + u; Z = lambda z: o[1] + (z - cf)
+    lam.titulo_vista(430, 274, "E2. CORTE POR EL EJE DE LA CUNETA", "ESC. 1/10 - cotas del Eje 07 (R-05)", ancho_mm=130)
+    # ---------------- E3 vista del muro del lado del predio con la ventana
+    o = lam.P(445, 198); X = lambda u: o[0] + u; Z = lambda z: o[1] + (z - cf)
     lam.relleno([(X(-1.0), Z(cf)), (X(1.0), Z(cf)), (X(1.0), Z(cf + hh)), (X(-1.0), Z(cf + hh))], "CONCRETO-ACHURADO")
     lam.rect(X(-1.0), Z(cf), X(1.0), Z(cf + hh), "CONCRETO")
-    lam.rect(X(-0.20), Z(ncf), X(0.20), Z(ncf + 0.30), "CONCRETO"); lam.relleno([(X(-0.20), Z(ncf)), (X(0.20), Z(ncf)), (X(0.20), Z(ncf + 0.30)), (X(-0.20), Z(ncf + 0.30))], "AGUA-RELLENO")
-    for xx in (-0.20, 0.20):
-        for zz in (ncf - 0.04, ncf + 0.34): pass
+    lam.relleno([(X(-0.20), Z(ncf)), (X(0.20), Z(ncf)), (X(0.20), Z(ncf + 0.30)), (X(-0.20), Z(ncf + 0.30))], "AGUA-RELLENO")
+    lam.rect(X(-0.20), Z(ncf), X(0.20), Z(ncf + 0.30), "CONCRETO")
     lam.linea((X(-0.40), Z(ncf - 0.05)), (X(0.40), Z(ncf - 0.05)), "ACERO"); lam.linea((X(-0.40), Z(ncf + 0.35)), (X(0.40), Z(ncf + 0.35)), "ACERO")
-    lam.cota((X(-0.20), Z(cf + hh)), (X(0.20), Z(cf + hh)), 6)
-    lam.cota((X(0.20), Z(ncf)), (X(0.20), Z(ncf + 0.30)), 10, horizontal=False)
-    lam.cota((X(1.0), Z(cf)), (X(1.0), Z(cf + hh)), 8, horizontal=False)
-    lam.llamada((X(0.35), Z(ncf + 0.35)), lam.P(660, 470), ["2 barras 3/8\" adicionales L = 0.80 sobre y bajo la ventana"], 1.8)
-    lam.titulo_vista(520, 380, "E3. VISTA DEL MURO CON LA VENTANA", "ESC. 1/10 - cara interior del muro del lado del predio", ancho_mm=150)
-    # ---------------- J junta de dilatacion (corte por el muro)
-    o = lam.P(470, 230); X = lambda u: o[0] + u; Y = lambda v: o[1] + v
+    lam.cota((X(-0.20), Z(cf + hh)), (X(0.20), Z(cf + hh)), 5)
+    lam.cota((X(0.20), Z(ncf)), (X(0.20), Z(ncf + 0.30)), 8, horizontal=False)
+    lam.cota((X(1.0), Z(cf)), (X(1.0), Z(cf + hh)), 6, horizontal=False)
+    lam.llamada((X(-0.35), Z(ncf + 0.35)), lam.P(338, 228), ["2 barras 3/8\" L = 0.80", "sobre y bajo la ventana"], 1.6, al=TA.RIGHT)
+    lam.titulo_vista(445, 181, "E3. VISTA DEL MURO CON LA VENTANA", "ESC. 1/10 - cara interior del muro del lado del predio", ancho_mm=140)
+    # ---------------- J junta de dilatacion
+    o = lam.P(330, 140); X = lambda u: o[0] + u; Y = lambda v: o[1] + v
     for s_ in (-1, 1):
         a0 = 0.0127 * s_; a1 = 0.45 * s_
         pl = [(X(min(a0, a1)), Y(0)), (X(max(a0, a1)), Y(0)), (X(max(a0, a1)), Y(0.10)), (X(min(a0, a1)), Y(0.10))]
         lam.relleno(pl, "CONCRETO-ACHURADO"); lam.poli(pl, "CONCRETO", cerrada=True)
     lam.rect(X(-0.0127), Y(0.0), X(0.0127), Y(0.085), "JUNTAS")
     lam.rect(X(-0.0127), Y(0.085), X(0.0127), Y(0.10), "CORTES")
-    lam.cota((X(-0.0127), Y(0.10)), (X(0.0127), Y(0.10)), 8, texto='1"')
-    lam.cota((X(0.45), Y(0)), (X(0.45), Y(0.10)), 8, horizontal=False)
+    lam.cota((X(-0.0127), Y(0.10)), (X(0.0127), Y(0.10)), 6, texto='1"')
+    lam.cota((X(0.45), Y(0)), (X(0.45), Y(0.10)), 6, horizontal=False)
     lam.juntar_llamadas()
-    lam.llamada((X(0.0), Y(0.04)), lam.P(560, 250), ["relleno de poliestireno expandido e = 1\""], 1.8)
-    lam.llamada((X(0.0), Y(0.093)), lam.P(560, 262), ["sello elastomerico de poliuretano 1.5 cm"], 1.8)
+    lam.llamada((X(0.0), Y(0.04)), lam.P(400, 140), ["poliestireno expandido e = 1\""], 1.6)
+    lam.llamada((X(0.0), Y(0.093)), lam.P(400, 151), ["sello elastomerico 1.5 cm"], 1.6)
     lam.volcar_llamadas()
-    lam.titulo_vista(470, 200, "J. JUNTA DE DILATACION", "ESC. 1/10 - en muros, losa de fondo y losa superior (33 und)", ancho_mm=150)
-    # cuadro de empalmes
+    lam.titulo_vista(330, 124, "J. JUNTA DE DILATACION", "ESC. 1/10 - 33 und", ancho_mm=90)
+    # cuadro de empalmes, notas y leyenda
     regp = {r["nombre"]: r["prog"] for r in dz.REGISTROS}
     filas = [[e_, rn, pt(regp[rn]), "%.2f" % n_, "%.3f" % dz.CF(regp[rn]), "%.2f" % (n_ - dz.CF(regp[rn]))] for e_, rn, n_ in dz.CUNETAS]
-    lam.tabla(640, 560, ["CUNETA", "REGISTRO", "PROGRESIVA", "NCF", "CF COLECTOR", "CAIDA (m)"], filas, [24, 22, 26, 20, 28, 24],
-              hmm=1.8, alto_mm=6.0, titulo="CUADRO DE EMPALMES DE CUNETA (4 und)")
-    lam.notas(640, 500, "NOTAS", [
+    lam.tabla(30, 136, ["CUNETA", "REGISTRO", "PROGRESIVA", "NCF", "CF COLECTOR", "CAIDA (m)"], filas, [22, 22, 26, 18, 26, 22],
+              hmm=1.6, alto_mm=5.0, titulo="CUADRO DE EMPALMES DE CUNETA (4 und)")
+    lam.notas(30, 102, "NOTAS", [
         "1. La ventana 0.40 x 0.30 se deja al vaciar el muro del lado del predio, centrada bajo el registro.",
-        "2. El piso de la ventana coincide con la cota de fondo de la cuneta (NCF); el agua cae libre al colector.",
-        "3. Juntas de dilatacion e = 1\" cada 4.00 m y en los extremos del cruce de camiones: 33 und.",
-        "4. Junta de tecnopor 1\" entre la losa del colector y la vereda en el tramo 0+000 - 0+078.42."], hmm=1.7, ancho_mm=185)
-    lam.leyenda2(30, 100, [("concreto", "CONCRETO", "concreto armado del colector"), ("rect", "CUNETA", "cuneta que llega (referencia)"),
-                           ("rect", "JUNTAS", "junta e = 1\""), ("relleno", "AGUA-RELLENO", "agua"),
-                           ("discontinua", "CONCRETO-OCULTO", "cara oculta / ventana en planta"), ("bloque:SIMB-FLECHA", "0", "sentido del flujo")],
-                 hmm=1.9, ancho_col=110, filas_col=3)
+        "2. El piso de la ventana esta en la cota de fondo de la cuneta (NCF); el agua cae libre al colector.",
+        "3. Juntas e = 1\" cada 4.00 m y en los extremos del cruce de camiones (33 und)."], hmm=1.5, ancho_mm=360)
+    lam.leyenda2(30, 64, [("concreto", "CONCRETO", "concreto armado del colector"), ("rect", "CUNETA", "cuneta que llega"),
+                          ("rect", "JUNTAS", "junta e = 1\""), ("relleno", "AGUA-RELLENO", "agua"),
+                          ("discontinua", "CONCRETO-OCULTO", "cara oculta / ventana en planta"), ("bloque:SIMB-FLECHA", "0", "sentido del flujo")],
+                 hmm=1.6, ancho_col=120, filas_col=3)
     return lam
 
 
-# ============================================================================== DP-07 ESTRUCTURA DE SALIDA
 def _piedras(lam, pts_poly, xs, ys, r):
     """piedras del emboquillado dentro de un poligono (patron fijo)"""
     from ezdxf.math import is_point_in_polygon_2d, Vec2
@@ -814,7 +816,7 @@ def _piedras(lam, pts_poly, xs, ys, r):
 
 
 def dp07(doc, ox, oy):
-    lam = B.Lamina(doc, ox, oy, 25, "DP-07", "ESTRUCTURA DE SALIDA CON DOS ALEROS Y EMBOQUILLADO",
+    lam = B.Lamina(doc, ox, oy, 15, "DP-07", "ESTRUCTURA DE SALIDA CON DOS ALEROS Y EMBOQUILLADO",
                    "PLANTA, ELEVACION FRONTAL, CORTES A-A Y B-B, ARMADO Y CUADRO DE METRADOS - PROG. 0+139.08 - DENTRO DEL LINDERO")
     f = lam.f; bi, K = dz.b / 2, dz.b_ext(dz.L) / 2
     cf = dz.CFS; top = cf + dz.H_FIN + 0.10; na = dz.NA(dz.L)
@@ -822,7 +824,7 @@ def dp07(doc, ox, oy):
     s2 = math.sqrt(0.5); nx, ny = -s2 * e, s2 * e                  # normal exterior del alero (lado +v)
     zt = (258.30 - dz.ZAP_H + 0.0)                                 # cara superior de la zapata = 258.10
     # ---------------- PLANTA (flujo hacia la izquierda, como en DP-01; predio arriba)
-    o = lam.P(205, 452); X = lambda u: o[0] - u; Y = lambda v: o[1] + v
+    o = lam.P(132, 440); X = lambda u: o[0] - u; Y = lambda v: o[1] + v
     Pp = lambda u, v: (X(u), Y(v))
     for sv in (-1, 1):
         lam.poli([Pp(-1.30, sv * K), Pp(0, sv * K)], "CONCRETO")
@@ -863,16 +865,16 @@ def dp07(doc, ox, oy):
     lam.texto(Pp(-0.65, K + 0.15), "LADO PREDIO", 1.6, "TEXTOS", TA.BOTTOM_CENTER)
     lam.texto(Pp(-0.65, -K - 0.15), "LADO VIA (LINDERO)", 1.6, "TEXTOS", TA.TOP_CENTER)
     lam.juntar_llamadas()
-    xt = lam.P(262, 0)[0]
+    xt = lam.P(248, 0)[0]
     lam.llamada(Pp(av * 0.5 - 0.05, vf * 0.7 + 0.05), (xt, Y(1.75)), ["alero de concreto armado e = 0.15, L = 1.00 a 45 grados"], 1.7)
     lam.llamada(Pp(av - 0.45 * s2 + 0.05, vf + 0.25), (xt, Y(1.35)), ["zapata del alero 0.45 x 0.20 (oculta)"], 1.7)
     lam.llamada(Pp(0.35, -0.3), (xt, Y(0.6)), ["emboquillado de piedra e = 0.20 con concreto f'c=140"], 1.7)
     lam.llamada(Pp(av + 0.17, -1.2), (xt, Y(-0.4)), ["una de concreto ciclopeo f'c=140 + 30% P.M."], 1.7)
     lam.llamada(Pp(-0.6, -0.55), (xt, Y(-1.2)), ["fin del colector cubierto (losa superior +259.00)"], 1.7)
     lam.volcar_llamadas()
-    lam.titulo_vista(150, 362, "PLANTA", "PROG. 0+139.08 - CF 258.30 - ESC. 1/25", ancho_mm=110)
+    lam.titulo_vista(150, 304, "PLANTA", "PROG. 0+139.08 - CF 258.30 - ESC. 1/15", ancho_mm=110)
     # ---------------- ELEVACION FRONTAL (mirando hacia aguas arriba; el predio queda a la izquierda)
-    o = lam.P(560, 450); Xe = lambda v: o[0] - v; Ze = lambda z: o[1] + (z - cf)
+    o = lam.P(505, 482); Xe = lambda v: o[0] - v; Ze = lambda z: o[1] + (z - cf)
     ext = [(Xe(-K), Ze(cf - 0.10)), (Xe(K), Ze(cf - 0.10)), (Xe(K), Ze(top)), (Xe(-K), Ze(top))]
     inn = [(Xe(-bi), Ze(cf)), (Xe(bi), Ze(cf)), (Xe(bi), Ze(cf + dz.H_FIN)), (Xe(-bi), Ze(cf + dz.H_FIN))]
     _hatch_rgb(lam, ext, "CONCRETO-ACHURADO", [inn]); lam.poli(ext, "CONCRETO", cerrada=True); lam.poli(inn, "CONCRETO", cerrada=True)
@@ -898,9 +900,9 @@ def dp07(doc, ox, oy):
         lam.texto((Xe(-vf - 0.40), Ze(cf - 0.03)), "berma (cresta de la via 258.54)", 1.5, "TEXTOS", TA.TOP_RIGHT)
     lam.texto((Xe(vf + 0.30), Ze(top + 0.12)), "LADO PREDIO", 1.6, "TEXTOS", TA.BOTTOM_LEFT)
     lam.texto((Xe(-vf - 0.30), Ze(top + 0.12)), "LADO VIA", 1.6, "TEXTOS", TA.BOTTOM_RIGHT)
-    lam.titulo_vista(560, 392, "ELEVACION FRONTAL", "mirando hacia aguas arriba - ESC. 1/25", ancho_mm=110)
+    lam.titulo_vista(505, 418, "ELEVACION FRONTAL", "mirando hacia aguas arriba - ESC. 1/15", ancho_mm=110)
     # ---------------- CORTE A-A por el eje
-    o = lam.P(205, 235); Xa = lambda u: o[0] - u; Za = lambda z: o[1] + (z - cf)
+    o = lam.P(205, 222); Xa = lambda u: o[0] - u; Za = lambda z: o[1] + (z - cf)
     for z1, z2, capa in ((cf - 0.10, cf, "C"), (cf + dz.H_FIN, top, "C")):
         pl = [(Xa(-1.20), Za(z1)), (Xa(0), Za(z1)), (Xa(0), Za(z2)), (Xa(-1.20), Za(z2))]
         lam.relleno(pl, "CONCRETO-ACHURADO"); lam.poli(pl, "CONCRETO", cerrada=True)
@@ -930,15 +932,15 @@ def dp07(doc, ox, oy):
     lam.nivel((Xa(-0.9), Za(cf)), cf, "CF %.2f" % cf, hmm=1.6)
     lam.nivel((Xa(av + 0.30), Za(cf - dz.UNA_H)), cf - dz.UNA_H, "%.2f" % (cf - dz.UNA_H), hmm=1.6)
     lam.juntar_llamadas()
-    xt = lam.P(262, 0)[0]
+    xt = lam.P(305, 0)[0]
     lam.llamada((Xa(av * 0.6), Za(cf + 0.45)), (xt, Za(top + 0.15)), ["alero (en elevacion): altura 0.70 a 0.45 sobre el piso"], 1.7)
     lam.llamada((Xa(0.35), Za(cf - 0.10)), (xt, Za(cf + 0.05)), ["emboquillado e = 0.20 sobre relleno compactado e = 0.10"], 1.7)
     lam.llamada((Xa(av + 0.15), Za(cf - 0.40)), (xt, Za(cf - 0.30)), ["una trapecial 0.35 / 0.15 x 0.65, L = 3.21 m"], 1.7)
     lam.llamada((Xa(av + 1.0), Za(cf + 0.04)), (xt, Za(cf - 0.62)), ["el agua vierte sobre la berma de la via"], 1.7)
     lam.volcar_llamadas()
-    lam.titulo_vista(150, 150, "CORTE A-A", "por el eje del colector - ESC. 1/25", ancho_mm=110)
+    lam.titulo_vista(170, 160, "CORTE A-A", "por el eje del colector - ESC. 1/15", ancho_mm=110)
     # ---------------- CORTE B-B alero tipico
-    o = lam.P(470, 240); Xb = lambda w: o[0] + w; Zb = lambda z: o[1] + (z - cf)
+    o = lam.P(500, 232); Xb = lambda w: o[0] + w; Zb = lambda z: o[1] + (z - cf)
     hm = (dz.AL_H0 + dz.AL_H1) / 2
     mu_ = [(Xb(0), Zb(zt)), (Xb(e), Zb(zt)), (Xb(e), Zb(cf + hm)), (Xb(0), Zb(cf + hm))]
     zp = [(Xb(0), Zb(zt - dz.ZAP_H)), (Xb(dz.ZAP_B), Zb(zt - dz.ZAP_H)), (Xb(dz.ZAP_B), Zb(zt)), (Xb(0), Zb(zt))]
@@ -963,26 +965,26 @@ def dp07(doc, ox, oy):
     lam.cota((Xb(-0.60), Zb(cf - dz.EMB_E - dz.AFIRM_E)), (Xb(-0.60), Zb(cf - dz.EMB_E)), -5, horizontal=False)
     lam.cota((Xb(-0.60), Zb(cf - dz.EMB_E)), (Xb(-0.60), Zb(cf)), -5, horizontal=False)
     lam.juntar_llamadas()
-    xt = lam.P(520, 0)[0]
+    xt = lam.P(580, 0)[0]
     lam.llamada((Xb(xv), Zb(cf + 0.30)), (xt, Zb(cf + hm + 0.10)), ["3/8\" @0.20 en L (vertical + zapata), L = 1.38"], 1.7)
     lam.llamada((Xb(xv + 0.012), Zb(zt + 0.08)), (xt, Zb(cf + 0.30)), ["horizontales 3/8\" @0.20 (5 por alero)"], 1.7)
     lam.llamada((Xb(0.22), Zb(zt - dz.ZAP_H + 0.062)), (xt, Zb(cf + 0.05)), ["3 barras 3/8\" longitudinales en la zapata"], 1.7)
     lam.llamada((Xb(0.6), Zb(zt + 0.40)), (xt, Zb(cf - 0.20)), ["relleno compactado sobre la zapata (lado exterior)"], 1.7)
     lam.llamada((Xb(0.30), Zb(zt - dz.ZAP_H - 0.025)), (xt, Zb(cf - 0.40)), ["solado e = 0.05 bajo la zapata"], 1.7)
     lam.volcar_llamadas()
-    lam.titulo_vista(470, 150, "CORTE B-B", "alero tipico, perpendicular al alero - ESC. 1/25", ancho_mm=110)
+    lam.titulo_vista(530, 168, "CORTE B-B", "alero tipico, perpendicular al alero - ESC. 1/15", ancho_mm=110)
     # ---------------- cuadros con los valores de la planilla del presupuesto
     part, acero, tot = dz.planilla()
     from decimal import Decimal, ROUND_HALF_UP
     r2 = lambda v: str(Decimal(str(v)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
     filas = [[c, d, u, r2(v)] for c, d, u, v in part
              if c.startswith(("1.4.4.6.4.2.", "1.4.4.6.3.2"))]
-    lam.tabla(632, 575, ["PARTIDA", "DESCRIPCION", "UND", "METRADO"], filas, [24, 120, 12, 18], hmm=1.6, alto_mm=5.5,
+    lam.tabla(652, 575, ["PARTIDA", "DESCRIPCION", "UND", "METRADO"], filas, [24, 120, 12, 18], hmm=1.6, alto_mm=5.5,
               titulo="METRADO DE LA ESTRUCTURA DE SALIDA (PRESUPUESTO)")
     fa = [[a["elemento"].replace("Aleros: ", ""), a["diam"], a["forma"], "%d" % a["n"], r2(a["L"]), r2(a["kg"])] for a in acero
           if str(a["partida"]).startswith("1.4.4.6.4.2.3")]
     fa.append(["TOTAL ACERO DE ALEROS", "", "", "", "", r2(tot.get("TOTAL ACERO ALEROS (1.4.4.6.4.2.3)", 0))])
-    lam.tabla(632, 500, ["ELEMENTO", "DIAM.", "FORMA", "N.", "L (m)", "kg"], fa, [72, 14, 16, 12, 18, 22], hmm=1.6, alto_mm=5.5,
+    lam.tabla(672, 330, ["ELEMENTO", "DIAM.", "FORMA", "N.", "L (m)", "kg"], fa, [72, 14, 16, 12, 18, 22], hmm=1.6, alto_mm=5.5,
               titulo="DESPIECE DE ACERO DE LOS ALEROS")
     lam.leyenda2(30, 100, [("concreto", "CONCRETO", "concreto armado f'c=210 (colector y aleros)"), ("relleno", "ISO-PIEDRA", "una de concreto ciclopeo f'c=140 + 30% P.M."),
                            ("rect", "POZA", "emboquillado de piedra e = 0.20"), ("rect", "SOLADO", "relleno compactado e = 0.10 / solado e = 0.05"),
@@ -1000,8 +1002,8 @@ def dp07(doc, ox, oy):
 def dp08(doc, ox, oy):
     from decimal import Decimal, ROUND_HALF_UP
     r2 = lambda v, d="0.01": str(Decimal(str(v)).quantize(Decimal(d), rounding=ROUND_HALF_UP))
-    lam = B.Lamina(doc, ox, oy, 25, "DP-08", "CUADROS DE ACERO Y DE METRADOS, ESPECIFICACIONES TECNICAS Y NOTAS",
-                   "VALORES DE LA PLANILLA DEL PRESUPUESTO (PARTIDAS 1.4.4.6) - FIGURAS DE MARCOS ESC. 1/25 - GROSORES DE IMPRESION")
+    lam = B.Lamina(doc, ox, oy, 20, "DP-08", "CUADROS DE ACERO Y DE METRADOS, ESPECIFICACIONES TECNICAS Y NOTAS",
+                   "VALORES DE LA PLANILLA DEL PRESUPUESTO (PARTIDAS 1.4.4.6) - CUADRO HIDRAULICO - FIGURAS DE MARCOS ESC. 1/20", formato="A2")
     f = lam.f
     part, acero, tot = dz.planilla()
     # ---------------- cuadro de acero
@@ -1009,11 +1011,14 @@ def dp08(doc, ox, oy):
     filas.append(["", "TOTAL ACERO COLECTOR (1.4.4.6.4.1.3)", "", "", "", "", "", r2(tot["TOTAL ACERO COLECTOR (1.4.4.6.4.1.3)"])])
     filas.append(["", "TOTAL ACERO ALEROS (1.4.4.6.4.2.3)", "", "", "", "", "", r2(tot["TOTAL ACERO ALEROS (1.4.4.6.4.2.3)"])])
     filas.append(["", "ACERO EN REGISTROS (incluido en 1.4.4.6.5.1)", "", "", "", "", "", r2(tot["ACERO EN REGISTROS (incluido en 1.4.4.6.5.1)"])])
-    yb = lam.tabla(30, 572, ["PARTIDA", "ELEMENTO", "N. PIEZAS", "L PIEZA (m)", "DIAM.", "FORMA", "L TOTAL (m)", "PESO (kg)"], filas,
-                   [26, 92, 20, 22, 14, 18, 24, 22], hmm=1.7, alto_mm=5.2, titulo="CUADRO DE ACERO DEL COLECTOR, REGISTROS Y ALEROS")
-    lam.texto(lam.P(30, yb - 4), "N. de piezas y longitudes medias ponderadas de la planilla de metrados (marcos con ganchos; barras de 9 m con traslape 0.40 m).",
-              1.6, "TEXTOS-NOTAS")
-    # ---------------- figuras de los marcos (1/25)
+    yb = lam.tabla(30, 400, ["PARTIDA", "ELEMENTO", "N. PIEZAS", "L PIEZA", "DIAM.", "FORMA", "L TOTAL", "PESO (kg)"], filas,
+                   [28, 108, 21, 20, 15, 19, 26, 25], hmm=1.8, alto_mm=5.2, titulo="CUADRO DE ACERO DEL COLECTOR, REGISTROS Y ALEROS")
+    lam.texto(lam.P(30, yb - 4), "Piezas y longitudes medias de la planilla (marcos con ganchos; barras de 9 m con traslape 0.40 m).", 1.8, "TEXTOS-NOTAS")
+    # ---------------- cuadro hidraulico
+    cab, fh = cuadro_hidraulico()
+    yh = lam.tabla(30, yb - 18, cab, fh, [44, 50, 20, 28, 26, 20, 22, 26], hmm=1.8, alto_mm=5.6,
+                   titulo="CUADRO HIDRAULICO POR TRAMOS (TR = 25 ANOS)")
+    # ---------------- figuras de los marcos (1/20)
     def marco_fig(xmm, ymm, w, hgt, d, txt_w, txt_h, titulo, sub, ytit=None):
         x0, y0 = lam.P(xmm, ymm)
         lam.poli([(x0, y0), (x0 + w, y0), (x0 + w, y0 + hgt), (x0, y0 + hgt)], "ACERO", cerrada=True, ancho=max(d, 0.35 * f))
@@ -1023,18 +1028,18 @@ def dp08(doc, ox, oy):
         lam.cota((x0, y0), (x0 + w, y0), -6, texto=txt_w)
         lam.cota((x0 + w, y0), (x0 + w, y0 + hgt), 6, horizontal=False, texto=txt_h)
         lam.titulo_vista(xmm + w / f / 2, (ytit if ytit is not None else ymm) - 18, titulo, sub, ancho_mm=max(70, w / f))
-    yfig = yb - 62
-    marco_fig(50, yfig, 1.60, 0.55, D38, "1.60", "h + 0.10", "MARCO 3/8\"", "@0.20 vereda y final, @0.15 autos")
-    marco_fig(160, yfig, 1.71, 0.81, D12, "1.71", "h + 0.31", "MARCO EXTERIOR 1/2\"", "cruce de camiones @0.15")
-    marco_fig(285, yfig + 0.11 / f, 1.59, 0.59, D12, "1.59", "h + 0.09", "MARCO INTERIOR 1/2\"", "cruce de camiones @0.15", ytit=yfig)
-    marco_fig(220, yfig + 0.11 / f, 1.59, 0.59, D12, "1.59", "h + 0.09", "", None) if False else None
-    lam.texto(lam.P(30, yfig - 34), "Ganchos a 135 grados de 6 diametros en la esquina superior del lado de la via; h = altura interior del tramo (DP-03).", 1.7, "TEXTOS-NOTAS")
+    yfig = yh - 62
+    lam.texto(lam.P(30, yfig + 52), "FIGURAS DE LOS MARCOS (ESC. 1/20)", 3.0, "TITULOS")
+    marco_fig(34, yfig, 1.60, 0.55, D38, "1.60", "h + 0.10", "MARCO 3/8\"", "@0.20 vereda/final, @0.15 autos")
+    marco_fig(140, yfig, 1.71, 0.81, D12, "1.71", "h + 0.31", "MARCO EXT. 1/2\"", "camiones @0.15")
+    marco_fig(250, yfig + 0.11 / f, 1.59, 0.59, D12, "1.59", "h + 0.09", "MARCO INT. 1/2\"", "camiones @0.15", ytit=yfig)
+    lam.texto(lam.P(30, yfig - 34), "Ganchos a 135 grados de 6 diametros; h = altura interior del tramo (DP-03).", 1.8, "TEXTOS-NOTAS")
     # ---------------- partidas del presupuesto (lado derecho)
     fp = [[c, d[:62], u, r2(v) if v is not None else ""] for c, d, u, v in part]
-    lam.tabla(456, 572, ["ITEM", "DESCRIPCION", "UND", "METRADO"], fp, [26, 122, 12, 22], hmm=1.6, alto_mm=4.6,
+    yp = lam.tabla(350, 400, ["ITEM", "DESCRIPCION", "UND", "METRADO"], fp, [26, 156, 12, 22], hmm=1.7, alto_mm=4.6,
               titulo="PARTIDAS DEL COLECTOR EN EL PRESUPUESTO (1.4.4.6)")
     # ---------------- especificaciones tecnicas
-    lam.notas(456, 430, "ESPECIFICACIONES TECNICAS", [
+    ye = lam.notas(350, yp - 12, "ESPECIFICACIONES TECNICAS", [
         "CONCRETO ARMADO: f'c = 210 kg/cm2 en colector, aleros de salida y tapas.",
         "CONCRETO SIMPLE: solado f'c = 100 kg/cm2 e = 0.05; una ciclopea f'c = 140 kg/cm2 + 30 % P.M.",
         "EMBOQUILLADO: piedra mediana 6\" a 8\" asentada con concreto f'c = 140 kg/cm2, e = 0.20 sobre relleno compactado e = 0.10.",
@@ -1046,19 +1051,19 @@ def dp08(doc, ox, oy):
         "JUNTAS: e = 1\" cada 4.00 m y en el cruce de camiones; poliestireno expandido y sello elastomerico.",
         "CURADO: humedo minimo 7 dias; no transitar sobre la losa antes de 14 dias.",
         "RELLENO: material propio seleccionado en capas de 0.15 m al 95 % del Proctor modificado.",
-        "MURO LADO VIA: vaciado contra el terreno (sin encofrado exterior)."], hmm=1.6, ancho_mm=372)
+        "MURO LADO VIA: vaciado contra el terreno (sin encofrado exterior)."], hmm=1.7, ancho_mm=226)
     # ---------------- grosores de impresion (CTB) por capa
     filas = [["CONCRETO", "250 (gris)", "0.50"], ["ACERO (marcos)", "1 (rojo)", "0.35"], ["ACERO-LONG", "5 (azul)", "0.35"],
              ["MARCO-METALICO / angulos", "32 / 5", "0.40"], ["CUNETA", "3 (verde)", "0.35"], ["COTAS", "94 (verde osc.)", "0.18"],
              ["LLAMADAS", "30 (naranja)", "0.18"], ["AGUA", "150 (celeste)", "0.25"], ["TITULOS", "160 (azul)", "0.35"],
              ["ARQ-BASE (referencia)", "8 (gris)", "0.13"]]
-    lam.tabla(30, 255, ["CAPA", "COLOR", "GROSOR (mm)"], filas, [70, 36, 24], hmm=1.6, alto_mm=4.4, titulo="GROSORES DE IMPRESION POR CAPA")
-    lam.notas(30, 100, "NOTAS GENERALES", [
+    lam.tabla(30, yfig - 50, ["CAPA", "COLOR", "GROSOR"], filas, [62, 32, 20], hmm=1.6, alto_mm=4.4, titulo="GROSORES POR CAPA")
+    lam.notas(160, yfig - 50, "NOTAS GENERALES", [
         "1. Dimensiones en metros y cotas en m.s.n.m., salvo indicacion.",
         "2. El colector se dimensiona para 823 L/s en la salida (CAR Varones, Hogar de Refugio y CAR Mujeres; TR 25 anos).",
         "3. Verificacion hidraulica y estructural segun la memoria de calculo del proyecto (RNE CE.040, E.020, E.060).",
         "4. Los metrados de esta lamina son los de la planilla del presupuesto; los planos no modifican cantidades.",
-        "5. Confirmar la capacidad portante con el estudio de mecanica de suelos antes del vaciado."], hmm=1.7, ancho_mm=400)
+        "5. Confirmar la capacidad portante con el estudio de mecanica de suelos antes del vaciado."], hmm=1.7, ancho_mm=235)
     return lam
 
 
@@ -1078,17 +1083,17 @@ def _caja(lam, T, x0, x1, y0, y1, z0, z1, capas=("ISO-CONCRETO-SUP", "ISO-CONCRE
 
 
 def dp09(doc, ox, oy):
-    lam = B.Lamina(doc, ox, oy, 25, "DP-09", "ISOMETRICOS CONSTRUCTIVOS",
-                   "COLECTOR A NIVEL DE VEREDA, REGISTRO DE LIMPIEZA, EMPALME DE CUNETA Y ESTRUCTURA DE SALIDA - ESC. 1/25 (ESCALA REAL)")
+    lam = B.Lamina(doc, ox, oy, 20, "DP-09", "ISOMETRICOS CONSTRUCTIVOS",
+                   "COLECTOR A NIVEL DE VEREDA, REGISTRO DE LIMPIEZA, EMPALME DE CUNETA Y ESTRUCTURA DE SALIDA - ESC. 1/20 (ESCALA REAL)")
     f = lam.f; bi = dz.b / 2
     # ---------------- 1. colector a nivel de vereda (tramo de 2.40 m con junta y vereda adyacente)
     p = 20.0; K = dz.b_ext(p) / 2; cf = dz.CF(p); top = dz.techo(p); Ls = 2.4
-    o = lam.P(150, 430)
+    o = lam.P(150, 415)
     T = iso_seccion(lam, o, p, Ls=Ls, llamadas=False)
     _caja(lam, T, K + 0.025, K + 1.0, 0, Ls, top - 0.10, top, ("ISO-CUNETA", "ISO-CUNETA", "ISO-CUNETA"))
     _cara(lam, T, [(K, 0, top), (K + 0.025, 0, top), (K + 0.025, Ls, top), (K, Ls, top)], "ISO-TAPA")
     lam.poli([T(-K, 1.2, top), T(K, 1.2, top), T(K, 1.2, cf - 0.10)], "JUNTAS")
-    lam.juntar_llamadas(); xt = lam.P(255, 0)[0]
+    lam.juntar_llamadas(); xt = lam.P(345, 0)[0]
     lam.llamada(T(0.2, 0.6, top), (xt, lam.P(0, 545)[1]), ["losa superior del colector = vereda (NPT +259.25)"], 1.7)
     lam.llamada(T(0.4, 1.2, top), (xt, lam.P(0, 533)[1]), ["junta de dilatacion cada 4.00 m (sello elastomerico)"], 1.7)
     lam.llamada(T(K + 0.5, 1.0, top), (xt, lam.P(0, 521)[1]), ["piso adyacente del predio"], 1.7)
@@ -1097,10 +1102,10 @@ def dp09(doc, ox, oy):
     lam.llamada(T(-K, Ls, top - 0.3), (xt, lam.P(0, 485)[1]), ["muro lado via vaciado contra el terreno"], 1.7)
     lam.llamada(T(0.4, Ls, cf - 0.05), (xt, lam.P(0, 473)[1]), ["losa de fondo e = 0.10 sobre solado e = 0.05"], 1.7)
     lam.volcar_llamadas()
-    lam.titulo_vista(200, 330, "ISOMETRICO 1: COLECTOR A NIVEL DE VEREDA", "tramo tipico de 2.40 m en vereda - ESC. 1/25", ancho_mm=160)
+    lam.titulo_vista(200, 352, "ISOMETRICO 1: COLECTOR A NIVEL DE VEREDA", "tramo tipico de 2.40 m en vereda - ESC. 1/20", ancho_mm=160)
     # ---------------- 2. registro de limpieza (vista explotada)
     p = 37.95; K = dz.b_ext(p) / 2; cf = dz.CF(p); top = dz.techo(p); Ls = 1.6; yc = 0.8
-    o = lam.P(560, 410)
+    o = lam.P(560, 405)
     def T2(x, y, z):
         u, v = B.iso(x, y - Ls, z - cf); return (o[0] + u, o[1] + v)
     r, l_ = dz.REB / 2, dz.LUZ / 2
@@ -1124,14 +1129,14 @@ def dp09(doc, ox, oy):
         lam.poli([T2(-0.08, yy - 0.025, zt_), T2(0.08, yy - 0.025, zt_), T2(0.08, yy + 0.025, zt_), T2(-0.08, yy + 0.025, zt_)], "ISO-ARISTAS", cerrada=True)
     for q in ((-t_, yc - t_), (t_, yc - t_), (t_, yc + t_)):
         lam.linea(T2(q[0], q[1], zt_ - dz.E_TAPA - 0.02), T2(q[0], q[1], top + 0.02), "CORTES") if False else lam.linea(T2(q[0], q[1], zt_ - dz.E_TAPA - 0.02), T2(q[0], q[1], zc + 0.04), "GRILLA")
-    lam.juntar_llamadas(); xt = lam.P(668, 0)[0]
+    lam.juntar_llamadas(); xt = lam.P(685, 0)[0]
     lam.llamada(T2(t_, yc, zt_), (xt, lam.P(0, 545)[1]), ["tapa de concreto 0.68 x 0.68 x 0.08 con marco L 1 1/2\""], 1.7)
     lam.llamada(T2(r + 0.03, yc, zc), (xt, lam.P(0, 533)[1]), ["contramarco L 2\"x2\"x3/16\" con anclajes 3/8\""], 1.7)
     lam.llamada(T2(r, yc - r * 0.2, top - 0.04), (xt, lam.P(0, 521)[1]), ["rebaje 0.70 x 0.08: la tapa apoya en la ceja de 0.05"], 1.7)
     lam.llamada(T2(0.0, yc, top - dz.E_TAPA), (xt, lam.P(0, 509)[1]), ["luz libre 0.60 x 0.60 (borde engrosado 0.15 x 0.10 bajo la losa)"], 1.7)
     lam.llamada(T2(K - 0.3, 0.3, top), (xt, lam.P(0, 497)[1]), ["losa superior e = 0.10"], 1.7)
     lam.volcar_llamadas()
-    lam.titulo_vista(600, 330, "ISOMETRICO 2: REGISTRO DE LIMPIEZA", "vista explotada - colocacion del contramarco y la tapa - ESC. 1/25", ancho_mm=160)
+    lam.titulo_vista(600, 352, "ISOMETRICO 2: REGISTRO DE LIMPIEZA", "vista explotada - colocacion del contramarco y la tapa - ESC. 1/20", ancho_mm=160)
     # ---------------- 3. empalme de cuneta (losa superior cortada para ver el interior)
     p = 37.95; K = dz.b_ext(p) / 2; cf = dz.CF(p); top = dz.techo(p); Ls = 1.6; yc = 0.8; ncf = 258.74
     o = lam.P(130, 190)
@@ -1145,15 +1150,15 @@ def dp09(doc, ox, oy):
     _cara(lam, T3, [(xc1, yc - 0.30, ncf - 0.10), (xc1, yc + 0.30, ncf - 0.10), (xc1, yc + 0.30, top), (xc1, yc - 0.30, top)], "ISO-CUNETA")
     _cara(lam, T3, [(xc0, yc + 0.20, top), (xc1, yc + 0.20, top), (xc1, yc + 0.30, top), (xc0, yc + 0.30, top)], "ISO-CUNETA")
     lam.flecha(T3(xc1 - 0.2, yc, ncf + 0.03), T3(K + 0.1, yc, ncf + 0.03), "FLUJO", 2.5)
-    lam.juntar_llamadas(); xt = lam.P(255, 0)[0]
+    lam.juntar_llamadas(); xt = lam.P(292, 0)[0]
     lam.llamada(T3(xc1 - 0.3, yc + 0.3, top - 0.1), (xt, lam.P(0, 305)[1]), ["cuneta 0.40 que llega del eje (Ejes 02, 07, 10 y 12)"], 1.7)
     lam.llamada(T3(K, yc, ncf + 0.15), (xt, lam.P(0, 293)[1]), ["ventana 0.40 x 0.30 en el muro del lado del predio"], 1.7)
     lam.llamada(T3(K + 0.012, yc + 0.25, top - 0.2), (xt, lam.P(0, 281)[1]), ["junta 1\" entre cuneta y colector"], 1.7)
     lam.llamada(T3(0.0, Ls, dz.NA(p) - 0.05), (xt, lam.P(0, 269)[1]), ["agua de diseno en el colector"], 1.7)
     lam.volcar_llamadas()
-    lam.titulo_vista(200, 112, "ISOMETRICO 3: EMPALME DE CUNETA", "ventana en el muro y caida al colector, bajo un registro - ESC. 1/25", ancho_mm=160)
+    lam.titulo_vista(200, 112, "ISOMETRICO 3: EMPALME DE CUNETA", "ventana en el muro y caida al colector, bajo un registro - ESC. 1/20", ancho_mm=160)
     # ---------------- 4. estructura de salida (vista girada 25 grados; caras ordenadas por profundidad)
-    o = lam.P(585, 205); cf = dz.CFS; K = dz.b_ext(dz.L) / 2; top = cf + dz.H_FIN + 0.10; naS = dz.NA(dz.L)
+    o = lam.P(575, 218); cf = dz.CFS; K = dz.b_ext(dz.L) / 2; top = cf + dz.H_FIN + 0.10; naS = dz.NA(dz.L)
     av = dz.AL_AV; vf = bi + av; s2 = math.sqrt(0.5); e = dz.AL_E
     th = math.radians(-28.0); ct_, st_ = math.cos(th), math.sin(th)
     def R3(x, y, z): return (x * ct_ - y * st_, x * st_ + y * ct_, z)
@@ -1201,14 +1206,14 @@ def dp09(doc, ox, oy):
         lam.poli(pp, "ISO-ARISTAS", cerrada=True)
     _piedras(lam, [T4(-bi, 0, cf), T4(bi, 0, cf), T4(vf, av, cf), T4(-vf, av, cf)],
              [T4(0, 0, cf)[0] + (i - 12) * 0.09 for i in range(25)], [T4(0, 0, cf)[1] + (j - 6) * 0.07 for j in range(13)], 0.03)
-    lam.juntar_llamadas(); xt = lam.P(668, 0)[0]
+    lam.juntar_llamadas(); xt = lam.P(680, 0)[0]
     lam.llamada(T4(vf - 0.1, av - 0.1, cf + dz.AL_H1), (xt, lam.P(0, 305)[1]), ["alero e = 0.15, L = 1.00 a 45 grados (h 0.70 a 0.45)"], 1.7)
     lam.llamada(T4(0.0, av * 0.5, cf), (xt, lam.P(0, 293)[1]), ["emboquillado de piedra e = 0.20"], 1.7)
     lam.llamada(T4(0.6, av + 0.17, cf), (xt, lam.P(0, 281)[1]), ["una de concreto ciclopeo (0.35 x 0.65)"], 1.7)
     lam.llamada(T4(0.3, -0.8, top), (xt, lam.P(0, 269)[1]), ["fin del colector cubierto (losa +259.00)"], 1.7)
     lam.llamada(T4(0.0, -0.5, dz.NA(dz.L)), (xt, lam.P(0, 257)[1]), ["agua de diseno (NA 258.785)"], 1.7)
     lam.volcar_llamadas()
-    lam.titulo_vista(600, 112, "ISOMETRICO 4: ESTRUCTURA DE SALIDA", "PROG. 0+139.08 - CF 258.30 - dentro del lindero - ESC. 1/25", ancho_mm=160)
+    lam.titulo_vista(560, 120, "ISOMETRICO 4: ESTRUCTURA DE SALIDA", "PROG. 0+139.08 - CF 258.30 - dentro del lindero - ESC. 1/20", ancho_mm=160)
     lam.leyenda2(30, 100, [("relleno", "ISO-CONCRETO-SUP", "concreto armado (cara superior)"), ("relleno", "ISO-CONCRETO-LAT2", "concreto armado (caras laterales)"),
                            ("relleno", "ISO-TAPA", "tapa de registro / junta de tecnopor"), ("relleno", "AGUA-RELLENO", "agua"),
                            ("relleno", "ISO-CUNETA", "cuneta que llega / piso adyacente"), ("linea2", "MARCO-METALICO", "marco y contramarco metalico"),
@@ -1219,10 +1224,10 @@ def dp09(doc, ox, oy):
 # ============================================================================== DP-10 ISOMETRICO GENERAL
 def dp10(doc, ox, oy):
     lam = B.Lamina(doc, ox, oy, 200, "DP-10", "ISOMETRICO GENERAL DEL COLECTOR PLUVIAL",
-                   "VISTA DE CONJUNTO A ESCALA REAL (SIN EXAGERACION VERTICAL): COLECTOR CUBIERTO, REGISTROS, EMPALMES DE CUNETA Y SALIDA")
+                   "VISTA DE CONJUNTO A ESCALA REAL, SIN EXAGERACION VERTICAL: COLECTOR, REGISTROS, CUNETAS Y SALIDA")
     f = lam.f
     x0, y0, _ = dz.eje_local(0.0)
-    o = lam.P(745, 235)
+    o = lam.P(745, 205)
     def T(x, y, z):
         u, v = B.iso(x - x0, y - y0, z - dz.NPT); return (o[0] + u, o[1] + v)
     caras = []
@@ -1285,10 +1290,12 @@ def dp10(doc, ox, oy):
         for i, t in enumerate(ls):
             lam.texto((u[0] + 0.8 * f, yb - i * 3.4 * f), t, 1.6, "TEXTOS", TA.BOTTOM_LEFT)
     x, y, _ = dz.eje_local(dz.L); u = T(x, y, dz.CFS)
-    lam.linea(u, (u[0], u[1] + 14 * f), "LLAMADAS")
-    lam.textos((u[0] + 0.8 * f, u[1] + 18 * f), ["SALIDA %s" % pt(dz.L), "aleros y emboquillado (DP-07)"], 1.6, "TEXTOS")
+    lam.linea(u, (u[0], u[1] - 12 * f), "LLAMADAS")
+    for i, t in enumerate(["SALIDA %s" % pt(dz.L), "aleros y emboquillado (DP-07)"]):
+        lam.texto((u[0] + 0.8 * f, u[1] - 12 * f - i * 3.4 * f), t, 1.6, "TEXTOS", TA.TOP_LEFT)
     x, y, _ = dz.eje_local(0.0); u = T(x, y, dz.NPT)
-    lam.textos((u[0] + 3 * f, u[1] + 22 * f), ["INICIO 0+000.00 (R-01)", "llegada de CAR Varones y", "Hogar de Refugio (560.6 L/s)"], 1.8, "TEXTOS")
+    for i, t in enumerate(["INICIO 0+000.00 (R-01)", "llegada de CAR Varones y", "Hogar de Refugio (560.6 L/s)"]):
+        lam.texto((u[0] + 4 * f, u[1] - 10 * f - i * 3.8 * f), t, 1.8, "TEXTOS", TA.TOP_LEFT)
     lam.leyenda2(30, 100, [("relleno", "ISO-CONCRETO-SUP", "losa superior del colector"), ("relleno", "ISO-CONCRETO-LAT2", "muro del lado del predio"),
                            ("relleno", "ISO-TAPA", "tapa de registro (15 und)"), ("relleno", "ISO-CUNETA", "cuneta que llega (4 und)"),
                            ("linea2", "CRUCE-VEHICULAR", "cruce vehicular (autos y camiones)"), ("discontinua", "JUNTAS", "junta de dilatacion (33 und)"),
@@ -1299,39 +1306,75 @@ def dp10(doc, ox, oy):
     return lam
 
 
+# ============================================================================== DP-00 INDICE DE LAMINAS
+def dp00(doc, ox, oy, lista):
+    lam = B.Lamina(doc, ox, oy, 25, "DP-00", "INDICE DE LAMINAS - COLECTOR PLUVIAL FRONTAL",
+                   "RELACION DE LAMINAS, FORMATO DE PAPEL Y ESCALA - IMPRIMIR CADA PRESENTACION A ESCALA 1:1", formato="A3", escala_txt="S/E")
+    filas = [[str(i + 1), cod, tit, form, esc] for i, (cod, tit, form, esc) in enumerate(lista)]
+    yb = lam.tabla(30, 277, ["N.", "LAMINA", "DESCRIPCION", "FORMATO", "ESCALA"], filas, [10, 20, 268, 40, 32], hmm=1.7, alto_mm=6.0,
+                   titulo="INDICE DE LAMINAS")
+    lam.notas(30, yb - 8, "NOTAS DE IMPRESION", [
+        "1. Cada lamina tiene su presentacion (pestana) con el papel ISO full bleed indicado y la ventana bloqueada a su escala.",
+        "2. Imprimir desde la pestana de la lamina: area = presentacion, escala 1:1, centrado. Plotter: el del usuario o DWG To PDF.",
+        "3. A0 = 1189 x 841 mm; A1 = 841 x 594 mm; A2 = 594 x 420 mm; A3 = 420 x 297 mm."], hmm=1.6, ancho_mm=330)
+    return lam
+
+
+# ============================================================================== presentaciones (layouts) para imprimir
+PAPEL = {"A0": ("ISO_full_bleed_A0_(1189.00_x_841.00_MM)", 1189.0, 841.0), "A1": ("ISO_full_bleed_A1_(841.00_x_594.00_MM)", 841.0, 594.0),
+         "A2": ("ISO_full_bleed_A2_(594.00_x_420.00_MM)", 594.0, 420.0), "A3": ("ISO_full_bleed_A3_(420.00_x_297.00_MM)", 420.0, 297.0)}
+PLOTTER = "DWG To PDF.pc3"
+
+
+def presentaciones(doc):
+    """Una presentacion por lamina con su papel ISO full bleed y una ventana bloqueada a la escala de la lamina.
+    El espacio modelo queda en A1 para que el dialogo de impresion no pida otro papel."""
+    dm = doc.layouts.get("Model").dxf_layout.dxf
+    dm.plot_configuration_file = PLOTTER; dm.paper_size = PAPEL["A1"][0]
+    dm.paper_width, dm.paper_height = 841.0, 594.0
+    dm.left_margin = dm.right_margin = dm.top_margin = dm.bottom_margin = 0.0
+    dm.plot_paper_units = 1
+    for cod, lam in LAMINAS.items():
+        nombre, W, H = PAPEL[lam.formato]
+        if cod in doc.layouts: doc.layouts.delete(cod)
+        lay = doc.layouts.new(cod)
+        lay.page_setup(size=(W, H), margins=(0, 0, 0, 0), units="mm", offset=(0, 0), rotation=0, scale=16,
+                       name=nombre.split("_(")[0], device=PLOTTER)
+        vp = lay.add_viewport(center=(W / 2, H / 2), size=(W, H),
+                              view_center_point=(lam.ox + W / 2 * lam.f, lam.oy + H / 2 * lam.f), view_height=H * lam.f)
+        vp.dxf.flags = vp.dxf.flags | 16384          # ventana bloqueada: la escala no cambia al hacer zoom
+        vp.dxf.layer = "MARCO"
+    if "Layout1" in doc.layouts and len(doc.layouts) > 2:
+        doc.layouts.delete("Layout1")
+
+
 # ============================================================================== armado del documento
+ORDEN = [("DP-01", lambda d, x: [dp01(d, -572.6, -35.4)]), ("DP-02", lambda d, x: [dp02(d, x, 0.0)]),
+         ("DP-03", lambda d, x: dp03(d, x, 0.0)), ("DP-04", lambda d, x: dp04(d, x, 0.0)), ("DP-05", lambda d, x: dp05(d, x, 0.0)),
+         ("DP-06A", lambda d, x: [dp06a(d, x, 0.0)]), ("DP-06B", lambda d, x: [dp06b(d, x, 0.0)]), ("DP-06C", lambda d, x: [dp06c(d, x, 0.0)]),
+         ("DP-07", lambda d, x: [dp07(d, x, 0.0)]), ("DP-08", lambda d, x: [dp08(d, x, 0.0)]), ("DP-09", lambda d, x: [dp09(d, x, 0.0)]),
+         ("DP-10", lambda d, x: [dp10(d, x, 0.0)])]
+
+
 def construir(solo=None):
     doc = B.nuevo_documento()
-    hacer = lambda c: solo is None or c in solo
-    if hacer("DP-01"):
-        LAMINAS["DP-01"] = dp01(doc, -572.6, -35.4)
-    if hacer("DP-02"):
-        LAMINAS["DP-02"] = dp02(doc, 0.0, 0.0)
-    if any(hacer(c) for c in ("DP-03A", "DP-03B", "DP-03C")):
-        for l in dp03(doc, 100.0, 0.0): LAMINAS[l.codigo] = l
-    if any(hacer(c) for c in ("DP-04A", "DP-04B")):
-        for l in dp04(doc, 200.0, 0.0): LAMINAS[l.codigo] = l
-    if any(hacer(c) for c in ("DP-05A", "DP-05B")):
-        for l in dp05(doc, 245.0, 0.0): LAMINAS[l.codigo] = l
-    if hacer("DP-06A"):
-        LAMINAS["DP-06A"] = dp06a(doc, 295.0, 0.0)
-    if hacer("DP-06B"):
-        LAMINAS["DP-06B"] = dp06b(doc, 305.0, 0.0)
-    if hacer("DP-06C"):
-        LAMINAS["DP-06C"] = dp06c(doc, 315.0, 0.0)
-    if hacer("DP-07"):
-        LAMINAS["DP-07"] = dp07(doc, 330.0, 0.0)
-    if hacer("DP-08"):
-        LAMINAS["DP-08"] = dp08(doc, 355.0, 0.0)
-    if hacer("DP-09"):
-        LAMINAS["DP-09"] = dp09(doc, 380.0, 0.0)
-    if hacer("DP-10"):
-        LAMINAS["DP-10"] = dp10(doc, 410.0, 0.0)
+    LAMINAS.clear()
+    x = 0.0
+    for clave, fn in ORDEN:
+        if solo is not None and not any(c.startswith(clave) or clave.startswith(c) for c in solo) and "DP-00" not in solo:
+            continue
+        for lam in fn(doc, x):
+            LAMINAS[lam.codigo] = lam
+            if lam.ox >= 0: x = max(x, lam.ox + lam.W * lam.f + 5.0)
+    lista = [(c, l.titulo, l.formato, l.escala_txt if c != "DP-06B" else "INDICADA") for c, l in LAMINAS.items()]
+    lam0 = dp00(doc, -16.0, 0.0, [("DP-00", "INDICE DE LAMINAS", "A3", "S/E")] + lista)
+    LAMINAS["DP-00"] = lam0; LAMINAS.move_to_end("DP-00", last=False)
     msp = doc.modelspace()
     msp.set_redraw_order({e.dxf.handle: "1" for e in msp.query("HATCH") if e.dxf.layer in ("CONCRETO-ACHURADO", "AGUA-RELLENO")})
+    presentaciones(doc)
     os.makedirs(dz.SAL, exist_ok=True)
     doc.saveas(SALIDA)
-    cajas = {k: (l.ox, l.oy, l.ox + 841 * l.f, l.oy + 594 * l.f) for k, l in LAMINAS.items()}
+    cajas = {k: (l.ox, l.oy, l.ox + l.W * l.f, l.oy + l.H * l.f) for k, l in LAMINAS.items()}
     json.dump(cajas, open(os.path.join(dz.SAL, "laminas.json"), "w"), indent=1)
     return SALIDA, cajas
 
