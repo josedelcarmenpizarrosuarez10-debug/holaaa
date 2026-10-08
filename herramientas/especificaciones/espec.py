@@ -14,7 +14,11 @@ MET = os.path.join(RAIZ, "insumos", "metrados_vigentes")
 # ============================================================================== datos de cada proyecto
 CUNETA = dict(b=0.40, em=0.10, ef=0.10, et=0.10, be=0.60, solado="E = 4\" (0.10 m)", acero_long="3/8\" @0.20 a 0.25 m (segun tramo)",
               acero_tr="3/8\" en U @0.25 m", junta=3.00, tapa=(0.60, 0.60, 0.10), tapa_acero="parrilla simple de 3/8\" @0.15 m en ambos sentidos",
-              dado=(0.40, 0.40, 0.35), fcol=(0.20, 0.15, 1.30))
+              dado=(0.40, 0.40, 0.35), fcol=(0.20, 0.15, 1.30),
+              S=0.50, S_can=1.00, n_cun=0.015, n_can=0.013, rej_mod=1.00, rej_reb=0.05, sep_sop=0.60)
+# Fuentes: tablas de pendiente de las cunetas en la planta general de drenaje (S = 0.5 %); memoria hidrologica de cada proyecto
+# (canaletas S = 1.00 % con n = 0.013, cunetas S = 0.50 % con n = 0.015); detalles de rejilla, detalle 1, caja sumidero, abrazadera
+# y falsa columna de los planos de drenaje pluvial; hoja METRADO CANALETAS (soportes @0.60 m) y METRADO MONTANTES (cantidades).
 
 PROYECTOS = {
     "varones": dict(
@@ -240,9 +244,11 @@ def espec(pt, P, ctx):
                       equ=l("Estacion total o teodolito y nivel de ingeniero con su mira, wincha metalica de 50 m, jalones y plomadas."),
                       proc=l("Ubicar y monumentar los BM y puntos de control fuera de la zona de excavacion.",
                              "Marcar los ejes y bordes de la excavacion con estacas cada 5.00 m en recta y cada 2.00 m en curvas y quiebres, y en cada registro, cuneta que llega, cambio de seccion y extremo.",
-                             "Colocar niveletas de madera con la cota de fondo y la pendiente de diseno (%.2f %% en el colector); verificar las cotas de fondo de cada tramo." % C["S"],
+                             ("Colocar niveletas de madera con la cota de fondo y la pendiente de diseno (%.2f %% en el colector); verificar las cotas de fondo de cada tramo." % C["S"]) if col else
+                             ("Colocar niveletas de madera con la cota de fondo y la pendiente longitudinal de las cunetas (%.2f %%, segun las tablas de pendiente de la planta de drenaje); verificar las cotas de fondo de cada tramo." % K["S"]),
                              "El trazo sera aprobado por la Supervision y anotado en el cuaderno de obra antes de iniciar la excavacion."),
-                      ctrl=l("Tolerancias: 0.02 m en alineamiento y 0.01 m en las cotas de fondo; la pendiente no cambiara de sentido en ningun tramo."),
+                      ctrl=l("Tolerancias: 0.02 m en alineamiento y 0.01 m en las cotas de fondo; la pendiente no cambiara de sentido en ningun tramo." +
+                             ("" if col else " Se verificara por control topografico que las cunetas mantengan la pendiente minima de %.2f %% y las canaletas de techo la de %.2f %% (memoria hidrologica), sin contrapendientes ni depresiones." % (K["S"], K["S_can"]))),
                       seg=l(EPP, "Trabajar con chaleco reflectivo y senalizacion cuando el trazo este junto a la via."), und=und,
                       medicion=[p("Se medira el area replanteada en proyeccion horizontal: largo de cada eje por el ancho de la franja de trabajo indicada en el metrado.")])
     # ------------------------------------------------------------ movimiento de tierras
@@ -414,7 +420,7 @@ def espec(pt, P, ctx):
                       medicion=[p("Se medira el area de contacto del encofrado con el concreto, en cada cara encofrada, segun el metrado.")])
     if "ACERO" in d and ("FY" in d.replace(" ", "").replace("'", "") or "F'Y" in d or "REFUERZO" in d):
         if "FALSA COLUMNA" in d:
-            el, arm = "las falsas columnas de los montantes", "4 barras longitudinales de 3/8\" de 1.20 m y estribos de 3/8\" (desarrollo 0.58 m) segun el plano de detalle"
+            el, arm = "las falsas columnas de los montantes", "4 barras longitudinales de 3/8\" de 1.20 m y estribos de 3/8\" @0.15 m (desarrollo 0.58 m), segun el detalle de falsa columna para montante de los planos"
         elif "ALERO" in d:
             el, arm = "los aleros de la estructura de salida", "barras en L (vertical y zapata) y barras horizontales en el muro y longitudinales en la zapata, de 3/8\", segun el cuadro de doblado"
         elif "TAPA" in d:
@@ -424,7 +430,8 @@ def espec(pt, P, ctx):
         else:
             el, arm = "las cunetas", "barras longitudinales de %s y acero transversal de %s en el cuerpo U; en los tramos tapados, la losa superior lleva su propio refuerzo segun los planos" % (K["acero_long"], K["acero_tr"])
         return bloque([p("Comprende el suministro, corte, doblado, colocacion y amarre del acero de refuerzo corrugado grado 60 (fy = 4200 kg/cm²) %s %s: %s." % ("del" if el.startswith("colector") else "de", el, arm)),
-                       p("Recubrimientos libres: %s." % ("0.04 m en las caras en contacto con el terreno y 0.025 m en las caras expuestas" if ("ALERO" in d or "FALSA COLUMNA" in d)
+                       p("Recubrimientos libres: %s." % ("0.04 m minimo sobre las armaduras (notas del detalle de falsa columna)" if "FALSA COLUMNA" in d
+                                                          else "0.04 m en las caras en contacto con el terreno y 0.025 m en las caras expuestas" if "ALERO" in d
                                                           else "0.025 m en las tapas; el borde y los anclajes segun la lamina DP-06B" if "TAPA" in d
                                                           else C["recub"] if col else "0.025 m en cunetas, 0.04 m en las caras en contacto con el suelo"))],
                       mat=l("Barras de acero corrugado NTP 341.031 / ASTM A615 grado 60; acero liso de 3/8\" para asas; alambre negro N.° 16; dados de concreto o separadores."),
@@ -457,7 +464,8 @@ def espec(pt, P, ctx):
             if C["cajas"]: extra_proc.append("Cajas: %s; muros y losa de fondo de 0.15 m vaciados con la losa del colector adyacente." % C["cajas"])
         if "CUNETA" in d:
             extra_proc = ["Vaciar primero la losa de fondo y luego los muros, o en una sola operacion con encofrado interior suspendido, cuidando que el concreto no se desplace.",
-                          "En los tramos tapados la losa superior se vacia sobre encofrado; en los tramos abiertos se deja el rebaje para la rejilla segun el detalle.",
+                          "En los tramos tapados la losa superior se vacia sobre encofrado; en los tramos abiertos se deja en el borde superior de los muros el rebaje de %.2f m para asentar la rejilla y se embeben los anclajes de fierro corrugado de 1/4\" soldados a su marco (detalle 1 de los planos)." % K["rej_reb"],
+                          "Dar al fondo la pendiente longitudinal de %.2f %% hacia la descarga; no se aceptaran contrapendientes." % K["S"],
                           "Respetar las juntas de dilatacion cada %.2f m (partida de juntas)." % K["junta"]]
         return bloque([p("Comprende la preparacion, transporte, colocacion, compactacion y acabado del concreto f'c = %d kg/cm² de %s." % (fc, el))],
                       mat=l("Cemento Portland tipo I, arena gruesa, piedra chancada de 1/2\" a 3/4\" y agua, segun el diseno de mezcla aprobado; aditivos solo con aprobacion de la Supervision."),
@@ -473,12 +481,16 @@ def espec(pt, P, ctx):
                       medicion=[p("Se medira el volumen de concreto colocado segun las dimensiones de los planos (seccion por longitud), descontando los vacios y aberturas indicados.")])
     # ------------------------------------------------------------ varios de cunetas
     if "REJILLA" in d:
-        return bloque([p("Comprende la fabricacion y colocacion de la rejilla metalica de los tramos abiertos de las cunetas, formada por platinas de 1\" x 3/16\" soldadas a un marco de angulo de 1\" x 1\" x 3/16\", "
-                         "con la separacion entre platinas y la longitud de modulo del detalle de los planos, asentada en el rebaje del borde superior de la cuneta.")],
+        return bloque([p("Comprende la fabricacion y colocacion de la rejilla metalica movil de los tramos abiertos de las cunetas, segun el detalle de rejilla y el detalle 1 de los planos de drenaje pluvial: "
+                         "modulos removibles de %.2f m de longitud (nota de los planos: rejilla metalica removible en paños de 1.00 m), formados por platinas de 1\" x 3/16\" colocadas de canto, transversales al eje de la cuneta, "
+                         "soldadas por sus extremos a dos angulos L 1\" x 1\" x 3/16\" longitudinales que forman el marco (cortes B-B y C-C del detalle)." % K["rej_mod"]),
+                       p("Separacion de las platinas: 1\" (0.025 m) entre ejes, con abertura libre de 0.02 m, segun la proporcion del detalle de rejilla (dibujado sin escala: la separacion entre platinas es igual al ala de 1\" del angulo del marco). "
+                         "El ancho del modulo sera el ancho interior de la cuneta (%.2f m) mas el apoyo en el rebaje de %.2f m de cada borde." % (K["b"], K["rej_reb"])),
+                       p("En la junta de la rejilla con el piso adyacente se deja la junta de dilatacion de 1\" con relleno asfaltico del detalle 1.")],
                       mat=l("Platina de acero A36 de 1\" x 3/16\"; angulo A36 de 1\" x 1\" x 3/16\"; soldadura E6011 de 1/8\"; pintura anticorrosiva (dos manos) y esmalte (dos manos)."),
                       equ=l("Maquina de soldar de 250 A, amoladora con disco de corte y desbaste, escuadra, wincha, brochas."),
-                      proc=l("Cortar los angulos y platinas a la medida del modulo; armar el marco con esquinas a 45 grados soldadas.",
-                             "Soldar las platinas al marco con la separacion del detalle, verificando escuadra y planitud.",
+                      proc=l("Cortar los angulos y platinas a la medida del modulo (%.2f m de largo); presentar las platinas sobre una plantilla con la separacion de 1\" entre ejes." % K["rej_mod"],
+                             "Soldar cada platina por ambos extremos a los angulos del marco, verificando escuadra y planitud; las platinas quedan de canto (1\" de altura).",
                              "Esmerilar las soldaduras, limpiar con escobilla y aplicar dos manos de pintura anticorrosiva y dos de esmalte.",
                              "Colocar los modulos en el rebaje de la cuneta, apoyados en todo su perimetro, al ras del piso terminado y sin cojear."),
                       ctrl=l("Modulos a escuadra, planos, intercambiables; soldaduras continuas sin porosidades; pintura uniforme sin escurrimientos."), seg=SEG_SOLD, und=und,
@@ -519,7 +531,7 @@ def espec(pt, P, ctx):
                       medicion=[p("Se medira la longitud de junta sellada: altura del muro por el numero de muros con junta por el numero de juntas de cada eje, como en el metrado.")])
     # ------------------------------------------------------------ red de techo
     if "SOPORTE" in d:
-        return bloque([p("Comprende la fabricacion y colocacion de los soportes de platina de fierro galvanizado de 1\" x 1/8\", que abrazan la canaleta (fondo y lados) y se fijan al alero o viga con dos orejas, colocados a cada 0.60 m.")],
+        return bloque([p("Comprende la fabricacion y colocacion de los soportes de platina de fierro galvanizado de 1\" x 1/8\", que abrazan la canaleta (fondo y lados) y se fijan al alero o viga con dos orejas, colocados a cada %.2f m (separacion de soportes de la hoja METRADO CANALETAS: soportes por canaleta = L / %.2f + 1)." % (K["sep_sop"], K["sep_sop"]))],
                       mat=l("Platina de F°G° de 1\" x 1/8\" (desarrollo 0.85 m por soporte); pernos o tornillos autorroscantes galvanizados con arandela; tarugos."),
                       equ=l("Dobladora, taladro, amoladora, nivel."),
                       proc=l("Cortar y doblar la platina con la forma de la canaleta y las orejas de fijacion.", "Perforar y fijar a la estructura a la separacion de 0.60 m, con la pendiente de la canaleta.",
@@ -538,14 +550,18 @@ def espec(pt, P, ctx):
                              "Remachar y sellar a la canaleta; insertar en la montante."),
                       ctrl=l("Sin filtraciones; la canaleta descarga totalmente por la boquilla."), seg=l(EPP, "Trabajo en altura con arnes."), und=und, medicion=[p("Se contara el numero de boquillas instaladas.")])
     if "COLGADOR" in d:
-        return bloque([p("Comprende el suministro e instalacion de colgadores de fierro galvanizado para sostener la tuberia de PVC de 4\" en los tramos suspendidos o adosados.")],
-                      mat=l("Colgadores de F°G° para tubo de 4\" con varilla roscada, tuercas y anclajes de expansion."), equ=l("Taladro, llaves."),
-                      proc=l("Fijar los colgadores a la estructura a la separacion de los planos; en ausencia de indicacion, no mas de 1.20 m en tramos horizontales y uno en cada cambio de direccion.", "Nivelar la tuberia con la pendiente de diseno."),
+        return bloque([p("Comprende el suministro e instalacion de colgadores de fierro galvanizado que sostienen el tramo no vertical de cada montante de PVC de 4\" (desvio bajo el alero entre la boquilla de la canaleta y la bajada, con los tres codos de 90 grados de cada montante), "
+                         "en la cantidad por montante de la hoja METRADO MONTANTES (hasta dos por montante, uno junto a cada codo del desvio).")],
+                      mat=l("Colgadores de F°G° para tubo de 4\" con varilla roscada de 3/8\", tuercas y arandelas galvanizadas y anclajes de expansion; diametro interior del colgador 1/4\" mayor que el del tubo, como en el detalle de abrazadera."), equ=l("Taladro, llaves."),
+                      proc=l("Fijar un colgador junto a cada codo del desvio, a no mas de 0.30 m del codo, de modo que el peso del tubo y del agua no cargue sobre las uniones.", "Dar al tramo la pendiente hacia la bajada y ajustar sin deformar el tubo."),
                       ctrl=l("Tuberia sin flechas ni contrapendientes."), seg=l(EPP, "Trabajo en altura con arnes."), und=und, medicion=[p("Se contara el numero de colgadores instalados.")])
     if "ABRAZADERA" in d:
-        return bloque([p("Comprende el suministro e instalacion de abrazaderas de fierro galvanizado para fijar las montantes de PVC de 4\" a los muros y columnas.")],
-                      mat=l("Abrazaderas de F°G° para tubo de 4\" con pernos y tarugos de expansion."), equ=l("Taladro, llaves, nivel."),
-                      proc=l("Fijar las abrazaderas a la separacion de los planos; en ausencia de indicacion, a no mas de 1.50 m y una cerca de cada union y codo.", "Ajustar sin deformar el tubo."),
+        return bloque([p("Comprende el suministro e instalacion de abrazaderas de fierro galvanizado para fijar las montantes de PVC de 4\" a los muros y columnas, segun el detalle de abrazadera de F°G° para tuberia de los planos: "
+                         "abrazadera tipica de platina de F°G° de e = 1/8\" con dos orejas, fijada con tirafon de 2\" x 1/4\" (55 x 6 mm) en tarugo plastico con estrias de 2\" x 1/2\" en cada oreja, colocadas @1.50 m."),
+                       p("Nota del detalle: el diametro interior de cada abrazadera sera 1/4\" mayor que la medida exterior de la tuberia.")],
+                      mat=l("Abrazaderas de platina de F°G° e = 1/8\" para tubo de 4\"; tirafones galvanizados de 2\" x 1/4\"; tarugos plasticos con estrias de 2\" x 1/2\"."), equ=l("Taladro con broca de 1/2\", llaves, nivel, plomada."),
+                      proc=l("Marcar en el muro o columna el eje de la montante con plomada y las abrazaderas @1.50 m, la primera sobre la falsa columna y la ultima bajo el desvio superior.",
+                             "Perforar con broca de 1/2\", colocar los tarugos y fijar cada abrazadera con sus dos tirafones.", "Ajustar sin deformar el tubo."),
                       ctrl=l("Montante firme y aplomada."), seg=l(EPP, "Trabajo en altura con arnes."), und=und, medicion=[p("Se contara el numero de abrazaderas instaladas.")])
     if "FALSA COLUMNA" in d and und == "und":
         return bloque([p("Comprende la falsa columna de concreto armado de %.2f x %.2f x %.2f m que aloja el tramo inferior de cada montante pluvial y lo protege contra golpes, apoyada en su dado de concreto. "
@@ -569,13 +585,13 @@ def espec(pt, P, ctx):
                       equ=l("Dobladora de plancha, tijera de hojalatero, remachadora, taladro, andamio."),
                       proc=l("Cortar y doblar la plancha en tramos de 2.44 m con la seccion del detalle.",
                              "Unir los tramos con traslape de 0.05 m, dos filas de remaches pop de 1/8\" @0.05 m y cordon de sellador.",
-                             "Colocar la canaleta sobre sus soportes con la pendiente de los planos (no menor de 0.5 %) hacia las boquillas, cuidando que el borde exterior quede mas bajo que el borde de la cubierta.",
+                             "Colocar la canaleta sobre sus soportes con la pendiente longitudinal de %.2f %% hacia las boquillas (pendiente de diseno de la memoria hidrologica, con n = %.3f), cuidando que el borde exterior quede mas bajo que el borde de la cubierta." % (K["S_can"], K["n_can"]),
                              "Probar con agua que no haya filtraciones ni empozamientos."),
-                      ctrl=l("Alineamiento y pendiente uniformes; uniones estancas; galvanizado sin rayaduras (las que se produzcan se repintaran con pintura rica en zinc)."), seg=l(EPP, "Trabajo en altura con andamio certificado y arnes con linea de vida."), und=und,
+                      ctrl=l("Pendiente minima de %.2f %% verificada con nivel en cada canaleta, sin contrapendientes; alineamiento uniforme; uniones estancas; galvanizado sin rayaduras (las que se produzcan se repintaran con pintura rica en zinc)." % K["S_can"]), seg=l(EPP, "Trabajo en altura con andamio certificado y arnes con linea de vida."), und=und,
                       medicion=[p("Se medira la longitud de canaleta colocada a lo largo de cada lado del techo.")])
     # ------------------------------------------------------------ red de piso y accesorios
     if "TUBER" in d:
-        return bloque([p("Comprende el suministro e instalacion de la tuberia PVC-U para desague clase pesada de 4\" de la red de recoleccion de piso, que une los sumideros con las cunetas, con la pendiente de los planos (minimo 1 %).")],
+        return bloque([p("Comprende el suministro e instalacion de la tuberia PVC-U para desague clase pesada de 4\" de la red de recoleccion de piso, que une los sumideros con las cunetas (nota de los planos: tuberia PVC-U clase pesada de 4\" que llega a la cuneta), con pendiente minima de 1 %% para 4\" (Norma IS.010) hacia la cuneta.")],
                       mat=l("Tuberia PVC-U para desague clase pesada de 4\" (NTP 399.003) en tubos de 3 m; cemento solvente y limpiador; arena fina para la cama."),
                       equ=l("Sierra, lima, nivel, wincha, pison."),
                       proc=l("Excavar la zanja de 0.40 m de ancho y la profundidad necesaria; compactar el fondo y colocar una cama de arena de 0.10 m.",
@@ -586,10 +602,12 @@ def espec(pt, P, ctx):
                       ctrl=l("Pendiente uniforme; sin contrapendientes ni fugas."), seg=SEG_EXC, und=und,
                       medicion=[p("Se medira la longitud de tuberia instalada entre los ejes de los accesorios, sin descontar estos.")])
     if "SUMIDERO" in d:
-        return bloque([p("Comprende el suministro e instalacion del sumidero metalico de 4\" con rejilla de platina de 1\" x 3/16\" en las areas de piso, conectado a la red de PVC de 4\".")],
-                      mat=l("Sumidero metalico de 4\" con rejilla de platina de 1\" x 3/16\" y marco de angulo; pintura anticorrosiva y esmalte; mortero 1:4 para el asentado."),
+        return bloque([p("Comprende el suministro e instalacion de la caja sumidero de 4\" en las areas de piso del primer piso, segun el detalle de caja sumidero de los planos: rejilla metalica de platinas de 1\" x 3/16\" de 0.25 m de lado "
+                         "sobre marco de angulo L 1\" x 1\" x 3/16\" fijado al concreto con anclajes de fierro de 3\" x 3/8\", caja de 0.10 m de profundidad bajo la rejilla con fondo inclinado hacia la salida, "
+                         "trampa y salida de PVC de 4\" conectada a la red de piso.")],
+                      mat=l("Platina de 1\" x 3/16\" y angulo L 1\" x 1\" x 3/16\" de acero A36; anclajes de fierro de 3\" x 3/8\"; accesorios de PVC de 4\"; pintura anticorrosiva y esmalte; mortero 1:4 para el asentado."),
                       equ=l("Maquina de soldar, amoladora, herramientas de albanileria."),
-                      proc=l("Fabricar o suministrar el sumidero segun el detalle, protegido con anticorrosivo y esmalte.", "Conectarlo a la tuberia de 4\" con su accesorio.",
+                      proc=l("Fabricar la rejilla y el marco segun el detalle, soldar los anclajes al marco y proteger todo con anticorrosivo y esmalte.", "Formar la caja de 0.10 m con fondo inclinado hacia la salida y conectarla a la tuberia de 4\" con su trampa y accesorios.",
                              "Asentarlo al ras del piso terminado, en el punto bajo, con pendiente del piso hacia el sumidero."),
                       ctrl=l("Ras con el piso; el agua de la superficie escurre sin empozarse."), seg=SEG_SOLD, und=und, medicion=[p("Se contara el numero de sumideros instalados.")])
     if "CODO" in d or "TEE" in d:
@@ -651,7 +669,7 @@ _MAP = {"albanileria": "albañilería", "analisis": "análisis", "angulo": "áng
         "laminas": "láminas", "electrodos": "electrodos", "hidraulico": "hidráulico", "geometrico": "geométrico", "periodo": "período", "acido": "ácido",
         "solida": "sólida", "plastico": "plástico", "dimension": "dimensión", "exposicion": "exposición", "mas": "más", "cubicos": "cúbicos",
         "metrico": "métrico", "titulo": "título", "maximos": "máximos", "minima": "mínima", "minimos": "mínimos", "rapido": "rápido", "facil": "fácil",
-        "tecnico": "técnico", "desague": "desagüe", "metalicas": "metálicas", "dia": "día", "vacia": "vacía", "martin": "Martín", "tecnicos": "técnicos", "telefono": "teléfono", "ademas": "además", "asi": "así", "esta_": "está"}
+        "tecnico": "técnico", "desague": "desagüe", "metalicas": "metálicas", "dia": "día", "vacia": "vacía", "martin": "Martín", "tecnicos": "técnicos", "telefono": "teléfono", "ademas": "además", "asi": "así", "esta_": "está", "tirafon": "tirafón", "desvio": "desvío", "hidrologica": "hidrológica", "topografico": "topográfico", "estrias": "estrías", "plasticos": "plásticos", "movil": "móvil", "tipica": "típica", "tipico": "típico", "maquina": "máquina"}
 for f in _FUT:
     i = f.rfind("a"); _MAP[f] = f[:i] + "á" + f[i + 1:]
 
