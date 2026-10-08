@@ -480,6 +480,25 @@ def espec(pt, P, ctx):
                       seg=SEG_CONC, und=und,
                       medicion=[p("Se medira el volumen de concreto colocado segun las dimensiones de los planos (seccion por longitud), descontando los vacios y aberturas indicados.")])
     # ------------------------------------------------------------ varios de cunetas
+    if "LLORADERO" in d:
+        return bloque([p("Comprende el suministro e instalacion de los lloraderos de tuberia PVC de 3\" en los muros de las cunetas colindantes con areas verdes o terreno natural sin cobertura, "
+                         "segun el detalle de instalacion de lloraderos en cunetas de evacuacion pluvial y la especificacion tecnica del plano de drenaje: lloraderos de tuberia PVC Ø 3\", "
+                         "espaciamiento tipico L = 1.50 m, que alivian la presion del agua infiltrada en el terreno por las lluvias y la descargan dentro de la cuneta."),
+                       p("Cada unidad comprende: pase de tuberia PVC-U de 3\" (76 mm) de 0.30 m de longitud a traves del muro, a media altura entre el fondo y el borde, con pendiente S = 0.5 % hacia el interior de la cuneta; "
+                         "filtro localizado de 0.30 x 0.30 x 0.30 m de grava filtrante (ripio de 20 a 40 mm) en el lado del terreno, envuelto integramente en geotextil no tejido, que retiene los finos del suelo y deja pasar el agua; "
+                         "y la excavacion local y el relleno compactado alrededor del filtro."),
+                       p("Ubicacion: solo en los tramos de muro de cuneta colindantes con area verde de la hoja METRADO LLORADEROS (eje, lado del muro y progresivas); los tramos junto a veredas, pisos o edificaciones no llevan lloraderos.")],
+                      mat=l("Tuberia PVC-U para desague de 3\" (NTP 399.003), cortada en tramos de 0.30 m.", "Grava filtrante (ripio) de 20 a 40 mm, limpia, lavada, sin finos ni materia organica: 0.027 m³ por lloradero.",
+                            "Geotextil no tejido (NTP / ASTM D4491 y D4751, clase 2 para filtro): 0.60 m² por lloradero, con traslapes de 0.10 m.", "Mortero 1:3 cemento-arena para sellar el contorno del tubo en el muro."),
+                      equ=l("Herramientas manuales, sierra de arco, nivel, wincha, pison de mano."),
+                      proc=l("Antes del vaciado de los muros, fijar al encofrado los tubos de 3\" @1.50 m en los tramos indicados, a media altura del muro y con pendiente de 0.5 % hacia la cuneta, tapados en sus extremos para que no entre concreto; el primero y el ultimo a no menos de 0.30 m de las juntas de dilatacion.",
+                             "Despues del desencofrado, destapar los tubos y verificar que queden libres; sellar con mortero cualquier vacio alrededor del tubo.",
+                             "En el lado del terreno, excavar un hueco de 0.30 x 0.30 x 0.30 m centrado en cada tubo, forrarlo con el geotextil, llenarlo con la grava y cerrar el geotextil por encima con traslape de 0.10 m.",
+                             "Rellenar y compactar el resto de la zanja con la partida de relleno, sin danar el filtro."),
+                      ctrl=l("Ubicacion y espaciamiento segun la hoja de metrado (tolerancia ±0.10 m); tubo libre y con pendiente hacia la cuneta; filtro completo, con el geotextil cerrado y sin contaminacion de tierra.",
+                             "Prueba: al echar agua en el filtro, debe salir por el lloradero dentro de la cuneta."),
+                      seg=l(EPP), und=und,
+                      medicion=[p("Se contara el numero de lloraderos instalados y aprobados, con su filtro, en los tramos de la hoja METRADO LLORADEROS.")])
     if "REJILLA" in d:
         return bloque([p("Comprende la fabricacion y colocacion de la rejilla metalica movil de los tramos abiertos de las cunetas, segun el detalle de rejilla y el detalle 1 de los planos de drenaje pluvial: "
                          "modulos removibles de %.2f m de longitud (nota de los planos: rejilla metalica removible en paños de 1.00 m), formados por platinas de 1\" x 3/16\" colocadas de canto, transversales al eje de la cuneta, "
@@ -669,7 +688,7 @@ _MAP = {"albanileria": "albañilería", "analisis": "análisis", "angulo": "áng
         "laminas": "láminas", "electrodos": "electrodos", "hidraulico": "hidráulico", "geometrico": "geométrico", "periodo": "período", "acido": "ácido",
         "solida": "sólida", "plastico": "plástico", "dimension": "dimensión", "exposicion": "exposición", "mas": "más", "cubicos": "cúbicos",
         "metrico": "métrico", "titulo": "título", "maximos": "máximos", "minima": "mínima", "minimos": "mínimos", "rapido": "rápido", "facil": "fácil",
-        "tecnico": "técnico", "desague": "desagüe", "metalicas": "metálicas", "dia": "día", "vacia": "vacía", "martin": "Martín", "tecnicos": "técnicos", "telefono": "teléfono", "ademas": "además", "asi": "así", "esta_": "está", "tirafon": "tirafón", "desvio": "desvío", "hidrologica": "hidrológica", "topografico": "topográfico", "estrias": "estrías", "plasticos": "plásticos", "movil": "móvil", "tipica": "típica", "tipico": "típico", "maquina": "máquina"}
+        "tecnico": "técnico", "desague": "desagüe", "metalicas": "metálicas", "dia": "día", "vacia": "vacía", "martin": "Martín", "integramente": "íntegramente", "ultimo": "último", "vacio": "vacío", "tecnicos": "técnicos", "telefono": "teléfono", "ademas": "además", "asi": "así", "esta_": "está", "tirafon": "tirafón", "desvio": "desvío", "hidrologica": "hidrológica", "topografico": "topográfico", "estrias": "estrías", "plasticos": "plásticos", "movil": "móvil", "tipica": "típica", "tipico": "típico", "maquina": "máquina"}
 for f in _FUT:
     i = f.rfind("a"); _MAP[f] = f[:i] + "á" + f[i + 1:]
 

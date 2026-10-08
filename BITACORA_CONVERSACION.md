@@ -43,6 +43,14 @@ Rama: `claude/colector-pluvial-hogar-refugio-ydbnaf`
 **3. Hogar de Refugio (Solange)**
 - Se agregaron las presentaciones de AutoCAD de las 22 láminas y el índice DP-00. Las láminas no cambiaron: se comprobó entidad por entidad.
 
+**4. Lloraderos en cunetas junto a área verde (CAR Varones y Hogar de Refugio; CAR Mujeres no se toca porque ya está presupuestado)**
+- Partida nueva 01.04.03.04.03.04 LLORADERO DE TUBERIA PVC Ø3" C/FILTRO DE GRAVA Y GEOTEXTIL @1.50 m (und), con su hoja METRADO LLORADEROS (eje, lado del muro, progresivas, longitud y N°).
+- Tramos medidos en la planta general de drenaje: muro de cuneta cuya franja exterior de 0.30 m cae en el achurado de área verde.
+- CAR Varones: 226 lloraderos (320.53 m de muro). Hogar de Refugio: 157 lloraderos (226.21 m).
+- Ninguna otra partida cambió (comparadas todas, antes y después). Se mantuvieron los logos de los encabezados de la planilla del Hogar de Refugio.
+- Planos de verificación: `entregables_varones/LLORADEROS_CUNETAS_AREA_VERDE_VARONES.png` y `entregables/LLORADEROS_CUNETAS_AREA_VERDE_HOGAR_REFUGIO.png`.
+- Especificación técnica de la partida agregada a los Word de los dos proyectos.
+
 ## Cómo imprimir (los tres proyectos)
 1. Abrir la pestaña de la lámina (DP-00, DP-01, ...).
 2. Ctrl+P: área = Presentación, escala 1:1, centrar.
