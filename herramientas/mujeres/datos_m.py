@@ -149,3 +149,27 @@ def Q(p):
     for r in sorted(FLUJO, key=lambda r: r[0]):
         if r[0] >= p - 1e-6: return r[2] * 1000
     return FLUJO[-1][2] * 1000
+
+
+# ------------------------------------------------------------------ planilla del presupuesto (solo lectura)
+PLANILLA = os.path.join(RAIZ, "insumos", "wilma", "METRADO_DRENAJE_PLUVIAL_CAR_MUJERES.xlsx")
+
+
+def planilla():
+    """Partidas 1.4.4.6 (hoja RESUMEN) y planilla de acero del colector, con los valores guardados en el libro."""
+    import openpyxl, warnings
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        wb = openpyxl.load_workbook(PLANILLA, data_only=True)
+    part = []
+    for r in wb["RESUMEN"].iter_rows(values_only=True):
+        if r[0] and str(r[0]).startswith("1.4.4.6"):
+            part.append((str(r[0]), str(r[1]), r[2] or "", r[3]))
+    acero = []
+    for r in wb["METRADO ACERO COLECTOR"].iter_rows(min_row=9, values_only=True):
+        if r[0] and str(r[0]).startswith("1.4.4.6"):
+            acero.append(dict(partida=r[0], elemento=r[1], n=r[2], L=r[3], diam=r[4], forma=r[5], kgm=r[6], Lt=r[7], kg=r[8]))
+    tot = {}
+    for r in wb["METRADO ACERO COLECTOR"].iter_rows(min_row=20, values_only=True):
+        if r[1] and str(r[1]).startswith(("TOTAL", "ACERO EN")): tot[r[1]] = r[9]
+    return part, acero, tot

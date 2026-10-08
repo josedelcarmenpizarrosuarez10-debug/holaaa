@@ -1,0 +1,45 @@
+PLANOS DEL COLECTOR PLUVIAL FRONTAL - CAR MUJERES (CUI 2717013) - VERSION ORDENADA
+=================================================================================
+
+Archivo: PLANOS_COLECTOR_PLUVIAL_CAR_MUJERES.dxf (16 laminas A1, escala real: 1 unidad = 1 m)
+Vistas previas: carpeta vistas_previas (PNG por lamina y 00_RESUMEN_TODAS.png)
+Generador: herramientas/mujeres/planos_m.py (datos en datos_m.py y base_m.json; detalle del registro en dxf_tapa_m.py)
+
+Laminas
+-------
+DP-01   Planta del colector 1/200: trazo, registros R-01 a R-15, cruces, empalmes de cuneta, salida y cuadro UTM
+DP-02   Perfil longitudinal general 1/100 (H = V) en 2 franjas y cuadro hidraulico por tramos
+DP-03A  Perfil detallado 1/25 (H = V): tramos 1 a 3 (0+000.00 - 0+046.36)
+DP-03B  Perfil detallado 1/25 (H = V): tramos 4 a 6 (0+046.36 - 0+092.72)
+DP-03C  Perfil detallado 1/25 (H = V): tramos 7 a 9 (0+092.72 - 0+139.08)
+DP-04A  Secciones S-01 a S-08 1/20 con acero
+DP-04B  Secciones S-09 a S-15 1/20 y cuadro de secciones
+DP-05A  Isometricos de las secciones S-01 a S-08 1/25
+DP-05B  Isometricos de las secciones S-09 a S-15 1/25
+DP-06A  Secciones tipicas 1/10: vereda, cruce de autos, cruce de camiones y tramo final
+DP-06B  Registro de limpieza: tapa 0.68 x 0.68 con marco y contramarco, rebaje 0.70 x 0.08 (escalas indicadas)
+DP-06C  Empalme de cuneta al colector y junta de dilatacion (nueva: antes estaba mezclada en la DP-06B)
+DP-07   Estructura de salida con dos aleros y emboquillado 1/25 con cuadro de metrados del presupuesto
+DP-08   Cuadro de acero y partidas 1.4.4.6 (valores de la planilla), figuras de marcos, especificaciones y notas
+DP-09   Isometricos constructivos 1/25: colector en vereda, registro, empalme de cuneta y salida
+DP-10   Isometrico general 1/200 sin exageracion vertical
+
+Metrados
+--------
+No se modifico ningun metrado. La geometria es la de la hoja DATOS del metrado del colector y los cuadros de las
+laminas DP-07 y DP-08 leen los valores guardados en la planilla del presupuesto
+(insumos/wilma/METRADO_DRENAJE_PLUVIAL_CAR_MUJERES.xlsx, partidas 1.4.4.6). Los archivos de insumos no se tocaron.
+
+Observaciones de la revision del plano original
+------------------------------------------------
+1. DP-08 original: total de acero 4420.5 kg; la planilla del presupuesto suma 4418.79 kg (4140.49 colector + 18.23
+   aleros + 260.06 registros). La lamina nueva muestra los valores de la planilla.
+2. DP-07 original: encofrado de aleros 4.36 m2; la planilla tiene 4.095 m2 (partida 1.4.4.6.4.2.2). Se usa la planilla.
+3. Las secciones originales rotulaban el nivel de agua con Q = 823 L/s en todos los tramos; el caudal crece en cada
+   cuneta (626.2 / 691.8 / 757.4 / 822.9 L/s). Ahora cada nivel de agua indica el caudal de su tramo.
+4. Perfiles: el general a 1/250 no se leia y el detallado a 1/50 tenia la losa de 2 mm; ahora 1/100 y 1/25, H = V.
+5. DP-10 original tenia escala vertical x3; ahora es a escala real. DP-01 original se salia del marco.
+6. Registro: se mantiene el rebaje de concreto del metrado (rebaje 0.70 x 0.70 x 0.08, luz libre 0.60, borde
+   engrosado 0.15 x 0.10, holgura 5 mm entre marco y contramarco).
+7. Para revisar (no cambia el metrado): los registros R-02, R-05 y R-06 quedan dentro de cruces de autos, con tapa de
+   0.08; y en el tramo final (0+078.42 - 0+139.08) la losa superior queda hasta 0.58 m sobre el terreno natural (TIN).

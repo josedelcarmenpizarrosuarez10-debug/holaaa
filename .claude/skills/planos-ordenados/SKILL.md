@@ -92,3 +92,11 @@ abajo igual que los puntos que senalan, para que las lineas no se crucen.
 - `lam.tabla(...)`: la letra se ajusta sola al ancho de cada celda.
 - Laminas congeladas (no tocar): comprobar con una huella (tipo, capa, punto, texto de cada entidad dentro de su
   caja) antes y despues de regenerar; deben quedar identicas.
+
+## 11. Lecciones del juego del CAR Mujeres (herramientas/mujeres/planos_m.py)
+- Si la losa de un perfil mide menos de 3 mm en papel, subir la escala del perfil detallado (1/25) y partir en mas
+  tramos; el perfil general puede quedar a 1/100.
+- Los cuadros de metrados de las laminas se leen de la planilla del presupuesto (valores guardados), nunca se recalculan.
+- Isometricos con elementos a 45 grados: girar la vista y ordenar las caras por profundidad (si no, quedan de canto).
+- Etiquetas de un isometrico largo y en diagonal: junto a cada punto, del lado libre; la franja horizontal deja lineas largas.
+- Antes de rehacer un plano ajeno, leer su metrado: el detalle debe dibujar lo que se metro (p. ej. rebaje de la tapa).
