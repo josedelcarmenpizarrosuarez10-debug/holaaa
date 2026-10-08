@@ -395,7 +395,7 @@ def seccion(lam, cx, cy, p, detalle=False, num=None, xt=None):
     z = lambda v: cy + (v - dz.CF(p))
     cf = dz.CF(p); top = cf + hh + es; bot = cf - ef
     # solado y concreto (una sola pieza: U + losa superior monolitica)
-    lam.rect(cx - K - 0.05, z(bot - dz.E_SOLADO), cx + K + 0.05, z(bot), "SOLADO")
+    lam.rect(cx - K, z(bot - dz.E_SOLADO), cx + K, z(bot), "SOLADO")      # solado = ancho exterior (metrado)
     ext = [(cx - K, z(bot)), (cx + K, z(bot)), (cx + K, z(top)), (cx - K, z(top))]
     inn = [(cx - bi, z(cf)), (cx + bi, z(cf)), (cx + bi, z(cf + hh)), (cx - bi, z(cf + hh))]
     hch = lam.msp.add_hatch(dxfattribs={"layer": "CONCRETO-ACHURADO"}); hch.rgb = B.COLOR_RGB["CONCRETO-ACHURADO"]
@@ -406,6 +406,9 @@ def seccion(lam, cx, cy, p, detalle=False, num=None, xt=None):
     na = dz.NA(p)
     lam.relleno([(cx - bi, z(cf)), (cx + bi, z(cf)), (cx + bi, z(na)), (cx - bi, z(na))], "AGUA-RELLENO")
     lam.linea((cx - bi, z(na)), (cx + bi, z(na)), "AGUA")
+    # limite de excavacion: 0.05 a cada lado del ancho exterior, desde el fondo del solado hasta la vereda o el terreno
+    zex = dz.NPT if p <= dz.P_VER else dz.terreno(p); xe = K + 0.05
+    lam.poli([(cx - xe, z(zex)), (cx - xe, z(bot - dz.E_SOLADO)), (cx + xe, z(bot - dz.E_SOLADO)), (cx + xe, z(zex))], "EXCAVACION")
     lam.bloque("SIMB-AGUA", (cx + bi * 0.45, z(na)), f)
     # terreno natural (TIN, referencia), vereda del lado del predio y suelo contra el muro del lado de la via
     ter = dz.terreno(p); pis = dz.NPT if p <= dz.P_VER else ter
@@ -461,6 +464,7 @@ def seccion(lam, cx, cy, p, detalle=False, num=None, xt=None):
     lam.cota((cx - K, z(bot - dz.E_SOLADO)), (cx + K, z(bot - dz.E_SOLADO)), -6 if not detalle else -9)
     if detalle:
         lam.cota((cx - K, z(bot)), (cx - bi, z(bot)), -3.5); lam.cota((cx + bi, z(bot)), (cx + K, z(bot)), -3.5)
+        lam.cota((cx - K - 0.05, z(bot - dz.E_SOLADO)), (cx + K + 0.05, z(bot - dz.E_SOLADO)), -15, texto="%.2f excavacion" % (2 * K + 0.10))
     xl = cx - K
     lam.cota((xl, z(bot)), (xl, z(cf)), -5, horizontal=False)
     lam.cota((xl, z(cf)), (xl, z(cf + hh)), -5, horizontal=False)
@@ -470,7 +474,7 @@ def seccion(lam, cx, cy, p, detalle=False, num=None, xt=None):
     lam.nivel((cx - bi + 0.12, z(cf)), cf, "CF %.3f" % cf, hmm=1.6)
     lam.nivel((cx + 0.10, z(top)), top, ("NPT +%.2f" % top) if p <= dz.P_VER else ("losa +%.3f" % top), hmm=1.6)
     lam.texto((cx + K + ext_l, z(ter) + 1.0 * f), "TIN %.2f" % ter, 1.4, "TEXTOS", TA.BOTTOM_RIGHT)
-    yl = z(bot - dz.E_SOLADO) - (13.0 if detalle else 10.5) * f
+    yl = z(bot - dz.E_SOLADO) - (19.5 if detalle else 10.5) * f
     lam.texto((cx - K, yl), "LADO VIA (LINDERO)", 1.5, "TEXTOS", TA.TOP_LEFT)
     lam.texto((cx + K, yl), "LADO PREDIO", 1.5, "TEXTOS", TA.TOP_RIGHT)
     # llamadas en columna (sin cruces)
@@ -513,7 +517,8 @@ def dp04(doc, ox, oy):
         lam.leyenda2(30, 100, [("concreto", "CONCRETO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100 kg/cm2 e = 0.05"),
                                ("linea2", "ACERO", "marco de acero (barra cerrada con ganchos)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "barra longitudinal (diametro real)"),
                                ("relleno", "AGUA-RELLENO", "agua con el caudal de diseno"), ("linea", "TERRENO", "vereda (NPT) y suelo contra el muro"),
-                               ("discontinua", "TERRENO-EXISTENTE", "terreno natural en el eje (TIN)"), ("rect", "JUNTAS", "junta 1\" con tecnopor (lado predio)")], hmm=1.9, ancho_col=110, filas_col=4)
+                               ("discontinua", "TERRENO-EXISTENTE", "terreno natural en el eje (TIN)"), ("rect", "JUNTAS", "junta 1\" con tecnopor (lado predio)"),
+                               ("discontinua", "EXCAVACION", "limite de excavacion (0.05 a cada lado)")], hmm=1.9, ancho_col=110, filas_col=5)
         lam.notas(262, 100, "NOTAS", [
             "1. Escala real 1/20; cotas en m. Recubrimiento: acero centrado en elementos de 0.10 m; 4.5 cm al eje en el cruce de camiones.",
             "2. Altura interior h segun el perfil longitudinal (DP-02 y DP-03); seccion tipica con detalles en DP-06A.",
@@ -539,8 +544,9 @@ def dp06a(doc, ox, oy):
     lam.leyenda2(30, 100, [("concreto", "CONCRETO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100 kg/cm2 e = 0.05"),
                            ("linea2", "ACERO", "marco de acero (con ganchos a 135 grados)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "barra longitudinal 3/8\""),
                            ("relleno", "AGUA-RELLENO", "agua con el caudal de diseno"), ("linea", "TERRENO", "vereda (NPT) y suelo contra el muro"),
-                           ("discontinua", "TERRENO-EXISTENTE", "terreno natural en el eje (TIN)"), ("rect", "JUNTAS", "junta 1\" con tecnopor")],
-                 hmm=1.9, ancho_col=110, filas_col=4)
+                           ("discontinua", "TERRENO-EXISTENTE", "terreno natural en el eje (TIN)"), ("rect", "JUNTAS", "junta 1\" con tecnopor"),
+                           ("discontinua", "EXCAVACION", "limite de excavacion (0.05 a cada lado)")],
+                 hmm=1.9, ancho_col=110, filas_col=5)
     lam.notas(262, 100, "NOTAS", [
         "1. Concreto f'c=210 kg/cm2 en losa de fondo, muros y losa superior (vaciado monolitico); acero fy=4200 kg/cm2.",
         "2. Marcos con ganchos a 135 grados de 6 diametros; traslape de barras longitudinales 0.40 m (3/8\").",
@@ -604,8 +610,8 @@ def iso_seccion(lam, o, p, Ls=1.2, llamadas=True, xt=None):
         return pts
     # orden de pintado: solado, interior visto por la boca, caras exteriores y al final la cara de corte
     sb, st = bot - dz.E_SOLADO, bot
-    cara([(K + .05, 0, sb), (K + .05, Ls, sb), (K + .05, Ls, st), (K + .05, 0, st)], "ISO-CONCRETO-LAT2")
-    cara([(-K - .05, Ls, sb), (K + .05, Ls, sb), (K + .05, Ls, st), (-K - .05, Ls, st)], "ISO-CONCRETO-LAT1")
+    cara([(K, 0, sb), (K, Ls, sb), (K, Ls, st), (K, 0, st)], "ISO-CONCRETO-LAT2")
+    cara([(-K, Ls, sb), (K, Ls, sb), (K, Ls, st), (-K, Ls, st)], "ISO-CONCRETO-LAT1")
     cara([(-bi, 0, cf), (-bi, Ls, cf), (-bi, Ls, cf + hh), (-bi, 0, cf + hh)], "ISO-CONCRETO-LAT2")
     cara([(-bi, 0, cf), (bi, 0, cf), (bi, Ls, cf), (-bi, Ls, cf)], "ISO-CONCRETO-SUP")
     cara([(-bi, 0, na), (bi, 0, na), (bi, Ls, na), (-bi, Ls, na)], "ISO-AGUA")
@@ -647,7 +653,7 @@ def iso_seccion(lam, o, p, Ls=1.2, llamadas=True, xt=None):
         its = [(T(0.2, Ls * 0.5, top), ["losa superior e = %.2f" % es]), (T(-bi + 0.3, Ls, na), ["agua NA %.3f" % na]),
                (pm, [("2 marcos " if ac["doble"] else "marco ") + "%s @%.2f" % (ac["marco"], ac["sep"])]),
                (pl, ["%d barras long. 3/8\" @%.2f" % (nl, ac["long_sep"])]), (T(K, Ls * 0.5, (bot + cf) / 2 + 0.1), ["muro e = %.2f" % em]),
-               (T(0.3, Ls, bot + ef / 2), ["losa de fondo e = %.2f" % ef]), (T(K + 0.05, Ls * 0.6, sb + 0.02), ["solado e = 0.05"])]
+               (T(0.3, Ls, bot + ef / 2), ["losa de fondo e = %.2f" % ef]), (T(K, Ls * 0.6, sb + 0.02), ["solado e = 0.05"])]
         lam._col = None
         lam.columna_llamadas(its, xt, y0, y0 - dy * (len(its) - 1), 1.6)
     return T
@@ -722,7 +728,7 @@ def dp06c(doc, ox, oy):
     h_.paths.add_polyline_path(ext, is_closed=True, flags=1); h_.paths.add_polyline_path(inn, is_closed=True, flags=16)
     lam.poli(ext, "CONCRETO", cerrada=True); lam.poli(inn, "CONCRETO", cerrada=True)
     lam.relleno(ven, "AGUA-RELLENO"); lam.poli(ven, "CONCRETO", cerrada=True)
-    lam.rect(X(-K - 0.05), Z(bot - 0.05), X(K + 0.05), Z(bot), "SOLADO")
+    lam.rect(X(-K), Z(bot - 0.05), X(K), Z(bot), "SOLADO")
     # registro encima (tapa en el rebaje)
     lam.rect(X(-0.34), Z(top - 0.08), X(0.34), Z(top), "REGISTRO")
     # cuneta (referencia): interior 0.40 de alto H hasta la vereda, piso en NCF, muros 0.10
@@ -827,7 +833,6 @@ def dp07(doc, ox, oy):
         lam.poli([Pp(0, sv * bi), Pp(av, sv * vf), Pp(av - za, sv * (vf + za)), Pp(-za, sv * (bi + za)), Pp(0, sv * bi)], "CONCRETO-OCULTO")
     lam.relleno([Pp(-1.30, -K), Pp(0, -K), Pp(0, K), Pp(-1.30, K)], "CONCRETO-ACHURADO")
     lam.poli([Pp(0, -K), Pp(0, K)], "CONCRETO")
-    for sv in (-1, 1): lam.poli([Pp(-1.30, sv * (K + 0.05)), Pp(-1.38, sv * 0.2 * 0 + sv * (K + 0.05))], "CONCRETO") if False else None
     lam.poli([Pp(-1.30, -K - 0.08), Pp(-1.30, -0.05), Pp(-1.34, 0.0), Pp(-1.26, 0.05), Pp(-1.30, 0.10), Pp(-1.30, K + 0.08)], "CONCRETO")
     emb = [Pp(0, -bi), Pp(av, -vf), Pp(av, vf), Pp(0, bi)]
     lam.poli(emb, "POZA", cerrada=True)
@@ -927,7 +932,7 @@ def dp07(doc, ox, oy):
     lam.juntar_llamadas()
     xt = lam.P(262, 0)[0]
     lam.llamada((Xa(av * 0.6), Za(cf + 0.45)), (xt, Za(top + 0.15)), ["alero (en elevacion): altura 0.70 a 0.45 sobre el piso"], 1.7)
-    lam.llamada((Xa(0.35), Za(cf - 0.10)), (xt, Za(cf + 0.05)), ["emboquillado e = 0.20 sobre afirmado e = 0.10"], 1.7)
+    lam.llamada((Xa(0.35), Za(cf - 0.10)), (xt, Za(cf + 0.05)), ["emboquillado e = 0.20 sobre relleno compactado e = 0.10"], 1.7)
     lam.llamada((Xa(av + 0.15), Za(cf - 0.40)), (xt, Za(cf - 0.30)), ["una trapecial 0.35 / 0.15 x 0.65, L = 3.21 m"], 1.7)
     lam.llamada((Xa(av + 1.0), Za(cf + 0.04)), (xt, Za(cf - 0.62)), ["el agua vierte sobre la berma de la via"], 1.7)
     lam.volcar_llamadas()
@@ -938,6 +943,7 @@ def dp07(doc, ox, oy):
     mu_ = [(Xb(0), Zb(zt)), (Xb(e), Zb(zt)), (Xb(e), Zb(cf + hm)), (Xb(0), Zb(cf + hm))]
     zp = [(Xb(0), Zb(zt - dz.ZAP_H)), (Xb(dz.ZAP_B), Zb(zt - dz.ZAP_H)), (Xb(dz.ZAP_B), Zb(zt)), (Xb(0), Zb(zt))]
     for pl in (mu_, zp): lam.relleno(pl, "CONCRETO-ACHURADO"); lam.poli(pl, "CONCRETO", cerrada=True)
+    lam.rect(Xb(0), Zb(zt - dz.ZAP_H - dz.E_SOLADO), Xb(dz.ZAP_B), Zb(zt - dz.ZAP_H), "SOLADO")
     emb = [(Xb(-0.60), Zb(cf - dz.EMB_E)), (Xb(0), Zb(cf - dz.EMB_E)), (Xb(0), Zb(cf)), (Xb(-0.60), Zb(cf))]
     lam.poli(emb, "POZA", cerrada=True)
     _piedras(lam, emb, [Xb(-0.55 + 0.11 * i) for i in range(6)], [Zb(z) for z in (cf - 0.06, cf - 0.14)], 0.04)
@@ -962,6 +968,7 @@ def dp07(doc, ox, oy):
     lam.llamada((Xb(xv + 0.012), Zb(zt + 0.08)), (xt, Zb(cf + 0.30)), ["horizontales 3/8\" @0.20 (5 por alero)"], 1.7)
     lam.llamada((Xb(0.22), Zb(zt - dz.ZAP_H + 0.062)), (xt, Zb(cf + 0.05)), ["3 barras 3/8\" longitudinales en la zapata"], 1.7)
     lam.llamada((Xb(0.6), Zb(zt + 0.40)), (xt, Zb(cf - 0.20)), ["relleno compactado sobre la zapata (lado exterior)"], 1.7)
+    lam.llamada((Xb(0.30), Zb(zt - dz.ZAP_H - 0.025)), (xt, Zb(cf - 0.40)), ["solado e = 0.05 bajo la zapata"], 1.7)
     lam.volcar_llamadas()
     lam.titulo_vista(470, 150, "CORTE B-B", "alero tipico, perpendicular al alero - ESC. 1/25", ancho_mm=110)
     # ---------------- cuadros con los valores de la planilla del presupuesto
@@ -978,7 +985,7 @@ def dp07(doc, ox, oy):
     lam.tabla(632, 500, ["ELEMENTO", "DIAM.", "FORMA", "N.", "L (m)", "kg"], fa, [72, 14, 16, 12, 18, 22], hmm=1.6, alto_mm=5.5,
               titulo="DESPIECE DE ACERO DE LOS ALEROS")
     lam.leyenda2(30, 100, [("concreto", "CONCRETO", "concreto armado f'c=210 (colector y aleros)"), ("relleno", "ISO-PIEDRA", "una de concreto ciclopeo f'c=140 + 30% P.M."),
-                           ("rect", "POZA", "emboquillado de piedra e = 0.20"), ("rect", "SOLADO", "afirmado e = 0.10 / solado"),
+                           ("rect", "POZA", "emboquillado de piedra e = 0.20"), ("rect", "SOLADO", "relleno compactado e = 0.10 / solado e = 0.05"),
                            ("relleno", "AGUA-RELLENO", "agua con el caudal de diseno"), ("discontinua", "CONCRETO-OCULTO", "zapata y una ocultas"),
                            ("linea2", "ACERO", "acero de refuerzo 3/8\""), ("bloque:SIMB-FLECHA", "0", "sentido del flujo")],
                  hmm=1.9, ancho_col=115, filas_col=4)
@@ -1030,7 +1037,7 @@ def dp08(doc, ox, oy):
     lam.notas(456, 430, "ESPECIFICACIONES TECNICAS", [
         "CONCRETO ARMADO: f'c = 210 kg/cm2 en colector, aleros de salida y tapas.",
         "CONCRETO SIMPLE: solado f'c = 100 kg/cm2 e = 0.05; una ciclopea f'c = 140 kg/cm2 + 30 % P.M.",
-        "EMBOQUILLADO: piedra mediana 6\" a 8\" asentada con concreto f'c = 140 kg/cm2, e = 0.20 sobre afirmado e = 0.10.",
+        "EMBOQUILLADO: piedra mediana 6\" a 8\" asentada con concreto f'c = 140 kg/cm2, e = 0.20 sobre relleno compactado e = 0.10.",
         "ACERO DE REFUERZO: fy = 4200 kg/cm2 (grado 60), corrugado; asas de tapa en acero liso 3/8\".",
         "RECUBRIMIENTOS: malla centrada en elementos de 0.10; 4.5 cm al eje en cruce de camiones; 2.5 cm en tapas.",
         "TRASLAPES: 3/8\" = 0.40 m; 1/2\" = 0.50 m, alternados.",
