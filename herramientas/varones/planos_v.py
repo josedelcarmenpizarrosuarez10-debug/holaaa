@@ -21,11 +21,13 @@ import dxf_planta as DP
 import dxf_secciones as DS
 import dxf_cuadros as DQ
 import dxf_detalles as DD
+import dxf_layouts as L
 from dxf_planta import prog_txt, perfil_en, terreno_en, offset_poli, recortar
 
 D = dz.D; DS_ = SOL.D
 SALIDA = os.path.join(dz.SAL, "PLANOS_COLECTOR_PLUVIAL_CAR_VARONES.dxf")
-LAMINAS = {}
+from collections import OrderedDict
+LAMINAS = OrderedDict()
 # origen de la planta (la planta queda en coordenadas locales reales del plano de arquitectura de Solange)
 F200 = 0.2
 OX1 = 349150.0 - 40 * F200
@@ -48,7 +50,7 @@ def _reg_en(R, p, tol=1.5):
 # =============================================================================== DP-01 PLANTA
 def dp01(doc, ox, oy, R, T, BP):
     lam = B.Lamina(doc, ox, oy, 200, "DP-01", "PLANTA DEL COLECTOR PLUVIAL",
-                   "TRAMO CAR VARONES (0+000.00 - %s) - TRAZO, REGISTROS, LLEGADA DE CUNETAS Y EMPALME CON LA CAJA CL DEL HOGAR DE REFUGIO" % prog_txt(dz.P_FIN))
+                   "0+000.00 - %s: TRAZO, REGISTROS, CUNETAS Y EMPALME CON LA CAJA CL DEL HOGAR DE REFUGIO" % prog_txt(dz.P_FIN))
     f = lam.f
     xw0, xw1 = 349150.0, 349276.0
     win = (xw0, SOL.Y_CERCO - 16, xw1, SOL.Y_CERCO + 45)
@@ -118,11 +120,13 @@ def dp01(doc, ox, oy, R, T, BP):
         for d_ in (-0.20, 0.20): lam.poli([(corte[0] - uy * d_, corte[1] + ux * d_), (fin[0] - uy * d_, fin[1] + ux * d_)], "CUNETA-OCULTA")
         lam.bloque("SIMB-FLECHA", fl, 0.08, rot=rot, capa="FLUJO")
         reg = _reg_en(R, p) if c["entra_en"] == "colector" else "CL"
-        txt_p = (fin[0] + 1.5, fin[1] + 3.2 + 2.6 * (k % 2))
-        lam.llamada(fin, txt_p,
+        izq = c["entra_en"] == "colector"
+        dy = {"09": 3.0, "08": 6.0}.get(c["perfil"], 3.0)
+        txt_p = (fin[0] - 1.0, fin[1] + dy) if izq else (fin[0] + 1.5, fin[1] + 3.0)
+        lam.llamada(fin, txt_p, al=TA.RIGHT if izq else TA.LEFT, lineas=
                     ["CUNETA EJE %s: 0.40 x %.2f, NCF %.2f, Q %.1f L/s" % (c["perfil"], c["H"], c["NCF"], c["Q"]),
                      ("entra al colector en %s (%s); se acorta %.2f m" % (prog_txt(p), reg, -c["ajuste_L"])) if c["entra_en"] == "colector"
-                     else "entra a la caja CL por su muro norte; se acorta %.2f m" % (-c["ajuste_L"])], 1.6)
+                     else "entra a la caja CL por su muro norte; se acorta %.2f m" % (-c["ajuste_L"])], hmm=1.6)
     # progresivas cada 10 m y puntos singulares
     for p in list(np.arange(0, dz.P_FIN, 10.0)) + [dz.ZONAS[0]["p2"], dz.P_QUIEBRE, dz.P_FIN]:
         a, b_ = _pe(p, -D["b_ext"] / 2 - 0.3), _pe(p, -D["b_ext"] / 2 - 1.2)
@@ -131,17 +135,16 @@ def dp01(doc, ox, oy, R, T, BP):
     for p in (15, 35, 60, 85):
         lam.bloque("SIMB-FLECHA", _pe(p, 0), 0.12, rot=dz.eje_local(p)[2], capa="FLUJO")
     # quiebre, cruce del cerco y empalme
-    lam.llamada(dz.eje_local(dz.P_QUIEBRE)[:2], (dz.eje_local(dz.P_QUIEBRE)[0] + 14.0, SOL.Y_CERCO - 9.0),
+    lam.llamada(dz.eje_local(dz.P_QUIEBRE)[:2], (dz.eje_local(dz.P_QUIEBRE)[0] + 21.0, SOL.Y_CERCO - 5.5),
                 ["QUIEBRE %s (registro RV-11): el colector deja la linea del frente y entra horizontal a la CL" % prog_txt(dz.P_QUIEBRE),
                  "tramo de empalme %s a %s bajo el piso exterior (+261.15), sin cerco" % (prog_txt(dz.P_QUIEBRE), prog_txt(dz.P_FIN))], 1.6)
-    lam.llamada((dz.X_CL_ESTE, yS - 0.3), (dz.X_CL_ESTE + 8.0, SOL.Y_CERCO - 13.0),
+    lam.llamada((dz.X_CL_ESTE, yS - 0.3), (dz.X_CL_ESTE + 2.5, SOL.Y_CERCO - 7.5),
                 ["EMPALME %s: entrega a la caja de llegada CL del colector del Hogar de Refugio (CUI 2675514)" % prog_txt(dz.P_FIN),
                  "ventana 0.60 x 1.17 en el muro este de la CL, cota de fondo %.3f; la CL recibe %.1f + %.1f = %.1f L/s (ver DP-07)" % (dz.fondo(dz.P_FIN), R["Q"], R["Q_directo_CL"], R["Q_CL"])], 1.6)
     # textos de ubicacion
     xm = (dz.CERCO[0][0] + SOL.X_NE) / 2
-    lam.texto((xm, SOL.Y_CERCO + 40), "CENTRO DE ACOGIDA RESIDENCIAL - VARONES (CUI 2705619) - FRENTE A LA CARRETERA OASIS", 2.2, "TEXTOS", TA.MIDDLE_CENTER)
+    lam.texto((xm - 14.0, SOL.Y_CERCO + 40), "CENTRO DE ACOGIDA RESIDENCIAL - VARONES (CUI 2705619) - FRENTE A LA CARRETERA OASIS", 2.2, "TEXTOS", TA.MIDDLE_CENTER)
     lam.texto((xm, SOL.Y_CERCO - 2.0), "CARRETERA OASIS", 2.4, "TEXTOS", TA.MIDDLE_CENTER)
-    lam.texto((xm, SOL.Y_CERCO - 5.5), "COLECTOR CUBIERTO DE CONCRETO ARMADO b = 0.60 m, h = 0.70 a 1.17 m, S = 0.30 % - LOSA SUPERIOR A NIVEL DEL PISO TERMINADO +261.15", 1.8, "TEXTOS", TA.MIDDLE_CENTER)
     lam.texto((SOL.X_NE - 8, SOL.Y_CERCO + 6), "HOGAR DE REFUGIO TEMPORAL (CUI 2675514)", 1.8, "ARQ-TEXTO", TA.MIDDLE_CENTER)
     lam.texto((SOL.X_NE - 8, SOL.Y_CERCO + 3.5), "piso terminado +260.60", 1.5, "ARQ-TEXTO", TA.MIDDLE_CENTER)
     # grilla UTM (cruces cada 25 m)
@@ -157,17 +160,18 @@ def dp01(doc, ox, oy, R, T, BP):
     filas = []
     for rg in R["registros"]:
         p = rg["prog"]; x, y, _ = dz.eje_local(p); Eu, Nu = dz.local_a_utm(x, y)
-        filas.append([rg["nombre"], prog_txt(p), "%.3f" % Eu, "%.3f" % Nu, "%.3f" % dz.fondo(p), "%.3f" % D["NPT"], rg["nota"]])
+        filas.append([rg["nombre"], prog_txt(p), "%.3f" % Eu, "%.3f" % Nu, "%.3f" % dz.fondo(p), "%.3f" % D["NPT"],
+                      "llegada a la caja CL del Hogar de Refugio (recibe la cuneta Eje 01)" if rg["nombre"] == "CL" else rg["nota"]])
     Eu, Nu = dz.local_a_utm(*dz.EJE[0]); filas.insert(0, ["0+000", prog_txt(0), "%.3f" % Eu, "%.3f" % Nu, "%.3f" % D["CF0"], "%.3f" % D["NPT"], "inicio: poste derecho del porton de camiones"])
     y_ = lam.tabla(32, 250, ["PUNTO", "PROGRESIVA", "ESTE", "NORTE", "COTA FONDO", "COTA TAPA", "OBSERVACION"], filas, [18, 20, 24, 26, 20, 20, 110], 1.6, 4.0, "CUADRO DE COORDENADAS DE REGISTROS Y EMPALME")
     lam.texto(lam.P(32, y_ - 4), "Coordenadas UTM WGS84 - Zona 18 Sur, en el mismo sistema del tramo del Hogar de Refugio (georreferenciado con el R-01 del CAR Mujeres y el azimut 49.54 del lindero). Verificar en campo.", 1.5, "TEXTOS-NOTAS")
-    lam.leyenda(330, 250, [("linea2", "CONCRETO", "muro exterior del colector"), ("linea", "CONCRETO-OCULTO", "cara interior (bajo losa superior)"),
+    lam.leyenda2(330, 254, [("linea2", "CONCRETO", "muro exterior del colector"), ("linea", "CONCRETO-OCULTO", "cara interior (bajo losa superior)"),
                            ("linea", "EJE-COLECTOR", "eje del colector"), ("bloque:REGISTRO-PLANTA", "REGISTRO", "registro de limpieza con tapa removible"),
                            ("linea", "JUNTAS", "junta de dilatacion cada 4.00 m"), ("rect", "CRUCE-VEHICULAR", "cruce de camiones cisterna (porton)"),
                            ("linea", "CUNETA", "cuneta de arquitectura (tramo que se construye)"), ("linea", "CUNETA-OCULTA", "tramo de cuneta que se descuenta"),
                            ("linea2", "CERCO", "cerco existente del Hogar de Refugio"), ("linea", "LINDERO", "linderos y linea de referencia del frente (sin cerco)"),
-                           ("linea", "ARQ-BASE", "arquitectura (referencia)"), ("bloque:SIMB-FLECHA", "FLUJO", "sentido del flujo")], 1.7)
-    lam.notas(500, 250, "NOTAS", [
+                           ("linea", "ARQ-BASE", "arquitectura (referencia)"), ("bloque:SIMB-FLECHA", "FLUJO", "sentido del flujo")], hmm=1.7)
+    lam.notas(478, 254, "NOTAS", [
         "1. Colector de concreto armado f'c=210 kg/cm2, cubierto, losa superior monolitica con los muros y al ras del piso terminado +261.15.",
         "2. El frente del CAR Varones no tiene cerco perimetrico: el colector va bajo el piso exterior, con su eje a 0.475 m de la linea de referencia del frente (limite de las areas exteriores del plano de arquitectura).",
         "3. Progresivas desde el poste derecho del porton de camiones (0+000, junto al Eje 09) crecientes hacia la caja CL del Hogar de Refugio.",
@@ -176,194 +180,337 @@ def dp01(doc, ox, oy, R, T, BP):
         "6. Las cunetas de los Ejes 09, 08, 06 y 04 entran por ventana en el muro lado predio; la del Eje 01 cae a la caja CL. El tramo",
         "   de cada cuneta que caia dentro del colector se descuenta en la partida de cunetas (%s m)." % C.DESC_TXT,
         "7. La caja CL es parte del expediente del Hogar de Refugio (CUI 2675514); su tapa queda en +261.15 (piso del CAR Varones).",
-        "8. Perfil en DP-02, secciones en DP-04, registro en DP-06B, empalme de cunetas en DP-06C, empalme con la CL en DP-07, acero y especificaciones en DP-08.",
-    ], 1.6)
+        "8. Perfiles en DP-02 (1/100) y DP-03A/B (1/25), secciones en DP-04, registro en DP-06B, empalme de cunetas en DP-06C, empalme con la CL en DP-07, acero en DP-08.",
+    ], 1.7, ancho_mm=345)
     return lam
 
 
-# =============================================================================== DP-02 PERFIL
-ZB = 258.40    # cota base del dibujo del perfil
+# =============================================================================== PERFILES: DP-02 (general 1/100) y DP-03A/B (detalle 1/25)
+NARANJA = 30
+TRAMOS_DP03 = [0.0, 17.9, 35.8, 53.7, 71.6, 89.5, None]      # el ultimo termina en la cara este de la CL (P_FIN)
+TRAMOS_DP03[-1] = dz.P_FIN
+L_CL = DS_["CL_largo"] + 2 * DS_["e_muro"]                    # largo exterior de la caja CL en el sentido del flujo (1.80)
+L_REF = 0.90                                                 # tramo del colector del Hogar de Refugio dibujado como referencia
 
 
-def perfil(lam, xmm, ymm, p1, p2, R, T, titulo=None, paso_tabla=5.0):
-    """Corte longitudinal por el eje entre p1 y p2 a escala real (1 unidad = 1 m). Origen de papel (xmm, ymm) = (p1, ZB)."""
-    f = lam.f; NPT = D["NPT"]; ef = D["e_fondo"]; es = D["e_solado"]; em = D["e_muro"]
-    def X(p): return lam.ox + xmm * f + (p - p1)
-    def Y(z): return lam.oy + ymm * f + (z - ZB)
+def _reg(R): return [r for r in R["registros"] if r["nombre"] != "CL"]
+
+
+def _estaciones(R, p1, p2, paso, sep):
+    """progresivas de la guitarra: extremos, registros, cambio de zona y cada `paso` m (se omite la que queda a menos de sep m)."""
+    regs = [round(r["prog"], 2) for r in _reg(R)]
+    fijos = [q for q in regs + [z["p2"] for z in R["zonas"]] + [p1, p2] if p1 - 1e-6 <= q <= p2 + 1e-6]
+    out = []
+    for q in sorted(set(round(v, 2) for v in fijos)):
+        if all(abs(q - o) >= sep for o in out): out.append(q)
+        elif q in regs: out = [o for o in out if abs(q - o) >= sep] + [q]
+    if paso:
+        k = math.ceil(p1 / paso) * paso
+        while k <= p2 + 1e-6:
+            if all(abs(k - o) >= sep for o in out): out.append(round(k, 2))
+            k += paso
+    return sorted(out)
+
+
+def _zlim(R, T, p1, p2):
+    pp = [p1 + (p2 - p1) * i / 40 for i in range(41)]
+    zmin = min(dz.fondo(q) - D["e_fondo"] - D["e_solado"] for q in pp)
+    if p2 >= dz.P_FIN - 1e-6: zmin = min(zmin, D["CL_piso"] - D["e_fondo"] - D["e_solado"])
+    zmax = max(max(terreno_en(T, q) for q in pp), D["NPT"])
+    return math.floor((zmin - 0.05) * 10) / 10, math.ceil((zmax + 0.05) * 10) / 10
+
+
+def alto_perfil(R, T, p1, p2, f):
+    a, b_ = _zlim(R, T, p1, p2); return (b_ - a) / f
+
+
+def perfil(lam, xmm, ymm, p1, p2, R, T, detalle=True, titulo=None, paso=5.0, xmax_txt=None):
+    """Corte longitudinal por el eje a escala real (H = V) entre p1 y p2. (xmm, ymm): papel en (p1, zmin del tramo);
+    la guitarra va debajo y la franja de etiquetas (horizontales, sin cruces) encima. Devuelve el borde inferior (mm)."""
+    f = lam.f; NPT = D["NPT"]; ef = D["e_fondo"]; es = D["e_solado"]
+    zmin, zmax = _zlim(R, T, p1, p2)
+    X = lambda p: lam.ox + xmm * f + (p - p1)
+    Y = lambda z: lam.oy + ymm * f + (z - zmin)
     fz = dz.fondo
-    ps = [e["p"] for e in R["perfil"] if p1 - 1e-6 <= e["p"] <= p2 + 1e-6]
-    for z in R["zonas"]: ps += [z["p1"], z["p2"], z["p2"] - 1e-4, z["p2"] + 1e-4]
-    ps = sorted(set([p1, p2] + [q for q in ps if p1 - 1e-6 <= q <= p2 + 1e-6]))
-    regs = [rg for rg in R["registros"] if p1 - 1e-6 <= rg["prog"] <= p2 + 1e-6 and rg["nombre"] != "CL"]
-    # agua
-    na = [(X(p), Y(perfil_en(R, p, "NA"))) for p in ps]
-    lam.relleno([(X(p), Y(fz(p))) for p in ps] + list(reversed(na)), "AGUA-RELLENO"); lam.poli(na, "AGUA")
-    for p in np.arange(np.ceil(p1 / 10.0) * 10.0, p2 + 1e-6, 10.0):
-        if p1 + 1.0 < p < p2 - 1.0: lam.bloque("SIMB-AGUA", (X(p), Y(perfil_en(R, p, "NA"))), f)
-    # losa de fondo y solado
-    fondo = [(X(p), Y(fz(p))) for p in ps]; fondo_inf = [(X(p), Y(fz(p) - ef)) for p in ps]
-    lam.achurado(fondo + list(reversed(fondo_inf)), escala_mm=0.5); lam.poli(fondo, "CONCRETO"); lam.poli(fondo_inf, "CONCRETO")
-    lam.poli([(X(p), Y(fz(p) - ef - es)) for p in ps], "SOLADO")
-    lam.poli([(X(p1), Y(fz(p1) - ef - es - 0.02)), (X(p2), Y(fz(p2) - ef - es - 0.02))], "EXCAVACION")
-    # losa superior con aberturas de registro (el techo cambia en el cruce de camiones)
-    cortes = sorted([(rg["prog"] - 0.35, rg["prog"] + 0.35) for rg in regs]); a = p1; tramos = []
-    for c1, c2 in cortes:
-        if c1 > a: tramos.append((a, c1))
-        a = c2
-    if a < p2: tramos.append((a, p2))
-    for a, b_ in tramos:
-        qs = sorted(set([a, b_] + [q for q in ps if a < q < b_]))
-        techo = [(X(q), Y(dz.techo(q))) for q in qs]
-        lam.achurado([(X(a), Y(NPT)), (X(b_), Y(NPT))] + list(reversed(techo)), escala_mm=0.5)
-        lam.poli(techo, "CONCRETO"); lam.linea((X(a), Y(NPT)), (X(a), Y(dz.techo(a))), "CONCRETO"); lam.linea((X(b_), Y(NPT)), (X(b_), Y(dz.techo(b_))), "CONCRETO")
-    lam.poli([(X(p1), Y(NPT)), (X(p2), Y(NPT))], "TERRENO", ancho=0.35 * f)
-    # registros
-    for rg in regs:
-        p = rg["prog"]; zt = dz.techo(p)
-        for sgn in (-1, 1):
-            xa, xb = sorted([X(p + sgn * 0.35), X(p + sgn * 0.50)])
-            lam.rect(xa, Y(zt - 0.10), xb, Y(zt), "CONCRETO"); lam.achurado([(xa, Y(zt - 0.10)), (xb, Y(zt - 0.10)), (xb, Y(zt)), (xa, Y(zt))], escala_mm=0.5)
-        lam.rect(X(p - 0.34), Y(NPT - 0.08), X(p + 0.34), Y(NPT), "REGISTRO-TAPA")
-        lam.linea((X(p - 0.35), Y(NPT - 0.10)), (X(p - 0.35), Y(NPT)), "MARCO-METALICO"); lam.linea((X(p + 0.35), Y(NPT - 0.10)), (X(p + 0.35), Y(NPT)), "MARCO-METALICO")
-        lam.linea((X(p), Y(NPT)), (X(p), Y(NPT) + 5 * f), "LLAMADAS")
-        lam.texto((X(p) + 0.8 * f, Y(NPT) + 6 * f), "%s  %s" % (rg["nombre"], prog_txt(p)), 1.6, "REGISTRO", TA.LEFT, rot=90)
-    # ventanas de cunetas (cara interior del muro lado predio)
+    zc = [z["p2"] for z in R["zonas"] if p1 < z["p2"] < p2]                     # cambio de espesor de la losa superior
+    ps = sorted(set([p1, p2] + [e["p"] for e in R["perfil"] if p1 < e["p"] < p2] + zc))
+    regs = [r for r in _reg(R) if p1 - 1e-6 <= r["prog"] <= p2 + 1e-6]
+    ets = []
+    # ---------- agua
+    agua = [(X(q), Y(perfil_en(R, q, "NA"))) for q in ps]
+    if any(perfil_en(R, q, "NA") - fz(q) > 0.005 for q in ps):
+        lam.relleno(agua + [(X(q), Y(fz(q))) for q in reversed(ps)], "AGUA-RELLENO"); lam.poli(agua, "AGUA")
+    # ---------- losa de fondo y solado
+    pl = [(X(q), Y(fz(q))) for q in ps] + [(X(q), Y(fz(q) - ef)) for q in reversed(ps)]
+    lam.relleno(pl, "CONCRETO-ACHURADO"); lam.poli(pl, "CONCRETO", cerrada=True)
+    lam.poli([(X(q), Y(fz(q) - ef)) for q in ps] + [(X(q), Y(fz(q) - ef - es)) for q in reversed(ps)], "SOLADO", cerrada=True)
+    # ---------- losa superior con el hueco de cada registro (0.70) y el escalon del cruce de camiones
+    huecos = [(r["prog"] - 0.35, r["prog"] + 0.35) for r in regs]
+    lim = [p1] + zc + [p2]
+    for a, c in zip(lim[:-1], lim[1:]):
+        segs = [(a, c)]
+        for h1, h2 in huecos:
+            nuevo = []
+            for u, v in segs:
+                if h2 <= u or h1 >= v: nuevo.append((u, v)); continue
+                if u < h1: nuevo.append((u, h1))
+                if h2 < v: nuevo.append((h2, v))
+            segs = nuevo
+        for u, v in segs:
+            if v - u < 1e-3: continue
+            m = (u + v) / 2; zt = dz.techo(m)
+            pl = [(X(u), Y(NPT)), (X(v), Y(NPT)), (X(v), Y(zt)), (X(u), Y(zt))]
+            lam.relleno(pl, "CONCRETO-ACHURADO"); lam.poli(pl, "CONCRETO", cerrada=True)
+    # ---------- registros: borde engrosado 0.15 x 0.10 bajo la losa, contramarco y tapa 0.68 x 0.08
+    for r in regs:
+        q = r["prog"]; zt = dz.techo(q)
+        for s_ in (-1, 1):
+            xa, xb = sorted([q + s_ * 0.35, q + s_ * 0.50])
+            pl = [(X(xa), Y(zt - 0.10)), (X(xb), Y(zt - 0.10)), (X(xb), Y(zt)), (X(xa), Y(zt))]
+            lam.relleno(pl, "CONCRETO-ACHURADO"); lam.poli(pl, "CONCRETO", cerrada=True)
+            if detalle: lam.linea((X(q + s_ * 0.35), Y(NPT - 0.10)), (X(q + s_ * 0.35), Y(NPT)), "MARCO-METALICO")
+        tapa = [(X(q - 0.34), Y(NPT)), (X(q + 0.34), Y(NPT)), (X(q + 0.34), Y(NPT - 0.08)), (X(q - 0.34), Y(NPT - 0.08))]
+        lam.relleno(tapa, "ISO-TAPA"); lam.poli(tapa, "REGISTRO", cerrada=True)
+        ls = ["REGISTRO %s  %s" % (r["nombre"], prog_txt(q))] if detalle else ["%s  %s" % (r["nombre"], prog_txt(q))]
+        c = [c for c in R["cunetas"] if c["entra_en"] == "colector" and abs(c["prog"] - q) < 0.5]
+        if not detalle: ls.append("cuneta Eje %s" % c[0]["perfil"] if c else ("quiebre" if abs(q - dz.P_QUIEBRE) < 0.05 else "limpieza"))
+        elif c: ls.append("cuneta Eje %s: NCF %.2f, ventana 0.40 x %.2f" % (c[0]["perfil"], c[0]["NCF_fin"], c[0]["H_ventana"]))
+        elif abs(q - dz.P_QUIEBRE) < 0.05: ls.append("quiebre: sigue horizontal hasta la caja CL")
+        else: ls.append("registro de limpieza, tapa +%.2f" % NPT)
+        ets.append((X(q), Y(NPT), ls, 7))
+    # ---------- ventanas de las cunetas en el muro lado predio (cara interior, se ve al fondo del corte)
     for c in R["cunetas"]:
-        p = c["prog"]
-        if c["entra_en"] != "colector" or not (p1 - 1e-6 <= p <= p2 + 1e-6): continue
-        zt = dz.techo(p); zv = c["NCF_fin"]
-        lam.rect(X(p - 0.20), Y(zv), X(p + 0.20), Y(zt), "CUNETA")
-        lam.relleno([(X(p - 0.20), Y(zv)), (X(p + 0.20), Y(zv)), (X(p + 0.20), Y(zt)), (X(p - 0.20), Y(zt))], "ISO-CUNETA")
-        lam.bloque("SIMB-FLECHA", (X(p), Y((zv + perfil_en(R, p, "NA")) / 2)), f * 0.7, rot=-90, capa="FLUJO")
-        lam.texto((X(p) - 1.0 * f, Y(NPT) + 6 * f), "CUNETA EJE %s - NCF %.2f" % (c["perfil"], zv), 1.6, "CUNETA", TA.LEFT, rot=90)
-        lam.texto((X(p) - 3.6 * f, Y(NPT) + 6 * f), "ventana 0.40 x %.2f (Q %.1f L/s)" % (zt - zv, c["Q"]), 1.4, "CUNETA", TA.LEFT, rot=90)
-    # juntas
+        q = c["prog"]
+        if c["entra_en"] != "colector" or not (p1 + 0.2 <= q <= p2 - 0.2): continue
+        zt = dz.techo(q); zv = c["NCF_fin"]
+        pl = [(X(q - 0.20), Y(zv)), (X(q + 0.20), Y(zv)), (X(q + 0.20), Y(zt)), (X(q - 0.20), Y(zt))]
+        lam.relleno(pl, "ISO-CUNETA"); lam.poli(pl, "CUNETA", cerrada=True)
+        lam.flecha((X(q + 0.05), Y(zv - 0.01)), (X(q + 0.05), Y(max(perfil_en(R, q, "NA"), fz(q)) + 0.04)), "FLUJO", 1.6 if detalle else 1.2)
+    # ---------- juntas de dilatacion cada 4.00 m
     for pj in np.arange(4.0, dz.P_FIN - 0.5, 4.0):
         if p1 < pj < p2:
-            lam.linea((X(pj), Y(NPT)), (X(pj), Y(dz.techo(pj))), "JUNTAS"); lam.linea((X(pj), Y(fz(pj))), (X(pj), Y(fz(pj) - ef)), "JUNTAS")
-            lam.texto((X(pj), Y(fz(pj) - ef) - 1.5 * f), "J", 1.3, "JUNTAS", TA.TOP_CENTER)
-    # cruce de camiones
+            lam.linea((X(pj), Y(NPT + 0.02)), (X(pj), Y(fz(pj) - ef - 0.02)), "JUNTAS")
+    # ---------- acero (solo detalle): barras longitudinales y marcos cortados, a diametro real
+    if detalle:
+        for a, c in zip(lim[:-1], lim[1:]):
+            m = (a + c) / 2; cam = dz.zona(m) == "CAMION"
+            et = D["e_losa_camion"] if cam else D["e_losa"]
+            if cam:
+                ys = [lambda q: NPT - 0.04, lambda q, et=et: NPT - et + 0.04, lambda q: fz(q) - 0.04, lambda q: fz(q) - ef + 0.04]
+                sep, blk = 0.15, "ACERO-12"
+            else:
+                ys = [lambda q, et=et: NPT - et / 2, lambda q: fz(q) - ef / 2]
+                sep, blk = 0.20, "ACERO-38"
+            pp = [q for q in ps if a <= q <= c]
+            for fy in ys:
+                for u, v in ([(a, c)] if fy(m) < NPT - et else [sg for sg in [(a, c)]]):
+                    tr = [q for q in pp if u <= q <= v]
+                    # la barra superior se interrumpe en los huecos de registro
+                    if fy(m) > NPT - et - 1e-6:
+                        cortes_ = [(u, v)]
+                        for h1, h2 in huecos:
+                            nu = []
+                            for s1, s2 in cortes_:
+                                if h2 <= s1 or h1 >= s2: nu.append((s1, s2)); continue
+                                if s1 < h1 - 0.05: nu.append((s1, h1 - 0.05))
+                                if h2 + 0.05 < s2: nu.append((h2 + 0.05, s2))
+                            cortes_ = nu
+                        for s1, s2 in cortes_: lam.linea((X(s1 + 0.03), Y(fy(s1))), (X(s2 - 0.03), Y(fy(s2))), "ACERO-LONG")
+                    else:
+                        lam.poli([(X(q), Y(fy(q))) for q in sorted(set([u + 0.03, v - 0.03] + [q for q in tr if u + 0.03 < q < v - 0.03]))], "ACERO-LONG")
+            q = a + sep / 2
+            while q < c - 0.02:
+                if not any(h1 - 0.02 < q < h2 + 0.02 for h1, h2 in huecos):
+                    for fy in ys: lam.bloque(blk, (X(q), Y(fy(q))), 1.0)
+                else:
+                    for fy in ys[len(ys) // 2:]: lam.bloque(blk, (X(q), Y(fy(q))), 1.0)
+                q += sep
+    # ---------- piso terminado (losa) y terreno existente
+    lam.poli([(X(p1), Y(NPT)), (X(p2), Y(NPT))], "TERRENO", ancho=0.35 * f)
+    lam.poli([(X(t["p"]), Y(t["z"])) for t in T if p1 - 1e-6 <= t["p"] <= p2 + 1e-6], "TERRENO-EXISTENTE")
+    # ---------- cruce de camiones
     for z in R["zonas"]:
-        a, b_ = max(z["p1"], p1), min(z["p2"], p2)
-        if a < b_:
-            yb = Y(NPT) + 2.0 * f
-            lam.linea((X(a), yb), (X(b_), yb), "CRUCE-VEHICULAR"); lam.linea((X(a), yb - 1.0 * f), (X(a), yb + 1.0 * f), "CRUCE-VEHICULAR"); lam.linea((X(b_), yb - 1.0 * f), (X(b_), yb + 1.0 * f), "CRUCE-VEHICULAR")
-            lam.texto((X((a + b_) / 2), yb + 1.5 * f), "CRUCE DE CAMIONES: losa e=0.25, doble marco 1/2\"", 1.5, "CRUCE-VEHICULAR", TA.BOTTOM_CENTER)
-    # quiebre y cruce del cerco
-    if p1 < dz.P_QUIEBRE < p2:
-        lam.linea((X(dz.P_QUIEBRE), Y(NPT) + 11 * f), (X(dz.P_QUIEBRE), Y(NPT) + 16 * f), "LLAMADAS")
-        lam.texto((X(dz.P_QUIEBRE) + 0.8 * f, Y(NPT) + 17 * f), "QUIEBRE %s" % prog_txt(dz.P_QUIEBRE), 1.5, "TEXTOS", TA.LEFT, rot=90)
-    # ---------- llegada a la caja CL de Solange (receptor) al final del tramo
+        a, c = max(z["p1"], p1), min(z["p2"], p2)
+        if a < c:
+            yb = Y(NPT + 0.10)
+            lam.poli([(X(a), yb), (X(c), yb)], "CRUCE-VEHICULAR", ancho=0.8 * f)
+            for q in (a, c): lam.linea((X(q), yb - 0.06), (X(q), yb + 0.06), "CRUCE-VEHICULAR")
+            ets.append((X((a + c) / 2), yb, ["CRUCE DE CAMIONES CISTERNA %s - %s" % (prog_txt(z["p1"]), prog_txt(z["p2"])),
+                                              "losa superior e = 0.25, doble marco 1/2\" @0.15"] if detalle else ["CRUCE DE CAMIONES", "%s - %s" % (prog_txt(z["p1"]), prog_txt(z["p2"]))], NARANJA))
+    if p1 <= 0.0 and detalle:
+        ets.append((X(0.0), Y(NPT), ["INICIO 0+000.00: poste derecho del porton", "de camiones (junto al Eje 09)"], 7))
+    # ---------- llegada a la caja CL del Hogar de Refugio (CUI 2675514) al final del tramo
     if p2 >= dz.P_FIN - 1e-6:
         e = DS_["e_muro"]; zp = D["CL_piso"]; Li = DS_["CL_largo"]; tCL = D["NPT_CL"]; eL = DS_["e_losa"]
-        xf = X(dz.P_FIN); xi = xf + e; xo = xi + Li; xe = xo + e      # muro este (con ventana), interior, muro oeste (lindero), cara exterior oeste
-        # fondo de la caja y muro bajo la ventana este
-        lam.achurado([(xf, Y(zp - ef)), (xe, Y(zp - ef)), (xe, Y(zp)), (xf, Y(zp))], escala_mm=0.5)
-        lam.achurado([(xf, Y(zp)), (xi, Y(zp)), (xi, Y(fz(dz.P_FIN) - ef)), (xf, Y(fz(dz.P_FIN) - ef))], escala_mm=0.5)
-        lam.poli([(xf, Y(fz(dz.P_FIN) - ef)), (xi, Y(fz(dz.P_FIN) - ef)), (xi, Y(zp)), (xo, Y(zp)), (xo, Y(DS_["CF0"])), (xe, Y(DS_["CF0"]))], "CONCRETO")
-        lam.poli([(xf, Y(zp - ef)), (xe, Y(zp - ef))], "CONCRETO"); lam.poli([(xf, Y(zp - ef - es)), (xe, Y(zp - ef - es))], "SOLADO")
-        # muro oeste (lindero): bajo la ventana de salida a Solange y sobre ella (hasta la tapa 261.15); losa de la CL
-        lam.achurado([(xo, Y(zp)), (xe, Y(zp)), (xe, Y(DS_["CF0"])), (xo, Y(DS_["CF0"]))], escala_mm=0.5)
-        lam.achurado([(xo, Y(DS_["NPT"] - eL)), (xe, Y(DS_["NPT"] - eL)), (xe, Y(tCL)), (xo, Y(tCL))], escala_mm=0.5)
-        lam.rect(xo, Y(DS_["NPT"] - eL), xe, Y(tCL), "CONCRETO")
-        lam.achurado([(xf + 0.35, Y(tCL - eL)), (xo, Y(tCL - eL)), (xo, Y(tCL)), (xf + 0.35, Y(tCL))], escala_mm=0.5)
-        lam.poli([(xf, Y(NPT)), (xf, Y(tCL)), (xo, Y(tCL)), (xo, Y(tCL - eL)), (xf + 0.35, Y(tCL - eL))], "CONCRETO")
-        # ventana del muro este (cara de corte: el colector entra con su seccion 0.60 x h): muro de la CL sobre la ventana no hay (techo a 261.05)
-        lam.linea((xf, Y(fz(dz.P_FIN))), (xf, Y(dz.techo(dz.P_FIN))), "CONCRETO-OCULTO")
-        # registro de la CL
-        lam.rect(xf + 0.35, Y(tCL - 0.08), xf + 0.35 + 0.68, Y(tCL), "REGISTRO-TAPA")
-        # ventana de la cuneta Eje 01 en el muro norte (fondo de la vista)
-        c01 = [c for c in R["cunetas"] if c["entra_en"] == "CL"]
-        if c01:
-            c = c01[0]; u = dz.X_CL_ESTE - c["x"]    # distancia desde la cara este
-            lam.rect(xf + u - 0.20, Y(c["NCF_fin"]), xf + u + 0.20, Y(tCL - eL), "CUNETA")
-            lam.relleno([(xf + u - 0.20, Y(c["NCF_fin"])), (xf + u + 0.20, Y(c["NCF_fin"])), (xf + u + 0.20, Y(tCL - eL)), (xf + u - 0.20, Y(tCL - eL))], "ISO-CUNETA")
-            lam.texto((xf + u - 1.0 * f, Y(tCL) + 6 * f), "CUNETA EJE %s - NCF %.2f (entra a la CL)" % (c["perfil"], c["NCF_fin"]), 1.6, "CUNETA", TA.LEFT, rot=90)
-        # colector de Solange (referencia) y su piso
-        lam.rect(xe, Y(DS_["CF0"] - ef), xe + 0.9, Y(DS_["NPT"]), "ARQ-BASE"); lam.rect(xe, Y(DS_["CF0"]), xe + 0.9, Y(DS_["NPT"] - eL), "ARQ-BASE")
-        lam.poli([(xe, Y(DS_["NPT"])), (xe + 0.9, Y(DS_["NPT"]))], "TERRENO", ancho=0.35 * f)
-        # agua: caida libre a la poza y salida por Solange
-        naf = perfil_en(R, dz.P_FIN, "NA"); NA_CL = R["caja_llegada"]["NA_CL"]
-        agua = [(xf, Y(naf)), (xf + 0.35, Y(NA_CL + 0.12)), (xf + 0.7, Y(NA_CL)), (xe + 0.9, Y(NA_CL))]
-        lam.relleno([(xf, Y(fz(dz.P_FIN)))] + [(xi, Y(fz(dz.P_FIN) - ef)), (xi, Y(zp)), (xo, Y(zp)), (xo, Y(DS_["CF0"])), (xe + 0.9, Y(DS_["CF0"]))] + list(reversed(agua)), "AGUA-RELLENO")
-        lam.poli(agua, "AGUA")
-        # llamadas y niveles
-        lam.llamada((xi + 0.4, Y(zp)), (xf - 0.3, Y(zp - 0.55)), ["CAJA DE LLEGADA CL (Hogar de Refugio, CUI 2675514): interior %.2f x %.2f, piso %.2f" % (Li, DS_["CL_ancho"], zp),
-                                                                 "tapa en +%.2f (piso del CAR Varones); colchon de agua NA %.3f" % (tCL, NA_CL)], 1.6, al=TA.RIGHT)
-        lam.llamada((xe + 0.6, Y(DS_["NPT"] - eL / 2)), (xf - 0.6, Y(tCL + 1.15)), ["COLECTOR DEL HOGAR DE REFUGIO (referencia): b=0.80, fondo %.2f, losa +%.2f" % (DS_["CF0"], DS_["NPT"])], 1.6, al=TA.RIGHT)
-        lam.llamada((xf + 0.05, Y((fz(dz.P_FIN) + dz.techo(dz.P_FIN)) / 2)), (xf - 0.6, Y(tCL + 0.8)), ["ventana 0.60 x %.2f en el muro este de la CL: el colector entra con su seccion completa" % (dz.techo(dz.P_FIN) - fz(dz.P_FIN))], 1.6, al=TA.RIGHT)
-        lam.nivel((xo - 0.3, Y(zp)), zp, lado=-1); lam.nivel((xe + 0.4, Y(DS_["CF0"])), DS_["CF0"], texto="CF %.2f" % DS_["CF0"], lado=1)
-        lam.nivel((xo - 0.1, Y(tCL)), tCL, texto="tapa CL +%.2f" % tCL, lado=-1); lam.nivel((xe + 0.4, Y(DS_["NPT"])), DS_["NPT"], texto="+%.2f" % DS_["NPT"], lado=1)
-        lam.cota((xf, Y(zp)), (xf, Y(fz(dz.P_FIN))), -8, horizontal=False, texto="caida %.2f" % (fz(dz.P_FIN) - zp))
-        lam.cota((xf, Y(zp - ef - es)), (xi, Y(zp - ef - es)), -6); lam.cota((xi, Y(zp - ef - es)), (xo, Y(zp - ef - es)), -6); lam.cota((xo, Y(zp - ef - es)), (xe, Y(zp - ef - es)), -6)
-        lam.texto((xe, Y(tCL) + 1.5 * f), "LINDERO", 1.4, "LINDERO", TA.BOTTOM_CENTER, rot=90); lam.linea((xe, Y(zp - ef - es - 0.3)), (xe, Y(tCL + 0.5)), "LINDERO")
-    # cotas de altura interior
-    for pm in (p1 + 0.3 * (p2 - p1), p1 + 0.7 * (p2 - p1)):
-        pm = min(pm, dz.P_FIN - 1.0)
-        if any(abs(pm - rg["prog"]) < 1.0 for rg in regs) or any(abs(pm - c["prog"]) < 1.0 for c in R["cunetas"]): pm += 1.2
-        lam.cota((X(pm), Y(fz(pm))), (X(pm), Y(dz.techo(pm))), 0, horizontal=False, texto="h=%.2f" % (dz.techo(pm) - fz(pm)))
-    # terreno existente, niveles en extremos
-    lam.poli([(X(t["p"]), Y(t["z"])) for t in T if p1 - 1e-6 <= t["p"] <= p2 + 1e-6], "TERRENO-EXISTENTE")
-    for p in (p1, p2):
-        lam.nivel((X(p), Y(fz(p))), fz(p), texto="CF %.3f" % fz(p), lado=1 if p == p1 else -1)
-        if perfil_en(R, p, "NA") - fz(p) > 0.02:
-            lam.nivel((X(p), Y(perfil_en(R, p, "NA"))), perfil_en(R, p, "NA"), texto="NA %.3f" % perfil_en(R, p, "NA"), lado=1 if p == p1 else -1)
-    lam.nivel((X(p1 + (8.5 if p1 < 1 else 2.5)), Y(NPT)), NPT, texto="NPT +%.2f (losa superior = piso terminado)" % NPT)
-    lam.texto((X(p1 + 1.0), Y(fz(p1 + 1.0)) - 4.5 * f), "S = %.2f %%" % (D["S"] * 100), 1.8, "TEXTOS", TA.LEFT)
-    # escala vertical
-    xs = X(p1)
-    for z in np.arange(258.5, 261.51, 0.5):
-        lam.linea((xs - 3 * f, Y(z)), (xs - 1 * f, Y(z)), "GUITARRA"); lam.texto((xs - 4 * f, Y(z)), "%.2f" % z, 1.4, "TEXTOS", TA.MIDDLE_RIGHT)
-    lam.linea((xs - 1 * f, Y(ZB)), (xs - 1 * f, Y(261.6)), "GUITARRA")
-    if titulo: lam.texto((X(p1), Y(261.6) + 30 * f), titulo, 3.0, "TITULOS")
-    # guitarra
-    sing_r = [r["prog"] for r in R["registros"] if p1 <= r["prog"] <= p2]
-    sing = sorted(set(sing_r + [c["prog"] for c in R["cunetas"] if p1 <= c["prog"] <= p2 and all(abs(c["prog"] - q) > 1.2 for q in sing_r)]))
-    reg = [round(v, 2) for v in np.arange(p1, p2 + 1e-6, paso_tabla)] + [p2]
-    reg = [v for v in reg if all(abs(v - q) > 1.2 for q in sing)]
-    cols = sorted(set(reg + sing))
-    filas = ["PROGRESIVA", "TERRENO", "LOSA SUP. / NPT", "FONDO", "NIVEL AGUA", "ALTURA h", "PROF. EXCAV."]
-    yt = Y(ZB) - 6 * f; dy = 6.0 * f
-    for i, fnm in enumerate(filas):
-        lam.texto((X(p1) - 4 * f, yt - (i + 0.5) * dy), fnm, 1.5, "TEXTOS", TA.MIDDLE_RIGHT)
-        lam.linea((X(p1) - 30 * f, yt - i * dy), (X(p2), yt - i * dy), "GUITARRA")
-    lam.linea((X(p1) - 30 * f, yt - len(filas) * dy), (X(p2), yt - len(filas) * dy), "GUITARRA")
-    for p in cols:
-        vals = [prog_txt(p), "%.3f" % terreno_en(T, p), "%.3f" % NPT, "%.3f" % fz(p), "%.3f" % perfil_en(R, p, "NA"),
-                "%.2f" % (dz.techo(p) - fz(p)), "%.2f" % (terreno_en(T, p) - fz(p) + ef + es)]
-        lam.linea((X(p), yt), (X(p), yt - len(filas) * dy), "GUITARRA"); lam.linea((X(p), Y(ZB)), (X(p), yt), "GUITARRA")
-        for i, v in enumerate(vals):
-            lam.texto((X(p), yt - (i + 0.5) * dy), v, 1.4, "PROGRESIVAS" if i == 0 else "TEXTOS", TA.MIDDLE_CENTER)
-    return X, Y
+        cfF = fz(dz.P_FIN); ztF = dz.techo(dz.P_FIN)
+        x0 = dz.P_FIN; xi, xo, xe = x0 + e, x0 + e + Li, x0 + L_CL       # muro este, interior, muro oeste (lindero), cara oeste
+        conc = [[(x0, zp - ef), (xe, zp - ef), (xe, zp), (x0, zp)],                 # losa de fondo de la CL
+                [(x0, zp), (xi, zp), (xi, cfF - ef), (x0, cfF - ef)],               # muro este bajo la ventana del colector
+                [(xo, zp), (xe, zp), (xe, DS_["CF0"]), (xo, DS_["CF0"])],           # muro oeste bajo la salida al Refugio
+                [(xo, DS_["NPT"] - eL), (xe, DS_["NPT"] - eL), (xe, tCL), (xo, tCL)],   # muro oeste sobre la salida
+                [(xi, tCL - eL), (x0 + L_CL / 2 - 0.35, tCL - eL), (x0 + L_CL / 2 - 0.35, tCL), (xi, tCL)],   # losa de la CL con el hueco del registro
+                [(x0 + L_CL / 2 + 0.35, tCL - eL), (xo, tCL - eL), (xo, tCL), (x0 + L_CL / 2 + 0.35, tCL)],
+                [(x0, ztF), (xi, ztF), (xi, tCL), (x0, tCL)]]                         # muro este sobre la ventana (techo de la CL)
+        for pl in conc:
+            pp = [(X(u), Y(v)) for u, v in pl]
+            if abs(pl[2][1] - pl[1][1]) > 1e-4: lam.relleno(pp, "CONCRETO-ACHURADO"); lam.poli(pp, "CONCRETO", cerrada=True)
+        lam.poli([(X(x0), Y(zp - ef - es)), (X(xe), Y(zp - ef - es))], "SOLADO")
+        tapa = [(X(x0 + L_CL / 2 - 0.34), Y(tCL)), (X(x0 + L_CL / 2 + 0.34), Y(tCL)), (X(x0 + L_CL / 2 + 0.34), Y(tCL - 0.08)), (X(x0 + L_CL / 2 - 0.34), Y(tCL - 0.08))]
+        lam.relleno(tapa, "ISO-TAPA"); lam.poli(tapa, "REGISTRO", cerrada=True)
+        # ventana de la cuneta Eje 01 en el muro norte de la CL (al fondo de la vista)
+        c01 = [c for c in R["cunetas"] if c["entra_en"] == "CL"][0]; u01 = x0 + (dz.X_CL_ESTE - c01["x"])
+        pl = [(X(u01 - 0.20), Y(c01["NCF_fin"])), (X(u01 + 0.20), Y(c01["NCF_fin"])), (X(u01 + 0.20), Y(tCL - eL)), (X(u01 - 0.20), Y(tCL - eL))]
+        lam.relleno(pl, "ISO-CUNETA"); lam.poli(pl, "CUNETA", cerrada=True)
+        # colector del Hogar de Refugio (referencia)
+        lam.rect(X(xe), Y(DS_["CF0"] - ef), X(xe + L_REF), Y(DS_["NPT"]), "ARQ-BASE"); lam.rect(X(xe), Y(DS_["CF0"]), X(xe + L_REF), Y(DS_["NPT"] - eL), "ARQ-BASE")
+        lam.poli([(X(xe), Y(DS_["NPT"])), (X(xe + L_REF), Y(DS_["NPT"]))], "TERRENO", ancho=0.35 * f)
+        lam.poli([(X(x0), Y(tCL)), (X(xe), Y(tCL))], "TERRENO", ancho=0.35 * f)
+        # agua: caida libre a la poza y salida al colector del Refugio
+        naF = perfil_en(R, dz.P_FIN, "NA"); NA_CL = R["caja_llegada"]["NA_CL"]
+        ag = [(x0, naF), (x0 + 0.35, NA_CL + 0.12), (x0 + 0.7, NA_CL), (xe + L_REF, NA_CL)]
+        fondo_ag = [(x0, cfF), (xi, cfF), (xi, zp), (xo, zp), (xo, DS_["CF0"]), (xe + L_REF, DS_["CF0"])]
+        lam.relleno([(X(u), Y(v)) for u, v in fondo_ag + list(reversed(ag))], "AGUA-RELLENO"); lam.poli([(X(u), Y(v)) for u, v in ag], "AGUA")
+        lam.linea((X(xe), Y(zp - ef - es - 0.25)), (X(xe), Y(tCL + 0.15)), "LINDERO")
+        if detalle:
+            ets.append((X(x0 + L_CL / 2), Y(tCL), ["CAJA DE LLEGADA CL (Hogar de Refugio, CUI 2675514): interior %.2f x %.2f," % (Li, DS_["CL_ancho"]),
+                                                   "piso %.2f, tapa +%.2f; NA %.3f; caida %.2f m desde el colector" % (zp, tCL, NA_CL, cfF - zp)], 7))
+            ets.append((X(u01), Y(tCL - eL), ["CUNETA EJE 01: entra a la CL por el muro norte", "NCF %.2f, ventana 0.40 x %.2f" % (c01["NCF_fin"], c01["H_ventana"])], 94))
+        else:
+            ets.append((X(x0 + L_CL / 2), Y(tCL), ["CAJA CL %s (Hogar de Refugio): piso %.2f, tapa +%.2f" % (prog_txt(dz.P_FIN), zp, tCL),
+                                                   "recibe la cuneta Eje 01 por su muro norte (ver DP-07)"], 7))
+        lam.texto((X(xe), Y(zp - ef - es - 0.25) - 0.8 * f), "LINDERO", 1.4 if detalle else 1.2, "TEXTOS", TA.TOP_CENTER, color=6)
+        lam.texto((X(xe + L_REF / 2), Y(DS_["NPT"]) + 1.0 * f), "REFUGIO", 1.4 if detalle else 1.1, "ARQ-TEXTO", TA.BOTTOM_CENTER)
+        lam.nivel((X(xi + 0.25), Y(zp)), zp, texto="piso CL %.2f" % zp, lado=1, hmm=1.6)
+        lam.cota((X(x0), Y(zp)), (X(x0), Y(cfF)), -6, horizontal=False, texto="caida %.2f" % (cfF - zp))
+        if detalle:
+            lam.cota((X(x0), Y(zp - ef - es)), (X(xi), Y(zp - ef - es)), -6); lam.cota((X(xi), Y(zp - ef - es)), (X(xo), Y(zp - ef - es)), -6)
+            lam.cota((X(xo), Y(zp - ef - es)), (X(xe), Y(zp - ef - es)), -6)
+    # ---------- cotas de altura interior y niveles en los extremos
+    if detalle:
+        for pm in (p1 + 0.3 * (p2 - p1), p1 + 0.7 * (p2 - p1)):
+            pm = min(pm, dz.P_FIN - 1.0)
+            while any(abs(pm - r["prog"]) < 1.0 for r in regs) or any(abs(pm - pj) < 0.3 for pj in np.arange(4.0, dz.P_FIN, 4.0)): pm += 0.6
+            lam.cota((X(pm), Y(fz(pm))), (X(pm), Y(dz.techo(pm))), 0, horizontal=False, texto="h=%.2f" % (dz.techo(pm) - fz(pm)))
+    lam.nivel((X(p1), Y(fz(p1))), fz(p1), texto="CF %.3f" % fz(p1), lado=1, hmm=1.6 if detalle else 1.4)
+    if p2 < dz.P_FIN - 1e-6: lam.nivel((X(p2), Y(fz(p2))), fz(p2), texto="CF %.3f" % fz(p2), lado=-1, hmm=1.6 if detalle else 1.4)
+    if detalle:
+        lam.texto((X(p1 + 1.5), Y(fz(p1 + 1.5) - ef - es) - 3.2 * f), "S = %.2f %%" % (D["S"] * 100), 1.8, "TEXTOS", TA.LEFT)
+    # ---------- escala de cotas a la izquierda
+    xg = X(p1) - 4.0 * f
+    dzs = 0.1 if detalle else 0.5
+    for k in range(math.ceil(zmin / dzs - 1e-6), math.floor(zmax / dzs + 1e-6) + 1):
+        z = k * dzs
+        lam.linea((xg, Y(z)), (xg + 2 * f, Y(z)), "GRILLA")
+        if detalle and k % 2: continue
+        lam.texto((xg - 0.8 * f, Y(z)), "%.2f" % z, 1.5 if detalle else 1.3, "TEXTOS", TA.MIDDLE_RIGHT)
+    lam.linea((xg + 2 * f, Y(zmin)), (xg + 2 * f, Y(zmax)), "GRILLA")
+    # ---------- guitarra
+    est = _estaciones(R, p1, p2, paso, 0.75 if detalle else 2.6)
+    filas = [("PROGRESIVA", lambda q: prog_txt(q)), ("TERRENO EXISTENTE", lambda q: "%.3f" % terreno_en(T, q)),
+             ("CARA SUP. DE LOSA", lambda q: "%.3f" % NPT), ("COTA DE FONDO", lambda q: "%.3f" % fz(q)),
+             ("NIVEL DE AGUA", lambda q: "%.3f" % perfil_en(R, q, "NA") if perfil_en(R, q, "NA") - fz(q) > 0.005 else "-"),
+             ("ALTURA INTERIOR h", lambda q: "%.2f" % (dz.techo(q + (1e-4 if q < p2 else -1e-4)) - fz(q)))]
+    if detalle: filas.append(("PROF. EXCAVACION", lambda q: "%.2f" % (max(terreno_en(T, q), NPT) - (fz(q) - ef - es))))
+    alto = 5.4 if detalle else 5.0
+    yg0 = ymm - 4.0
+    x0g = xmm - 44.0; x1g = xmm + (p2 - p1) / f
+    for i in range(len(filas) + 1):
+        lam.linea(lam.P(x0g, yg0 - i * alto), lam.P(x1g, yg0 - i * alto), "GUITARRA")
+    for xv in (x0g, xmm - 6.0, x1g):
+        lam.linea(lam.P(xv, yg0), lam.P(xv, yg0 - len(filas) * alto), "GUITARRA")
+    for i, (nom, fn) in enumerate(filas):
+        yc = yg0 - (i + 0.5) * alto
+        lam.texto(lam.P(x0g + 1.5, yc), nom, 1.6 if detalle else 1.4, "TEXTOS", TA.MIDDLE_LEFT)
+        for q in est:
+            lam.texto((X(q), lam.oy + yc * f), fn(q), 1.45 if detalle else 1.25, "TEXTOS", TA.MIDDLE_CENTER)
+    for q in est:
+        lam.linea((X(q), lam.oy + yg0 * f), (X(q), Y(fz(q) - ef - es)), "GRILLA")
+    # ---------- franja de etiquetas encima del perfil
+    ytop = Y(max(zmax, D["NPT"] + 0.2))
+    xmax = x1g + 2 + ((L_CL + L_REF) / f if p2 >= dz.P_FIN - 1e-6 else 0)
+    yf = lam.franja(ets, ytop, abajo=False, hmm=1.6 if detalle else 1.4, xmin_mm=xmm - 40, xmax_mm=xmax_txt or min(xmax + 30, lam.W - 15)) if ets else ytop
+    if titulo:
+        lam.texto((lam.ox + (xmm - 44) * f, yf + 3.0 * f), titulo, 3.0, "TITULOS", TA.BOTTOM_LEFT)
+    return yg0 - len(filas) * alto
+
+
+LEY_PERFIL = [("concreto", "CONCRETO", "concreto armado f'c=210 cortado (losas, caja CL)"), ("rect", "SOLADO", "solado f'c=100 e = 0.05"),
+              ("relleno", "AGUA-RELLENO", "agua con el caudal de diseno"), ("discontinua", "TERRENO-EXISTENTE", "terreno existente (topografia)"),
+              ("linea2", "TERRENO", "piso terminado = losa superior +261.15"), ("relleno", "ISO-TAPA", "tapa de registro 0.68 x 0.08"),
+              ("discontinua", "JUNTAS", "junta de dilatacion e = 1\" cada 4.00 m"), ("relleno", "ISO-CUNETA", "ventana de llegada de cuneta 0.40 x H"),
+              ("linea2", "CRUCE-VEHICULAR", "cruce de camiones cisterna"), ("rect", "ARQ-BASE", "colector del Hogar de Refugio (referencia)")]
+
+
+def cuadro_hidraulico(R):
+    lims = [0.0] + [c["prog"] for c in R["cunetas"] if c["entra_en"] == "colector"] + [dz.P_FIN]
+    noms = ["0+000 - RV-01 (Eje 09)"] + ["%s (Eje %s) - %s" % (_reg_en(R, a) or "", c["perfil"], (_reg_en(R, b_) or "CL") if b_ < dz.P_FIN - 0.5 else "CL")
+                                      for c, a, b_ in zip([c for c in R["cunetas"] if c["entra_en"] == "colector"], lims[1:-1], lims[2:])]
+    filas = []
+    for k in range(len(lims) - 1):
+        a, b_ = lims[k], lims[k + 1]
+        rows = [e for e in R["perfil"] if a + 1e-6 < e["p"] < b_ - 1e-6] or [e for e in R["perfil"] if a - 1e-6 <= e["p"] <= b_ + 1e-6]
+        q = max(e["Q"] for e in rows) * 1000
+        if q < 0.05:
+            filas.append([noms[k], "%s - %s" % (prog_txt(a), prog_txt(b_)), "0.0", "-", "-", "-", "-", "-"]); continue
+        filas.append([noms[k], "%s - %s" % (prog_txt(a), prog_txt(b_)), "%.1f" % q, "%.2f - %.2f" % (min(e["y"] for e in rows), max(e["y"] for e in rows)),
+                      "%.2f - %.2f" % (min(e["V"] for e in rows), max(e["V"] for e in rows)), "%.2f" % max(e["F"] for e in rows),
+                      "%.0f %%" % (100 * max(e["llenado"] for e in rows)), "%.3f" % min(e["BL"] for e in rows)])
+    return ["TRAMO", "PROGRESIVAS", "Q (L/s)", "TIRANTE (m)", "V (m/s)", "FROUDE", "LLENADO", "B. LIBRE (m)"], filas
 
 
 def dp02(doc, ox, oy, R, T):
-    lam = B.Lamina(doc, ox, oy, 50, "DP-02", "PERFIL LONGITUDINAL DEL COLECTOR",
-                   "ESCALA REAL 1/50 (H = V) - CORTE POR EL EJE EN TRES FRANJAS: NIVELES DE DISENO, PERFIL HIDRAULICO, REGISTROS, EMPALMES Y LLEGADA A LA CL (0+000.00 - %s)" % prog_txt(dz.P_FIN))
-    L1, L2 = 36.0, 72.0
-    perfil(lam, 72, 470, 0.0, L1, R, T, "FRANJA 1: %s A %s - CORTE POR EL EJE (ESC. 1/50, H = V)" % (prog_txt(0.0), prog_txt(L1)))
-    perfil(lam, 72, 325, L1, L2, R, T, "FRANJA 2: %s A %s" % (prog_txt(L1), prog_txt(L2)))
-    perfil(lam, 60, 180, L2, dz.P_FIN, R, T, "FRANJA 3: %s A %s - LLEGADA A LA CAJA CL DEL HOGAR DE REFUGIO" % (prog_txt(L2), prog_txt(dz.P_FIN)))
-    lam.leyenda(32, 98, [("linea2", "TERRENO", "piso terminado / losa superior (NPT +261.15)"), ("linea", "TERRENO-EXISTENTE", "terreno existente (superficie topografica)"),
-                         ("achurado", "CONCRETO-ACHURADO", "concreto armado cortado (losas, caja CL)"), ("linea", "SOLADO", "solado e=0.05 y limite de excavacion"),
-                         ("relleno", "AGUA-RELLENO", "agua: nivel de diseno (Q = %.1f L/s al final)" % R["Q"]), ("rect", "REGISTRO-TAPA", "tapa de registro 0.68 x 0.68 x 0.08"),
-                         ("relleno", "ISO-CUNETA", "ventana de llegada de cuneta 0.40 x H (cara interior del muro lado predio)"), ("linea", "JUNTAS", "junta de dilatacion cada 4.00 m"),
-                         ("rect", "ARQ-BASE", "colector del Hogar de Refugio (referencia)")], 1.7)
-    lam.notas(330, 98, "NOTAS", [
-        "1. Corte longitudinal por el eje a escala real 1/50, horizontal = vertical. Cotas en m.s.n.m. Se ve la cara interior del muro lado predio con las ventanas de las cunetas.",
-        "2. Nivel de agua por flujo gradualmente variado con caudal creciente en cada empalme (memoria, hoja PERFIL_FLUJO); control: tirante critico en la caida libre a la caja CL.",
-        "3. Caudales: %s = %.1f L/s en el colector; la cuneta del Eje 01 (%.1f L/s) entra directamente a la CL: total %.1f L/s (TR 25 anos)." % (" + ".join("Eje %s %.1f" % (c["perfil"], c["Q"]) for c in R["cunetas"] if c["entra_en"] == "colector"), R["Q"], R["Q_directo_CL"], R["Q_CL"]),
-        "4. Registros con tapa de concreto 0.68 x 0.68 x 0.08, borde engrosado y contramarco metalico (DP-06B, DD-01, DD-02). No hay registros dentro del cruce de camiones.",
-        "5. La caja CL y el colector del Hogar de Refugio (CUI 2675514) se muestran como referencia; la tapa de la CL queda en +261.15 (piso del CAR Varones).",
-        "6. Prof. excav. medida desde el terreno existente al fondo del solado. Relleno de nivelacion del retiro hasta +261.15 donde el terreno queda por debajo.",
-    ], 1.6)
+    lam = B.Lamina(doc, ox, oy, 100, "DP-02", "PERFIL LONGITUDINAL GENERAL DEL COLECTOR",
+                   "ESCALA REAL (H = V) - %s A %s - NIVEL DE AGUA DE DISENO, REGISTROS Y LLEGADA A LA CAJA CL" % (prog_txt(0.0), prog_txt(dz.P_FIN)), formato="A2")
+    tr = [0.0, 35.1, 70.2, dz.P_FIN]
+    ytop = 400
+    for j in range(3):
+        y = ytop - 30 - alto_perfil(R, T, tr[j], tr[j + 1], lam.f)
+        yb = perfil(lam, 72, y, tr[j], tr[j + 1], R, T, detalle=False, titulo="PERFIL %d: %s A %s" % (j + 1, prog_txt(tr[j]), prog_txt(tr[j + 1])), paso=None,
+                    xmax_txt=lam.W - 15 if j == 2 else 462)
+        ytop = yb - 8
+    yl = lam.leyenda2(470, 400, LEY_PERFIL, hmm=1.6)
+    lam.notas(470, yl - 6, "NOTAS", [
+        "1. Escala real H = V = 1/100; cotas en m.s.n.m. Perfil detallado con acero en DP-03A y DP-03B (1/25).",
+        "2. Nivel de agua por flujo gradualmente variado con caudal creciente en cada cuneta; control: tirante critico en la caida a la caja CL.",
+        "3. %s = %.1f L/s en el colector; la cuneta del Eje 01 (%.1f L/s) entra a la CL: total %.1f L/s (TR 25 anos)." % (
+            " + ".join("Eje %s %.1f" % (c["perfil"], c["Q"]) for c in R["cunetas"] if c["entra_en"] == "colector"), R["Q"], R["Q_directo_CL"], R["Q_CL"]),
+        "4. La caja CL y el colector del Hogar de Refugio (CUI 2675514) son referencia; la tapa de la CL queda en +261.15."], hmm=1.5, ancho_mm=112)
+    cab, fh = cuadro_hidraulico(R)
+    lam.tabla(30, min(ytop - 8, 150), cab, fh, [52, 46, 16, 26, 26, 16, 18, 22], hmm=1.4, alto_mm=4.6, titulo="CUADRO HIDRAULICO POR TRAMOS (TR = 25 ANOS)")
     return lam
+
+
+def dp03(doc, ox, oy, R, T):
+    out = []
+    for k, cod in enumerate(("DP-03A", "DP-03B")):
+        tr = TRAMOS_DP03[3 * k: 3 * k + 4]
+        lam = B.Lamina(doc, ox + k * 25.0, oy, 25, cod, "PERFIL LONGITUDINAL DETALLADO DEL COLECTOR",
+                       "TRAMOS %d A %d (%s - %s) - ESCALA REAL (H = V) - ACERO, REGISTROS, JUNTAS, EMPALMES%s" % (
+                           3 * k + 1, 3 * k + 3, prog_txt(tr[0]), prog_txt(tr[-1]), " Y LLEGADA A LA CL" if k else ""))
+        altos = [alto_perfil(R, T, tr[j], tr[j + 1], lam.f) for j in range(3)]
+        gap = max(0.0, (578 - 112 - sum(altos) - 3 * (32 + 4 + 7 * 5.4)) / 2)
+        ytop = 578
+        for j in range(3):
+            a, c = tr[j], tr[j + 1]
+            y = ytop - 32 - altos[j]
+            yb = perfil(lam, 72, y, a, c, R, T, detalle=True, titulo="TRAMO %d: %s A %s" % (3 * k + j + 1, prog_txt(a), prog_txt(c)), paso=2.5)
+            ytop = yb - gap
+        yl = lam.leyenda2(30, 100, LEY_PERFIL[:8] + [("bloque:ACERO-38", "ACERO-PUNTOS", "marco cortado (3/8\" o 1/2\")"),
+                                                    ("linea", "ACERO-LONG", "barras longitudinales 3/8\"")], hmm=1.6, ancho_col=100, filas_col=5)
+        lam.notas(255, 100, "NOTAS", [
+            "1. Escala real H = V = 1/25; cotas en m.s.n.m.",
+            "2. Tramo normal: marco 3/8\" @0.20 en el eje de losas y muros; cruce de camiones: doble marco 1/2\" @0.15, recubrimiento 0.04.",
+            "3. Barras longitudinales 3/8\" @0.25 (@0.20 en el cruce de camiones), traslape 0.40 m; se interrumpen en las juntas.",
+            "4. Juntas de dilatacion cada 4.00 m (%d und). Ventana de cuneta 0.40 x H en el muro lado predio, bajo el registro (DP-06C)." % int(dz.P_FIN // 4.0),
+            "5. Registro: abertura 0.70, borde engrosado 0.15 x 0.10 y tapa 0.68 x 0.08 sobre el contramarco (DP-06B)."], hmm=1.6, ancho_mm=380)
+        out.append(lam)
+    return out
 
 
 # =============================================================================== DP-07 EMPALME CON LA CL
 def dp07(doc, ox, oy, R, T):
     lam = B.Lamina(doc, ox, oy, 20, "DP-07", "EMPALME DEL COLECTOR CON LA CAJA DE LLEGADA CL DEL HOGAR DE REFUGIO",
-                   "PLANTA Y CORTES DEL EMPALME: VENTANA ESTE 0.60 x 1.17, VENTANA NORTE PARA LA CUNETA EJE 01, JUNTAS Y NIVELES - ESC. 1/20")
+                   "PLANTA Y CORTES: VENTANA ESTE 0.60 x 1.17, VENTANA NORTE DE LA CUNETA EJE 01, JUNTAS Y NIVELES - ESC. 1/20")
     f = lam.f; e = DS_["e_muro"]; Li, Bi = DS_["CL_largo"], DS_["CL_ancho"]; zp = D["CL_piso"]; tCL = D["NPT_CL"]; eL = DS_["e_losa"]
     ef = D["e_fondo"]; es = D["e_solado"]; em = D["e_muro"]; b = D["b"]; be = D["b_ext"]
     cf = dz.fondo(dz.P_FIN); zt = dz.techo(dz.P_FIN); NA_CL = R["caja_llegada"]["NA_CL"]; naf = perfil_en(R, dz.P_FIN, "NA")
@@ -422,7 +569,7 @@ def dp07(doc, ox, oy, R, T):
     # izquierda (lado Hogar de Refugio) y abajo
     lam.llamada(Pp(e / 2, -DS_["b"] / 2 - 0.08), Pp(-0.3, -1.75), ["salida al colector del Hogar de Refugio: ventana 0.80 x 1.40", "en el muro oeste (lindero), fondo %.2f" % DS_["CF0"]], 1.7, al=TA.RIGHT)
     lam.llamada(Pp(uE / 2, -0.3), Pp(uE / 2 + 0.4, -1.75), ["registro de la CL con tapa 0.68 x 0.68 al ras de +%.2f (piso del CAR Varones)" % tCL], 1.7)
-    lam.titulo_vista(170 + 60, 445 - 115, "A. EMPALME CON LA CAJA CL - PLANTA", "ESC. 1/20 - losas superiores retiradas; norte hacia arriba del dibujo (sistema local del plano de arquitectura)", 200)
+    lam.titulo_vista(170 + 60, 445 - 108, "A. EMPALME CON LA CAJA CL - PLANTA", "ESC. 1/20 - losas superiores retiradas; norte hacia arriba del dibujo (sistema local del plano de arquitectura)", 200)
     # ---------------- B. CORTE A-A (por el eje, mirando al norte): Varones -> CL -> Solange
     o = lam.P(170, 150)
     def Pc(u, z): return (o[0] + u, o[1] + (z - 258.3))
@@ -469,12 +616,12 @@ def dp07(doc, ox, oy, R, T):
     lam.cota(Pc(uE - e, zp), Pc(uE - e, tCL - eL), 0, horizontal=False, texto="%.2f" % (tCL - eL - zp))
     xt = uV1 + 1.4
     lam.llamada(Pc(uE / 2 + 0.2, tCL - eL / 2), Pc(xt, tCL + 0.55), ["losa de la CL e=0.10 con registro 0.68 x 0.68,", "tapa al ras de +%.2f (Hogar de Refugio, CUI 2675514)" % tCL], 1.7)
-    lam.llamada(Pc(u01 + 0.15, (c01["NCF_fin"] + tCL - eL) / 2 + 0.1), Pc(xt, tCL + 0.05), ["ventana norte 0.40 x %.2f para la cuneta Eje 01" % c01["H_ventana"], "(NCF %.2f, caida libre %.2f m sobre el NA)" % (c01["NCF_fin"], c01["caida_libre"])], 1.7)
-    lam.llamada(Pc(uE, (zt + cf) / 2 + 0.15), Pc(xt, tCL - 0.45), ["ventana este 0.60 x %.2f (%.3f a %.2f): coincide con la seccion" % (zt - cf, cf, zt), "del colector; sin dintel (techo de la CL en %.2f)" % (tCL - eL)], 1.7)
+    lam.llamada(Pc(u01 + 0.15, (c01["NCF_fin"] + tCL - eL) / 2 + 0.1), Pc(xt, tCL + 0.05), ["ventana norte 0.40 x %.2f (cuneta Eje 01)" % c01["H_ventana"], "NCF %.2f; caida libre %.2f m sobre el NA" % (c01["NCF_fin"], c01["caida_libre"])], 1.7)
+    lam.llamada(Pc(uE, (zt + cf) / 2 + 0.15), Pc(xt, tCL - 0.45), ["ventana este 0.60 x %.2f (%.3f a %.2f)" % (zt - cf, cf, zt), "= seccion del colector; sin dintel (techo CL %.2f)" % (tCL - eL)], 1.7)
     lam.llamada(Pc(uV0 + jt / 2, cf + 0.15), Pc(xt, cf - 0.35), ["tecnopor 1\" en todo el contacto colector - CL"], 1.7)
-    lam.llamada(Pc(uE - 0.45, NA_CL + 0.06), Pc(xt, cf - 0.85), ["caida libre %.2f m del fondo del colector al NA de la CL;" % (cf - NA_CL), "colchon de agua %.2f m sobre el piso" % (NA_CL - zp)], 1.7)
+    lam.llamada(Pc(uE - 0.45, NA_CL + 0.06), Pc(xt, cf - 0.85), ["caida libre %.2f m del fondo del colector al NA de la CL;" % (cf - NA_CL), "colchon de agua %.2f m sobre el piso de la CL" % (NA_CL - zp)], 1.7)
     lam.llamada(Pc(-0.05, (DS_["NPT"] + tCL) / 2), Pc(-1.5, tCL + 0.32), ["escalon de 0.55 m entre pisos (+261.15 Varones /", "+260.60 Refugio) en el lindero: cara oeste de la CL"], 1.7)
-    lam.titulo_vista(170 + 60, 150 - 42, "B. CORTE A-A POR EL EJE (MIRANDO AL NORTE)", "ESC. 1/20 - colector CAR Varones (derecha) -> caja CL -> colector del Hogar de Refugio (izquierda, referencia)", 220)
+    lam.titulo_vista(170 + 60, 150 - 14, "B. CORTE A-A POR EL EJE (MIRANDO AL NORTE)", "ESC. 1/20 - colector CAR Varones (derecha) -> caja CL -> colector del Hogar de Refugio (izquierda, referencia)", 220)
     # ---------------- C. CORTE B-B (transversal por la CL, mirando al oeste): cuneta Eje 01 por el muro norte
     o = lam.P(600, 150)
     def Pt(v, z): return (o[0] + v, o[1] + (z - 258.3))     # v = norte (+) hacia la derecha
@@ -507,11 +654,11 @@ def dp07(doc, ox, oy, R, T):
     lam.llamada(Pt(vN + jt / 2, (c01["NCF_fin"] + D["NPT"]) / 2 + 0.2), Pt(xt, tCL + 0.2), ["tecnopor 1\" entre la cuneta y la CL"], 1.7)
     lam.llamada(Pt(vN - e / 2, (c01["NCF_fin"] + tCL - eL) / 2 - 0.1), Pt(xt, tCL - 0.35), ["ventana 0.40 x %.2f en el muro norte (del NCF %.2f" % (c01["H_ventana"], c01["NCF_fin"]), "al techo %.2f); sin dintel adicional" % (tCL - eL)], 1.7)
     lam.llamada(Pt(Bi / 2 - 0.1, NA_CL), Pt(xt, NA_CL - 0.1), ["NA de la CL %.3f = NA en 0+000 del colector del Refugio;" % NA_CL, "caida libre de la cuneta %.2f m" % c01["caida_libre"]], 1.7)
-    lam.titulo_vista(600 + 25, 150 - 42, "C. CORTE B-B POR LA CAJA CL (MIRANDO AL OESTE)", "ESC. 1/20", 200)
+    lam.titulo_vista(600 + 25, 150 - 14, "C. CORTE B-B POR LA CAJA CL (MIRANDO AL OESTE)", "ESC. 1/20", 200)
     # leyenda, cuadro y notas
-    lam.leyenda(600, 565, [("achurado", "CONCRETO-ACHURADO", "concreto armado f'c=210 (CL: expediente del Hogar de Refugio)"), ("rect", "ARQ-BASE", "colector del Hogar de Refugio (referencia)"),
-                           ("achurado", "TERRENO-ACHURADO", "cuneta de arquitectura (Eje 01)"), ("relleno", "ISO-CUNETA", "ventana de llegada de cuneta"), ("linea", "JUNTAS", "junta de tecnopor 1\""),
-                           ("relleno", "AGUA-RELLENO", "agua (nivel de diseno)"), ("linea", "LINDERO", "lindero entre predios"), ("bloque:SIMB-FLECHA", "FLUJO", "sentido del flujo")], 1.7)
+    lam.leyenda2(600, 568, [("concreto", "CONCRETO", "concreto armado f'c=210 (CL: expediente del Hogar de Refugio)"), ("rect", "ARQ-BASE", "colector del Hogar de Refugio (referencia)"),
+                            ("rect", "CUNETA", "cuneta de arquitectura (Eje 01)"), ("relleno", "ISO-CUNETA", "ventana de llegada de cuneta"), ("discontinua", "JUNTAS", "junta de tecnopor 1\""),
+                            ("relleno", "AGUA-RELLENO", "agua (nivel de diseno)"), ("linea", "LINDERO", "lindero entre predios"), ("bloque:SIMB-FLECHA", "FLUJO", "sentido del flujo")], hmm=1.7)
     filas = [["Colector CAR Varones", prog_txt(dz.P_FIN), "%.1f" % R["Q"], "%.3f" % cf, "ventana este 0.60 x %.2f" % (zt - cf), "%.2f" % (cf - NA_CL)],
              ["Cuneta Eje 01", "muro norte", "%.1f" % c01["Q"], "%.2f" % c01["NCF_fin"], "ventana norte 0.40 x %.2f" % c01["H_ventana"], "%.2f" % c01["caida_libre"]],
              ["TOTAL a la CL", "", "%.1f" % R["Q_CL"], "", "poza: piso %.2f, NA %.3f" % (zp, NA_CL), ""]]
@@ -532,18 +679,29 @@ def dp07(doc, ox, oy, R, T):
 # =============================================================================== CONSTRUIR
 def construir():
     R, T, BP = C.cargar()
+    C.usar_planilla()                 # cuadros DA-01 a DA-03 con los valores de la planilla del presupuesto
     doc = B.nuevo_documento()
+    LAMINAS.clear()
     lam = dp01(doc, OX1, OY1, R, T, BP); LAMINAS["DP-01"] = lam
     lam = dp02(doc, OX1 + 200, OY1, R, T); LAMINAS["DP-02"] = lam
+    for lam in dp03(doc, OX1 + 265, OY1, R, T): LAMINAS[lam.codigo] = lam
     for lam in DS.dp04(doc, OX1, OY1 - 200, R, T): LAMINAS[lam.codigo] = lam
     lam = DS.dp06b(doc, OX1 + 70, OY1 - 200, R, T); LAMINAS[lam.codigo] = lam
     lam = DS.dp06c(doc, OX1 + 85, OY1 - 200, R, T); LAMINAS[lam.codigo] = lam
     lam = dp07(doc, OX1 + 100, OY1 - 200, R, T); LAMINAS[lam.codigo] = lam
     for lam in DQ.todas(doc, OX1, OY1 - 400, R, T): LAMINAS[lam.codigo] = lam
     for lam in DD.todas(doc, OX1, OY1 - 600, R, T): LAMINAS[lam.codigo] = lam
+    indicadas = ("DP-06B", "DD-01", "DD-02", "DD-03", "DD-04")
+    lista = [(c, l.titulo, l.formato, "INDICADA" if c in indicadas else l.escala_txt) for c, l in LAMINAS.items()]
+    lam0 = L.indice(doc, OX1 - 20.0, OY1 - 200, [("DP-00", "INDICE DE LAMINAS", "A3", "S/E")] + lista)
+    LAMINAS["DP-00"] = lam0; LAMINAS.move_to_end("DP-00", last=False)
+    # rellenos al fondo: las lineas y textos quedan siempre visibles encima
+    msp = doc.modelspace()
+    msp.set_redraw_order({e.dxf.handle: "1" for e in msp.query("HATCH") if e.dxf.layer in ("CONCRETO-ACHURADO", "AGUA-RELLENO")})
+    L.presentaciones(doc, LAMINAS)
     os.makedirs(dz.CALC, exist_ok=True)
     doc.saveas(SALIDA)
-    cajas = {k: (l.ox, l.oy, l.ox + 841 * l.f, l.oy + 594 * l.f) for k, l in LAMINAS.items()}
+    cajas = {k: (l.ox, l.oy, l.ox + l.W * l.f, l.oy + l.H * l.f) for k, l in LAMINAS.items()}
     json.dump(cajas, open(os.path.join(dz.CALC, "laminas.json"), "w"), indent=1)
     return SALIDA, cajas
 

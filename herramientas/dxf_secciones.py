@@ -28,7 +28,14 @@ CON_CERCO = True
 TXT_JUNTA_06C = "junta de tecnopor 1\" entre colector, cuneta y cerco"
 TXT_CERCO_06C = "paso por el cerco existente: abertura 0.60 (cuneta con sus muros); junta de tecnopor 1\" a ambos lados"
 TXT_EJ_EMPALME = "ESC. 1/10 - ejemplo cuneta Eje 02 (0+011.27); en las demas varia H y la cota de fondo"
+TXT_Q_LEY = "Q = 560.6 L/s"           # caudal de diseno en la leyenda de las secciones
+TXT_LEY_CUNETA_06C = "cuneta y cerco existentes (arquitectura)"
 NOTA_PROLONG = ["NOTA: las cunetas de los Ejes 11 y 12 se prolongan 1.88 y 5.39 m hasta el muro del colector con su misma seccion;", "esa prolongacion se metra en la partida de cunetas del proyecto (no forma parte de la partida 01.04.04 del colector)."]
+
+
+def _txt_na(R, p, na):
+    q = perfil_en(R, p, "Q") * 1000 if "Q" in R["perfil"][0] else R["Q"]
+    return ("NA %.3f (Q=%.1f L/s)" % (na, q)) if q > 0.05 else "sin caudal: aguas arriba de la primera cuneta"
 
 
 def geometria(p):
@@ -101,7 +108,7 @@ def seccion(lam, xmm, ymm, p, R, T, esc_txt="1/25", nombre=None, con_cerco=True,
                  ("%s: acero transversal" % ACERO[g["tipo"]][0] + (" (ambas caras)" if g["tipo"] == "CAMION" else ""), (rects[0][0], zt - 0.12)),
                  ("%s: acero longitudinal" % ACERO[g["tipo"]][1], (rects[0][0], zt - 0.42)),
                  ("muro e=%.2f, h=%.2f" % (em, h), (xl + em / 2, zt - 0.75)),
-                 ("NA %.3f (Q=%.1f L/s)" % (na, perfil_en(R, p, "Q") * 1000 if "Q" in R["perfil"][0] else R["Q"]), (xl + em + 0.10, zf + y)),
+                 (_txt_na(R, p, na), (xl + em + 0.10, zf + y)),
                  ("losa de fondo e=%.2f" % ef, (xl - 0.02, zf - ef / 2)),
                  ("solado f'c=100 e=%.2f" % es, (xl - 0.06, cy + es / 2))]
         if not contexto: filas = [fr for fr in filas if not fr[0].startswith("terreno")]
@@ -126,7 +133,7 @@ def dp04(doc, ox, oy, R, T):
             lam.titulo_vista(xmm + 25, ymm - 33, "SECCION %s" % nm, "PROG. %s - CF %.3f - %s - ESC. 1/15" % (prog_txt(p), g["cf"], ACERO[g["tipo"]][4]), 130)
         lam.leyenda2(32, 128, [("concreto", "CONCRETO", "concreto armado f'c=210 kg/cm2 (muros y losas)"), ("rect", "SOLADO", "solado f'c=100 kg/cm2, e=0.05"),
                                ("linea2", "ACERO", "acero transversal: marco cerrado (rojo)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal 3/8\" (diametro real)"),
-                               ("linea", "AGUA", "nivel de agua de diseno (Q = 560.6 L/s)"), ("linea2", "TERRENO", "piso terminado +%.2f" % D["NPT"]),
+                               ("linea", "AGUA", "nivel de agua de diseno (%s)" % TXT_Q_LEY), ("linea2", "TERRENO", "piso terminado +%.2f" % D["NPT"]),
                                ("discontinua", "TERRENO-EXISTENTE", "terreno existente"), ("discontinua", "EXCAVACION", "limite de excavacion")] + ([("rect", "CERCO", "cerco perimetrico existente")] if CON_CERCO else []), 1.8,
                       ancho_col=110, filas_col=5)
         lam.notas(262, 128, "NOTAS", NOTAS_DP04 or ["1. Altura interior h segun el perfil longitudinal (1.40 m en 0+000 a 1.61 m en el brink).",
@@ -429,7 +436,7 @@ def dp06c(doc, ox, oy, R, T):
     lam.llamada((ox_, zf + y), (xt, zs - 1.1), ["NA del colector siempre bajo el fondo de la cuneta (ver hoja CUNETAS de la memoria)"], 1.8)
     lam.llamada((ox_ + 0.2, zf + 0.02), (xt, zf - 0.1), ["caida libre al fondo: losa de fondo con acabado pulido en 1.00 m"], 1.8)
     lam.titulo_vista(230, 40, "E2. EMPALME DE CUNETA - CORTE TRANSVERSAL (MIRANDO AGUAS ABAJO)", TXT_EJ_EMPALME, 220)
-    lam.leyenda2(600, 330, [("concreto", "CONCRETO", "concreto armado del colector f'c=210"), ("rect", "TERRENO-ACHURADO", "cuneta y cerco existentes (arquitectura)"),
+    lam.leyenda2(600, 330, [("concreto", "CONCRETO", "concreto armado del colector f'c=210"), ("rect", "TERRENO-ACHURADO", TXT_LEY_CUNETA_06C),
                             ("linea2", "CUNETA", "cuneta de arquitectura"), ("linea2", "JUNTAS", "junta de tecnopor 1\""), ("linea", "AGUA", "nivel de agua"),
                             ("bloque:SIMB-FLECHA", "FLUJO", "sentido del flujo")], 1.8)
     filas = [[c["nombre"].split(" (")[0], prog_txt(c["prog"]), "%.2f" % c["NCF_fin"], "%.2f" % (D["NPT"] - D["e_losa"] - c["NCF_fin"]),

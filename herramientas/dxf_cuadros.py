@@ -29,6 +29,9 @@ ESPECIFICACIONES = ["CONCRETO ARMADO: f'c = 210 kg/cm2 (colector, cajas y tapas)
            "EXCAVACION: zanja de 1.60 m de ancho (0.25 m a cada lado del muro); entibar si la profundidad supera 1.50 m o el suelo lo requiere.",
            "EMPALME CON EL CAR VARONES (CUI 2705619): caja CL con tapa en +261.15, ventana este 0.60 x 1.17 (fondo 259.884) y ventana norte 0.40 x 0.66 para su cuneta Eje 01; tecnopor 1\" en los contactos. Verificar en campo la ubicacion del R-01 del CAR Mujeres (CUI 2717013)."]
 TXT_CAJAS = " + cajas"
+CON_CERCO = True          # cerco perimetrico en el frente (leyenda y plumillas)
+TXT_TEC_PISO = "Junta de tecnopor e=1\" con el piso adyacente"
+TXT_TEC_CL = "Junta de tecnopor e=1\" con la caja CL (perimetro de la seccion)"
 NOTAS_DP08 = ["1. Dimensiones en metros y cotas en m.s.n.m., salvo indicacion.", "2. El colector esta dimensionado para 560.6 L/s (CAR Varones 258.7 + Hogar de Refugio 301.9; TR 25 anos).",
              "3. Verificaciones hidraulica y estructural segun memoria de calculo del proyecto (RNE CE.040, E.020, E.060; AASHTO LRFD HL-93).",
              "4. Las cunetas de arquitectura (perfiles 01 a 12) y sus cotas de fondo son datos del plano PLANTA GENERAL REFUGIO (03-10-2026).",
@@ -65,7 +68,7 @@ def dp08(doc, ox, oy, R, T):
     yy = lam.notas(440, 560, "ESPECIFICACIONES TECNICAS", esp, 1.8, ancho_mm=380)
     filas = [["250", "concreto: contornos y cortes", "0.50"], ["1", "acero corrugado (marcos y barras)", "0.35"], ["5", "acero longitudinal / contramarco", "0.35"],
              ["140 / 32", "marcos metalicos y registros", "0.40"], ["30", "llamadas, tapas, cruces vehiculares", "0.18"], ["94", "cotas", "0.18"],
-             ["160", "titulos", "0.35"], ["7", "textos y piso terminado", "0.25"], ["3", "cunetas", "0.35"], ["14", "cerco perimetrico", "0.40"],
+             ["160", "titulos", "0.35"], ["7", "textos y piso terminado", "0.25"], ["3", "cunetas", "0.35"]] + ([["14", "cerco perimetrico", "0.40"]] if CON_CERCO else []) + [
              ["150", "agua y sentido del flujo", "0.25"], ["8 / 254", "auxiliares, rellenos grises y arq. base", "0.13"]]
     lam.tabla(440, yy - 14, ["COLOR", "ELEMENTO", "PLUMILLA (mm)"], filas, [24, 90, 32], 2.0, 5.0, "GROSOR DE PLUMILLA POR COLOR (CTB)")
     notas = NOTAS_DP08
@@ -109,7 +112,7 @@ def da(doc, ox, oy, R, T):
     lam.tabla(32, 200, ["PARTIDA", "UND", "METRADO", "CRITERIO"], filas, [70, 12, 22, 170], 1.7, 4.8, "RESUMEN DE MOVIMIENTO DE TIERRAS")
     lam.leyenda2(470, 205, [("concreto", "CONCRETO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100, e=0.05"),
                             ("linea2", "ACERO", "acero transversal (marco)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal 3/8\""),
-                            ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", "piso terminado +260.60"), ("rect", "RELLENO", "relleno compactado (lateral y nivelacion)"), ("discontinua", "EXCAVACION", "limite de excavacion"), ("discontinua", "TERRENO-EXISTENTE", "terreno existente"), ("rect", "CERCO", "cerco perimetrico existente")], 1.8, ancho_col=125, filas_col=5)
+                            ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", "piso terminado +%.2f" % D["NPT"]), ("rect", "RELLENO", "relleno compactado (lateral y nivelacion)"), ("discontinua", "EXCAVACION", "limite de excavacion"), ("discontinua", "TERRENO-EXISTENTE", "terreno existente")] + ([("rect", "CERCO", "cerco perimetrico existente")] if CON_CERCO else []), 1.8, ancho_col=125, filas_col=5)
     lam.notas(32, 150, "NOTAS", ["1. Hz varia con el terreno existente (superficie topografica) y la cota de fondo del colector; ver tabla de tramos en la planilla de metrados.",
                                   "2. Criterio: los rellenos menores (nivelacion de la franja adyacente%s) van dentro de la partida de relleno, no como partida aparte." % (", base de las cajas" if TXT_CAJAS else ""),
                                   "3. Donde el terreno existente queda por debajo de la losa, el muro lado via se vacia con encofrado exterior y luego se rellena."], 1.7)
@@ -136,7 +139,7 @@ def da(doc, ox, oy, R, T):
     lam.tabla(32, 200, ["PARTIDA", "UND", "METRADO"], filas, [110, 16, 26], 1.7, 4.8, "RESUMEN DE CONCRETO Y ENCOFRADO (colector%s)" % TXT_CAJAS)
     lam.leyenda2(470, 205, [("concreto", "CONCRETO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100, e=0.05"),
                             ("linea2", "ACERO", "acero transversal (marco)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal 3/8\""),
-                            ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", "piso terminado +260.60")], 1.8, ancho_col=125, filas_col=3)
+                            ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", "piso terminado +%.2f" % D["NPT"])], 1.8, ancho_col=125, filas_col=3)
 
     lams.append(lam)
     # ---------------- DA-03
@@ -160,12 +163,12 @@ def da(doc, ox, oy, R, T):
              ["Tapas de concreto 0.68 x 0.68 x 0.08", "und / m3", "%d / %.2f" % (Rg["n"], Rg["tapa_conc"])], ["Acero en tapas, bordes, asas y anclajes", "kg", "%.1f" % (Rg["acero_borde_kg"] + Rg["acero_tapa_kg"] + Rg["asas_kg"] + Rg["anclajes_kg"])],
              ["Pintura anticorrosiva y esmalte en angulos", "m2", "%.2f" % Rg["pintura_m2"]],
              ["Junta de dilatacion e=1\" con sello (%d und x %.2f m)" % (J["n"], J["L_dilat"] / J["n"]), "m", "%.2f" % J["L_dilat"]],
-             ["Junta de tecnopor e=1\" con el cerco (muro)" if J.get("L_tecnopor_cerco", 0) > 0 else "Junta de tecnopor e=1\" con la caja CL (perimetro de la seccion)", "m", "%.2f" % (J["L_tecnopor_cerco"] if J.get("L_tecnopor_cerco", 0) > 0 else J.get("L_tecnopor_cl", 0))], ["Junta de tecnopor e=1\" con el piso adyacente", "m", "%.2f" % J["L_tecnopor_piso"]],
+             ["Junta de tecnopor e=1\" con el cerco (muro)" if J.get("L_tecnopor_cerco", 0) > 0 else TXT_TEC_CL, "m", "%.2f" % (J["L_tecnopor_cerco"] if J.get("L_tecnopor_cerco", 0) > 0 else J.get("L_tecnopor_cl", 0))], [TXT_TEC_PISO, "m", "%.2f" % J["L_tecnopor_piso"]],
              ["Empalme de cuneta al colector (ventana + caida)", "und", "%d" % Rs["empalmes"]]]
     lam.tabla(32, 200, ["PARTIDA", "UND", "METRADO"], filas, [120, 18, 26], 1.7, 4.6, "RESUMEN DE ACERO, REGISTROS, JUNTAS Y EMPALMES")
     lam.leyenda2(470, 205, [("concreto", "CONCRETO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100, e=0.05"),
                             ("linea2", "ACERO", "acero transversal (marco)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal 3/8\""),
-                            ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", "piso terminado +260.60")], 1.8, ancho_col=125, filas_col=3)
+                            ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", "piso terminado +%.2f" % D["NPT"])], 1.8, ancho_col=125, filas_col=3)
 
     lams.append(lam)
     return lams

@@ -68,6 +68,9 @@ TIT_DD03_C = "C. JUNTA DE TECNOPOR CONTRA EL CERCO"
 N_EMPALMES_TXT = "6 und"
 EJ_DD04 = 11.27
 TXT_DD04_CUNETA = "(Ejes 11 y 12 prolongadas hasta el muro)"
+SUB_N_REG = "10 REGISTROS"; SUB_N_TAPAS = "10 TAPAS"; SUB_N_JUNTAS = "17 JUNTAS"     # cantidades en los subtitulos
+ANCHO_PROC_DD03 = None     # ancho del procedimiento de la DD-03 (None: hasta el borde)
+NOTA4_DD03 = "4. Juntas de tecnopor (02): plancha de 1\" pegada al cimiento del cerco antes de vaciar el muro; plancha de 1\" x 0.10 en el borde de la losa antes de vaciar el piso."
 
 
 def f2(v): return "%.2f" % v
@@ -77,7 +80,7 @@ def f3(v): return "%.3f" % v
 # ============================================================================= DD-01 contramarco
 def dd01(doc, ox, oy, R, T):
     lam = B.Lamina(doc, ox, oy, 10, "DD-01", "DETALLE CONSTRUCTIVO: CONTRAMARCO METALICO L 2\"x2\"x3/16\" CON ANCLAJES",
-                   "PARTIDAS 01.04.04.05.01, 01.04.04.05.03 (parte) y 01.04.04.05.06 (parte) - 10 REGISTROS - ESC. INDICADAS")
+                   "PARTIDAS 01.04.04.05.01, 01.04.04.05.03 (parte) y 01.04.04.05.06 (parte) - %s - ESC. INDICADAS" % SUB_N_REG)
     lam.juntar_llamadas()
     leg, t = L2
     # ---------------- A. planta del contramarco (1/5)
@@ -183,7 +186,7 @@ def dd01(doc, ox, oy, R, T):
 # ============================================================================= DD-02 marco y tapa
 def dd02(doc, ox, oy, R, T):
     lam = B.Lamina(doc, ox, oy, 10, "DD-02", "DETALLE CONSTRUCTIVO: MARCO METALICO L 1 1/2\"x1 1/2\"x1/8\" Y TAPA DE CONCRETO ARMADO 0.68 x 0.68 x 0.08",
-                   "PARTIDAS 01.04.04.05.02, .05.03 (parte), .05.04, .05.05, .05.06 (parte) y .05.07 - 10 TAPAS - ESC. INDICADAS")
+                   "PARTIDAS 01.04.04.05.02, .05.03 (parte), .05.04, .05.05, .05.06 (parte) y .05.07 - %s - ESC. INDICADAS" % SUB_N_TAPAS)
     lam.juntar_llamadas()
     leg, t = L15; a = TAPA / 2
     # ---------------- A. planta de la tapa (1/5)
@@ -289,7 +292,7 @@ def dd02(doc, ox, oy, R, T):
 # ============================================================================= DD-03 juntas
 def dd03(doc, ox, oy, R, T):
     lam = B.Lamina(doc, ox, oy, 10, "DD-03", "DETALLE CONSTRUCTIVO: JUNTA DE DILATACION E=1\" CON SELLADOR Y JUNTAS DE TECNOPOR",
-                   "PARTIDAS 01.04.04.06.01 y 01.04.04.06.02 - 17 JUNTAS DE DILATACION CADA 4.00 m - ESC. INDICADAS")
+                   "PARTIDAS 01.04.04.06.01 y 01.04.04.06.02 - %s DE DILATACION CADA 4.00 m - ESC. INDICADAS" % SUB_N_JUNTAS)
     lam.juntar_llamadas()
     b, em, ef, et = D["b"], D["e_muro"], D["e_fondo"], D["e_losa"]; be = b + 2 * em; h = round(max(e["h"] for e in R["perfil"] if e.get("zona") != "CAMION"), 2); J = MC.juntas(); e_j = 0.025; per_j = J["L_dilat"] / J["n"]
     # ---------------- A. seccion del colector en la junta (1/10)
@@ -341,16 +344,17 @@ def dd03(doc, ox, oy, R, T):
     tecnopor(lam, [P(em, zs - 0.9), P(xc, zs - 0.9), P(xc, zs), P(em, zs)])
     lam.poli([P(-0.4, zs), P(0, zs)], "TERRENO", ancho=0.002); lam.nivel(P(-0.25, zs), D["NPT"], texto="NPT +%.2f" % D["NPT"], lado=-1)
     lam.cota(P(em, zs - 0.9), P(xc, zs - 0.9), -6, texto="1\""); lam.cota(P(xc + 0.45, zs - 0.9), P(xc + 0.45, zs), 6, horizontal=False, texto="0.90")
-    lam.texto(P(-0.17, ef + h / 2), "INTERIOR DEL COLECTOR", 1.6, "TEXTOS", TA.MIDDLE_CENTER, rot=90)
+    if CON_CERCO: lam.texto(P(-0.17, ef + h / 2), "INTERIOR DEL COLECTOR", 1.6, "TEXTOS", TA.MIDDLE_CENTER, rot=90)
+    else: lam.texto(P(-0.17, ef + h / 2 + 0.03), "INTERIOR", 1.6, "TEXTOS", TA.MIDDLE_CENTER); lam.texto(P(-0.17, ef + h / 2 - 0.03), "DEL COLECTOR", 1.6, "TEXTOS", TA.MIDDLE_CENTER)
     xt = 430
     if CON_CERCO:
         LL(lam, P(xc + 0.07, zs + 0.3), xt, 318, ["muro del cerco existente"])
         LL(lam, P(em + D["junta_cerco"] / 2, zs - 0.45), xt, 300, ["tecnopor de 1\" entre el muro lado predio y el", "cimiento del cerco: altura 0.90 (0.90 m2 por metro)"])
         LL(lam, P(xc + 0.2, zs - 0.75), xt, 282, ["cimiento del cerco (no se toca; se protege", "durante la excavacion)"])
     else:
-        LL(lam, P(xc + 0.6, zs - 0.05), xt, 318, ["piso terminado adyacente (+%.2f); no hay cerco" % D["NPT"]])
-        LL(lam, P(em + D["junta_cerco"] / 2, zs - 0.05), xt, 300, ["tecnopor de 1\" entre la losa superior y el piso", "adyacente, a ambos lados del colector"])
-    LL(lam, P(em / 2, zs - 1.2), xt, 264, ["muro del colector e = 0.15 vaciado contra la", "plancha (encofrado perdido)"])
+        LL(lam, P(xc + 0.6, zs - 0.05), 485, 122, ["piso terminado adyacente (+%.2f); no hay cerco" % D["NPT"]])
+        LL(lam, P(em + D["junta_cerco"] / 2, zs - 0.05), 485, 106, ["tecnopor de 1\" entre la losa superior y el piso", "adyacente, a ambos lados del colector"])
+    LL(lam, P(em / 2, zs - 1.2), xt if CON_CERCO else 485, 264 if CON_CERCO else 84, ["muro del colector e = 0.15 vaciado contra la", "plancha (encofrado perdido)"])
     lam.titulo_vista(360, 25, TIT_DD03_C, TXT_DD03_C, 170)
     # ---------------- D. junta de tecnopor en el borde de la losa con el piso (1/5)
     k = 2.0; ox_, oy_ = lam.P(560, 330)
@@ -365,8 +369,9 @@ def dd03(doc, ox, oy, R, T):
     lam.titulo_vista(560, 290, "D. JUNTA DE TECNOPOR EN EL BORDE DE LA LOSA", "ESC. 1/5", 150)
     # ---------------- E. ubicacion de las juntas de dilatacion
     progs = ["0+%06.2f" % (4.0 * (i + 1)) for i in range(J["n"])]
-    filas = [[progs[i], progs[i + 9] if i + 9 < len(progs) else ""] for i in range(9)]
-    lam.tabla(700, 245, ["JUNTA (prog.)", "JUNTA (prog.)"], filas, [40, 40], 1.7, 4.4, "UBICACION DE LAS %d JUNTAS (planta y perfil)" % J["n"])
+    ncol = max(2, -(-len(progs) // 9))
+    filas = [[progs[i + 9 * c] if i + 9 * c < len(progs) else "" for c in range(ncol)] for i in range(9)]
+    lam.tabla(700, 245, ["JUNTA (prog.)"] * ncol, filas, [40] * ncol if ncol == 2 else [32] * ncol, 1.7, 4.4, "UBICACION DE LAS %d JUNTAS (planta y perfil)" % J["n"])
     lam.texto(lam.P(700, 195), TXT_JUNTA_CAJAS[0], 1.6, "TEXTOS-NOTAS"); lam.texto(lam.P(700, 191), TXT_JUNTA_CAJAS[1], 1.6, "TEXTOS-NOTAS")
     # ---------------- cuadro, procedimiento, leyenda
     per = J["L_dilat"] / J["n"]; a_tec = be * (ef + h + et) - b * h; sello = 2 * h + b + be
@@ -381,8 +386,8 @@ def dd03(doc, ox, oy, R, T):
         "1. Marcar las juntas cada 4.00 m (cuadro). Cortar la plancha de tecnopor a la forma de la seccion (anillo %.2f x %.2f con hueco %.2f x h) y fijarla al concreto ya vaciado." % (be, ef + h + et, b),
         "2. Vaciar el tramo siguiente contra la plancha. El acero longitudinal termina a 0.05 de cada lado; los marcos se colocan a cada lado de la junta.",
         "3. Retirar 25 mm de tecnopor en las caras interiores y en la cara superior; limpiar, imprimar y aplicar el sello de poliuretano 25 x 25 mm con pistola; alisar.",
-        "4. Juntas de tecnopor (02): plancha de 1\" pegada al cimiento del cerco antes de vaciar el muro; plancha de 1\" x 0.10 en el borde de la losa antes de vaciar el piso."], 1.8)
-    lam.leyenda2(60, 235, [("concreto", "CONCRETO", "concreto f'c=210"), ("rect", "JUNTAS", "tecnopor 1\""), ("relleno", "CORTES", "sello elastomerico"), ("rect", "CERCO", "cerco existente"), ("linea2", "ACERO-LONG", "barra longitudinal 3/8\""), ("rect", "RELLENO", "relleno compactado")], 1.8)
+        NOTA4_DD03], 1.8, ancho_mm=ANCHO_PROC_DD03)
+    lam.leyenda2(60, 235, [("concreto", "CONCRETO", "concreto f'c=210"), ("rect", "JUNTAS", "tecnopor 1\""), ("relleno", "CORTES", "sello elastomerico")] + ([("rect", "CERCO", "cerco existente")] if CON_CERCO else []) + [("linea2", "ACERO-LONG", "barra longitudinal 3/8\""), ("rect", "RELLENO", "relleno compactado")], 1.8)
     lam.volcar_llamadas()
     return lam
 

@@ -1,0 +1,156 @@
+{
+ "fuente": "entregables_varones/METRADO_DRENAJE_PLUVIAL_CAR_VARONES_CON_COLECTOR.xlsx",
+ "md5": "6779fa1fc100da8872b72ac1e7a3ea14",
+ "partidas": {
+  "01.04.04.01": {
+   "desc": "TRABAJOS PRELIMINARES",
+   "und": "",
+   "valor": null
+  },
+  "01.04.04.01.01": {
+   "desc": "LIMPIEZA MANUAL DE TERRENO",
+   "und": "m²",
+   "valor": 147.406
+  },
+  "01.04.04.01.02": {
+   "desc": "TRAZO, NIVELES Y REPLANTEO PRELIMINAR",
+   "und": "m²",
+   "valor": 147.406
+  },
+  "01.04.04.02": {
+   "desc": "MOVIMIENTO DE TIERRAS",
+   "und": "",
+   "valor": null
+  },
+  "01.04.04.02.01": {
+   "desc": "EXCAVACIÓN MANUAL DE ZANJAS P/COLECTOR (ancho 1.40 m)",
+   "und": "m³",
+   "valor": 130.622324
+  },
+  "01.04.04.02.02": {
+   "desc": "REFINE, NIVELACIÓN Y COMPACTACIÓN EN TERRENO NORMAL",
+   "und": "m²",
+   "valor": 105.29
+  },
+  "01.04.04.02.03": {
+   "desc": "RELLENO COMPACTADO CON MATERIAL PROPIO SELECCIONADO (incluye nivelacion del retiro)",
+   "und": "m³",
+   "valor": 91.51313
+  },
+  "01.04.04.02.04": {
+   "desc": "ELIMINACIÓN DE MATERIAL EXCEDENTE",
+   "und": "m³",
+   "valor": 46.9310328
+  },
+  "01.04.04.03": {
+   "desc": "OBRAS DE CONCRETO SIMPLE",
+   "und": "",
+   "valor": null
+  },
+  "01.04.04.03.01": {
+   "desc": "CONCRETO f'c=100 kg/cm2 PARA SOLADO E=2\" (0.05 m)",
+   "und": "m²",
+   "valor": 105.29
+  },
+  "01.04.04.04": {
+   "desc": "OBRAS DE CONCRETO ARMADO - COLECTOR",
+   "und": "",
+   "valor": null
+  },
+  "01.04.04.04.01": {
+   "desc": "CONCRETO f'c=210 kg/cm2 EN LOSA DE FONDO",
+   "und": "m³",
+   "valor": 14.21415
+  },
+  "01.04.04.04.02": {
+   "desc": "CONCRETO f'c=210 kg/cm2 EN MUROS",
+   "und": "m³",
+   "valor": 31.550079
+  },
+  "01.04.04.04.03": {
+   "desc": "CONCRETO f'c=210 kg/cm2 EN LOSA SUPERIOR (incluye bordes de registro)",
+   "und": "m³",
+   "valor": 10.2529
+  },
+  "01.04.04.04.04": {
+   "desc": "ENCOFRADO Y DESENCOFRADO NORMAL EN COLECTOR",
+   "und": "m²",
+   "valor": 538.31072
+  },
+  "01.04.04.04.05": {
+   "desc": "ACERO DE REFUERZO fy=4200 kg/cm2 EN COLECTOR",
+   "und": "kg",
+   "valor": 2523.83768622222
+  },
+  "01.04.04.04.06": {
+   "desc": "ACABADO FROTACHADO Y BRUÑADO DE LOSA SUPERIOR",
+   "und": "m²",
+   "valor": 94.761
+  },
+  "01.04.04.04.07": {
+   "desc": "CURADO DE CONCRETO EN COLECTOR",
+   "und": "m²",
+   "valor": 368.26886
+  },
+  "01.04.04.05": {
+   "desc": "REGISTROS DE LIMPIEZA Y TAPAS",
+   "und": "",
+   "valor": null
+  },
+  "01.04.04.05.01": {
+   "desc": "CONTRAMARCO METALICO L 2\"x2\"x3/16\" CON ANCLAJES",
+   "und": "und",
+   "valor": 11
+  },
+  "01.04.04.05.02": {
+   "desc": "MARCO METALICO DE TAPA L 1 1/2\"x1 1/2\"x1/8\"",
+   "und": "und",
+   "valor": 11
+  },
+  "01.04.04.05.03": {
+   "desc": "ANGULOS METALICOS P/MARCO Y CONTRAMARCO (incluye soldadura)",
+   "und": "kg",
+   "valor": 166.5576
+  },
+  "01.04.04.05.04": {
+   "desc": "TAPA DE CONCRETO ARMADO 0.68 x 0.68 x 0.08 m (incluye acero y asas)",
+   "und": "und",
+   "valor": 11
+  },
+  "01.04.04.05.05": {
+   "desc": "CONCRETO f'c=210 kg/cm2 EN TAPAS",
+   "und": "m³",
+   "valor": 0.406912
+  },
+  "01.04.04.05.06": {
+   "desc": "ACERO DE REFUERZO fy=4200 kg/cm2 EN TAPAS, BORDES Y ANCLAJES",
+   "und": "kg",
+   "valor": 190.7136
+  },
+  "01.04.04.05.07": {
+   "desc": "PINTURA ANTICORROSIVA Y ESMALTE EN ANGULOS",
+   "und": "m²",
+   "valor": 10.80024
+  },
+  "01.04.04.06": {
+   "desc": "JUNTAS Y EMPALMES",
+   "und": "",
+   "valor": null
+  },
+  "01.04.04.06.01": {
+   "desc": "JUNTA DE DILATACION E=1\" CON TECNOPOR Y SELLADOR ELASTOMERICO",
+   "und": "m",
+   "valor": 120.64
+  },
+  "01.04.04.06.02": {
+   "desc": "JUNTA DE TECNOPOR E=1\" ENTRE COLECTOR, PISO ADYACENTE Y CAJA CL",
+   "und": "m",
+   "valor": 215.22
+  },
+  "01.04.04.06.03": {
+   "desc": "EMPALME DE CUNETA AL COLECTOR (ventana en muro y caida)",
+   "und": "und",
+   "valor": 4
+  }
+ }
+}

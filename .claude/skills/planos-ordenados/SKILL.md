@@ -100,3 +100,12 @@ abajo igual que los puntos que senalan, para que las lineas no se crucen.
 - Isometricos con elementos a 45 grados: girar la vista y ordenar las caras por profundidad (si no, quedan de canto).
 - Etiquetas de un isometrico largo y en diagonal: junto a cada punto, del lado libre; la franja horizontal deja lineas largas.
 - Antes de rehacer un plano ajeno, leer su metrado: el detalle debe dibujar lo que se metro (p. ej. rebaje de la tapa).
+
+## 12. Lecciones del juego del CAR Varones (herramientas/varones/planos_v.py)
+- Al reutilizar modulos de otro tramo, buscar textos fijos (caudales, cotas de piso, cantidades de registros y juntas, cerco)
+  y convertirlos en parametros del modulo con el valor anterior por defecto; cada proyecto los fija en su compat.py.
+  Comprobar con la huella que el otro tramo queda identico.
+- Si la planilla guarda formulas sin valores, recalcular una copia con LibreOffice (planilla_v.py) y leer de ahi los cuadros.
+- Franja de etiquetas: un rotulo cuyo punto queda bajo el texto de otro ya puesto no tiene fila libre y sube al borde de la
+  lamina. En los extremos (cajas, referencias) usar pocas etiquetas, cortas, o texto suelto junto al objeto (LINDERO).
+- Toda lamina con presentaciones de AutoCAD (dxf_layouts.presentaciones) y lamina indice DP-00 (dxf_layouts.indice).
