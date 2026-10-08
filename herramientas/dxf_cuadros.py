@@ -30,6 +30,8 @@ ESPECIFICACIONES = ["CONCRETO ARMADO: f'c = 210 kg/cm2 (colector, cajas y tapas)
            "EMPALME CON EL CAR VARONES (CUI 2705619): caja CL con tapa en +261.15, ventana este 0.60 x 1.17 (fondo 259.884) y ventana norte 0.40 x 0.66 para su cuneta Eje 01; tecnopor 1\" en los contactos. Verificar en campo la ubicacion del R-01 del CAR Mujeres (CUI 2717013)."]
 TXT_CAJAS = " + cajas"
 CON_CERCO = True          # cerco perimetrico en el frente (leyenda y plumillas)
+TIT_DA03 = "DETALLE DE PARTIDAS: ACERO, REGISTROS, JUNTAS Y EMPALMES"
+TIT_RES_DA03 = "RESUMEN DE ACERO, REGISTROS, JUNTAS Y EMPALMES"
 TXT_TEC_PISO = "Junta de tecnopor e=1\" con el piso adyacente"
 TXT_TEC_CL = "Junta de tecnopor e=1\" con la caja CL (perimetro de la seccion)"
 NOTAS_DP08 = ["1. Dimensiones en metros y cotas en m.s.n.m., salvo indicacion.", "2. El colector esta dimensionado para 560.6 L/s (CAR Varones 258.7 + Hogar de Refugio 301.9; TR 25 anos).",
@@ -143,7 +145,7 @@ def da(doc, ox, oy, R, T):
 
     lams.append(lam)
     # ---------------- DA-03
-    lam = B.Lamina(doc, ox + 60, oy, 20, "DA-03", "DETALLE DE PARTIDAS: ACERO, REGISTROS, JUNTAS Y EMPALMES", "DESPIECE POR METRO, INSUMOS POR REGISTRO Y LONGITUDES DE JUNTA - ESC. 1/20")
+    lam = B.Lamina(doc, ox + 60, oy, 20, "DA-03", TIT_DA03, "DESPIECE POR METRO, INSUMOS POR REGISTRO Y LONGITUDES DE JUNTA - ESC. 1/20")
     Rg = Rs["registros"]; J = Rs["juntas"]
     for j, (p, nm) in enumerate(EJ_ACERO):
         xmm = 112 + j * 252; ymm = 360
@@ -164,8 +166,8 @@ def da(doc, ox, oy, R, T):
              ["Pintura anticorrosiva y esmalte en angulos", "m2", "%.2f" % Rg["pintura_m2"]],
              ["Junta de dilatacion e=1\" con sello (%d und x %.2f m)" % (J["n"], J["L_dilat"] / J["n"]), "m", "%.2f" % J["L_dilat"]],
              ["Junta de tecnopor e=1\" con el cerco (muro)" if J.get("L_tecnopor_cerco", 0) > 0 else TXT_TEC_CL, "m", "%.2f" % (J["L_tecnopor_cerco"] if J.get("L_tecnopor_cerco", 0) > 0 else J.get("L_tecnopor_cl", 0))], [TXT_TEC_PISO, "m", "%.2f" % J["L_tecnopor_piso"]],
-             ["Empalme de cuneta al colector (ventana + caida)", "und", "%d" % Rs["empalmes"]]]
-    lam.tabla(32, 200, ["PARTIDA", "UND", "METRADO"], filas, [120, 18, 26], 1.7, 4.6, "RESUMEN DE ACERO, REGISTROS, JUNTAS Y EMPALMES")
+             ] + ([["Empalme de cuneta al colector (ventana + caida)", "und", "%d" % Rs["empalmes"]]] if Rs.get("empalmes") is not None else [])
+    lam.tabla(32, 200, ["PARTIDA", "UND", "METRADO"], filas, [120, 18, 26], 1.7, 4.6, TIT_RES_DA03)
     lam.leyenda2(470, 205, [("concreto", "CONCRETO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100, e=0.05"),
                             ("linea2", "ACERO", "acero transversal (marco)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal 3/8\""),
                             ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", "piso terminado +%.2f" % D["NPT"])], 1.8, ancho_col=125, filas_col=3)

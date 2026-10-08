@@ -53,6 +53,9 @@ No se modifico ningun metrado. Los cuadros de las laminas DA-01 a DA-03 muestran
   Trazo 147.41 m2 - Excavacion 130.62 m3 - Refine 105.29 m2 - Relleno 91.51 m3 - Eliminacion 46.93 m3 - Solado 105.29 m2
   Concreto: losa de fondo 14.21, muros 31.55, losa superior 10.25 m3 - Encofrado 538.31 m2 - Acabado 94.76 m2
   Acero colector 2523.84 kg - Registros 11 und (angulos 166.56 kg, acero en tapas 190.71 kg, pintura 10.80 m2)
-  Junta de dilatacion 120.64 m (26 x 4.64) - Junta de tecnopor 215.22 m - Empalmes de cuneta 4 und
+  Junta de dilatacion 120.64 m (26 x 4.64) - Junta de tecnopor 215.22 m
+El empalme de cuneta no tiene partida propia: cada cuneta se metra hasta la cara del muro del colector (hoja CUNETAS -
+LLEGADA AL COLECTOR: acortamientos 0.04, 0.10, 0.26, 3.39 y 2.77 m, iguales a la planta DP-01). Las laminas DP-06C y DD-04
+quedan como detalle constructivo de la ventana y la caida, sin cuadro de partida.
 Antes las laminas mostraban un recalculo propio con diferencias menores (excavacion 130.68, relleno 91.49, eliminacion 47.03,
-encofrado 538.50, junta 120.43 m y 5 empalmes); ahora coinciden con la planilla.
+encofrado 538.50, junta 120.43 m y 5 empalmes); ahora coinciden con la planilla vigente (version con METRADO CANALETAS).

@@ -1,6 +1,6 @@
 {
  "fuente": "entregables_varones/METRADO_DRENAJE_PLUVIAL_CAR_VARONES_CON_COLECTOR.xlsx",
- "md5": "6779fa1fc100da8872b72ac1e7a3ea14",
+ "md5": "8c923f5d454bfdaca64b081e3496a342",
  "partidas": {
   "01.04.04.01": {
    "desc": "TRABAJOS PRELIMINARES",
@@ -146,11 +146,6 @@
    "desc": "JUNTA DE TECNOPOR E=1\" ENTRE COLECTOR, PISO ADYACENTE Y CAJA CL",
    "und": "m",
    "valor": 215.22
-  },
-  "01.04.04.06.03": {
-   "desc": "EMPALME DE CUNETA AL COLECTOR (ventana en muro y caida)",
-   "und": "und",
-   "valor": 4
   }
  }
 }

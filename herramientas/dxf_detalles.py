@@ -69,6 +69,7 @@ N_EMPALMES_TXT = "6 und"
 EJ_DD04 = 11.27
 TXT_DD04_CUNETA = "(Ejes 11 y 12 prolongadas hasta el muro)"
 SUB_N_REG = "10 REGISTROS"; SUB_N_TAPAS = "10 TAPAS"; SUB_N_JUNTAS = "17 JUNTAS"     # cantidades en los subtitulos
+PARTIDA_EMPALME = "01.04.04.06.03 EMPALME (und)"     # None: el empalme no tiene partida propia (solo detalle constructivo)
 ANCHO_PROC_DD03 = None     # ancho del procedimiento de la DD-03 (None: hasta el borde)
 NOTA4_DD03 = "4. Juntas de tecnopor (02): plancha de 1\" pegada al cimiento del cerco antes de vaciar el muro; plancha de 1\" x 0.10 en el borde de la losa antes de vaciar el piso."
 
@@ -485,7 +486,10 @@ def dd04(doc, ox, oy, R, T):
     for c in cun:
         hvp = dz.techo(c["prog"]) - c["NCF_fin"]
         filas.append(["Eje %s" % c["perfil"], "0+%06.2f" % c["prog"], "%.2f" % c["NCF_fin"], "%.2f" % c["H"], "%.2f" % hvp, "%.2f" % ((2 * 0.40 + 2 * hvp) * em), "%.2f" % ((4 * (hvp + 0.60) + 2 * 1.00) * MC.PESO["3/8"]), "%.2f" % ((0.60 + 2 * c["H"]) * e_j), "%.2f" % (0.60 + 2 * c["H"])])
-    lam.tabla(430, 270, ["CUNETA", "PROG.", "NCF LLEGA (msnm)", "H CUNETA (m)", "Hv VENTANA (m)", "ENCOF. CAJON (m2)", "ACERO BORDE 3/8\" (kg)", "TECNOPOR (m2)", "SELLO (m)"], filas, [22, 22, 26, 22, 24, 26, 30, 24, 20], 1.6, 4.4, "CUADRO DE EMPALMES: DIMENSIONES Y COMPONENTES POR CUNETA (DP-06C)")
+    if PARTIDA_EMPALME:
+        lam.tabla(430, 270, ["CUNETA", "PROG.", "NCF LLEGA (msnm)", "H CUNETA (m)", "Hv VENTANA (m)", "ENCOF. CAJON (m2)", "ACERO BORDE 3/8\" (kg)", "TECNOPOR (m2)", "SELLO (m)"], filas, [22, 22, 26, 22, 24, 26, 30, 24, 20], 1.6, 4.4, "CUADRO DE EMPALMES: DIMENSIONES Y COMPONENTES POR CUNETA (DP-06C)")
+    else:
+        lam.tabla(430, 270, ["CUNETA", "PROG.", "NCF LLEGA (msnm)", "H CUNETA (m)", "Hv VENTANA (m)"], [f_[:5] for f_ in filas], [30, 30, 34, 30, 32], 1.7, 4.8, "CUADRO DE EMPALMES: DIMENSIONES POR CUNETA (DP-06C)")
     n = len(cun); hvm = sum(float(f[4]) for f in filas) / n; tot = lambda j: sum(float(f[j]) for f in filas)
     filas2 = [["Cajon de encofrado de la ventana 0.40 x Hv x 0.15 (madera, 2 usos)", "m2", f2(tot(5) / n), f2(tot(5)), "01.04.04.06.03 EMPALME (und)"],
               ["Refuerzo de borde 3/8\": 4 verticales (Hv + 0.60) + 2 horizontales de 1.00", "kg", f2(tot(6) / n), f2(tot(6)), "01.04.04.06.03 EMPALME (und)"],
@@ -494,8 +498,10 @@ def dd04(doc, ox, oy, R, T):
               ["Acabado pulido del fondo (mortero 1:3, e = 1 cm) %.2f x 1.00" % b, "m2", f2(b), f2(b * n), "01.04.04.06.03 EMPALME (und)"],
               ["Perfilado y resane de los bordes de la ventana (mortero 1:3)", "m", f2(2 * 0.40 + 2 * hvm), f2(n * (2 * 0.40 + 2 * hvm)), "01.04.04.06.03 EMPALME (und)"],
               ["Registro de limpieza encima del empalme", "und", "1", "%d" % n, "partidas 01.04.04.05.xx (DD-01 y DD-02)"]]
-    cuadro(lam, 430, 222, "CUADRO DE COMPONENTES POR EMPALME (promedio) Y TOTAL (%d und)" % n, filas2, (100, 12, 24, 22, 60))
-    lam.notas(430, 172, "PROCEDIMIENTO", [
+    if PARTIDA_EMPALME:
+        filas2 = [f_[:4] + [PARTIDA_EMPALME] if f_[4].startswith("01.04.04.06.03") else f_ for f_ in filas2]
+        cuadro(lam, 430, 222, "CUADRO DE COMPONENTES POR EMPALME (promedio) Y TOTAL (%d und)" % n, filas2, (100, 12, 24, 22, 60))
+    lam.notas(430, 172 if PARTIDA_EMPALME else 225, "PROCEDIMIENTO", [
         "1. Al armar el muro lado predio, colocar el refuerzo de borde (4 verticales y 2 horizontales) y el cajon de 0.40 x Hv con su fondo en la cota NCF de la cuneta (cuadro).",
         "2. Vaciar el muro y la losa superior monoliticos; retirar el cajon a los 2 dias, perfilar y resanar los bordes de la ventana.",
         "3. Empalmar la cuneta (o su prolongacion) contra el muro con la plancha de tecnopor de 1\" en todo su contorno; sellar el contorno exterior con poliuretano.",

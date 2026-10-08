@@ -109,7 +109,10 @@ DD.NOTA4_DD03 = ("4. Juntas de tecnopor (02): plancha de 1\" x 0.10 en el borde 
 DD.TXT_REG_A = "1 por registro: 11 en la losa del colector (RV-01 a RV-11)"
 DD.TXT_REG_B = "11 und (RV-01 a RV-11)"
 DD.TXT_JUNTA_CAJAS = ("El colector lleva tecnopor en su contacto con la caja CL", "del Hogar de Refugio (muro este, 1.30 x 1.52).")
-DD.TXT_DD04_SUB = "4 EMPALMES AL COLECTOR (CUNETAS EJES 09, 08, 06 Y 04) - LA CUNETA DEL EJE 01 ENTRA A LA CAJA CL (DP-07) - ESC. INDICADAS"
+DD.TXT_DD04_SUB = "4 EMPALMES (EJES 09, 08, 06 Y 04): LA CUNETA SE METRA HASTA EL MURO DEL COLECTOR - EJE 01 A LA CL (DP-07) - ESC. INDICADAS"
+DD.PARTIDA_EMPALME = None
+DQ.TIT_DA03 = "DETALLE DE PARTIDAS: ACERO, REGISTROS Y JUNTAS"
+DQ.TIT_RES_DA03 = "RESUMEN DE ACERO, REGISTROS Y JUNTAS"
 DD.TXT_DD03_C = "ESC. 1/10 - en toda la longitud del colector, a ambos lados (no hay cerco perimetrico)"
 DD.N_EMPALMES_TXT = "4 und"
 DD.TXT_DD04_CUNETA = "(acortadas hasta la cara del muro del colector)"
@@ -125,7 +128,7 @@ def usar_planilla():
         Rs.update(trazo_m2=v("01.04.04.01.02"), excav_m3=v("01.04.04.02.01"), refine_m2=v("01.04.04.02.02"), relleno_m3=v("01.04.04.02.03"),
                   elimin_m3=v("01.04.04.02.04"), solado_m2=v("01.04.04.03.01"), conc_fondo_m3=v("01.04.04.04.01"), conc_muros_m3=v("01.04.04.04.02"),
                   conc_losa_m3=v("01.04.04.04.03"), encof_m2=v("01.04.04.04.04"), acabado_m2=v("01.04.04.04.06"), curado_m2=v("01.04.04.04.07"),
-                  empalmes=int(v("01.04.04.06.03")))
+                  empalmes=None)      # sin partida de empalme: la cuneta se metra hasta el muro del colector
         assert abs(Rs["acero_38_kg"] + Rs["acero_12_kg"] - v("01.04.04.04.05")) < 0.05
         J = Rs["juntas"]; assert abs(J["L_dilat"] - v("01.04.04.06.01")) < 0.01 and abs(J["L_tecnopor_piso"] - v("01.04.04.06.02")) < 0.01, J
         Rg = Rs["registros"]; assert Rg["n"] == v("01.04.04.05.01") and abs(Rg["contramarco_kg"] + Rg["marco_kg"] - v("01.04.04.05.03")) < 0.05
