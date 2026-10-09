@@ -11,11 +11,14 @@ import os, sys, math, warnings
 AQUI = os.path.dirname(os.path.abspath(__file__)); HERR = os.path.dirname(AQUI); RAIZ = os.path.dirname(HERR)
 sys.path.insert(0, HERR)
 import openpyxl
+import numpy as np
+from iso3d import Escena
 import dxf_base as B
 import dxf_layouts as L
 from ezdxf.enums import TextEntityAlignment as TA
 
-if 5 not in B.ESCALAS: B.ESCALAS.append(5)
+for _e in (1, 5):
+    if _e not in B.ESCALAS: B.ESCALAS.append(_e)
 CAPAS_EXTRA = [("PLANCHA-GALV", 5, "CONTINUOUS", 40), ("PLATINA", 140, "CONTINUOUS", 50), ("PERNOS", 34, "CONTINUOUS", 25),
                ("TUBERIA-PVC", 3, "CONTINUOUS", 35), ("TUBERIA-OCULTA", 3, "HIDDEN", 25), ("COBERTURA", 8, "CONTINUOUS", 30),
                ("MURO", 8, "CONTINUOUS", 25)]
@@ -158,16 +161,15 @@ def dr01(doc, ox, oy, P, met):
     # ---------------- C. tapa lateral
     v = V(lam, 460, 330)
     v.pl([(0, CH + PEST), (0, 0), (CB, 0), (CB, CH), (CB - PEST, CH)], "PLANCHA-GALV", ancho=0.0012)
-    v.pl([(-0.02, CH + PEST), (-0.02, -0.02), (CB + 0.02, -0.02), (CB + 0.02, CH)], "PLANCHA-GALV")
+    v.pl([(-0.03, CH + PEST), (-0.03, -0.03), (CB + 0.03, -0.03), (CB + 0.03, CH)], "PLANCHA-GALV")
     lam.relleno([v(0, 0), v(CB, 0), v(CB, CH), v(CB - PEST, CH), v(0, CH)], "ISO-TAPA")
-    for k in range(5): remache(v, (-0.01, 0.02 + k * 0.05)); remache(v, (CB + 0.01, 0.02 + k * 0.04))
-    for k in range(6): remache(v, (0.0 + k * 0.05, -0.01))
-    v.cota((0, -0.02), (CB, -0.02), -8); v.cota((CB + 0.02, 0), (CB + 0.02, CH), 8, False)
-    v.cota((-0.02, -0.02), (0, -0.02), -16, True, "0.02")
+    for (x, y) in ((-0.015, 0.07), (-0.015, 0.14), (CB + 0.015, 0.07), (CB + 0.015, 0.14), (0.08, -0.015), (0.17, -0.015)): remache(v, (x, y))
+    v.cota((0, -0.03), (CB, -0.03), -8); v.cota((CB + 0.03, 0), (CB + 0.03, CH), 8, False)
+    v.cota((-0.03, -0.03), (0, -0.03), -16, True, "0.03")
     lam.juntar_llamadas()
     for (u, w), t in (((CB / 2, 0.12), ["Tapa de plancha galvanizada e = 0.9 mm con la seccion de la canaleta"]),
-                      ((-0.02, 0.10), ["Pestana perimetral 0.02 hacia afuera, remachada"]),
-                      ((-0.01, 0.17), ["Remache pop 1/8\" @0.05 + cordon de sellador de poliuretano"])):
+                      ((-0.03, 0.10), ["Pestana perimetral 0.03 que entra en la canaleta"]),
+                      ((-0.015, 0.14), ["6 remaches pop 1/8\" por tapa (2 por lado) + cordon de sellador"])):
         lam.llamada(v(u, w), (v(0.33, 0)[0], v(0, w)[1]), t, 2.0)
     lam.volcar_llamadas()
     lam.titulo_vista(460 + 25, 330 - 30, "C. TAPA LATERAL (EXTREMOS)", "ESC. 1/5 - 2 por canaleta", 80)
@@ -368,6 +370,249 @@ def dr02(doc, ox, oy, P):
     return lam
 
 
+# ================================================================== isometricos (DR-03, DR-04, DR-05)
+GALV, PLAT, CAB, REM = (200, 207, 216), (146, 160, 178), (92, 94, 102), (120, 122, 128)
+PVC, CONC, TAR, ROSCA, MURO_C = (206, 228, 206), (220, 220, 214), (238, 196, 112), (168, 170, 176), (232, 226, 214)
+
+
+def _llamadas(lam, P2, items, xt_mm, hmm=2.0):
+    lam.juntar_llamadas()
+    for p3, txt in items:
+        q = P2(p3)
+        lam.llamada(q, (lam.P(xt_mm, 0)[0], q[1]), txt, hmm)
+    lam.volcar_llamadas()
+
+
+def escena_canaleta(L=1.50):
+    E = Escena(); s = S_CAN / 100.0
+    z0 = lambda x: s * x                                    # sube hacia la tapa (x = L); la boquilla queda en el extremo bajo
+    xi, xo = EPL, EPL + CB; Q = E.quad
+    # alero o viga de borde (grupo 0: atras de todo)
+    E.g = 0
+    E.caja(-0.05, -0.20, 0.10, L + 0.05, 0.0, 0.30, CONC, paso=0.06)
+    # canaleta (plancha 0.9 mm): fondo, lados y pestanas
+    E.g = 2; Q((0, xi, z0(0)), (L, xi, z0(L)), (L, xi, z0(L) + CH + PEST), (0, xi, z0(0) + CH + PEST), GALV, 0.04)
+    E.g = 3; Q((0, xi, z0(0)), (L, xi, z0(L)), (L, xo, z0(L)), (0, xo, z0(0)), GALV, 0.04)
+    E.g = 4; Q((0, xo, z0(0)), (L, xo, z0(L)), (L, xo, z0(L) + CH), (0, xo, z0(0) + CH), GALV, 0.04)
+    Q((0, xo - PEST, z0(0) + CH), (L, xo - PEST, z0(L) + CH), (L, xo, z0(L) + CH), (0, xo, z0(0) + CH), GALV, 0.04)
+    # union de tramos (x = 1.10): borde del tramo de aguas abajo, 2 filas de remaches
+    xu = 1.10
+    for a, b in (((xu, xi, z0(xu)), (xu, xo, z0(xu))), ((xu, xo, z0(xu)), (xu, xo, z0(xu) + CH)), ((xu, xi, z0(xu)), (xu, xi, z0(xu) + CH + PEST))):
+        E.cara([a, b], GALV, [True, False], sesgo=0.01, relleno=False)
+    for xr in (xu - 0.0125, xu - 0.0375):
+        E.g = 4
+        for k in range(4): E.disco((xr, xo + 0.0006, z0(xr) + 0.025 + 0.05 * k), (0, 1, 0), 0.0032, REM, sesgo=0.01)
+        E.g = 3
+        for k in range(5): E.disco((xr, xi + 0.025 + 0.05 * k, z0(xr) + 0.0006), (0, 0, 1), 0.0032, REM, sesgo=0.01)
+    # soportes de platina @0.60 con pernos y tornillos
+    sops = [0.25, 0.85, 1.45]
+    for xs in sops:
+        z = z0(xs); w = ANP / 2
+        E.g = 1
+        E.caja(xs - w, 0.0, z - EPL, xs + w, EPL, z + CH + OREJA, PLAT, 0.03)
+        E.caja(xs - w, 0.0, z - EPL, xs + w, xo + EPL, z, PLAT, 0.03)
+        E.prisma_hex((xs, xi + CB / 2, z - EPL - 0.0006), (0, 0, -1), 0.0079, 0.0035, CAB)
+        E.g = 5
+        E.caja(xs - w, xo, z - EPL, xs + w, xo + EPL, z + CH + EPL, PLAT, 0.03)
+        E.caja(xs - w, xo + EPL - OREJA, z + CH + 0.0009, xs + w, xo + EPL, z + CH + 0.0009 + EPL, PLAT, 0.03)
+        for zp in (z + CH + 0.075, z + CH + 0.025):                    # pernos de expansion (cabeza hacia la canaleta)
+            E.disco((xs, xi + 0.0012, zp), (0, 1, 0), 0.0085, CAB, sesgo=0.004)
+            E.prisma_hex((xs, xi + 0.0016, zp), (0, 1, 0), 0.0111, 0.0043, CAB)
+        E.disco((xs, xo - 0.025, z + CH + 0.0009 + EPL + 0.0004), (0, 0, 1), 0.0075, CAB, sesgo=0.004)
+        E.prisma_hex((xs, xo - 0.025, z + CH + 0.0009 + EPL + 0.0006), (0, 0, 1), 0.0079, 0.0035, CAB)
+    # tapa lateral en x = L con 6 remaches
+    zL = z0(L); E.g = 6
+    E.cara([(L + 0.0009, xi, zL), (L + 0.0009, xo, zL), (L + 0.0009, xo, zL + CH), (L + 0.0009, xo - PEST, zL + CH),
+            (L + 0.0009, xi, zL + CH)], (226, 230, 236))
+    E.cara([(L + 0.0009, xi, zL + CH), (L + 0.0009, xi + 0.02, zL + CH), (L + 0.0009, xi + 0.02, zL + CH + PEST), (L + 0.0009, xi, zL + CH + PEST)], (226, 230, 236))
+    for zr in (0.07, 0.14): E.disco((L - 0.015, xo + 0.0006, zL + zr), (0, 1, 0), 0.0032, REM, sesgo=0.01)
+    E.g = 1
+    for yr in (0.08, 0.17): E.disco((L - 0.015, xi + yr, zL - 0.0006), (0, 0, -1), 0.0032, REM)
+    # boquilla (extremo bajo): abertura, 8 remaches de la brida, cuello y montante
+    xb, yb = 0.15, xi + CB / 2; zb = z0(xb); E.g = 3
+    E.disco((xb, yb, zb + 0.0005), (0, 0, 1), DB / 2, (70, 74, 80), n=24, sesgo=0.02)
+    for dx, dy in ((-0.08, -0.08), (0, -0.08), (0.08, -0.08), (-0.08, 0), (0.08, 0), (-0.08, 0.08), (0, 0.08), (0.08, 0.08)):
+        E.disco((xb + dx, yb + dy, zb + 0.0006), (0, 0, 1), 0.0032, REM, sesgo=0.02)
+    E.g = 1
+    Q((xb - 0.10, yb - 0.10, zb - 0.0012), (xb + 0.10, yb - 0.10, zb - 0.0012), (xb + 0.10, yb + 0.10, zb - 0.0012), (xb - 0.10, yb + 0.10, zb - 0.0012), GALV, 0.05)
+    E.cilindro((xb, yb, zb - 0.0012), (xb, yb, zb - 0.15), DB / 2, GALV, n=24, tapas=False, paso=0.05)
+    E.cilindro((xb, yb, zb - 0.06), (xb, yb, zb - 0.50), DT / 2, PVC, n=24, tapas=True, paso=0.06)
+    return E, dict(xi=xi, xo=xo, z0=z0, sops=sops, xu=xu, xb=xb, yb=yb, L=L)
+
+
+def dr03(doc, ox, oy, P):
+    lam = B.Lamina(doc, ox, oy, 5, "DR-03", "ISOMETRICO DE CANALETA, SOPORTES, PERNOS, TAPA Y BOQUILLA",
+                   "TRAMO TIPICO DE 1.50 m CON TODAS SUS FIJACIONES SEGUN EL ACU - " + P["nombre"])
+    E, g = escena_canaleta()
+    xmm, ymm = 250, 330
+    P2 = E.dibujar(lam, xmm, ymm)
+    z0, xi, xo = g["z0"], g["xi"], g["xo"]; xs = g["sops"][1]; xs2 = g["sops"][2]; L = g["L"]
+    items = [((0.60, -0.10, 0.30), ["Alero o viga de borde de concreto (segun estructuras)"]),
+             ((xs2, 0.0, z0(xs2) + CH + OREJA), ["Oreja interior del soporte (0.10) contra el alero"]),
+             ((xs, xi + 0.004, z0(xs) + CH + 0.075), ["2 pernos de expansion 1/4\" x 2 1/2\" con tarugo por soporte (ACU)"]),
+             ((xs, xo - 0.025, z0(xs) + CH + 0.006), ["Tornillo autorroscante 1/4\" x 3/4\" en la oreja exterior",
+                                                      "(2 por soporte: oreja y fondo, ACU)"]),
+             ((xs, xo + EPL, z0(xs) + 0.10), ["Soporte de platina F°G° 1\" x 1/8\" @0.60 (desarrollo 0.85 m)"]),
+             ((g["xu"] - 0.025, xo, z0(g["xu"]) + 0.10), ["Union de tramos cada 2.44 m: traslape 0.05, 2 filas de remaches",
+                                                         "pop 1/8\" @0.05 (26 por union) y sellador de poliuretano"]),
+             ((0.70, xo, z0(0.70) + 0.12), ["Canaleta de plancha galvanizada e = 0.9 mm, 0.25 x 0.20, S = 1 %"]),
+             ((L, xi + 0.15, z0(L) + 0.10), ["Tapa lateral con pestana 0.03: 6 remaches pop 1/8\" y sellador (ACU)"]),
+             ((g["xb"] + 0.08, g["yb"] + 0.08, z0(g["xb"])), ["Boquilla: brida 0.20 x 0.20 con 8 remaches pop 1/8\" y sellador"]),
+             ((g["xb"] + DT / 2, g["yb"], z0(g["xb"]) - 0.30), ["Cuello Ø 4\" x 0.15 dentro del montante PVC 4\""])]
+    _llamadas(lam, P2, items, 590)
+    lam.titulo_vista(330, 70, "ISOMETRICO DEL TRAMO TIPICO DE CANALETA", "ESC. 1/5 - la cobertura TR4 no se dibuja para ver el interior", 160)
+    lam.notas(40, 560, "LECTURA DEL ISOMETRICO", [
+        "Se mira desde afuera y desde arriba. La canaleta baja hacia la boquilla con S = 1 % (memoria hidrologica).",
+        "Las fijaciones se dibujan a su medida real: cabeza hexagonal de perno 7/16\" (11 mm), tornillo 5/16\" (8 mm), remache 1/8\".",
+        "Cantidades por unidad y totales del proyecto en la lamina DR-05.",
+    ], hmm=1.8, ancho_mm=330)
+    return lam
+
+
+def escena_montante():
+    E = Escena()
+    xa = ALERO_V; z_al = 3.00; yi = xa + EPL; yo = yi + CB; zc = z_al - 0.10
+    yb = yi + 0.07; zc1 = zc - 0.30; yt = FC[1] / 2; zs = -0.20; r = DT / 2; ycu = 1.10
+    X0, X1 = -0.45, 0.55
+    E.g = 0; E.caja(X0, -0.15, 0.0, X1, 0.0, z_al, MURO_C, paso=0.25)                    # muro
+    E.g = 1; E.caja(X0, -0.15, z_al, X1, xa, z_al + ALERO_E, CONC, paso=0.20)             # alero
+    # canaleta y soportes
+    Q = E.quad; E.g = 3; ca, cb = -0.40, 0.50
+    Q((ca, yi, zc), (cb, yi, zc), (cb, yi, zc + CH + PEST), (ca, yi, zc + CH + PEST), GALV, 0.08)
+    Q((ca, yi, zc), (cb, yi, zc), (cb, yo, zc), (ca, yo, zc), GALV, 0.08)
+    Q((ca, yo, zc), (cb, yo, zc), (cb, yo, zc + CH), (ca, yo, zc + CH), GALV, 0.08)
+    E.cara([(cb, yi, zc), (cb, yo, zc), (cb, yo, zc + CH), (cb, yi, zc + CH)], (226, 230, 236))
+    for xs in (-0.25, 0.35):
+        E.caja(xs - ANP / 2, xa, zc - EPL, xs + ANP / 2, yo + EPL, zc, PLAT, 0.05)
+        E.caja(xs - ANP / 2, yo, zc - EPL, xs + ANP / 2, yo + EPL, zc + CH, PLAT, 0.05)
+    # montante: boquilla, desvio, bajada y salida (codos a escuadra con traslape de r)
+    E.g = 2                                                                     # tramos tapados (bajo la canaleta o dentro del concreto)
+    E.cilindro((0, yb, zc), (0, yb, zc1 - r), r, PVC, n=18, paso=0.12)
+    E.cilindro((0, yb + r, zc1), (0, yt - r, zc1), r, PVC, n=18, paso=0.12)
+    E.cilindro((0, yt, FC[2]), (0, yt, zs - r), r, PVC, n=18, paso=0.12)
+    E.cilindro((0, yt - r, zs), (0, yt + DADO[1] / 2, zs), r, PVC, n=18, paso=0.12)
+    E.g = 4                                                                     # tramos a la vista
+    E.cilindro((0, yt, zc1 + r), (0, yt, FC[2]), r, PVC, n=18, paso=0.12)
+    E.cilindro((0, yt + DADO[1] / 2, zs), (0, ycu, zs), r, PVC, n=18, paso=0.12)
+    # colgadores: varilla roscada desde el alero y banda alrededor del tubo
+    E.g = 2
+    for y in (yb - 0.15, yt + 0.15):
+        E.cilindro((0, y, zc1 + r + 0.003), (0, y, z_al), 0.0048, ROSCA, n=8, paso=0.1)
+        E.cilindro((0, y - ANP / 2, zc1), (0, y + ANP / 2, zc1), r + 0.004, PLAT, n=18, tapas=False)
+        E.disco((0, y, z_al - 0.0005), (0, 0, -1), 0.012, CAB)
+    # abrazaderas con orejas y tirafones
+    E.g = 5
+    for z in (1.45, 2.45):
+        E.cilindro((0, yt, z - ANP / 2), (0, yt, z + ANP / 2), r + 0.004, PLAT, n=18, tapas=False)
+        for sx in (-1, 1):
+            E.caja(sx * 0.06 if sx > 0 else -0.11, 0.0, z - ANP / 2, 0.11 if sx > 0 else -0.06, EPL, z + ANP / 2, PLAT, 0.05)
+            E.prisma_hex((sx * 0.09, EPL, z), (0, 1, 0), 0.0111, 0.0043, CAB)
+    # falsa columna, dado y cuneta
+    E.g = 3
+    E.caja(-FC[0] / 2, 0.0, 0.0, FC[0] / 2, FC[1], FC[2], CONC, paso=0.12)
+    E.caja(-DADO[0] / 2, yt - DADO[1] / 2, -DADO[2], DADO[0] / 2, yt + DADO[1] / 2, 0.0, CONC, paso=0.12)
+    E.caja(X0, ycu, -0.50, X1, ycu + 0.60, -0.40, CONC, paso=0.15)
+    E.caja(X0, ycu, -0.40, X1, ycu + 0.10, 0.0, CONC, paso=0.15)
+    E.caja(X0, ycu + 0.50, -0.40, X1, ycu + 0.60, 0.0, CONC, paso=0.15)
+    E.g = 1; E.quad((X0, 0.0, 0.0), (X1, 0.0, 0.0), (X1, ycu + 0.75, 0.0), (X0, ycu + 0.75, 0.0), (0, 0, 0), 3.0, relleno=False)   # piso (solo borde)
+    return E, dict(xa=xa, z_al=z_al, yi=yi, yo=yo, zc=zc, yb=yb, zc1=zc1, yt=yt, zs=zs, ycu=ycu)
+
+
+def dr04(doc, ox, oy, P):
+    lam = B.Lamina(doc, ox, oy, 15, "DR-04", "ISOMETRICO DEL MONTANTE PLUVIAL TIPICO",
+                   "CANALETA, BOQUILLA, DESVIO CON COLGADORES, ABRAZADERAS, FALSA COLUMNA, DADO Y SALIDA A LA CUNETA - " + P["nombre"])
+    E, g = escena_montante()
+    P2 = E.dibujar(lam, 215, 200)
+    items = [((0.10, -0.075, g["z_al"] + ALERO_E), ["Alero o viga de borde de concreto"]),
+             ((0.40, g["yo"], g["zc"] + 0.10), ["Canaleta 0.25 x 0.20 con soportes @0.60 (DR-03)"]),
+             ((0.0, g["yb"] + DT / 2, g["zc"] - 0.12), ["Boquilla y codo PVC 4\" x 90°"]),
+             ((0.0, g["yb"] - 0.15, g["zc1"] + 0.15), ["Colgador: varilla roscada 3/8\" con anclaje de expansion y banda F°G°"]),
+             ((0.0, (g["yb"] + g["yt"]) / 2, g["zc1"] - DT / 2), ["Desvio bajo el alero, PVC 4\""]),
+             ((0.09, EPL + 0.004, 2.45), ["Abrazadera F°G° e = 1/8\" con 2 tirafones 2\" x 1/4\" y tarugos, @1.50 m"]),
+             ((0.0, g["yt"] + DT / 2, 1.90), ["Montante PVC 4\" adosado al muro"]),
+             ((FC[0] / 2, FC[1], 0.80), ["Falsa columna 0.20 x 0.15 x 1.30 de concreto f'c = 175 kg/cm2"]),
+             ((DADO[0] / 2, g["yt"] + DADO[1] / 2, -0.15), ["Dado 0.40 x 0.40 x 0.35 f'c = 140 kg/cm2 con codo PVC 4\" x 90°"]),
+             ((0.0, 0.70, g["zs"] + DT / 2), ["Salida PVC 4\" hasta la cuneta (terreno no dibujado)"]),
+             ((0.45, g["ycu"] + 0.30, 0.0), ["Cuneta de concreto (referencia)"])]
+    _llamadas(lam, P2, items, 330)
+    lam.titulo_vista(250, 45, "ISOMETRICO DEL MONTANTE PLUVIAL TIPICO", "ESC. 1/15 - del alero a la cuneta", 150)
+    lam.notas(560, 520, "NOTAS", [
+        "1. Tramo tipico: la longitud de cada montante y su salida es la de la hoja METRADO MONTANTES.",
+        "2. 3 codos PVC 4\" x 90 grados por montante; 2 colgadores en el desvio; abrazaderas @1.50 m.",
+        "3. El alero se dibuja macizo; el terreno no se dibuja para ver el dado y la salida.",
+    ], hmm=1.8, ancho_mm=250)
+    return lam
+
+
+def _perno_exp(E, c):
+    x, y, z = c
+    E.cilindro((x, y, z), (x, y, z + 0.0635), 0.003175, ROSCA, n=12, paso=0.02, anillos=0.00127 * 2)
+    E.cilindro((x, y, z), (x, y, z + 0.040), 0.0050, TAR, n=14, paso=0.02, anillos=0.005)
+    E.disco((x, y, z + 0.0635), (0, 0, 1), 0.008, CAB); E.prisma_hex((x, y, z + 0.0637), (0, 0, 1), 0.0111, 0.0043, CAB)
+
+
+def dr05(doc, ox, oy, P, met):
+    lam = B.Lamina(doc, ox, oy, 1, "DR-05", "FIJACIONES DE LA RED DE TECHO: ISOMETRICOS Y CANTIDADES",
+                   "PERNOS, TORNILLOS, REMACHES, TIRAFONES, VARILLA ROSCADA Y ANCLAJES SEGUN EL ACU - " + P["nombre"], escala_txt="1/1")
+    piezas = []
+    E = Escena(); _perno_exp(E, (0, 0, 0)); piezas.append((E, 70, 430, "1. PERNO DE EXPANSION 1/4\" x 2 1/2\" CON TARUGO",
+                                                       ["Soporte de canaleta: 2 por soporte (ACU)", "cabeza hexagonal 7/16\", arandela, camisa 40 mm"]))
+    E = Escena()
+    E.cilindro((0, 0, 0.003), (0, 0, 0.019), 0.003175, ROSCA, n=12, paso=0.01, anillos=0.0018)
+    E.cilindro((0, 0, 0.0), (0, 0, 0.003), 0.0016, ROSCA, n=10)
+    E.disco((0, 0, 0.019), (0, 0, 1), 0.006, CAB); E.prisma_hex((0, 0, 0.0192), (0, 0, 1), 0.0079, 0.0035, CAB)
+    piezas.append((E, 270, 430, "2. TORNILLO AUTORROSCANTE 1/4\" x 3/4\"", ["Soporte a canaleta: 2 por soporte (oreja y fondo)", "cabeza hexagonal 5/16\" con arandela"]))
+    E = Escena()
+    E.cilindro((0, 0, 0), (0, 0, 0.010), 0.0016, (190, 192, 198), n=12); E.disco((0, 0, 0.010), (0, 0, 1), 0.0032, REM)
+    E.cilindro((0, 0, 0.010), (0, 0, 0.035), 0.0009, ROSCA, n=8); E.cilindro((0, 0, -0.002), (0, 0, 0.0), 0.0013, ROSCA, n=8)
+    piezas.append((E, 450, 430, "3. REMACHE POP 1/8\" (ANTES DE REMACHAR)", ["Uniones 26 c/u, tapa 6, boquilla 8 (ACU)", "cuerpo 3.2 x 10 mm, cabeza 6.4 mm, mandril"]))
+    E = Escena()
+    E.cilindro((0, 0, 0), (0, 0, 0.0508), 0.003175, ROSCA, n=12, paso=0.02, anillos=0.0025)
+    E.prisma_hex((0, 0, 0.0508), (0, 0, 1), 0.0111, 0.0043, CAB)
+    E.cilindro((0.03, 0, 0), (0.03, 0, 0.0508), 0.00635, TAR, n=14, paso=0.02, anillos=0.004)
+    piezas.append((E, 640, 430, "4. TIRAFON 2\" x 1/4\" Y TARUGO 2\" x 1/2\"", ["Abrazadera del montante: 2 por abrazadera", "tarugo plastico con estrias (al lado)"]))
+    E = Escena()
+    E.cilindro((0, 0, 0), (0, 0, 0.12), 0.00476, ROSCA, n=12, paso=0.03, anillos=0.0016)
+    for zz in (0.010, 0.020): E.prisma_hex((0, 0, zz), (0, 0, 1), 0.0143, 0.0080, CAB)
+    E.disco((0, 0, 0.0098), (0, 0, 1), 0.0105, CAB)
+    E.cilindro((0, 0, 0.085), (0, 0, 0.125), 0.008, ROSCA, n=14, paso=0.02, anillos=0.006)
+    piezas.append((E, 90, 190, "5. COLGADOR: VARILLA ROSCADA 3/8\" Y ANCLAJE 3/8\"", ["Tuerca, contratuerca y arandela abajo;", "anclaje de expansion arriba (fondo del alero)"]))
+    E = Escena(); E.caja(0, 0, 0, 0.06, ANP, EPL, PLAT, 0.01)
+    E.cilindro((0.02, ANP / 2, -0.0005), (0.02, ANP / 2, EPL + 0.0005), 0.004, (60, 62, 66), n=12)
+    piezas.append((E, 290, 225, "6. PLATINA F°G° 1\" x 1/8\" (SOPORTE Y ABRAZADERA)", ["25.4 x 3.18 mm, 0.633 kg/m", "perforacion 5/16\" para el perno"]))
+    for E, x, y, tit, sub in piezas:
+        E.dibujar(lam, x, y)
+        lam.texto(lam.P(x - 30, y - 28), tit, 2.4, "TITULOS")
+        for k, t in enumerate(sub): lam.texto(lam.P(x - 30, y - 34 - 5 * k), t, 1.8, "TEXTOS")
+    # cantidades: por unidad (ACU) y total del proyecto con el metrado de la planilla
+    M = {}
+    for c, d, u, m in met:
+        du = d.upper()
+        for k in ("CANALETA", "SOPORTE", "TAPA LATERAL", "BOQUILLA", "COLGADOR", "ABRAZADERA"):
+            if du.startswith(k) or (k in ("COLGADOR", "ABRAZADERA") and k in du): M[k] = m
+    can, sop, tap, boq = M.get("CANALETA", 0), M.get("SOPORTE", 0), M.get("TAPA LATERAL", 0), M.get("BOQUILLA", 0)
+    col, abz = M.get("COLGADOR", 0), M.get("ABRAZADERA", 0)
+    rem_can = can * 2 * (CB + 2 * CH) / 0.05 / 2.44
+    sell = can * (CB + 2 * CH) / 2.44 / 8 + tap * 0.65 / 8 + boq * 1.12 / 8
+    filas = [("Perno de expansion 1/4\" x 2 1/2\" c/tarugo", "soporte", "2", "%d sop." % sop, "%d" % (2 * sop)),
+             ("Tornillo autorroscante 1/4\" x 3/4\"", "soporte", "2", "%d sop." % sop, "%d" % (2 * sop)),
+             ("Remache pop 1/8\" (uniones de canaleta)", "m de canaleta", "10.66", "%.2f m" % can, "%d" % math.ceil(rem_can)),
+             ("Remache pop 1/8\" (tapas laterales)", "tapa", "6", "%d tapas" % tap, "%d" % (6 * tap)),
+             ("Remache pop 1/8\" (boquillas)", "boquilla", "8", "%d boq." % boq, "%d" % (8 * boq)),
+             ("Sellador de poliuretano, cartucho 300 ml", "uniones, tapas, boquillas", "ver ACU", "-", "%.1f" % sell),
+             ("Tirafon 2\" x 1/4\" + tarugo 2\" x 1/2\"", "abrazadera", "2", "%d abr." % abz, "%d" % (2 * abz)),
+             ("Varilla roscada 3/8\" + anclaje + 2 tuercas + arandela", "colgador", "1 juego", "%d col." % col, "%d" % col)]
+    yb = lam.tabla(430, 290, ["FIJACION", "POR", "CANT./UND", "METRADO", "TOTAL"], filas, [95, 42, 20, 26, 20], hmm=1.8, alto_mm=5.6,
+                   titulo="FIJACIONES POR UNIDAD (ACU) Y TOTAL DEL PROYECTO")
+    lam.notas(430, yb - 6, "NOTAS", [
+        "1. Cantidades por unidad del ACU CANALETAS (soporte, tapa lateral, boquilla y canaleta: 2 filas de remaches @0.05 por union cada 2.44 m).",
+        "2. Abrazadera y colgador segun el detalle del plano de drenaje y la especificacion tecnica (no tienen ACU propio en la planilla).",
+        "3. Totales = cantidad por unidad x metrado de la planilla; el sellador se da en cartuchos de 300 ml (8 m de cordon de 6 mm).",
+        "4. Todas las piezas metalicas galvanizadas; cortes y perforaciones con pintura rica en zinc.",
+    ], hmm=1.7, ancho_mm=200)
+    return lam
+
+
 def construir(clave):
     P = PROY[clave]
     B.PROYECTO = P["proyecto"]; B.UBICACION = P["ubicacion"]
@@ -379,6 +624,9 @@ def construir(clave):
     laminas = {}
     laminas["DR-01"] = dr01(doc, 0.0, 0.0, P, met)
     laminas["DR-02"] = dr02(doc, 0.0, -20.0, P)
+    laminas["DR-03"] = dr03(doc, 10.0, 0.0, P)
+    laminas["DR-04"] = dr04(doc, 10.0, -20.0, P)
+    laminas["DR-05"] = dr05(doc, 0.0, 5.0, P, met)
     for e in doc.modelspace().query("HATCH"):        # rellenos al fondo
         pass
     msp = doc.modelspace()
