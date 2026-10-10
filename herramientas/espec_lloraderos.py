@@ -27,6 +27,114 @@ def datos(archivo):
     raise ValueError("sin total en METRADO LLORADEROS")
 
 
+def detalle(doc, nombre):
+    """Bloque DETALLE_LLORADERO: seccion de cuneta abierta junto a area verde, a escala real (H = 0.50 m tipico)."""
+    blk = doc.blocks.new("DETALLE_LLORADERO")
+    S = Hoja(blk)
+    H, e, b = 0.50, 0.10, 0.40                       # altura interior dibujada, espesor de muros y losa, ancho interior
+    B = b + 2 * e; ytop = e + H; yc = e + H / 2      # ancho exterior, corona, eje del lloradero (media altura)
+    F, LT, DT = 0.30, 0.30, 0.076                    # filtro, largo del tubo, diametro del tubo
+    XT0, XT1 = -0.55, B + 0.55                       # extension del terreno dibujado
+    # ---- terreno con huecos en los filtros y en la cuneta
+    ter = blk.add_hatch(color=33, dxfattribs={"layer": "LEY-RELLENO"}); ter.set_pattern_fill("EARTH", scale=0.03, color=33)
+    ter.paths.add_polyline_path([(XT0, -0.25), (XT1, -0.25), (XT1, ytop), (XT0, ytop)], is_closed=True, flags=1)
+    ter.paths.add_polyline_path([(-0.002, -0.102), (B + 0.002, -0.102), (B + 0.002, ytop), (-0.002, ytop)], is_closed=True, flags=16)
+    for x0 in (-F, B):
+        ter.paths.add_polyline_path([(x0, yc - F / 2), (x0 + F, yc - F / 2), (x0 + F, yc + F / 2), (x0, yc + F / 2)], is_closed=True, flags=16)
+    S.ln((XT0, ytop), (0, ytop), 33); S.ln((B, ytop), (XT1, ytop), 33)
+    import random; rnd = random.Random(7)
+    x = XT0 + 0.02
+    while x < XT1 - 0.02:                            # pasto (area verde)
+        if not (-0.01 < x < B + 0.01):
+            for dx, h in ((0, 0.035), (0.008, 0.05), (0.016, 0.03)):
+                S.ln((x + dx, ytop), (x + dx + rnd.uniform(-0.01, 0.01), ytop + h * rnd.uniform(0.7, 1.1)), 94)
+        x += 0.07
+    # ---- solado y cuneta de concreto
+    sol = [(-0.0, -0.10), (B, -0.10), (B, 0), (0, 0)]
+    S.relleno(sol, None, "AR-SAND", 0.012, 8); S.poli(sol, 8, cerrada=True)
+    cun = [(0, 0), (B, 0), (B, ytop), (B - e + 0.05 - 0.05, ytop), (B - e, ytop), (B - e, ytop - 0.03), (B - e - 0.0, ytop - 0.03),
+           (B - e, e), (e, e), (e, ytop - 0.03), (e, ytop), (0, ytop)]
+    cun = [(0, 0), (B, 0), (B, ytop), (B - e + 0.05, ytop), (B - e + 0.05, ytop - 0.03), (B - e, ytop - 0.03), (B - e, e),
+           (e, e), (e, ytop - 0.03), (e - 0.05, ytop - 0.03), (e - 0.05, ytop), (0, ytop)]
+    h = S.relleno(cun, None, "AR-CONC", 0.012, 8)
+    for x0 in (0, B - e):                            # pase de los tubos sin achurado
+        pass
+    S.poli(cun, 5, cerrada=True, lw=50)
+    # ---- rejilla movil sobre el rebaje
+    rj = [(e - 0.05, ytop - 0.03), (B - e + 0.05, ytop - 0.03), (B - e + 0.05, ytop), (e - 0.05, ytop)]
+    S.relleno(rj, (214, 70, 70), color=1); S.poli(rj, 1, cerrada=True, lw=35)
+    for x0, sg in ((e - 0.05, 1), (B - e + 0.05, -1)):
+        S.poli([(x0, ytop - 0.03), (x0, ytop - 0.03 - 0.025), (x0 + sg * 0.004, ytop - 0.03 - 0.025)], 5, lw=25)
+    # ---- filtros, geotextil, tubos
+    for lado in (-1, 1):
+        x0 = -F if lado < 0 else B                   # filtro pegado a la cara exterior del muro
+        fil = [(x0, yc - F / 2), (x0 + F, yc - F / 2), (x0 + F, yc + F / 2), (x0, yc + F / 2)]
+        S.relleno(fil, None, "GRAVEL", 0.05, 250)
+        S.poli([(x0 - 0.006, yc - F / 2 - 0.006), (x0 + F + 0.006, yc - F / 2 - 0.006), (x0 + F + 0.006, yc + F / 2 + 0.006), (x0 - 0.006, yc + F / 2 + 0.006)], 150, cerrada=True, lw=70)
+        xi = e if lado < 0 else B - e                # cara interior del muro (extremo bajo)
+        xe = xi + lado * LT                          # extremo dentro del filtro (hacia el terreno)
+        dz = LT * 0.005
+        p = [(xe, yc + dz + DT / 2), (xi, yc + DT / 2), (xi, yc - DT / 2), (xe, yc + dz - DT / 2)]
+        S.relleno(p, (180, 214, 246), color=151); S.poli(p, 5, cerrada=True, lw=35)
+        xm = xi + lado * e                           # cara exterior del muro: desde aqui el tubo va perforado
+        for k in range(4):
+            xx = xm + lado * (0.03 + k * 0.05)
+            S.punto((xx, yc + 0.012), 0.004, 250); S.punto((xx, yc - 0.012), 0.004, 250)
+        # flecha de flujo hacia la cuneta
+        xa = xi - lado * 0.03; xb = xi - lado * 0.15
+        S.ln((xa, yc - 0.09), (xb, yc - 0.09), 1)
+        S.poli([(xb, yc - 0.09), (xb + lado * 0.035, yc - 0.078), (xb + lado * 0.035, yc - 0.102)], 1, cerrada=True)
+        S.t((xa + xb) / 2, yc - 0.075, "S = 0.5 %", HB * 0.8, 160, al=TA.BOTTOM_CENTER)
+
+    # ---- cotas (lineas verdes con tic oblicuo)
+    def cota_h(xa, xb, y, txt=None, arriba=True):
+        S.ln((xa, y), (xb, y), 94, "LEY-COTA")
+        for x in (xa, xb):
+            S.ln((x - 0.01, y - 0.01), (x + 0.01, y + 0.01), 94, "LEY-COTA"); S.ln((x, y - 0.02), (x, y + 0.02), 94, "LEY-COTA")
+        S.t((xa + xb) / 2, y + (0.012 if arriba else -0.012), txt or "%.2f" % (xb - xa), HB * 0.85, 7,
+            al=TA.BOTTOM_CENTER if arriba else TA.TOP_CENTER)
+
+    def cota_v(x, ya, yb, txt=None, izq=True):
+        S.ln((x, ya), (x, yb), 94, "LEY-COTA")
+        for y in (ya, yb):
+            S.ln((x - 0.01, y - 0.01), (x + 0.01, y + 0.01), 94, "LEY-COTA"); S.ln((x - 0.02, y), (x + 0.02, y), 94, "LEY-COTA")
+        S.t(x + (-0.015 if izq else 0.015), (ya + yb) / 2, txt or "%.2f" % (yb - ya), HB * 0.85, 7,
+            al=TA.MIDDLE_RIGHT if izq else TA.MIDDLE_LEFT)
+
+    cota_h(0, e, -0.17, arriba=False); cota_h(e, B - e, -0.17, arriba=False); cota_h(B - e, B, -0.17, arriba=False)
+    cota_h(0, B, -0.24, arriba=False)
+    cota_h(-F, 0, yc + F / 2 + 0.07, "0.30")                         # filtro
+    cota_h(-LT + e, e, yc - F / 2 - 0.05, "L = 0.30", arriba=False)  # tubo
+    cota_v(-F - 0.06, yc - F / 2, yc + F / 2, "0.30")
+    cota_v(B + F + 0.06, e, ytop, "H variable", izq=False)
+    cota_v(B / 2, e, yc - DT / 2, "H/2", izq=False)
+    cota_v(-F - 0.06, -0.10, 0, "0.10")
+
+    # ---- llamadas en columna a la derecha, de arriba hacia abajo
+    xt = B + F + 0.42
+    items = [((B / 2, ytop - 0.015), "Rejilla metalica movil: platinas 1\" x 3/16\" sobre angulo 1\" x 1\" x 3/16\""),
+             ((B + 0.15, ytop + 0.03), "Area verde (terreno natural con cobertura vegetal)"),
+             ((B + F - 0.02, yc + F / 2 - 0.02), "Grava filtrante (ripio) de 20 a 40 mm"),
+             ((B + F + 0.006, yc + 0.06), "Filtro localizado 0.30 x 0.30 x 0.30 m (0.027 m³)"),
+             ((B - e + 0.05, yc + 0.02), "Lloradero: tubo PVC-U Ø 3\" (76 mm), L = 0.30 m @1.50 m, S = 0.5 %"),
+             ((B + 0.13, yc - 0.012), "Tramo perforado Ø 3/8\" dentro del filtro"),
+             ((B + F + 0.006, yc - 0.10), "Geotextil no tejido clase 2 envolviendo la grava"),
+             ((B - 0.05, 0.15), "Muro y losa de cuneta f'c = 175 kg/cm², e = 0.10 m"),
+             ((B + 0.25, 0.02), "Relleno compactado con material propio"),
+             ((B - 0.10, -0.05), "Solado f'c = 100 kg/cm², e = 4\"")]
+    ys = ytop + 0.10; dy = 0.085
+    for k, (pt, txt) in enumerate(items):
+        y = ys - k * dy
+        S.ln(pt, (xt - 0.03, y), 30, "LEY-COTA"); S.ln((xt - 0.03, y), (xt - 0.005, y), 30, "LEY-COTA")
+        S.punto(pt, 0.006, 30)
+        S.t(xt, y, txt, HB * 0.9, al=TA.MIDDLE_LEFT)
+    # ---- titulo
+    S.t(B / 2 + 0.55, ytop + 0.36, "DETALLE DE INSTALACION DE LLORADEROS EN CUNETAS", HT * 0.85, C_TIT, "LEY-TITULO", "ARIAL-N", TA.MIDDLE_CENTER)
+    S.t(B / 2 + 0.55, ytop + 0.29, "Seccion cuneta - area verde (H variable segun perfil; se dibuja H = 0.50 m) - " + nombre, HB * 0.9, al=TA.MIDDLE_CENTER)
+    S.t(B / 2 + 0.55, -0.36, "ESC. REAL (1 unidad = 1 m) - lloraderos solo en los muros colindantes con area verde", HB * 0.85, al=TA.MIDDLE_CENTER)
+    return blk
+
+
 def construir(clave):
     archivo, nombre, carpeta, suf = PROY[clave]
     D = datos(archivo); n, L = D["n"], D["L"]
@@ -148,6 +256,8 @@ def construir(clave):
     sep.dxf.end = (X2 - 0.06, yb)
     blk.add_lwpolyline([(0, yb), (W, yb), (W, YT), (0, YT)], close=True, dxfattribs={"layer": "LEY-MARCO", "color": 250, "lineweight": 50})
     doc.modelspace().add_blockref("ESPEC_LLORADEROS", (0, 0), dxfattribs={"layer": "0"})
+    detalle(doc, nombre.split(" - ")[0])
+    doc.modelspace().add_blockref("DETALLE_LLORADERO", (W + 0.85, 0.85), dxfattribs={"layer": "0"})
     err = len(doc.audit().errors)
     sal = os.path.join(RAIZ, carpeta, "ESPECIFICACIONES_LLORADEROS_%s.dxf" % suf)
     doc.saveas(sal)
