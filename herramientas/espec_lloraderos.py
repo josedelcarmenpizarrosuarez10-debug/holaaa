@@ -84,7 +84,7 @@ def construir(clave):
     def flecha(yc):
         S.ln((xs + 0.24, yc), (xs + 0.03, yc), 1)
         S.poli([(xs + 0.03, yc), (xs + 0.07, yc + 0.015), (xs + 0.07, yc - 0.015)], 1, cerrada=True)
-        S.t(xs + 0.13, yc + 0.012, "S = 2 %", HB * 0.75, 6, al=TA.BOTTOM_CENTER)
+        S.t(xs + 0.13, yc + 0.012, "S = 0.5 %", HB * 0.75, 6, al=TA.BOTTOM_CENTER)
     fila(flecha, "Sentido del flujo y pendiente del tubo")
     y -= 0.02
 
@@ -105,7 +105,7 @@ def construir(clave):
 
     C2 = [
         ("3. PENDIENTE E INSTALACION", [
-            "Pendiente minima S = 2 % hacia el interior de la cuneta; el extremo interior queda al ras de la cara del muro, sin sobresalir.",
+            "Pendiente S = 0.5 % hacia el interior de la cuneta (el extremo exterior, dentro del filtro, queda mas alto); el extremo interior queda al ras de la cara del muro, sin sobresalir. Verificar con nivel: nunca a contrapendiente.",
             "El tubo se fija al encofrado antes del vaciado del muro, con sus extremos tapados para que no entre concreto; el contorno se sella con mortero 1:3 si se coloca despues."]),
         ("4. FILTRO LOCALIZADO (PROTECCION)", [
             "En el lado del terreno, cada lloradero lleva un filtro de 0.30 x 0.30 x 0.30 m (0.027 m³) de grava de 20 a 40 mm, sin finos ni materia organica, envuelto integramente en geotextil.",
