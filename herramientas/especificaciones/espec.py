@@ -623,10 +623,10 @@ def espec(pt, P, ctx):
     if "SUMIDERO" in d:
         return bloque([p("Comprende el suministro e instalacion de la caja sumidero de 4\" en las areas de piso del primer piso, segun el detalle de caja sumidero de los planos: rejilla metalica de platinas de 1\" x 3/16\" de 0.25 m de lado "
                          "sobre marco de angulo L 1\" x 1\" x 3/16\" fijado al concreto con anclajes de fierro de 3\" x 3/8\", caja de 0.10 m de profundidad bajo la rejilla con fondo inclinado hacia la salida, "
-                         "trampa y salida de PVC de 4\" conectada a la red de piso.")],
+                         "salida de PVC de 4\" en el centro del fondo de la caja y un codo de 90° hacia la tuberia de 4\" que descarga en la cuneta (sin trampa ni sifon).")],
                       mat=l("Platina de 1\" x 3/16\" y angulo L 1\" x 1\" x 3/16\" de acero A36; anclajes de fierro de 3\" x 3/8\"; accesorios de PVC de 4\"; pintura anticorrosiva y esmalte; mortero 1:4 para el asentado."),
                       equ=l("Maquina de soldar, amoladora, herramientas de albanileria."),
-                      proc=l("Fabricar la rejilla y el marco segun el detalle, soldar los anclajes al marco y proteger todo con anticorrosivo y esmalte.", "Formar la caja de 0.10 m con fondo inclinado hacia la salida y conectarla a la tuberia de 4\" con su trampa y accesorios.",
+                      proc=l("Fabricar la rejilla y el marco segun el detalle, soldar los anclajes al marco y proteger todo con anticorrosivo y esmalte.", "Formar la caja de 0.10 m con fondo inclinado hacia la salida y conectarla con el codo de 90° a la tuberia de 4\" que descarga en la cuneta.",
                              "Asentarlo al ras del piso terminado, en el punto bajo, con pendiente del piso hacia el sumidero."),
                       ctrl=l("Ras con el piso; el agua de la superficie escurre sin empozarse."), seg=SEG_SOLD, und=und, medicion=[p("Se contara el numero de sumideros instalados.")])
     if "CODO" in d or "TEE" in d:
