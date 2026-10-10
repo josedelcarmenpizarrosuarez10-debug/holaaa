@@ -140,7 +140,7 @@ LEY = [(MURO, "Cuneta de concreto f'c = 175 kg/cm2 (muro colindante con area ver
 
 def dl01(doc, ox, oy, P, M):
     lam = B.Lamina(doc, ox, oy, 10, "DL-01", "ISOMETRICO DE INSTALACION DE LLORADEROS EN CUNETAS",
-                   "TRAMO DE CUNETA COLINDANTE CON AREA VERDE: LLORADEROS @1.50 m EN SUS TRES ETAPAS Y ELEVACION DEL MURO - " + P["nombre"])
+                   "TRAMO JUNTO A AREA VERDE: LLORADEROS @1.50 m EN 3 ETAPAS Y ELEVACION - " + P["nombre"])
     E = escena_tramo()
     P2 = E.dibujar(lam, 115, 512)
     x0 = lambda i: XS[i] - F / 2
