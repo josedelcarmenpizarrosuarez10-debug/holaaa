@@ -286,7 +286,7 @@ def construir(clave):
     M = metrado(P)
     laminas = {"DS-01": ds01(doc, 0.0, 0.0, P, M), "DS-02": ds02(doc, 6.0, 0.0, P, M)}
     msp = doc.modelspace()
-    msp.set_redraw_order({e.dxf.handle: -1 for e in msp.query("HATCH SOLID")})
+    msp.set_redraw_order({e.dxf.handle: -1 for e in msp.query("HATCH")})        # solo rellenos 2D al fondo; los SOLID del isometrico van en su orden
     L.presentaciones(doc, laminas)
     err = len(doc.audit().errors)
     sal = os.path.join(RAIZ, carpeta, "PLANOS_DETALLE_SUMIDERO_PISO_%s.dxf" % suf)
