@@ -1,4 +1,4 @@
-"""Leyenda y especificaciones tecnicas para los detalles de lloraderos en cunetas y sub-dren en areas verdes.
+"""Leyenda y especificaciones tecnicas para el detalle de lloraderos en cunetas (el sub-dren se retiro de los planos).
 
 Solo CAR Varones (CUI 2705619) y Hogar de Refugio Temporal (CUI 2675514), los dos proyectos con la partida de lloraderos.
 Bloque "ESPEC_LLORADEROS" a escala real (1 unidad = 1 m), igual que leyenda_cunetas.py y espec_falsa_columna.py.
@@ -40,7 +40,7 @@ def construir(clave):
 
     W, X1, X2, AC = 2.72, 0.06, 1.42, 1.19
     YT = 2.30
-    S.t(W / 2, YT - 0.085, "LEYENDA Y ESPECIFICACIONES TECNICAS - LLORADEROS EN CUNETAS Y SUB-DREN", HT * 0.9, C_TIT, "LEY-TITULO", "ARIAL-N", TA.MIDDLE_CENTER)
+    S.t(W / 2, YT - 0.085, "LEYENDA Y ESPECIFICACIONES TECNICAS - LLORADEROS EN CUNETAS", HT * 0.9, C_TIT, "LEY-TITULO", "ARIAL-N", TA.MIDDLE_CENTER)
     S.t(W / 2, YT - 0.150, nombre + " - cunetas de evacuacion pluvial colindantes con area verde", HB, al=TA.MIDDLE_CENTER)
     YC = YT - 0.20
     S.ln((0, YC), (W, YC), 250, "LEY-MARCO")
@@ -95,9 +95,6 @@ def construir(clave):
         ("2. UBICACION Y DISTRIBUCION", [
             "Solo en los muros de cuneta colindantes con area verde o terreno natural sin cobertura (hoja METRADO LLORADEROS); no en los tramos junto a veredas, pisos o edificaciones.",
             "Espaciamiento tipico L = 1.50 m, a media altura del muro; el primero y el ultimo a no menos de 0.30 m de las juntas de dilatacion."]),
-        ("3. PENDIENTE E INSTALACION", [
-            "Pendiente minima S = 2 % hacia el interior de la cuneta; el extremo interior queda al ras de la cara del muro, sin sobresalir.",
-            "El tubo se fija al encofrado antes del vaciado del muro, con sus extremos tapados para que no entre concreto; el contorno se sella con mortero 1:3 si se coloca despues."]),
     ]
     for tit, ps in C1:
         S.t(X1, y, tit, HB, C_TIT, estilo="ARIAL-N"); y -= HB * INTER
@@ -107,15 +104,15 @@ def construir(clave):
     y1 = y
 
     C2 = [
+        ("3. PENDIENTE E INSTALACION", [
+            "Pendiente minima S = 2 % hacia el interior de la cuneta; el extremo interior queda al ras de la cara del muro, sin sobresalir.",
+            "El tubo se fija al encofrado antes del vaciado del muro, con sus extremos tapados para que no entre concreto; el contorno se sella con mortero 1:3 si se coloca despues."]),
         ("4. FILTRO LOCALIZADO (PROTECCION)", [
             "En el lado del terreno, cada lloradero lleva un filtro de 0.30 x 0.30 x 0.30 m (0.027 m³) de grava de 20 a 40 mm, sin finos ni materia organica, envuelto integramente en geotextil.",
             "Geotextil no tejido clase 2 para filtro (ASTM D4491 y D4751), 0.60 m² por lloradero con traslapes de 0.10 m; retiene los finos del suelo y deja pasar el agua hacia la cuneta."]),
         ("5. EJECUCION Y PRUEBA", [
             "Excavar el hueco del filtro despues del desencofrado, forrarlo con el geotextil, llenar con la grava sin dañar la tela y cerrar por encima antes del relleno compactado.",
             "Prueba: al verter agua en el filtro debe salir por el lloradero dentro de la cuneta; se repara el que no drene."]),
-        ("6. SUB-DREN EN AREAS VERDES", [
-            "Zanja de 0.30 m de ancho con tuberia PVC-U Ø 4\" perforada (perforaciones Ø 3/8\"), con S = 0.50 % hacia la cuneta o registro de descarga.",
-            "La tuberia va sobre una cama de grava de 20 a 40 mm y cubierta por la misma grava, todo envuelto en geotextil no tejido clase 2 con traslape de 0.30 m en la parte superior; encima, suelo vegetal."]),
     ]
     y = YC - 0.07
     for tit, ps in C2:
@@ -152,7 +149,7 @@ def construir(clave):
     blk.add_lwpolyline([(0, yb), (W, yb), (W, YT), (0, YT)], close=True, dxfattribs={"layer": "LEY-MARCO", "color": 250, "lineweight": 50})
     doc.modelspace().add_blockref("ESPEC_LLORADEROS", (0, 0), dxfattribs={"layer": "0"})
     err = len(doc.audit().errors)
-    sal = os.path.join(RAIZ, carpeta, "ESPECIFICACIONES_LLORADEROS_SUBDREN_%s.dxf" % suf)
+    sal = os.path.join(RAIZ, carpeta, "ESPECIFICACIONES_LLORADEROS_%s.dxf" % suf)
     doc.saveas(sal)
     return sal, (0, yb, W, YT), err, D
 
