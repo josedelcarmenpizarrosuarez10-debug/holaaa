@@ -69,6 +69,26 @@ class Escena:
                     self.cara([ring(c, q), ring(c, q + 1)], rgb, [True, False], sesgo=1e-4, relleno=False)
                 k += anillos
 
+    def codo(self, P, a, b, R, r, rgb, rgb_campana=None, campana=0.05, n=18, m=8):
+        """Codo de 90 grados: esquina de ejes P, llega en direccion a y sale en b (unitarios), radio de eje R.
+        Incluye las dos campanas (largo campana) donde entran los tubos. Devuelve los extremos de las campanas."""
+        P, a, b = (np.asarray(v, float) for v in (P, a, b))
+        n0 = np.cross(a, b); n0 /= np.linalg.norm(n0)
+        S = P - a * R; C = S + b * R
+        anillos = []
+        for k in range(m + 1):
+            th = math.pi / 2 * k / m
+            c = C + R * (-b * math.cos(th) + a * math.sin(th)); t = a * math.cos(th) + b * math.sin(th); w = np.cross(t, n0)
+            anillos.append([c + r * (math.cos(2 * math.pi * j / n) * n0 + math.sin(2 * math.pi * j / n) * w) for j in range(n + 1)])
+        for k in range(m):
+            for j in range(n):
+                self.cara([anillos[k][j], anillos[k][j + 1], anillos[k + 1][j + 1], anillos[k + 1][j]], rgb, [k == 0, False, k == m - 1, False])
+        rc = rgb_campana or rgb
+        e1 = S - a * campana; e2 = P + b * R + b * campana
+        self.cilindro(e1, S, r + 0.007, rc, n=n, tapas=False, paso=1.0)
+        self.cilindro(P + b * R, e2, r + 0.007, rc, n=n, tapas=False, paso=1.0)
+        return e1, e2
+
     def prisma_hex(self, c, eje, ancho, alto, rgb):
         """Cabeza hexagonal (ancho entre caras) con base en c y altura a lo largo de eje."""
         c = np.asarray(c, float); u = np.asarray(eje, float); u /= np.linalg.norm(u)
