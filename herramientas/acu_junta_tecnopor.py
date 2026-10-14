@@ -19,7 +19,7 @@ def datos():
     res = {r[0]: r for r in wb["RESUMEN"].iter_rows(values_only=True) if r and r[0]}
     part = res["01.04.04.06.02"]
     ci = wb["COLECTOR INSUMOS"]
-    assert "JUNTA DE TECNOPOR" in str(ci["B72"].value).upper()
+    assert str(ci["B72"].value).startswith("01.04.04.06.02")
     rt, rp = ci["G72"].value, ci["G73"].value
     tramos, dentro = [], False
     for r in wb["COLECTOR JUNTAS Y EMPALMES"].iter_rows(values_only=True):
