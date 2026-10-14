@@ -25,7 +25,7 @@ def datos():
     for r in wb["COLECTOR JUNTAS Y EMPALMES"].iter_rows(values_only=True):
         v = [x for x in r if x not in (None, "")]
         if not v: continue
-        if isinstance(v[0], str) and v[0].upper().startswith("JUNTA DE TECNOPOR"): dentro = True; continue
+        if isinstance(v[0], str) and v[0].upper().startswith("JUNTA") and "TECNOPOR" in v[0].upper() and "DILATACION" not in v[0].upper(): dentro = True; continue
         if dentro and isinstance(v[0], str) and v[0].upper().startswith("TOTAL"): break
         if dentro and isinstance(v[0], int): tramos.append(v[1:7])
     p_peon = wb["ACU TAPA REGISTRO"]["F71"].value
