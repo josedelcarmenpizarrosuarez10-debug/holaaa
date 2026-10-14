@@ -29,11 +29,14 @@ def construir(solo=None):
     except ImportError: pass
     import dxf_detalles as DD
     for lam in DD.todas(doc, OX1, OY1 - 800, R, T): LAMINAS[lam.codigo] = lam
+    sys.path.insert(0, os.path.join(AQUI, "render_tapa"))
+    import dxf_tapa_3d as D3                       # DP-06D: isometricos del registro (componentes)
+    lam = D3.lamina(doc, OX1 + 160, OY1 - 800); LAMINAS[lam.codigo] = lam
     # indice DP-00 (A3) y orden de las laminas por codigo
-    orden = ["DP-01", "DP-02", "DP-03A", "DP-03B", "DP-04A", "DP-04B", "DP-05A", "DP-05B", "DP-06A", "DP-06B", "DP-06C", "DP-07", "DP-08", "DP-09", "DP-10",
+    orden = ["DP-01", "DP-02", "DP-03A", "DP-03B", "DP-04A", "DP-04B", "DP-05A", "DP-05B", "DP-06A", "DP-06B", "DP-06C", "DP-06D", "DP-07", "DP-08", "DP-09", "DP-10",
              "DA-01", "DA-02", "DA-03", "DD-01", "DD-02", "DD-03", "DD-04"]
     orden = [c for c in orden if c in LAMINAS] + [c for c in LAMINAS if c not in orden]
-    indicadas = ("DP-06B", "DD-01", "DD-02", "DD-03", "DD-04")
+    indicadas = ("DP-06B", "DP-06D", "DD-01", "DD-02", "DD-03", "DD-04")
     lista = [("DP-00", "INDICE DE LAMINAS", "A3", "S/E")] + [(c, LAMINAS[c].titulo, LAMINAS[c].formato, "INDICADA" if c in indicadas else LAMINAS[c].escala_txt) for c in orden]
     lam0 = L.indice(doc, OX1 - 20.0, OY1 - 200.0, lista)
     ordenadas = {"DP-00": lam0}; ordenadas.update((c, LAMINAS[c]) for c in orden)
