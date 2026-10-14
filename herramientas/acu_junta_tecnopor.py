@@ -19,8 +19,8 @@ def datos():
     res = {r[0]: r for r in wb["RESUMEN"].iter_rows(values_only=True) if r and r[0]}
     part = res["01.04.04.06.02"]
     ci = wb["COLECTOR INSUMOS"]
-    assert str(ci["B72"].value).startswith("01.04.04.06.02")
-    rt, rp = ci["G72"].value, ci["G73"].value
+    f0 = next(r for r in range(1, ci.max_row + 1) if str(ci["B%d" % r].value).startswith("01.04.04.06.02"))
+    rt, rp = ci["G%d" % f0].value, ci["G%d" % (f0 + 1)].value
     tramos, dentro = [], False
     for r in wb["COLECTOR JUNTAS Y EMPALMES"].iter_rows(values_only=True):
         v = [x for x in r if x not in (None, "")]
@@ -30,9 +30,10 @@ def datos():
         if dentro and isinstance(v[0], int): tramos.append(v[1:7])
     p_peon = wb["ACU TAPA REGISTRO"]["F71"].value
     a = wb["ACU TAPA REGISTRO"]
-    assert "SELLADOR" in str(ci["E74"].value).upper() and str(ci["E75"].value) == "Operario"
+    assert "SELLADOR" in str(ci["E%d" % (f0 + 2)].value).upper() and str(ci["E%d" % (f0 + 3)].value) == "Operario"
+    precio = {a["B%d" % r].value: a["F%d" % r].value for r in range(68, 94) if a["B%d" % r].value}
     return dict(cod=part[0], desc=part[1], und=part[2], met=part[3], rt=rt, rp=rp, tramos=tramos, p_peon=p_peon,
-                rs=ci["G74"].value, ro=ci["G75"].value, p_oper=a["F69"].value, p_arena=a["F78"].value)
+                rs=ci["G%d" % (f0 + 2)].value, ro=ci["G%d" % (f0 + 3)].value, p_oper=precio["Operario"], p_arena=precio["Arena gruesa"])
 
 
 def construir():
