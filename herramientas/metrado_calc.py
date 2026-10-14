@@ -13,6 +13,15 @@ import diseno as dz
 D = dz.D
 PESO = {"3/8": 0.56, "1/2": 0.994}
 ANG = {"2x2x3/16": 3.63, "1.5x1.5x1/8": 1.83}   # kg/m
+# contramarco de la tapa de registro, por proyecto (variable de entorno CONTRAMARCO; CAR Varones la fija en compat.py).
+# Hogar de Refugio: L 1 1/2"x1 1/2"x1/8" (carga peatonal; el ala horizontal apoya sobre el borde engrosado de concreto).
+IN = 0.0254
+CONTRAMARCOS = {
+    "2x2x3/16": dict(clave="2x2x3/16", txt='L 2"x2"x3/16"', ala=2 * IN, esp=3 / 16 * IN, kgm=3.63, des=0.203, ala_txt='2"', ala_mm=50.8, esp_mm=4.8),
+    "1.5x1.5x1/8": dict(clave="1.5x1.5x1/8", txt='L 1 1/2"x1 1/2"x1/8"', ala=1.5 * IN, esp=1 / 8 * IN, kgm=1.83, des=0.152, ala_txt='1 1/2"', ala_mm=38.1, esp_mm=3.2),
+}
+CM = CONTRAMARCOS[os.environ.get("CONTRAMARCO", "1.5x1.5x1/8")]
+LUZ_REG = 0.70 - 2 * CM["ala"]          # luz libre entre alas del contramarco
 SOBREEXC = 0.25          # sobreancho de excavacion a cada lado
 ESPONJ = 1.20   # esponjamiento, igual a PARAMETROS!B16 de la planilla del proyecto
 RECUB = 0.04
@@ -118,10 +127,10 @@ def segmentos():
 
 def registros():
     n = len([r for r in dz.REGISTROS if r["tipo"] == "registro"]) + EXTRA_REG   # Solange: 7 + 1 en CL + 2 en CC
-    return dict(n=n, contramarco_m=2.80 * n, contramarco_kg=2.80 * n * ANG["2x2x3/16"], marco_m=2.72 * n, marco_kg=2.72 * n * ANG["1.5x1.5x1/8"],
+    return dict(n=n, contramarco_m=2.80 * n, contramarco_kg=2.80 * n * CM["kgm"], marco_m=2.72 * n, marco_kg=2.72 * n * ANG["1.5x1.5x1/8"],
                 tapa_conc=0.68 * 0.68 * 0.08 * n, borde_conc=3.00 * 0.15 * 0.10 * n,
                 acero_borde_kg=8 * 1.40 * n * PESO["1/2"], acero_tapa_kg=14 * 0.62 * n * PESO["3/8"], asas_kg=2 * 0.40 * n * PESO["3/8"], anclajes_kg=8 * 0.20 * n * PESO["3/8"],
-                pintura_m2=(2.80 * 0.203 + 2.72 * 0.152) * n, losa_descuento=0.70 * 0.70 * D["e_losa"] * (n - EXTRA_REG))   # las aberturas de las cajas ya se descuentan en cajas()
+                pintura_m2=(2.80 * CM["des"] + 2.72 * 0.152) * n, losa_descuento=0.70 * 0.70 * D["e_losa"] * (n - EXTRA_REG))   # las aberturas de las cajas ya se descuentan en cajas()
 
 
 MALLA_S = 0.20          # malla 3/8" @0.20 en ambas caras de losas y muros de las cajas (lamina DP-07)

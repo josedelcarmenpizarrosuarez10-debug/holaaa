@@ -51,6 +51,12 @@ Rama: `claude/colector-pluvial-hogar-refugio-ydbnaf`
 - Planos de verificación: `entregables_varones/LLORADEROS_CUNETAS_AREA_VERDE_VARONES.png` y `entregables/LLORADEROS_CUNETAS_AREA_VERDE_HOGAR_REFUGIO.png`.
 - Especificación técnica de la partida agregada a los Word de los dos proyectos.
 
+## 14 de octubre de 2026: tapa de registro del Hogar de Refugio (CUI 2675514)
+- Contramarco cambiado de L 2"x2"x3/16" a L 1 1/2"x1 1/2"x1/8" (carga peatonal; el asiento apoya sobre el borde engrosado). Verificación en `entregables/COTIZACION_PRECIOS_ACU_TAPA_REGISTRO_HOGAR_REFUGIO.xlsx`.
+- Planilla: ángulos 151.42 → 101.02 kg; pintura 9.82 → 8.39 m²; lija y thinner por separado; ACU con precios publicados y su fuente: 383.29 → 297.45 S/ por tapa (partida 2,974.50).
+- Planos DD-01, DD-02, DP-06B, DP-08, DP-09 y DA-03, isométricos 3D y especificaciones actualizados. CAR Varones conserva el L 2"x2"x3/16" (`CONTRAMARCO` en `varones/compat.py`).
+- Pendiente por cotizar en Tarapoto: piedra chancada 1/2" y alquiler de soldadora (se dejó el precio anterior).
+
 ## Cómo imprimir (los tres proyectos)
 1. Abrir la pestaña de la lámina (DP-00, DP-01, ...).
 2. Ctrl+P: área = Presentación, escala 1:1, centrar.

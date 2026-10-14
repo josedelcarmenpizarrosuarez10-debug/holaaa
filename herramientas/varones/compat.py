@@ -4,6 +4,7 @@ Los modulos de Solange importan `diseno as dz` y copian `D = dz.D` al cargarse; 
 diseno_v y se fijan los textos/parametros propios de Varones. Importar este modulo ANTES de dibujar.
 """
 import os, sys
+os.environ.setdefault("CONTRAMARCO", "2x2x3/16")     # CAR Varones conserva el contramarco L 2"x2"x3/16"
 AQUI = os.path.dirname(os.path.abspath(__file__)); HERR = os.path.dirname(AQUI); RAIZ = os.path.dirname(HERR)
 for p in (HERR, AQUI):
     if p not in sys.path: sys.path.insert(0, p)

@@ -1,4 +1,7 @@
-import json
+import json, os
+_C = os.environ.get('CONTRAMARCO', '1.5x1.5x1/8')
+CM_TXT, CM_KG, CM_ALA, CM_CM, PINT = {'2x2x3/16': ('L 2" x 2" x 3/16"', 2.80 * 3.63, '2"', 5, 2.80 * 0.203 + 2.72 * 0.152),
+                                      '1.5x1.5x1/8': ('L 1 1/2" x 1 1/2" x 1/8"', 2.80 * 1.83, '1 1/2"', 3.8, 2.80 * 0.152 + 2.72 * 0.152)}[_C]
 from PIL import Image, ImageDraw, ImageFont
 
 FD = '/usr/share/fonts/truetype/dejavu/'
@@ -14,12 +17,12 @@ AZ = (31, 78, 121); NAR = (192, 80, 20)
 
 d.rectangle([M, 30, SW - M, TOP - 20], fill=AZ)
 d.text((M + 30, 42), 'REGISTRO DE LIMPIEZA CON TAPA 0.68 x 0.68 C/MARCO Y CONTRAMARCO - COMPONENTES', font=f(44, True), fill='white')
-d.text((M + 30, 96), 'Colector pluvial frontal - Hogar de Refugio Temporal "Mujeres Violentadas" (CUI 2675514) - detalle igual en CAR Mujeres (CUI 2717013) y CAR Varones (CUI 2705619) - lamina DP-06B',
+d.text((M + 30, 96), 'Colector pluvial frontal - Hogar de Refugio Temporal "Mujeres Violentadas" (CUI 2675514) - contramarco ' + CM_TXT + ' - lamina DP-06B',
        font=f(24), fill=(220, 232, 245))
 
 TIT = {'v1': '1. REGISTRO ARMADO (vista general)', 'v2': '2. DESPIECE: CADA COMPONENTE SEPARADO',
        'v3': '3. CORTE POR EL REGISTRO: APOYO DE LA TAPA Y REFUERZOS', 'v4': '4. TAPA: ARMADO INTERIOR (concreto transparente)'}
-LAB = {'ap': 'asiento 0.05', 'hg': 'holgura 1 cm', 'h': 'bolsillo del asa'}
+LAB = {'ap': 'asiento %.3f' % (CM_CM / 100), 'hg': 'holgura 1 cm', 'h': 'bolsillo del asa'}
 OFF = {  # desplazamiento del numero respecto al punto (px)
     'v1': {'1': (-90, 60), '4': (60, 90), '9': (-40, -110), '8': (-120, -40), '7': (90, -90), '10': (90, 60)},
     'v2': {'1': (-110, 70), '4': (140, 40), '5': (140, 10), '6': (-170, 30), '7': (160, -30), '8': (160, 20), '9': (150, -20), '10': (110, 60)},
@@ -57,7 +60,7 @@ items = [
     ('1', "Losa superior del colector e = 0.10 m, concreto f'c=210: abertura 0.70 x 0.70 m en todo su espesor"),
     ('2', 'Borde engrosado 0.15 x 0.10 m bajo la losa, alrededor de la abertura (0.045 m3)'),
     ('3', 'Refuerzo de borde: 2 barras de 1/2" por lado, L = 1.40 m (8 barras, 11.1 kg)'),
-    ('4', 'Contramarco angulo L 2" x 2" x 3/16": asiento de la tapa a 0.08 bajo el piso (2.80 m, 10.2 kg)'),
+    ('4', 'Contramarco angulo %s: asiento de la tapa a 0.08 bajo el piso (2.80 m, %.1f kg)' % (CM_TXT, CM_KG)),
     ('5', 'Anclajes de 3/8" L = 0.20 m soldados al contramarco e inclinados hacia la losa (8 und)'),
     ('6', 'Parrilla de la tapa: 7 + 7 barras de 3/8" @ 0.10 m, L = 0.62 m, recubrimiento 2.5 cm (4.9 kg)'),
     ('7', 'Asas: 2 barras de 3/8" liso de 0.40 m, embutidas en bolsillo (no sobresalen del piso)'),
@@ -73,11 +76,11 @@ for i, (n, t) in enumerate(items):
     d.text((M + 74, ry + 3), t, font=f(23), fill=(30, 30, 30))
 datos = [
     'Holgura entre marco y contramarco: (0.70 - 0.68) / 2 = 1 cm por lado',
-    'La tapa asienta sobre el ala del contramarco (2" = 5 cm por lado)',
+    'La tapa asienta sobre el ala del contramarco (%s = %.1f cm por lado)' % (CM_ALA, CM_CM),
     'Peso de la tapa: 0.037 m3 x 2,400 kg/m3 + marco 5.0 kg = 94 kg aprox.',
     'Se levanta entre 2 operarios con ganchos en las 2 asas',
     'Tapa a ras del piso terminado: no hay resaltes ni tropiezos',
-    'Angulos con pintura anticorrosiva y esmalte (0.98 m2 por registro)',
+    'Angulos con pintura anticorrosiva y esmalte (%.2f m2 por registro)' % PINT,
     'Registros: Hogar de Refugio 10 und; CAR Mujeres 15 und; CAR Varones 11 und',
 ]
 for i, t in enumerate(datos):

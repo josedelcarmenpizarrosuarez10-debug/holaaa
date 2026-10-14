@@ -20,6 +20,11 @@ CUNETA = dict(b=0.40, em=0.10, ef=0.10, et=0.10, be=0.60, solado="E = 4\" (0.10 
 # (canaletas S = 1.00 % con n = 0.013, cunetas S = 0.50 % con n = 0.015); detalles de rejilla, detalle 1, caja sumidero, abrazadera
 # y falsa columna de los planos de drenaje pluvial; hoja METRADO CANALETAS (soportes @0.60 m) y METRADO MONTANTES (cantidades).
 
+# angulo del contramarco de los registros (Hogar de Refugio: L 1 1/2" x 1 1/2" x 1/8"; los demas conservan L 2" x 2" x 3/16")
+CONTRAMARCOS = {"2x2x3/16": dict(txt='L 2" x 2" x 3/16"', ala='2"', kgm=3.63, des=0.203, pieza=0.71, cordon='3/16"'),
+                "1.5x1.5x1/8": dict(txt='L 1 1/2" x 1 1/2" x 1/8"', ala='1 1/2"', kgm=1.83, des=0.152, pieza=0.71, cordon='1/8"')}
+def cm_de(C): return CONTRAMARCOS[(C or {}).get("contramarco", "2x2x3/16")]
+
 PROYECTOS = {
     "varones": dict(
         clave="varones", archivo="METRADO_DRENAJE_PLUVIAL_CAR_VARONES.xlsx", corto="CAR VARONES", cui="2705619",
@@ -44,7 +49,7 @@ PROYECTOS = {
             recub="0.04 m en muros y losa de fondo; 0.025 m en la losa superior del tramo normal; 0.04 m en el cruce de camiones; 0.025 m en tapas",
             receptor="el registro R-01 del colector del CAR Mujeres (CUI 2717013), a traves de la caja de caida CC con poza de disipacion",
             cajas="caja de llegada CL (interior 1.50 x 1.00 m, poza de 0.30 m, recibe el colector del CAR Varones y su cuneta del Eje 01) y caja de caida CC (poza 3.50 x 1.50 m, profundidad 0.40 m bajo el fondo del receptor, umbral de 0.25 x 0.40 m)",
-            salida=None, cerco=True, planos="DP-01 a DP-10, DA-01 a DA-03 y DD-01 a DD-04"),
+            salida=None, cerco=True, planos="DP-01 a DP-10, DA-01 a DA-03 y DD-01 a DD-04", contramarco="1.5x1.5x1/8"),
     ),
     "mujeres": dict(
         clave="mujeres", archivo="METRADO_DRENAJE_PLUVIAL_CAR_MUJERES.xlsx", corto="CAR MUJERES", cui="2717013",
@@ -307,10 +312,12 @@ def espec(pt, P, ctx):
     # ------------------------------------------------------------ registros del colector
     if "TAPA DE REGISTRO" in d or ("TAPA DE CONCRETO" in d and und == "und"):
         comp = "TAPA DE REGISTRO" in d
-        desc_ = ("Comprende el registro de limpieza completo del %s: contramarco de angulo L 2\" x 2\" x 3/16\" de 0.70 x 0.70 m con 8 anclajes de 3/8\" embutido en la abertura de la losa, "
+        CM = cm_de(C)
+        desc_ = ("Comprende el registro de limpieza completo del %s: contramarco de angulo {CM} de 0.70 x 0.70 m con 8 anclajes de 3/8\" embutido en la abertura de la losa, "
                  "borde engrosado de 0.15 x 0.10 m bajo la losa con refuerzo de 2 barras de 1/2\" por lado, y tapa de concreto armado f'c = 210 kg/cm² de 0.68 x 0.68 x 0.08 m con marco de angulo "
                  "L 1 1/2\" x 1 1/2\" x 1/8\", parrilla de 7 + 7 barras de 3/8\" @0.10 m y dos asas de 3/8\" liso, todo segun la lamina DP-06B." % C["nombre"]) if comp else \
                 ("Comprende la tapa de concreto armado f'c = 210 kg/cm² de 0.68 x 0.68 x 0.08 m de cada registro de limpieza del %s, vaciada dentro de su marco metalico, con parrilla de 7 + 7 barras de 3/8\" @0.10 m y dos asas de 3/8\" liso embutidas en cajuelas." % C["nombre"])
+        desc_ = desc_.replace("{CM}", CM["txt"])
         return bloque([p(desc_), p("Numero de registros: %d, en la losa superior del colector%s." % (C["n_reg"], " y en las cajas" if C["cajas"] else ""))],
                       mat=l("Angulos A36; concreto f'c = 210 kg/cm²; acero corrugado grado 60 de 3/8\" y 1/2\"; acero liso de 3/8\"; soldadura E6011; pintura anticorrosiva y esmalte."),
                       equ=l("Maquina de soldar, amoladora, mezcladora o mezclado en batea, vibrador, herramientas de carpinteria."),
@@ -321,10 +328,11 @@ def espec(pt, P, ctx):
                       ctrl=l("Medidas ±2 mm; tapa sin cojeo ni fisuras; ras con el piso ±3 mm."), seg=SEG_SOLD, und=und,
                       medicion=[p("Se contara el numero de registros (tapas con su marco y contramarco) terminados y aprobados." if comp else "Se contara el numero de tapas fabricadas y colocadas.")])
     if "CONTRAMARCO" in d and und == "und":
-        return bloque([p("Comprende la fabricacion y colocacion del contramarco de angulo de acero L 2\" x 2\" x 3/16\" de cada registro de limpieza, de 0.70 x 0.70 m de medida exterior, con 8 anclajes de 3/8\" de 0.20 m soldados (2 por lado), embutido en el borde de la abertura de la losa superior; su ala horizontal queda 0.08 m bajo el piso terminado y sirve de asiento a la tapa.")],
-                      mat=l("Angulo A36 L 2\" x 2\" x 3/16\" (4 piezas de 0.71 m con extremos a 45 grados); varillas de 3/8\" para anclajes; soldadura E6011 de 1/8\"; pintura anticorrosiva y esmalte."),
+        CM = cm_de(C)
+        return bloque([p("Comprende la fabricacion y colocacion del contramarco de angulo de acero " + CM["txt"] + " de cada registro de limpieza, de 0.70 x 0.70 m de medida exterior, con 8 anclajes de 3/8\" de 0.20 m soldados (2 por lado), embutido en el borde de la abertura de la losa superior; su ala horizontal queda 0.08 m bajo el piso terminado y sirve de asiento a la tapa.")],
+                      mat=l("Angulo A36 " + CM["txt"] + " (4 piezas de 0.71 m con extremos a 45 grados); varillas de 3/8\" para anclajes; soldadura E6011 de 1/8\"; pintura anticorrosiva y esmalte."),
                       equ=l("Maquina de soldar de 250 A, amoladora, escuadra, nivel."),
-                      proc=l("Cortar las piezas a inglete de 45 grados y soldar las esquinas; verificar escuadra (diagonales iguales).", "Soldar los anclajes al ala vertical con cordon de 3/16\" x 25 mm.",
+                      proc=l("Cortar las piezas a inglete de 45 grados y soldar las esquinas; verificar escuadra (diagonales iguales).", "Soldar los anclajes al ala vertical con cordon de " + CM["cordon"] + " x 25 mm.",
                              "Limpiar y aplicar anticorrosivo (excepto en la zona que quedara embutida).", "Fijar el contramarco al encofrado de la losa, nivelado y aplomado, amarrado al refuerzo del borde; vaciar la losa."),
                       ctrl=l("Medida exterior 0.70 x 0.70 m ±2 mm; diagonales iguales ±3 mm; ala de asiento a 0.08 m bajo el piso terminado."), seg=SEG_SOLD, und=und,
                       medicion=[p("Se contara el numero de contramarcos colocados (uno por registro). El peso de los angulos y la pintura se miden en sus partidas.")])
@@ -340,9 +348,10 @@ def espec(pt, P, ctx):
                       proc=l("Limpiar el oxido, la escoria y la grasa con escobilla y disolvente hasta metal blanco comercial.", "Aplicar la primera mano de anticorrosivo; la segunda a las 24 horas.",
                              "Aplicar dos manos de esmalte en las caras que quedan a la vista; retocar despues del montaje."),
                       ctrl=l("Pelicula uniforme, sin poros ni escurrimientos."), seg=l(EPP, "Ventilacion y mascarilla con filtro para vapores organicos."), und=und,
-                      medicion=[p("Se medira el area pintada segun el desarrollo de las caras de los angulos (0.203 m²/m para L 2\" y 0.152 m²/m para L 1 1/2\").")])
+                      medicion=[p("Se medira el area pintada segun el desarrollo de las caras de los angulos (0.203 m²/m para L 2\" y 0.152 m²/m para L 1 1/2\")." if cm_de(C)["ala"] == '2"' else "Se medira el area pintada segun el desarrollo de las caras de los angulos (0.152 m²/m para el L 1 1/2\" del marco y del contramarco).")])
     if "ANGULOS" in d:
-        return bloque([p("Comprende el suministro de los angulos de acero de los contramarcos (L 2\" x 2\" x 3/16\", 3.63 kg/m, 2.80 m por registro) y de los marcos de tapa (L 1 1/2\" x 1 1/2\" x 1/8\", 1.83 kg/m, 2.72 m por tapa), incluida la soldadura.")],
+        CM = cm_de(C)
+        return bloque([p("Comprende el suministro de los angulos de acero de los contramarcos (" + CM["txt"] + ", %.2f kg/m, 2.80 m por registro)" % CM["kgm"] + " y de los marcos de tapa (L 1 1/2\" x 1 1/2\" x 1/8\", 1.83 kg/m, 2.72 m por tapa), incluida la soldadura.")],
                       mat=l("Angulos de acero A36; electrodos E6011 de 1/8\" (AWS A5.1)."), equ=l("Maquina de soldar de 250 A, amoladora."),
                       proc=l("Habilitar y soldar segun las partidas de contramarco y marco.", "Las soldaduras seran continuas, sin escoria ni porosidades (AWS D1.1)."),
                       ctrl=l("Certificado de calidad de los angulos; inspeccion visual de soldaduras."), seg=SEG_SOLD, und=und,

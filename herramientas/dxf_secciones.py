@@ -6,6 +6,7 @@ AQUI = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, AQUI)
 import diseno as dz
 import dxf_base as B
+import metrado_calc as MC
 from dxf_planta import prog_txt, perfil_en, terreno_en
 
 D = dz.D
@@ -266,7 +267,7 @@ def dp06b_anterior(doc, ox, oy, R, T):
     lam.cota((ox_ + 1.0, oy_ - be / 2), (ox_ + 1.0, oy_ + be / 2), 6, horizontal=False)
     lam.cota((ox_ + 1.0, oy_ - 0.34), (ox_ + 1.0, oy_ + 0.34), 10, horizontal=False)
     xt = ox_ + 1.3
-    lam.llamada((ox_ + 0.35, oy_ + 0.33), (xt, oy_ + 0.55), ['contramarco: angulo L 2"x2"x3/16" (perimetro 0.70 x 0.70)'], 1.8)
+    lam.llamada((ox_ + 0.35, oy_ + 0.33), (xt, oy_ + 0.55), ['contramarco: angulo %s (perimetro 0.70 x 0.70)' % MC.CM["txt"]], 1.8)
     lam.llamada((ox_ + 0.34, oy_ + 0.2), (xt, oy_ + 0.40), ['marco de tapa: angulo L 1 1/2"x1 1/2"x1/8" (0.68 x 0.68)'], 1.8)
     lam.llamada((ox_ + 0.25, oy_ + 0.08), (xt, oy_ + 0.25), ["tapa de concreto armado 0.68 x 0.68 x 0.08 (removible)"], 1.8)
     lam.llamada((ox_ + 0.40, oy_ + 0.05), (xt, oy_ + 0.10), ['anclajes 3/8" L=0.20 soldados (2 por lado)'], 1.8)
@@ -304,12 +305,12 @@ def dp06b_anterior(doc, ox, oy, R, T):
     lam.rect(ox_ - 0.30 * k, oy_ + 0.125 * k, ox_ - 0.01 * k, oy_ + 0.20 * k, "REGISTRO-TAPA"); lam.achurado([(ox_ - 0.30 * k, oy_ + 0.125 * k), (ox_ - 0.01 * k, oy_ + 0.125 * k), (ox_ - 0.01 * k, oy_ + 0.20 * k), (ox_ - 0.30 * k, oy_ + 0.20 * k)], escala_mm=1.5)
     lam.poli([(ox_ + 0.03 * k, oy_ + 0.16 * k), (ox_ + 0.23 * k, oy_ + 0.16 * k)], "ACERO", ancho=0.01); lam.bloque("ACERO-12", (ox_ + 0.20 * k, oy_ + 0.05 * k), k)
     xt = ox_ + 0.45 * k
-    lam.llamada((ox_ + 0.03 * k, oy_ + 0.18 * k), (xt, oy_ + 0.30 * k), ['contramarco L 2"x2"x3/16" (enrasado con NPT)'], 1.8)
+    lam.llamada((ox_ + 0.03 * k, oy_ + 0.18 * k), (xt, oy_ + 0.30 * k), ['contramarco %s (enrasado con NPT)' % MC.CM["txt"]], 1.8)
     lam.llamada((ox_ - 0.005 * k, oy_ + 0.18 * k), (xt, oy_ + 0.24 * k), ['marco de tapa L 1 1/2"x1 1/2"x1/8"'], 1.8)
     lam.llamada((ox_ + 0.15 * k, oy_ + 0.16 * k), (xt, oy_ + 0.16 * k), ['anclaje 3/8" L=0.20 soldado c/0.25'], 1.8)
     lam.llamada((ox_ + 0.01 * k, oy_ + 0.13 * k), (xt, oy_ + 0.09 * k), ["holgura 5 mm entre marco y contramarco; apoyo 0.05"], 1.8)
     lam.llamada((ox_ + 0.20 * k, oy_ + 0.05 * k), (xt, oy_ + 0.02 * k), ['refuerzo de borde 1/2"'], 1.8)
-    lam.cota((ox_ - 0.30 * k, oy_ + 0.20 * k), (ox_ - 0.01 * k, oy_ + 0.20 * k), 6, texto="0.29 (media tapa)"); lam.cota((ox_, oy_ + 0.12 * k), (ox_ + 0.03 * k, oy_ + 0.12 * k), -5, texto='2" (50.8 mm)')
+    lam.cota((ox_ - 0.30 * k, oy_ + 0.20 * k), (ox_ - 0.01 * k, oy_ + 0.20 * k), 6, texto="0.29 (media tapa)"); lam.cota((ox_, oy_ + 0.12 * k), (ox_ + 0.03 * k, oy_ + 0.12 * k), -5, texto='%s (%.1f mm)' % (MC.CM["ala_txt"], MC.CM["ala_mm"]))
     lam.cota((ox_ + 0.35 * k, oy_), (ox_ + 0.35 * k, oy_ + 0.20 * k), 6, horizontal=False, texto="0.20")
     lam.titulo_vista(430, 215, "C. DETALLE 1: APOYO DE TAPA", "ESC. 1/2.5", 120)
     # D. tapa armado y corte
@@ -339,7 +340,7 @@ def dp06b_anterior(doc, ox, oy, R, T):
     lam.titulo_vista(330, 460, "F. JUNTA DE DILATACION CADA 4.00 m", "ESC. 1/5 aprox. - en muros, losa de fondo y losa superior", 120)
     lam.leyenda(480, 100, [("achurado", "CONCRETO-ACHURADO", "concreto armado f'c=210 kg/cm2"), ("linea2", "MARCO-METALICO", "angulos metalicos (marco y contramarco)"),
                           ("rect", "REGISTRO-TAPA", "tapa removible"), ("linea", "ACERO", "acero de refuerzo"), ("linea", "JUNTAS", "junta de dilatacion / tecnopor")], 1.8)
-    lam.notas(300, 100, "MATERIALES POR REGISTRO", ['Contramarco angulo L 2"x2"x3/16": 4 x 0.70 = 2.80 m (10.2 kg); anclajes 3/8" L=0.20: 8 und', 'Marco de tapa angulo L 1 1/2"x1 1/2"x1/8": 4 x 0.68 = 2.72 m (5.0 kg)',
+    lam.notas(300, 100, "MATERIALES POR REGISTRO", ['Contramarco angulo %s: 4 x 0.70 = 2.80 m (%.1f kg); anclajes 3/8" L=0.20: 8 und' % (MC.CM["txt"], 2.80 * MC.CM["kgm"]), 'Marco de tapa angulo L 1 1/2"x1 1/2"x1/8": 4 x 0.68 = 2.72 m (5.0 kg)',
                                                      'Acero tapa 3/8" @0.10: 14 x 0.62 = 8.68 m (4.9 kg); asas 3/8" liso: 2 x 0.40 m', "Concreto tapa f'c=210: 0.68 x 0.68 x 0.08 = 0.037 m3",
                                                      'Refuerzo de borde 1/2": 8 x 1.40 = 11.20 m (11.1 kg); borde engrosado: perimetro 3.00 x 0.15 x 0.10 = 0.045 m3'], 1.7)
     return lam

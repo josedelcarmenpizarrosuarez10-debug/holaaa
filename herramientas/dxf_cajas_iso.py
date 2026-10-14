@@ -268,10 +268,10 @@ def dp09(doc, ox, oy, R, T):
     # abertura (dibujada como rectangulo sobre la losa)
     ab = [Tt(be / 2 - 0.35, 0.75 - 0.35, 0.10), Tt(be / 2 + 0.35, 0.75 - 0.35, 0.10), Tt(be / 2 + 0.35, 0.75 + 0.35, 0.10), Tt(be / 2 - 0.35, 0.75 + 0.35, 0.10)]
     lam.solido([ab[0], ab[1], ab[3], ab[2]], "ISO-CONCRETO-LAT2"); lam.poli(ab, "ISO-ARISTAS", cerrada=True)
-    # contramarco (explotado): ala vertical 2" hacia abajo y ala horizontal = asiento de la tapa; 8 anclajes inclinados
+    # contramarco (explotado): ala vertical hacia abajo y ala horizontal = asiento de la tapa; 8 anclajes inclinados
     zc_ = 0.30
-    B.caja_iso(lam, be / 2 - 0.35, 0.75 - 0.35, zc_ - 0.05, 0.70, 0.70, 0.05, solido=False, capa_aristas="MARCO-METALICO", **kw)
-    B.caja_iso(lam, be / 2 - 0.30, 0.75 - 0.30, zc_, 0.60, 0.60, 0.005, solido=False, capa_aristas="MARCO-METALICO", **kw)
+    B.caja_iso(lam, be / 2 - 0.35, 0.75 - 0.35, zc_ - MC.CM["ala"], 0.70, 0.70, MC.CM["ala"], solido=False, capa_aristas="MARCO-METALICO", **kw)
+    B.caja_iso(lam, be / 2 - MC.LUZ_REG / 2, 0.75 - MC.LUZ_REG / 2, zc_, MC.LUZ_REG, MC.LUZ_REG, 0.005, solido=False, capa_aristas="MARCO-METALICO", **kw)
     for t_ in (-0.125, 0.125):
         lam.linea(Tt(be / 2 + 0.35, 0.75 + t_, zc_ - 0.035), Tt(be / 2 + 0.53, 0.75 + t_, zc_ + 0.055), "ACERO")
         lam.linea(Tt(be / 2 + t_, 0.75 + 0.35, zc_ - 0.035), Tt(be / 2 + t_, 0.75 + 0.53, zc_ + 0.055), "ACERO")
@@ -284,7 +284,7 @@ def dp09(doc, ox, oy, R, T):
     lam.juntar_llamadas()
     lam.llamada(Tt(be / 2, 0.75 + 0.34, 0.97), (xt[0], xt[1] + 0.5), ["marco de tapa L 1 1/2\"x1 1/2\"x1/8\" (0.68 x 0.68)"], 1.8)
     lam.llamada(Tt(be / 2 + 0.34, 0.75, 0.6), (xt[0], xt[1] + 0.2), ["tapa de concreto 0.68 x 0.68 x 0.08 con asas"], 1.8)
-    lam.llamada(Tt(be / 2 + 0.35, 0.75, zc_ - 0.02), (xt[0], xt[1] - 0.1), ["contramarco L 2\"x2\"x3/16\" con 8 anclajes 3/8\" inclinados:", "su ala horizontal es el asiento de la tapa, a 0.08 bajo el NPT"], 1.8)
+    lam.llamada(Tt(be / 2 + 0.35, 0.75, zc_ - 0.02), (xt[0], xt[1] - 0.1), ["contramarco %s con 8 anclajes 3/8\" inclinados:" % MC.CM["txt"], "su ala horizontal es el asiento de la tapa, a 0.08 bajo el NPT"], 1.8)
     lam.llamada(Tt(be / 2 + 0.35, 1.1, 0.0), (xt[0], xt[1] - 0.4), ["abertura 0.70 x 0.70 en la losa; borde engrosado 0.15 x 0.10 y refuerzo 1/2\""], 1.8)
     lam.volcar_llamadas()
     lam.titulo_vista(530, 292, "ISOMETRICO 2: REGISTRO DE LIMPIEZA", "vista explotada: contramarco (asiento), tapa y marco - sin escala", 140)

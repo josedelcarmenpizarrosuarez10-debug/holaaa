@@ -1,13 +1,18 @@
 """Modelo 3D del registro de limpieza con tapa 0.68 x 0.68 (lamina DP-06B). Unidades: m. z = 0 en NPT."""
+import os
 import numpy as np
 
 IN = 0.0254
 # angulos
-CM_L, CM_T = 2 * IN, 3 / 16 * IN          # contramarco L 2"x2"x3/16"
+# contramarco segun el proyecto (variable CONTRAMARCO, como metrado_calc.CM): Hogar de Refugio L 1 1/2"x1 1/2"x1/8"
+CM_CLAVE = os.environ.get("CONTRAMARCO", "1.5x1.5x1/8")
+CM_L, CM_T = {"2x2x3/16": (2 * IN, 3 / 16 * IN), "1.5x1.5x1/8": (1.5 * IN, 1 / 8 * IN)}[CM_CLAVE]
+CM_TXT = {"2x2x3/16": 'L 2" x 2" x 3/16"', "1.5x1.5x1/8": 'L 1 1/2" x 1 1/2" x 1/8"'}[CM_CLAVE]
+CM_KGM = {"2x2x3/16": 3.63, "1.5x1.5x1/8": 1.83}[CM_CLAVE]
 MT_L, MT_T = 1.5 * IN, 1 / 8 * IN         # marco de tapa L 1 1/2"x1 1/2"x1/8"
 D38, D12 = 3 / 8 * IN, 1 / 2 * IN
 LOSA = 0.10; ENG = 0.10                   # losa superior y borde engrosado (bajo la losa)
-REB = 0.70 / 2; LUZ = 0.60 / 2; RING = 0.90 / 2
+REB = 0.70 / 2; LUZ = REB - CM_L; RING = 0.90 / 2
 TAPA = 0.68 / 2; ET = 0.08
 BI, BW = 0.40, 0.15                       # interior del colector (medio ancho) y espesor de muro
 HY = 0.75                                 # medio largo del tramo mostrado
@@ -35,7 +40,7 @@ def modelo():
     # abertura 0.70 x 0.70 en todo el espesor de la losa (z 0 a -0.10)
     L.box(-X, X, REB, HY, -LOSA, 0); L.box(-X, X, -HY, -REB, -LOSA, 0)
     L.box(REB, X, -REB, REB, -LOSA, 0); L.box(-X, -REB, -REB, REB, -LOSA, 0)
-    # borde engrosado 0.15 x 0.10 bajo la losa (de la luz 0.60 a 0.90); rellena tambien bajo el asiento del contramarco
+    # borde engrosado 0.15 x 0.10 bajo la losa (de la luz libre a 0.90); rellena tambien bajo el asiento del contramarco
     E = Parte('engrosado', 'concreto')
     zt = -ET - CM_T; zv = -ET - CM_L
     for (ri_, ro_, z0, z1) in ((LUZ, RING, -LOSA - ENG, zv), (REB, RING, zv, -LOSA), (LUZ, REB - CM_T, zv, zt)):
@@ -56,7 +61,7 @@ def modelo():
             R.poly([(-xh, s * c, z - 0.15 if z > -0.1 else z + 0.15), (-xh, s * c, z), (xh, s * c, z),
                     (xh, s * c, z - 0.15 if z > -0.1 else z + 0.15)], D12)
     P['refuerzo'] = R
-    # 3. contramarco L 2"x2"x3/16": asiento de la tapa a 0.08 bajo el NPT; ala horizontal hacia adentro (asiento),
+    # 3. contramarco: asiento de la tapa a 0.08 bajo el NPT; ala horizontal hacia adentro (asiento),
     #    ala vertical hacia abajo con su cara exterior al ras de la abertura
     C = Parte('contramarco', 'angulo')
     anillo(C, REB - CM_L, REB, -ET - CM_T, -ET)          # ala horizontal (asiento)

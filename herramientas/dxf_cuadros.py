@@ -21,7 +21,7 @@ ESPECIFICACIONES = ["CONCRETO ARMADO: f'c = 210 kg/cm2 (colector, cajas y tapas)
            "RECUBRIMIENTOS: 0.04 m en muros y losa de fondo; 0.025 m en losa superior del tramo normal; 0.04 m en el cruce de camiones; 0.025 m en tapas.",
            "TRASLAPES: 3/8\" = 0.40 m ; 1/2\" = 0.50 m, alternados. Barras longitudinales de 9.00 m.",
            "LOSA SUPERIOR: vaciada monoliticamente con los muros en todo el colector; acabado frotachado y brunado (a nivel del piso terminado +260.60).",
-           "REGISTROS: marco y contramarco de angulo 2\"x2\"x3/16\" y 1 1/2\"x1 1/2\"x1/8\" con anclajes, pintura anticorrosiva y esmalte; tapas de concreto 0.68 x 0.68 x 0.08 con asas.",
+           "REGISTROS: contramarco de angulo %s y marco de angulo L 1 1/2\"x1 1/2\"x1/8\" con anclajes, pintura anticorrosiva y esmalte; tapas de concreto 0.68 x 0.68 x 0.08 con asas." % MC.CM["txt"],
            "JUNTAS: cada 4.00 m, e = 1\", relleno de poliestireno expandido y sello elastomerico de poliuretano. Tecnopor de 1\" entre el colector y el cerco, las cunetas y el piso adyacente.",
            "CAJAS: muros e = 0.15 y losa de fondo e = 0.15 con malla 3/8\" @0.20 en ambas caras; umbral 0.25 x 0.40 en la caja de caida.",
            "CURADO: humedo minimo 7 dias; no transitar sobre la losa antes de 14 dias; no cargar con camiones antes de 28 dias.",
@@ -161,7 +161,7 @@ def da(doc, ox, oy, R, T):
         lam.volcar_llamadas()
         lam.titulo_vista(xmm + 50, ymm - 50, nm, "PROG. %s - ESC. 1/20" % prog_txt(p), 150)
     filas = [["Acero fy=4200 colector%s - 3/8\"" % (" y cajas" if TXT_CAJAS else ""), "kg", "%.1f" % Rs["acero_38_kg"]], ["Acero fy=4200 colector - 1/2\" (cruce de camiones)", "kg", "%.1f" % Rs["acero_12_kg"]],
-             ["Registros: contramarco L 2\"x2\"x3/16\" (%d und)" % Rg["n"], "kg", "%.1f" % Rg["contramarco_kg"]], ["Registros: marco de tapa L 1 1/2\"x1 1/2\"x1/8\"", "kg", "%.1f" % Rg["marco_kg"]],
+             ["Registros: contramarco %s (%d und)" % (MC.CM["txt"], Rg["n"]), "kg", "%.1f" % Rg["contramarco_kg"]], ["Registros: marco de tapa L 1 1/2\"x1 1/2\"x1/8\"", "kg", "%.1f" % Rg["marco_kg"]],
              ["Tapas de concreto 0.68 x 0.68 x 0.08", "und / m3", "%d / %.2f" % (Rg["n"], Rg["tapa_conc"])], ["Acero en tapas, bordes, asas y anclajes", "kg", "%.1f" % (Rg["acero_borde_kg"] + Rg["acero_tapa_kg"] + Rg["asas_kg"] + Rg["anclajes_kg"])],
              ["Pintura anticorrosiva y esmalte en angulos", "m2", "%.2f" % Rg["pintura_m2"]],
              ["Junta de dilatacion e=1\" con sello (%d und x %.2f m)" % (J["n"], J["L_dilat"] / J["n"]), "m", "%.2f" % J["L_dilat"]],

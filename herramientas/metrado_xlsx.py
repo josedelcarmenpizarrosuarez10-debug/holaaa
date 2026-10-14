@@ -157,11 +157,11 @@ PARAMETROS = [
     ("tl", "Lado de la tapa de concreto", 0.68, "m", "Lamina DP-06B"),
     ("te", "Espesor de la tapa", 0.08, "m", "Lamina DP-06B"),
     ("ab", "Lado de la abertura en la losa (luz del contramarco)", 0.70, "m", "Lamina DP-06B"),
-    ("pcm", "Perimetro del contramarco L 2\"x2\"x3/16\" (4 x 0.70)", 2.80, "m", "Lamina DP-06B"),
+    ("pcm", "Perimetro del contramarco %s (4 x 0.70)" % MC.CM["txt"], 2.80, "m", "Lamina DP-06B"),
     ("pm", "Perimetro del marco de tapa L 1 1/2\"x1 1/2\"x1/8\" (4 x 0.68)", 2.72, "m", "Lamina DP-06B"),
-    ("ka", "Peso del angulo L 2\"x2\"x3/16\"", MC.ANG["2x2x3/16"], "kg/m", "Catalogo del fabricante"),
+    ("ka", "Peso del angulo %s (contramarco)" % MC.CM["txt"], MC.CM["kgm"], "kg/m", "Catalogo del fabricante"),
     ("kb", "Peso del angulo L 1 1/2\"x1 1/2\"x1/8\"", MC.ANG["1.5x1.5x1/8"], "kg/m", "Catalogo del fabricante"),
-    ("da", "Desarrollo pintado del angulo 2\"x2\" (4 caras)", 0.203, "m2/m", "4 x 0.0508 m"),
+    ("da", "Desarrollo pintado del angulo del contramarco (4 caras)", MC.CM["des"], "m2/m", "4 x %.4f m" % (MC.CM["ala_mm"] / 1000)),
     ("db", "Desarrollo pintado del angulo 1 1/2\"x1 1/2\" (4 caras)", 0.152, "m2/m", "4 x 0.0381 m"),
     ("bp", "Borde engrosado de la abertura: perimetro medio", 3.00, "m", "Lamina DP-06B (4 x 0.75)"),
     ("bs", "Borde engrosado: seccion (0.15 x 0.10)", 0.15 * 0.10, "m2", "Lamina DP-06B"),
@@ -493,7 +493,7 @@ def hoja_registros(wb, P):
     cols = [("N°", 5, "txt", None), ("REGISTRO", 16, "txt", None), ("PROGRESIVA", 12, "txt", None), ("UBICACION", 40, "txt", None), ("TAPA 0.68 x 0.68 (und)", 12, "auto", "0"), ("SUSTENTO", 50, "sust", None)]
     n = len(cols)
     r = cabecera(ws, "COLECTOR PLUVIAL FRONTAL - REGISTROS DE LIMPIEZA Y TAPAS", n,
-                 "Lamina DP-01 (ubicacion) y DP-06B (detalle): contramarco L 2\"x2\"x3/16\" anclado a la losa, marco L 1 1/2\"x1 1/2\"x1/8\" soldado a la tapa, tapa de concreto armado 0.68 x 0.68 x 0.08 con parrilla 3/8\" @0.10 y asas; borde engrosado 0.15 x 0.10 alrededor de la abertura de 0.70 x 0.70.")
+                 "Lamina DP-01 (ubicacion) y DP-06B (detalle): contramarco " + MC.CM["txt"] + " anclado a la losa, marco L 1 1/2\"x1 1/2\"x1/8\" soldado a la tapa, tapa de concreto armado 0.68 x 0.68 x 0.08 con parrilla 3/8\" @0.10 y asas; borde engrosado 0.15 x 0.10 alrededor de la abertura de 0.70 x 0.70.")
     encabezado(ws, r, cols, 30); r0 = r + 1
     lista = [("CL", 0.0, "Caja de llegada (empalme con CAR Varones y cuneta Eje 01)", "DP-07")]
     lista += [(x["nombre"], x["prog"], "Registro en la losa del colector; %s" % ("empalme cuneta" if any(abs(c["prog"] - x["prog"]) < 0.5 for c in dz.CUNETAS) else "limpieza / quiebre"), "DP-01, DP-06B") for x in dz.REGISTROS if x["tipo"] == "registro"]
@@ -508,12 +508,12 @@ def hoja_registros(wb, P):
     cols_m = [("N°", 5, "txt", None), ("PARTIDA", 16, "txt", None), ("UND", 12, "und", None), ("CALCULO", 40, "txt", None), ("TOTAL", 12, "tot", "0.00"), ("SUSTENTO", 50, "sust", None)]
     encabezado(ws, rr + 1, cols_m, 30)
     N = "=E%d" % rt
-    items = [("contramarco", "CONTRAMARCO METALICO L 2\"x2\"x3/16\" CON ANCLAJES", "und", "1 por registro", "=E%d" % rt, "DP-06B"),
+    items = [("contramarco", "CONTRAMARCO METALICO %s CON ANCLAJES" % MC.CM["txt"], "und", "1 por registro", "=E%d" % rt, "DP-06B"),
              ("marco", "MARCO METALICO DE TAPA L 1 1/2\"x1 1/2\"x1/8\"", "und", "1 por tapa", "=E%d" % rt, "DP-06B"),
-             ("angulos", "ANGULOS METALICOS P/MARCO Y CONTRAMARCO", "kg", "registros x (2.80 x 3.63 + 2.72 x 1.83)", "=E%d*(%s*%s+%s*%s)" % (rt, P["pcm"], P["ka"], P["pm"], P["kb"]), "DP-06B; pesos de catalogo"),
+             ("angulos", "ANGULOS METALICOS P/MARCO Y CONTRAMARCO", "kg", "registros x (2.80 x %.2f + 2.72 x 1.83)" % MC.CM["kgm"], "=E%d*(%s*%s+%s*%s)" % (rt, P["pcm"], P["ka"], P["pm"], P["kb"]), "DP-06B; pesos de catalogo"),
              ("tapa", "TAPA DE CONCRETO ARMADO 0.68 x 0.68 x 0.08", "und", "1 por registro", "=E%d" % rt, "DP-06B"),
              ("conc_tapa", "CONCRETO f'c=210 EN TAPAS", "m3", "registros x 0.68 x 0.68 x 0.08", "=E%d*%s*%s*%s" % (rt, P["tl"], P["tl"], P["te"]), "DP-06B"),
-             ("pintura", "PINTURA ANTICORROSIVA Y ESMALTE EN ANGULOS", "m2", "registros x (2.80 x 0.203 + 2.72 x 0.152)", "=E%d*(%s*%s+%s*%s)" % (rt, P["pcm"], P["da"], P["pm"], P["db"]), "4 caras de cada angulo")]
+             ("pintura", "PINTURA ANTICORROSIVA Y ESMALTE EN ANGULOS", "m2", "registros x (2.80 x %.3f + 2.72 x 0.152)" % MC.CM["des"], "=E%d*(%s*%s+%s*%s)" % (rt, P["pcm"], P["da"], P["pm"], P["db"]), "4 caras de cada angulo")]
     refs = {}; rr = rr + 2
     for i, (k, desc, u, calc, f, sus) in enumerate(items):
         fila(ws, rr, cols_m, [i + 1, desc, u, calc, f, sus], 30)
@@ -688,7 +688,7 @@ def construir():
     pl.partida("01.04.04.04.07", "CURADO DE CONCRETO EN COLECTOR Y CAJAS", "m²", det(CO, co["filas"], "M", nom_t) + rango(CO, "M", cl_[0], cl_[1], "Caja de llegada CL") + rango(CO, "M", cc_[0], cc_[1], "Caja de caida CC"))
     pl.titulo("01.04.04.05", "REGISTROS DE LIMPIEZA Y TAPAS")
     rf = rg["refs"]
-    pl.partida("01.04.04.05.01", "CONTRAMARCO METALICO L 2\"x2\"x3/16\" CON ANCLAJES", "und", None, total="=+%s!E%d" % (RT, rf["contramarco"]))
+    pl.partida("01.04.04.05.01", "CONTRAMARCO METALICO %s CON ANCLAJES" % MC.CM["txt"], "und", None, total="=+%s!E%d" % (RT, rf["contramarco"]))
     pl.partida("01.04.04.05.02", "MARCO METALICO DE TAPA L 1 1/2\"x1 1/2\"x1/8\"", "und", None, total="=+%s!E%d" % (RT, rf["marco"]))
     pl.partida("01.04.04.05.03", "ANGULOS METALICOS P/MARCO Y CONTRAMARCO (incluye soldadura)", "kg", None, total="=+%s!E%d" % (RT, rf["angulos"]))
     pl.partida("01.04.04.05.04", "TAPA DE CONCRETO ARMADO 0.68 x 0.68 x 0.08 m (incluye acero y asas)", "und", None, total="=+%s!E%d" % (RT, rf["tapa"]))

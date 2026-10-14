@@ -1,13 +1,18 @@
 """Lamina DP-06B (rev. 01): detalle del registro de limpieza con tapa 0.68 x 0.68 c/marco y contramarco. Papel A1 en mm."""
-import math, sys, ezdxf
+import math, os, sys, ezdxf
 from ezdxf.enums import TextEntityAlignment as TA
 
 OUT = sys.argv[1]
 IN = 0.0254
-CM_L, CM_T = 2 * IN, 3 / 16 * IN
+# contramarco segun el proyecto (variable CONTRAMARCO, como metrado_calc.CM): Hogar de Refugio L 1 1/2"x1 1/2"x1/8"
+_CM = {"2x2x3/16": (2 * IN, 3 / 16 * IN, 'L 2"x2"x3/16"', 'L 2" x 2" x 3/16"', 3.63, 0.203, '2"'),
+       "1.5x1.5x1/8": (1.5 * IN, 1 / 8 * IN, 'L 1 1/2"x1 1/2"x1/8"', 'L 1 1/2" x 1 1/2" x 1/8"', 1.83, 0.152, '1 1/2"')}[os.environ.get("CONTRAMARCO", "1.5x1.5x1/8")]
+CM_L, CM_T, CM_TXT, CM_TXT2, CM_KGM, CM_DES, CM_ALA = _CM
 MT_L, MT_T = 1.5 * IN, 1 / 8 * IN
 D38, D12 = 3 / 8 * IN, 1 / 2 * IN
-REB, LUZ, RING, TAPA, ET = 0.35, 0.30, 0.45, 0.34, 0.08
+REB, RING, TAPA, ET = 0.35, 0.45, 0.34, 0.08
+LUZ = REB - CM_L                       # media luz libre entre alas del contramarco
+LUZ_TXT = '%.2f' % (2 * LUZ)
 BI, BW, LOSA, ENG = 0.40, 0.15, 0.10, 0.10
 X = BI + BW
 
@@ -131,7 +136,7 @@ corte_marca(v, -X - 0.05, X + 0.05, 0.125, 'A')
 v.dim((-TAPA, -TAPA), (TAPA, -TAPA), -16)
 v.dim((-REB, -REB), (REB, -REB), -24)
 v.dim((-X, -0.62), (X, -0.62), -35)
-v.dim((-(REB - CM_L), REB), (REB - CM_L, REB), 28 + 6, text='0.60')
+v.dim((-(REB - CM_L), REB), (REB - CM_L, REB), 28 + 6, text=LUZ_TXT)
 v.dim((-RING, RING), (RING, RING), 28 + 14)
 v.dim((REB + 0.18, -0.125), (REB + 0.18, 0.125), 12, horiz=False)
 llamada(v.p(0.345, 0.30), (200, 552), 'Holgura 1 cm entre la tapa\n(0.68) y la abertura (0.70)', w=82)
@@ -169,7 +174,7 @@ v.line((-X - 0.08, 0), (-X, 0), 'CONCRETO'); v.line((X, 0), (X + 0.08, 0), 'CONC
 texto(v.p(0, -0.36)[0], v.p(0, -0.36)[1], 'INTERIOR DEL COLECTOR', 3.0, align=TA.BOTTOM_CENTER)
 texto(v.p(X + 0.02, 0.01)[0], v.p(0, 0.01)[1], 'NPT', 3.2)
 v.dim((-TAPA, 0), (TAPA, 0), 22); v.dim((-REB, 0), (REB, 0), 30)
-v.dim((-(REB - CM_L), -0.20), (REB - CM_L, -0.20), -10, text='0.60'); v.dim((-BI, -0.45), (BI, -0.45), -8); v.dim((BI, -0.45), (X, -0.45), -8)
+v.dim((-(REB - CM_L), -0.20), (REB - CM_L, -0.20), -10, text=LUZ_TXT); v.dim((-BI, -0.45), (BI, -0.45), -8); v.dim((BI, -0.45), (X, -0.45), -8)
 v.dim((LUZ, -0.20), (RING, -0.20), -18)
 v.dim((X, 0), (X, -LOSA), 14, horiz=False); v.dim((X, -LOSA), (X, -LOSA - ENG), 14, horiz=False)
 v.dim((-X, 0), (-X, -ET), -14, horiz=False)
@@ -194,13 +199,13 @@ v.line((REB, -0.115), (REB + 0.18, -0.025), 'ACERO')
 v.barra(c, -0.045, D12); v.barra(c, -0.155, D12)
 v.line((x0, -0.055), (0.31, -0.055), 'ACERO'); v.barra(0.30, -0.0455, D38)
 v.dim((TAPA, 0), (REB, 0), 10, text='0.01')
-v.dim((REB - CM_L, -ET), (REB, -ET), -50, text='2" (asiento)')
+v.dim((REB - CM_L, -ET), (REB, -ET), -50, text=CM_ALA + ' (asiento)')
 v.dim((TAPA - MT_L, 0), (TAPA, 0), 18, text='1 1/2"')
 v.dim((0.53, 0), (0.53, -ET), 12, horiz=False)
-v.dim((0.53, -ET), (0.53, zv), 12, horiz=False, text='2"')
+v.dim((0.53, -ET), (0.53, zv), 12, horiz=False, text=CM_ALA)
 v.dim((0.53, 0), (0.53, -LOSA), 26, horiz=False)
 v.dim((x0, -ET), (x0, -0.055), -10, horiz=False, text='0.025')
-llamada(v.p(REB - 0.002, -0.11), (725, 558), 'Contramarco L 2"x2"x3/16": ala\nvertical embutida, cara al ras\nde la abertura', w=95)
+llamada(v.p(REB - 0.002, -0.11), (725, 558), 'Contramarco ' + CM_TXT + ': ala\nvertical embutida, cara al ras\nde la abertura', w=95)
 llamada(v.p(REB - 0.03, -0.082), (725, 534), 'Ala horizontal hacia adentro:\nasiento de la tapa', w=95)
 llamada(v.p(TAPA - 0.01, -0.001), (725, 515), 'Marco L 1 1/2"x1 1/2"x1/8"', w=95)
 llamada(v.p(0.345, -0.03), (725, 500), 'Holgura 1 cm por lado\n(0.70 - 0.68) / 2', w=95)
@@ -258,7 +263,7 @@ for s in (-1, 1):
     for t in (-0.125, 0.125):
         v.line((s * REB, t), (s * (REB + 0.18), t), 'ACERO'); v.line((t, s * REB), (t, s * (REB + 0.18)), 'ACERO')
 v.dim((-REB, -0.50), (REB, -0.50), -10); v.dim((-0.125, -0.50), (0.125, -0.50), -18)
-v.dim((-(REB - CM_L), REB + 0.18), (REB - CM_L, REB + 0.18), 6, text='0.60')
+v.dim((-(REB - CM_L), REB + 0.18), (REB - CM_L, REB + 0.18), 6, text=LUZ_TXT)
 v.dim((REB, 0.125), (REB + 0.18, 0.125), 22, text='0.18 (proy.)')
 llamada(v.p(-0.33, 0.2), (300, 180), 'Esquinas a 45 grados\ny soldadas', w=55)
 llamada(v.p(0.45, -0.125), (402, 180), 'Anclaje 3/8"\nL = 0.20', w=40)
@@ -273,7 +278,7 @@ def perfil(ox, oy, L, t, nombre):
                             ((ox + Lm, oy), (ox + Lm, oy + tm), (ox + Lm + 7, oy), 90)):
         msp.add_linear_dim(base=base, p1=a, p2=b, angle=ang, dimstyle=DS[1], dxfattribs={'layer': 'COTAS'}).render()
     mtexto(ox + Lm + 14, oy + Lm, nombre, 3.2, 60, attach=1)
-perfil(462, 252, CM_L, CM_T, 'CONTRAMARCO\nL 2" x 2" x 3/16"\n3.63 kg/m\n4 x 0.70 = 2.80 m\n10.2 kg / registro')
+perfil(462, 252, CM_L, CM_T, 'CONTRAMARCO\n%s\n%.2f kg/m\n4 x 0.70 = 2.80 m\n%.1f kg / registro' % (CM_TXT2, CM_KGM, 2.80 * CM_KGM))
 perfil(462, 172, MT_L, MT_T, 'MARCO DE TAPA\nL 1 1/2" x 1 1/2" x 1/8"\n1.83 kg/m\n4 x 0.68 = 2.72 m\n5.0 kg / registro')
 
 # ============ 6. ISOMETRICO DE DESPIECE (lineas) 1/10
@@ -324,16 +329,16 @@ isosq(TAPA, z, 'ANGULOS'); isosq(ri, z, 'ANGULOS'); isosq(TAPA, z - MT_L, 'ANGUL
 for q in ((-TAPA, -TAPA), (TAPA, -TAPA), (-TAPA, TAPA)): isoline((q[0], q[1], z), (q[0], q[1], z - MT_L), 'ANGULOS')
 for lab, pt, pos in (('Marco de tapa\nL 1 1/2"', (TAPA, 0, 1.33), (760, 318)), ("Concreto de la\ntapa f'c=210", (ri, 0.1, 1.0), (760, 296)),
                      ('Asas 3/8" liso (2)', (0.155, 0.22, 0.74), (760, 274)), ('Parrilla 3/8"\n@0.10', (0.31, 0.1, 0.495), (760, 254)),
-                     ('Contramarco L 2"\ncon anclajes', (REB, 0.1, 0.22), (760, 228)), ('Losa con abertura\n0.70 x 0.70', (X, 0.3, 0), (760, 192))):
+                     ('Contramarco ' + CM_TXT.split('x')[0] + '\ncon anclajes', (REB, 0.1, 0.22), (760, 228)), ('Losa con abertura\n0.70 x 0.70', (X, 0.3, 0), (760, 192))):
     llamada(P(*pt), pos, lab, 3.3, 66)
 
 # ============ 7. CUADRO DE MATERIALES, NOTAS Y MEMBRETE
 tx, ty = 292, 142
 texto(tx, ty, 'H. MATERIALES POR REGISTRO', 4.5, 'TITULOS', style='ARIALB')
-filas = [('Contramarco L 2"x2"x3/16" (2.80 m)', 'kg', '10.16'), ('Marco L 1 1/2"x1 1/2"x1/8" (2.72 m)', 'kg', '4.98'),
+filas = [('Contramarco %s (2.80 m)' % CM_TXT, 'kg', '%.2f' % (2.80 * CM_KGM)), ('Marco L 1 1/2"x1 1/2"x1/8" (2.72 m)', 'kg', '4.98'),
          ('Anclajes 3/8" L = 0.20 m', 'und', '8'), ("Concreto tapa f'c=210", 'm3', '0.037'), ('Acero tapa 3/8" (14 x 0.62 m)', 'kg', '4.86'),
          ('Asas 3/8" liso (2 x 0.40 m)', 'kg', '0.45'), ('Refuerzo de borde 1/2" (8 x 1.40 m)', 'kg', '11.13'),
-         ('Borde engrosado (3.00 x 0.15 x 0.10)', 'm3', '0.045'), ('Pintura en angulos', 'm2', '0.98')]
+         ('Borde engrosado (3.00 x 0.15 x 0.10)', 'm3', '0.045'), ('Pintura en angulos', 'm2', '%.2f' % (2.80 * CM_DES + 2.72 * 0.152))]
 cw = [92, 14, 18]; rh = 6.2; yy = ty - 5
 msp.add_lwpolyline([(tx, yy), (tx + sum(cw), yy), (tx + sum(cw), yy - rh * (len(filas) + 1)), (tx, yy - rh * (len(filas) + 1))], close=True, dxfattribs={'layer': 'MEMBRETE'})
 for i, row in enumerate([('DESCRIPCION', 'UND', 'CANT.')] + filas):
