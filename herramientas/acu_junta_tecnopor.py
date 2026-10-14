@@ -8,7 +8,7 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PLAN = os.path.join(RAIZ, "insumos", "metrados_vigentes", "METRADO_DRENAJE_MUJERES_VIOLENTADAS.xlsx")
-SAL = os.path.join(RAIZ, "entregables", "ACU_JUNTA_TECNOPOR_COLECTOR_PISO_HOGAR_REFUGIO.xlsx")
+SAL = os.path.join(RAIZ, "entregables", "ACU_JUNTA_TECNOPOR_COLECTOR_CERCO_HOGAR_REFUGIO.xlsx")
 AZUL, CELESTE, AMARILLO, VERDE = "1F4E79", "DDEBF7", "FFF2CC", "E2EFDA"
 
 
@@ -54,8 +54,8 @@ def construir():
 
     fila(1, "ANALISIS DE COSTO UNITARIO - %s %s" % (D["cod"], D["desc"]), AZUL, color="FFFFFF", alto=30)
     fila(2, "PROYECTO: HOGAR DE REFUGIO TEMPORAL - MUJERES VIOLENTADAS, DISTRITO DE MORALES, PROVINCIA Y DEPARTAMENTO DE SAN MARTIN - CUI N.° 2675514", None, False)
-    fila(3, "Junta de 1\" (25 mm) de plancha de poliestireno expandido (tecnopor) entre el colector y las estructuras vecinas: borde de la losa superior con el piso "
-            "adyacente a ambos lados, contacto con el cimiento del cerco y bordes de las cajas CL y CC, de modo que cada estructura trabaje en forma independiente. "
+    fila(3, "Junta de 1\" (25 mm) de plancha de poliestireno expandido (tecnopor) entre el colector y el cerco perimetrico (no hay vereda exterior): contacto con el "
+            "cimiento del cerco, bordes de la losa superior y bordes de las cajas CL y CC segun el desglose del metrado, de modo que cada estructura trabaje en forma independiente. "
             "Celda amarilla = dato; verde = formula. Precios sin IGV, referenciales.", None, False, alto=44)
 
     # ---- 1. sustento del metrado
