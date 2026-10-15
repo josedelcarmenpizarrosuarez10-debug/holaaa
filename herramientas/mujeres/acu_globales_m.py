@@ -173,6 +173,7 @@ def construir_precios(wb):
         ref[k] = "'%s'!$H$%d" % (HOJA_P, r)
         ws.row_dimensions[r].height = 30
         r += 1
+    ref["NFG15"] = ref["TFG15"]  # niple F°G° 1 1/2" L=0.60 se valoriza por metro de tubo
     # insumos compuestos: bridas rompe agua (plancha + niple F°G° + soldadura)
     r += 1
     banda(ws, r, "2. BRIDAS ROMPE AGUA (insumo compuesto, fabricado en obra): plancha LAC 1/8\" (24.91 kg/m²) + niple F°G° + soldadura",
@@ -461,6 +462,8 @@ def main():
                 sus = "ver observación"
             if cod.startswith("BR"):
                 desc = BRIDAS[cod][0]
+            if fila == 445:
+                desc = 'Tubería PVC SP C-10 Ø1 1/2" del tramo de succión (planilla: «Canastilla de PVC-U Ø1 1/2"» 4.64 m)'
             g = agr.setdefault(cod, {"desc": desc, "c": [], "sus": [], "desp": desp})
             g["c"].append(c); g["sus"].append(sus)
             if ob:
@@ -472,7 +475,7 @@ def main():
                 2 if cod in ("TB2", "CD2", "CD245", "TE2", "SK2", "UU2", "UPR2", "NP2", "RD2", "SOMB2") else 15)
             peg[dia] += pg * c; rosc += rs * c
         for cod, g in agr.items():  # un renglon por insumo (como en S10 / Delphin)
-            und = "und" if cod.startswith("BR") else PRECIOS[cod][1]
+            und = "und" if cod.startswith("BR") else PRECIOS.get(cod, (None, "m"))[1]
             num = lambda x: ("%.2f" % x).rstrip("0").rstrip(".")
             suma = "+".join(num(x) for x in g["c"])
             sus = " + ".join(g["sus"]) if len(g["sus"]) < 3 else "planilla filas: " + ", ".join(x.split(":")[0].replace("planilla fila ", "") for x in g["sus"])
@@ -494,7 +497,7 @@ def main():
             mats.append(("TEF", "Cinta teflón 3/4\" x 10 m", "und", round(rosc / 2 * 0.25, 2),
                          "%.0f extremos roscados ≈ %.0f roscas macho; 1 rollo cada 4 roscas" % (rosc, rosc / 2)))
         if rend_cnt.get("abr"):
-            mats.append(("TAR", "Tarugo y tornillo para fijación de abrazadera", "und", 2 * rend_cnt["abr"], "2 por abrazadera"))
+            mats.append(("TAR", "Perno de anclaje 3/8\" para fijar abrazaderas", "und", 2 * rend_cnt["abr"], "2 por abrazadera (una por oreja)"))
         equipos = [("%MO", 3, "3 % de la mano de obra (tarraja, llaves, sierra, taladro)")]
         nbr = sum(c for (cod, tipo, cfix, desp, ob), c in [(v, (v[2] if v[2] is not None else (cantidad(ws_pl, f) or 0))) for f, v in filas.items()] if cod.startswith("BR"))
         if nbr:
@@ -535,8 +538,7 @@ def main():
             ("PLA", "Tapa: plancha LAC 1/8\" 0.40 x 0.40 m (24.91 kg/m²)", "kg", "=ROUND(0.40*0.40*24.91,2)",
              "planilla fila 1028: «Tapa» 1 und; medida adoptada, confirmar con el plano"),
             ("RUEDA", "Rueda giratoria 360° con freno", "und", cantidad(ws_pl, 1029), "planilla fila 1029"),
-            ("PERNO", "Perno con tuerca y arandela para fijar ruedas", "und", "=4*%s" % int(cantidad(ws_pl, 1029)), "4 por rueda"),
-            ("SOLD", "Soldadura cellocord E6011 1/8\"", "kg", 2.5, "≈2.5 % del peso del caballete (≈100 kg)"),
+            ("SOLD", "Soldadura cellocord E6011 1/8\"", "kg", 2.5, "≈2.5 % del peso del caballete (≈100 kg); incluye la soldadura de las placas de las ruedas"),
             ("ANTI", "Pintura anticorrosiva", "gal", 0.30, "≈4.7 m² (0.40 m²/m de IPN 100) a 2 manos, 32 m²/gal"),
             ("ESM", "Esmalte sintético", "gal", 0.30, "≈4.7 m² a 2 manos, 32 m²/gal"),
             ("THIN", "Thinner", "gal", 0.15, "dilución y limpieza"),
