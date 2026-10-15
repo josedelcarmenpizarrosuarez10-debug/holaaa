@@ -322,6 +322,12 @@ def espec(pt, P, ctx):
                  "L 1 1/2\" x 1 1/2\" x 1/8\", parrilla de 7 + 7 barras de 3/8\" @0.10 m y dos asas de 3/8\" liso, todo segun la lamina DP-06B." % C["nombre"]) if comp else \
                 ("Comprende la tapa de concreto armado f'c = 210 kg/cm² de 0.68 x 0.68 x 0.08 m de cada registro de limpieza del %s, vaciada dentro de su marco metalico, con parrilla de 7 + 7 barras de 3/8\" @0.10 m y dos asas de 3/8\" liso embutidas en cajuelas." % C["nombre"])
         desc_ = desc_.replace("{CM}", CM["txt"])
+        if comp and C["b"] < 0.70:      # CAR Varones: colector de 0.60, mas angosto que la abertura de 0.70
+            desc_ = desc_.replace("borde engrosado de 0.15 x 0.10 m bajo la losa con refuerzo de 2 barras de 1/2\" por lado",
+                                  "borde engrosado de 0.15 x 0.10 m bajo la losa solo en los 2 lados transversales, entre muros (en los lados largos la abertura apoya en la "
+                                  "cabeza de los muros, donde los anclajes bajan dentro del muro), refuerzo de 2 barras de 1/2\" por lado de 1.40 m (las transversales con "
+                                  "ganchos de %.2f m dentro de los muros)" % ((1.40 - 2 * (C["b"] / 2 + C["em"] - 0.04)) / 2))
+            desc_ = desc_.replace("segun la lamina DP-06B.", "segun las laminas DP-06B y DP-06D.")
         return bloque([p(desc_), p("Numero de registros: %d, en la losa superior del colector%s." % (C["n_reg"], " y en las cajas" if C["cajas"] else ""))],
                       mat=l("Angulos A36; concreto f'c = 210 kg/cm²; acero corrugado grado 60 de 3/8\" y 1/2\"; acero liso de 3/8\"; soldadura E6011; pintura anticorrosiva y esmalte."),
                       equ=l("Maquina de soldar, amoladora, mezcladora o mezclado en batea, vibrador, herramientas de carpinteria."),

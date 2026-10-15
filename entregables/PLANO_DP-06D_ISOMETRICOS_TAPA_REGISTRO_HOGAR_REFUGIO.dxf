@@ -489,7 +489,7 @@ $SKPOLY
   9
 $TDCREATE
  40
-2461328.9893055554
+2461329.142141204
   9
 $TDUCREATE
  40
@@ -497,7 +497,7 @@ $TDUCREATE
   9
 $TDUPDATE
  40
-2461328.989363426
+2461329.1421875
   9
 $TDUUPDATE
  40
@@ -929,11 +929,11 @@ $PSTYLEMODE
   9
 $FINGERPRINTGUID
   2
-{E4A1B51E-E222-4A67-BC20-5C84B4BE1783}
+{D4C60E05-D19D-4F41-B201-6D54B1941B54}
   9
 $VERSIONGUID
   2
-{F28A2063-ED55-4BEA-A83D-EAFE3617A69F}
+{78A188DF-811B-48C6-9C12-FDBA04451A0E}
   9
 $EXTNAMES
 290
@@ -1323,9 +1323,9 @@ ISM
   0
 CLASS
   1
-LAYOUT
+SORTENTSTABLE
   2
-AcDbLayout
+AcDbSortentsTable
   3
 ObjectDBX Classes
  90
@@ -1355,9 +1355,9 @@ ObjectDBX Classes
   0
 CLASS
   1
-SORTENTSTABLE
+LAYOUT
   2
-AcDbSortentsTable
+AcDbLayout
   3
 ObjectDBX Classes
  90
@@ -1820443,7 +1820443,7 @@ AcDbText
  40
 0.029025
   1
-Refuerzo de borde: 2 barras de 1/2" por lado, L = 1.40 m (8 barras, 11.1 kg)
+Refuerzo de borde: 2 barras de 1/2" por lado, L = 1.40 m (8 barras, 11.1 kg); las transversales con ganchos de 0.19 m dentro de los muros
   7
 STANDARD
  11
@@ -1823333,7 +1823333,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-10-14T23:44:36.594862+00:00
+1.4.4 @ 2026-10-15T03:24:41.287541+00:00
   0
 DICTIONARY
   5
@@ -1823499,7 +1823499,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-10-14T23:44:41.002009+00:00
+1.4.4 @ 2026-10-15T03:24:45.741673+00:00
   0
 ENDSEC
   0

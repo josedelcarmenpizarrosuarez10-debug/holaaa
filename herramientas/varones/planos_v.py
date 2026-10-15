@@ -688,10 +688,15 @@ def construir():
     for lam in DS.dp04(doc, OX1, OY1 - 200, R, T): LAMINAS[lam.codigo] = lam
     lam = DS.dp06b(doc, OX1 + 70, OY1 - 200, R, T); LAMINAS[lam.codigo] = lam
     lam = DS.dp06c(doc, OX1 + 85, OY1 - 200, R, T); LAMINAS[lam.codigo] = lam
+    # DP-06D: isometricos del registro con la seccion del CAR Varones (b = 0.60: la abertura de 0.70 apoya en la cabeza de los muros)
+    os.environ.update(COLECTOR_B="%.2f" % D["b"], N_REG=str(C.MC.registros()["n"]), PROY_DP06D="CAR Varones (CUI 2705619)")
+    sys.path.insert(0, os.path.join(HERR, "render_tapa"))
+    import dxf_tapa_3d as D3
+    lam = D3.lamina(doc, OX1 + 120, OY1 - 200); LAMINAS[lam.codigo] = lam
     lam = dp07(doc, OX1 + 100, OY1 - 200, R, T); LAMINAS[lam.codigo] = lam
     for lam in DQ.todas(doc, OX1, OY1 - 400, R, T): LAMINAS[lam.codigo] = lam
     for lam in DD.todas(doc, OX1, OY1 - 600, R, T): LAMINAS[lam.codigo] = lam
-    indicadas = ("DP-06B", "DD-01", "DD-02", "DD-03", "DD-04")
+    indicadas = ("DP-06B", "DP-06D", "DD-01", "DD-02", "DD-03", "DD-04")
     lista = [(c, l.titulo, l.formato, "INDICADA" if c in indicadas else l.escala_txt) for c, l in LAMINAS.items()]
     lam0 = L.indice(doc, OX1 - 20.0, OY1 - 200, [("DP-00", "INDICE DE LAMINAS", "A3", "S/E")] + lista)
     LAMINAS["DP-00"] = lam0; LAMINAS.move_to_end("DP-00", last=False)

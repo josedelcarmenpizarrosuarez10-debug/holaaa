@@ -355,7 +355,8 @@ def dp06b(doc, ox, oy, R, T):
     lam = B.Lamina(doc, ox, oy, 10, "DP-06B", "DETALLE DE REGISTRO DE LIMPIEZA - TAPA 0.68 x 0.68 C/MARCO Y CONTRAMARCO",
                    "PLANTA, CORTE, ASIENTO DE LA TAPA, ARMADO, CONTRAMARCO, PERFILES, ISOMETRICO Y MATERIALES - ESC. INDICADAS")
     fuente = os.path.join(tempfile.gettempdir(), "dp06b_fuente.dxf")
-    subprocess.run([sys.executable, os.path.join(AQUI, "render_tapa", "dxf_tapa.py"), fuente], check=True, capture_output=True)
+    subprocess.run([sys.executable, os.path.join(AQUI, "render_tapa", "dxf_tapa.py"), fuente], check=True, capture_output=True,
+                   env=dict(os.environ, COLECTOR_B="%.2f" % D["b"]))      # registro dibujado con el ancho del colector del proyecto
     src = ezdxf.readfile(fuente); sm = src.modelspace()
     for d in list(sm.query("DIMENSION")): d.explode()
     def fuera(e):

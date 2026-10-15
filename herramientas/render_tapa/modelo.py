@@ -14,7 +14,10 @@ D38, D12 = 3 / 8 * IN, 1 / 2 * IN
 LOSA = 0.10; ENG = 0.10                   # losa superior y borde engrosado (bajo la losa)
 REB = 0.70 / 2; LUZ = REB - CM_L; RING = 0.90 / 2
 TAPA = 0.68 / 2; ET = 0.08
-BI, BW = 0.40, 0.15                       # interior del colector (medio ancho) y espesor de muro
+BI = float(os.environ.get("COLECTOR_B", "0.80")) / 2   # interior del colector (medio ancho): Refugio 0.80, CAR Varones 0.60
+BW = 0.15                                 # espesor de muro
+MURO_APOYO = BI < REB                     # colector mas angosto que la abertura (CAR Varones): los muros son el asiento en los lados largos
+GANCHO = (1.40 - 2 * (BI + BW - 0.04)) / 2   # ganchos de las barras transversales de borde (L total = 1.40, recubrimiento 0.04)
 HY = 0.75                                 # medio largo del tramo mostrado
 HW = 0.55                                 # altura visible de muro bajo la losa
 
@@ -44,9 +47,13 @@ def modelo():
     E = Parte('engrosado', 'concreto')
     zt = -ET - CM_T; zv = -ET - CM_L
     for (ri_, ro_, z0, z1) in ((LUZ, RING, -LOSA - ENG, zv), (REB, RING, zv, -LOSA), (LUZ, REB - CM_T, zv, zt)):
-        ro2 = min(ro_, BI) if ro_ > BI else ro_
         E.box(-BI, BI, ri_, ro_, z0, z1); E.box(-BI, BI, -ro_, -ri_, z0, z1)
-        E.box(ri_, min(ro_, BI), -ri_, ri_, z0, z1); E.box(-min(ro_, BI), -ri_, -ri_, ri_, z0, z1)
+        if not MURO_APOYO:
+            E.box(ri_, min(ro_, BI), -ri_, ri_, z0, z1); E.box(-min(ro_, BI), -ri_, -ri_, ri_, z0, z1)
+    if MURO_APOYO:      # lados largos: la cabeza del muro sube hasta el asiento del contramarco (no hay engrosado)
+        for s_ in (-1, 1):
+            E.box(*sorted((s_ * BI, s_ * (REB - CM_T))), -REB, REB, -LOSA, zt)
+            E.box(*sorted((s_ * (REB - CM_T), s_ * REB)), -REB, REB, -LOSA, zv)
     # muros
     M = Parte('muros', 'concreto')
     M.box(BI, X, -HY, HY, -LOSA - HW, -LOSA); M.box(-X, -BI, -HY, HY, -LOSA - HW, -LOSA)
@@ -57,9 +64,8 @@ def modelo():
     for z in (-0.045, -LOSA - ENG + 0.045):
         for s in (-1, 1):
             R.bar((s * c, -0.70, z), (s * c, 0.70, z), D12)                  # barras en y (eje del colector)
-            xh = X - 0.04
-            R.poly([(-xh, s * c, z - 0.15 if z > -0.1 else z + 0.15), (-xh, s * c, z), (xh, s * c, z),
-                    (xh, s * c, z - 0.15 if z > -0.1 else z + 0.15)], D12)
+            xh = X - 0.04                      # barras transversales: ganchos hacia abajo dentro de los muros (L = 1.40)
+            R.poly([(-xh, s * c, z - GANCHO), (-xh, s * c, z), (xh, s * c, z), (xh, s * c, z - GANCHO)], D12)
     P['refuerzo'] = R
     # 3. contramarco: asiento de la tapa a 0.08 bajo el NPT; ala horizontal hacia adentro (asiento),
     #    ala vertical hacia abajo con su cara exterior al ras de la abertura
@@ -70,7 +76,10 @@ def modelo():
     A = Parte('anclajes', 'acero')                       # 8 anclajes 3/8" L = 0.20 soldados al ala vertical, inclinados hacia la losa
     for t in (-0.125, 0.125):
         for s_ in (-1, 1):
-            A.bar((s_ * (REB + D38 / 2), t, -0.115), (s_ * (REB + 0.18), t, -0.025), D38)
+            if MURO_APOYO:     # lados largos: el anclaje baja dentro del muro (no puede salir por su cara exterior)
+                A.bar((s_ * (REB + D38 / 2), t, -0.105), (s_ * (REB + 0.05), t, -0.30), D38)
+            else:
+                A.bar((s_ * (REB + D38 / 2), t, -0.115), (s_ * (REB + 0.18), t, -0.025), D38)
             A.bar((t, s_ * (REB + D38 / 2), -0.115), (t, s_ * (REB + 0.18), -0.025), D38)
     P['anclajes'] = A
     # 4. tapa: concreto con bolsillos para asas

@@ -14,7 +14,11 @@ from ezdxf.enums import TextEntityAlignment as TA
 import dxf_base as B
 import dxf_layouts as L
 from iso3d import Escena, proy
-from modelo import modelo, CM_TXT, CM_KGM, CM_L, LUZ, ET
+from modelo import modelo, CM_TXT, CM_KGM, CM_L, LUZ, ET, BI, BW, MURO_APOYO, GANCHO
+# proyecto (por defecto el Hogar de Refugio; CAR Varones: herramientas/varones/planos_v.py fija COLECTOR_B, N_REG y PROY_DP06D)
+N_REG = int(os.environ.get("N_REG", "10"))
+PROY_TXT = os.environ.get("PROY_DP06D", "Hogar de Refugio Temporal \"Mujeres Violentadas\" (CUI 2675514)")
+XM = BI + BW                                  # cara exterior del muro
 
 SAL = os.path.join(RAIZ, "entregables", "PLANO_DP-06D_ISOMETRICOS_TAPA_REGISTRO_HOGAR_REFUGIO.dxf")
 COL = {"concreto": (196, 194, 188), "tapa": (176, 174, 168), "angulo": (48, 52, 60), "acero": (138, 88, 58), "liso": (128, 124, 118)}
@@ -155,18 +159,18 @@ def escena(nv, P):
 # llamadas: (clave, punto del modelo, desplazamiento del globo en mm)
 LLAM = {
     1: [("1", (-0.45, -0.55, 0), (-16, 12)), ("9", (0.20, -0.325, 0.0), (-6, -18)), ("8", (-0.1, -0.1, 0), (-20, -6)),
-        ("7", (0.0, 0.22, -0.01), (16, 14)), ("10", (0.55, -0.2, -0.35), (16, -10))],
-    2: [("1", (-0.45, -0.40, 0), (-18, 10)), ("4", (0.33, -0.33, 0.17 - 0.08), (22, -6)), ("5", (0.44, -0.125, 0.17 - 0.07), (24, 2)),
+        ("7", (0.0, 0.22, -0.01), (16, 14)), ("10", (XM, -0.2, -0.35), (16, -10))],
+    2: [("1", (-0.45, -0.40, 0), (-18, 10)), ("4", (0.33, -0.33, 0.17 - 0.08), (22, -6)), ("5", ((0.38, -0.125, 0.17 - 0.20) if MURO_APOYO else (0.44, -0.125, 0.17 - 0.07)), (24, 2)),
         ("6", (0.2, -0.31, 0.33 - 0.045), (-30, -6)), ("7", (0.155, -0.22, 0.45 - 0.06), (24, -4)), ("8", (0.34, -0.2, 0.58 - 0.04), (24, 2)),
-        ("9", (0.34, -0.34, 0.76), (22, 4)), ("10", (0.55, -0.3, -0.30), (18, -8))],
-    3: [("1", (0.45, -0.22, 0.0), (8, 20)), ("2", (0.42, YC, -0.17), (-36, -4)), ("3", (0.40, YC, -0.045), (-30, 6)),
-        ("4", (0.348, YC, -0.11), (10, -22)), ("5", (0.44, YC, -0.07), (-22, 18)), ("6", (0.0, YC, -0.0545), (12, 22)),
-        ("8", (0.15, YC, -0.03), (10, 24)), ("9", (0.338, YC, -0.025), (-16, 24)), ("10", (0.47, YC, -0.30), (20, -12)),
+        ("9", (0.34, -0.34, 0.76), (22, 4)), ("10", (XM, -0.3, -0.30), (18, -8))],
+    3: [("1", (0.45, -0.22, 0.0), (8, 20)), (("cm", (0.40, YC, -0.22), (-40, -4)) if MURO_APOYO else ("2", (0.42, YC, -0.17), (-36, -4))), ("3", (0.40, YC, -0.045), (-30, 6)),
+        ("4", (0.348, YC, -0.11), (10, -22)), ("5", ((0.375, YC, -0.20) if MURO_APOYO else (0.44, YC, -0.07)), (-22, 18)), ("6", (0.0, YC, -0.0545), (12, 22)),
+        ("8", (0.15, YC, -0.03), (10, 24)), ("9", (0.338, YC, -0.025), (-16, 24)), ("10", (XM - 0.03 if MURO_APOYO else 0.47, YC, -0.30), (20, -12)),
         ("ap", (0.32, YC, -0.082), (-36, -26)), ("hg", (0.345, YC, -0.003), (26, 26))],
     4: [("6", (-0.31, -0.2, -0.055), (-22, 14)), ("7", (0.06, -0.22, -0.015), (12, -22)), ("8", (-0.2, -0.34, -0.06), (-16, -14)),
         ("9", (0.34, 0.1, 0.0), (22, -8)), ("h", (-0.12, 0.22, -0.06), (-24, 20))],
 }
-LAB = {"ap": "asiento %.3f" % CM_L, "hg": "holgura 1 cm", "h": "bolsillo del asa"}
+LAB = {"cm": "cabeza del muro", "ap": "asiento %.3f" % CM_L, "hg": "holgura 1 cm", "h": "bolsillo del asa"}
 TIT = {1: ("1. REGISTRO ARMADO (vista general)", "ESC. 1/10"), 2: ("2. DESPIECE: CADA COMPONENTE SEPARADO", "ESC. 1/10 - orden de armado de abajo hacia arriba"),
        3: ("3. CORTE POR EL REGISTRO: APOYO DE LA TAPA Y REFUERZOS", "ESC. 1/5 - corte por la linea de anclajes"),
        4: ("4. TAPA: ARMADO INTERIOR (concreto transparente)", "ESC. 1/5")}
@@ -221,15 +225,16 @@ def vista(lam, P, nv):
 
 
 COMP = [("1", "Losa superior del colector e = 0.10 m, concreto f'c=210: abertura 0.70 x 0.70 m en todo su espesor"),
-        ("2", "Borde engrosado 0.15 x 0.10 m bajo la losa, alrededor de la abertura (0.045 m3)"),
-        ("3", "Refuerzo de borde: 2 barras de 1/2\" por lado, L = 1.40 m (8 barras, 11.1 kg)"),
+        ("2", "Borde engrosado 0.15 x 0.10 m bajo la losa, solo en los 2 lados transversales, entre muros (2 x %.2f m: %.3f m3); en los lados largos el asiento es la cabeza del muro" % (2 * BI, 4 * BI * 0.015)
+              if MURO_APOYO else "Borde engrosado 0.15 x 0.10 m bajo la losa, alrededor de la abertura (0.045 m3)"),
+        ("3", "Refuerzo de borde: 2 barras de 1/2\" por lado, L = 1.40 m (8 barras, 11.1 kg); las transversales con ganchos de %.2f m dentro de los muros" % GANCHO),
         ("4", "Contramarco angulo %s: asiento de la tapa a 0.08 bajo el piso (2.80 m, %.1f kg)" % (CM_TXT, 2.80 * CM_KGM)),
-        ("5", "Anclajes de 3/8\" L = 0.20 m soldados al contramarco e inclinados hacia la losa (8 und)"),
+        ("5", "Anclajes de 3/8\" L = 0.20 m soldados al contramarco (8 und): en los lados largos bajan dentro del muro" if MURO_APOYO else "Anclajes de 3/8\" L = 0.20 m soldados al contramarco e inclinados hacia la losa (8 und)"),
         ("6", "Parrilla de la tapa: 7 + 7 barras de 3/8\" @ 0.10 m, L = 0.62 m, recubrimiento 2.5 cm (4.9 kg)"),
         ("7", "Asas: 2 barras de 3/8\" liso de 0.40 m, embutidas en bolsillo (no sobresalen del piso)"),
         ("8", "Tapa de concreto f'c=210: 0.68 x 0.68 x 0.08 m (0.037 m3)"),
         ("9", "Marco de tapa angulo L 1 1/2\" x 1 1/2\" x 1/8\", 0.68 x 0.68 exterior (2.72 m, 5.0 kg)"),
-        ("10", "Muros del colector e = 0.15 m (ancho interior 0.80 m)")]
+        ("10", "Muros del colector e = 0.15 m (ancho interior %.2f m)" % (2 * BI))]
 
 
 def datos():
@@ -242,7 +247,7 @@ def datos():
             "Se levanta entre 2 operarios con ganchos en las 2 asas",
             "Tapa a ras del piso terminado: no hay resaltes ni tropiezos",
             "Angulos con pintura anticorrosiva y esmalte (%.2f m2 por registro)" % pint,
-            "Registros fuera de los cruces vehiculares (carga peatonal): 10 und"]
+            "Registros fuera de los cruces vehiculares (carga peatonal): %d und" % N_REG]
 
 
 def cuadro_inferior(lam):
@@ -276,7 +281,7 @@ def lamina(doc, ox, oy):
         doc.layers.get(nm).rgb = rgb
     solido2d(lam, [lam.P(27, 566), lam.P(829, 566), lam.P(829, 582), lam.P(27, 582)], AZ)
     lam.texto(lam.P(31, 577), "REGISTRO DE LIMPIEZA CON TAPA 0.68 x 0.68 C/MARCO Y CONTRAMARCO - COMPONENTES", 5.0, "TITULOS-BLANCO", TA.MIDDLE_LEFT)
-    lam.texto(lam.P(31, 569.5), "Colector pluvial frontal - Hogar de Refugio Temporal \"Mujeres Violentadas\" (CUI 2675514) - contramarco %s - complementa la lamina DP-06B" % CM_TXT,
+    lam.texto(lam.P(31, 569.5), "Colector pluvial frontal - %s - contramarco %s - complementa la lamina DP-06B" % (PROY_TXT, CM_TXT),
               2.4, "TITULOS-BLANCO", TA.MIDDLE_LEFT)
     P = modelo()
     for nv in (1, 2, 3, 4): vista(lam, P, nv)

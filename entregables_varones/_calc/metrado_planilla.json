@@ -1,6 +1,6 @@
 {
  "fuente": "entregables_varones/METRADO_DRENAJE_PLUVIAL_CAR_VARONES_CON_COLECTOR.xlsx",
- "md5": "541a4d2acdf5b45ec392fdb43a2e6595",
+ "md5": "6a95e515b9adfb672de948b346591351",
  "partidas": {
   "01.04.04.01": {
    "desc": "TRABAJOS PRELIMINARES",
@@ -60,7 +60,7 @@
   "01.04.04.04.01": {
    "desc": "CONCRETO f'c=210 kg/cm2 PARA COLECTOR",
    "und": "m³",
-   "valor": 56.017129
+   "valor": 55.720129
   },
   "01.04.04.04.02": {
    "desc": "ENCOFRADO Y DESENCOFRADO DE COLECTOR",

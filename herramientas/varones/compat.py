@@ -28,6 +28,7 @@ for m in (DP, DS, DQ, DD, MC):
 # metrado: terreno de Varones, sin cajas propias (la CL es de Solange), registros todos en la losa del colector
 MC.TERRENO_JSON = os.path.join(dz.CALC, "terreno.json")
 MC.EXTRA_REG = 0
+MC.BORDE_PERIM = 2 * D["b"] if D["b"] < 0.70 else 3.00   # b = 0.60 < abertura 0.70: borde engrosado solo en los 2 lados transversales, entre muros
 MC.NOMBRE_TRAMO_FINAL = "tramo de empalme con la CL (horizontal)"
 MC.cajas = lambda: {}
 H_MAX = 1.17          # altura interior maxima (llegada a la CL) redondeada como en la planilla: perimetro de junta 4.64 m

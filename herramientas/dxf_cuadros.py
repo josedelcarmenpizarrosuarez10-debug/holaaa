@@ -20,7 +20,7 @@ ESPECIFICACIONES = ["CONCRETO ARMADO: f'c = 210 kg/cm2 (colector, cajas y tapas)
            "ACERO DE REFUERZO: fy = 4200 kg/cm2 (grado 60), corrugado. Ganchos de 0.30 m en marcos y 0.40 m en esquinas de cajas.",
            "RECUBRIMIENTOS: 0.04 m en muros y losa de fondo; 0.025 m en losa superior del tramo normal; 0.04 m en el cruce de camiones; 0.025 m en tapas.",
            "TRASLAPES: 3/8\" = 0.40 m ; 1/2\" = 0.50 m, alternados. Barras longitudinales de 9.00 m.",
-           "LOSA SUPERIOR: vaciada monoliticamente con los muros en todo el colector; acabado frotachado y brunado (a nivel del piso terminado +260.60).",
+           "LOSA SUPERIOR: vaciada monoliticamente con los muros en todo el colector; acabado frotachado; sirve de vereda (+260.60).",
            "REGISTROS: contramarco de angulo %s y marco de angulo L 1 1/2\"x1 1/2\"x1/8\" con anclajes, pintura anticorrosiva y esmalte; tapas de concreto 0.68 x 0.68 x 0.08 con asas." % MC.CM["txt"],
            ("JUNTAS: cada 4.00 m, e = 1\", relleno de poliestireno expandido y %s %s. Junta longitudinal de tecnopor de 1\" con el mismo sellador en su cara superior entre el colector y el cimiento del cerco (0+000.00 a 0+058.81); al otro lado, terreno natural: no lleva junta. Tecnopor de 1\" en el contacto con las cunetas." % (MC.SELLO["nombre"], MC.SELLO["txt"])) if MC.SELLO["en_tecnopor"] else
            "JUNTAS: cada 4.00 m, e = 1\", relleno de poliestireno expandido y %s %s. Tecnopor de 1\" entre el colector y el cerco, las cunetas y el piso adyacente." % (MC.SELLO["nombre"], MC.SELLO["txt"]),
@@ -134,12 +134,13 @@ def da(doc, ox, oy, R, T):
         lam.llamada((s["cx"] + 0.3, s["zf"] - ef / 2), (xt, s["zs"] - 0.5), ["losa de fondo: %.2f x %.2f = %.3f m3/m" % (be, ef, be * ef)], 1.8)
         lam.llamada((s["cx"] + 0.4, s["cy"] + 0.025), (xt, s["zs"] - 0.9), ["solado: %.2f m2/m" % (D["b_ext"] + 0.10)], 1.8)
         lam.llamada((s["xl"] + D["e_muro"] + 0.02, s["zf"] + h * 0.7), (xt, s["zs"] - 1.3), ["encofrado: caras interiores 2 x %.2f + exteriores 2 x %.2f + fondo de losa %.2f = %.2f m2/m" % (h, ef + h + et, D["b"], 2 * h + 2 * (ef + h + et) + D["b"])], 1.8)
-        lam.llamada((s["cx"], s["zs"]), (xt, s["zs"] - 1.7), ["acabado frotachado y brunado: %.2f m2/m" % D["b_ext"]], 1.8)
+        lam.llamada((s["cx"], s["zs"]), (xt, s["zs"] - 1.7), ["acabado frotachado (vereda): %.2f m2/m" % D["b_ext"]], 1.8)
         lam.volcar_llamadas()
         lam.titulo_vista(xmm + 50, ymm - 50, nm, "PROG. %s - h = %.2f m - ESC. 1/20" % (prog_txt(p), h), 150)
     filas = [["Solado f'c=100 e=0.05", "m2", "%.2f" % Rs["solado_m2"]], ["Concreto f'c=210 - losa de fondo", "m3", "%.2f" % Rs["conc_fondo_m3"]],
              ["Concreto f'c=210 - muros", "m3", "%.2f" % Rs["conc_muros_m3"]], ["Concreto f'c=210 - losa superior (incluye bordes de registro)", "m3", "%.2f" % Rs["conc_losa_m3"]],
-             ["Encofrado y desencofrado", "m2", "%.2f" % Rs["encof_m2"]], ["Acabado frotachado y brunado de losa superior", "m2", "%.2f" % Rs["acabado_m2"]]]
+             ["Concreto f'c=210 - total (losa de fondo + muros + losa superior)", "m3", "%.2f" % (Rs["conc_fondo_m3"] + Rs["conc_muros_m3"] + Rs["conc_losa_m3"])],
+             ["Encofrado y desencofrado", "m2", "%.2f" % Rs["encof_m2"]], ["Acabado frotachado de losa superior (vereda)", "m2", "%.2f" % Rs["acabado_m2"]]]
     lam.tabla(32, 200, ["PARTIDA", "UND", "METRADO"], filas, [110, 16, 26], 1.7, 4.8, "RESUMEN DE CONCRETO Y ENCOFRADO (colector%s)" % TXT_CAJAS)
     lam.leyenda2(470, 205, [("concreto", "CONCRETO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100, e=0.05"),
                             ("linea2", "ACERO", "acero transversal (marco)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal 3/8\""),

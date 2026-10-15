@@ -91,8 +91,15 @@ def dd01(doc, ox, oy, R, T):
     k = 2.0; ox_, oy_ = lam.P(150, 430)
     P = lambda x, y: (ox_ + x * k, oy_ + y * k)
     a = AB / 2; s_ = 0.55
-    lam.rect(*P(-s_, -s_), *P(s_, s_), "CONCRETO")                                   # losa alrededor
-    lam.rect(*P(-a - 0.10, -a - 0.10), *P(a + 0.10, a + 0.10), "CONCRETO-OCULTO")    # borde engrosado (oculto)
+    MURO = D["b"] < AB                  # colector mas angosto que la abertura (CAR Varones): los muros (eje vertical en la planta) son el asiento
+    bi, xe = D["b"] / 2, D["b"] / 2 + D["e_muro"]; sx_ = xe if MURO else s_
+    lam.rect(*P(-sx_, -s_), *P(sx_, s_), "CONCRETO")                                 # losa alrededor
+    if MURO:
+        for s in (-1, 1):
+            lam.linea(P(s * bi, -s_), P(s * bi, s_), "CONCRETO-OCULTO")              # caras interiores de los muros
+            lam.rect(*P(-bi, s * a), *P(bi, s * (a + 0.10)), "CONCRETO-OCULTO")      # borde engrosado solo entre muros
+    else:
+        lam.rect(*P(-a - 0.10, -a - 0.10), *P(a + 0.10, a + 0.10), "CONCRETO-OCULTO")    # borde engrosado (oculto)
     for s in (-1, 1):
         lam.rect(*P(s * a, -a), *P(s * (a + t), a), "MARCO-METALICO"); lam.rect(*P(-a, s * a), *P(a, s * (a + t)), "MARCO-METALICO")
     lam.rect(*P(-a, -a), *P(a, a), "MARCO-METALICO", const_width=0.004)
@@ -101,22 +108,27 @@ def dd01(doc, ox, oy, R, T):
         lam.linea(P(sx * (a + t), sy * (a + t)), P(sx * (a - leg), sy * (a - leg)), "MARCO-METALICO")
     for s in (-1, 1):
         for u in (-0.175, 0.175):
-            barra(lam, P(s * (a + t), u), P(s * (a + t + 0.20), u), D38, k); barra(lam, P(u, s * (a + t)), P(u, s * (a + t + 0.20)), D38, k)
+            barra(lam, P(s * (a + t), u), P(s * (a + t + (0.05 if MURO else 0.20)), u), D38, k); barra(lam, P(u, s * (a + t)), P(u, s * (a + t + 0.20)), D38, k)
     for s in (-1, 1):
         for d in (a + 0.04, a + 0.075):
-            lam.linea(P(s * d, -s_), P(s * d, s_), "ACERO-LONG"); lam.linea(P(-s_, s * d), P(s_, s * d), "ACERO-LONG")
+            lam.linea(P(s * d, -s_), P(s * d, s_), "ACERO-LONG"); lam.linea(P(-(xe - 0.04 if MURO else s_), s * d), P(xe - 0.04 if MURO else s_, s * d), "ACERO-LONG")
     lam.cota(P(-a + leg, -s_), P(a - leg, -s_), -4, texto="%.2f (luz libre entre alas)" % MC.LUZ_REG)
     lam.cota(P(-a, -s_), P(a, -s_), -9, texto="0.70 (luz entre caras de concreto)")
-    lam.cota(P(-a - 0.10, -s_), P(a + 0.10, -s_), -14, texto="0.90 (borde engrosado)")
+    if MURO: lam.cota(P(-bi, -s_), P(bi, -s_), -14, texto="%.2f (interior del colector)" % D["b"])
+    else: lam.cota(P(-a - 0.10, -s_), P(a + 0.10, -s_), -14, texto="0.90 (borde engrosado)")
     lam.cota(P(s_, -0.175), P(s_, 0.175), 5, horizontal=False, texto="0.35")
     lam.cota(P(s_, 0.175), P(s_, a + t), 5, horizontal=False, texto="0.175"); lam.cota(P(s_, -a - t), P(s_, -0.175), 5, horizontal=False, texto="0.175")
     xt = 290
     LL(lam, P(a + t / 2, 0.30), xt, 540, ["ala vertical del angulo %s pegada a la cara de la abertura" % CMT])
     LL(lam, P(a - leg / 2, 0.10), xt, 515, ["ala horizontal hacia adentro: asiento de la tapa (%s = %.1f mm)" % (MC.CM["ala_txt"], MC.CM["ala_mm"])])
-    LL(lam, P(a + 0.12, 0.175 + 0.03), xt, 490, ["anclaje 3/8\" L = 0.20 soldado al ala vertical, 2 por lado (8 por registro)"])
-    LL(lam, P(a + 0.04, -0.40), xt, 465, ["refuerzo de borde: 2 barras 1/2\" por lado, L = 1.40 (DP-06B)"])
-    LL(lam, P(a + 0.10, -0.46), xt, 440, ["borde engrosado 0.15 x 0.10 bajo la losa (en la partida de losa superior)"])
-    LL(lam, P(a - leg / 2, -a + leg / 2), xt, 415, ["esquina a inglete de 45 soldada (4 por registro)"])
+    LL(lam, P(0.175 + 0.03, a + 0.12), xt, 490, ["anclaje 3/8\" L = 0.20 soldado al ala vertical, 2 por lado (8 por registro)" + ("; en los muros baja dentro del muro" if MURO else "")])
+    LL(lam, P(a + 0.04, -0.40), xt, 465, ["refuerzo de borde: 2 barras 1/2\" por lado, L = 1.40 (DP-06B)" + ("; las transversales con ganchos dentro de los muros" if MURO else "")])
+    if MURO:
+        LL(lam, P(0.24, -a - 0.07), xt, 440, ["borde engrosado 0.15 x 0.10 solo entre muros (2 lados); en la partida de concreto del colector"])
+        LL(lam, P(xe - 0.03, 0.45), xt, 415, ["muro del colector e = %.2f: asiento del contramarco en los lados largos" % D["e_muro"]])
+    else:
+        LL(lam, P(a + 0.10, -0.46), xt, 440, ["borde engrosado 0.15 x 0.10 bajo la losa (en la partida de concreto del colector)"])
+    LL(lam, P(a - leg / 2, -a + leg / 2), xt, 390 if MURO else 415, ["esquina a inglete de 45 soldada (4 por registro)"])
     lam.titulo_vista(150, 290, "A. CONTRAMARCO - PLANTA", "ESC. 1/5 - " + TXT_REG_A, 150)
     # ---------------- B. seccion del contramarco colocado (1/2)
     k = 5.0; ox_, oy_ = lam.P(560, 470)
@@ -146,7 +158,8 @@ def dd01(doc, ox, oy, R, T):
     LL(lam, P(0.22, -0.05), xt, 480, ["marcos del colector 3/8\" (DP-04)"])
     LL(lam, P(0.005, -0.005), xt, 460, ["chaflan 1 x 1 cm en la arista", "de la abertura"])
     LL(lam, P(-0.15, -ET / 2), xt, 440, ["tapa 0.68 x 0.08 con su marco (DD-02),", "holgura 1 cm por lado"])
-    lam.titulo_vista(560, 325, "B. SECCION DEL CONTRAMARCO COLOCADO", "ESC. 1/2 - angulo con el ala vertical hacia abajo; la tapa queda al ras del NPT", 190)
+    lam.titulo_vista(560, 325, "B. SECCION DEL CONTRAMARCO COLOCADO" + (" (LADO TRANSVERSAL)" if D["b"] < AB else ""),
+                     "ESC. 1/2 - angulo con el ala vertical hacia abajo; la tapa queda al ras del NPT" + ("; en los muros: corte A-A de la DP-06B" if D["b"] < AB else ""), 190)
     # ---------------- C. despiece (1/5)
     k = 2.0; ox_, oy_ = lam.P(60, 245)
     P = lambda x, y: (ox_ + x * k, oy_ + y * k)
@@ -168,7 +181,7 @@ def dd01(doc, ox, oy, R, T):
     lam.notas(330, 255, "PROCEDIMIENTO", [
         "1. Cortar 4 piezas de angulo %s de %.2f m con los extremos a inglete de 45 y armar el cuadro de 0.70 x 0.70 (medida exterior de las alas verticales)." % (CMT, AB + 2 * t),
         "2. Soldar las 4 esquinas con electrodo E6011 de 1/8\" (cordon %s por ambas caras); verificar escuadra (diagonales iguales) y planitud." % CORDON,
-        "3. Soldar 8 anclajes 3/8\" L = 0.20 a la cara exterior del ala vertical (2 por lado, a 0.175 de las esquinas), inclinados hacia la losa; cordon %s x 25 mm a ambos lados." % CORDON,
+        "3. Soldar 8 anclajes 3/8\" L = 0.20 a la cara exterior del ala vertical (2 por lado, a 0.175 de las esquinas), inclinados hacia la losa" + ("; en los lados de los muros, hacia abajo dentro del muro" if D["b"] < AB else "") + "; cordon %s x 25 mm a ambos lados." % CORDON,
         "4. Limpiar escoria; 2 manos de anticorrosivo epoxico y 2 de esmalte sintetico (incluida en la partida 01.04.04.05.01), salvo en la zona de los anclajes.",
         "5. Fijar el contramarco al encofrado de la losa con el asiento a 0.08 bajo el NPT, nivelado y amarrado al refuerzo de borde; vaciar la losa con el borde engrosado.",
         "6. Al desencofrar, retirar rebabas; la tapa con su marco debe asentar en las 4 alas con holgura de 1 cm por lado."], 1.8)
@@ -178,7 +191,7 @@ def dd01(doc, ox, oy, R, T):
              ["Anclajes 3/8\" corrugado L = 0.20 (8 und, 0.56 kg/m)", "m / kg", "%.2f / %.2f" % (L_anc, kg_anc), "%.2f / %.2f" % (n * L_anc, n * kg_anc), "01.04.04.05.01 (desagregado: acero)"],
              ["Cordon de soldadura %s (4 esquinas x 2 caras + 8 anclajes x 2 lados)" % CORDON, "m", f2(L_cord), f2(n * L_cord), "electrodo E6011 1/8\": aprox. 0.12 kg por registro"],
              ["Refuerzo de borde de la abertura 2 x 1/2\" por lado, L = 1.40 (8 barras)", "m / kg", "%.2f / %.2f" % (11.2, 11.2 * MC.PESO["1/2"]), "%.2f / %.2f" % (n * 11.2, n * 11.2 * MC.PESO["1/2"]), "01.04.04.05.01 (desagregado: acero; DP-06B)"],
-             ["Borde engrosado 0.15 x 0.10, perimetro medio 3.00 m", "m3", f3(0.045), f2(n * 0.045), "01.04.04.04.01 CONCRETO PARA COLECTOR (ya incluido)"],
+             [("Borde engrosado 0.15 x 0.10, perimetro %.2f m (2 lados, entre muros)" if D["b"] < AB else "Borde engrosado 0.15 x 0.10, perimetro medio %.2f m") % MC.BORDE_PERIM, "m3", f3(MC.BORDE_PERIM * 0.015), f2(n * MC.BORDE_PERIM * 0.015), "01.04.04.04.01 CONCRETO PARA COLECTOR (ya incluido)"],
              ["Pintura anticorrosiva + esmalte (desarrollo %.3f m2/m x 2.80 m)" % MC.CM["des"], "m2", f2(2.80 * MC.CM["des"]), f2(n * 2.80 * MC.CM["des"]), "01.04.04.05.01 (desagregado: pintura)"],
              ["Mano de obra de habilitacion, soldadura y colocacion", "und", "1", "%d" % n, "01.04.04.05.01 TAPA DE REGISTRO (und)"]]
     cuadro(lam, 330, 200, "CUADRO DE COMPONENTES POR CONTRAMARCO (1 und) Y TOTAL (%d und)" % MC.registros()["n"], filas)

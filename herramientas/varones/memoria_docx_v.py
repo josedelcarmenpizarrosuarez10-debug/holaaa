@@ -246,7 +246,9 @@ def construir():
     titulo2(doc, "Criterios constructivos")
     vineta(doc, "Colector cubierto, con losa superior a +%.2f msnm que sirve de vereda, sin lloraderos; registros de limpieza "
                 "(RV-01 a RV-11) a no más de 12 m, en cada llegada de cuneta y en el quiebre, fuera del cruce de camiones, con tapa de "
-                "concreto armado de 0.68 × 0.68 × 0.08 m, contramarco de ángulo de 1 ½\" × 1 ½\" × 1/8\" y marco de 1 ½\" × 1 ½\" × 1/8\" (láminas DD-01 y DD-02)." % D["NPT"])
+                "concreto armado de 0.68 × 0.68 × 0.08 m, contramarco de ángulo de 1 ½\" × 1 ½\" × 1/8\" y marco de 1 ½\" × 1 ½\" × 1/8\"; como el colector (0.60 m) es más angosto que la "
+                "abertura (0.70 m), en los lados largos el contramarco apoya en la cabeza de los muros y el borde engrosado de 0.15 × 0.10 m va solo en "
+                "los 2 lados transversales (láminas DP-06B, DP-06D, DD-01 y DD-02)." % D["NPT"])
     vineta(doc, "Juntas de dilatación cada 4.00 m en toda la sección, con tecnopor de 1\" y sellador asfáltico de 1\" × 2\" (asfalto líquido RC-250 + arena gruesa; EG-2013 MTC, Sección 510); "
                 "junta de tecnopor de 1\" y sellador asfáltico en el contacto con la caja CL. A ambos lados del colector hay terreno natural: no lleva junta longitudinal (lámina DD-03).")
     vineta(doc, "Empalme de cunetas por ventana de 0.40 × H en el muro del lado del predio, con caída al fondo, junta de 1\" y registro sobre el empalme (láminas DP-06C y DD-04).")

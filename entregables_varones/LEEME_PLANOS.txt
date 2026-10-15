@@ -1,7 +1,7 @@
 PLANOS DEL COLECTOR PLUVIAL FRONTAL - CAR VARONES (CUI 2705619) - VERSION ORDENADA
 ==================================================================================
 
-Archivo: PLANOS_COLECTOR_PLUVIAL_CAR_VARONES.dxf (18 laminas en A1, A2 y A3; escala real: 1 unidad = 1 m)
+Archivo: PLANOS_COLECTOR_PLUVIAL_CAR_VARONES.dxf (19 laminas en A1, A2 y A3; escala real: 1 unidad = 1 m)
 Cunetas: PLANOS_DETALLE_CUNETAS_JUNTA_Y_REJILLA_CAR_VARONES.dxf (DJ-01 junta en toda la seccion, DJ-02 proceso constructivo
 en isometricos, DJ-03 rejilla movil; vistas previas en vistas_previas_cunetas; generador herramientas/varones/planos_junta_cunetas_v.py)
 Vistas previas: carpeta vistas_previas (PNG por lamina y 00_RESUMEN_TODAS.png)
@@ -19,6 +19,7 @@ DP-04A  A1  1/15     Secciones S-01 a S-04 con acero
 DP-04B  A1  1/15     Secciones S-05 a S-08 con acero
 DP-06B  A1  INDICADA Registro de limpieza: tapa 0.68 x 0.68 con marco y contramarco
 DP-06C  A1  1/10     Empalme de cuneta al colector
+DP-06D  A1  INDICADA Registro de limpieza: isometricos 3D (registro armado, despiece, corte y armado de la tapa)
 DP-07   A1  1/20     Empalme con la caja de llegada CL del Hogar de Refugio (CUI 2675514)
 DP-08   A1  1/25     Cuadro de doblado de acero, especificaciones y notas
 DA-01   A1  1/20     Detalle de partidas: trazo, excavacion, relleno y eliminacion
@@ -34,6 +35,15 @@ Impresion en AutoCAD
 - Ctrl+P desde la pestana: area de impresion = Presentacion, escala 1:1, centrar. La configuracion trae "DWG To PDF.pc3"
   solo para que AutoCAD encuentre los papeles ISO; para el plotter elegir la impresora propia con el mismo papel.
 - Tamanos: A1 = 841 x 594 mm; A2 = 594 x 420 mm; A3 = 420 x 297 mm. Para imprimir todas juntas: PUBLISH.
+
+Registro de limpieza sobre el colector de 0.60
+----------------------------------------------
+La abertura de la tapa (0.70 x 0.70) es mas ancha que el interior del colector (0.60): en los lados largos el contramarco
+apoya en la cabeza de los muros (0.10 de muro a cada lado de la abertura) y sus anclajes bajan dentro del muro; el borde
+engrosado 0.15 x 0.10 va solo en los 2 lados transversales, entre muros (2 x 0.60 = 1.20 m por registro); las barras
+transversales del refuerzo de borde (L = 1.40) llevan ganchos de 0.29 dentro de los muros. Laminas DP-06B, DP-06D y DD-01.
+Antes se habia copiado el registro del Hogar de Refugio (colector de 0.80, engrosado en los 4 lados): concreto del
+colector 56.02 -> 55.72 m3 en la planilla (hoja COLECTOR PARAMETROS, fila 40).
 
 Que se ordeno
 -------------
@@ -54,7 +64,7 @@ Metrados
 No se modifico ningun metrado. Los cuadros de las laminas DA-01 a DA-03 muestran los valores de la planilla del presupuesto
 (METRADO_DRENAJE_PLUVIAL_CAR_VARONES_CON_COLECTOR.xlsx, partidas 01.04.04), recalculada en una copia con LibreOffice:
   Trazo 147.41 m2 - Excavacion 130.62 m3 - Refine 105.29 m2 - Relleno 91.51 m3 - Eliminacion 46.93 m3 - Solado 105.29 m2
-  Concreto f'c=210 para colector 56.02 m3 (losa de fondo 14.21 + muros 31.55 + losa superior 10.25) - Encofrado 538.31 m2
+  Concreto f'c=210 para colector 55.72 m3 (losa de fondo 14.21 + muros 31.55 + losa superior 9.96) - Encofrado 538.31 m2
   Acero colector 2523.84 kg - Acabado frotachado de losa superior (vereda) 94.76 m2 - Curado 368.27 m2
   Tapa de registro 0.68x0.68 c/marco y contramarco 11 und (contramarco L 1 1/2"x1 1/2"x1/8": angulos 111.1 kg en total,
   acero en tapas 190.71 kg, pintura 9.23 m2; desagregado en la hoja DESAGREGADO TAPA REGISTRO)

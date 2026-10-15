@@ -13,8 +13,17 @@ D38, D12 = 3 / 8 * IN, 1 / 2 * IN
 REB, RING, TAPA, ET = 0.35, 0.45, 0.34, 0.08
 LUZ = REB - CM_L                       # media luz libre entre alas del contramarco
 LUZ_TXT = '%.2f' % (2 * LUZ)
-BI, BW, LOSA, ENG = 0.40, 0.15, 0.10, 0.10
+BI = float(os.environ.get("COLECTOR_B", "0.80")) / 2   # medio ancho interior del colector (Refugio 0.80; CAR Varones 0.60)
+BW, LOSA, ENG = 0.15, 0.10, 0.10
 X = BI + BW
+# colector mas angosto que la abertura (CAR Varones, b = 0.60 < 0.70): en los lados largos la abertura cae sobre la cabeza
+# de los muros, que sirven de asiento al contramarco; el borde engrosado queda solo en los 2 lados transversales (entre muros),
+# los anclajes de los lados largos bajan dentro del muro y las barras transversales de borde terminan en ganchos dentro de los muros
+MURO_APOYO = BI < REB
+ENG_PER = 2 * (2 * BI) if MURO_APOYO else 3.00          # perimetro del borde engrosado (Refugio: 4 x 0.75)
+XB = min(0.51, X - 0.04)                                 # tramo horizontal de las barras transversales de borde
+GANCHO = round((1.40 - 2 * XB) / 2, 2)                   # gancho de cada extremo (L total = 1.40)
+AX, AZ = (0.05, -0.30) if MURO_APOYO else (0.18, -0.025)  # punta del anclaje de los lados largos (x desde REB, z)
 
 doc = ezdxf.new('R2010', setup=True, units=4)
 msp = doc.modelspace()
@@ -119,13 +128,16 @@ v.pl([(-X, -0.62), (-X, 0.62)]); v.pl([(X, -0.62), (X, 0.62)])
 for yy in (-0.62, 0.62):
     v.pl([(-X, yy), (-0.08, yy), (-0.05, yy + 0.03), (-0.01, yy - 0.03), (0.02, yy), (X, yy)], 'CONCRETO')
 v.line((-BI, -0.62), (-BI, 0.62), 'OCULTO'); v.line((BI, -0.62), (BI, 0.62), 'OCULTO')
-v.rect(-RING, -RING, RING, RING, 'OCULTO')
+if MURO_APOYO:
+    for s_ in (-1, 1): v.rect(-BI, s_ * REB, BI, s_ * RING, 'OCULTO')
+else:
+    v.rect(-RING, -RING, RING, RING, 'OCULTO')
 v.rect(-REB, -REB, REB, REB, 'CONCRETO'); v.rect(-REB + 0.01, -REB + 0.01, REB - 0.01, REB - 0.01, 'OCULTO')
 v.rect(-(REB - CM_L), -(REB - CM_L), REB - CM_L, REB - CM_L, 'ANGULOS_OCULTO')
 for s in (-1, 1):
-    v.line((s * c, -0.60), (s * c, 0.60), 'ACERO_OCULTO'); v.line((-0.51, s * c), (0.51, s * c), 'ACERO_OCULTO')
+    v.line((s * c, -0.60), (s * c, 0.60), 'ACERO_OCULTO'); v.line((-XB, s * c), (XB, s * c), 'ACERO_OCULTO')
     for t in (-0.125, 0.125):
-        v.line((s * REB, t), (s * (REB + 0.18), t), 'ACERO_OCULTO'); v.line((t, s * REB), (t, s * (REB + 0.18)), 'ACERO_OCULTO')
+        v.line((s * REB, t), (s * (REB + AX), t), 'ACERO_OCULTO'); v.line((t, s * REB), (t, s * (REB + 0.18)), 'ACERO_OCULTO')
 ri = TAPA - MT_L
 v.ring(ri, TAPA, 140)
 v.conc([(-ri, -ri), (ri, -ri), (ri, ri), (-ri, ri)])
@@ -137,7 +149,8 @@ v.dim((-TAPA, -TAPA), (TAPA, -TAPA), -16)
 v.dim((-REB, -REB), (REB, -REB), -24)
 v.dim((-X, -0.62), (X, -0.62), -35)
 v.dim((-(REB - CM_L), REB), (REB - CM_L, REB), 28 + 6, text=LUZ_TXT)
-v.dim((-RING, RING), (RING, RING), 28 + 14)
+if MURO_APOYO: v.dim((-BI, RING), (BI, RING), 28 + 14, text='%.2f (interior)' % (2 * BI))
+else: v.dim((-RING, RING), (RING, RING), 28 + 14)
 v.dim((REB + 0.18, -0.125), (REB + 0.18, 0.125), 12, horiz=False)
 llamada(v.p(0.345, 0.30), (200, 552), 'Holgura 1 cm entre la tapa\n(0.68) y la abertura (0.70)', w=82)
 llamada(v.p(0.33, 0.15), (200, 532), 'Marco de tapa L 1 1/2"x1 1/2"x1/8"', w=82)
@@ -146,13 +159,20 @@ llamada(v.p(0.06, 0.22), (200, 494), 'Asa 3/8" liso en bolsillo\n0.16 x 0.05 x 0
 llamada(v.p(-0.30, -0.26), (60, 392), 'Contramarco\n(oculto)', w=30)
 llamada(v.p(REB + 0.12, -0.125), (200, 474), 'Anclajes 3/8" L=0.20 (8 und)\ninclinados hacia la losa', w=82)
 llamada(v.p(c, -0.5), (200, 456), 'Refuerzo de borde\n2 de 1/2" por lado (oculto)', w=82)
-llamada(v.p(0.45, -0.42), (200, 436), 'Borde engrosado 0.15 x 0.10\nbajo la losa (oculto)', w=82)
+if MURO_APOYO:
+    llamada(v.p(0.15, -0.42), (200, 436), 'Borde engrosado 0.15 x 0.10\nentre muros, 2 lados (oculto)', w=82)
+    llamada(v.p(X - 0.04, 0.52), (200, 418), 'Muros e = 0.15: en los lados\nlargos el contramarco apoya\nen la cabeza del muro', w=82)
+else:
+    llamada(v.p(0.45, -0.42), (200, 436), 'Borde engrosado 0.15 x 0.10\nbajo la losa (oculto)', w=82)
 texto(v.p(-0.48, -0.50)[0], v.p(0, -0.50)[1], 'Losa superior (vereda)', 3, 'TEXTO', rot=90)
 
 # ============ 2. CORTE A-A 1/10
 v = Vista(405, 480, 10)
 titulo(292, 572, 'B. CORTE A-A (por la linea de anclajes)', 'ESC. 1/10', 245)
 def conc_lado(v, s, xext, zfin):
+    if MURO_APOYO:      # cabeza del muro hasta el asiento: sin engrosado en este sentido
+        v.conc([(s * REB, 0), (s * xext, 0), (s * xext, zfin), (s * BI, zfin), (s * BI, zt), (s * (REB - CM_T), zt), (s * (REB - CM_T), zv), (s * REB, zv)])
+        return
     v.conc([(s * REB, 0), (s * xext, 0), (s * xext, zfin), (s * BI, zfin), (s * BI, -LOSA - ENG), (s * LUZ, -LOSA - ENG), (s * LUZ, zt),
             (s * (REB - CM_T), zt), (s * (REB - CM_T), zv), (s * REB, zv)])
 def angulo_cm(v, s):
@@ -164,7 +184,7 @@ def marco_t(v, s):
 for s in (-1, 1):
     conc_lado(v, s, X, -0.45)
     angulo_cm(v, s); marco_t(v, s)
-    v.line((s * REB, -0.115), (s * (REB + 0.18), -0.025), 'ACERO')
+    v.line((s * REB, -0.115), (s * (REB + AX), AZ), 'ACERO')
     v.barra(s * c, -0.045, D12); v.barra(s * c, -0.155, D12)
     v.pl([(s * X, -0.45), (s * BI, -0.45)], 'CONCRETO')
 v.conc([(-(TAPA - MT_T), -MT_T), (TAPA - MT_T, -MT_T), (TAPA - MT_T, -ET), (-(TAPA - MT_T), -ET)])
@@ -175,26 +195,33 @@ texto(v.p(0, -0.36)[0], v.p(0, -0.36)[1], 'INTERIOR DEL COLECTOR', 3.0, align=TA
 texto(v.p(X + 0.02, 0.01)[0], v.p(0, 0.01)[1], 'NPT', 3.2)
 v.dim((-TAPA, 0), (TAPA, 0), 22); v.dim((-REB, 0), (REB, 0), 30)
 v.dim((-(REB - CM_L), -0.20), (REB - CM_L, -0.20), -10, text=LUZ_TXT); v.dim((-BI, -0.45), (BI, -0.45), -8); v.dim((BI, -0.45), (X, -0.45), -8)
-v.dim((LUZ, -0.20), (RING, -0.20), -18)
-v.dim((X, 0), (X, -LOSA), 14, horiz=False); v.dim((X, -LOSA), (X, -LOSA - ENG), 14, horiz=False)
+if not MURO_APOYO:
+    v.dim((LUZ, -0.20), (RING, -0.20), -18)
+v.dim((X, 0), (X, -LOSA), 14, horiz=False)
+if not MURO_APOYO: v.dim((X, -LOSA), (X, -LOSA - ENG), 14, horiz=False)
 v.dim((-X, 0), (-X, -ET), -14, horiz=False)
 llamada(v.p(0.32, -0.082), (490, 458), 'Asiento: ala del\ncontramarco', w=55)
 llamada(v.p(-c, -0.155), (345, 442), 'Refuerzo de borde\n2 de 1/2" por lado', w=45)
-llamada(v.p(0.36, -0.20), (490, 436), 'Borde engrosado\n0.15 x 0.10', w=55)
+if MURO_APOYO: llamada(v.p(0.40, -0.30), (490, 436), 'Cabeza del muro:\nasiento y anclajes', w=55)
+else: llamada(v.p(0.36, -0.20), (490, 436), 'Borde engrosado\n0.15 x 0.10', w=55)
 llamada(v.p(-0.44, -0.07), (345, 470), 'Anclaje 3/8"\ninclinado', w=45)
 llamada(v.p(0.0, -0.0455), (490, 540), 'Parrilla 3/8"\n@0.10', w=55)
 llamada(v.p(-0.12, -0.055), (345, 505), 'Recubrimiento\n2.5 cm', w=45)
 
 # ============ 3. DETALLE 1 - APOYO 1/2
 v = Vista(445, 505, 2)
-titulo(552, 572, 'C. DETALLE 1: ASIENTO DE LA TAPA', 'ESC. 1/2', 270)
+titulo(552, 572, 'C. DETALLE 1: ASIENTO DE LA TAPA', 'ESC. 1/2 - lado transversal (corte por el eje del colector)' if MURO_APOYO else 'ESC. 1/2', 270)
 x0 = 0.24
-v.conc([(REB, -0.01), (REB + 0.01, 0), (0.53, 0), (0.53, -0.22), (BI, -0.22), (BI, -0.20), (LUZ, -0.20), (LUZ, zt),
-        (REB - CM_T, zt), (REB - CM_T, zv), (REB, zv)])
+if MURO_APOYO:      # corte por el eje: engrosado entre muros, de la luz libre a 0.45; despues la losa de 0.10
+    v.conc([(REB, -0.01), (REB + 0.01, 0), (0.53, 0), (0.53, -LOSA), (RING, -LOSA), (RING, -LOSA - ENG), (LUZ, -LOSA - ENG), (LUZ, zt),
+            (REB - CM_T, zt), (REB - CM_T, zv), (REB, zv)])
+else:
+    v.conc([(REB, -0.01), (REB + 0.01, 0), (0.53, 0), (0.53, -0.22), (BI, -0.22), (BI, -0.20), (LUZ, -0.20), (LUZ, zt),
+            (REB - CM_T, zt), (REB - CM_T, zv), (REB, zv)])
 angulo_cm(v, 1); marco_t(v, 1)
 v.conc([(x0, -MT_T), (TAPA - MT_L, -MT_T), (TAPA - MT_L, 0), (TAPA - MT_T, 0), (TAPA - MT_T, -MT_L), (TAPA, -MT_L), (TAPA, -ET), (x0, -ET)])
 v.pl([(x0, 0), (x0 - 0.005, -0.03), (x0 + 0.005, -0.05), (x0, -ET)], 'CONCRETO')
-v.pl([(0.53, -0.22), (0.52, -0.21), (0.54, -0.20)], 'CONCRETO')
+if not MURO_APOYO: v.pl([(0.53, -0.22), (0.52, -0.21), (0.54, -0.20)], 'CONCRETO')
 v.line((REB, -0.115), (REB + 0.18, -0.025), 'ACERO')
 v.barra(c, -0.045, D12); v.barra(c, -0.155, D12)
 v.line((x0, -0.055), (0.31, -0.055), 'ACERO'); v.barra(0.30, -0.0455, D38)
@@ -261,10 +288,11 @@ v.ring(REB - CM_L, REB, 5)
 for s in (-1, 1):
     v.line((-REB, s * REB), (-(REB - CM_L), s * (REB - CM_L)), 'ANGULOS'); v.line((REB, s * REB), (REB - CM_L, s * (REB - CM_L)), 'ANGULOS')
     for t in (-0.125, 0.125):
-        v.line((s * REB, t), (s * (REB + 0.18), t), 'ACERO'); v.line((t, s * REB), (t, s * (REB + 0.18)), 'ACERO')
+        v.line((s * REB, t), (s * (REB + AX), t), 'ACERO'); v.line((t, s * REB), (t, s * (REB + 0.18)), 'ACERO')
 v.dim((-REB, -0.50), (REB, -0.50), -10); v.dim((-0.125, -0.50), (0.125, -0.50), -18)
 v.dim((-(REB - CM_L), REB + 0.18), (REB - CM_L, REB + 0.18), 6, text=LUZ_TXT)
-v.dim((REB, 0.125), (REB + 0.18, 0.125), 22, text='0.18 (proy.)')
+v.dim((0.125, REB), (0.125, REB + 0.18), 8, horiz=False, text='0.18 (proy.)') if MURO_APOYO else v.dim((REB, 0.125), (REB + 0.18, 0.125), 22, text='0.18 (proy.)')
+if MURO_APOYO: v.dim((REB, 0.125), (REB + AX, 0.125), 22, text='%.2f (proy.)' % AX)
 llamada(v.p(-0.33, 0.2), (300, 180), 'Esquinas a 45 grados\ny soldadas', w=55)
 llamada(v.p(0.45, -0.125), (402, 180), 'Anclaje 3/8"\nL = 0.20', w=40)
 
@@ -304,7 +332,7 @@ isosq(REB, z, 'ANGULOS'); isosq(REB - CM_L, z, 'ANGULOS'); isosq(REB, z - CM_L, 
 for q in ((-REB, -REB), (REB, -REB), (-REB, REB)): isoline((q[0], q[1], z), (q[0], q[1], z - CM_L), 'ANGULOS')
 for s in (-1, 1):
     for t in (-0.125, 0.125):
-        isoline((s * REB, t, z - 0.035), (s * (REB + 0.18), t, z + 0.055), 'ACERO')
+        isoline((s * REB, t, z - 0.035), (s * (REB + AX), t, z - 0.035 + (AZ + 0.115)), 'ACERO')
         isoline((t, s * REB, z - 0.035), (t, s * (REB + 0.18), z + 0.055), 'ACERO')
 # parrilla +0.55
 z = 0.55
@@ -338,7 +366,7 @@ texto(tx, ty, 'H. MATERIALES POR REGISTRO', 4.5, 'TITULOS', style='ARIALB')
 filas = [('Contramarco %s (2.80 m)' % CM_TXT, 'kg', '%.2f' % (2.80 * CM_KGM)), ('Marco L 1 1/2"x1 1/2"x1/8" (2.72 m)', 'kg', '4.98'),
          ('Anclajes 3/8" L = 0.20 m', 'und', '8'), ("Concreto tapa f'c=210", 'm3', '0.037'), ('Acero tapa 3/8" (14 x 0.62 m)', 'kg', '4.86'),
          ('Asas 3/8" liso (2 x 0.40 m)', 'kg', '0.45'), ('Refuerzo de borde 1/2" (8 x 1.40 m)', 'kg', '11.13'),
-         ('Borde engrosado (3.00 x 0.15 x 0.10)', 'm3', '0.045'), ('Pintura en angulos', 'm2', '%.2f' % (2.80 * CM_DES + 2.72 * 0.152))]
+         ('Borde engrosado (%.2f x 0.15 x 0.10)' % ENG_PER, 'm3', '%.3f' % (ENG_PER * 0.015)), ('Pintura en angulos', 'm2', '%.2f' % (2.80 * CM_DES + 2.72 * 0.152))]
 cw = [92, 14, 18]; rh = 6.2; yy = ty - 5
 msp.add_lwpolyline([(tx, yy), (tx + sum(cw), yy), (tx + sum(cw), yy - rh * (len(filas) + 1)), (tx, yy - rh * (len(filas) + 1))], close=True, dxfattribs={'layer': 'MEMBRETE'})
 for i, row in enumerate([('DESCRIPCION', 'UND', 'CANT.')] + filas):
@@ -352,6 +380,10 @@ x = tx
 for wj in cw[:-1]:
     x += wj; msp.add_line((x, yy), (x, yy - rh * (len(filas) + 1)), dxfattribs={'layer': 'MEMBRETE'})
 texto(tx, yy - rh * (len(filas) + 1) - 5, 'Registros: Hogar de Refugio 10 - CAR Mujeres 15 - CAR Varones 11', 2.8)
+if MURO_APOYO:
+    mtexto(430, 142 - 7 - 8 * 5.3 - 1, '9. COLECTOR b = %.2f (menor que la abertura de 0.70): en los lados largos el contramarco apoya en la cabeza '
+           'de los muros y sus anclajes bajan dentro del muro; borde engrosado solo en los 2 lados transversales (2 x %.2f = %.2f m); '
+           'barras transversales de borde: %.2f + 2 ganchos de %.2f (L = 1.40).' % (2 * BI, 2 * BI, ENG_PER, 2 * XB, GANCHO), 3.0, 155, attach=1)
 
 nx, ny = 430, 142
 texto(nx, ny, 'NOTAS', 4.5, 'TITULOS', style='ARIALB')

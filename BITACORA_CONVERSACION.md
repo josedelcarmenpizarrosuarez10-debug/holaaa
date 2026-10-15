@@ -69,7 +69,7 @@ Rama: `claude/colector-pluvial-hogar-refugio-ydbnaf`
 ## 15 de octubre de 2026 (tarde): CAR Varones (CUI 2705619) igual que el Hogar de Refugio
 Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los criterios son los mismos del Hogar de Refugio.
 - **Planilla:**
-  - Concreto del colector en una sola partida: 56.02 m³.
+  - Concreto del colector en una sola partida: 56.02 m³ (55.72 m³ después de corregir el registro, ver abajo).
   - Tapa de registro por und: 11 und.
   - Acabado frotachado de losa superior (vereda).
   - Juntas 01.04.04.06.01 (120.64 m) y 01.04.04.06.02, solo el contacto con la caja CL (4.64 m).
@@ -85,7 +85,18 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - **Ambos proyectos:**
   - DD-01 y DD-02 citan ahora la partida única 01.04.04.05.01 TAPA DE REGISTRO; ya no citan las antiguas .05.02 a .05.07.
   - DD-04 ya no cita la partida 01.04.04.06.03, que no existe en la planilla Delphin: la cuneta se metra hasta el muro del colector.
-- **Pendiente:** DP-06D (isométricos 3D de la tapa) para el CAR Varones. Su colector es de 0.60 m y la abertura de 0.70 m apoya sobre los muros, así que necesita su propio modelo.
+- **Registro de limpieza de Varones (corregido):** la abertura de 0.70 es más ancha que su colector de 0.60.
+  - En los lados largos, el contramarco apoya en la cabeza de los muros y los anclajes bajan dentro del muro.
+  - El borde engrosado va solo en los 2 lados transversales, entre muros: 2 × 0.60 = 1.20 m por registro; antes se había copiado el de 3.00 m del Refugio.
+  - Las barras transversales de borde siguen midiendo 1.40 m, con ganchos de 0.29 dentro de los muros.
+  - Concreto del colector: 56.02 → 55.72 m³ (COLECTOR PARAMETROS, fila 40).
+  - Se corrigieron DP-06B, DD-01, DA-02, especificaciones y memoria, y se agregó la DP-06D de Varones (19 láminas).
+- **Cadena de colectores verificada:**
+  - Varones (0.60): cota de fondo 260.20 → 259.884, 221.7 + 37.0 = 258.7 L/s a la caja CL.
+  - Refugio (0.80): cota de fondo 259.10 → 258.88, entrega 560.6 L/s en R-01 (cota de fondo 258.72, nivel de agua 259.062).
+  - Mujeres (1.50): cota de fondo 258.72 → 258.30, nivel de agua inicial 259.063.
+  - El ancho crece aguas abajo y las cotas y los niveles empalman.
+- **Ambos proyectos:** DA-02 muestra el total de concreto del colector (Refugio 58.31 m³ = su partida 01.04.04.04.01) y el acabado con su nombre Delphin ("frotachado de losa superior (vereda)").
 
 ## Cómo imprimir (los tres proyectos)
 1. Abrir la pestaña de la lámina (DP-00, DP-01, ...).
