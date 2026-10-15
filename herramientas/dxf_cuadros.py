@@ -22,7 +22,8 @@ ESPECIFICACIONES = ["CONCRETO ARMADO: f'c = 210 kg/cm2 (colector, cajas y tapas)
            "TRASLAPES: 3/8\" = 0.40 m ; 1/2\" = 0.50 m, alternados. Barras longitudinales de 9.00 m.",
            "LOSA SUPERIOR: vaciada monoliticamente con los muros en todo el colector; acabado frotachado y brunado (a nivel del piso terminado +260.60).",
            "REGISTROS: contramarco de angulo %s y marco de angulo L 1 1/2\"x1 1/2\"x1/8\" con anclajes, pintura anticorrosiva y esmalte; tapas de concreto 0.68 x 0.68 x 0.08 con asas." % MC.CM["txt"],
-           "JUNTAS: cada 4.00 m, e = 1\", relleno de poliestireno expandido y %s %s. Tecnopor de 1\" entre el colector y el cerco, las cunetas y el piso adyacente%s." % (MC.SELLO["nombre"], MC.SELLO["txt"], ", con el mismo sellador en su cara superior" if MC.SELLO["en_tecnopor"] else ""),
+           ("JUNTAS: cada 4.00 m, e = 1\", relleno de poliestireno expandido y %s %s. Junta longitudinal de tecnopor de 1\" con el mismo sellador en su cara superior entre el colector y el cimiento del cerco (0+000.00 a 0+058.81); al otro lado, terreno natural: no lleva junta. Tecnopor de 1\" en el contacto con las cunetas." % (MC.SELLO["nombre"], MC.SELLO["txt"])) if MC.SELLO["en_tecnopor"] else
+           "JUNTAS: cada 4.00 m, e = 1\", relleno de poliestireno expandido y %s %s. Tecnopor de 1\" entre el colector y el cerco, las cunetas y el piso adyacente." % (MC.SELLO["nombre"], MC.SELLO["txt"]),
            "CAJAS: muros e = 0.15 y losa de fondo e = 0.15 con malla 3/8\" @0.20 en ambas caras; umbral 0.25 x 0.40 en la caja de caida.",
            "CURADO: humedo minimo 7 dias; no transitar sobre la losa antes de 14 dias; no cargar con camiones antes de 28 dias.",
            "RELLENO: material propio seleccionado, capas de 0.15 m, 95 % del Proctor modificado; incluye la nivelacion del retiro hasta la cota de la losa.",
@@ -141,7 +142,7 @@ def da(doc, ox, oy, R, T):
     lam.tabla(32, 200, ["PARTIDA", "UND", "METRADO"], filas, [110, 16, 26], 1.7, 4.8, "RESUMEN DE CONCRETO Y ENCOFRADO (colector%s)" % TXT_CAJAS)
     lam.leyenda2(470, 205, [("concreto", "CONCRETO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100, e=0.05"),
                             ("linea2", "ACERO", "acero transversal (marco)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal 3/8\""),
-                            ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", "piso terminado +%.2f" % D["NPT"])], 1.8, ancho_col=125, filas_col=3)
+                            ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", ("nivel terminado +%.2f (lado via: terreno natural)" if CON_CERCO else "piso terminado +%.2f") % D["NPT"])], 1.8, ancho_col=125, filas_col=3)
 
     lams.append(lam)
     # ---------------- DA-03
@@ -165,12 +166,12 @@ def da(doc, ox, oy, R, T):
              ["Tapas de concreto 0.68 x 0.68 x 0.08", "und / m3", "%d / %.2f" % (Rg["n"], Rg["tapa_conc"])], ["Acero en tapas, bordes, asas y anclajes", "kg", "%.1f" % (Rg["acero_borde_kg"] + Rg["acero_tapa_kg"] + Rg["asas_kg"] + Rg["anclajes_kg"])],
              ["Pintura anticorrosiva y esmalte en angulos", "m2", "%.2f" % Rg["pintura_m2"]],
              ["Junta de dilatacion e=1\" con %s (%d und x %.2f m)" % ("tecnopor y sellador asfaltico" if MC.SELLO["en_tecnopor"] else "sello", J["n"], J["L_dilat"] / J["n"]), "m", "%.2f" % J["L_dilat"]],
-             [("Junta e=1\" de tecnopor y sellador asfaltico con el cerco (muro)" if MC.SELLO["en_tecnopor"] else "Junta de tecnopor e=1\" con el cerco (muro)") if J.get("L_tecnopor_cerco", 0) > 0 else TXT_TEC_CL, "m", "%.2f" % (J["L_tecnopor_cerco"] if J.get("L_tecnopor_cerco", 0) > 0 else J.get("L_tecnopor_cl", 0))], [TXT_TEC_PISO, "m", "%.2f" % J["L_tecnopor_piso"]],
+             [("Junta longitudinal e=1\" de tecnopor y sellador asfaltico con el cerco" if MC.SELLO["en_tecnopor"] else "Junta de tecnopor e=1\" con el cerco (muro)") if J.get("L_tecnopor_cerco", 0) > 0 else TXT_TEC_CL, "m", "%.2f" % (J["L_tecnopor_cerco"] if J.get("L_tecnopor_cerco", 0) > 0 else J.get("L_tecnopor_cl", 0))]] + ([[TXT_TEC_PISO, "m", "%.2f" % J["L_tecnopor_piso"]]] if J["L_tecnopor_piso"] > 0 else []) + [
              ] + ([["Empalme de cuneta al colector (ventana + caida)", "und", "%d" % Rs["empalmes"]]] if Rs.get("empalmes") is not None else [])
     lam.tabla(32, 200, ["PARTIDA", "UND", "METRADO"], filas, [120, 18, 26], 1.7, 4.6, TIT_RES_DA03)
     lam.leyenda2(470, 205, [("concreto", "CONCRETO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100, e=0.05"),
                             ("linea2", "ACERO", "acero transversal (marco)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal 3/8\""),
-                            ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", "piso terminado +%.2f" % D["NPT"])], 1.8, ancho_col=125, filas_col=3)
+                            ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", ("nivel terminado +%.2f (lado via: terreno natural)" if CON_CERCO else "piso terminado +%.2f") % D["NPT"])], 1.8, ancho_col=125, filas_col=3)
 
     lams.append(lam)
     return lams

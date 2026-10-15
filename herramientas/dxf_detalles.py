@@ -65,15 +65,15 @@ TXT_JUNTA_CAJAS = ("Las cajas CL y CC llevan tecnopor en su contacto", "con el c
 TXT_DD04_SUB = "PARTIDA 01.04.04.06.03 - 6 EMPALMES (CUNETAS EJES 01, 02, 06, 07, 11 Y 12) - ESC. INDICADAS"
 TXT_DD03_C = "ESC. 1/10 - tramo 0+000.00 a 0+058.81 (pegado al cerco)"
 CON_CERCO = True
-TIT_DD03_C = "C. JUNTA DE TECNOPOR Y SELLADOR CONTRA EL CERCO" if MC.SELLO["en_tecnopor"] else "C. JUNTA DE TECNOPOR CONTRA EL CERCO"
+TIT_DD03_C = "C. JUNTA LONGITUDINAL DE TECNOPOR Y SELLADOR CONTRA EL CERCO" if MC.SELLO["en_tecnopor"] else "C. JUNTA DE TECNOPOR CONTRA EL CERCO"
 N_EMPALMES_TXT = "6 und"
 EJ_DD04 = 11.27
 TXT_DD04_CUNETA = "(Ejes 11 y 12 prolongadas hasta el muro)"
 SUB_N_REG = "10 REGISTROS"; SUB_N_TAPAS = "10 TAPAS"; SUB_N_JUNTAS = "17 JUNTAS"     # cantidades en los subtitulos
 PARTIDA_EMPALME = "01.04.04.06.03 EMPALME (und)"     # None: el empalme no tiene partida propia (solo detalle constructivo)
 ANCHO_PROC_DD03 = 262      # ancho del procedimiento de la DD-03 (no invade la tabla de ubicacion)
-NOTA4_DD03 = ("4. Juntas de tecnopor (02): plancha de 1\" pegada al cimiento del cerco antes de vaciar el muro; plancha de 1\" x 0.10 en el borde de la losa, lado via, antes de vaciar el piso;"
-              " en ambas, sellador asfaltico 1\" x 2\" en la cara superior.")
+NOTA4_DD03 = ("4. Junta longitudinal (02): plancha de 1\" x 0.90 pegada al cimiento del cerco antes de vaciar el muro, de 0+000.00 a 0+058.81, con sellador asfaltico 1\" x 2\" en la"
+              " cara superior. Al lado via hay terreno natural (sin vereda ni piso): no lleva junta.")
 
 
 def f2(v): return "%.2f" % v
@@ -330,7 +330,7 @@ def dd03(doc, ox, oy, R, T):
     lam.cota(P(0.25, em - pr), P(0.25, em), 6, horizontal=False, texto="%d mm" % round(pr * 1000)); lam.cota(P(0.25, 0), P(0.25, em - pr), 6, horizontal=False, texto="%.3f" % (em - pr))
     lam.texto(P(0, em + 0.025), "CARA INTERIOR (agua)", 1.8, "TEXTOS", TA.MIDDLE_CENTER); lam.texto(P(-0.12, -0.035), "CARA EXTERIOR (terreno)", 1.8, "TEXTOS", TA.MIDDLE_CENTER)
     xt = 700
-    LL(lam, P(0, em - pr / 2), xt, 560, ["sellador asfaltico 1\" x 2\" (25 x 50 mm): asfalto liquido", "RC-250 + arena gruesa, compactado hasta el ras (EG-2013, 510)"] if ASF else
+    LL(lam, P(0, em - pr / 2), xt, 560, ["sellador asfaltico 1\" x 2\" (25 x 50 mm): asfalto liquido", "RC-250 + arena gruesa, compactado hasta el ras (EG-2013 MTC)"] if ASF else
        ["sello de poliuretano (Sikaflex 1a o similar)", "25 x 25 mm sobre imprimante; caras limpias y secas"])
     LL(lam, P(0, (em - pr) / 2), xt, 535, ["tecnopor de 1\" (densidad 15 kg/m3) en todo", "el espesor, retirado %d mm en la cara interior" % round(pr * 1000)])
     LL(lam, P(-0.10, em / 2), xt, 510, ["barras longitudinales 3/8\" interrumpidas", "a 0.05 de la junta (no la cruzan)"])
@@ -356,27 +356,51 @@ def dd03(doc, ox, oy, R, T):
     if CON_CERCO:
         LL(lam, P(xc + 0.07, zs + 0.3), xt, 318, ["muro del cerco existente"])
         LL(lam, P(em + D["junta_cerco"] / 2, zs - 0.45), xt, 300, ["tecnopor de 1\" entre el muro lado predio y el", "cimiento del cerco: altura 0.90 (0.90 m2 por metro)"])
-        if ASF: LL(lam, P(em + D["junta_cerco"] / 2, zs - pr / 2), xt, 336, ["sellador asfaltico 1\" x 2\" (RC-250 + arena)", "en la cara superior, a ras del piso"])
+        if ASF: LL(lam, P(em + D["junta_cerco"] / 2, zs - pr / 2), xt, 336, ["sellador asfaltico 1\" x 2\" (RC-250 + arena)", "en la cara superior, a ras de la losa"])
         LL(lam, P(xc + 0.2, zs - 0.75), xt, 282, ["cimiento del cerco (no se toca; se protege", "durante la excavacion)"])
     else:
         LL(lam, P(xc + 0.6, zs - 0.05), 485, 122, ["piso terminado adyacente (+%.2f); no hay cerco" % D["NPT"]])
         LL(lam, P(em + D["junta_cerco"] / 2, zs - 0.05), 485, 106, ["tecnopor de 1\" entre la losa superior y el piso", "adyacente, a ambos lados del colector"])
     LL(lam, P(em / 2, zs - 1.2), xt if CON_CERCO else 485, 264 if CON_CERCO else 84, ["muro del colector e = 0.15 vaciado contra la", "plancha (encofrado perdido)"])
     lam.titulo_vista(360, 25, TIT_DD03_C, TXT_DD03_C, 170)
-    # ---------------- D. junta de tecnopor en el borde de la losa con el piso (1/5)
-    k = 2.0; ox_, oy_ = lam.P(560, 330)
-    P = lambda x, y: (ox_ + x * k, oy_ + y * k)
-    hatch_conc(lam, [P(-0.6, 0), P(0, 0), P(0, et), P(-0.6, et)], 0.6)
-    piso = [P(e_j, 0), P(0.6, 0), P(0.6, et), P(e_j, et)]; lam.poli(piso, "TERRENO", cerrada=True); lam.achurado(piso, "TERRENO-ACHURADO", escala_mm=0.5)
-    tecnopor(lam, [P(0, 0), P(e_j, 0), P(e_j, et - (pr if ASF else 0)), P(0, et - (pr if ASF else 0))])
-    if ASF:
-        lam.relleno([P(0, et - pr), P(e_j, et - pr), P(e_j, et), P(0, et)], "CORTES")
-        LL(lam, P(e_j / 2, et - pr / 2), 700, 385, ["sellador asfaltico 1\" x 2\" (RC-250 + arena)", "en la cara superior, a ras del piso"])
-    lam.rect(*P(-0.6, -0.12), *P(0.6, 0), "RELLENO"); lam.texto(P(0, -0.06), "relleno compactado / muro del colector", 1.6, "TEXTOS", TA.MIDDLE_CENTER)
-    lam.cota(P(0, 0), P(e_j, 0), -6, texto="1\""); lam.cota(P(0.6, 0), P(0.6, et), 6, horizontal=False, texto="0.10")
-    lam.texto(P(-0.3, et + 0.03), "LOSA SUPERIOR DEL COLECTOR", 1.7, "TEXTOS", TA.MIDDLE_CENTER); lam.texto(P(0.33, et + 0.03), "PISO ADYACENTE (lado via)" if CON_CERCO else "PISO ADYACENTE (retiro)", 1.7, "TEXTOS", TA.MIDDLE_CENTER)
-    LL(lam, P(e_j / 2, et / 2), 700, 365, ["tecnopor de 1\" en el espesor del piso (0.10):", "0.10 m2 por metro; " + ("lado via del colector y cajas" if CON_CERCO else "ambos lados del colector y cajas")])
-    lam.titulo_vista(560, 290, "D. JUNTA DE TECNOPOR Y SELLADOR EN EL BORDE DE LA LOSA" if ASF else "D. JUNTA DE TECNOPOR EN EL BORDE DE LA LOSA", "ESC. 1/5", 170)
+    # ---------------- D. seccion del colector: junta longitudinal solo contra el cerco; lado via = terreno natural (1/25)
+    if J["L_tecnopor_piso"] <= 0:
+        k = 0.4; ox_, oy_ = lam.P(592, 308)
+        P = lambda x, y: (ox_ + x * k, oy_ + y * k)
+        zs = ef + h + et; xc = be + e_j
+        for q in ([(0, 0), (be, 0), (be, ef), (0, ef)], [(0, ef), (em, ef), (em, ef + h), (0, ef + h)], [(be - em, ef), (be, ef), (be, ef + h), (be - em, ef + h)],
+                  [(0, ef + h), (be, ef + h), (be, zs), (0, zs)]):
+            hatch_conc(lam, [P(*v) for v in q], 0.4)
+        lam.rect(*P(-0.05, -0.05), *P(be + 0.05, 0), "SOLADO")
+        tecnopor(lam, [P(be, zs - 0.90), P(xc, zs - 0.90), P(xc, zs - pr), P(be, zs - pr)])
+        lam.relleno([P(be, zs - pr), P(xc, zs - pr), P(xc, zs), P(be, zs)], "CORTES")
+        cer1 = [P(xc, zs - 0.6), P(xc + 0.15, zs - 0.6), P(xc + 0.15, zs + 0.6), P(xc, zs + 0.6)]; cer2 = [P(xc, zs - 0.9), P(xc + 0.40, zs - 0.9), P(xc + 0.40, zs - 0.6), P(xc, zs - 0.6)]
+        for c_ in (cer1, cer2): lam.poli(c_, "CERCO", cerrada=True); lam.achurado(c_, "TERRENO-ACHURADO", escala_mm=0.4)
+        tierra = [P(-0.70, zs - 0.45), P(0, zs - 0.45), P(0, zs), P(-0.70, zs)]
+        lam.achurado(tierra, "TERRENO-ACHURADO", escala_mm=0.6); lam.poli([P(-0.70, zs), P(0, zs)], "TERRENO", ancho=0.003)
+        lam.texto(P(-0.35, zs + 0.12), "LADO VIA", 1.8, "TEXTOS", TA.MIDDLE_CENTER); lam.texto(P(xc + 0.30, zs + 0.75), "LADO PREDIO", 1.8, "TEXTOS", TA.MIDDLE_CENTER)
+        lam.texto(P(be / 2, ef + h / 2), "INTERIOR", 1.6, "TEXTOS", TA.MIDDLE_CENTER)
+        lam.cota(P(0, -0.05), P(be, -0.05), -5, texto="%.2f" % be); lam.cota(P(xc + 0.45, zs - 0.90), P(xc + 0.45, zs), 6, horizontal=False, texto="0.90")
+        LL(lam, P(be + e_j / 2, zs - 0.45), 700, 410, ["JUNTA LONGITUDINAL: tecnopor 1\" de 0.90 m de altura + sellador", "asfaltico 1\" x 2\" arriba, de 0+000.00 a 0+058.81 (pegado al cerco)"])
+        LL(lam, P(xc + 0.07, zs + 0.40), 700, 392, ["cerco perimetrico existente y su cimiento (no se tocan)"])
+        LL(lam, P(-0.35, zs - 0.20), 700, 374, ["LADO VIA: terreno natural, sin vereda ni piso:", "NO lleva junta (relleno compactado contra el muro)"])
+        LL(lam, P(be / 2, zs - et / 2), 700, 356, ["losa superior del colector a nivel +%.2f" % D["NPT"]])
+        lam.titulo_vista(645, 289, "D. SECCION: JUNTA LONGITUDINAL SOLO CONTRA EL CERCO", "ESC. 1/25 - al lado via hay terreno natural (sin junta)", 190)
+    else:
+        # ---------------- D. junta de tecnopor en el borde de la losa con el piso (1/5)
+        k = 2.0; ox_, oy_ = lam.P(560, 330)
+        P = lambda x, y: (ox_ + x * k, oy_ + y * k)
+        hatch_conc(lam, [P(-0.6, 0), P(0, 0), P(0, et), P(-0.6, et)], 0.6)
+        piso = [P(e_j, 0), P(0.6, 0), P(0.6, et), P(e_j, et)]; lam.poli(piso, "TERRENO", cerrada=True); lam.achurado(piso, "TERRENO-ACHURADO", escala_mm=0.5)
+        tecnopor(lam, [P(0, 0), P(e_j, 0), P(e_j, et - (pr if ASF else 0)), P(0, et - (pr if ASF else 0))])
+        if ASF:
+            lam.relleno([P(0, et - pr), P(e_j, et - pr), P(e_j, et), P(0, et)], "CORTES")
+            LL(lam, P(e_j / 2, et - pr / 2), 700, 385, ["sellador asfaltico 1\" x 2\" (RC-250 + arena)", "en la cara superior, a ras del piso"])
+        lam.rect(*P(-0.6, -0.12), *P(0.6, 0), "RELLENO"); lam.texto(P(0, -0.06), "relleno compactado / muro del colector", 1.6, "TEXTOS", TA.MIDDLE_CENTER)
+        lam.cota(P(0, 0), P(e_j, 0), -6, texto="1\""); lam.cota(P(0.6, 0), P(0.6, et), 6, horizontal=False, texto="0.10")
+        lam.texto(P(-0.3, et + 0.03), "LOSA SUPERIOR DEL COLECTOR", 1.7, "TEXTOS", TA.MIDDLE_CENTER); lam.texto(P(0.33, et + 0.03), "PISO ADYACENTE (lado via)" if CON_CERCO else "PISO ADYACENTE (retiro)", 1.7, "TEXTOS", TA.MIDDLE_CENTER)
+        LL(lam, P(e_j / 2, et / 2), 700, 365, ["tecnopor de 1\" en el espesor del piso (0.10):", "0.10 m2 por metro; " + ("lado via del colector y cajas" if CON_CERCO else "ambos lados del colector y cajas")])
+        lam.titulo_vista(560, 290, "D. JUNTA DE TECNOPOR Y SELLADOR EN EL BORDE DE LA LOSA" if ASF else "D. JUNTA DE TECNOPOR EN EL BORDE DE LA LOSA", "ESC. 1/5", 170)
     # ---------------- E. ubicacion de las juntas de dilatacion
     progs = ["0+%06.2f" % (4.0 * (i + 1)) for i in range(J["n"])]
     ncol = max(2, -(-len(progs) // 9))
@@ -390,18 +414,19 @@ def dd03(doc, ox, oy, R, T):
                 ["Mezcla del sellador: 0.025 x 0.050 x longitud sellada", "m3", "%.4f" % (As * sello), "%.3f" % (J["n"] * As * sello), "RC-250 %.0f gal/m3 + arena gruesa %.2f m3/m3" % (MC.RC_GAL_M3, MC.ARENA_M3_M3)]] if ASF else
                [["Sello de poliuretano 25 x 25 mm (caras interiores 2h + %.2f y superior %.2f)" % (b, be), "m", "%.2f (%.3f/m)" % (sello, sello / per), f2(J["n"] * sello), "01.04.04.06.01: 0.63 L por metro de sello (aprox. 0.75 kg)"],
                 ["Imprimante para el sello (0.10 L por metro de cordon)", "L", f2(sello * 0.10), f2(J["n"] * sello * 0.10), "insumo del ACU"]]),
-             (["Tecnopor 1\" contra el cerco: altura 0.90 x %.2f m" % J["L_tecnopor_cerco"], "m2", "0.90 por m", f2(0.90 * J["L_tecnopor_cerco"]), "01.04.04.06.02 (tramo pegado al cerco)"] if CON_CERCO else
+             (["Tecnopor 1\" contra el cerco (junta longitudinal): altura 0.90 x %.2f m" % J["L_tecnopor_cerco"], "m2", "0.90 por m", f2(0.90 * J["L_tecnopor_cerco"]), "01.04.04.06.02 (tramo pegado al cerco)"] if CON_CERCO else
               ["Tecnopor 1\" en el contacto con la caja CL (seccion del colector menos el hueco)", "m2", f2(a_tec), f2(a_tec), "01.04.04.06.02 (empalme con la CL)"]),
-             ["Tecnopor 1\" en el borde de la losa con el piso: altura 0.10 x %.2f m" % J["L_tecnopor_piso"], "m2", "0.10 por m", f2(0.10 * J["L_tecnopor_piso"]), "01.04.04.06.02 (" + ("un lado: lado via del colector y cajas" if CON_CERCO else "ambos lados del colector y cajas") + ")"]]
+             *([["Tecnopor 1\" en el borde de la losa con el piso: altura 0.10 x %.2f m" % J["L_tecnopor_piso"], "m2", "0.10 por m", f2(0.10 * J["L_tecnopor_piso"]), "01.04.04.06.02 (" + ("un lado: lado via del colector y cajas" if CON_CERCO else "ambos lados del colector y cajas") + ")"]]
+               if J["L_tecnopor_piso"] > 0 else [])]
     if ASF:
         L02 = J["L_tecnopor_cerco"] + J["L_tecnopor_piso"]
-        filas.append(["Sellador asfaltico 1\" x 2\" en la cara superior de las juntas (02): %.2f m" % L02, "m3", "%.5f por m" % As, "%.3f" % (As * L02), "01.04.04.06.02 (cerco y bordes de losa)"])
+        filas.append(["Sellador asfaltico 1\" x 2\" en la cara superior de las juntas (02): %.2f m" % L02, "m3", "%.5f por m" % As, "%.3f" % (As * L02), "01.04.04.06.02 (" + ("cerco y bordes de losa" if J["L_tecnopor_piso"] > 0 else "junta longitudinal con el cerco") + ")"])
     cuadro(lam, 430, 165, "COMPONENTES POR JUNTA DE DILATACION (perimetro %.2f m) Y TOTAL (%d und); JUNTAS DE TECNOPOR POR METRO" % (per, J["n"]), filas, (104, 12, 30, 22, 78))
     lam.notas(430, 225, "PROCEDIMIENTO", [
         "1. Marcar las juntas cada 4.00 m (cuadro). Cortar la plancha de tecnopor a la forma de la seccion (anillo %.2f x %.2f con hueco %.2f x h) y fijarla al concreto ya vaciado." % (be, ef + h + et, b),
         "2. Vaciar el tramo siguiente contra la plancha. El acero longitudinal termina a 0.05 de cada lado; los marcos se colocan a cada lado de la junta.",
         ("3. Retirar 2\" (50 mm) de tecnopor en las caras interiores y en la cara superior; limpiar y secar; calentar el asfalto liquido RC-250, mezclarlo con arena gruesa "
-         "y colocarlo compactando con tacos de madera hasta el ras (EG-2013, 510.02 c)." if ASF else
+         "y colocarlo compactando con tacos de madera hasta el ras (EG-2013 MTC)." if ASF else
          "3. Retirar 25 mm de tecnopor en las caras interiores y en la cara superior; limpiar, imprimar y aplicar el sello de poliuretano 25 x 25 mm con pistola; alisar."),
         NOTA4_DD03], 1.8, ancho_mm=ANCHO_PROC_DD03)
     lam.leyenda2(60, 235, [("concreto", "CONCRETO", "concreto f'c=210"), ("rect", "JUNTAS", "tecnopor 1\""), ("relleno", "CORTES", SL["ley"])] + ([("rect", "CERCO", "cerco existente")] if CON_CERCO else []) + [("linea2", "ACERO-LONG", "barra longitudinal 3/8\""), ("rect", "RELLENO", "relleno compactado")], 1.8)

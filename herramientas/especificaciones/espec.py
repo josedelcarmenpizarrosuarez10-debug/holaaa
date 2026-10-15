@@ -402,7 +402,10 @@ def espec(pt, P, ctx):
                       medicion=[p("Se medira el area de concreto curada: suma de las superficies expuestas de muros (dos caras), fondo y tapa o losa, segun el metrado.")])
     if "ACABADO" in d or "FROTACHADO" in d:
         bru = "BRU" in d
-        return bloque([p("Comprende el acabado frotachado%s de la cara superior de la losa del %s, que en el tramo de vereda sirve de piso peatonal, al nivel del piso terminado (+%.2f)." % (" y brunado" if bru else "", C["nombre"], C["NPT"]))],
+        return bloque([p(("Comprende el acabado frotachado%s de la cara superior de la losa del %s, que queda a nivel del terreno terminado del frente (+%.2f) y sirve de superficie de transito peatonal."
+                          if C.get("cerco") else
+                          "Comprende el acabado frotachado%s de la cara superior de la losa del %s, que en el tramo de vereda sirve de piso peatonal, al nivel del piso terminado (+%.2f).")
+                         % (" y brunado" if bru else "", C["nombre"], C["NPT"]))],
                       mat=l("El mismo concreto de la losa; mortero cemento-arena 1:2 solo para resanes."), equ=l("Regla de aluminio, frotacho de madera, plancha de acero, brunadora."),
                       proc=l("Despues de reglear el concreto fresco de la losa, cuando pierda el brillo del agua superficial, pasar el frotacho de madera hasta lograr una superficie uniforme y antideslizante.",
                              "No espolvorear cemento seco ni agregar agua para facilitar el acabado.",
@@ -558,17 +561,18 @@ def espec(pt, P, ctx):
                           ctrl=l("Sellador adherido en ambas caras, sin burbujas ni discontinuidades."), seg=l(EPP, "Ventilar al aplicar imprimantes y selladores; mantenerlos lejos del fuego."), und=und,
                           medicion=[p("Se medira la longitud de junta segun el perimetro de la seccion en cada junta por el numero de juntas, como en el metrado.")])
         if col and C.get("sello") == "asfaltico" and "SELLADOR" in d:
-            return bloque([p("Comprende la junta de 1\" con plancha de poliestireno expandido (tecnopor) y sellador asfaltico entre el %s y las estructuras vecinas: cimiento del cerco existente "
-                             "(plancha de 0.90 m de altura) y borde de la losa superior con el piso adyacente, solo del lado via (plancha de 0.10 m; al lado predio esta el cerco), de modo que cada estructura trabaje en forma independiente. "
-                             "En la cara superior de la junta se coloca sellador asfaltico de 1\" x 2\" (asfalto liquido RC-250 + arena gruesa), segun la lamina DD-03." % C["nombre"])],
-                          mat=l("Plancha de tecnopor de 1\" (densidad 10 a 15 kg/m³) en tiras de 0.90 m y de 0.10 m de altura; asfalto liquido RC-250 (NTP 321.028); arena gruesa limpia y seca."),
+            return bloque([p("Comprende la junta longitudinal de 1\" con plancha de poliestireno expandido (tecnopor) y sellador asfaltico entre el muro del %s (lado predio) y el cimiento "
+                             "del cerco existente, en todo el tramo del colector pegado al cerco (0+000.00 a 0+058.81), con plancha de 0.90 m de altura, de modo que el colector y el cerco "
+                             "trabajen en forma independiente. En la cara superior de la junta se coloca sellador asfaltico de 1\" x 2\" (asfalto liquido RC-250 + arena gruesa), segun la lamina DD-03. "
+                             "Al otro lado del colector (lado via) hay terreno natural, sin vereda ni piso, y no lleva junta." % C["nombre"])],
+                          mat=l("Plancha de tecnopor de 1\" (densidad 10 a 15 kg/m³) en tiras de 0.90 m de altura; asfalto liquido RC-250 (NTP 321.028); arena gruesa limpia y seca."),
                           equ=l("Cuchilla, regla, wincha, recipiente para calentar el asfalto, tacos de madera."),
-                          proc=l("Pegar la plancha al cimiento del cerco antes de vaciar el muro del colector, y la tira de 0.10 m contra el borde de la losa, lado via, antes de vaciar el piso adyacente.",
-                                 "Mantenerlas verticales y continuas; retirar 2\" (50 mm) de tecnopor en la cara superior.",
-                                 "Calentar el RC-250, mezclarlo con arena gruesa y colocarlo compactando con tacos hasta el ras del piso."),
-                          ctrl=l("Junta continua en toda la longitud, sin contacto directo entre el concreto del colector y el cerco o el piso; sello compacto y al ras."),
+                          proc=l("Pegar la plancha al cimiento del cerco antes de vaciar el muro del colector, continua en todo el tramo pegado al cerco.",
+                                 "Mantenerla vertical y continua; retirar 2\" (50 mm) de tecnopor en la cara superior.",
+                                 "Calentar el RC-250, mezclarlo con arena gruesa y colocarlo compactando con tacos hasta el ras."),
+                          ctrl=l("Junta continua en toda su longitud, sin contacto directo entre el concreto del colector y el cimiento del cerco; sello compacto y al ras."),
                           seg=l(EPP, "Calentar el asfalto lejos de materiales inflamables, con extintor a la mano."), und=und,
-                          medicion=[p("Se medira la longitud de junta colocada y sellada: contra el cimiento del cerco en el tramo pegado al cerco y en el borde de la losa solo del lado via (colector y cajas CL y CC), como en el metrado.")])
+                          medicion=[p("Se medira la longitud de junta longitudinal colocada y sellada contra el cimiento del cerco, en el tramo pegado al cerco, como en el metrado.")])
         if col:
             return bloque([p("Comprende la junta de 1\" con plancha de poliestireno expandido (tecnopor) entre el %s y las estructuras vecinas: borde de la losa superior con el piso adyacente a ambos lados%s, de modo que cada estructura trabaje en forma independiente." % (C["nombre"], ", el cerco existente" if C["cerco"] else "" ) + (" Incluye el contacto con la caja de llegada CL." if "CL" in pt["desc"] else ""))],
                           mat=l("Plancha de tecnopor de 1\" (densidad 15 kg/m³) en tiras de 0.10 m de altura para el borde de la losa; pegamento compatible."),

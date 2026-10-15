@@ -153,7 +153,7 @@ def construir():
     c(ws, "I%d" % r, "=(%s*%.3f+%s*%.3f)/%.3f" % ("I15", D["kg12"], "I16", D["kg38"], D["kg12"] + D["kg38"]), VERDE, True, fmt="0.00")
     c(ws, "J%d" % r, 3.81, fmt="0.00"); c(ws, "K%d" % r, "=I%d/J%d-1" % (r, r), fmt="+0%;-0%"); c(ws, "L%d" % r, "Sodimac Peru"); c(ws, "M%d" % r, "-")
     c(ws, "N%d" % r, "COMPROBADO (precio nacional)", VERDE, h="left"); REF["acero"] = "'1 COTIZACION'!I%d" % r
-    mo = [("Operario", 29.30, 89.30), ("Oficial", 22.95, 69.75), ("Peon", 20.79, 62.80)]
+    mo = [("Operario", 28.95, 89.30), ("Oficial", 22.68, 69.75), ("Peon", 20.54, 62.80)]
     for j, (cat, hh, jor) in enumerate(mo):
         r = r0 + 1 + j
         c(ws, "A%d" % r, len(COT) + 2 + j); c(ws, "B%d" % r, cat, h="left"); c(ws, "C%d" % r, "hh")
@@ -170,7 +170,7 @@ def construir():
              "3. Piedra chancada 1/2\": en Tarapoto se publica la de 3/4\" (S/ 70.00 el m3, Agregados Tarapoto, Morales); la de 1/2\" debe cotizarse. En la tapa (8 cm) su incidencia es menor de S/ 2.00.",
              "4. Arena (Agregados Tarapoto): se tomo el precio publicado como precio con IGV; si el proveedor no emite factura, usar S/ 48.00 directo (celda H11 = 1.00).",
              "5. Lija y thinner reemplazan al global \"Lija y thinner\" de la ACU actual (ver DESAGREGADO_LIJA_THINNER_TAPA_REGISTRO_HOGAR_REFUGIO.xlsx).",
-             "6. Mano de obra 2026: jornal basico oficial (R.M. 197-2025-TR) y costo hora-hombre 29.30 / 22.95 / 20.79 de la hoja COSTO HORA HOMBRE 2026 de la planilla (costo CAPECO 2024-2025 llevado al jornal 2026)."]
+             "6. Mano de obra 2026: jornal basico oficial (R.M. 197-2025-TR) y costo hora-hombre 28.95 / 22.68 / 20.54 de la tabla oficial CAPECO - FTCCP 2026 (hoja COSTO HORA HOMBRE 2026 de la planilla)."]
     for i, t in enumerate(notas): fila(ws, rn + 1 + i, t, N, None, False, alto=28)
     ws.freeze_panes = "C6"
 

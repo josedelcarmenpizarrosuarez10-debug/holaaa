@@ -232,15 +232,15 @@ def construir():
     titulo2(doc, "Trazo y emplazamiento")
     parrafo(doc, "El colector se ubica dentro del predio, pegado por fuera del cerco perimetral frontal, con su eje a %.3f m del "
                  "paramento exterior del cerco, de manera que la estructura no invade la faja de la carretera Oasis y la losa "
-                 "superior queda al nivel de la vereda y del piso terminado de los ingresos (NPT %.2f msnm). Entre el muro del "
-                 "colector y el cimiento del cerco se deja una junta de tecnopor de 1\". El trazo recto tiene %.2f m de longitud "
+                 "superior queda al nivel del terreno terminado del frente y del piso de los ingresos (NPT %.2f msnm). Entre el muro del "
+                 "colector y el cimiento del cerco se deja una junta longitudinal de tecnopor de 1\" con sellador asfáltico; al otro lado del colector hay terreno natural, sin vereda ni piso. El trazo recto tiene %.2f m de longitud "
                  "(progresivas 0+000.00 a 0+%06.2f) y, al llegar al extremo suroeste del frente, gira dos veces 45° para "
                  "alinearse con el registro R-01 del receptor, al que llega en la caja de caída CC (progresiva 0+%06.2f, final "
                  "de la estructura 0+%06.2f)." % (D["eje_desde_cerco"], D["NPT"], g["P_B1"], g["P_B1"], g["P_BRINK"], g["P_FIN"]))
     parrafo(doc, "A lo largo del trazo se identifican dos cruces de circulación: el ingreso vehicular OE-01, de 4.415 m de ancho "
                  "(progresivas 0+026.32 a 0+031.33, incluyendo 0.30 m de transición a cada lado), por el que ingresan camiones "
                  "cisterna y vehículos de servicio, y el portón de motos de 1.77 m (progresivas 0+039.04 a 0+041.04). El resto "
-                 "del colector queda bajo vereda y jardín, con cargas peatonales. La ubicación en coordenadas UTM WGS84 18S de "
+                 "del colector queda bajo terreno natural, con cargas peatonales. La ubicación en coordenadas UTM WGS84 18S de "
                  "la lámina DP-01 se obtuvo a partir del registro R-01 del colector receptor y de la orientación del frente del "
                  "predio; es referencial y debe verificarse en campo durante el replanteo.")
     tabla(doc, ["ELEMENTO", "PROGRESIVA", "DESCRIPCIÓN"],
@@ -284,8 +284,8 @@ def construir():
                  "de la sección son:")
     formula(doc, "Q = (1/n) · A · R^(2/3) · S^(1/2)      →      yn = %.3f m ;  V = %.2f m/s ;  F = %.2f" % (yn, Vn, Fn))
     formula(doc, "yc = (Q² / (g · b²))^(1/3) = %.3f m      (yn > yc : régimen subcrítico, pendiente suave)" % yc)
-    parrafo(doc, "La altura interior del canal resulta de la diferencia entre el nivel de la losa superior (fijo, a nivel de "
-                 "vereda) y la cota de fondo, y varía entre %.2f m y %.2f m; con el tirante de diseño el llenado máximo es "
+    parrafo(doc, "La altura interior del canal resulta de la diferencia entre el nivel de la losa superior (fijo, a nivel del "
+                 "terreno terminado) y la cota de fondo, y varía entre %.2f m y %.2f m; con el tirante de diseño el llenado máximo es "
                  "%.0f %% y el borde libre mínimo es %.2f m, dentro de los criterios adoptados (llenado ≤ 85 %% y borde libre "
                  "≥ 0.05 m)." % (h_min, h_max, llen * 100, bl_min))
 
@@ -424,16 +424,16 @@ def construir():
     vineta(doc, "Manual de Puentes del MTC y AASHTO LRFD Bridge Design Specifications: carga de rueda del camión de diseño HL-93, impacto y ancho de franja para la losa del cruce vehicular.")
     vineta(doc, "Reglamento Nacional de Edificaciones, norma E.050 Suelos y Cimentaciones: la presión transmitida al suelo se compara con la capacidad portante del estudio de mecánica de suelos del proyecto.")
     titulo2(doc, "Criterios constructivos")
-    vineta(doc, "Colector cubierto, con losa superior al nivel de la vereda y de los pisos de ingreso (%.2f msnm), sin lloraderos." % D["NPT"])
+    vineta(doc, "Colector cubierto, con losa superior al nivel del terreno terminado del frente y de los pisos de ingreso (%.2f msnm), sin lloraderos." % D["NPT"])
     vineta(doc, "Registros de limpieza a no más de 12 m entre sí y en cada llegada de cuneta, fuera de los cruces vehiculares: "
                 "tapa de concreto armado de 0.68 × 0.68 × 0.08 m con malla de 3/8\" @0.10, luz libre de %.2f m, contramarco de "
                 "ángulo de %s con 8 anclajes de 3/8\" de 0.20 m, marco de ángulo de 1 ½\" × 1 ½\" × 1/8\", borde "
                 "engrosado de la losa de 0.15 × 0.10 m y refuerzo de borde con 8 barras de 1/2\" de 1.40 m." % (MC.LUZ_REG, MC.CM["txt"][2:].replace("x", " × ").replace("1 1/2", "1 ½")))
     vineta(doc, ("Juntas de dilatación cada 4.00 m, con tecnopor de 1\" y sellador asfáltico de 1\" × 2\" (asfalto líquido RC-250 + arena gruesa); "
-                 "junta de tecnopor de 1\" con el mismo sellador en su cara superior entre el colector y el cimiento del cerco y entre la losa superior y el piso adyacente del lado vía (al lado del predio está el cerco).")
+                 "junta longitudinal de tecnopor de 1\" con el mismo sellador en su cara superior entre el colector y el cimiento del cerco, en todo el tramo pegado al cerco; al otro lado hay terreno natural, sin junta.")
                 if MC.SELLO["clave"] == "asfaltico" else
                 ("Juntas de dilatación cada 4.00 m, con tecnopor de 1\" y sello elastomérico de poliuretano; junta de tecnopor de 1\" entre el "
-                 "colector y el cimiento del cerco y entre la losa superior y el piso adyacente del lado vía (al lado del predio está el cerco)."))
+                 "colector y el cimiento del cerco y entre la losa superior y los pisos adyacentes."))
     vineta(doc, "Empalme de cunetas por ventana de 0.40 × H en el muro del lado del predio, con caída al fondo, junta de 1\" y "
                 "registro sobre el empalme.")
     vineta(doc, "Concreto f'c = 210 kg/cm² en colector, cajas y tapas; solado de f'c = 100 kg/cm² de 0.05 m; acero fy = 4200 kg/cm²; "

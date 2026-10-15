@@ -24,7 +24,7 @@ CM = CONTRAMARCOS[os.environ.get("CONTRAMARCO", "1.5x1.5x1/8")]
 LUZ_REG = 0.70 - 2 * CM["ala"]          # luz libre entre alas del contramarco
 # sellador de las juntas del colector, por proyecto (variable SELLO_JUNTA; CAR Varones la fija en compat.py).
 # Hogar de Refugio: sellador asfaltico 1" x 2" (asfalto liquido RC-250 + arena gruesa) sobre el tecnopor, tambien en la junta
-# con el cerco y en el borde de la losa (EG-2013 MTC, seccion 510.02 c).
+# con el cerco (EG-2013 MTC, Seccion 510).
 SELLOS = {
     "poliuretano": dict(clave="poliuretano", nombre="sello elastomerico de poliuretano", txt='1" x 1"', ancho=0.025, prof=0.025, en_tecnopor=False,
                         ley="sello elastomerico"),
@@ -202,7 +202,7 @@ def prolongaciones():
 def juntas():
     n = int(dz.P_BRINK // 4.0)
     per = 2 * (D["b"] + 2 * D["e_muro"]) + 2 * (D["e_fondo"] + 1.61 + D["e_losa"])   # 1.61 = altura interior maxima
-    return dict(n=n, L_dilat=n * per, L_tecnopor_cerco=dz.P_B1, L_tecnopor_piso=dz.P_BRINK + (D["CL_largo"] + 2 * D["e_muro"] + 0.3) + (D["CC_poza_largo"] + 2 * D["e_muro"] + 0.3))   # piso a un lado (lado via); al lado predio esta el cerco
+    return dict(n=n, L_dilat=n * per, L_tecnopor_cerco=dz.P_B1, L_tecnopor_piso=0.0)   # junta longitudinal solo contra el cerco; al otro lado hay terreno natural (sin piso): no lleva junta
 
 
 def resumen():

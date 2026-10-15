@@ -118,7 +118,7 @@ def acu(r, num, codigo, nombre, und, metr, rend, cuad, mats, sus_rend):
     return r + 2
 
 r = R[datos[-1][0]] + 3
-OP, PE = 29.30, 20.79       # hoja COSTO HORA HOMBRE 2026 de la planilla
+OP, PE = 28.95, 20.54       # hoja COSTO HORA HOMBRE 2026 de la planilla
 PLAN = 26.95; PLAT = 6.36; REM = 0.10; SIL = 21.19; PERNO = 1.02; TORN = 0.25
 r = acu(r, 1, '01.04.03.05.01.03', 'CANALETA DE PLANCHA DE ACERO GALVANIZADO e=0.9mm, SECCION 0.25m x 0.20m', 'm', 'K148', 25,
         [('Operario (hojalatero)', 1, OP), ('Peon', 1, PE)],

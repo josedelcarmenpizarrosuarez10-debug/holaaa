@@ -246,7 +246,7 @@ def dp09(doc, ox, oy, R, T):
     B.caja_iso(lam, xc - 0.25, 0, ef + h + et - 0.9, 0.40, 3.0, 0.30, capas=("ISO-CERCO", "ISO-CERCO", "ISO-CERCO"), **kw)
     B.caja_iso(lam, xc, 0, ef + h + et - 0.9, 0.15, 3.0, 1.5, capas=("ISO-CERCO", "ISO-CERCO", "ISO-CERCO"), **kw)
     iso_colector(lam, 150, 410, 10.0, R, 3.0, esc, con_tapa=True, con_agua=True)
-    B.caja_iso(lam, be, 0, ef + h + et - 0.10, 0.6, 3.0, 0.10, capas=("ISO-TERRENO", "ISO-TERRENO", "ISO-TERRENO"), **kw)   # piso del retiro lado via
+    B.caja_iso(lam, be, 0, ef + h + et - 0.10, 0.6, 3.0, 0.10, capas=("ISO-TERRENO", "ISO-TERRENO", "ISO-TERRENO"), **kw)   # terreno natural lado via
     # junta de dilatacion en la mitad
     for z in (0, ef + h + et):
         lam.poli([Tt(0, 1.5, z), Tt(be, 1.5, z)], "JUNTAS")
@@ -255,10 +255,10 @@ def dp09(doc, ox, oy, R, T):
     lam.juntar_llamadas()
     lam.llamada(Tt(be / 2, 3.0, ef + h + et), (xt[0], xt[1] + 0.9), ["losa superior del colector = piso terminado (NPT +260.60)"], 1.8)
     lam.llamada(Tt(be, 1.5, ef + h + et), (xt[0], xt[1] + 0.6), ["junta de dilatacion cada 4.00 m (tecnopor 1\" + sello)"], 1.8)
-    lam.llamada(Tt(xc, 3.0, ef + h + et + 0.5), (xt[0], xt[1] + 0.3), ["cerco perimetrico existente (lado predio); junta de tecnopor 1\" con el muro"], 1.8)
+    lam.llamada(Tt(xc, 3.0, ef + h + et + 0.5), (xt[0], xt[1] + 0.3), ["cerco perimetrico existente (lado predio); junta longitudinal de tecnopor 1\" + sellador"], 1.8)
     lam.llamada(Tt(be - e / 2, 3.0, ef + h / 2), (xt[0], xt[1]), ["muro e=0.15, marco 3/8\" @0.20; altura interior 1.40 a 1.61 m"], 1.8)
     lam.llamada(Tt(be / 2, 3.0, ef / 2), (xt[0], xt[1] - 0.3), ["losa de fondo e=0.15 sobre solado e=0.05"], 1.8)
-    lam.llamada(Tt(be + 0.4, 3.0, ef + h + et), (xt[0], xt[1] - 0.6), ["piso del retiro (lado via) nivelado hasta la cota de la losa"], 1.8)
+    lam.llamada(Tt(be + 0.4, 3.0, ef + h + et), (xt[0], xt[1] - 0.6), ["terreno natural (lado via) nivelado a la cota de la losa: sin vereda ni piso, sin junta"], 1.8)
     lam.volcar_llamadas()
     lam.titulo_vista(150, 268, "ISOMETRICO 1: COLECTOR JUNTO AL CERCO", "tramo tipico de 3.00 m - sin escala", 140)
     # ISO 2: registro explotado

@@ -1,5 +1,5 @@
 """Hogar de Refugio (Mujeres Violentadas, CUI 2675514): renombra las dos partidas de juntas del colector y cambia el sello
-elastomerico por sellador asfaltico (tecnopor en toda la seccion + sello asfaltico superficial, EG-2013 510.02 c y 438.02 e 3),
+elastomerico por sellador asfaltico (tecnopor en toda la seccion + sello asfaltico superficial, EG-2013 MTC),
 editando el XML de la planilla para conservar formato e imagenes. No cambia ninguna cantidad de metrado.
 Uso: python3 herramientas/renombrar_juntas_colector.py <xlsx>
 """
@@ -16,7 +16,7 @@ NOMBRES = {
     'Sello elastomerico de poliuretano': 'Sellador asfaltico: asfalto liquido RC-250 + arena gruesa (sello de 1" x 2")',
 }
 NOTA = ("(tecnopor + sellador elastomerico)",
-        "(tecnopor de 1\" en todo el perimetro + sellador asfaltico RC-250 con arena de 1\" x 2\" en la cara expuesta, EG-2013 secc. 510.02 c y 438.02 e 3)")
+        "(tecnopor de 1\" en todo el perimetro + sellador asfaltico RC-250 con arena de 1\" x 2\" en la cara expuesta, EG-2013 MTC)")
 SELLO_M3 = round(0.0254 * 0.0508, 4)          # m3 de mezcla de sello por m de junta (1" x 2")
 
 
