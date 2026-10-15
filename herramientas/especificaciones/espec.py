@@ -41,6 +41,7 @@ PROYECTOS = {
     "refugio": dict(
         clave="refugio", archivo="METRADO_DRENAJE_MUJERES_VIOLENTADAS.xlsx", corto="HOGAR DE REFUGIO TEMPORAL", cui="2675514",
         junta_cuneta_seccion=True,     # junta de cunetas en toda la seccion en U (2 muros + losa de fondo), EG-2013 MTC Seccion 510
+        lamina_rejilla="DJ-03",        # rejilla de cunetas: modulo de 0.497 m en rebaje 0.05 x 1", 39 platinas @1"
         salida=os.path.join(RAIZ, "entregables", "ESPECIFICACIONES_TECNICAS_DRENAJE_PLUVIAL_HOGAR_REFUGIO"),
         colector=dict(
             nombre="colector pluvial frontal del Hogar de Refugio Temporal", L=69.89, b=0.80, em=0.15, ef=0.15, es=0.10, es_cam=0.25, solado=0.05,
@@ -516,8 +517,11 @@ def espec(pt, P, ctx):
         return bloque([p("Comprende la fabricacion y colocacion de la rejilla metalica movil de los tramos abiertos de las cunetas, segun el detalle de rejilla y el detalle 1 de los planos de drenaje pluvial: "
                          "modulos removibles de %.2f m de longitud (nota de los planos: rejilla metalica removible en paños de 1.00 m), formados por platinas de 1\" x 3/16\" colocadas de canto, transversales al eje de la cuneta, "
                          "soldadas por sus extremos a dos angulos L 1\" x 1\" x 3/16\" longitudinales que forman el marco (cortes B-B y C-C del detalle)." % K["rej_mod"]),
-                       p("Separacion de las platinas: 1\" (0.025 m) entre ejes, con abertura libre de 0.02 m, segun la proporcion del detalle de rejilla (dibujado sin escala: la separacion entre platinas es igual al ala de 1\" del angulo del marco). "
-                         "El ancho del modulo sera el ancho interior de la cuneta (%.2f m) mas el apoyo en el rebaje de %.2f m de cada borde." % (K["b"], K["rej_reb"])),
+                       (p("Segun la lamina %s: cada modulo de 1.00 m (0.997 m fabricado, 3 mm de holgura entre modulos) tiene 2 angulos L 1\" x 1\" x 3/16\" con el ala horizontal apoyada en el rebaje "
+                          "y el ala vertical hacia la cuneta, y 39 platinas de 1\" x 3/16\" x 0.446 m de canto @1\" entre ejes (abertura libre 0.021 m), soldadas a tope al ala vertical. El modulo mide 0.497 m de ancho "
+                          "y se apoya en el rebaje de 0.05 x 1\" del borde interior de cada muro, a ras del borde superior de la cuneta; pesa 20.0 kg por metro." % P["lamina_rejilla"]) if P.get("lamina_rejilla") else
+                        p("Separacion de las platinas: 1\" (0.025 m) entre ejes, con abertura libre de 0.02 m, segun la proporcion del detalle de rejilla (dibujado sin escala: la separacion entre platinas es igual al ala de 1\" del angulo del marco). "
+                          "El ancho del modulo sera el ancho interior de la cuneta (%.2f m) mas el apoyo en el rebaje de %.2f m de cada borde." % (K["b"], K["rej_reb"]))),
                        p("En la junta de la rejilla con el piso adyacente se deja la junta de dilatacion de 1\" con relleno asfaltico del detalle 1.")],
                       mat=l("Platina de acero A36 de 1\" x 3/16\"; angulo A36 de 1\" x 1\" x 3/16\"; soldadura E6011 de 1/8\"; pintura anticorrosiva (dos manos) y esmalte (dos manos)."),
                       equ=l("Maquina de soldar de 250 A, amoladora con disco de corte y desbaste, escuadra, wincha, brochas."),
@@ -583,7 +587,7 @@ def espec(pt, P, ctx):
         if P.get("junta_cuneta_seccion"):
             return bloque([p("Comprende las juntas de dilatacion de 1\" (0.0254 m) de las cunetas, cada %.2f m y en los cambios de direccion, en toda la seccion en U: los dos muros y la losa de fondo, "
                              "de modo que cada tramo entre juntas trabaje independiente, segun la EG-2013 MTC, Seccion 510 (cunetas revestidas de concreto). La junta lleva plancha de tecnopor de 1\" en todo el espesor "
-                             "y sellador asfaltico (asfalto liquido RC-250 + arena gruesa) en la cara interior, segun la lamina DJ-01." % K["junta"])],
+                             "y sellador asfaltico (asfalto liquido RC-250 + arena gruesa) en la cara interior, segun las laminas DJ-01 y DJ-02." % K["junta"])],
                           mat=l("Plancha de tecnopor de 1\" (densidad 10 a 15 kg/m³) cortada a la forma de la seccion en U; asfalto liquido RC-250 (NTP 321.028); arena gruesa limpia y seca."),
                           equ=l("Cuchilla, regla, wincha, recipiente para calentar el asfalto, tacos de madera, escobilla."),
                           proc=l("Cortar la plancha de tecnopor con la forma de la seccion en U (muros y losa de fondo) y colocarla al vaciar, a plomo y continua en toda la seccion.",

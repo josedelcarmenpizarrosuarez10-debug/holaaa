@@ -1,10 +1,12 @@
-"""Hogar de Refugio Temporal (Mujeres Violentadas, CUI 2675514): lamina DJ-01, detalle de la partida 01.04.03.04.03.03
+"""Hogar de Refugio Temporal (Mujeres Violentadas, CUI 2675514): laminas DJ-01 a DJ-03 de las cunetas de piso.
+DJ-01: detalle de la partida 01.04.03.04.03.03
 JUNTA DE DILATACION E=1" CON SELLADOR ASFALTO en cunetas, en toda la seccion en U (2 muros + losa de fondo), segun la
 EG-2013 MTC, Seccion 510 (cunetas revestidas de concreto).
 
 Escala real (1 unidad = 1 m) en una lamina A1 a 1/10; las vistas ampliadas o reducidas se dibujan con su factor e indican
 su escala. Seccion de cuneta de la hoja CONCRETO EN CUNETAS (interior 0.40, muros y losa de 0.10, losa de 0.60) y metrado
 de la hoja METRADO JUNTA DE DILATACION (juntas cada 3.00 m; longitud por junta = 2 x altura del muro + 0.40).
+DJ-02 (proceso constructivo de la junta en isometrico) y DJ-03 (rejilla) en planos_junta_cunetas_iso.py.
 Uso: python3 herramientas/planos_junta_cunetas.py
 """
 import os, sys, warnings
@@ -16,7 +18,7 @@ from ezdxf.enums import TextEntityAlignment as TA
 from dxf_detalles import hatch_conc, tecnopor, barra, punto_barra, D38
 
 PLANILLA = os.path.join(RAIZ, "insumos", "metrados_vigentes", "METRADO_DRENAJE_MUJERES_VIOLENTADAS.xlsx")
-SALIDA = os.path.join(RAIZ, "entregables", "PLANO_DJ-01_JUNTA_CUNETAS_HOGAR_REFUGIO.dxf")
+SALIDA = os.path.join(RAIZ, "entregables", "PLANOS_DETALLE_CUNETAS_JUNTA_Y_REJILLA_HOGAR_REFUGIO.dxf")
 BI, EM, EL, ES = 0.40, 0.10, 0.10, 0.10       # ancho interior, muros, losa de fondo, solado (m)
 BE = BI + 2 * EM                               # 0.60
 HD = 0.50                                      # altura interior dibujada (variable segun el eje)
@@ -145,13 +147,14 @@ def dj01(doc, F, total):
 def construir():
     F, total = metrado()
     doc = B.nuevo_documento()
-    lam = dj01(doc, F, total)
+    from planos_junta_cunetas_iso import dj02, dj03
+    lams = {"DJ-01": dj01(doc, F, total), "DJ-02": dj02(doc, 10.0, 0.0), "DJ-03": dj03(doc, 20.0, 0.0)}
     msp = doc.modelspace()
     msp.set_redraw_order({e.dxf.handle: -1 for e in msp.query("HATCH") if e.dxf.layer == "CONCRETO-ACHURADO"})
-    LY.presentaciones(doc, {"DJ-01": lam})
+    LY.presentaciones(doc, lams)
     err = len(doc.audit().errors)
     doc.saveas(SALIDA)
-    print("DJ-01 (%d errores de auditoria): %d juntas, %.2f ml -> %s" % (err, sum(f["n"] for f in F), total, os.path.relpath(SALIDA, RAIZ)))
+    print("DJ-01, DJ-02, DJ-03 (%d errores de auditoria): %d juntas, %.2f ml -> %s" % (err, sum(f["n"] for f in F), total, os.path.relpath(SALIDA, RAIZ)))
     return SALIDA
 
 
