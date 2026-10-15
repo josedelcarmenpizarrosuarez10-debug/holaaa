@@ -57,6 +57,11 @@ Rama: `claude/colector-pluvial-hogar-refugio-ydbnaf`
 - Planos DD-01, DD-02, DP-06B, DP-08, DP-09 y DA-03, isométricos 3D y especificaciones actualizados. CAR Varones conserva el L 2"x2"x3/16" (`CONTRAMARCO` en `varones/compat.py`).
 - Pendiente por cotizar en Tarapoto: piedra chancada 1/2" y alquiler de soldadora (se dejó el precio anterior).
 
+## 15 de octubre de 2026: juntas del colector del Hogar de Refugio (CUI 2675514)
+- DD-03, DP-08, DA-03, especificaciones y memoria: tecnopor 1" + sellador asfáltico 1" x 2" (RC-250 + arena) en la junta de dilatación, contra el cerco y en el borde de la losa (EG-2013 MTC, 510). CAR Varones conserva el sello de poliuretano (`SELLO_JUNTA` en `varones/compat.py`).
+- Planilla: hojas ACU JUNTA DILATACION (S/ 12.01/m) y ACU JUNTA CERCO (S/ 6.12/m) con cantidades del DD-03; COLECTOR INSUMOS lee de ellas el tecnopor y el sellador. Metrados sin cambio.
+- Pendiente: confirmar qué hay a cada lado del colector (152.17 m de junta "con el piso adyacente" en la partida 01.04.04.06.02).
+
 ## Cómo imprimir (los tres proyectos)
 1. Abrir la pestaña de la lámina (DP-00, DP-01, ...).
 2. Ctrl+P: área = Presentación, escala 1:1, centrar.
