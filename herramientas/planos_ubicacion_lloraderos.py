@@ -15,6 +15,7 @@ import ezdxf, openpyxl
 from ezdxf.addons import Importer
 from ezdxf.enums import TextEntityAlignment as TA
 import dxf_base as B, dxf_layouts as L, diseno as dz
+from ezdxf import bbox
 
 ZIP = os.path.join(RAIZ, "insumos", "solange", "PLANTA_GENERAL_REFUGIO_FINAL_03-10-2026_dxf.zip")
 EJES = os.path.join(RAIZ, "insumos", "solange", "EJES_CUNETAS_REFUGIO.json")
@@ -68,7 +69,10 @@ def fondo(doc, lam):
         if t in EXCL_TIPOS or ly in EXCL_LAYERS: continue
         if t == "INSERT" and e.dxf.name.startswith(EXCL_BLOQUES): continue
         if t == "HATCH" and ly != "HIERVA": continue
-        sel.append(e)
+        try: bb = bbox.extents([e], fast=True)
+        except Exception: continue
+        if not bb.has_data or bb.extmin.x < EXT[0] - 2 or bb.extmin.y < EXT[1] - 2 or bb.extmax.x > EXT[2] + 2 or bb.extmax.y > EXT[3] + 2: continue
+        sel.append(e)                                        # solo lo que esta dentro del predio (sin linderos ni topografia lejana)
     imp = Importer(src, doc); imp.import_entities(sel, doc.modelspace()); imp.finalize()
     # todo en gris (capa ARQ-FONDO), salvo la red de cunetas (azul) y las areas verdes (verde)
     red = doc.blocks.get("red drenaje")
@@ -135,7 +139,7 @@ def lamina(doc, ox, oy):
     filas = [("T%d" % t["n"], "EJE " + t["eje"], t["prog"], "LADO " + t["lado"], "%.2f" % t["L"], "%.2f" % t["sep"], "%d" % t["nll"]) for t in T]
     filas.append(("", "", "", "TOTAL", "%.2f" % sum(t["L"] for t in T), "", "%d" % tot))
     yb = lam.tabla(400, 548, ["TRAMO", "EJE", "PROGRESIVA DEL TRAMO", "LADO DEL MURO", "LONGITUD (m)", "ESPAC. (m)", "N° LLORAD."], filas,
-                   [18, 18, 52, 30, 24, 18, 20], 1.9, 5.2, "CUADRO DE TRAMOS CON LLORADEROS (= hoja METRADO LLORADEROS de la planilla)")
+                   [16, 18, 50, 34, 30, 24, 26], 1.9, 5.2, "CUADRO DE TRAMOS CON LLORADEROS (= hoja METRADO LLORADEROS de la planilla)")
     # ---------------- leyenda
     ly0 = yb - 14
     lam.texto(lam.P(400, ly0), "LEYENDA", 3.0, "TITULOS")
@@ -155,6 +159,19 @@ def lamina(doc, ox, oy):
         else:
             lam.circulo(lam.P(407, y), 2.6 * f, capa); lam.texto(lam.P(407, y), "T1", 2.2, capa, TA.MIDDLE_CENTER)
         lam.texto(lam.P(418, y), txt, 2.0, "TEXTOS", TA.MIDDLE_LEFT)
+    # ---------------- detalle tipico (bloque de las especificaciones de lloraderos, dibujado a 1/10)
+    import espec_lloraderos as EL
+    if "ARIAL-N" not in doc.styles: doc.styles.add("ARIAL-N", font="arialbd.ttf")
+    if "ARIAL" not in doc.styles: doc.styles.add("ARIAL", font="arial.ttf")
+    for nm, c in (("LEY-TEXTO", 7), ("LEY-TITULO", 160), ("LEY-SIMBOLO", 7), ("LEY-RELLENO", 8), ("LEY-MARCO", 250), ("LEY-COTA", 94)):
+        if nm not in doc.layers: doc.layers.add(nm, color=c)
+    blk = EL.detalle(doc, "Hogar de Refugio Temporal - CUI 2675514")
+    for x in [x for x in blk if x.dxftype() == "TEXT" and x.dxf.text.startswith(("ESC. REAL", "DETALLE DE INSTALACION", "Seccion cuneta"))]: blk.delete_entity(x)
+    bb = bbox.extents(blk); k = ESC / 10                         # 1/10 en una lamina a 1/250
+    cx, cy = (bb.extmin.x + bb.extmax.x) / 2, (bb.extmin.y + bb.extmax.y) / 2
+    xd, yd = 560, 238
+    lam.msp.add_blockref(blk.name, (lam.P(xd, yd)[0] - cx * k, lam.P(xd, yd)[1] - cy * k), dxfattribs={"layer": "0", "xscale": k, "yscale": k})
+    lam.titulo_vista(xd, yd + (bb.extmax.y - cy) * k / f + 12, "DETALLE TIPICO DEL LLORADERO", "ESC. 1/10 - seccion de cuneta junto a area verde (H variable; se dibuja H = 0.50 m). Detalle completo en DL-01 y DL-02", 150)
     # ---------------- notas
     lam.notas(400, ly0 - 58, "NOTAS", [
         "1. Llevan lloraderos solo los muros de cuneta cuya cara exterior colinda con area verde, donde el agua del terreno empuja al muro. Los muros junto a veredas, pisos o edificaciones no llevan.",
