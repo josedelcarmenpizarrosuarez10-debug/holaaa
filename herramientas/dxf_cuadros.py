@@ -142,7 +142,7 @@ def da(doc, ox, oy, R, T):
     lam.tabla(32, 200, ["PARTIDA", "UND", "METRADO"], filas, [110, 16, 26], 1.7, 4.8, "RESUMEN DE CONCRETO Y ENCOFRADO (colector%s)" % TXT_CAJAS)
     lam.leyenda2(470, 205, [("concreto", "CONCRETO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100, e=0.05"),
                             ("linea2", "ACERO", "acero transversal (marco)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal 3/8\""),
-                            ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", ("nivel terminado +%.2f (lado via: terreno natural)" if CON_CERCO else "piso terminado +%.2f") % D["NPT"])], 1.8, ancho_col=125, filas_col=3)
+                            ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", ("losa superior = vereda +%.2f (lado via: terreno natural)" if CON_CERCO else "piso terminado +%.2f") % D["NPT"])], 1.8, ancho_col=125, filas_col=3)
 
     lams.append(lam)
     # ---------------- DA-03
@@ -171,7 +171,7 @@ def da(doc, ox, oy, R, T):
     lam.tabla(32, 200, ["PARTIDA", "UND", "METRADO"], filas, [120, 18, 26], 1.7, 4.6, TIT_RES_DA03)
     lam.leyenda2(470, 205, [("concreto", "CONCRETO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100, e=0.05"),
                             ("linea2", "ACERO", "acero transversal (marco)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal 3/8\""),
-                            ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", ("nivel terminado +%.2f (lado via: terreno natural)" if CON_CERCO else "piso terminado +%.2f") % D["NPT"])], 1.8, ancho_col=125, filas_col=3)
+                            ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", ("losa superior = vereda +%.2f (lado via: terreno natural)" if CON_CERCO else "piso terminado +%.2f") % D["NPT"])], 1.8, ancho_col=125, filas_col=3)
 
     lams.append(lam)
     return lams

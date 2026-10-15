@@ -134,12 +134,12 @@ def dp04(doc, ox, oy, R, T):
             lam.titulo_vista(xmm + 25, ymm - 33, "SECCION %s" % nm, "PROG. %s - CF %.3f - %s - ESC. 1/15" % (prog_txt(p), g["cf"], ACERO[g["tipo"]][4]), 130)
         lam.leyenda2(32, 128, [("concreto", "CONCRETO", "concreto armado f'c=210 kg/cm2 (muros y losas)"), ("rect", "SOLADO", "solado f'c=100 kg/cm2, e=0.05"),
                                ("linea2", "ACERO", "acero transversal: marco cerrado (rojo)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal 3/8\" (diametro real)"),
-                               ("linea", "AGUA", "nivel de agua de diseno (%s)" % TXT_Q_LEY), ("linea2", "TERRENO", ("nivel terminado +%.2f (lado via: terreno natural)" if CON_CERCO else "piso terminado +%.2f") % D["NPT"]),
+                               ("linea", "AGUA", "nivel de agua de diseno (%s)" % TXT_Q_LEY), ("linea2", "TERRENO", ("losa superior = vereda +%.2f (lado via: terreno natural)" if CON_CERCO else "piso terminado +%.2f") % D["NPT"]),
                                ("discontinua", "TERRENO-EXISTENTE", "terreno existente"), ("discontinua", "EXCAVACION", "limite de excavacion")] + ([("rect", "CERCO", "cerco perimetrico existente")] if CON_CERCO else []), 1.8,
                       ancho_col=110, filas_col=5)
         lam.notas(262, 128, "NOTAS", NOTAS_DP04 or ["1. Altura interior h segun el perfil longitudinal (1.40 m en 0+000 a 1.61 m en el brink).",
                                         "2. Tramo normal y cruce de motos: un solo marco cerrado en el eje de muros y losas (una capa, E.060 14.3.4); recubrimiento minimo 0.04 m en muros y losa de fondo y 0.025 m en la losa superior.",
-                                        "3. Junta longitudinal de tecnopor de 1\" con sellador asfaltico entre el muro lado predio y el cimiento del cerco (0+000.00 a 0+058.81); al lado via hay terreno natural, sin vereda ni piso: no lleva junta.",
+                                        "3. Junta longitudinal de tecnopor de 1\" con sellador asfaltico entre el muro lado predio y el cimiento del cerco (0+000.00 a 0+058.81); al lado via hay terreno natural: no lleva junta. La losa superior sirve de vereda.",
                                         "4. El cruce de camiones (S-04) lleva losas e=0.25 y doble marco de 1/2\" @0.15 (marco exterior e interior, recubrimiento 0.04); el cruce de motos (S-05) marco unico de 3/8\" @0.15.",
                                         "5. Los registros no se ubican dentro de los cruces vehiculares."], 1.7)
         lams.append(lam)

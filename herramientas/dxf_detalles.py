@@ -73,7 +73,7 @@ SUB_N_REG = "10 REGISTROS"; SUB_N_TAPAS = "10 TAPAS"; SUB_N_JUNTAS = "17 JUNTAS"
 PARTIDA_EMPALME = "01.04.04.06.03 EMPALME (und)"     # None: el empalme no tiene partida propia (solo detalle constructivo)
 ANCHO_PROC_DD03 = 262      # ancho del procedimiento de la DD-03 (no invade la tabla de ubicacion)
 NOTA4_DD03 = ("4. Junta longitudinal (02): plancha de 1\" x 0.90 pegada al cimiento del cerco antes de vaciar el muro, de 0+000.00 a 0+058.81, con sellador asfaltico 1\" x 2\" en la"
-              " cara superior. Al lado via hay terreno natural (sin vereda ni piso): no lleva junta.")
+              " cara superior. Al lado via hay terreno natural: no lleva junta (la losa del colector sirve de vereda).")
 
 
 def f2(v): return "%.2f" % v
@@ -383,8 +383,8 @@ def dd03(doc, ox, oy, R, T):
         lam.cota(P(0, -0.05), P(be, -0.05), -5, texto="%.2f" % be); lam.cota(P(xc + 0.45, zs - 0.90), P(xc + 0.45, zs), 6, horizontal=False, texto="0.90")
         LL(lam, P(be + e_j / 2, zs - 0.45), 700, 410, ["JUNTA LONGITUDINAL: tecnopor 1\" de 0.90 m de altura + sellador", "asfaltico 1\" x 2\" arriba, de 0+000.00 a 0+058.81 (pegado al cerco)"])
         LL(lam, P(xc + 0.07, zs + 0.40), 700, 392, ["cerco perimetrico existente y su cimiento (no se tocan)"])
-        LL(lam, P(-0.35, zs - 0.20), 700, 374, ["LADO VIA: terreno natural, sin vereda ni piso:", "NO lleva junta (relleno compactado contra el muro)"])
-        LL(lam, P(be / 2, zs - et / 2), 700, 356, ["losa superior del colector a nivel +%.2f" % D["NPT"]])
+        LL(lam, P(-0.35, zs - 0.20), 700, 374, ["LADO VIA: terreno natural (sin piso):", "NO lleva junta (relleno compactado contra el muro)"])
+        LL(lam, P(be / 2, zs - et / 2), 700, 356, ["losa superior del colector: sirve de vereda (+%.2f)" % D["NPT"]])
         lam.titulo_vista(645, 289, "D. SECCION: JUNTA LONGITUDINAL SOLO CONTRA EL CERCO", "ESC. 1/25 - al lado via hay terreno natural (sin junta)", 190)
     else:
         # ---------------- D. junta de tecnopor en el borde de la losa con el piso (1/5)

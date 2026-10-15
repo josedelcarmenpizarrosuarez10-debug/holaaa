@@ -258,7 +258,7 @@ def dp09(doc, ox, oy, R, T):
     lam.llamada(Tt(xc, 3.0, ef + h + et + 0.5), (xt[0], xt[1] + 0.3), ["cerco perimetrico existente (lado predio); junta longitudinal de tecnopor 1\" + sellador"], 1.8)
     lam.llamada(Tt(be - e / 2, 3.0, ef + h / 2), (xt[0], xt[1]), ["muro e=0.15, marco 3/8\" @0.20; altura interior 1.40 a 1.61 m"], 1.8)
     lam.llamada(Tt(be / 2, 3.0, ef / 2), (xt[0], xt[1] - 0.3), ["losa de fondo e=0.15 sobre solado e=0.05"], 1.8)
-    lam.llamada(Tt(be + 0.4, 3.0, ef + h + et), (xt[0], xt[1] - 0.6), ["terreno natural (lado via) nivelado a la cota de la losa: sin vereda ni piso, sin junta"], 1.8)
+    lam.llamada(Tt(be + 0.4, 3.0, ef + h + et), (xt[0], xt[1] - 0.6), ["terreno natural (lado via) nivelado a la cota de la losa, sin junta"], 1.8)
     lam.volcar_llamadas()
     lam.titulo_vista(150, 268, "ISOMETRICO 1: COLECTOR JUNTO AL CERCO", "tramo tipico de 3.00 m - sin escala", 140)
     # ISO 2: registro explotado

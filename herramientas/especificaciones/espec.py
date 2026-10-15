@@ -403,7 +403,7 @@ def espec(pt, P, ctx):
                       medicion=[p("Se medira el area de concreto curada: suma de las superficies expuestas de muros (dos caras), fondo y tapa o losa, segun el metrado.")])
     if "ACABADO" in d or "FROTACHADO" in d:
         bru = "BRU" in d
-        return bloque([p(("Comprende el acabado frotachado%s de la cara superior de la losa del %s, que queda a nivel del terreno terminado del frente (+%.2f) y sirve de superficie de transito peatonal."
+        return bloque([p(("Comprende el acabado frotachado%s de la cara superior de la losa del %s, que sirve de vereda peatonal, a nivel del terreno terminado del frente (+%.2f)."
                           if C.get("cerco") else
                           "Comprende el acabado frotachado%s de la cara superior de la losa del %s, que en el tramo de vereda sirve de piso peatonal, al nivel del piso terminado (+%.2f).")
                          % (" y brunado" if bru else "", C["nombre"], C["NPT"]))],
@@ -568,7 +568,7 @@ def espec(pt, P, ctx):
             return bloque([p("Comprende la junta longitudinal de 1\" con plancha de poliestireno expandido (tecnopor) y sellador asfaltico entre el muro del %s (lado predio) y el cimiento "
                              "del cerco existente, en todo el tramo del colector pegado al cerco (0+000.00 a 0+058.81), con plancha de 0.90 m de altura, de modo que el colector y el cerco "
                              "trabajen en forma independiente. En la cara superior de la junta se coloca sellador asfaltico de 1\" x 2\" (asfalto liquido RC-250 + arena gruesa), segun la lamina DD-03. "
-                             "Al otro lado del colector (lado via) hay terreno natural, sin vereda ni piso, y no lleva junta." % C["nombre"])],
+                             "Al otro lado del colector (lado via) hay terreno natural y no lleva junta; la losa superior del colector sirve de vereda." % C["nombre"])],
                           mat=l("Plancha de tecnopor de 1\" (densidad 10 a 15 kg/m³) en tiras de 0.90 m de altura; asfalto liquido RC-250 (NTP 321.028); arena gruesa limpia y seca."),
                           equ=l("Cuchilla, regla, wincha, recipiente para calentar el asfalto, tacos de madera."),
                           proc=l("Pegar la plancha al cimiento del cerco antes de vaciar el muro del colector, continua en todo el tramo pegado al cerco.",
