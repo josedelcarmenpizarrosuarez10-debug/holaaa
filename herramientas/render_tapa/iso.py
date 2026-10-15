@@ -2,7 +2,7 @@
 import json, textwrap, numpy as np, pyvista as pv, vtk
 from PIL import Image, ImageDraw, ImageFont
 src = open('render.py').read(); exec(src[:src.index('P = modelo()')])   # reutiliza texturas y geometria
-from modelo import modelo, ET, REB, LUZ, TAPA, CM_T, CM_L, MT_L, MT_T, CM_TXT, CM_KGM
+from modelo import modelo, ET, REB, LUZ, TAPA, CM_T, CM_L, MT_L, MT_T, CM_TXT, CM_KGM, GANCHO
 CMC = CM_TXT.replace(' ', ''); ALA = CM_TXT.split(' x ')[0][2:]; ESP = CM_TXT.split(' x ')[-1]; LZ = '%.2f' % (2 * LUZ)
 
 RW, RH = 1300, 1060
@@ -167,7 +167,7 @@ pts = vista(L6, {}, opac={'losa': 0.25, 'engrosado': 0.25, 'muros': 0.25}, foco=
     'muro': (-0.55, 0.5, -0.4), 'anc': (0.44, 0.125, -0.07)})
 lamina('g6', '6. ISOMETRICO DESDE ABAJO - REFUERZO DEL BORDE', 'Losa y muros transparentes: barras de 1/2" alrededor de la abertura', pts, {
     'rb': 'Barras 1/2" en el eje\n2 por lado, L = 1.40 m', 'rbx': 'Barra inferior 1/2"\nen el borde engrosado',
-    'gan': 'Gancho 0.15 m dentro\ndel muro', 'eng': 'Borde engrosado\n0.15 x 0.10 m\n(de %s a 0.90)' % LZ, 'luz': 'Luz libre %s x %s' % (LZ, LZ),
+    'gan': 'Gancho %.2f m dentro\ndel muro (L = 1.40)' % GANCHO, 'eng': 'Borde engrosado\n0.15 x 0.10 m\n(de %s a 0.90)' % LZ, 'luz': 'Luz libre %s x %s' % (LZ, LZ),
     'muro': 'Muros del colector\ne = 0.15 m', 'anc': 'Anclajes del\ncontramarco'})
 # 7 detalle ampliado de la esquina
 pts = vista(P, {}, cut=YC, foco=(0.36, YC, -0.08), escala=0.32, direc=(1, 1.4, 0.35), nombre='g7', anclas={
