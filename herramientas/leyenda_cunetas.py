@@ -48,7 +48,7 @@ class Hoja:
 
     def parrafo(self, x, y, s, ancho, h=HB, sangria=""):
         """Texto partido al ancho (m); devuelve la y siguiente."""
-        n = max(20, int(ancho / (h * 0.68)))
+        n = max(20, int(ancho / (h * 0.74)))   # ancho medio de caracter conservador: ningun renglon pasa al margen
         lineas = textwrap.wrap(s, n, subsequent_indent=sangria)
         for ln in lineas:
             self.t(x, y, ln, h); y -= h * INTER
@@ -137,7 +137,7 @@ def construir():
     def junta(yc):
         pts = [(xs + 0.115, yc - 0.05), (xs + 0.145, yc - 0.05), (xs + 0.145, yc + 0.05), (xs + 0.115, yc + 0.05)]
         S.relleno(pts, None, "AR-SAND", 0.012, 8); S.poli(pts, 7, cerrada=True)
-    fila(junta, "Junta asfaltica e = 1\" entre la cuneta y el piso o vereda adyacente; junta de dilatacion e = 1\" en muros cada %.2f m" % J)
+    fila(junta, "Junta asfaltica e = 1\" entre la cuneta y el piso o vereda adyacente; junta de dilatacion e = 1\" en toda la seccion cada %.2f m" % J)
 
     def rejilla(yc):
         S.poli([(xs, yc + 0.012), (xs + 0.26, yc + 0.012), (xs + 0.26, yc - 0.012), (xs, yc - 0.012)], 1, cerrada=True, lw=35)
@@ -239,11 +239,11 @@ def construir():
         ("7. CURADO", [
             "Con agua o curador quimico (ASTM C309) durante 7 dias como minimo, desde el fraguado inicial."]),
         ("8. JUNTAS", [
-            "Junta de dilatacion e = 1\" en los dos muros de la cuneta cada %.2f m y en los cambios de direccion, rellena con sellador asfaltico hasta el ras." % J,
+            "Junta de dilatacion e = 1\" en TODA la seccion en U (2 muros + losa de fondo) cada %.2f m y en los cambios de direccion: tecnopor 1\" + sellador asfaltico 1\" x 2\" (RC-250 + arena) en la cara interior (EG-2013 MTC, Seccion 510; lamina DJ-01)." % J,
             "Junta asfaltica e = 1\" en todo el contacto de la cuneta con el piso, vereda o losa adyacente (ver secciones)."]),
         ("9. REJILLA METALICA MOVIL (CUNETA ABIERTA)", [
-            "Platinas de 1\" x 3/16\" de canto, transversales al eje, @1\" entre ejes, soldadas a un marco de angulo de 1\" x 1\" x 3/16\".",
-            "Modulos removibles de 1.00 m, apoyados en el rebaje de 0.05 m del borde de los muros; anticorrosivo y esmalte."]),
+            "Platinas de 1\" x 3/16\" de canto, transversales al eje, @1\" entre ejes, soldadas a tope a 2 angulos L 1\" x 1\" x 3/16\" (lados largos del modulo).",
+            "Modulos removibles de 1.00 m (39 platinas de 0.446 m), apoyados en el rebaje de 0.05 x 1\" del borde de los muros; anticorrosivo y esmalte (lamina DJ-03)."]),
         ("10. CUNETA TAPADA", [
             "Losa superior de concreto armado e = 0.10 m vaciada con los muros; tapas de inspeccion de 0.60 x 0.60 x 0.10 m donde indica la planta."]),
         ("11. LLORADEROS", [

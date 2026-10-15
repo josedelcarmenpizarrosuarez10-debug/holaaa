@@ -4,8 +4,8 @@ Los modulos de Solange importan `diseno as dz` y copian `D = dz.D` al cargarse; 
 diseno_v y se fijan los textos/parametros propios de Varones. Importar este modulo ANTES de dibujar.
 """
 import os, sys
-os.environ.setdefault("CONTRAMARCO", "2x2x3/16")     # CAR Varones conserva el contramarco L 2"x2"x3/16"
-os.environ.setdefault("SELLO_JUNTA", "poliuretano")  # y el sello elastomerico de poliuretano en las juntas
+os.environ.setdefault("CONTRAMARCO", "1.5x1.5x1/8")   # contramarco L 1 1/2"x1 1/2"x1/8", igual que el Hogar de Refugio
+os.environ.setdefault("SELLO_JUNTA", "asfaltico")     # sellador asfaltico 1" x 2" (RC-250 + arena) en las juntas, igual que el Refugio
 AQUI = os.path.dirname(os.path.abspath(__file__)); HERR = os.path.dirname(AQUI); RAIZ = os.path.dirname(HERR)
 for p in (HERR, AQUI):
     if p not in sys.path: sys.path.insert(0, p)
@@ -37,10 +37,10 @@ def _juntas():
     n = int(dz.P_FIN // 4.0)
     hmax = H_MAX if H_MAX else dz.techo(dz.P_FIN) - dz.fondo(dz.P_FIN)
     per = 2 * (D["b"] + 2 * D["e_muro"]) + 2 * (D["e_fondo"] + hmax + D["e_losa"])
-    # no hay cerco perimetrico en el frente de Varones: tecnopor solo en los dos bordes de la losa con el piso adyacente y en el
-    # contacto del colector con el muro este de la caja CL (perimetro de la seccion)
+    # no hay cerco y a ambos lados del colector hay terreno natural: no lleva junta longitudinal; la unica junta con otra
+    # estructura es el contacto del colector con el muro este de la caja CL (perimetro de la seccion)
     per_cl = 2 * (D["b"] + 2 * D["e_muro"]) + 2 * (D["e_fondo"] + hmax + D["e_losa"])
-    return dict(n=n, L_dilat=n * per, L_tecnopor_cerco=0.0, L_tecnopor_cl=per_cl, L_tecnopor_piso=2 * dz.P_FIN + per_cl)
+    return dict(n=n, L_dilat=n * per, L_tecnopor_cerco=0.0, L_tecnopor_cl=per_cl, L_tecnopor_piso=0.0)
 
 
 MC.juntas = _juntas
@@ -56,8 +56,10 @@ DS.TXT_CUNETA_06C = "cuneta de arquitectura 0.40 x H, muros 0.10 (NCF segun perf
 DS.TXT_CERCO_06C = "no hay cerco perimetrico: la cuneta llega directamente al muro del colector con junta de tecnopor 1\""
 DS.TXT_JUNTA_06C = "junta de tecnopor 1\" entre el colector y la cuneta"
 DS.CON_CERCO = False
+DS.TXT_NPT_LEY = "losa superior = vereda +%.2f (terreno natural a ambos lados)"
 DD.CON_CERCO = False
-DD.TIT_DD03_C = "C. JUNTA DE TECNOPOR CON EL PISO ADYACENTE"
+DD.TIT_DD03_C = "C. JUNTA DE TECNOPOR Y SELLADOR CON LA CAJA CL"
+DD.MODO_DD03 = "caja_cl"
 DD.EJ_DD04 = 46.02
 DS.TXT_EJ_EMPALME = "ESC. 1/10 - ejemplo cuneta Eje 06 (0+046.02, registro RV-06); en las demas varia H y la cota de fondo"
 _AC = {c["perfil"]: -c["ajuste_L"] for c in dz.CUNETAS}
@@ -70,7 +72,7 @@ DS.NOTA_PROLONG = ["NOTA: las cunetas de los Ejes 09, 08, 06 y 04 se acortan",
                    "del colector se descuenta en la partida de cunetas del proyecto."]
 DS.NOTAS_DP04 = ["1. Altura interior h segun el perfil longitudinal: 0.70 m en el cruce de camiones (losa e=0.25), 0.85 m en 0+006.08 y 1.17 m en la llegada a la CL.",
                  "2. Tramo normal: un solo marco cerrado 3/8\" @0.20 en el eje de muros y losas (una capa, E.060 14.3.4); recubrimiento 0.04 m en muros y losa de fondo y 0.025 m en la losa superior.",
-                 "3. El frente del CAR Varones no tiene cerco perimetrico: el colector queda bajo el piso exterior (+261.15) con junta de tecnopor de 1\" entre la losa superior y el piso adyacente a ambos lados.",
+                 "3. No hay cerco perimetrico y a ambos lados del colector hay terreno natural: no lleva junta longitudinal. La losa superior (+261.15) sirve de vereda. Junta de tecnopor 1\" con sellador asfaltico solo en el contacto con la caja CL.",
                  "4. El cruce de camiones cisterna (S-01, 0+000.00 - 0+006.08) lleva losas e=0.25 y doble marco de 1/2\" @0.15 (marco exterior e interior, recubrimiento 0.04).",
                  "5. Los registros no se ubican dentro del cruce de camiones. No hay cruce de motos en este tramo."]
 
@@ -84,9 +86,9 @@ DQ.ESPECIFICACIONES = [
     "ACERO DE REFUERZO: fy = 4200 kg/cm2 (grado 60), corrugado. Ganchos de 0.30 m en los marcos.",
     "RECUBRIMIENTOS: 0.04 m en muros y losa de fondo; 0.025 m en losa superior del tramo normal; 0.04 m en el cruce de camiones; 0.025 m en tapas.",
     "TRASLAPES: 3/8\" = 0.40 m ; 1/2\" = 0.50 m, alternados. Barras longitudinales de 9.00 m.",
-    "LOSA SUPERIOR: vaciada monoliticamente con los muros en todo el colector; acabado frotachado y brunado (a nivel del piso terminado +261.15).",
-    "REGISTROS: marco y contramarco de angulo 2\"x2\"x3/16\" y 1 1/2\"x1 1/2\"x1/8\" con anclajes, pintura anticorrosiva y esmalte; tapas de concreto 0.68 x 0.68 x 0.08 con asas.",
-    "JUNTAS: cada 4.00 m, e = 1\", relleno de poliestireno expandido y sello elastomerico de poliuretano. Tecnopor de 1\" entre el colector y las cunetas, la caja CL y el piso adyacente (no hay cerco perimetrico en el frente).",
+    "LOSA SUPERIOR: vaciada monoliticamente con los muros en todo el colector; acabado frotachado; sirve de vereda (+261.15).",
+    "REGISTROS: contramarco y marco de angulo L 1 1/2\"x1 1/2\"x1/8\" con anclajes, pintura anticorrosiva y esmalte; tapas de concreto 0.68 x 0.68 x 0.08 con asas.",
+    "JUNTAS: cada 4.00 m, e = 1\", relleno de poliestireno expandido y sellador asfaltico (RC-250 + arena) 1\" x 2\". A ambos lados del colector hay terreno natural: no lleva junta longitudinal. Tecnopor 1\" con sellador en el contacto con la caja CL y tecnopor 1\" en el contacto con las cunetas.",
     "CURADO: humedo minimo 7 dias; no transitar sobre la losa antes de 14 dias; no cargar con camiones antes de 28 dias.",
     "RELLENO: material propio seleccionado, capas de 0.15 m, 95 % del Proctor modificado; incluye la nivelacion del retiro hasta la cota de la losa.",
     "EXCAVACION: zanja de 1.40 m de ancho (0.25 m a cada lado del muro); entibar si el suelo lo requiere (profundidades de 1.10 a 1.75 m).",
@@ -100,14 +102,15 @@ DQ.NOTAS_DP08 = ["1. Dimensiones en metros y cotas en m.s.n.m., salvo indicacion
                  "5. Confirmar la capacidad portante con el estudio de mecanica de suelos antes del vaciado."]
 
 DQ.CON_CERCO = False
-DQ.TXT_TEC_CL = "Junta de tecnopor e=1\" con la caja CL (perimetro de la seccion; parte de la 02)"
-DQ.TXT_TEC_PISO = "Junta de tecnopor e=1\" (02) total: piso a ambos lados (2 x L) + caja CL"
+DQ.TXT_NPT_LEY = "losa superior = vereda +%.2f (terreno natural a ambos lados)"
+DQ.TXT_TEC_CL = "Junta e=1\" de tecnopor y sellador asfaltico con la caja CL (perimetro de la seccion)"
+DQ.TXT_TEC_PISO = "Junta de tecnopor e=1\" con el piso (no aplica: terreno natural a ambos lados)"
 
 # detalles DD-01 a DD-04
 DD.SUB_N_REG = "11 REGISTROS"; DD.SUB_N_TAPAS = "11 TAPAS"; DD.SUB_N_JUNTAS = "%d JUNTAS" % int(dz.P_FIN // 4.0)
 DD.ANCHO_PROC_DD03 = 262
-DD.NOTA4_DD03 = ("4. Juntas de tecnopor (02): plancha de 1\" x 0.10 en el borde de la losa, a ambos lados, antes de vaciar el piso adyacente;"
-                 " plancha de 1\" en todo el contacto del colector con la caja CL.")
+DD.NOTA4_DD03 = ("4. Junta con la caja CL (02): plancha de 1\" en todo el contacto del colector con el muro este de la CL, con sellador asfaltico 1\" x 2\""
+                 " en las caras interiores y en la cara superior. A ambos lados del colector hay terreno natural: no lleva junta longitudinal.")
 DD.TXT_REG_A = "1 por registro: 11 en la losa del colector (RV-01 a RV-11)"
 DD.TXT_REG_B = "11 und (RV-01 a RV-11)"
 DD.TXT_JUNTA_CAJAS = ("El colector lleva tecnopor en su contacto con la caja CL", "del Hogar de Refugio (muro este, 1.30 x 1.52).")
@@ -115,7 +118,7 @@ DD.TXT_DD04_SUB = "4 EMPALMES (EJES 09, 08, 06 Y 04): LA CUNETA SE METRA HASTA E
 DD.PARTIDA_EMPALME = None
 DQ.TIT_DA03 = "DETALLE DE PARTIDAS: ACERO, REGISTROS Y JUNTAS"
 DQ.TIT_RES_DA03 = "RESUMEN DE ACERO, REGISTROS Y JUNTAS"
-DD.TXT_DD03_C = "ESC. 1/10 - en toda la longitud del colector, a ambos lados (no hay cerco perimetrico)"
+DD.TXT_DD03_C = "ESC. 1/10 - corte longitudinal por el eje en la llegada a la caja CL (0+105.29)"
 DD.N_EMPALMES_TXT = "4 und"
 DD.TXT_DD04_CUNETA = "(acortadas hasta la cara del muro del colector)"
 
@@ -128,12 +131,12 @@ def usar_planilla():
         T, Rs = MC._resumen_calc()
         v = PV.valor
         Rs.update(trazo_m2=v("01.04.04.01.02"), excav_m3=v("01.04.04.02.01"), refine_m2=v("01.04.04.02.02"), relleno_m3=v("01.04.04.02.03"),
-                  elimin_m3=v("01.04.04.02.04"), solado_m2=v("01.04.04.03.01"), conc_fondo_m3=v("01.04.04.04.01"), conc_muros_m3=v("01.04.04.04.02"),
-                  conc_losa_m3=v("01.04.04.04.03"), encof_m2=v("01.04.04.04.04"), acabado_m2=v("01.04.04.04.06"), curado_m2=v("01.04.04.04.07"),
-                  empalmes=None)      # sin partida de empalme: la cuneta se metra hasta el muro del colector
-        assert abs(Rs["acero_38_kg"] + Rs["acero_12_kg"] - v("01.04.04.04.05")) < 0.05
-        J = Rs["juntas"]; assert abs(J["L_dilat"] - v("01.04.04.06.01")) < 0.01 and abs(J["L_tecnopor_piso"] - v("01.04.04.06.02")) < 0.01, J
-        Rg = Rs["registros"]; assert Rg["n"] == v("01.04.04.05.01") and abs(Rg["contramarco_kg"] + Rg["marco_kg"] - v("01.04.04.05.03")) < 0.05
+                  elimin_m3=v("01.04.04.02.04"), solado_m2=v("01.04.04.03.01"), encof_m2=v("01.04.04.04.02"), acabado_m2=v("01.04.04.04.04"),
+                  curado_m2=v("01.04.04.04.05"), empalmes=None)      # sin partida de empalme: la cuneta se metra hasta el muro del colector
+        assert abs(Rs["conc_fondo_m3"] + Rs["conc_muros_m3"] + Rs["conc_losa_m3"] - v("01.04.04.04.01")) < 0.05, "concreto del colector"
+        assert abs(Rs["acero_38_kg"] + Rs["acero_12_kg"] - v("01.04.04.04.03")) < 0.05
+        J = Rs["juntas"]; assert abs(J["L_dilat"] - v("01.04.04.06.01")) < 0.01 and abs(J["L_tecnopor_cl"] - v("01.04.04.06.02")) < 0.01, J
+        Rg = Rs["registros"]; assert Rg["n"] == v("01.04.04.05.01")
         return T, Rs
     MC.resumen = resumen
 

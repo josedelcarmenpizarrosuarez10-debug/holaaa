@@ -28,6 +28,8 @@ def cm_de(C): return CONTRAMARCOS[(C or {}).get("contramarco", "2x2x3/16")]
 PROYECTOS = {
     "varones": dict(
         clave="varones", archivo="METRADO_DRENAJE_PLUVIAL_CAR_VARONES.xlsx", corto="CAR VARONES", cui="2705619",
+        junta_cuneta_seccion=True,     # junta de cunetas en toda la seccion en U, igual que el Hogar de Refugio (EG-2013 MTC Seccion 510)
+        lamina_rejilla="DJ-03",        # rejilla de cunetas: lamina DJ-03 del juego de cunetas del CAR Varones
         salida=os.path.join(RAIZ, "entregables_varones", "ESPECIFICACIONES_TECNICAS_DRENAJE_PLUVIAL_CAR_VARONES"),
         colector=dict(
             nombre="colector pluvial frontal del CAR Varones", L=105.29, b=0.60, em=0.15, ef=0.15, es=0.10, es_cam=0.25, solado=0.05,
@@ -36,7 +38,7 @@ PROYECTOS = {
             acero="tramo normal: un marco cerrado de 3/8\" @0.20 m en el eje de muros y losas; cruce de camiones: doble marco de 1/2\" @0.15 m (marco exterior e interior); barras longitudinales de 3/8\" @0.25 m (@0.20 m en el cruce de camiones)",
             recub="0.04 m en muros y losa de fondo; 0.025 m en la losa superior del tramo normal; 0.04 m en el cruce de camiones; 0.025 m en tapas",
             receptor="la caja de llegada CL del colector del Hogar de Refugio Temporal (CUI 2675514), por la ventana de 0.60 x 1.17 m de su muro este",
-            cajas=None, salida=None, cerco=False, planos="DP-01 a DP-08, DA-01 a DA-03 y DD-01 a DD-04"),
+            cajas=None, salida=None, cerco=False, vereda=True, planos="DP-01 a DP-08, DA-01 a DA-03 y DD-01 a DD-04", contramarco="1.5x1.5x1/8", sello="asfaltico"),
     ),
     "refugio": dict(
         clave="refugio", archivo="METRADO_DRENAJE_MUJERES_VIOLENTADAS.xlsx", corto="HOGAR DE REFUGIO TEMPORAL", cui="2675514",
@@ -404,7 +406,7 @@ def espec(pt, P, ctx):
     if "ACABADO" in d or "FROTACHADO" in d:
         bru = "BRU" in d
         return bloque([p(("Comprende el acabado frotachado%s de la cara superior de la losa del %s, que sirve de vereda peatonal, a nivel del terreno terminado del frente (+%.2f)."
-                          if C.get("cerco") else
+                          if C.get("cerco") or C.get("vereda") else
                           "Comprende el acabado frotachado%s de la cara superior de la losa del %s, que en el tramo de vereda sirve de piso peatonal, al nivel del piso terminado (+%.2f).")
                          % (" y brunado" if bru else "", C["nombre"], C["NPT"]))],
                       mat=l("El mismo concreto de la losa; mortero cemento-arena 1:2 solo para resanes."), equ=l("Regla de aluminio, frotacho de madera, plancha de acero, brunadora."),
@@ -412,7 +414,7 @@ def espec(pt, P, ctx):
                              "No espolvorear cemento seco ni agregar agua para facilitar el acabado.",
                              ("Marcar bruñas de 1 cm de profundidad en los bordes y en coincidencia con las juntas cada %.2f m." % C["juntas"]) if bru else "Los bordes se redondearan con bruñadora y la losa quedara con el bombeo de 1 % hacia el lado de la via.",
                              "Curar segun la partida de curado."),
-                      ctrl=l("Planitud: separaciones no mayores de 5 mm bajo una regla de 3.00 m; nivel del piso terminado ±0.005 m respecto al piso adyacente."), seg=l(EPP), und=und,
+                      ctrl=l("Planitud: separaciones no mayores de 5 mm bajo una regla de 3.00 m; " + ("nivel de la losa ±0.005 m respecto a la cota de proyecto (+%.2f)." % C["NPT"] if (C.get("cerco") or C.get("vereda")) else "nivel del piso terminado ±0.005 m respecto al piso adyacente.")), seg=l(EPP), und=und,
                       medicion=[p("Se medira el area acabada de la cara superior de la losa: ancho exterior del colector por la longitud del tramo con acabado.")])
     if "ENCOFRADO" in d:
         if "FALSA COLUMNA" in d:
@@ -564,6 +566,20 @@ def espec(pt, P, ctx):
                                  "La junta sera continua, recta y vertical."),
                           ctrl=l("Sellador adherido en ambas caras, sin burbujas ni discontinuidades."), seg=l(EPP, "Ventilar al aplicar imprimantes y selladores; mantenerlos lejos del fuego."), und=und,
                           medicion=[p("Se medira la longitud de junta segun el perimetro de la seccion en cada junta por el numero de juntas, como en el metrado.")])
+        if col and C.get("sello") == "asfaltico" and "SELLADOR" in d and "CL" in d and not C.get("cerco"):
+            return bloque([p("Comprende la junta de 1\" con plancha de poliestireno expandido (tecnopor) en todo el contacto del %s con el muro este de la caja de llegada CL "
+                             "(seccion completa del colector menos su hueco interior), de modo que ambas estructuras trabajen en forma independiente, y el sellador asfaltico de 1\" x 2\" "
+                             "(asfalto liquido RC-250 + arena gruesa) en las caras interiores y en la cara superior, segun la lamina DD-03 (vista C). "
+                             "A ambos lados del colector hay terreno natural, por lo que no lleva junta longitudinal; la losa superior del colector sirve de vereda." % C["nombre"])],
+                          mat=l("Plancha de tecnopor de 1\" (densidad 10 a 15 kg/m³) cortada a la forma de la seccion del colector; asfalto liquido RC-250 (NTP 321.028); arena gruesa limpia y seca."),
+                          equ=l("Cuchilla, regla, wincha, recipiente para calentar el asfalto, tacos de madera, escobilla."),
+                          proc=l("Verificar la caja CL y su ventana antes de vaciar el ultimo tramo del colector.",
+                                 "Fijar la plancha de tecnopor contra el muro este de la caja CL, alrededor de la ventana, y vaciar el colector contra ella.",
+                                 "Retirar 2\" (50 mm) de tecnopor en las caras interiores y en la cara superior; limpiar y secar.",
+                                 "Calentar el RC-250, mezclarlo con arena gruesa y colocarlo compactando con tacos hasta el ras."),
+                          ctrl=l("Sin contacto directo entre el concreto del colector y el de la caja CL; sello compacto, adherido y al ras."),
+                          seg=l(EPP, "Calentar el asfalto lejos de materiales inflamables, con extintor a la mano."), und=und,
+                          medicion=[p("Se medira la longitud de junta colocada y sellada en el contacto con la caja CL (perimetro de la seccion), como en el metrado.")])
         if col and C.get("sello") == "asfaltico" and "SELLADOR" in d:
             return bloque([p("Comprende la junta longitudinal de 1\" con plancha de poliestireno expandido (tecnopor) y sellador asfaltico entre el muro del %s (lado predio) y el cimiento "
                              "del cerco existente, en todo el tramo del colector pegado al cerco (0+000.00 a 0+058.81), con plancha de 0.90 m de altura, de modo que el colector y el cerco "

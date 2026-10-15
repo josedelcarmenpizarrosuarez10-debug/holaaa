@@ -113,14 +113,14 @@ def construir():
     # ------------------------------------------------------------------ 2. trazo
     titulo2(doc, "Trazo y emplazamiento")
     parrafo(doc, "El colector arranca en el poste derecho del portón de camiones cisterna (0+000.00, junto al Eje 09), único ingreso "
-                 "vehicular del predio, y corre dentro del predio bajo el piso exterior del frente, que en el CAR Varones no tiene cerco "
+                 "vehicular del predio, y corre dentro del predio a lo largo del frente, que en el CAR Varones no tiene cerco "
                  "perimetral, con su eje a %.3f m de la línea de referencia del frente (límite de las áreas exteriores del plano de "
-                 "arquitectura). La losa superior queda al ras del piso terminado (+%.2f msnm) en toda su longitud, con junta de "
-                 "tecnopor de 1\" contra el piso adyacente a ambos lados. En la progresiva 0+%06.2f (registro RV-11) el trazo deja esa "
+                 "arquitectura). La losa superior queda a +%.2f msnm en toda su longitud y sirve de vereda; a ambos lados del colector "
+                 "hay terreno natural, por lo que no lleva junta longitudinal (su única junta con otra estructura es la de la caja CL). En la progresiva 0+%06.2f (registro RV-11) el trazo deja esa "
                  "línea y entra perpendicular al lindero hasta la cara este de la caja CL (0+%06.2f). La longitud total es de %.2f m."
                  % (D["eje_desde_cerco"], D["NPT"], g["P_QUIEBRE"], g["P_FIN"], g["P_FIN"]))
     parrafo(doc, "El único cruce de circulación es el portón de camiones cisterna, de 5.78 m (progresivas 0+000.00 a 0+006.08 con la "
-                 "transición de 0.30 m); el resto del colector queda bajo piso exterior con cargas peatonales. Las coordenadas UTM "
+                 "transición de 0.30 m); en el resto del colector la losa superior sirve de vereda, con cargas peatonales. Las coordenadas UTM "
                  "WGS84 18S de la lámina DP-01 están en el mismo sistema del tramo del Hogar de Refugio y son referenciales; el "
                  "trazo se replantea en obra desde la caja CL, el portón de camiones y las cunetas que llegan.")
     tabla(doc, ["ELEMENTO", "PROGRESIVA", "DESCRIPCIÓN"], [[r["nombre"], "0+%06.2f" % r["prog"], r["tipo"] + ": " + r["nota"]] for r in DJ["registros"]], anchos=[3.0, 3.0, 9.5])
@@ -244,10 +244,11 @@ def construir():
     vineta(doc, "Manual de Puentes del MTC y AASHTO LRFD Bridge Design Specifications: carga de rueda del camión HL-93, impacto y ancho de franja para la losa del cruce de camiones.")
     vineta(doc, "ASCE/WEF, Design and Construction of Urban Stormwater Management Systems: esfuerzo tractivo mínimo para autolimpieza con caudales parciales.")
     titulo2(doc, "Criterios constructivos")
-    vineta(doc, "Colector cubierto, con losa superior al ras del piso terminado (+%.2f msnm), sin lloraderos; registros de limpieza "
+    vineta(doc, "Colector cubierto, con losa superior a +%.2f msnm que sirve de vereda, sin lloraderos; registros de limpieza "
                 "(RV-01 a RV-11) a no más de 12 m, en cada llegada de cuneta y en el quiebre, fuera del cruce de camiones, con tapa de "
-                "concreto armado de 0.68 × 0.68 × 0.08 m, contramarco de ángulo de 2\" × 2\" × 3/16\" y marco de 1 ½\" × 1 ½\" × 1/8\" (láminas DD-01 y DD-02)." % D["NPT"])
-    vineta(doc, "Juntas de dilatación cada 4.00 m con tecnopor de 1\" y sello elastomérico; tecnopor de 1\" entre la losa y el piso adyacente a ambos lados y en el contacto con la caja CL (lámina DD-03).")
+                "concreto armado de 0.68 × 0.68 × 0.08 m, contramarco de ángulo de 1 ½\" × 1 ½\" × 1/8\" y marco de 1 ½\" × 1 ½\" × 1/8\" (láminas DD-01 y DD-02)." % D["NPT"])
+    vineta(doc, "Juntas de dilatación cada 4.00 m en toda la sección, con tecnopor de 1\" y sellador asfáltico de 1\" × 2\" (asfalto líquido RC-250 + arena gruesa; EG-2013 MTC, Sección 510); "
+                "junta de tecnopor de 1\" y sellador asfáltico en el contacto con la caja CL. A ambos lados del colector hay terreno natural: no lleva junta longitudinal (lámina DD-03).")
     vineta(doc, "Empalme de cunetas por ventana de 0.40 × H en el muro del lado del predio, con caída al fondo, junta de 1\" y registro sobre el empalme (láminas DP-06C y DD-04).")
     vineta(doc, "Concreto f'c = 210 kg/cm² en colector y tapas; solado f'c = 100 kg/cm² de 0.05 m; acero fy = 4200 kg/cm²; recubrimiento de 4 cm; traslapes de 0.40 m (3/8\") y 0.50 m (1/2\").")
     vineta(doc, "Si la caja CL se construye antes que el colector, sus ventanas este y norte se dejan tapadas con muro de ladrillo pandereta sin mortero de unión a la caja, para retirarlo al empalmar; si se construye después, el colector termina en tapón provisional.")
@@ -255,19 +256,21 @@ def construir():
     # ------------------------------------------------------------------ 9. metrado
     titulo2(doc, "Resumen de metrados del tramo")
     parrafo(doc, "Los metrados del colector se incorporan a la planilla general de metrados del proyecto como partida independiente "
-                 "01.04.04 COLECTOR PLUVIAL FRONTAL, con su desglose por tramos, registros, juntas y empalmes, sin modificar las "
+                 "01.04.04 COLECTOR PLUVIAL FRONTAL, con su desglose por tramos, registros y juntas, sin modificar las "
                  "partidas existentes salvo el acortamiento de las cinco cunetas que llegan al frente (hoja CUNETAS - LLEGADA AL "
                  "COLECTOR). Cada cantidad se sustenta en las hojas COLECTOR PARAMETROS, MOV. TIERRAS, CONCRETO, ENCOFRADO, ACERO, "
                  "REGISTROS Y TAPAS y JUNTAS Y EMPALMES de la misma planilla. Las cantidades principales son:")
     Rg = RM["registros"]
-    filas = [["Excavación manual de zanjas (ancho 1.40 m)", "m³", f2(RM["excav_m3"])], ["Relleno compactado con material propio", "m³", f2(RM["relleno_m3"])],
-             ["Eliminación de material excedente", "m³", f2(RM["elimin_m3"])], ["Solado f'c = 100 kg/cm² e = 0.05 m", "m²", f2(RM["solado_m2"])],
-             ["Concreto f'c = 210 kg/cm² en losa de fondo", "m³", f2(RM["conc_fondo_m3"])], ["Concreto f'c = 210 kg/cm² en muros", "m³", f2(RM["conc_muros_m3"])],
-             ["Concreto f'c = 210 kg/cm² en losa superior", "m³", f2(RM["conc_losa_m3"])], ["Encofrado y desencofrado", "m²", f2(RM["encof_m2"])],
-             ["Acero de refuerzo fy = 4200 kg/cm² en el colector", "kg", f2(RM["acero_colector_kg"])],
-             ["Acabado frotachado y bruñado de losa superior", "m²", f2(RM["acabado_m2"])], ["Curado de concreto", "m²", f2(RM["curado_m2"])],
-             ["Registros con tapa de concreto armado, marco y contramarco", "und", "%d" % Rg["n"]],
-             ["Junta de dilatación e = 1\" con sello", "m", f2(RM["juntas"]["L_dilat"])], ["Empalmes de cunetas al colector", "und", "%d" % sum(1 for c in cun if c["entra_en"] == "colector")]]
+    import openpyxl
+    _ws = openpyxl.load_workbook(os.path.join(RAIZ, "entregables_varones", "METRADO_DRENAJE_PLUVIAL_CAR_VARONES_CON_COLECTOR.xlsx"), data_only=True)["RESUMEN"]
+    PL = {str(_ws.cell(r, 1).value): _ws.cell(r, 4).value for r in range(1, _ws.max_row + 1) if _ws.cell(r, 1).value}   # metrados de la planilla (RESUMEN)
+    filas = [["Excavación manual de zanjas p/colector (ancho 1.40 m)", "m³", f2(PL["01.04.04.02.01"])], ["Relleno compactado c/material propio seleccionado", "m³", f2(PL["01.04.04.02.03"])],
+             ["Eliminación de material excedente D<1 km", "m³", f2(PL["01.04.04.02.04"])], ["Concreto f'c = 100 kg/cm² para solado e = 2\"", "m²", f2(PL["01.04.04.03.01"])],
+             ["Concreto f'c = 210 kg/cm² para colector", "m³", f2(PL["01.04.04.04.01"])], ["Encofrado y desencofrado de colector", "m²", f2(PL["01.04.04.04.02"])],
+             ["Acero fy = 4200 kg/cm² para colector", "kg", f2(PL["01.04.04.04.03"])], ["Acabado frotachado de losa superior (vereda)", "m²", f2(PL["01.04.04.04.04"])],
+             ["Curado de concreto en colector", "m²", f2(PL["01.04.04.04.05"])], ["Tapa de registro 0.68 × 0.68 c/marco y contramarco", "und", "%d" % PL["01.04.04.05.01"]],
+             ["Junta de dilatación e = 1\" con tecnopor y sellador asfáltico en colector", "m", f2(PL["01.04.04.06.01"])],
+             ["Junta e = 1\" con tecnopor y sellador asfáltico entre colector y caja CL", "m", f2(PL["01.04.04.06.02"])]]
     tabla(doc, ["PARTIDA", "UND", "METRADO"], filas, anchos=[10.0, 2.0, 3.0])
     leyenda(doc, "%s: Metrados principales del colector pluvial frontal del CAR Varones." % NUM.tabla())
     fuente(doc, "Fuente: Elaboración propia. Planilla general de metrados del proyecto, partida 01.04.04.")

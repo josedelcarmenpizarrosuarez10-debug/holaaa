@@ -2,6 +2,8 @@ PLANOS DEL COLECTOR PLUVIAL FRONTAL - CAR VARONES (CUI 2705619) - VERSION ORDENA
 ==================================================================================
 
 Archivo: PLANOS_COLECTOR_PLUVIAL_CAR_VARONES.dxf (18 laminas en A1, A2 y A3; escala real: 1 unidad = 1 m)
+Cunetas: PLANOS_DETALLE_CUNETAS_JUNTA_Y_REJILLA_CAR_VARONES.dxf (DJ-01 junta en toda la seccion, DJ-02 proceso constructivo
+en isometricos, DJ-03 rejilla movil; vistas previas en vistas_previas_cunetas; generador herramientas/varones/planos_junta_cunetas_v.py)
 Vistas previas: carpeta vistas_previas (PNG por lamina y 00_RESUMEN_TODAS.png)
 Generador: herramientas/varones/planos_v.py (datos en diseno_v.py; textos y cantidades propias en compat.py;
 valores del metrado en planilla_v.py -> _calc/metrado_planilla.json)
@@ -22,7 +24,8 @@ DP-08   A1  1/25     Cuadro de doblado de acero, especificaciones y notas
 DA-01   A1  1/20     Detalle de partidas: trazo, excavacion, relleno y eliminacion
 DA-02   A1  1/20     Detalle de partidas: solado, concreto y encofrado
 DA-03   A1  1/20     Detalle de partidas: acero, registros, juntas y empalmes
-DD-01 a DD-04  A1  INDICADA  Contramarco, marco y tapa, juntas de dilatacion y tecnopor, empalme de cuneta
+DD-01 a DD-04  A1  INDICADA  Contramarco L 1 1/2", marco y tapa, juntas con tecnopor y sellador asfaltico (DD-03: junta con
+               la caja CL; terreno natural a ambos lados), empalme de cuneta
 
 Impresion en AutoCAD
 --------------------
@@ -51,9 +54,12 @@ Metrados
 No se modifico ningun metrado. Los cuadros de las laminas DA-01 a DA-03 muestran los valores de la planilla del presupuesto
 (METRADO_DRENAJE_PLUVIAL_CAR_VARONES_CON_COLECTOR.xlsx, partidas 01.04.04), recalculada en una copia con LibreOffice:
   Trazo 147.41 m2 - Excavacion 130.62 m3 - Refine 105.29 m2 - Relleno 91.51 m3 - Eliminacion 46.93 m3 - Solado 105.29 m2
-  Concreto: losa de fondo 14.21, muros 31.55, losa superior 10.25 m3 - Encofrado 538.31 m2 - Acabado 94.76 m2
-  Acero colector 2523.84 kg - Registros 11 und (angulos 166.56 kg, acero en tapas 190.71 kg, pintura 10.80 m2)
-  Junta de dilatacion 120.64 m (26 x 4.64) - Junta de tecnopor 215.22 m
+  Concreto f'c=210 para colector 56.02 m3 (losa de fondo 14.21 + muros 31.55 + losa superior 10.25) - Encofrado 538.31 m2
+  Acero colector 2523.84 kg - Acabado frotachado de losa superior (vereda) 94.76 m2 - Curado 368.27 m2
+  Tapa de registro 0.68x0.68 c/marco y contramarco 11 und (contramarco L 1 1/2"x1 1/2"x1/8": angulos 111.1 kg en total,
+  acero en tapas 190.71 kg, pintura 9.23 m2; desagregado en la hoja DESAGREGADO TAPA REGISTRO)
+  Junta de dilatacion con tecnopor y sellador asfaltico 120.64 m (26 x 4.64) - Junta con la caja CL 4.64 m
+  A ambos lados del colector hay terreno natural: no lleva junta longitudinal; la losa superior sirve de vereda (+261.15).
 El empalme de cuneta no tiene partida propia: cada cuneta se metra hasta la cara del muro del colector (hoja CUNETAS -
 LLEGADA AL COLECTOR: acortamientos 0.04, 0.10, 0.26, 3.39 y 2.77 m, iguales a la planta DP-01). Las laminas DP-06C y DD-04
 quedan como detalle constructivo de la ventana y la caida, sin cuadro de partida.

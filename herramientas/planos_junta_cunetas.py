@@ -7,7 +7,7 @@ Escala real (1 unidad = 1 m) en una lamina A1 a 1/10; las vistas ampliadas o red
 su escala. Seccion de cuneta de la hoja CONCRETO EN CUNETAS (interior 0.40, muros y losa de 0.10, losa de 0.60) y metrado
 de la hoja METRADO JUNTA DE DILATACION (juntas cada 3.00 m; longitud por junta = 2 x altura del muro + 0.40).
 DJ-02 (proceso constructivo de la junta en isometrico) y DJ-03 (rejilla) en planos_junta_cunetas_iso.py.
-Uso: python3 herramientas/planos_junta_cunetas.py
+Uso: python3 herramientas/planos_junta_cunetas.py   (CAR Varones: herramientas/varones/planos_junta_cunetas_v.py)
 """
 import os, sys, warnings
 AQUI = os.path.dirname(os.path.abspath(__file__)); RAIZ = os.path.dirname(AQUI); sys.path.insert(0, AQUI)
@@ -32,9 +32,12 @@ def metrado():
         ws = openpyxl.load_workbook(PLANILLA, data_only=True)["METRADO JUNTA DE DILATACION"]
     assert abs(ws["B10"].value - BI) < 1e-9 and abs(ws["B8"].value - SEP) < 1e-9, "la hoja no tiene la junta en toda la seccion"
     filas = []
-    for r in range(13, 25):
+    r = 13
+    while str(ws["B%d" % r].value or "").upper().startswith("EJE"):     # filas de ejes desde la 13 (Refugio: 12 ejes; CAR Varones: 9)
         filas.append(dict(eje=ws["B%d" % r].value, L=ws["D%d" % r].value, h=ws["F%d" % r].value, n=int(ws["H%d" % r].value),
                           lj=ws["I%d" % r].value, p=ws["J%d" % r].value))
+        r += 1
+    assert abs(sum(f["p"] for f in filas) - ws["J12"].value) < 1e-6, "el total J12 no coincide con la suma de los ejes"
     return filas, ws["J12"].value
 
 

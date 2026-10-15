@@ -62,15 +62,16 @@ def cuadro(lam, xmm, ymm, titulo, filas, anchos=(96, 14, 24, 26, 70), cab=("COMP
 TXT_REG_A = "1 por registro: 7 en la losa del colector, 1 en CL y 2 en CC"
 TXT_REG_B = "10 und (RS-01 a RS-07, CL y 2 en CC)"
 TXT_JUNTA_CAJAS = ("Las cajas CL y CC llevan tecnopor en su contacto", "con el colector (en el perimetro de la caja).")
-TXT_DD04_SUB = "PARTIDA 01.04.04.06.03 - 6 EMPALMES (CUNETAS EJES 01, 02, 06, 07, 11 Y 12) - ESC. INDICADAS"
+TXT_DD04_SUB = "6 EMPALMES (EJES 01, 02, 06, 07, 11 Y 12): LA CUNETA SE METRA HASTA EL MURO DEL COLECTOR - ESC. INDICADAS"
 TXT_DD03_C = "ESC. 1/10 - tramo 0+000.00 a 0+058.81 (pegado al cerco)"
 CON_CERCO = True
+MODO_DD03 = "cerco"      # "cerco" (Hogar de Refugio) o "caja_cl" (CAR Varones: terreno natural a ambos lados, junta solo con la CL)
 TIT_DD03_C = "C. JUNTA LONGITUDINAL DE TECNOPOR Y SELLADOR CONTRA EL CERCO" if MC.SELLO["en_tecnopor"] else "C. JUNTA DE TECNOPOR CONTRA EL CERCO"
 N_EMPALMES_TXT = "6 und"
 EJ_DD04 = 11.27
 TXT_DD04_CUNETA = "(Ejes 11 y 12 prolongadas hasta el muro)"
 SUB_N_REG = "10 REGISTROS"; SUB_N_TAPAS = "10 TAPAS"; SUB_N_JUNTAS = "17 JUNTAS"     # cantidades en los subtitulos
-PARTIDA_EMPALME = "01.04.04.06.03 EMPALME (und)"     # None: el empalme no tiene partida propia (solo detalle constructivo)
+PARTIDA_EMPALME = None     # el empalme no tiene partida propia en la planilla Delphin (solo detalle constructivo); texto de la partida si la tuviera
 ANCHO_PROC_DD03 = 262      # ancho del procedimiento de la DD-03 (no invade la tabla de ubicacion)
 NOTA4_DD03 = ("4. Junta longitudinal (02): plancha de 1\" x 0.90 pegada al cimiento del cerco antes de vaciar el muro, de 0+000.00 a 0+058.81, con sellador asfaltico 1\" x 2\" en la"
               " cara superior. Al lado via hay terreno natural: no lleva junta (la losa del colector sirve de vereda).")
@@ -83,7 +84,7 @@ def f3(v): return "%.3f" % v
 # ============================================================================= DD-01 contramarco
 def dd01(doc, ox, oy, R, T):
     lam = B.Lamina(doc, ox, oy, 10, "DD-01", "DETALLE CONSTRUCTIVO: CONTRAMARCO METALICO %s CON ANCLAJES" % CMT,
-                   "PARTIDAS 01.04.04.05.01, 01.04.04.05.03 (parte) y 01.04.04.05.06 (parte) - %s - ESC. INDICADAS" % SUB_N_REG)
+                   "PARTIDA 01.04.04.05.01 TAPA DE REGISTRO 0.68x0.68 C/MARCO Y CONTRAMARCO (CONTRAMARCO) - %s - ESC. INDICADAS" % SUB_N_REG)
     lam.juntar_llamadas()
     leg, t = L2
     # ---------------- A. planta del contramarco (1/5)
@@ -168,18 +169,18 @@ def dd01(doc, ox, oy, R, T):
         "1. Cortar 4 piezas de angulo %s de %.2f m con los extremos a inglete de 45 y armar el cuadro de 0.70 x 0.70 (medida exterior de las alas verticales)." % (CMT, AB + 2 * t),
         "2. Soldar las 4 esquinas con electrodo E6011 de 1/8\" (cordon %s por ambas caras); verificar escuadra (diagonales iguales) y planitud." % CORDON,
         "3. Soldar 8 anclajes 3/8\" L = 0.20 a la cara exterior del ala vertical (2 por lado, a 0.175 de las esquinas), inclinados hacia la losa; cordon %s x 25 mm a ambos lados." % CORDON,
-        "4. Limpiar escoria; 2 manos de anticorrosivo epoxico y 2 de esmalte sintetico (partida 01.04.04.05.07), salvo en la zona de los anclajes.",
+        "4. Limpiar escoria; 2 manos de anticorrosivo epoxico y 2 de esmalte sintetico (incluida en la partida 01.04.04.05.01), salvo en la zona de los anclajes.",
         "5. Fijar el contramarco al encofrado de la losa con el asiento a 0.08 bajo el NPT, nivelado y amarrado al refuerzo de borde; vaciar la losa con el borde engrosado.",
         "6. Al desencofrar, retirar rebabas; la tapa con su marco debe asentar en las 4 alas con holgura de 1 cm por lado."], 1.8)
     n = MC.registros()["n"]
     L_ang = 4 * (AB + 2 * t); kg_ang = L_ang * MC.CM["kgm"]; L_anc = 8 * 0.20; kg_anc = L_anc * MC.PESO["3/8"]; L_cord = 4 * 2 * leg + 8 * 2 * 0.025
-    filas = [["Angulo %s (4 piezas de %.2f m, %.2f kg/m)" % (CMT, AB + 2 * t, MC.CM["kgm"]), "m / kg", "%.2f / %.2f" % (L_ang, kg_ang), "%.2f / %.2f" % (n * L_ang, n * kg_ang), "01.04.04.05.03 ANGULOS METALICOS (kg)"],
-             ["Anclajes 3/8\" corrugado L = 0.20 (8 und, 0.56 kg/m)", "m / kg", "%.2f / %.2f" % (L_anc, kg_anc), "%.2f / %.2f" % (n * L_anc, n * kg_anc), "01.04.04.05.06 ACERO EN TAPAS, BORDES Y ANCLAJES"],
+    filas = [["Angulo %s (4 piezas de %.2f m, %.2f kg/m)" % (CMT, AB + 2 * t, MC.CM["kgm"]), "m / kg", "%.2f / %.2f" % (L_ang, kg_ang), "%.2f / %.2f" % (n * L_ang, n * kg_ang), "01.04.04.05.01 (desagregado: angulos)"],
+             ["Anclajes 3/8\" corrugado L = 0.20 (8 und, 0.56 kg/m)", "m / kg", "%.2f / %.2f" % (L_anc, kg_anc), "%.2f / %.2f" % (n * L_anc, n * kg_anc), "01.04.04.05.01 (desagregado: acero)"],
              ["Cordon de soldadura %s (4 esquinas x 2 caras + 8 anclajes x 2 lados)" % CORDON, "m", f2(L_cord), f2(n * L_cord), "electrodo E6011 1/8\": aprox. 0.12 kg por registro"],
-             ["Refuerzo de borde de la abertura 2 x 1/2\" por lado, L = 1.40 (8 barras)", "m / kg", "%.2f / %.2f" % (11.2, 11.2 * MC.PESO["1/2"]), "%.2f / %.2f" % (n * 11.2, n * 11.2 * MC.PESO["1/2"]), "01.04.04.05.06 (ver DP-06B)"],
-             ["Borde engrosado 0.15 x 0.10, perimetro medio 3.00 m", "m3", f3(0.045), f2(n * 0.045), "01.04.04.04.03 LOSA SUPERIOR (ya incluido)"],
-             ["Pintura anticorrosiva + esmalte (desarrollo %.3f m2/m x 2.80 m)" % MC.CM["des"], "m2", f2(2.80 * MC.CM["des"]), f2(n * 2.80 * MC.CM["des"]), "01.04.04.05.07 PINTURA (parte)"],
-             ["Mano de obra de habilitacion, soldadura y colocacion", "und", "1", "%d" % n, "01.04.04.05.01 CONTRAMARCO (und)"]]
+             ["Refuerzo de borde de la abertura 2 x 1/2\" por lado, L = 1.40 (8 barras)", "m / kg", "%.2f / %.2f" % (11.2, 11.2 * MC.PESO["1/2"]), "%.2f / %.2f" % (n * 11.2, n * 11.2 * MC.PESO["1/2"]), "01.04.04.05.01 (desagregado: acero; DP-06B)"],
+             ["Borde engrosado 0.15 x 0.10, perimetro medio 3.00 m", "m3", f3(0.045), f2(n * 0.045), "01.04.04.04.01 CONCRETO PARA COLECTOR (ya incluido)"],
+             ["Pintura anticorrosiva + esmalte (desarrollo %.3f m2/m x 2.80 m)" % MC.CM["des"], "m2", f2(2.80 * MC.CM["des"]), f2(n * 2.80 * MC.CM["des"]), "01.04.04.05.01 (desagregado: pintura)"],
+             ["Mano de obra de habilitacion, soldadura y colocacion", "und", "1", "%d" % n, "01.04.04.05.01 TAPA DE REGISTRO (und)"]]
     cuadro(lam, 330, 200, "CUADRO DE COMPONENTES POR CONTRAMARCO (1 und) Y TOTAL (%d und)" % MC.registros()["n"], filas)
     lam.leyenda2(560, 150, [("relleno", "MARCO-METALICO", "angulo metalico"), ("linea2", "ACERO", "anclaje 3/8\""), ("linea2", "ACERO-LONG", "refuerzo de borde 1/2\" (proyeccion)"), ("concreto", "CONCRETO", "concreto f'c=210"), ("rect", "REGISTRO-TAPA", "tapa (referencia, ver DD-02)")], 1.8)
     lam.volcar_llamadas()
@@ -189,7 +190,7 @@ def dd01(doc, ox, oy, R, T):
 # ============================================================================= DD-02 marco y tapa
 def dd02(doc, ox, oy, R, T):
     lam = B.Lamina(doc, ox, oy, 10, "DD-02", "DETALLE CONSTRUCTIVO: MARCO METALICO L 1 1/2\"x1 1/2\"x1/8\" Y TAPA DE CONCRETO ARMADO 0.68 x 0.68 x 0.08",
-                   "PARTIDAS 01.04.04.05.02, .05.03 (parte), .05.04, .05.05, .05.06 (parte) y .05.07 - %s - ESC. INDICADAS" % SUB_N_TAPAS)
+                   "PARTIDA 01.04.04.05.01 TAPA DE REGISTRO 0.68x0.68 C/MARCO Y CONTRAMARCO (TAPA Y MARCO) - %s - ESC. INDICADAS" % SUB_N_TAPAS)
     lam.juntar_llamadas()
     leg, t = L15; a = TAPA / 2
     # ---------------- A. planta de la tapa (1/5)
@@ -211,7 +212,7 @@ def dd02(doc, ox, oy, R, T):
     lam.cota(P(-0.30, a), P(-0.20, a), 5, texto="0.10"); lam.cota(P(-a, a), P(-0.30, a), 5, texto="0.04")
     xt = 265
     LL(lam, P(a - leg / 2, 0.25), xt, 530, ["marco perimetral: angulo L 1 1/2\"x1 1/2\"x1/8\",", "ala horizontal bajo la tapa (proyeccion)"])
-    LL(lam, P(0.20, 0.20), xt, 500, ["parrilla 7 + 7 barras 3/8\" @0.10, L = 0.62;", "extremos soldados por puntos al ala vertical del marco"])
+    LL(lam, P(0.20, 0.20), xt, 500, ["parrilla 7 + 7 barras 3/8\" @0.10, L = 0.62; extremos", "soldados por puntos al ala vertical del marco"])
     LL(lam, P(0.15 + 0.03, 0.0), xt, 470, ["asa en U de 3/8\" liso (2 und) en cajuela 0.18 x 0.06 x 0.03", "para que no sobresalga; ganchos amarrados a la parrilla"])
     LL(lam, P(a - leg / 2, -a + leg / 2), xt, 440, ["esquina a inglete de 45 soldada"])
     lam.titulo_vista(150, 335, "A. TAPA DE CONCRETO ARMADO - PLANTA (armado)", "ESC. 1/5 - " + TXT_REG_B, 150)
@@ -277,15 +278,15 @@ def dd02(doc, ox, oy, R, T):
         "6. Colocar sobre el contramarco (DD-01): holgura 1 cm por lado; la tapa queda al ras del NPT. Marcar el numero de registro en la tapa."], 1.8)
     n = MC.registros()["n"]
     L_m = 4 * TAPA; kg_m = L_m * MC.ANG["1.5x1.5x1/8"]; L_p = 14 * 0.62; kg_p = L_p * MC.PESO["3/8"]; L_a = 2 * 0.40; kg_a = L_a * MC.PESO["3/8"]; vol = TAPA * TAPA * ET
-    filas = [["Concreto f'c = 210 kg/cm2 (0.68 x 0.68 x 0.08)", "m3", f3(vol), f2(n * vol), "01.04.04.05.05 CONCRETO EN TAPAS"],
-             ["Parrilla 3/8\" corrugado, 14 barras de 0.62 m", "m / kg", "%.2f / %.2f" % (L_p, kg_p), "%.2f / %.2f" % (n * L_p, n * kg_p), "01.04.04.05.06 ACERO EN TAPAS, BORDES Y ANCLAJES"],
-             ["Asas 3/8\" liso, 2 und de 0.40 m", "m / kg", "%.2f / %.2f" % (L_a, kg_a), "%.2f / %.2f" % (n * L_a, n * kg_a), "01.04.04.05.06"],
-             ["Angulo L 1 1/2\"x1 1/2\"x1/8\" (4 piezas de 0.68 m, 1.83 kg/m)", "m / kg", "%.2f / %.2f" % (L_m, kg_m), "%.2f / %.2f" % (n * L_m, n * kg_m), "01.04.04.05.03 ANGULOS METALICOS (kg)"],
+    filas = [["Concreto f'c = 210 kg/cm2 (0.68 x 0.68 x 0.08)", "m3", f3(vol), f2(n * vol), "01.04.04.05.01 (desagregado: concreto)"],
+             ["Parrilla 3/8\" corrugado, 14 barras de 0.62 m", "m / kg", "%.2f / %.2f" % (L_p, kg_p), "%.2f / %.2f" % (n * L_p, n * kg_p), "01.04.04.05.01 (desagregado: acero)"],
+             ["Asas 3/8\" liso, 2 und de 0.40 m", "m / kg", "%.2f / %.2f" % (L_a, kg_a), "%.2f / %.2f" % (n * L_a, n * kg_a), "01.04.04.05.01 (desagregado: acero)"],
+             ["Angulo L 1 1/2\"x1 1/2\"x1/8\" (4 piezas de 0.68 m, 1.83 kg/m)", "m / kg", "%.2f / %.2f" % (L_m, kg_m), "%.2f / %.2f" % (n * L_m, n * kg_m), "01.04.04.05.01 (desagregado: angulos)"],
              ["Alambre negro N 16 (amarres) / soldadura por puntos (28)", "kg", "0.10 / 0.05", "%.2f / %.2f" % (n * 0.10, n * 0.05), "insumo del ACU"],
              ["Molde: fondo 0.68 x 0.68 + cajuelas (reutilizable 10 veces)", "m2", f2(TAPA * TAPA), f2(TAPA * TAPA), "insumo del ACU (1 molde)"],
-             ["Pintura anticorrosiva + esmalte del marco (0.152 m2/m x 2.72 m)", "m2", f2(2.72 * 0.152), f2(n * 2.72 * 0.152), "01.04.04.05.07 PINTURA (parte)"],
-             ["Pintura total por registro: contramarco %.2f + marco %.2f" % (2.80 * MC.CM["des"], 2.72 * 0.152), "m2", f2(2.80 * MC.CM["des"] + 2.72 * 0.152), f2(n * (2.80 * MC.CM["des"] + 2.72 * 0.152)), "01.04.04.05.07 PINTURA (total)"],
-             ["Fabricacion, curado y colocacion de la tapa", "und", "1", "%d" % n, "01.04.04.05.04 TAPA (und); marco: 01.04.04.05.02 (und)"]]
+             ["Pintura anticorrosiva + esmalte del marco (0.152 m2/m x 2.72 m)", "m2", f2(2.72 * 0.152), f2(n * 2.72 * 0.152), "01.04.04.05.01 (desagregado: pintura)"],
+             ["Pintura total por registro: contramarco %.2f + marco %.2f" % (2.80 * MC.CM["des"], 2.72 * 0.152), "m2", f2(2.80 * MC.CM["des"] + 2.72 * 0.152), f2(n * (2.80 * MC.CM["des"] + 2.72 * 0.152)), "01.04.04.05.01 (desagregado: pintura)"],
+             ["Fabricacion, curado y colocacion de la tapa", "und", "1", "%d" % n, "01.04.04.05.01 TAPA DE REGISTRO (und)"]]
     cuadro(lam, 330, 245, "CUADRO DE COMPONENTES POR TAPA CON MARCO (1 und) Y TOTAL (%d und)" % MC.registros()["n"], filas)
     lam.leyenda2(560, 180, [("relleno", "MARCO-METALICO", "angulo metalico / asa"), ("linea2", "ACERO", "barra 3/8\" (sentido X)"), ("linea2", "ACERO-LONG", "barra 3/8\" (sentido Y)"), ("concreto", "CONCRETO", "concreto f'c=210 de la tapa"), ("relleno", "ISO-TAPA", "cajuela del asa")], 1.8)
     lam.volcar_llamadas()
@@ -295,7 +296,7 @@ def dd02(doc, ox, oy, R, T):
 # ============================================================================= DD-03 juntas
 def dd03(doc, ox, oy, R, T):
     SL = MC.SELLO; ASF = SL["clave"] == "asfaltico"; pr = SL["prof"]
-    lam = B.Lamina(doc, ox, oy, 10, "DD-03", "DETALLE CONSTRUCTIVO: JUNTAS E=1\" CON TECNOPOR Y SELLADOR ASFALTICO (COLECTOR Y CERCO)" if ASF else "DETALLE CONSTRUCTIVO: JUNTA DE DILATACION E=1\" CON SELLADOR Y JUNTAS DE TECNOPOR",
+    lam = B.Lamina(doc, ox, oy, 10, "DD-03", "DETALLE CONSTRUCTIVO: JUNTAS E=1\" CON TECNOPOR Y SELLADOR ASFALTICO (COLECTOR Y %s)" % ("CAJA CL" if MODO_DD03 == "caja_cl" else "CERCO") if ASF else "DETALLE CONSTRUCTIVO: JUNTA DE DILATACION E=1\" CON SELLADOR Y JUNTAS DE TECNOPOR",
                    "PARTIDAS 01.04.04.06.01 y 01.04.04.06.02 - %s DE DILATACION CADA 4.00 m - ESC. INDICADAS" % SUB_N_JUNTAS)
     lam.juntar_llamadas()
     b, em, ef, et = D["b"], D["e_muro"], D["e_fondo"], D["e_losa"]; be = b + 2 * em; h = round(max(e["h"] for e in R["perfil"] if e.get("zona") != "CAMION"), 2); J = MC.juntas(); e_j = 0.025; per_j = J["L_dilat"] / J["n"]
@@ -336,35 +337,79 @@ def dd03(doc, ox, oy, R, T):
     LL(lam, P(-0.10, em / 2), xt, 510, ["barras longitudinales 3/8\" interrumpidas", "a 0.05 de la junta (no la cruzan)"])
     LL(lam, P(0.20, em / 2), xt, 485, ["marcos 3/8\" a cada lado de la junta", "(DP-04 y DP-08)"])
     lam.titulo_vista(560, 435, "B. DETALLE DE LA JUNTA DE DILATACION", "ESC. 1/2 - corte longitudinal por el muro (igual en las losas)", 170)
-    # ---------------- C. junta de tecnopor contra el cerco (1/10)
-    k = 1.0; ox_, oy_ = lam.P(330, 55)
-    P = lambda x, y: (ox_ + x * k, oy_ + y * k)
-    zs = ef + h + et; xc = em + D["junta_cerco"]
-    hatch_conc(lam, [P(0, 0), P(em, 0), P(em, zs), P(0, zs)], 0.5); lam.rect(*P(-0.35, ef), *P(0, ef + h), "CONCRETO-OCULTO")
-    cerco1 = [P(xc, zs - 0.6), P(xc + 0.15, zs - 0.6), P(xc + 0.15, zs + 0.6), P(xc, zs + 0.6)]; cerco2 = [P(xc, zs - 0.9), P(xc + 0.40, zs - 0.9), P(xc + 0.40, zs - 0.6), P(xc, zs - 0.6)]
-    for c_ in (cerco1, cerco2):
-        if CON_CERCO: lam.poli(c_, "CERCO", cerrada=True); lam.achurado(c_, "TERRENO-ACHURADO", escala_mm=0.4)
-    if not CON_CERCO:
-        lam.poli([P(xc, zs), P(xc + 1.2, zs)], "TERRENO", ancho=0.003); lam.poli([P(xc, zs - 0.10), P(xc + 1.2, zs - 0.10)], "TERRENO-EXISTENTE")
-    tecnopor(lam, [P(em, zs - 0.9), P(xc, zs - 0.9), P(xc, zs - (pr if ASF else 0)), P(em, zs - (pr if ASF else 0))])
-    if ASF: lam.relleno([P(em, zs - pr), P(xc, zs - pr), P(xc, zs), P(em, zs)], "CORTES")
-    lam.poli([P(-0.4, zs), P(0, zs)], "TERRENO", ancho=0.002); lam.nivel(P(-0.25, zs), D["NPT"], texto="NPT +%.2f" % D["NPT"], lado=-1)
-    lam.cota(P(em, zs - 0.9), P(xc, zs - 0.9), -6, texto="1\""); lam.cota(P(xc + 0.45, zs - 0.9), P(xc + 0.45, zs), 6, horizontal=False, texto="0.90")
-    if CON_CERCO: lam.texto(P(-0.17, ef + h / 2), "INTERIOR DEL COLECTOR", 1.6, "TEXTOS", TA.MIDDLE_CENTER, rot=90)
-    else: lam.texto(P(-0.17, ef + h / 2 + 0.03), "INTERIOR", 1.6, "TEXTOS", TA.MIDDLE_CENTER); lam.texto(P(-0.17, ef + h / 2 - 0.03), "DEL COLECTOR", 1.6, "TEXTOS", TA.MIDDLE_CENTER)
-    xt = 430
-    if CON_CERCO:
-        LL(lam, P(xc + 0.07, zs + 0.3), xt, 318, ["muro del cerco existente"])
-        LL(lam, P(em + D["junta_cerco"] / 2, zs - 0.45), xt, 300, ["tecnopor de 1\" entre el muro lado predio y el", "cimiento del cerco: altura 0.90 (0.90 m2 por metro)"])
-        if ASF: LL(lam, P(em + D["junta_cerco"] / 2, zs - pr / 2), xt, 336, ["sellador asfaltico 1\" x 2\" (RC-250 + arena)", "en la cara superior, a ras de la losa"])
-        LL(lam, P(xc + 0.2, zs - 0.75), xt, 282, ["cimiento del cerco (no se toca; se protege", "durante la excavacion)"])
+    # ---------------- C. junta con la caja CL: corte longitudinal por el eje (1/10)
+    if MODO_DD03 == "caja_cl":
+        k = 1.0; ox_, oy_ = lam.P(360, 90)
+        P = lambda x, y: (ox_ + x * k, oy_ + y * k)
+        zs = ef + h + et; ecl = 0.15; LC = 1.10
+        hatch_conc(lam, [P(-LC, 0), P(0, 0), P(0, ef), P(-LC, ef)], 0.5); hatch_conc(lam, [P(-LC, ef + h), P(0, ef + h), P(0, zs), P(-LC, zs)], 0.5)
+        lam.rect(*P(-LC, ef), *P(0, ef + h), "CONCRETO-OCULTO"); lam.rect(*P(-LC - 0.05, -0.05), *P(0, 0), "SOLADO")
+        for z0, z1 in ((0, ef), (ef + h, zs)):
+            tecnopor(lam, [P(0, z0), P(e_j, z0), P(e_j, z1), P(0, z1)])
+        for z0, z1 in ((ef - pr, ef), (ef + h, ef + h + pr), (zs - pr, zs)):
+            lam.relleno([P(0, z0), P(e_j, z0), P(e_j, z1), P(0, z1)], "CORTES")
+        xw = e_j
+        hatch_conc(lam, [P(xw, -0.45), P(xw + ecl, -0.45), P(xw + ecl, ef), P(xw, ef)], 0.5)
+        hatch_conc(lam, [P(xw, ef + h), P(xw + ecl, ef + h), P(xw + ecl, zs), P(xw, zs)], 0.5)
+        hatch_conc(lam, [P(xw + ecl, -0.45), P(xw + 0.75, -0.45), P(xw + 0.75, -0.30), P(xw + ecl, -0.30)], 0.5)
+        lam.poli([P(xw + ecl, zs), P(xw + 0.75, zs)], "TERRENO", ancho=0.002); lam.poli([P(-LC - 0.3, zs), P(0, zs)], "TERRENO", ancho=0.002)
+        lam.nivel(P(-0.8, zs), D["NPT"], texto="NPT +%.2f (losa = vereda)" % D["NPT"], lado=-1)
+        lam.texto(P(-LC / 2, ef + h / 2), "COLECTOR CAR VARONES", 1.7, "TEXTOS", TA.MIDDLE_CENTER)
+        lam.texto(P(xw + 0.45, -0.15), "CAJA CL", 1.7, "TEXTOS", TA.MIDDLE_CENTER)
+        lam.cota(P(xw + ecl, ef), P(xw + ecl, ef + h), 8, horizontal=False, texto="ventana %.2f" % h)
+        lam.cota(P(0, -0.05), P(e_j, -0.05), -6, texto="1\""); lam.cota(P(xw, -0.45), P(xw + ecl, -0.45), -6, texto="0.15")
+        LL(lam, P(e_j / 2, ef - 0.08), 455, 104, ["plancha de tecnopor de 1\" en todo el contacto del", "colector con el muro este de la CL (seccion completa)"])
+        lam.llamada(P(e_j / 2, ef + h + pr / 2), lam.P(420, 304), ["sellador asfaltico 1\" x 2\" (RC-250 + arena) en las caras", "interiores y en la cara superior, a ras"], 1.8, al=TA.RIGHT)
+        lam.llamada(P(xw + ecl / 2, zs - 0.2), lam.P(420, 286), ["muro este de la caja CL (Hogar de Refugio, CUI 2675514)", "con ventana %.2f x %.2f para el colector" % (b, h)], 1.8, al=TA.RIGHT)
+        lam.llamada(P(-0.6, ef / 2), lam.P(232, 100), ["losa de fondo del colector e = %.2f" % ef], 1.8, al=TA.RIGHT)
     else:
-        LL(lam, P(xc + 0.6, zs - 0.05), 485, 122, ["piso terminado adyacente (+%.2f); no hay cerco" % D["NPT"]])
-        LL(lam, P(em + D["junta_cerco"] / 2, zs - 0.05), 485, 106, ["tecnopor de 1\" entre la losa superior y el piso", "adyacente, a ambos lados del colector"])
-    LL(lam, P(em / 2, zs - 1.2), xt if CON_CERCO else 485, 264 if CON_CERCO else 84, ["muro del colector e = 0.15 vaciado contra la", "plancha (encofrado perdido)"])
+        # ---------------- C. junta de tecnopor contra el cerco (1/10)
+        k = 1.0; ox_, oy_ = lam.P(330, 55)
+        P = lambda x, y: (ox_ + x * k, oy_ + y * k)
+        zs = ef + h + et; xc = em + D["junta_cerco"]
+        hatch_conc(lam, [P(0, 0), P(em, 0), P(em, zs), P(0, zs)], 0.5); lam.rect(*P(-0.35, ef), *P(0, ef + h), "CONCRETO-OCULTO")
+        cerco1 = [P(xc, zs - 0.6), P(xc + 0.15, zs - 0.6), P(xc + 0.15, zs + 0.6), P(xc, zs + 0.6)]; cerco2 = [P(xc, zs - 0.9), P(xc + 0.40, zs - 0.9), P(xc + 0.40, zs - 0.6), P(xc, zs - 0.6)]
+        for c_ in (cerco1, cerco2):
+            if CON_CERCO: lam.poli(c_, "CERCO", cerrada=True); lam.achurado(c_, "TERRENO-ACHURADO", escala_mm=0.4)
+        if not CON_CERCO:
+            lam.poli([P(xc, zs), P(xc + 1.2, zs)], "TERRENO", ancho=0.003); lam.poli([P(xc, zs - 0.10), P(xc + 1.2, zs - 0.10)], "TERRENO-EXISTENTE")
+        tecnopor(lam, [P(em, zs - 0.9), P(xc, zs - 0.9), P(xc, zs - (pr if ASF else 0)), P(em, zs - (pr if ASF else 0))])
+        if ASF: lam.relleno([P(em, zs - pr), P(xc, zs - pr), P(xc, zs), P(em, zs)], "CORTES")
+        lam.poli([P(-0.4, zs), P(0, zs)], "TERRENO", ancho=0.002); lam.nivel(P(-0.25, zs), D["NPT"], texto="NPT +%.2f" % D["NPT"], lado=-1)
+        lam.cota(P(em, zs - 0.9), P(xc, zs - 0.9), -6, texto="1\""); lam.cota(P(xc + 0.45, zs - 0.9), P(xc + 0.45, zs), 6, horizontal=False, texto="0.90")
+        if CON_CERCO: lam.texto(P(-0.17, ef + h / 2), "INTERIOR DEL COLECTOR", 1.6, "TEXTOS", TA.MIDDLE_CENTER, rot=90)
+        else: lam.texto(P(-0.17, ef + h / 2 + 0.03), "INTERIOR", 1.6, "TEXTOS", TA.MIDDLE_CENTER); lam.texto(P(-0.17, ef + h / 2 - 0.03), "DEL COLECTOR", 1.6, "TEXTOS", TA.MIDDLE_CENTER)
+        xt = 430
+        if CON_CERCO:
+            LL(lam, P(xc + 0.07, zs + 0.3), xt, 318, ["muro del cerco existente"])
+            LL(lam, P(em + D["junta_cerco"] / 2, zs - 0.45), xt, 300, ["tecnopor de 1\" entre el muro lado predio y el", "cimiento del cerco: altura 0.90 (0.90 m2 por metro)"])
+            if ASF: LL(lam, P(em + D["junta_cerco"] / 2, zs - pr / 2), xt, 336, ["sellador asfaltico 1\" x 2\" (RC-250 + arena)", "en la cara superior, a ras de la losa"])
+            LL(lam, P(xc + 0.2, zs - 0.75), xt, 282, ["cimiento del cerco (no se toca; se protege", "durante la excavacion)"])
+        else:
+            LL(lam, P(xc + 0.6, zs - 0.05), 485, 122, ["piso terminado adyacente (+%.2f); no hay cerco" % D["NPT"]])
+            LL(lam, P(em + D["junta_cerco"] / 2, zs - 0.05), 485, 106, ["tecnopor de 1\" entre la losa superior y el piso", "adyacente, a ambos lados del colector"])
+        LL(lam, P(em / 2, zs - 1.2), xt if CON_CERCO else 485, 264 if CON_CERCO else 84, ["muro del colector e = 0.15 vaciado contra la", "plancha (encofrado perdido)"])
     lam.titulo_vista(360, 25, TIT_DD03_C, TXT_DD03_C, 170)
-    # ---------------- D. seccion del colector: junta longitudinal solo contra el cerco; lado via = terreno natural (1/25)
-    if J["L_tecnopor_piso"] <= 0:
+    # ---------------- D. seccion del colector: lados del colector (1/25)
+    if MODO_DD03 == "caja_cl":
+        k = 0.4; ox_, oy_ = lam.P(600, 308)
+        P = lambda x, y: (ox_ + x * k, oy_ + y * k)
+        zs = ef + h + et
+        for q in ([(0, 0), (be, 0), (be, ef), (0, ef)], [(0, ef), (em, ef), (em, ef + h), (0, ef + h)], [(be - em, ef), (be, ef), (be, ef + h), (be - em, ef + h)],
+                  [(0, ef + h), (be, ef + h), (be, zs), (0, zs)]):
+            hatch_conc(lam, [P(*v) for v in q], 0.4)
+        lam.rect(*P(-0.05, -0.05), *P(be + 0.05, 0), "SOLADO")
+        for x0, x1 in ((-0.70, 0), (be, be + 0.70)):
+            t_ = [P(x0, zs - 0.45), P(x1, zs - 0.45), P(x1, zs), P(x0, zs)]
+            lam.achurado(t_, "TERRENO-ACHURADO", escala_mm=0.6); lam.poli([P(x0, zs), P(x1, zs)], "TERRENO", ancho=0.003)
+        lam.texto(P(-0.35, zs + 0.12), "TERRENO NATURAL", 1.7, "TEXTOS", TA.MIDDLE_CENTER); lam.texto(P(be + 0.35, zs + 0.12), "TERRENO NATURAL", 1.7, "TEXTOS", TA.MIDDLE_CENTER)
+        lam.texto(P(be / 2, ef + h / 2), "INTERIOR", 1.6, "TEXTOS", TA.MIDDLE_CENTER)
+        lam.cota(P(0, -0.05), P(be, -0.05), -5, texto="%.2f" % be)
+        LL(lam, P(be / 2, zs - et / 2), 700, 392, ["losa superior del colector: sirve de vereda (+%.2f)" % D["NPT"]])
+        LL(lam, P(-0.35, zs - 0.20), 700, 374, ["a ambos lados: terreno natural (sin piso):", "NO lleva junta longitudinal (relleno compactado)"])
+        LL(lam, P(be + 0.35, zs - 0.20), 700, 356, ["la unica junta del colector con otra estructura", "es la de la caja CL (vista C)"])
+        lam.titulo_vista(645, 289, "D. SECCION: TERRENO NATURAL A AMBOS LADOS", "ESC. 1/25 - sin junta longitudinal", 190)
+    elif J["L_tecnopor_piso"] <= 0:
         k = 0.4; ox_, oy_ = lam.P(592, 308)
         P = lambda x, y: (ox_ + x * k, oy_ + y * k)
         zs = ef + h + et; xc = be + e_j
@@ -405,8 +450,9 @@ def dd03(doc, ox, oy, R, T):
     progs = ["0+%06.2f" % (4.0 * (i + 1)) for i in range(J["n"])]
     ncol = max(2, -(-len(progs) // 9))
     filas = [[progs[i + 9 * c] if i + 9 * c < len(progs) else "" for c in range(ncol)] for i in range(9)]
-    lam.tabla(700, 245, ["JUNTA (prog.)"] * ncol, filas, [40] * ncol if ncol == 2 else [32] * ncol, 1.7, 4.4, "UBICACION DE LAS %d JUNTAS (planta y perfil)" % J["n"])
-    lam.texto(lam.P(700, 195), TXT_JUNTA_CAJAS[0], 1.6, "TEXTOS-NOTAS"); lam.texto(lam.P(700, 191), TXT_JUNTA_CAJAS[1], 1.6, "TEXTOS-NOTAS")
+    xu = 688 if MODO_DD03 == "caja_cl" else 700
+    lam.tabla(xu, 245, ["JUNTA (prog.)"] * ncol, filas, [40] * ncol if ncol == 2 else [32] * ncol, 1.7, 4.4, "UBICACION DE LAS %d JUNTAS (planta y perfil)" % J["n"])
+    lam.texto(lam.P(xu, 195), TXT_JUNTA_CAJAS[0], 1.6, "TEXTOS-NOTAS"); lam.texto(lam.P(xu, 191), TXT_JUNTA_CAJAS[1], 1.6, "TEXTOS-NOTAS")
     # ---------------- cuadro, procedimiento, leyenda
     per = J["L_dilat"] / J["n"]; a_tec = be * (ef + h + et) - b * h; sello = 2 * h + b + be; As = SL["ancho"] * SL["prof"]
     filas = [["Plancha de tecnopor 1\" (seccion %.2f x %.2f menos el hueco %.2f x %.2f)" % (be, ef + h + et, b, h), "m2", "%.3f (%.3f/m)" % (a_tec, a_tec / per), f2(J["n"] * a_tec), "01.04.04.06.01 (por metro de junta: perimetro %.2f m)" % per],
@@ -418,7 +464,9 @@ def dd03(doc, ox, oy, R, T):
               ["Tecnopor 1\" en el contacto con la caja CL (seccion del colector menos el hueco)", "m2", f2(a_tec), f2(a_tec), "01.04.04.06.02 (empalme con la CL)"]),
              *([["Tecnopor 1\" en el borde de la losa con el piso: altura 0.10 x %.2f m" % J["L_tecnopor_piso"], "m2", "0.10 por m", f2(0.10 * J["L_tecnopor_piso"]), "01.04.04.06.02 (" + ("un lado: lado via del colector y cajas" if CON_CERCO else "ambos lados del colector y cajas") + ")"]]
                if J["L_tecnopor_piso"] > 0 else [])]
-    if ASF:
+    if ASF and MODO_DD03 == "caja_cl":
+        filas.append(["Sellador asfaltico 1\" x 2\" en la junta con la caja CL (caras interiores 2h + %.2f y superior %.2f)" % (b, be), "m3", "%.4f" % (As * sello), "%.4f" % (As * sello), "01.04.04.06.02 (contacto con la CL)"])
+    elif ASF:
         L02 = J["L_tecnopor_cerco"] + J["L_tecnopor_piso"]
         filas.append(["Sellador asfaltico 1\" x 2\" en la cara superior de las juntas (02): %.2f m" % L02, "m3", "%.5f por m" % As, "%.3f" % (As * L02), "01.04.04.06.02 (" + ("cerco y bordes de losa" if J["L_tecnopor_piso"] > 0 else "junta longitudinal con el cerco") + ")"])
     cuadro(lam, 430, 165, "COMPONENTES POR JUNTA DE DILATACION (perimetro %.2f m) Y TOTAL (%d und); JUNTAS DE TECNOPOR POR METRO" % (per, J["n"]), filas, (104, 12, 30, 22, 78))
@@ -497,7 +545,7 @@ def dd04(doc, ox, oy, R, T):
     LL(lam, P(xq + 0.5, zc + 0.11), xt, 460, ["cuneta de arquitectura 0.40 x H, muros 0.10", TXT_DD04_CUNETA])
     LL(lam, P(xr - em, zc + 0.06), xt, 435, ["caida libre: la cuneta queda siempre por encima", "del nivel de agua del colector"])
     LL(lam, P(xr - em / 2, zc - 0.06), xt, 410, ["barras horizontales de borde bajo el alfeizar"])
-    LL(lam, P(xq - e_j / 2, zc - 0.112), xt, 385, ["sello elastomerico 25 x 25 mm en el contorno", "exterior de la junta"])
+    LL(lam, P(xq - e_j / 2, zc - 0.112), xt, 385, ["sellador asfaltico 1\" x 2\" (RC-250 + arena) en el", "contorno exterior de la junta"] if MC.SELLO["clave"] == "asfaltico" else ["sello elastomerico 25 x 25 mm en el contorno", "exterior de la junta"])
     LL(lam, P(xr - em - 0.5, zf), xt, 360, ["fondo con acabado pulido (mortero 1:3, 1 cm)", "en 1.00 m bajo la caida; sin dado disipador"])
     lam.titulo_vista(560, 295, "B. CORTE POR EL EMPALME (mirando aguas abajo)", "ESC. 1/10 - ejemplo Eje %s; registro de limpieza encima (DD-01 y DD-02)" % ej["perfil"], 185)
     # ---------------- C. planta del empalme (1/5)
@@ -535,19 +583,19 @@ def dd04(doc, ox, oy, R, T):
     filas2 = [["Cajon de encofrado de la ventana 0.40 x Hv x 0.15 (madera, 2 usos)", "m2", f2(tot(5) / n), f2(tot(5)), "01.04.04.06.03 EMPALME (und)"],
               ["Refuerzo de borde 3/8\": 4 verticales (Hv + 0.60) + 2 horizontales de 1.00", "kg", f2(tot(6) / n), f2(tot(6)), "01.04.04.06.03 EMPALME (und)"],
               ["Tecnopor 1\" en el contorno de la cuneta (0.60 + 2 x H)", "m2", f2(tot(7) / n), f2(tot(7)), "01.04.04.06.03 EMPALME (und)"],
-              ["Sello elastomerico 25 x 25 mm en el contorno exterior", "m", f2(tot(8) / n), f2(tot(8)), "01.04.04.06.03 EMPALME (und)"],
+              [("Sellador asfaltico 1\" x 2\" en el contorno exterior" if MC.SELLO["clave"] == "asfaltico" else "Sello elastomerico 25 x 25 mm en el contorno exterior"), "m", f2(tot(8) / n), f2(tot(8)), "01.04.04.06.03 EMPALME (und)"],
               ["Acabado pulido del fondo (mortero 1:3, e = 1 cm) %.2f x 1.00" % b, "m2", f2(b), f2(b * n), "01.04.04.06.03 EMPALME (und)"],
               ["Perfilado y resane de los bordes de la ventana (mortero 1:3)", "m", f2(2 * 0.40 + 2 * hvm), f2(n * (2 * 0.40 + 2 * hvm)), "01.04.04.06.03 EMPALME (und)"],
-              ["Registro de limpieza encima del empalme", "und", "1", "%d" % n, "partidas 01.04.04.05.xx (DD-01 y DD-02)"]]
+              ["Registro de limpieza encima del empalme", "und", "1", "%d" % n, "01.04.04.05.01 TAPA DE REGISTRO (DD-01 y DD-02)"]]
     if PARTIDA_EMPALME:
         filas2 = [f_[:4] + [PARTIDA_EMPALME] if f_[4].startswith("01.04.04.06.03") else f_ for f_ in filas2]
         cuadro(lam, 430, 222, "CUADRO DE COMPONENTES POR EMPALME (promedio) Y TOTAL (%d und)" % n, filas2, (100, 12, 24, 22, 60))
     lam.notas(430, 172 if PARTIDA_EMPALME else 225, "PROCEDIMIENTO", [
         "1. Al armar el muro lado predio, colocar el refuerzo de borde (4 verticales y 2 horizontales) y el cajon de 0.40 x Hv con su fondo en la cota NCF de la cuneta (cuadro).",
         "2. Vaciar el muro y la losa superior monoliticos; retirar el cajon a los 2 dias, perfilar y resanar los bordes de la ventana.",
-        "3. Empalmar la cuneta (o su prolongacion) contra el muro con la plancha de tecnopor de 1\" en todo su contorno; sellar el contorno exterior con poliuretano.",
+        "3. Empalmar la cuneta (o su prolongacion) contra el muro con la plancha de tecnopor de 1\" en todo su contorno; sellar el contorno exterior con " + ("sellador asfaltico 1\" x 2\" (RC-250 + arena)." if MC.SELLO["clave"] == "asfaltico" else "poliuretano."),
         "4. Pulir el fondo del colector en 1.00 m bajo la caida. Colocar el registro de limpieza sobre el empalme (DD-01 y DD-02)."], 1.8)
-    lam.leyenda2(300, 115, [("concreto", "CONCRETO", "concreto del colector f'c=210"), ("rect", "TERRENO-ACHURADO", "cuneta existente (arquitectura)"), ("relleno", "ISO-CUNETA", "ventana de empalme"), ("rect", "JUNTAS", "tecnopor 1\""), ("relleno", "CORTES", "sello elastomerico / acabado pulido"), ("linea2", "ACERO", "marcos 3/8\""), ("linea2", "ACERO-LONG", "refuerzo de borde 3/8\""), ("linea", "AGUA", "agua")], 1.8, ancho_col=120, filas_col=4)
+    lam.leyenda2(300, 115, [("concreto", "CONCRETO", "concreto del colector f'c=210"), ("rect", "TERRENO-ACHURADO", "cuneta existente (arquitectura)"), ("relleno", "ISO-CUNETA", "ventana de empalme"), ("rect", "JUNTAS", "tecnopor 1\""), ("relleno", "CORTES", "sellador asfaltico 1\" x 2\" / acabado pulido" if MC.SELLO["clave"] == "asfaltico" else "sello elastomerico / acabado pulido"), ("linea2", "ACERO", "marcos 3/8\""), ("linea2", "ACERO-LONG", "refuerzo de borde 3/8\""), ("linea", "AGUA", "agua")], 1.8, ancho_col=120, filas_col=4)
     lam.volcar_llamadas()
     return lam
 

@@ -420,7 +420,7 @@ def hoja_cumplimiento(wb, R, rlast):
         ("Traslapes y ganchos", "RNE E.060 cap. 12", "Traslape 0.40 m (3/8\"), 0.50 m (1/2\"); ganchos 0.30 m", "aplicado", "CUMPLE"),
         ("CONSTRUCTIVOS",),
         ("Registros de limpieza", "RNE CE.040 (accesibilidad para mantenimiento)", "Separacion <= 12 m, en cada llegada de cuneta y en el quiebre; fuera del cruce de camiones", "11 registros", "CUMPLE"),
-        ("Juntas de dilatacion", "Practica de los colectores vecinos", "Cada 4.00 m con tecnopor 1\" y sello", "26 juntas", "CUMPLE"),
+        ("Juntas de dilatacion", "EG-2013 MTC, Seccion 510; practica de los colectores vecinos", "Cada 4.00 m con tecnopor 1\" y sellador asfaltico 1\" x 2\"", "26 juntas", "CUMPLE"),
         ("Emplazamiento", "Lindero y faja de la carretera Oasis", "Dentro del predio, bajo el piso exterior del frente (sin cerco perimetrico), sin invadir la via", "eje a 0.475 m de la linea del frente", "CUMPLE"),
     ]
     r = 5

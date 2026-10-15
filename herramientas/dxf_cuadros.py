@@ -31,6 +31,7 @@ ESPECIFICACIONES = ["CONCRETO ARMADO: f'c = 210 kg/cm2 (colector, cajas y tapas)
            "EMPALME CON EL CAR VARONES (CUI 2705619): caja CL con tapa en +261.15, ventana este 0.60 x 1.17 (fondo 259.884) y ventana norte 0.40 x 0.66 para su cuneta Eje 01; tecnopor 1\" en los contactos. Verificar en campo la ubicacion del R-01 del CAR Mujeres (CUI 2717013)."]
 TXT_CAJAS = " + cajas"
 CON_CERCO = True          # cerco perimetrico en el frente (leyenda y plumillas)
+TXT_NPT_LEY = "losa superior = vereda +%.2f (lado via: terreno natural)"   # leyenda del nivel terminado
 TIT_DA03 = "DETALLE DE PARTIDAS: ACERO, REGISTROS, JUNTAS Y EMPALMES"
 TIT_RES_DA03 = "RESUMEN DE ACERO, REGISTROS, JUNTAS Y EMPALMES"
 TXT_TEC_PISO = "Junta e=1\" de tecnopor y sellador asfaltico con el piso adyacente (lado via)" if MC.SELLO["en_tecnopor"] else "Junta de tecnopor e=1\" con el piso adyacente"
@@ -115,7 +116,7 @@ def da(doc, ox, oy, R, T):
     lam.tabla(32, 200, ["PARTIDA", "UND", "METRADO", "CRITERIO"], filas, [70, 12, 22, 170], 1.7, 4.8, "RESUMEN DE MOVIMIENTO DE TIERRAS")
     lam.leyenda2(470, 205, [("concreto", "CONCRETO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100, e=0.05"),
                             ("linea2", "ACERO", "acero transversal (marco)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal 3/8\""),
-                            ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", "piso terminado +%.2f" % D["NPT"]), ("rect", "RELLENO", "relleno compactado (lateral y nivelacion)"), ("discontinua", "EXCAVACION", "limite de excavacion"), ("discontinua", "TERRENO-EXISTENTE", "terreno existente")] + ([("rect", "CERCO", "cerco perimetrico existente")] if CON_CERCO else []), 1.8, ancho_col=125, filas_col=5)
+                            ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", TXT_NPT_LEY % D["NPT"]), ("rect", "RELLENO", "relleno compactado (lateral y nivelacion)"), ("discontinua", "EXCAVACION", "limite de excavacion"), ("discontinua", "TERRENO-EXISTENTE", "terreno existente")] + ([("rect", "CERCO", "cerco perimetrico existente")] if CON_CERCO else []), 1.8, ancho_col=125, filas_col=5)
     lam.notas(32, 150, "NOTAS", ["1. Hz varia con el terreno existente (superficie topografica) y la cota de fondo del colector; ver tabla de tramos en la planilla de metrados.",
                                   "2. Criterio: los rellenos menores (nivelacion de la franja adyacente%s) van dentro de la partida de relleno, no como partida aparte." % (", base de las cajas" if TXT_CAJAS else ""),
                                   "3. Donde el terreno existente queda por debajo de la losa, el muro lado via se vacia con encofrado exterior y luego se rellena."], 1.7)
@@ -142,7 +143,7 @@ def da(doc, ox, oy, R, T):
     lam.tabla(32, 200, ["PARTIDA", "UND", "METRADO"], filas, [110, 16, 26], 1.7, 4.8, "RESUMEN DE CONCRETO Y ENCOFRADO (colector%s)" % TXT_CAJAS)
     lam.leyenda2(470, 205, [("concreto", "CONCRETO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100, e=0.05"),
                             ("linea2", "ACERO", "acero transversal (marco)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal 3/8\""),
-                            ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", ("losa superior = vereda +%.2f (lado via: terreno natural)" if CON_CERCO else "piso terminado +%.2f") % D["NPT"])], 1.8, ancho_col=125, filas_col=3)
+                            ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", TXT_NPT_LEY % D["NPT"])], 1.8, ancho_col=125, filas_col=3)
 
     lams.append(lam)
     # ---------------- DA-03
@@ -171,7 +172,7 @@ def da(doc, ox, oy, R, T):
     lam.tabla(32, 200, ["PARTIDA", "UND", "METRADO"], filas, [120, 18, 26], 1.7, 4.6, TIT_RES_DA03)
     lam.leyenda2(470, 205, [("concreto", "CONCRETO", "concreto armado f'c=210 kg/cm2"), ("rect", "SOLADO", "solado f'c=100, e=0.05"),
                             ("linea2", "ACERO", "acero transversal (marco)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal 3/8\""),
-                            ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", ("losa superior = vereda +%.2f (lado via: terreno natural)" if CON_CERCO else "piso terminado +%.2f") % D["NPT"])], 1.8, ancho_col=125, filas_col=3)
+                            ("linea", "AGUA", "nivel de agua de diseno"), ("linea2", "TERRENO", TXT_NPT_LEY % D["NPT"])], 1.8, ancho_col=125, filas_col=3)
 
     lams.append(lam)
     return lams

@@ -66,6 +66,27 @@ Rama: `claude/colector-pluvial-hogar-refugio-ydbnaf`
 - Hoja ACU LLORADEROS dentro de la planilla: S/ 20.56 por und, partida S/ 3,227.64 (tubo PVC 3" Pavco S/ 39.90 el tubo de 3 m, geotextil 200 g/m² S/ 5.75/m², grava a S/ 70.00/m³ de Agregados Tarapoto). Se borró el Excel aparte.
 - Siguen por cotizar en Tarapoto: piedra chancada 1/2", grava de 20 a 40 mm y alquiler de soldadora.
 
+## 15 de octubre de 2026 (tarde): CAR Varones (CUI 2705619) igual que el Hogar de Refugio
+Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los criterios son los mismos del Hogar de Refugio.
+- **Planilla:**
+  - Concreto del colector en una sola partida: 56.02 m³.
+  - Tapa de registro por und: 11 und.
+  - Acabado frotachado de losa superior (vereda).
+  - Juntas 01.04.04.06.01 (120.64 m) y 01.04.04.06.02, solo el contacto con la caja CL (4.64 m).
+  - Hojas COSTO HORA HOMBRE 2026 (CAPECO - FTCCP: 28.95 / 22.68 / 20.54), ACU TAPA REGISTRO (S/ 292.25), ACU CANALETAS, ACU JUNTA DILATACION, ACU JUNTA CAJA CL, DESAGREGADO TAPA REGISTRO (11 registros), DESAGREGADO LLORADEROS y ACU LLORADEROS (S/ 20.56/und, 226 und).
+  - Junta de cunetas en toda la sección en U: 252.29 m (185 juntas).
+- **Planos del colector:**
+  - Contramarco L 1 1/2" x 1 1/2" x 1/8" (DD-01, DD-02, DP-06B, DP-08, DA-03).
+  - Sellador asfáltico 1" x 2" (RC-250 + arena) en todas las juntas.
+  - DD-03 nueva: vista C con la junta en la caja CL y vista D con terreno natural a ambos lados (sin junta longitudinal).
+  - Leyendas: "losa superior = vereda +261.15".
+- **Láminas de cunetas DJ-01 a DJ-03** (junta, proceso constructivo en isométricos y rejilla): `entregables_varones/PLANOS_DETALLE_CUNETAS_JUNTA_Y_REJILLA_CAR_VARONES.dxf`, con vistas previas en `entregables_varones/vistas_previas_cunetas/`.
+- **Documentos actualizados:** especificaciones técnicas, memoria Word (tabla de metrados igual a la planilla), memoria de cálculo Excel, leyenda de cunetas y LEEME.
+- **Ambos proyectos:**
+  - DD-01 y DD-02 citan ahora la partida única 01.04.04.05.01 TAPA DE REGISTRO; ya no citan las antiguas .05.02 a .05.07.
+  - DD-04 ya no cita la partida 01.04.04.06.03, que no existe en la planilla Delphin: la cuneta se metra hasta el muro del colector.
+- **Pendiente:** DP-06D (isométricos 3D de la tapa) para el CAR Varones. Su colector es de 0.60 m y la abertura de 0.70 m apoya sobre los muros, así que necesita su propio modelo.
+
 ## Cómo imprimir (los tres proyectos)
 1. Abrir la pestaña de la lámina (DP-00, DP-01, ...).
 2. Ctrl+P: área = Presentación, escala 1:1, centrar.
@@ -76,7 +97,7 @@ Rama: `claude/colector-pluvial-hogar-refugio-ydbnaf`
 | Proyecto | Planos | Vistas previas | Notas |
 |---|---|---|---|
 | CAR Mujeres | `entregables_mujeres/PLANOS_COLECTOR_MEJORADOS/PLANOS_COLECTOR_PLUVIAL_CAR_MUJERES.dxf` | `entregables_mujeres/PLANOS_COLECTOR_MEJORADOS/vistas_previas/` | `LEEME.txt` |
-| CAR Varones | `entregables_varones/PLANOS_COLECTOR_PLUVIAL_CAR_VARONES.dxf` | `entregables_varones/vistas_previas/` | `LEEME_PLANOS.txt` |
+| CAR Varones | `entregables_varones/PLANOS_COLECTOR_PLUVIAL_CAR_VARONES.dxf` y `PLANOS_DETALLE_CUNETAS_JUNTA_Y_REJILLA_CAR_VARONES.dxf` | `entregables_varones/vistas_previas/` y `vistas_previas_cunetas/` | `LEEME_PLANOS.txt` |
 | Hogar de Refugio | `entregables/PLANOS_COLECTOR_PLUVIAL_HOGAR_REFUGIO.dxf` | `entregables/INDICE_DP-00_VISTA_PREVIA.png` | – |
 
 ## Reglas que se mantienen

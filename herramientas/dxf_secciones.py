@@ -26,6 +26,7 @@ P_EJ_EMPALME = 11.27
 SUB_DP06C = "VENTANA EN EL MURO LADO PREDIO, CAIDA AL FONDO, JUNTAS Y REGISTRO - CUNETAS EJES 01, 02, 06, 07, 11 Y 12 - ESC. 1/10"
 TXT_CUNETA_06C = "cuneta de arquitectura 0.40 x H, muros 0.10 (NCF segun perfil 01 a 12)"
 CON_CERCO = True
+TXT_NPT_LEY = "losa superior = vereda +%.2f (lado via: terreno natural)"   # leyenda del nivel terminado
 TXT_JUNTA_06C = "junta de tecnopor 1\" entre colector, cuneta y cerco"
 TXT_CERCO_06C = "paso por el cerco existente: abertura 0.60 (cuneta con sus muros); junta de tecnopor 1\" a ambos lados"
 TXT_EJ_EMPALME = "ESC. 1/10 - ejemplo cuneta Eje 02 (0+011.27); en las demas varia H y la cota de fondo"
@@ -134,7 +135,7 @@ def dp04(doc, ox, oy, R, T):
             lam.titulo_vista(xmm + 25, ymm - 33, "SECCION %s" % nm, "PROG. %s - CF %.3f - %s - ESC. 1/15" % (prog_txt(p), g["cf"], ACERO[g["tipo"]][4]), 130)
         lam.leyenda2(32, 128, [("concreto", "CONCRETO", "concreto armado f'c=210 kg/cm2 (muros y losas)"), ("rect", "SOLADO", "solado f'c=100 kg/cm2, e=0.05"),
                                ("linea2", "ACERO", "acero transversal: marco cerrado (rojo)"), ("bloque:ACERO-38", "ACERO-PUNTOS", "acero longitudinal 3/8\" (diametro real)"),
-                               ("linea", "AGUA", "nivel de agua de diseno (%s)" % TXT_Q_LEY), ("linea2", "TERRENO", ("losa superior = vereda +%.2f (lado via: terreno natural)" if CON_CERCO else "piso terminado +%.2f") % D["NPT"]),
+                               ("linea", "AGUA", "nivel de agua de diseno (%s)" % TXT_Q_LEY), ("linea2", "TERRENO", TXT_NPT_LEY % D["NPT"]),
                                ("discontinua", "TERRENO-EXISTENTE", "terreno existente"), ("discontinua", "EXCAVACION", "limite de excavacion")] + ([("rect", "CERCO", "cerco perimetrico existente")] if CON_CERCO else []), 1.8,
                       ancho_col=110, filas_col=5)
         lam.notas(262, 128, "NOTAS", NOTAS_DP04 or ["1. Altura interior h segun el perfil longitudinal (1.40 m en 0+000 a 1.61 m en el brink).",
