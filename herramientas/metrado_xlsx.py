@@ -528,7 +528,7 @@ def hoja_juntas(wb, P, mt):
     cols = [("N°", 5, "txt", None), ("ELEMENTO", 44, "txt", None), ("PROGRESIVA / DETALLE", 22, "txt", None), ("VECES", 9, "auto", "0"), ("LONGITUD (m)", 12, "auto", "0.00"), ("PARCIAL (m)", 12, "form", "0.00"), ("SUSTENTO", 52, "sust", None)]
     n = len(cols)
     r = cabecera(ws, "COLECTOR PLUVIAL FRONTAL - JUNTAS Y EMPALMES DE CUNETAS", n,
-                 "Lamina DP-01 (nota 5), DP-03 y DP-06C. Junta de dilatacion de 1\" cada 4.00 m en todo el perimetro de la seccion (tecnopor + sellador elastomerico). Junta de tecnopor de 1\" entre el colector y el cimiento del cerco, y entre el borde de la losa y el piso adyacente. "
+                 "Lamina DP-01 (nota 5), DP-03 y DP-06C. Junta de dilatacion de 1\" cada 4.00 m en todo el perimetro de la seccion (tecnopor + sellador elastomerico). Junta de tecnopor de 1\" entre el colector y el cimiento del cerco, y entre el borde de la losa y el piso adyacente (un solo lado, lado via). "
                  "Empalme de cada cuneta por ventana en el muro lado predio con caida libre al fondo (sin dintel adicional).")
     encabezado(ws, r, cols, 30); r0 = r + 1
     J = MC.juntas(); rr = r0
@@ -541,9 +541,9 @@ def hoja_juntas(wb, P, mt):
     subtitulo(ws, rr, n, "JUNTA DE TECNOPOR e=1\" ENTRE COLECTOR, CERCO Y PISO ADYACENTE"); rr += 1
     r_jt = rr
     fila(ws, rr, cols, [1, "Contra el cimiento del cerco (tramo pegado al cerco, 0+000 a primer quiebre)", "=\"0+000.00 a 0+\"&TEXT(%s,\"000.00\")" % P["PB1"], 1, "=%s" % P["PB1"], "=D%d*E%d" % (rr, rr), "DP-01, DP-04 (junta entre muro y cimiento del cerco)"], 30); rr += 1
-    fila(ws, rr, cols, [2, "Borde de la losa con el piso adyacente: colector (ambos lados)", "=\"2 x 0+\"&TEXT(%s,\"000.00\")" % P["PB"], 2, "=%s" % P["PB"], "=D%d*E%d" % (rr, rr), "DP-04: junta de tecnopor en el borde de la losa superior"], 30); rr += 1
-    fila(ws, rr, cols, [3, "Borde de la losa con el piso adyacente: caja CL (ambos lados)", "2 x (largo exterior + 0.30)", 2, "=%s!D%d+2*%s+0.30" % (MT, mt["cajas"]["CL"], P["em"]), "=D%d*E%d" % (rr, rr), "DP-07"], 30); rr += 1
-    fila(ws, rr, cols, [4, "Borde de la losa con el piso adyacente: caja CC (ambos lados)", "2 x (largo exterior + 0.30)", 2, "=%s!D%d+2*%s+0.30" % (MT, mt["cajas"]["CC"], P["em"]), "=D%d*E%d" % (rr, rr), "DP-07"], 30); rr += 1
+    fila(ws, rr, cols, [2, "Borde de la losa con el piso adyacente: colector (un lado, lado via; al lado predio esta el cerco)", "=\"1 x 0+\"&TEXT(%s,\"000.00\")" % P["PB"], 1, "=%s" % P["PB"], "=D%d*E%d" % (rr, rr), "DP-04: junta de tecnopor en el borde de la losa superior"], 30); rr += 1
+    fila(ws, rr, cols, [3, "Borde de la losa con el piso adyacente: caja CL (un lado, lado via)", "1 x (largo exterior + 0.30)", 1, "=%s!D%d+2*%s+0.30" % (MT, mt["cajas"]["CL"], P["em"]), "=D%d*E%d" % (rr, rr), "DP-07"], 30); rr += 1
+    fila(ws, rr, cols, [4, "Borde de la losa con el piso adyacente: caja CC (un lado, lado via)", "1 x (largo exterior + 0.30)", 1, "=%s!D%d+2*%s+0.30" % (MT, mt["cajas"]["CC"], P["em"]), "=D%d*E%d" % (rr, rr), "DP-07"], 30); rr += 1
     rt2 = rr; barra_total(ws, rt2, n, "TOTAL JUNTA DE TECNOPOR (m)", {"F": "=SUM(F%d:F%d)" % (r_jt, rt2 - 1)}); rr += 2
     subtitulo(ws, rr, n, "EMPALME DE CUNETA AL COLECTOR (ventana 0.40 x H en el muro lado predio, caida libre y registro encima) - lamina DP-06C"); rr += 1
     r_e = rr

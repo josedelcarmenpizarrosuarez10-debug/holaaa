@@ -72,7 +72,7 @@ TXT_DD04_CUNETA = "(Ejes 11 y 12 prolongadas hasta el muro)"
 SUB_N_REG = "10 REGISTROS"; SUB_N_TAPAS = "10 TAPAS"; SUB_N_JUNTAS = "17 JUNTAS"     # cantidades en los subtitulos
 PARTIDA_EMPALME = "01.04.04.06.03 EMPALME (und)"     # None: el empalme no tiene partida propia (solo detalle constructivo)
 ANCHO_PROC_DD03 = 262      # ancho del procedimiento de la DD-03 (no invade la tabla de ubicacion)
-NOTA4_DD03 = ("4. Juntas de tecnopor (02): plancha de 1\" pegada al cimiento del cerco antes de vaciar el muro; plancha de 1\" x 0.10 en el borde de la losa antes de vaciar el piso;"
+NOTA4_DD03 = ("4. Juntas de tecnopor (02): plancha de 1\" pegada al cimiento del cerco antes de vaciar el muro; plancha de 1\" x 0.10 en el borde de la losa, lado via, antes de vaciar el piso;"
               " en ambas, sellador asfaltico 1\" x 2\" en la cara superior.")
 
 
@@ -374,8 +374,8 @@ def dd03(doc, ox, oy, R, T):
         LL(lam, P(e_j / 2, et - pr / 2), 700, 385, ["sellador asfaltico 1\" x 2\" (RC-250 + arena)", "en la cara superior, a ras del piso"])
     lam.rect(*P(-0.6, -0.12), *P(0.6, 0), "RELLENO"); lam.texto(P(0, -0.06), "relleno compactado / muro del colector", 1.6, "TEXTOS", TA.MIDDLE_CENTER)
     lam.cota(P(0, 0), P(e_j, 0), -6, texto="1\""); lam.cota(P(0.6, 0), P(0.6, et), 6, horizontal=False, texto="0.10")
-    lam.texto(P(-0.3, et + 0.03), "LOSA SUPERIOR DEL COLECTOR", 1.7, "TEXTOS", TA.MIDDLE_CENTER); lam.texto(P(0.33, et + 0.03), "PISO ADYACENTE (retiro)", 1.7, "TEXTOS", TA.MIDDLE_CENTER)
-    LL(lam, P(e_j / 2, et / 2), 700, 365, ["tecnopor de 1\" en el espesor del piso (0.10):", "0.10 m2 por metro; ambos lados del colector y cajas"])
+    lam.texto(P(-0.3, et + 0.03), "LOSA SUPERIOR DEL COLECTOR", 1.7, "TEXTOS", TA.MIDDLE_CENTER); lam.texto(P(0.33, et + 0.03), "PISO ADYACENTE (lado via)" if CON_CERCO else "PISO ADYACENTE (retiro)", 1.7, "TEXTOS", TA.MIDDLE_CENTER)
+    LL(lam, P(e_j / 2, et / 2), 700, 365, ["tecnopor de 1\" en el espesor del piso (0.10):", "0.10 m2 por metro; " + ("lado via del colector y cajas" if CON_CERCO else "ambos lados del colector y cajas")])
     lam.titulo_vista(560, 290, "D. JUNTA DE TECNOPOR Y SELLADOR EN EL BORDE DE LA LOSA" if ASF else "D. JUNTA DE TECNOPOR EN EL BORDE DE LA LOSA", "ESC. 1/5", 170)
     # ---------------- E. ubicacion de las juntas de dilatacion
     progs = ["0+%06.2f" % (4.0 * (i + 1)) for i in range(J["n"])]
@@ -392,7 +392,7 @@ def dd03(doc, ox, oy, R, T):
                 ["Imprimante para el sello (0.10 L por metro de cordon)", "L", f2(sello * 0.10), f2(J["n"] * sello * 0.10), "insumo del ACU"]]),
              (["Tecnopor 1\" contra el cerco: altura 0.90 x %.2f m" % J["L_tecnopor_cerco"], "m2", "0.90 por m", f2(0.90 * J["L_tecnopor_cerco"]), "01.04.04.06.02 (tramo pegado al cerco)"] if CON_CERCO else
               ["Tecnopor 1\" en el contacto con la caja CL (seccion del colector menos el hueco)", "m2", f2(a_tec), f2(a_tec), "01.04.04.06.02 (empalme con la CL)"]),
-             ["Tecnopor 1\" en el borde de la losa con el piso: altura 0.10 x %.2f m" % J["L_tecnopor_piso"], "m2", "0.10 por m", f2(0.10 * J["L_tecnopor_piso"]), "01.04.04.06.02 (ambos lados del colector y cajas)"]]
+             ["Tecnopor 1\" en el borde de la losa con el piso: altura 0.10 x %.2f m" % J["L_tecnopor_piso"], "m2", "0.10 por m", f2(0.10 * J["L_tecnopor_piso"]), "01.04.04.06.02 (" + ("un lado: lado via del colector y cajas" if CON_CERCO else "ambos lados del colector y cajas") + ")"]]
     if ASF:
         L02 = J["L_tecnopor_cerco"] + J["L_tecnopor_piso"]
         filas.append(["Sellador asfaltico 1\" x 2\" en la cara superior de las juntas (02): %.2f m" % L02, "m3", "%.5f por m" % As, "%.3f" % (As * L02), "01.04.04.06.02 (cerco y bordes de losa)"])

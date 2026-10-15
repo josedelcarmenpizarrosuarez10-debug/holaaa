@@ -1,4 +1,5 @@
-"""ACU de la partida 01.04.03.04.03.04 LLORADERO DE TUBERIA PVC 3" (CAR Varones y Hogar de Refugio), en un libro aparte.
+"""ACU de la partida 01.04.03.04.03.04 LLORADERO DE TUBERIA PVC 3" (CAR Varones), en un libro aparte.
+El Hogar de Refugio tiene su hoja ACU LLORADEROS dentro de la planilla (herramientas/acu_lloraderos_refugio.py).
 
 Mismo formato que la hoja ACU CANALETAS de la planilla del Hogar de Refugio: celda amarilla = dato (cuadrilla, rendimiento,
 aporte o precio), verde = formula. Precios sin IGV, referenciales (base Mercado Tarapoto 2026 de la planilla; PVC 3" y
@@ -13,7 +14,6 @@ RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MET = os.path.join(RAIZ, "insumos", "metrados_vigentes")
 PROY = {
     "varones": dict(planilla="METRADO_DRENAJE_PLUVIAL_CAR_VARONES.xlsx", salida=os.path.join(RAIZ, "entregables_varones", "ACU_LLORADEROS_CAR_VARONES.xlsx")),
-    "refugio": dict(planilla="METRADO_DRENAJE_MUJERES_VIOLENTADAS.xlsx", salida=os.path.join(RAIZ, "entregables", "ACU_LLORADEROS_HOGAR_REFUGIO.xlsx")),
 }
 COD = "01.04.03.04.03.04"
 FUENTE_MO = "CAPECO: costo hora-hombre 2024-2025 llevado al jornal basico 2025-2026"

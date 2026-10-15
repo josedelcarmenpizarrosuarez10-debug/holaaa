@@ -139,7 +139,7 @@ def dp04(doc, ox, oy, R, T):
                       ancho_col=110, filas_col=5)
         lam.notas(262, 128, "NOTAS", NOTAS_DP04 or ["1. Altura interior h segun el perfil longitudinal (1.40 m en 0+000 a 1.61 m en el brink).",
                                         "2. Tramo normal y cruce de motos: un solo marco cerrado en el eje de muros y losas (una capa, E.060 14.3.4); recubrimiento minimo 0.04 m en muros y losa de fondo y 0.025 m en la losa superior.",
-                                        "3. Junta de tecnopor de 1\" entre el muro lado predio y el cimiento del cerco; junta de 1\" entre la losa superior y el piso adyacente.",
+                                        "3. Junta de tecnopor de 1\" entre el muro lado predio y el cimiento del cerco; junta de 1\" entre la losa superior y el piso adyacente solo del lado via (al lado predio esta el cerco).",
                                         "4. El cruce de camiones (S-04) lleva losas e=0.25 y doble marco de 1/2\" @0.15 (marco exterior e interior, recubrimiento 0.04); el cruce de motos (S-05) marco unico de 3/8\" @0.15.",
                                         "5. Los registros no se ubican dentro de los cruces vehiculares."], 1.7)
         lams.append(lam)

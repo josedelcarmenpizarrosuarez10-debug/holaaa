@@ -202,7 +202,7 @@ def prolongaciones():
 def juntas():
     n = int(dz.P_BRINK // 4.0)
     per = 2 * (D["b"] + 2 * D["e_muro"]) + 2 * (D["e_fondo"] + 1.61 + D["e_losa"])   # 1.61 = altura interior maxima
-    return dict(n=n, L_dilat=n * per, L_tecnopor_cerco=dz.P_B1, L_tecnopor_piso=2 * dz.P_BRINK + 2 * (D["CL_largo"] + 2 * D["e_muro"] + 0.3) + 2 * (D["CC_poza_largo"] + 2 * D["e_muro"] + 0.3))
+    return dict(n=n, L_dilat=n * per, L_tecnopor_cerco=dz.P_B1, L_tecnopor_piso=dz.P_BRINK + (D["CL_largo"] + 2 * D["e_muro"] + 0.3) + (D["CC_poza_largo"] + 2 * D["e_muro"] + 0.3))   # piso a un lado (lado via); al lado predio esta el cerco
 
 
 def resumen():

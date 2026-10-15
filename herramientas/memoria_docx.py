@@ -430,10 +430,10 @@ def construir():
                 "ángulo de %s con 8 anclajes de 3/8\" de 0.20 m, marco de ángulo de 1 ½\" × 1 ½\" × 1/8\", borde "
                 "engrosado de la losa de 0.15 × 0.10 m y refuerzo de borde con 8 barras de 1/2\" de 1.40 m." % (MC.LUZ_REG, MC.CM["txt"][2:].replace("x", " × ").replace("1 1/2", "1 ½")))
     vineta(doc, ("Juntas de dilatación cada 4.00 m, con tecnopor de 1\" y sellador asfáltico de 1\" × 2\" (asfalto líquido RC-250 + arena gruesa); "
-                 "junta de tecnopor de 1\" con el mismo sellador en su cara superior entre el colector y el cimiento del cerco y entre la losa superior y los pisos adyacentes.")
+                 "junta de tecnopor de 1\" con el mismo sellador en su cara superior entre el colector y el cimiento del cerco y entre la losa superior y el piso adyacente del lado vía (al lado del predio está el cerco).")
                 if MC.SELLO["clave"] == "asfaltico" else
                 ("Juntas de dilatación cada 4.00 m, con tecnopor de 1\" y sello elastomérico de poliuretano; junta de tecnopor de 1\" entre el "
-                 "colector y el cimiento del cerco y entre la losa superior y los pisos adyacentes."))
+                 "colector y el cimiento del cerco y entre la losa superior y el piso adyacente del lado vía (al lado del predio está el cerco)."))
     vineta(doc, "Empalme de cunetas por ventana de 0.40 × H en el muro del lado del predio, con caída al fondo, junta de 1\" y "
                 "registro sobre el empalme.")
     vineta(doc, "Concreto f'c = 210 kg/cm² en colector, cajas y tapas; solado de f'c = 100 kg/cm² de 0.05 m; acero fy = 4200 kg/cm²; "

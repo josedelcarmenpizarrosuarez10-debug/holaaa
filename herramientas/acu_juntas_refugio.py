@@ -68,15 +68,16 @@ def tabla_datos(H, Y4, titulo, datos):
     return ref
 
 
-def acu(H, partida, metrado_txt, und, metrado, mo, mat, nota_rend):
+def acu(H, partida, metrado_txt, und, metrado, mo, mat, nota_rend, rend=None, por="M",
+        herr="3 % del costo de mano de obra (incluye recipiente para calentar el asfalto)"):
     """Analisis en formato Delphin: mo y mat = [(recurso, und, cantidad (formula), precio, fuente)]."""
     H.banda("2. ANALISIS DE COSTO UNITARIO (formato Delphin)", salto=1)
     for t, v, st in (("Partida", partida, 295), ("Partida del metrado", metrado_txt, 295), ("Unidad", und, 295), ("Metrado", metrado, 290)):
         r = H.fila([("A", 294, t), ("B", 294, None), ("C", st, v)] + [(k, st, None) for k in "DEFGH"]); H.merges += ["A%d:B%d" % (r, r), "C%d:H%d" % (r, r)]
         if t == "Metrado": r_met = r
     r_rend = H.r + 1; r_op = r_rend + 3                      # el operario (o el primer recurso de mano de obra) define el rendimiento
-    r = H.fila([("A", 294, "Rendimiento (%s)" % nota_rend), ("B", 294, None), ("C", 290, "=8/E%d" % r_op)] + [(k, 290, None) for k in "DEFGH"]); H.merges += ["A%d:B%d" % (r, r), "C%d:H%d" % (r, r)]
-    H.fila([(k, 282, t) for k, t in zip("ABCDEFGH", ("N°", "RECURSO", "UND", "CUADRILLA", "CANTIDAD POR M", "PRECIO S/", "PARCIAL S/", "FUENTE DEL PRECIO"))], 31.5)
+    r = H.fila([("A", 294, "Rendimiento (%s)" % nota_rend), ("B", 294, None), ("C", 290, rend or "=8/E%d" % r_op)] + [(k, 290, None) for k in "DEFGH"]); H.merges += ["A%d:B%d" % (r, r), "C%d:H%d" % (r, r)]
+    H.fila([(k, 282, t) for k, t in zip("ABCDEFGH", ("N°", "RECURSO", "UND", "CUADRILLA", "CANTIDAD POR " + por, "PRECIO S/", "PARCIAL S/", "FUENTE DEL PRECIO"))], 31.5)
     n = 0; sub = {}
     for grupo, items in (("MANO DE OBRA", mo), ("MATERIALES", mat)):
         H.banda(grupo, desde="B"); r0 = H.r + 1
@@ -88,7 +89,7 @@ def acu(H, partida, metrado_txt, und, metrado, mo, mat, nota_rend):
         sub[grupo] = H.fila([("A", 21, None), ("B", 294, "Subtotal " + grupo.lower())] + [(k, 295, None) for k in "CDEF"] + [("G", 296, "=SUM(G%d:G%d)" % (r0, H.r)), ("H", 295, None)])
     H.banda("EQUIPOS", desde="B"); n += 1; r = H.r + 1
     H.fila([("A", 283, n), ("B", 295, "Herramientas manuales"), ("C", 285, "%mo"), ("D", 295, None), ("E", 284, 0.03), ("F", 290, "=+G%d" % sub["MANO DE OBRA"]),
-            ("G", 290, "=E%d*F%d" % (r, r)), ("H", 149, "3 % del costo de mano de obra (incluye recipiente para calentar el asfalto)")])
+            ("G", 290, "=E%d*F%d" % (r, r)), ("H", 149, herr)])
     sub["EQUIPOS"] = H.fila([("A", 21, None), ("B", 294, "Subtotal equipos")] + [(k, 295, None) for k in "CDEF"] + [("G", 296, "=SUM(G%d:G%d)" % (r, r)), ("H", 295, None)])
     rcu = H.fila([("A", 294, "COSTO UNITARIO DIRECTO (S/ por %s)" % und)] + [(k, 294, None) for k in "BCDEF"] +
                  [("G", 296, "=+G%d+G%d+G%d" % (sub["MANO DE OBRA"], sub["MATERIALES"], sub["EQUIPOS"])), ("H", 295, None)], 21.75)
@@ -163,12 +164,12 @@ def construir(f):
     H = Hoja(L, Y4)
     encabezado(H, "ANALISIS DE COSTO UNITARIO - JUNTA E=1\" CON TECNOPOR Y SELLADOR ASFALTICO ENTRE COLECTOR Y CERCO PERIMETRICO",
                "Partida de Delphin 01.04.04.06.02 JUNTA E=1\" CON TECNOPOR Y SELLADOR ASFALTICO ENTRE COLECTOR Y CERCO PERIMETRICO (metrado 01.04.04.06.02, hoja COLECTOR JUNTAS Y EMPALMES). "
-               "Cantidades de la lamina DD-03: plancha de tecnopor de 1\" de 0.90 m de altura contra el cimiento del cerco y de 0.10 m en el borde de la losa con el piso adyacente, con sellador "
+               "Cantidades de la lamina DD-03: plancha de tecnopor de 1\" de 0.90 m de altura contra el cimiento del cerco y de 0.10 m en el borde de la losa con el piso adyacente (un solo lado, lado via), con sellador "
                "asfaltico 1\" x 2\" (RC-250 + arena) en la cara superior. Celda amarilla = dato; verde = formula. Precios sin IGV.", plantilla)
     D = tabla_datos(H, Y4, "1. CANTIDADES POR METRO DE JUNTA (lamina DD-03 y hoja COLECTOR JUNTAS Y EMPALMES)", [
         ("lc", "Junta contra el cimiento del cerco (0+000.00 a 0+058.81)", "m", "=" + CJ + "F15", "COLECTOR JUNTAS Y EMPALMES fila 15"),
         ("hc", "Altura de la plancha contra el cerco", "m", 0.90, "DD-03 C"),
-        ("lb", "Junta en el borde de la losa con el piso adyacente (colector y cajas CL y CC)", "m", "=%sF16+%sF17+%sF18" % (CJ, CJ, CJ), "COLECTOR JUNTAS Y EMPALMES filas 16 a 18"),
+        ("lb", "Junta en el borde de la losa con el piso adyacente, un lado (colector y cajas CL y CC)", "m", "=%sF16+%sF17+%sF18" % (CJ, CJ, CJ), "COLECTOR JUNTAS Y EMPALMES filas 16 a 18"),
         ("hb", "Altura de la plancha en el borde de la losa", "m", 0.10, "DD-03 D"),
         ("lt", "Longitud total de la partida", "m", "=" + CJ + "F19", "COLECTOR JUNTAS Y EMPALMES fila 19"),
         ("tec", "Tecnopor por metro de junta (promedio ponderado)", "m2/m", "=(D1*D2+D3*D4)/D5", "formula"),

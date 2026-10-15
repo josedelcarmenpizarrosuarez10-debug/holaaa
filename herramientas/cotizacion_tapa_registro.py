@@ -1,4 +1,6 @@
-"""Cotizacion de insumos y propuesta de angulos para la ACU TAPA REGISTRO del Hogar de Refugio Temporal
+"""Nota (15/10/2026): la planilla ya tiene la ACU nueva; no volver a correr este script (el comparativo "actual" leeria la ACU nueva).
+La mano de obra 2026 se cambio directamente en el Excel entregado.
+Cotizacion de insumos y propuesta de angulos para la ACU TAPA REGISTRO del Hogar de Refugio Temporal
 (Mujeres Violentadas, CUI 2675514). Libro aparte con formulas; no modifica la planilla vigente.
 Hojas: 1 COTIZACION (precio publicado, fuente y enlace de cada insumo), 2 ANGULOS (alternativas y verificacion
 del contramarco), 3 ACU COMPARATIVO (ACU actual frente a la propuesta con precios cotizados).
@@ -151,15 +153,15 @@ def construir():
     c(ws, "I%d" % r, "=(%s*%.3f+%s*%.3f)/%.3f" % ("I15", D["kg12"], "I16", D["kg38"], D["kg12"] + D["kg38"]), VERDE, True, fmt="0.00")
     c(ws, "J%d" % r, 3.81, fmt="0.00"); c(ws, "K%d" % r, "=I%d/J%d-1" % (r, r), fmt="+0%;-0%"); c(ws, "L%d" % r, "Sodimac Peru"); c(ws, "M%d" % r, "-")
     c(ws, "N%d" % r, "COMPROBADO (precio nacional)", VERDE, h="left"); REF["acero"] = "'1 COTIZACION'!I%d" % r
-    mo = [("Operario", 30.42, 89.30), ("Oficial", 22.95, 69.75), ("Peon", 20.79, 62.80)]
+    mo = [("Operario", 29.30, 89.30), ("Oficial", 22.95, 69.75), ("Peon", 20.79, 62.80)]
     for j, (cat, hh, jor) in enumerate(mo):
         r = r0 + 1 + j
         c(ws, "A%d" % r, len(COT) + 2 + j); c(ws, "B%d" % r, cat, h="left"); c(ws, "C%d" % r, "hh")
-        c(ws, "D%d" % r, "Jornal basico 2026 S/ %.2f por dia (convenio CAPECO-FTCCP 2026, R.M. 197-2025-TR); costo hora-hombre con beneficios sociales de la planilla" % jor, h="left")
+        c(ws, "D%d" % r, "Jornal basico 2026 S/ %.2f por dia (convenio CAPECO-FTCCP 2026, R.M. 197-2025-TR); costo hora-hombre 2026 de la hoja COSTO HORA HOMBRE 2026 de la planilla" % jor, h="left")
         c(ws, "E%d" % r, "hora-hombre"); c(ws, "F%d" % r, hh, AMARILLO, fmt="0.00"); c(ws, "G%d" % r, 1, fmt="0.000"); c(ws, "H%d" % r, 1.00, fmt="0.00")
         c(ws, "I%d" % r, "=F%d/G%d/H%d" % (r, r, r), VERDE, True, fmt="0.00"); c(ws, "J%d" % r, hh, fmt="0.00"); c(ws, "K%d" % r, "=I%d/J%d-1" % (r, r), fmt="+0%;-0%")
         c(ws, "L%d" % r, "FTCCP - tablas salariales 2026"); c(ws, "M%d" % r, "abrir", link="https://www.ftccperu.com/media/attachments/2025/12/30/tablas-salariales-2026-construccion-civil.pdf")
-        c(ws, "N%d" % r, "JORNAL OFICIAL 2026; costo hh se mantiene (decision pendiente)", NARANJA, h="left"); REF[cat] = "'1 COTIZACION'!I%d" % r
+        c(ws, "N%d" % r, "JORNAL OFICIAL 2026; costo hh 2026 = costo CAPECO 2024-2025 x jornal 2026 / jornal 2024-2025", VERDE, h="left"); REF[cat] = "'1 COTIZACION'!I%d" % r
         ws.row_dimensions[r].height = 30
     rn = r0 + 5
     fila(ws, rn, "NOTAS", N)
@@ -168,7 +170,7 @@ def construir():
              "3. Piedra chancada 1/2\": en Tarapoto se publica la de 3/4\" (S/ 70.00 el m3, Agregados Tarapoto, Morales); la de 1/2\" debe cotizarse. En la tapa (8 cm) su incidencia es menor de S/ 2.00.",
              "4. Arena (Agregados Tarapoto): se tomo el precio publicado como precio con IGV; si el proveedor no emite factura, usar S/ 48.00 directo (celda H11 = 1.00).",
              "5. Lija y thinner reemplazan al global \"Lija y thinner\" de la ACU actual (ver DESAGREGADO_LIJA_THINNER_TAPA_REGISTRO_HOGAR_REFUGIO.xlsx).",
-             "6. Mano de obra: el jornal basico 2026 es oficial; el costo hora-hombre con beneficios sociales de la planilla (30.42 / 22.95 / 20.79) no se cambia en esta propuesta."]
+             "6. Mano de obra 2026: jornal basico oficial (R.M. 197-2025-TR) y costo hora-hombre 29.30 / 22.95 / 20.79 de la hoja COSTO HORA HOMBRE 2026 de la planilla (costo CAPECO 2024-2025 llevado al jornal 2026)."]
     for i, t in enumerate(notas): fila(ws, rn + 1 + i, t, N, None, False, alto=28)
     ws.freeze_panes = "C6"
 

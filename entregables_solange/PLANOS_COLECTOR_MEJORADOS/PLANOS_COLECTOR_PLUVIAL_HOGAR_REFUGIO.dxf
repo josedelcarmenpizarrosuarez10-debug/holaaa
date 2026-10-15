@@ -489,7 +489,7 @@ $SKPOLY
   9
 $TDCREATE
  40
-2461329.0038773147
+2461329.0546875
   9
 $TDUCREATE
  40
@@ -497,7 +497,7 @@ $TDUCREATE
   9
 $TDUPDATE
  40
-2461329.0039351853
+2461329.0547569445
   9
 $TDUUPDATE
  40
@@ -929,11 +929,11 @@ $PSTYLEMODE
   9
 $FINGERPRINTGUID
   2
-{2509CFDF-58B5-4F22-9544-9BE340452AC2}
+{83CA6E08-50E3-44F6-855A-4FDE3753221A}
   9
 $VERSIONGUID
   2
-{3858B03D-FC47-43A9-A772-7C2E6E86DEE0}
+{4F929634-AD87-42A8-9AEE-0BC18E6B2719}
   9
 $EXTNAMES
 290
@@ -3683,78 +3683,6 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-OCULTO
- 70
-0
- 62
-8
-  6
-DASHED
-370
-25
-390
-13
-347
-21
-  0
-LAYER
-  5
-2C70
-330
-1
-100
-AcDbSymbolTableRecord
-100
-AcDbLayerTableRecord
-  2
-CORTE
- 70
-0
- 62
-1
-  6
-Continuous
-370
-35
-390
-13
-347
-21
-  0
-LAYER
-  5
-2C71
-330
-1
-100
-AcDbSymbolTableRecord
-100
-AcDbLayerTableRecord
-  2
-TEXTO
- 70
-0
- 62
-7
-  6
-Continuous
-370
-25
-390
-13
-347
-21
-  0
-LAYER
-  5
-2C72
-330
-1
-100
-AcDbSymbolTableRecord
-100
-AcDbLayerTableRecord
-  2
 EJES
  70
 0
@@ -3771,7 +3699,7 @@ CENTER
   0
 LAYER
   5
-2C73
+2C70
 330
 1
 100
@@ -3779,11 +3707,11 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-ACERO_OCULTO
+ANGULOS_OCULTO
  70
 0
  62
-1
+5
   6
 DASHED
 370
@@ -3795,7 +3723,7 @@ DASHED
   0
 LAYER
   5
-2C74
+2C71
 330
 1
 100
@@ -3803,15 +3731,15 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-CONCRETO_ACHURADO
+OCULTO
  70
 0
  62
-253
+8
   6
-Continuous
+DASHED
 370
-13
+25
 390
 13
 347
@@ -3819,7 +3747,7 @@ Continuous
   0
 LAYER
   5
-2C75
+2C72
 330
 1
 100
@@ -3843,7 +3771,31 @@ Continuous
   0
 LAYER
   5
-2C76
+2C73
+330
+1
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+CORTE
+ 70
+0
+ 62
+1
+  6
+Continuous
+370
+35
+390
+13
+347
+21
+  0
+LAYER
+  5
+2C74
 330
 1
 100
@@ -3867,6 +3819,54 @@ Continuous
   0
 LAYER
   5
+2C75
+330
+1
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+CONCRETO_ACHURADO
+ 70
+0
+ 62
+253
+  6
+Continuous
+370
+13
+390
+13
+347
+21
+  0
+LAYER
+  5
+2C76
+330
+1
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+ACERO_OCULTO
+ 70
+0
+ 62
+1
+  6
+DASHED
+370
+25
+390
+13
+347
+21
+  0
+LAYER
+  5
 2C77
 330
 1
@@ -3875,13 +3875,13 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-ANGULOS_OCULTO
+TEXTO
  70
 0
  62
-5
+7
   6
-DASHED
+Continuous
 370
 25
 390
@@ -284953,7 +284953,7 @@ AcDbText
  40
 0.03315
   1
-3. Junta de tecnopor de 1" entre el muro lado predio y el cimiento del cerco; junta de 1" entre la losa superior y el piso adyacente.
+3. Junta de tecnopor de 1" entre el muro lado predio y el cimiento del cerco; junta de 1" entre la losa superior y el piso adyacente solo del lado via (al lado predio esta el cerco).
   7
 STANDARD
  11
@@ -298895,7 +298895,7 @@ AcDbText
  40
 0.03315
   1
-3. Junta de tecnopor de 1" entre el muro lado predio y el cimiento del cerco; junta de 1" entre la losa superior y el piso adyacente.
+3. Junta de tecnopor de 1" entre el muro lado predio y el cimiento del cerco; junta de 1" entre la losa superior y el piso adyacente solo del lado via (al lado predio esta el cerco).
   7
 STANDARD
  11
@@ -442223,9 +442223,9 @@ AcDbText
  30
 0.0
  40
-0.045899999999999996
+0.03779999999999999
   1
-Junta e=1" de tecnopor y sellador asfaltico con el piso adyacente
+Junta e=1" de tecnopor y sellador asfaltico con el piso adyacente (lado via)
   7
 STANDARD
  72
@@ -442297,7 +442297,7 @@ AcDbText
  40
 0.045899999999999996
   1
-152.17
+76.09
   7
 STANDARD
  72
@@ -465121,7 +465121,7 @@ AcDbText
  40
 0.022949999999999998
   1
-PISO ADYACENTE (retiro)
+PISO ADYACENTE (lado via)
   7
 STANDARD
  72
@@ -467671,9 +467671,9 @@ AcDbText
  30
 0.0
  40
-0.017549999999999996
+0.018899999999999997
   1
-Tecnopor 1" en el borde de la losa con el piso: altura 0.10 x 152.17 m
+Tecnopor 1" en el borde de la losa con el piso: altura 0.10 x 76.09 m
   7
 STANDARD
  72
@@ -467781,7 +467781,7 @@ AcDbText
  40
 0.022949999999999998
   1
-15.22
+7.61
   7
 STANDARD
  72
@@ -467815,9 +467815,9 @@ AcDbText
  30
 0.0
  40
-0.018899999999999997
+0.017549999999999996
   1
-01.04.04.06.02 (ambos lados del colector y cajas)
+01.04.04.06.02 (un lado: lado via del colector y cajas)
   7
 STANDARD
  72
@@ -467853,7 +467853,7 @@ AcDbText
  40
 0.016199999999999996
   1
-Sellador asfaltico 1" x 2" en la cara superior de las juntas (02): 210.98 m
+Sellador asfaltico 1" x 2" en la cara superior de las juntas (02): 134.89 m
   7
 STANDARD
  72
@@ -467961,7 +467961,7 @@ AcDbText
  40
 0.022949999999999998
   1
-0.264
+0.169
   7
 STANDARD
  72
@@ -468281,7 +468281,7 @@ AcDbText
  40
 0.023400000000000004
   1
-4. Juntas de tecnopor (02): plancha de 1" pegada al cimiento del cerco antes de vaciar el muro; plancha de 1" x 0.10 en el borde de la losa
+4. Juntas de tecnopor (02): plancha de 1" pegada al cimiento del cerco antes de vaciar el muro; plancha de 1" x 0.10 en el borde de la
   7
 STANDARD
  11
@@ -468313,7 +468313,7 @@ AcDbText
  40
 0.023400000000000004
   1
-   antes de vaciar el piso; en ambas, sellador asfaltico 1" x 2" en la cara superior.
+   losa, lado via, antes de vaciar el piso; en ambas, sellador asfaltico 1" x 2" en la cara superior.
   7
 STANDARD
  11
@@ -470225,7 +470225,7 @@ AcDbText
  40
 0.024300000000000002
   1
-0.10 m2 por metro; ambos lados del colector y cajas
+0.10 m2 por metro; lado via del colector y cajas
   7
 STANDARD
  11
@@ -2306255,7 +2306255,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-10-15T00:05:35.298071+00:00
+1.4.4 @ 2026-10-15T01:18:45.559317+00:00
   0
 DICTIONARY
   5
@@ -2310269,7 +2310269,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-10-15T00:05:40.867452+00:00
+1.4.4 @ 2026-10-15T01:18:51.078536+00:00
   0
 ENDSEC
   0

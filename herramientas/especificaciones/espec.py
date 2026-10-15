@@ -40,6 +40,7 @@ PROYECTOS = {
     ),
     "refugio": dict(
         clave="refugio", archivo="METRADO_DRENAJE_MUJERES_VIOLENTADAS.xlsx", corto="HOGAR DE REFUGIO TEMPORAL", cui="2675514",
+        junta_cuneta_seccion=True,     # junta de cunetas en toda la seccion en U (2 muros + losa de fondo), EG-2013 MTC Seccion 510
         salida=os.path.join(RAIZ, "entregables", "ESPECIFICACIONES_TECNICAS_DRENAJE_PLUVIAL_HOGAR_REFUGIO"),
         colector=dict(
             nombre="colector pluvial frontal del Hogar de Refugio Temporal", L=69.89, b=0.80, em=0.15, ef=0.15, es=0.10, es_cam=0.25, solado=0.05,
@@ -558,16 +559,16 @@ def espec(pt, P, ctx):
                           medicion=[p("Se medira la longitud de junta segun el perimetro de la seccion en cada junta por el numero de juntas, como en el metrado.")])
         if col and C.get("sello") == "asfaltico" and "SELLADOR" in d:
             return bloque([p("Comprende la junta de 1\" con plancha de poliestireno expandido (tecnopor) y sellador asfaltico entre el %s y las estructuras vecinas: cimiento del cerco existente "
-                             "(plancha de 0.90 m de altura) y borde de la losa superior con el piso adyacente (plancha de 0.10 m), de modo que cada estructura trabaje en forma independiente. "
+                             "(plancha de 0.90 m de altura) y borde de la losa superior con el piso adyacente, solo del lado via (plancha de 0.10 m; al lado predio esta el cerco), de modo que cada estructura trabaje en forma independiente. "
                              "En la cara superior de la junta se coloca sellador asfaltico de 1\" x 2\" (asfalto liquido RC-250 + arena gruesa), segun la lamina DD-03." % C["nombre"])],
                           mat=l("Plancha de tecnopor de 1\" (densidad 10 a 15 kg/m³) en tiras de 0.90 m y de 0.10 m de altura; asfalto liquido RC-250 (NTP 321.028); arena gruesa limpia y seca."),
                           equ=l("Cuchilla, regla, wincha, recipiente para calentar el asfalto, tacos de madera."),
-                          proc=l("Pegar la plancha al cimiento del cerco antes de vaciar el muro del colector, y la tira de 0.10 m contra el borde de la losa antes de vaciar el piso adyacente.",
+                          proc=l("Pegar la plancha al cimiento del cerco antes de vaciar el muro del colector, y la tira de 0.10 m contra el borde de la losa, lado via, antes de vaciar el piso adyacente.",
                                  "Mantenerlas verticales y continuas; retirar 2\" (50 mm) de tecnopor en la cara superior.",
                                  "Calentar el RC-250, mezclarlo con arena gruesa y colocarlo compactando con tacos hasta el ras del piso."),
                           ctrl=l("Junta continua en toda la longitud, sin contacto directo entre el concreto del colector y el cerco o el piso; sello compacto y al ras."),
                           seg=l(EPP, "Calentar el asfalto lejos de materiales inflamables, con extintor a la mano."), und=und,
-                          medicion=[p("Se medira la longitud de junta colocada y sellada en los contactos indicados en el metrado.")])
+                          medicion=[p("Se medira la longitud de junta colocada y sellada: contra el cimiento del cerco en el tramo pegado al cerco y en el borde de la losa solo del lado via (colector y cajas CL y CC), como en el metrado.")])
         if col:
             return bloque([p("Comprende la junta de 1\" con plancha de poliestireno expandido (tecnopor) entre el %s y las estructuras vecinas: borde de la losa superior con el piso adyacente a ambos lados%s, de modo que cada estructura trabaje en forma independiente." % (C["nombre"], ", el cerco existente" if C["cerco"] else "" ) + (" Incluye el contacto con la caja de llegada CL." if "CL" in pt["desc"] else ""))],
                           mat=l("Plancha de tecnopor de 1\" (densidad 15 kg/m³) en tiras de 0.10 m de altura para el borde de la losa; pegamento compatible."),
@@ -575,6 +576,19 @@ def espec(pt, P, ctx):
                           proc=l("Fijar la tira de tecnopor contra el borde de la losa del colector antes de vaciar el piso adyacente.", "Mantenerla vertical y continua; retirar los excesos al ras del piso."),
                           ctrl=l("Junta continua en toda la longitud, sin contacto directo entre el concreto del colector y el del piso."), seg=l(EPP), und=und,
                           medicion=[p("Se medira la longitud de junta colocada, a ambos lados del colector y en los contactos indicados en el metrado.")])
+        if P.get("junta_cuneta_seccion"):
+            return bloque([p("Comprende las juntas de dilatacion de 1\" (0.0254 m) de las cunetas, cada %.2f m y en los cambios de direccion, en toda la seccion en U: los dos muros y la losa de fondo, "
+                             "de modo que cada tramo entre juntas trabaje independiente, segun la EG-2013 MTC, Seccion 510 (cunetas revestidas de concreto). La junta lleva plancha de tecnopor de 1\" en todo el espesor "
+                             "y sellador asfaltico (asfalto liquido RC-250 + arena gruesa) en la cara interior, segun la lamina DJ-01." % K["junta"])],
+                          mat=l("Plancha de tecnopor de 1\" (densidad 10 a 15 kg/m³) cortada a la forma de la seccion en U; asfalto liquido RC-250 (NTP 321.028); arena gruesa limpia y seca."),
+                          equ=l("Cuchilla, regla, wincha, recipiente para calentar el asfalto, tacos de madera, escobilla."),
+                          proc=l("Cortar la plancha de tecnopor con la forma de la seccion en U (muros y losa de fondo) y colocarla al vaciar, a plomo y continua en toda la seccion.",
+                                 "El acero longitudinal se interrumpe a 0.05 m a cada lado de la junta; no la atraviesa.",
+                                 "Retirar 2\" (50 mm) de tecnopor en la cara interior de los muros y del fondo; limpiar y secar; colocar el sellador asfaltico y compactarlo con tacos hasta el ras.",
+                                 "Retirar los excesos y dejar la junta pareja."),
+                          ctrl=l("Junta continua en los dos muros y en el fondo, alineada con la del muro opuesto; sellador compacto, al ras y sin filtraciones."),
+                          seg=l(EPP, "Calentar el asfalto lejos de materiales inflamables, con extintor a la mano."), und=und,
+                          medicion=[p("Se medira en metros lineales de junta sellada: por cada junta, 2 x altura del muro + ancho interior del fondo (0.40 m), por el numero de juntas de cada eje (una cada %.2f m), como en el metrado de la partida." % K["junta"])])
         return bloque([p("Comprende las juntas de dilatacion de 1\" en los muros de las cunetas, cada %.2f m y en los cambios de direccion, selladas con sellador asfaltico, para absorber los cambios de temperatura y evitar fisuras." % K["junta"])],
                       mat=l("Plancha de tecnopor de 1\" o tabla de madera aceitada que se retira; sellador asfaltico para juntas aplicado en caliente o en frio, segun el fabricante; imprimante asfaltico."),
                       equ=l("Cuchilla, espatula, pistola o tetera para el sellador, escobilla."),

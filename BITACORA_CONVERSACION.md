@@ -60,7 +60,11 @@ Rama: `claude/colector-pluvial-hogar-refugio-ydbnaf`
 ## 15 de octubre de 2026: juntas del colector del Hogar de Refugio (CUI 2675514)
 - DD-03, DP-08, DA-03, especificaciones y memoria: tecnopor 1" + sellador asfáltico 1" x 2" (RC-250 + arena) en la junta de dilatación, contra el cerco y en el borde de la losa (EG-2013 MTC, 510). CAR Varones conserva el sello de poliuretano (`SELLO_JUNTA` en `varones/compat.py`).
 - Planilla: hojas ACU JUNTA DILATACION (S/ 12.01/m) y ACU JUNTA CERCO (S/ 6.12/m) con cantidades del DD-03; COLECTOR INSUMOS lee de ellas el tecnopor y el sellador. Metrados sin cambio.
-- Pendiente: confirmar qué hay a cada lado del colector (152.17 m de junta "con el piso adyacente" en la partida 01.04.04.06.02).
+- Junta 01.04.04.06.02: el piso adyacente está a un solo lado (lado vía); al lado predio está el cerco. Borde de losa 152.17 → 76.09 m; partida 210.98 → 134.89 m (ACU JUNTA CERCO S/ 6.60/m con la mano de obra 2026). Corregidos el metrado, DD-03, DP-04A/B, DA-03, las especificaciones y la memoria.
+- Junta de cunetas 01.04.03.04.03.03: en toda la sección en U (2 muros + losa de fondo), EG-2013 MTC Sección 510. Longitud por junta = 2 × H + 0.40; 233 juntas: 241.96 → 335.16 ml. Lámina nueva DJ-01 (`entregables/PLANO_DJ-01_JUNTA_CUNETAS_HOGAR_REFUGIO.dxf`) y especificación actualizada.
+- Mano de obra 2026: hoja COSTO HORA HOMBRE 2026 (jornal R.M. 197-2025-TR: 89.30 / 69.75 / 62.80; costo CAPECO 2024-2025 llevado al jornal 2026): operario 29.30, oficial 22.95, peón 20.79. Todas las ACU leen de ella. Tapa de registro: 297.45 → 294.07 S/ por und.
+- Hoja ACU LLORADEROS dentro de la planilla: S/ 20.70 por und, partida S/ 3,250.54 (tubo PVC 3" Pavco S/ 39.90 el tubo de 3 m, geotextil 200 g/m² S/ 5.75/m², grava a S/ 70.00/m³ de Agregados Tarapoto). Se borró el Excel aparte.
+- Siguen por cotizar en Tarapoto: piedra chancada 1/2", grava de 20 a 40 mm y alquiler de soldadora.
 
 ## Cómo imprimir (los tres proyectos)
 1. Abrir la pestaña de la lámina (DP-00, DP-01, ...).

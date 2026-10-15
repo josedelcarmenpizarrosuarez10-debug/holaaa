@@ -32,7 +32,7 @@ TXT_CAJAS = " + cajas"
 CON_CERCO = True          # cerco perimetrico en el frente (leyenda y plumillas)
 TIT_DA03 = "DETALLE DE PARTIDAS: ACERO, REGISTROS, JUNTAS Y EMPALMES"
 TIT_RES_DA03 = "RESUMEN DE ACERO, REGISTROS, JUNTAS Y EMPALMES"
-TXT_TEC_PISO = "Junta e=1\" de tecnopor y sellador asfaltico con el piso adyacente" if MC.SELLO["en_tecnopor"] else "Junta de tecnopor e=1\" con el piso adyacente"
+TXT_TEC_PISO = "Junta e=1\" de tecnopor y sellador asfaltico con el piso adyacente (lado via)" if MC.SELLO["en_tecnopor"] else "Junta de tecnopor e=1\" con el piso adyacente"
 TXT_TEC_CL = "Junta de tecnopor e=1\" con la caja CL (perimetro de la seccion)"
 NOTAS_DP08 = ["1. Dimensiones en metros y cotas en m.s.n.m., salvo indicacion.", "2. El colector esta dimensionado para 560.6 L/s (CAR Varones 258.7 + Hogar de Refugio 301.9; TR 25 anos).",
              "3. Verificaciones hidraulica y estructural segun memoria de calculo del proyecto (RNE CE.040, E.020, E.060; AASHTO LRFD HL-93).",
