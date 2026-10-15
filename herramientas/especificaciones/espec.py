@@ -49,7 +49,7 @@ PROYECTOS = {
             recub="0.04 m en muros y losa de fondo; 0.025 m en la losa superior del tramo normal; 0.04 m en el cruce de camiones; 0.025 m en tapas",
             receptor="el registro R-01 del colector del CAR Mujeres (CUI 2717013), a traves de la caja de caida CC con poza de disipacion",
             cajas="caja de llegada CL (interior 1.50 x 1.00 m, poza de 0.30 m, recibe el colector del CAR Varones y su cuneta del Eje 01) y caja de caida CC (poza 3.50 x 1.50 m, profundidad 0.40 m bajo el fondo del receptor, umbral de 0.25 x 0.40 m)",
-            salida=None, cerco=True, planos="DP-01 a DP-10, DA-01 a DA-03 y DD-01 a DD-04", contramarco="1.5x1.5x1/8"),
+            salida=None, cerco=True, planos="DP-01 a DP-10, DA-01 a DA-03 y DD-01 a DD-04", contramarco="1.5x1.5x1/8", sello="asfaltico"),
     ),
     "mujeres": dict(
         clave="mujeres", archivo="METRADO_DRENAJE_PLUVIAL_CAR_MUJERES.xlsx", corto="CAR MUJERES", cui="2717013",
@@ -170,7 +170,7 @@ def generalidades(P, partidas_):
             ["Perfiles y platinas", "Acero estructural A36; galvanizado en caliente cuando se indique F°G°", "ASTM A36 / A123"],
             ["Tuberia y accesorios", "PVC-U para desague, clase pesada (CP), con union espiga-campana y cemento solvente", "NTP 399.003 / ASTM D2564"],
             ["Plancha galvanizada", "Acero galvanizado de 0.9 mm de espesor, recubrimiento de zinc continuo, sin oxidacion", "ASTM A653"],
-            ["Juntas", "Poliestireno expandido (tecnopor) de 1\"; sellador asfaltico para juntas de cunetas; sellador de poliuretano en el colector", "ASTM C920"],
+            (["Juntas", "Poliestireno expandido (tecnopor) de 1\"; sellador asfaltico (asfalto liquido RC-250 + arena gruesa) en las juntas de cunetas y del colector", "NTP 321.028 / EG-2013 MTC 510"] if (C or {}).get("sello") == "asfaltico" else ["Juntas", "Poliestireno expandido (tecnopor) de 1\"; sellador asfaltico para juntas de cunetas; sellador de poliuretano en el colector", "ASTM C920"]),
         ]),
     ]])
     cap.append(["CONCRETO", [
@@ -532,6 +532,19 @@ def espec(pt, P, ctx):
                       ctrl=l("Dimensiones ±3 mm; tapa plana, sin fisuras ni cangrejeras, removible con las asas."), seg=SEG_CONC, und=und,
                       medicion=[p("Se medira por unidad de tapa fabricada y colocada.")])
     if "JUNTA" in d:
+        if col and "DILAT" in d and C.get("sello") == "asfaltico":
+            return bloque([p("Comprende la junta de dilatacion de 1\" (25 mm) en toda la seccion del %s, cada %.2f m (%d juntas) y en los cambios de seccion, rellena con plancha de poliestireno expandido (tecnopor) "
+                             "y sellada con sellador asfaltico de 1\" x 2\" (25 x 50 mm) de asfalto liquido RC-250 y arena gruesa en las caras interiores y en la cara superior, segun la lamina DD-03 y la seccion 510 de la EG-2013 del MTC." % (C["nombre"], C["juntas"], C["n_juntas"]))],
+                          mat=l("Plancha de tecnopor de 1\" (densidad 10 a 15 kg/m³); asfalto liquido RC-250 (NTP 321.028); arena gruesa limpia y seca."),
+                          equ=l("Cuchilla, recipiente o tetera para calentar el asfalto, tacos de madera, escobilla, soplador."),
+                          proc=l("Cortar la plancha de tecnopor a la forma de la seccion (anillo con el hueco interior del colector) y fijarla al concreto ya vaciado.",
+                                 "Vaciar el paño siguiente contra la plancha; el acero longitudinal se interrumpe a 0.05 m a cada lado.",
+                                 "Retirar 2\" (50 mm) de tecnopor en las caras interiores y en la cara superior; limpiar y secar la caja de la junta.",
+                                 "Calentar el asfalto liquido RC-250, mezclarlo con arena gruesa y colocar la mezcla compactandola con tacos de madera hasta el ras; retirar lo que manche el concreto.",
+                                 "La junta sera continua, recta y vertical."),
+                          ctrl=l("Sello compacto, adherido a ambas caras y al ras, sin vacios ni discontinuidades."),
+                          seg=l(EPP, "Calentar el asfalto lejos de materiales inflamables, con extintor a la mano; guantes y careta."), und=und,
+                          medicion=[p("Se medira la longitud de junta segun el perimetro de la seccion en cada junta por el numero de juntas, como en el metrado.")])
         if col and "DILAT" in d:
             sell = "sellador asfaltico" if "ASFALT" in d else "sellador elastomerico de poliuretano de 25 x 25 mm (ASTM C920)"
             return bloque([p("Comprende la junta de dilatacion de 1\" (25 mm) en toda la seccion del %s, cada %.2f m (%d juntas) y en los cambios de seccion, rellena con plancha de poliestireno expandido (tecnopor) y sellada con %s en las caras interiores y en la cara superior." % (C["nombre"], C["juntas"], C["n_juntas"], sell))],
@@ -543,6 +556,18 @@ def espec(pt, P, ctx):
                                  "La junta sera continua, recta y vertical."),
                           ctrl=l("Sellador adherido en ambas caras, sin burbujas ni discontinuidades."), seg=l(EPP, "Ventilar al aplicar imprimantes y selladores; mantenerlos lejos del fuego."), und=und,
                           medicion=[p("Se medira la longitud de junta segun el perimetro de la seccion en cada junta por el numero de juntas, como en el metrado.")])
+        if col and C.get("sello") == "asfaltico" and "SELLADOR" in d:
+            return bloque([p("Comprende la junta de 1\" con plancha de poliestireno expandido (tecnopor) y sellador asfaltico entre el %s y las estructuras vecinas: cimiento del cerco existente "
+                             "(plancha de 0.90 m de altura) y borde de la losa superior con el piso adyacente (plancha de 0.10 m), de modo que cada estructura trabaje en forma independiente. "
+                             "En la cara superior de la junta se coloca sellador asfaltico de 1\" x 2\" (asfalto liquido RC-250 + arena gruesa), segun la lamina DD-03." % C["nombre"])],
+                          mat=l("Plancha de tecnopor de 1\" (densidad 10 a 15 kg/m³) en tiras de 0.90 m y de 0.10 m de altura; asfalto liquido RC-250 (NTP 321.028); arena gruesa limpia y seca."),
+                          equ=l("Cuchilla, regla, wincha, recipiente para calentar el asfalto, tacos de madera."),
+                          proc=l("Pegar la plancha al cimiento del cerco antes de vaciar el muro del colector, y la tira de 0.10 m contra el borde de la losa antes de vaciar el piso adyacente.",
+                                 "Mantenerlas verticales y continuas; retirar 2\" (50 mm) de tecnopor en la cara superior.",
+                                 "Calentar el RC-250, mezclarlo con arena gruesa y colocarlo compactando con tacos hasta el ras del piso."),
+                          ctrl=l("Junta continua en toda la longitud, sin contacto directo entre el concreto del colector y el cerco o el piso; sello compacto y al ras."),
+                          seg=l(EPP, "Calentar el asfalto lejos de materiales inflamables, con extintor a la mano."), und=und,
+                          medicion=[p("Se medira la longitud de junta colocada y sellada en los contactos indicados en el metrado.")])
         if col:
             return bloque([p("Comprende la junta de 1\" con plancha de poliestireno expandido (tecnopor) entre el %s y las estructuras vecinas: borde de la losa superior con el piso adyacente a ambos lados%s, de modo que cada estructura trabaje en forma independiente." % (C["nombre"], ", el cerco existente" if C["cerco"] else "" ) + (" Incluye el contacto con la caja de llegada CL." if "CL" in pt["desc"] else ""))],
                           mat=l("Plancha de tecnopor de 1\" (densidad 15 kg/m³) en tiras de 0.10 m de altura para el borde de la losa; pegamento compatible."),
@@ -680,7 +705,7 @@ _FUT = ("amarraran anotara anotaran aplicara aprobara armaran cambiara cercaran 
         "efectuara eliminara enderezaran entregara estara excavaran hara haran humedecera limpiara limpiaran medira mediran ordenara pagaran picara "
         "presentara programaran quedara quedaran redondearan referiran registrara rellenara repintaran resanaran resolvera senalizaran sera seran "
         "traslapara ubicaran usara vaciara verificara volveran podra tendra").split()
-_MAP = {"albanileria": "albañilería", "analisis": "análisis", "angulo": "ángulo", "angulos": "ángulos", "area": "área", "areas": "áreas", "arnes": "arnés",
+_MAP = {"liquido": "líquido", "compactandola": "compactándola", "albanileria": "albañilería", "analisis": "análisis", "angulo": "ángulo", "angulos": "ángulos", "area": "área", "areas": "áreas", "arnes": "arnés",
         "asfaltico": "asfáltico", "brunado": "bruñado", "brunadora": "bruñadora", "caida": "caída", "calculo": "cálculo", "calido": "cálido", "capitulo": "capítulo",
         "carguio": "carguío", "carpinteria": "carpintería", "ciclopeo": "ciclópeo", "codigo": "código", "cordon": "cordón", "cubico": "cúbico", "danar": "dañar",
         "danen": "dañen", "danos": "daños", "debiles": "débiles", "despues": "después", "diametro": "diámetro", "diametros": "diámetros", "dias": "días",

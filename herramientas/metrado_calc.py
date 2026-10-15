@@ -22,6 +22,17 @@ CONTRAMARCOS = {
 }
 CM = CONTRAMARCOS[os.environ.get("CONTRAMARCO", "1.5x1.5x1/8")]
 LUZ_REG = 0.70 - 2 * CM["ala"]          # luz libre entre alas del contramarco
+# sellador de las juntas del colector, por proyecto (variable SELLO_JUNTA; CAR Varones la fija en compat.py).
+# Hogar de Refugio: sellador asfaltico 1" x 2" (asfalto liquido RC-250 + arena gruesa) sobre el tecnopor, tambien en la junta
+# con el cerco y en el borde de la losa (EG-2013 MTC, seccion 510.02 c).
+SELLOS = {
+    "poliuretano": dict(clave="poliuretano", nombre="sello elastomerico de poliuretano", txt='1" x 1"', ancho=0.025, prof=0.025, en_tecnopor=False,
+                        ley="sello elastomerico"),
+    "asfaltico": dict(clave="asfaltico", nombre="sellador asfaltico (asfalto liquido RC-250 + arena gruesa)", txt='1" x 2"', ancho=0.025, prof=0.050,
+                      en_tecnopor=True, ley="sellador asfaltico RC-250 + arena"),
+}
+SELLO = SELLOS[os.environ.get("SELLO_JUNTA", "asfaltico")]
+RC_GAL_M3, ARENA_M3_M3 = 50.0, 1.05      # mezcla del sellador: asfalto liquido RC-250 (gal) y arena gruesa (m3) por m3
 SOBREEXC = 0.25          # sobreancho de excavacion a cada lado
 ESPONJ = 1.20   # esponjamiento, igual a PARAMETROS!B16 de la planilla del proyecto
 RECUB = 0.04
