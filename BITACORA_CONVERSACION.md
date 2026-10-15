@@ -96,7 +96,11 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   - Refugio (0.80): cota de fondo 259.10 → 258.88, entrega 560.6 L/s en R-01 (cota de fondo 258.72, nivel de agua 259.062).
   - Mujeres (1.50): cota de fondo 258.72 → 258.30, nivel de agua inicial 259.063.
   - El ancho crece aguas abajo y las cotas y los niveles empalman.
-- **Ambos proyectos:** DA-02 muestra el total de concreto del colector (Refugio 58.31 m³ = su partida 01.04.04.04.01) y el acabado con su nombre Delphin ("frotachado de losa superior (vereda)").
+- **Empalme Refugio → Mujeres (corregido):** la ventana de salida de la caja CC hacia el R-01 mide 1.50 × 0.43, el alto interior del colector del CAR Mujeres en su R-01 (losa 259.25 − 0.10 − fondo 258.72).
+  - Antes el perfil la dibujaba de 0.43, la DP-07 de 0.60 (pasaba por encima del piso de Mujeres) y la planilla descontaba 0.842.
+  - Concreto del Refugio: 58.31 → 58.41 m³.
+  - Revisados también: llegada de Varones a la caja CL (ventana 0.60 × 1.17 en su muro este, techo 261.05 igual en ambos expedientes, caída libre de 0.28 sobre el nivel de agua 259.606), salida del Refugio de la CL (0.80 × 1.40) y ubicación UTM del R-01 (345666.974, 9282776.560), igual en el Refugio y en Mujeres.
+- **Ambos proyectos:** DA-02 muestra el total de concreto del colector (Refugio 58.41 m³ = su partida 01.04.04.04.01) y el acabado con su nombre Delphin ("frotachado de losa superior (vereda)").
 
 ## Cómo imprimir (los tres proyectos)
 1. Abrir la pestaña de la lámina (DP-00, DP-01, ...).

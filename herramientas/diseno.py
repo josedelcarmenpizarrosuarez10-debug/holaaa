@@ -51,6 +51,7 @@ D = dict(
     CC_transicion=0.0, CC_poza_largo=3.50, CC_poza_prof=0.40, CC_ancho=1.50,
 )
 D["b_ext"] = D["b"] + 2 * D["e_muro"]                     # 1.10
+D["H_R01"] = round(D["NPT_wilma"] - 0.10 - D["CF_R01"], 3)   # alto interior del colector CAR Mujeres en su R-01 (losa 0.10): 0.43 = alto de la ventana de salida de la CC
 D["eje_desde_cerco"] = D["junta_cerco"] + D["e_muro"] + D["b"] / 2   # 0.575
 
 # ----------------------------------------------------------------------------

@@ -161,14 +161,14 @@ def dp07(doc, ox, oy, R, T):
     lam.llamada((ox_ - 1.0, oy_ + 0.55), (xt, oy_ + 1.0), ["poza de disipacion 1.50 x 3.50, piso 258.32 (0.40 bajo el fondo del receptor)"], 1.8)
     lam.llamada((ox_, oy_ + 0.3), (xt, oy_ + 0.6), ["brink: fin del colector b=0.80 (CF %.3f); caida libre a la poza" % dz.fondo(dz.P_BRINK)], 1.8)
     lam.llamada((ox_ - 0.6 + 0.3, oy_ - 0.2), (xt, oy_ + 0.2), ["registros 0.68 x 0.68 (2 und) sobre la poza"], 1.8)
-    lam.llamada((ox_ - Li - e / 2, oy_ - 0.3), (xt, oy_ - 0.3), ["muro aguas abajo con ventana 1.50 x 0.60 sobre el umbral: entrega al R-01 (junta de 1\")"], 1.8)
+    lam.llamada((ox_ - Li - e / 2, oy_ - 0.3), (xt, oy_ - 0.3), ["muro aguas abajo con ventana 1.50 x %.2f sobre el umbral (alto interior del R-01): entrega al R-01 (junta de 1\")" % D["H_R01"]], 1.8)
     lam.llamada((ox_ - Li + 0.12, oy_ - 0.55), (xt, oy_ - 0.75), ["umbral de salida 0.25 x 0.40 (corona 258.72 = CF del R-01)"], 1.8)
     lam.volcar_llamadas()
     lam.titulo_vista(560, 412, "CC-1. CAJA DE CAIDA - PLANTA", "ESC. 1/25 - losa superior retirada", 120)
     # corte longitudinal CC
     ox_, oy_ = lam.P(580, 262); z0 = oy_; Z = lambda z: z0 + (z - (piso - ef - es))
     zb = dz.fondo(dz.P_BRINK)
-    zw1, zw2 = D["CF_R01"], D["CF_R01"] + 0.60          # ventana de salida al R-01 (sobre el umbral)
+    zw1, zw2 = D["CF_R01"], D["CF_R01"] + D["H_R01"]    # ventana de salida al R-01 (sobre el umbral): alto interior del colector receptor
     xm = ox_ + e                                          # murete del escalon entre el fondo del colector y la poza
     # solado escalonado
     lam.poli([(ox_ + 2.0, Z(zb - ef - es)), (xm + 0.05, Z(zb - ef - es)), (xm + 0.05, Z(piso - ef - es)), (ox_ - Li - e - 0.05, Z(piso - ef - es)), (ox_ - Li - e - 0.05, Z(piso - ef)), (xm, Z(piso - ef)), (xm, Z(zb - ef)), (ox_ + 2.0, Z(zb - ef))], "SOLADO", cerrada=True)
@@ -204,10 +204,10 @@ def dp07(doc, ox, oy, R, T):
     lam.cota((ox_ - Li, Z(piso - ef - es)), (ox_, Z(piso - ef - es)), -8); lam.cota((ox_ - Li, Z(piso - ef - es)), (ox_ - Li + 0.25, Z(piso - ef - es)), -4)
     lam.cota((ox_ + 2.0, Z(piso)), (ox_ + 2.0, Z(zb)), 8, horizontal=False, texto="%.2f" % (zb - piso)); lam.cota((ox_ + 2.0, Z(zb)), (ox_ + 2.0, Z(D["NPT"] - et)), 8, horizontal=False)
     lam.cota((ox_, Z(piso - ef - es)), (xm, Z(piso - ef - es)), -4)
-    lam.cota((ox_ - Li - e, Z(piso)), (ox_ - Li - e, Z(D["CF_R01"])), -8, horizontal=False); lam.cota((ox_ - Li - e, Z(D["CF_R01"])), (ox_ - Li - e, Z(D["CF_R01"] + 0.60)), -8, horizontal=False)
+    lam.cota((ox_ - Li - e, Z(piso)), (ox_ - Li - e, Z(D["CF_R01"])), -8, horizontal=False); lam.cota((ox_ - Li - e, Z(D["CF_R01"])), (ox_ - Li - e, Z(D["CF_R01"] + D["H_R01"])), -8, horizontal=False)
     xt = ox_ + 2.4
     lam.juntar_llamadas()
-    lam.llamada((ox_ - Li - e / 2, Z(D["CF_R01"] + 0.3)), (xt, Z(D["NPT"] + 0.5)), ["ventana de salida 1.50 x 0.60 en el muro de la caja; junta de 1\" con el muro del R-01"], 1.8)
+    lam.llamada((ox_ - Li - e / 2, Z(D["CF_R01"] + 0.3)), (xt, Z(D["NPT"] + 0.5)), ["ventana de salida 1.50 x %.2f en el muro de la caja (= alto interior del R-01); junta de 1\" con el muro del R-01" % D["H_R01"]], 1.8)
     lam.llamada((ox_ - 0.2, Z(zb + 0.05)), (xt, Z(D["NPT"] + 0.1)), ["caida libre 0.57 m: y1 = 0.16, F1 = 3.5; conjugado y2 = 0.71 < tirante disponible 0.74: resalto ahogado"], 1.8)
     lam.llamada((ox_ - 1.0, Z(piso - ef / 2)), (xt, Z(piso - 0.25)), ["losa de fondo e=0.15 sobre solado; malla 3/8\" @0.20 ambas caras en losas y muros"], 1.8)
     lam.llamada((ox_ - Li + 0.12, Z(D["CF_R01"] - 0.25)), (xt, Z(piso + 0.35)), ["umbral de concreto 0.25 x 0.40; corona = fondo del R-01"], 1.8)
@@ -351,7 +351,7 @@ def dp09(doc, ox, oy, R, T):
     lam.llamada(Tt(xc0 + be / 2, Li + 1.0, zb - z0 + yw), (xt[0], xt[1] + 1.0), ["colector b=0.80 llega al brink (CF %.3f)" % zb], 1.8)
     lam.llamada(Tt(e + Bi / 2, Li - 0.5, ef + NAr - piso), (xt[0], xt[1] + 0.6), ["poza de disipacion 1.50 x 3.50, piso 258.32; resalto ahogado"], 1.8)
     lam.llamada(Tt(e + Bi / 2, e + 0.12, ef + D["CC_poza_prof"]), (xt[0], xt[1] + 0.2), ["umbral 0.25 x 0.40, corona 258.72 = fondo del R-01 del CAR Mujeres"], 1.8)
-    lam.llamada(Tt(e + Bi / 2, 0, ef + 0.9), (xt[0], xt[1] - 0.2), ["ventana de salida 1.50 x 0.60 hacia el R-01 (junta 1\")"], 1.8)
+    lam.llamada(Tt(e + Bi / 2, 0, ef + 0.9), (xt[0], xt[1] - 0.2), ["ventana de salida 1.50 x %.2f hacia el R-01 (junta 1\")" % D["H_R01"]], 1.8)
     lam.llamada(Tt((Bi + 2 * e) / 2, 0.5, ef + top - piso + 0.012), (xt[0], xt[1] - 0.6), ["losa superior e=0.10 (cortada en el dibujo) con 2 registros"], 1.8)
     lam.volcar_llamadas()
     lam.titulo_vista(470, 30, "ISOMETRICO 4: CAJA DE CAIDA CON POZA", "entrega al R-01 del CAR Mujeres - losa superior cortada - sin escala", 140)

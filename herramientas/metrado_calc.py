@@ -177,7 +177,7 @@ def cajas():
     terr = float(np.interp(dz.P_FIN - 1.0, ps, zs))
     out["CC"] = dict(nombre="Caja de caida CC", Li=Li, Bi=Bi, H=H, piso=piso,
                      c_fondo=(Li + 2 * e) * (Bi + 2 * e) * ef + 0.25 * D["CC_poza_prof"] * Bi,
-                     c_muros=(2 * (Li + 2 * e) + Bi) * e * H - 1.50 * (D["NA_R01"] + 0.5 - D["CF_R01"]) * e + e * Bi * (dz.fondo(dz.P_BRINK) - piso),
+                     c_muros=(2 * (Li + 2 * e) + Bi) * e * H - D["b_wilma"] * D["H_R01"] * e + e * Bi * (dz.fondo(dz.P_BRINK) - piso),
                      c_losa=(Li + 2 * e) * (Bi + 2 * e) * D["e_losa"] - 2 * 0.49 * D["e_losa"],
                      excav=(Li + 2 * e + 2 * SOBREEXC) * (Bi + 2 * e + 2 * SOBREEXC) * max(0.0, terr - (piso - ef - D["e_solado"])),
                      solado=(Li + 2 * e + 0.1) * (Bi + 2 * e + 0.1), encof=2 * (2 * (Li + Bi) * H) + Li * Bi + 2 * Bi * D["CC_poza_prof"] + Bi * (dz.fondo(dz.P_BRINK) - piso), acabado=(Li + 2 * e) * (Bi + 2 * e),

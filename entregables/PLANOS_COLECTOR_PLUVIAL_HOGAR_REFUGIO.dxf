@@ -489,7 +489,7 @@ $SKPOLY
   9
 $TDCREATE
  40
-2461329.141712963
+2461329.155509259
   9
 $TDUCREATE
  40
@@ -497,7 +497,7 @@ $TDUCREATE
   9
 $TDUPDATE
  40
-2461329.141770833
+2461329.1555787036
   9
 $TDUUPDATE
  40
@@ -929,11 +929,11 @@ $PSTYLEMODE
   9
 $FINGERPRINTGUID
   2
-{1AA1819D-62E3-417A-8B76-F143FB9CB6C0}
+{6E462785-7EEB-41B4-9F58-8662197B9E58}
   9
 $VERSIONGUID
   2
-{18005C77-AD72-47DC-B3FB-FB45121A4C0E}
+{F3813B3B-41D5-4A1F-AFEF-938C537DDB96}
   9
 $EXTNAMES
 290
@@ -1323,9 +1323,9 @@ ISM
   0
 CLASS
   1
-SORTENTSTABLE
+LAYOUT
   2
-AcDbSortentsTable
+AcDbLayout
   3
 ObjectDBX Classes
  90
@@ -1339,9 +1339,9 @@ ObjectDBX Classes
   0
 CLASS
   1
-LAYOUT
+SORTENTSTABLE
   2
-AcDbLayout
+AcDbSortentsTable
   3
 ObjectDBX Classes
  90
@@ -3659,15 +3659,15 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-OCULTO
+CONCRETO_ACHURADO
  70
 0
  62
-8
+253
   6
-DASHED
+Continuous
 370
-25
+13
 390
 13
 347
@@ -3707,15 +3707,15 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-ANGULOS
+OCULTO
  70
 0
  62
-5
+8
   6
-Continuous
+DASHED
 370
-50
+25
 390
 13
 347
@@ -3724,78 +3724,6 @@ Continuous
 LAYER
   5
 2C73
-330
-1
-100
-AcDbSymbolTableRecord
-100
-AcDbLayerTableRecord
-  2
-CONCRETO_ACHURADO
- 70
-0
- 62
-253
-  6
-Continuous
-370
-13
-390
-13
-347
-21
-  0
-LAYER
-  5
-2C74
-330
-1
-100
-AcDbSymbolTableRecord
-100
-AcDbLayerTableRecord
-  2
-ACERO_LISO
- 70
-0
- 62
-30
-  6
-Continuous
-370
-40
-390
-13
-347
-21
-  0
-LAYER
-  5
-2C75
-330
-1
-100
-AcDbSymbolTableRecord
-100
-AcDbLayerTableRecord
-  2
-EJES
- 70
-0
- 62
-1
-  6
-CENTER
-370
-18
-390
-13
-347
-21
-  0
-LAYER
-  5
-2C76
 330
 1
 100
@@ -3819,7 +3747,7 @@ Continuous
   0
 LAYER
   5
-2C77
+2C74
 330
 1
 100
@@ -3827,15 +3755,15 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-ANGULOS_OCULTO
+EJES
  70
 0
  62
-5
+1
   6
-DASHED
+CENTER
 370
-25
+18
 390
 13
 347
@@ -3843,7 +3771,7 @@ DASHED
   0
 LAYER
   5
-2C78
+2C75
 330
 1
 100
@@ -3867,7 +3795,31 @@ DASHED
   0
 LAYER
   5
-2C79
+2C76
+330
+1
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+ANGULOS
+ 70
+0
+ 62
+5
+  6
+Continuous
+370
+50
+390
+13
+347
+21
+  0
+LAYER
+  5
+2C77
 330
 1
 100
@@ -3884,6 +3836,54 @@ CORTE
 Continuous
 370
 35
+390
+13
+347
+21
+  0
+LAYER
+  5
+2C78
+330
+1
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+ACERO_LISO
+ 70
+0
+ 62
+30
+  6
+Continuous
+370
+40
+390
+13
+347
+21
+  0
+LAYER
+  5
+2C79
+330
+1
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+ANGULOS_OCULTO
+ 70
+0
+ 62
+5
+  6
+DASHED
+370
+25
 390
 13
 347
@@ -4119,34 +4119,6 @@ AcDbSymbolTableRecord
 100
 AcDbTextStyleTableRecord
   2
-ARIAL
- 70
-0
- 40
-0.0
- 41
-1.0
- 50
-0.0
- 71
-0
- 42
-2.5
-  3
-arial.ttf
-  4
-
-  0
-STYLE
-  5
-2C7B
-330
-5
-100
-AcDbSymbolTableRecord
-100
-AcDbTextStyleTableRecord
-  2
 ARIALB
  70
 0
@@ -4162,6 +4134,34 @@ ARIALB
 2.5
   3
 arialbd.ttf
+  4
+
+  0
+STYLE
+  5
+2C7B
+330
+5
+100
+AcDbSymbolTableRecord
+100
+AcDbTextStyleTableRecord
+  2
+ARIAL
+ 70
+0
+ 40
+0.0
+ 41
+1.0
+ 50
+0.0
+ 71
+0
+ 42
+2.5
+  3
+arial.ttf
   4
 
   0
@@ -52181,13 +52181,13 @@ AcDbLine
  10
 349051.79999999993
  20
-9281447.54
+9281447.37
  30
 0.0
  11
 349051.58999999997
  21
-9281447.54
+9281447.37
  31
 0.0
   0
@@ -52233,7 +52233,7 @@ _OBLIQUE
  10
 349051.62999999995
  20
-9281447.54
+9281447.37
  30
 0.0
  41
@@ -52263,7 +52263,7 @@ AcDbLine
  11
 349051.62999999995
  21
-9281447.54
+9281447.37
  31
 0.0
   0
@@ -52283,7 +52283,7 @@ AcDbMText
  10
 349051.56749999995
  20
-9281447.239999998
+9281447.155
  30
 0.0
  40
@@ -52291,7 +52291,7 @@ AcDbMText
  71
 5
   1
-0.60
+0.43
   7
 STANDARD
  50
@@ -52347,7 +52347,7 @@ AcDbPoint
  10
 349051.82999999996
  20
-9281447.54
+9281447.37
  30
 0.0
   0
@@ -375993,7 +375993,7 @@ AcDbText
  40
 0.060750000000000005
   1
-muro aguas abajo con ventana 1.50 x 0.60 sobre el umbral:
+muro aguas abajo con ventana 1.50 x 0.43 sobre el umbral (alto
   7
 STANDARD
  11
@@ -376025,7 +376025,7 @@ AcDbText
  40
 0.060750000000000005
   1
-entrega al R-01 (junta de 1")
+interior del R-01): entrega al R-01 (junta de 1")
   7
 STANDARD
  11
@@ -376337,7 +376337,7 @@ AcDbPolyline
  10
 349051.82999999996
  20
-9281447.54
+9281447.37
  10
 349051.82999999996
  20
@@ -376393,11 +376393,11 @@ AcDbPolyline
  10
 349051.82999999996
  20
-9281447.54
+9281447.37
  10
 349051.98
  20
-9281447.54
+9281447.37
  10
 349051.98
  20
@@ -376617,11 +376617,11 @@ SOLID
  10
 349051.82999999996
  20
-9281447.54
+9281447.37
  10
 349051.98
  20
-9281447.54
+9281447.37
  10
 349051.98
  20
@@ -376969,11 +376969,11 @@ AcDbPolyline
  10
 349051.94
  20
-9281447.58
+9281447.41
  10
 349051.86999999994
  20
-9281447.58
+9281447.41
  10
 349051.86999999994
  20
@@ -377041,11 +377041,11 @@ AcDbPolyline
  10
 349051.94
  20
-9281447.58
+9281447.41
  10
 349052.01999999996
  20
-9281447.58
+9281447.41
  10
 349052.01999999996
  20
@@ -378845,7 +378845,7 @@ COT-25
  11
 349051.56749999995
  21
-9281447.239999998
+9281447.155
  31
 0.0
  70
@@ -378865,7 +378865,7 @@ AcDbAlignedDimension
  14
 349051.82999999996
  24
-9281447.54
+9281447.37
  34
 0.0
  50
@@ -378977,7 +378977,7 @@ AcDbText
  40
 0.060750000000000005
   1
-ventana de salida 1.50 x 0.60 en el muro de la caja; junta de
+ventana de salida 1.50 x 0.43 en el muro de la caja (= alto
   7
 STANDARD
  11
@@ -379009,7 +379009,7 @@ AcDbText
  40
 0.060750000000000005
   1
-1" con el muro del R-01
+interior del R-01); junta de 1" con el muro del R-01
   7
 STANDARD
  11
@@ -380733,7 +380733,7 @@ AcDbText
  40
 0.057375
   1
-4.68
+4.77
   7
 STANDARD
  72
@@ -394661,7 +394661,7 @@ AcDbText
  40
 0.060750000000000005
   1
-ventana de salida 1.50 x 0.60 hacia el R-01 (junta 1")
+ventana de salida 1.50 x 0.43 hacia el R-01 (junta 1")
   7
 STANDARD
  11
@@ -431945,7 +431945,7 @@ AcDbText
  40
 0.045899999999999996
   1
-35.86
+35.96
   7
 STANDARD
  72
@@ -432161,7 +432161,7 @@ AcDbText
  40
 0.045899999999999996
   1
-58.31
+58.41
   7
 STANDARD
  72
@@ -2303947,7 +2303947,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-10-15T03:24:04.077502+00:00
+1.4.4 @ 2026-10-15T03:43:56.565682+00:00
   0
 DICTIONARY
   5
@@ -2307973,7 +2307973,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-10-15T03:24:09.518107+00:00
+1.4.4 @ 2026-10-15T03:44:02.040925+00:00
   0
 ENDSEC
   0

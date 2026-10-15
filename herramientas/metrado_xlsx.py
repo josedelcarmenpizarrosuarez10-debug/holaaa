@@ -324,7 +324,7 @@ def hoja_concreto(wb, segs, P, mt):
             el(nombre + ": descuento ventana cuneta Eje 01 (CAR Varones)", "ancho x alto x e", "=%s" % P["E01b"], "=%s" % em, "=%s-%s-%s" % (P["CLt"], P["et"], P["E01z"]), -1, 9, "DP-07 (planta y corte): ventana 0.40 x 0.66 en el muro norte")
             el(nombre + ": murete del escalon de la poza", "ancho x e x desnivel", "=%s" % Bi, "=%s" % em, "=%s" % P["CL_pz"], 1, 9, "DP-07 (corte): murete e=0.15 entre el fondo del colector y el piso de la poza")
         else:
-            el(nombre + ": descuento ventana de salida", "ancho x alto x e", "=%s" % P["CC_v"], "=%s" % em, "=%s+0.50-%s" % (P["NAR"], P["CFR"]), -1, 9, "DP-07 (corte): ventana de salida al receptor R-01 (0.50 m sobre el nivel de agua)")
+            el(nombre + ": descuento ventana de salida", "ancho x alto x e", "=%s" % P["CC_v"], "=%s" % em, "=%.2f-0.10-%s" % (D["NPT_wilma"], P["CFR"]), -1, 9, "DP-07 (corte): ventana de salida al receptor R-01 (0.50 m sobre el nivel de agua)")
             el(nombre + ": murete del escalon de la poza", "ancho x e x desnivel", "=%s" % Bi, "=%s" % em, "=%s-(%s-%s)" % (P["CFB"], P["CFR"], P["CC_pz"]), 1, 9, "DP-07 (corte): murete e=0.15 entre el fondo del colector y el piso de la poza")
         el(nombre + ": losa superior", "exterior x e", "=%s+2*%s" % (Li, em), "=%s+2*%s" % (Bi, em), "=%s" % P["et"], 1, 10, "DP-07: losa superior e=0.10 a nivel del piso terminado (CL en +261.15, CC en +260.60)")
         el(nombre + ": descuento aberturas de registro", "0.70 x 0.70 x e", "=%s" % P["ab"], "=%s" % P["ab"], "=%s" % P["et"], -1 if k == "CL" else -2, 10, "DP-06B: %d abertura(s) de registro en la losa" % (1 if k == "CL" else 2))
