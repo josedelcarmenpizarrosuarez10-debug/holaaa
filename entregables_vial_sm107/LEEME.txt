@@ -1,0 +1,22 @@
+ESTUDIO DE GESTION DE RIESGOS EN LA PLANIFICACION DE LA EJECUCION DE LA OBRA
+MEJORAMIENTO DEL SERVICIO DE TRANSITABILIDAD VIAL INTERURBANA EN LA VIA DEPARTAMENTAL SM-107,
+TRAMO TINGO DE PONASA - SHAMBOYACU (CUI N. 2673852)
+
+Entregables
+  ESTUDIO_GESTION_RIESGOS_EJECUCION_OBRA_SM107.docx   Estudio (Word)
+  MATRIZ_GESTION_RIESGOS_EJECUCION_OBRA_SM107.xlsx     Matriz de riesgos con formulas (celda amarilla = dato, verde = formula)
+  PLANOS_GESTION_RIESGOS_SM107.dxf                     PR-01 ubicacion de riesgos 1/25,000 (UTM WGS 84 18 S) y PR-02 diagrama lineal
+  vistas_previas/                                      PNG de PR-01 y PR-02
+
+Marco: Ley N. 32069 y su Reglamento (D.S. N. 009-2025-EF), art. 156; Comunicado N. 016-2025-OECE.
+Metodo: escalas P x I del PMBOK (formatos de la ex Directiva N. 012-2017-OSCE/CD, derogada), VME y Monte Carlo.
+
+Insumos (insumos/vial_sm107): inventario vial, FTE MTC, resumen ejecutivo, presupuesto S10 y plano clave PC-01.
+
+Regenerar (herramientas/vial_sm107), en este orden:
+  python3 terreno_sm107.py <carpeta con los tif Copernicus GLO-30 S07/S08 W077>   (eje y terreno)
+  python3 riesgos_sm107.py      (registro, analisis y Monte Carlo)
+  python3 matriz_xlsx.py        (Excel)
+  python3 plano_riesgos_dxf.py  (DXF) y herramientas/dxf_render.py para las vistas previas
+  python3 figuras_sm107.py      (figuras)
+  python3 estudio_docx.py       (Word)

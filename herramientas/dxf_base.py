@@ -13,6 +13,7 @@ PROYECTO = ("CREACION DEL SERVICIO DE ATENCION INTEGRAL A MUJERES VICTIMAS DE VI
             "MUJERES VIOLENTADAS, DISTRITO DE MORALES, PROVINCIA Y DEPARTAMENTO DE SAN MARTIN - CUI N. 2675514")
 UBICACION = "UBICACION: PREDIO RURAL LOS MANGOS - MORALES - SAN MARTIN - SAN MARTIN"
 ESPECIALIDAD = "ESPECIALIDAD: INSTALACIONES SANITARIAS - DRENAJE PLUVIAL"
+ENTIDAD = "ENTIDAD: GERENCIA TERRITORIAL BAJO MAYO - TARAPOTO"
 FECHA = "OCT. 2026"
 ELABORADO = "HIDROCONSULT"
 
@@ -272,12 +273,12 @@ class Lamina:
         t = lambda x, y, s, h=2.0, al=TA.LEFT, capa="ROTULO-TEXTO": self.texto(self.P(x, y), s, h, capa, al)
         t(x0 + 2, y1 - 3.5, "PROYECTO:", 2.0)
         t(x0 + 2, y1 - 8, PROYECTO[0], 1.6); t(x0 + 2, y1 - 11.5, PROYECTO[1], 1.6)
-        t(x0 + 2, y1 - 17.5, "ENTIDAD: GERENCIA TERRITORIAL BAJO MAYO - TARAPOTO", 1.6)
+        t(x0 + 2, y1 - 17.5, ENTIDAD, 1.6)
         t(x0 + 2, y1 - 27, UBICACION, 1.8); t(x0 + 2, y1 - 33, ESPECIALIDAD, 1.8)
         t(x0 + 2, y1 - 44.5, "PLANO:", 2.0); t(x0 + 14, y1 - 44.5, self.titulo, 2.4 if len(self.titulo) <= 62 else max(1.5, 2.4 * 62 / len(self.titulo)))
         t(x0 + 14, y1 - 49, self.subtitulo, 1.8)
         t(x0 + 2, y1 - 57.5, "PROYECTISTA: ______________________        CIP: ________", 1.8)
-        t(x0 + 2, y1 - 68, "ELABORADO: " + ELABORADO, 1.8)
+        t(x0 + 2, y1 - 68, "ELABORADO: " + ELABORADO, 1.8) if ELABORADO else None
         self.linea(self.P(x0 + 125, y1 - 62), self.P(x0 + 125, y0), "ROTULO")
         self.linea(self.P(x0 + 165, y1 - 74), self.P(x0 + 165, y0), "ROTULO")
         t(x0 + 127, y1 - 68, "ESCALA:", 1.8); t(x0 + 143, y1 - 68, self.escala_txt, 2.4)
