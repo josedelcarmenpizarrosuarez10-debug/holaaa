@@ -1,6 +1,6 @@
 {
  "fuente": "entregables_varones/METRADO_DRENAJE_PLUVIAL_CAR_VARONES_CON_COLECTOR.xlsx",
- "md5": "6a95e515b9adfb672de948b346591351",
+ "md5": "9e4ac9bd5d111d24a6bb7b0006315000",
  "partidas": {
   "01.04.04.01": {
    "desc": "TRABAJOS PRELIMINARES",
@@ -60,7 +60,7 @@
   "01.04.04.04.01": {
    "desc": "CONCRETO f'c=210 kg/cm2 PARA COLECTOR",
    "und": "m³",
-   "valor": 55.720129
+   "valor": 55.748729
   },
   "01.04.04.04.02": {
    "desc": "ENCOFRADO Y DESENCOFRADO DE COLECTOR",
@@ -88,7 +88,7 @@
    "valor": null
   },
   "01.04.04.05.01": {
-   "desc": "TAPA DE REGISTRO 0.68x0.68 C/MARCO Y CONTRAMARCO",
+   "desc": "TAPA DE REGISTRO CIEGA DE CONCRETO ARMADO 0.68x0.68x0.08",
    "und": "und",
    "valor": 11
   },

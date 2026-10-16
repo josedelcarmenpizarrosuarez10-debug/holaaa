@@ -88,7 +88,7 @@ DQ.ESPECIFICACIONES = [
     "RECUBRIMIENTOS: 0.04 m en muros y losa de fondo; 0.025 m en losa superior del tramo normal; 0.04 m en el cruce de camiones; 0.025 m en tapas.",
     "TRASLAPES: 3/8\" = 0.40 m ; 1/2\" = 0.50 m, alternados. Barras longitudinales de 9.00 m.",
     "LOSA SUPERIOR: vaciada monoliticamente con los muros en todo el colector; acabado frotachado; sirve de vereda (+261.15).",
-    "REGISTROS: contramarco y marco de angulo L 1 1/2\"x1 1/2\"x1/8\" con anclajes, pintura anticorrosiva y esmalte; tapas de concreto 0.68 x 0.68 x 0.08 con asas.",
+    "REGISTROS: tapa ciega de concreto armado 0.68 x 0.68 x 0.08 (parrilla 3/8\" @0.10 y 2 asas de fierro liso 1/2\"), vaciada aparte en obra, en rebaje 0.70 x 0.70 x 0.08 de la losa; sin marco ni contramarco metalico.",
     "JUNTAS: cada 4.00 m, e = 1\", relleno de poliestireno expandido y sellador asfaltico (RC-250 + arena) 1\" x 2\". A ambos lados del colector hay terreno natural: no lleva junta longitudinal. Tecnopor 1\" con sellador en el contacto con la caja CL y tecnopor 1\" en el contacto con las cunetas.",
     "CURADO: humedo minimo 7 dias; no transitar sobre la losa antes de 14 dias; no cargar con camiones antes de 28 dias.",
     "RELLENO: material propio seleccionado, capas de 0.15 m, 95 % del Proctor modificado; incluye la nivelacion del retiro hasta la cota de la losa.",

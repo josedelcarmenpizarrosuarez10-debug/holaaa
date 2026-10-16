@@ -55,7 +55,7 @@ def cambios(L):
               ("pcm", "Luz libre del registro bajo el rebaje (0.60 x 0.60)", 0.60, "m", "Lamina DP-06B rev. 02"),
               ("pmt", "Perimetro del encofrado lateral de la tapa (4 x 0.68)", 2.72, "m", "Lamina DP-06B rev. 02"),
               ("wcm", "Asas de izaje por tapa (fierro liso 1/2\" en cajuelas)", 2, "und", "Lamina DP-06B rev. 02"),
-              ("wmt", "Desarrollo de cada asa de fierro liso 1/2\"", 0.50, "m", "Lamina DP-06B rev. 02: agarre 0.15 + 2 patas de 0.11 con gancho de 0.065"),
+              ("wmt", "Desarrollo de cada asa de fierro liso 1/2\"", 0.50, "m", "Lamina DP-06B rev. 02: agarre 0.15 + 2 patas de 0.02 + 2 ganchos de 0.15 (0.49, se toma 0.50)"),
               ("dcm", "Holgura entre la tapa y el rebaje (cada lado)", 0.01, "m", "Lamina DP-06B rev. 02"),
               ("dmt", "Bisel de los cantos superiores de la tapa", 0.01, "m", "Lamina DP-06B rev. 02")]
     for k, t, v, u, s in nuevos:

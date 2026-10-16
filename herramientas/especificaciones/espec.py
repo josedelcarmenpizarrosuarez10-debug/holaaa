@@ -314,6 +314,24 @@ def espec(pt, P, ctx):
                       ctrl=l("La Supervision verificara los viajes con vales firmados y que no queden acopios en la obra."), seg=l(EPP, "Senalizacion y vigia durante las maniobras del volquete."), und=und,
                       medicion=[p("Se medira el volumen excedente esponjado: (volumen excavado - volumen de relleno) por el factor de esponjamiento del metrado (1.20 para el sistema de cunetas; el del metrado del colector).")])
     # ------------------------------------------------------------ registros del colector
+    if "TAPA DE REGISTRO" in d and "CIEGA" in d:
+        muro = C["b"] <= 0.60 + 1e-6
+        desc_ = ("Comprende el registro de limpieza completo del %s con tapa CIEGA de concreto armado, sin marco ni contramarco metalico: rebaje de 0.70 x 0.70 x 0.08 m "
+                 "formado en la losa superior como asiento de la tapa (0.05 m por lado), luz libre de 0.60 x 0.60 m, borde engrosado de 0.15 x 0.10 m bajo la losa%s con "
+                 "refuerzo de borde de 2 barras de 1/2\" por lado (L = 1.40 m), y tapa de concreto armado f'c = 210 kg/cm² de 0.68 x 0.68 x 0.08 m vaciada aparte en obra, "
+                 "con parrilla de 7 + 7 barras de 3/8\" @0.10 m, dos asas de fierro liso de 1/2\" (0.50 m) en cajuelas de 0.19 x 0.06 x 0.03 m y cantos biselados de 1 x 1 cm, "
+                 "todo segun las laminas DP-06B, DP-06D, DD-01 y DD-02."
+                 % (C["nombre"], " solo en los 2 lados transversales, entre muros (en los lados largos el asiento queda sobre la cabeza de los muros)" if muro else ""))
+        return bloque([p(desc_), p("Numero de registros: %d, en la losa superior del colector%s." % (C["n_reg"], " y en las cajas" if C["cajas"] else ""))],
+                      mat=l("Concreto f'c = 210 kg/cm²; acero corrugado grado 60 de 3/8\" y 1/2\"; fierro liso de 1/2\" (A36) para las asas; alambre negro N.° 16; madera para el molde y el cajon del rebaje; desmoldante."),
+                      equ=l("Mezcladora o mezclado en batea, vibrador, herramientas de carpinteria, cizalla y dobladora de fierro."),
+                      proc=l("Formar el rebaje y la luz libre de la losa con un cajon de madera de dos niveles (0.70 x 0.70 x 0.08 y 0.60 x 0.60 x 0.12) fijado al encofrado antes del vaciado, a nivel del piso terminado, con el refuerzo de borde amarrado.",
+                             "Vaciar la losa; dejar el asiento del rebaje plano y nivelado; retirar el cajon a las 24 horas y curar 7 dias.",
+                             "Fabricar la tapa aparte en obra, sobre un tablero nivelado y con molde lateral de madera de 0.68 x 0.68 x 0.08 m con tiras de chaflan; colocar la parrilla con recubrimiento de 2.5 cm y las asas amarradas a ella, con tacos para las cajuelas.",
+                             "Vaciar, vibrar y frotachar la tapa; desmoldar a las 24 horas y curar 7 dias. No se suelda ni se pinta: la tapa no lleva elementos metalicos a la vista.",
+                             "Colocar la tapa en el rebaje con dos operarios usando las asas: holgura de 1 cm por lado, al ras del piso terminado y sin mortero (removible)."),
+                      ctrl=l("Rebaje 0.70 x 0.70 m ±5 mm y asiento nivelado; tapa 0.68 x 0.68 x 0.08 m ±2 mm, sin cojeo ni fisuras; ras con el piso ±3 mm."), seg=l(EPP, "Izaje de la tapa (aprox. 89 kg) entre dos operarios con ganchos; no levantar con las manos por los cantos."), und=und,
+                      medicion=[p("Se contara el numero de registros (tapas ciegas colocadas en su rebaje) terminados y aprobados.")])
     if "TAPA DE REGISTRO" in d or ("TAPA DE CONCRETO" in d and und == "und"):
         comp = "TAPA DE REGISTRO" in d
         CM = cm_de(C)
@@ -766,7 +784,7 @@ _MAP = {"liquido": "líquido", "compactandola": "compactándola", "albanileria":
         "laminas": "láminas", "electrodos": "electrodos", "hidraulico": "hidráulico", "geometrico": "geométrico", "periodo": "período", "acido": "ácido",
         "solida": "sólida", "plastico": "plástico", "dimension": "dimensión", "exposicion": "exposición", "mas": "más", "cubicos": "cúbicos",
         "metrico": "métrico", "titulo": "título", "maximos": "máximos", "minima": "mínima", "minimos": "mínimos", "rapido": "rápido", "facil": "fácil",
-        "tecnico": "técnico", "desague": "desagüe", "metalicas": "metálicas", "dia": "día", "vacia": "vacía", "martin": "Martín", "integramente": "íntegramente", "ultimo": "último", "vacio": "vacío", "tecnicos": "técnicos", "telefono": "teléfono", "ademas": "además", "asi": "así", "esta_": "está", "tirafon": "tirafón", "desvio": "desvío", "hidrologica": "hidrológica", "topografico": "topográfico", "estrias": "estrías", "plasticos": "plásticos", "movil": "móvil", "tipica": "típica", "tipico": "típico", "maquina": "máquina"}
+        "tecnico": "técnico", "desague": "desagüe", "metalicas": "metálicas", "dia": "día", "vacia": "vacía", "martin": "Martín", "integramente": "íntegramente", "ultimo": "último", "vacio": "vacío", "tecnicos": "técnicos", "telefono": "teléfono", "ademas": "además", "asi": "así", "esta_": "está", "tirafon": "tirafón", "desvio": "desvío", "hidrologica": "hidrológica", "topografico": "topográfico", "estrias": "estrías", "plasticos": "plásticos", "movil": "móvil", "tipica": "típica", "tipico": "típico", "maquina": "máquina", "cajon": "cajón", "chaflan": "chaflán"}
 for f in _FUT:
     i = f.rfind("a"); _MAP[f] = f[:i] + "á" + f[i + 1:]
 

@@ -265,29 +265,25 @@ def dp09(doc, ox, oy, R, T):
     o = lam.P(470, 405); esc = 1.2
     Tt = lambda x, y, z: (o[0] + B.iso(x, y, z)[0] * esc, o[1] + B.iso(x, y, z)[1] * esc); kw = dict(origen=o, esc=esc)
     B.caja_iso(lam, 0, 0, 0, be, 1.5, 0.10, capas=("ISO-CONCRETO-SUP", "ISO-CONCRETO-LAT1", "ISO-CONCRETO-LAT2"), **kw)
-    # abertura (dibujada como rectangulo sobre la losa)
+    # rebaje 0.70 x 0.70 x 0.08 (asiento de la tapa) y luz libre 0.60 x 0.60 en la losa
     ab = [Tt(be / 2 - 0.35, 0.75 - 0.35, 0.10), Tt(be / 2 + 0.35, 0.75 - 0.35, 0.10), Tt(be / 2 + 0.35, 0.75 + 0.35, 0.10), Tt(be / 2 - 0.35, 0.75 + 0.35, 0.10)]
-    lam.solido([ab[0], ab[1], ab[3], ab[2]], "ISO-CONCRETO-LAT2"); lam.poli(ab, "ISO-ARISTAS", cerrada=True)
-    # contramarco (explotado): ala vertical hacia abajo y ala horizontal = asiento de la tapa; 8 anclajes inclinados
-    zc_ = 0.30
-    B.caja_iso(lam, be / 2 - 0.35, 0.75 - 0.35, zc_ - MC.CM["ala"], 0.70, 0.70, MC.CM["ala"], solido=False, capa_aristas="MARCO-METALICO", **kw)
-    B.caja_iso(lam, be / 2 - MC.LUZ_REG / 2, 0.75 - MC.LUZ_REG / 2, zc_, MC.LUZ_REG, MC.LUZ_REG, 0.005, solido=False, capa_aristas="MARCO-METALICO", **kw)
-    for t_ in (-0.125, 0.125):
-        lam.linea(Tt(be / 2 + 0.35, 0.75 + t_, zc_ - 0.035), Tt(be / 2 + 0.53, 0.75 + t_, zc_ + 0.055), "ACERO")
-        lam.linea(Tt(be / 2 + t_, 0.75 + 0.35, zc_ - 0.035), Tt(be / 2 + t_, 0.75 + 0.53, zc_ + 0.055), "ACERO")
+    lam.solido([ab[0], ab[1], ab[3], ab[2]], "ISO-CONCRETO-LAT1"); lam.poli(ab, "ISO-ARISTAS", cerrada=True)
+    lz = [Tt(be / 2 - 0.30, 0.75 - 0.30, 0.02), Tt(be / 2 + 0.30, 0.75 - 0.30, 0.02), Tt(be / 2 + 0.30, 0.75 + 0.30, 0.02), Tt(be / 2 - 0.30, 0.75 + 0.30, 0.02)]
+    lam.solido([lz[0], lz[1], lz[3], lz[2]], "ISO-CONCRETO-LAT2"); lam.poli(lz, "ISO-ARISTAS", cerrada=True)
+    zc_ = 0.02
+    # tapa ciega (explotada) con 2 cajuelas de asa
     B.caja_iso(lam, be / 2 - 0.34, 0.75 - 0.34, 0.55, 0.68, 0.68, 0.08, capas=("ISO-TAPA", "ISO-TAPA", "ISO-TAPA"), **kw)
-    B.caja_iso(lam, be / 2 - 0.34, 0.75 - 0.34, 0.95, 0.68, 0.68, 0.02, solido=False, capa_aristas="MARCO-METALICO", **kw)
-    B.caja_iso(lam, be / 2 - 0.30, 0.75 - 0.30, 0.95, 0.60, 0.60, 0.02, solido=False, capa_aristas="MARCO-METALICO", **kw)
-    for dx_ in (-0.12, 0.12):
-        p1 = Tt(be / 2 + dx_, 0.75, 1.0); lam.circulo(p1, 0.02 * esc, "MARCO-METALICO")
+    for dy_ in (-0.20, 0.20):
+        cj = [Tt(be / 2 - 0.095, 0.75 + dy_ - 0.03, 0.63), Tt(be / 2 + 0.095, 0.75 + dy_ - 0.03, 0.63), Tt(be / 2 + 0.095, 0.75 + dy_ + 0.03, 0.63), Tt(be / 2 - 0.095, 0.75 + dy_ + 0.03, 0.63)]
+        lam.poli(cj, "ISO-ARISTAS", cerrada=True); lam.linea(Tt(be / 2 - 0.075, 0.75 + dy_, 0.62), Tt(be / 2 + 0.075, 0.75 + dy_, 0.62), "ACERO")
     xt = (lam.P(560, 0)[0], Tt(be + 0.9, 1.5, 1.2)[1])
     lam.juntar_llamadas()
-    lam.llamada(Tt(be / 2, 0.75 + 0.34, 0.97), (xt[0], xt[1] + 0.5), ["marco de tapa L 1 1/2\"x1 1/2\"x1/8\" (0.68 x 0.68)"], 1.8)
-    lam.llamada(Tt(be / 2 + 0.34, 0.75, 0.6), (xt[0], xt[1] + 0.2), ["tapa de concreto 0.68 x 0.68 x 0.08 con asas"], 1.8)
-    lam.llamada(Tt(be / 2 + 0.35, 0.75, zc_ - 0.02), (xt[0], xt[1] - 0.1), ["contramarco %s con 8 anclajes 3/8\" inclinados:" % MC.CM["txt"], "su ala horizontal es el asiento de la tapa, a 0.08 bajo el NPT"], 1.8)
-    lam.llamada(Tt(be / 2 + 0.35, 1.1, 0.0), (xt[0], xt[1] - 0.4), ["abertura 0.70 x 0.70 en la losa; borde engrosado 0.15 x 0.10 y refuerzo 1/2\""], 1.8)
+    lam.llamada(Tt(be / 2, 0.75 + 0.20, 0.63), (xt[0], xt[1] + 0.5), ["asas de fierro liso 1/2\" en cajuelas (no sobresalen)"], 1.8)
+    lam.llamada(Tt(be / 2 + 0.34, 0.75, 0.6), (xt[0], xt[1] + 0.2), ["tapa ciega de concreto armado 0.68 x 0.68 x 0.08, sin marco metalico"], 1.8)
+    lam.llamada(Tt(be / 2 + 0.35, 0.75, 0.10), (xt[0], xt[1] - 0.1), ["rebaje 0.70 x 0.70 x 0.08 en la losa: asiento de concreto", "de la tapa (0.05 por lado), a 0.08 bajo el NPT"], 1.8)
+    lam.llamada(Tt(be / 2 + 0.30, 0.75, zc_), (xt[0], xt[1] - 0.4), ["luz libre 0.60 x 0.60; borde engrosado 0.15 x 0.10 y refuerzo 1/2\""], 1.8)
     lam.volcar_llamadas()
-    lam.titulo_vista(530, 292, "ISOMETRICO 2: REGISTRO DE LIMPIEZA", "vista explotada: contramarco (asiento), tapa y marco - sin escala", 140)
+    lam.titulo_vista(530, 292, "ISOMETRICO 2: REGISTRO DE LIMPIEZA", "vista explotada: tapa ciega y rebaje de asiento - sin escala", 140)
     # ISO 3: empalme de cuneta (colector cortado + cuneta entrando por ventana + cerco con abertura)
     o = lam.P(150, 135); esc = 0.9
     Tt = lambda x, y, z: (o[0] + B.iso(x, y, z)[0] * esc, o[1] + B.iso(x, y, z)[1] * esc); kw = dict(origen=o, esc=esc)
@@ -357,7 +353,7 @@ def dp09(doc, ox, oy, R, T):
     lam.titulo_vista(470, 30, "ISOMETRICO 4: CAJA DE CAIDA CON POZA", "entrega al R-01 del CAR Mujeres - losa superior cortada - sin escala", 140)
     lam.leyenda2(700, 330, [("relleno", "ISO-CONCRETO-SUP", "concreto armado"), ("relleno", "ISO-TAPA", "tapa de registro"), ("relleno", "ISO-AGUA", "agua"),
                             ("relleno", "ISO-CUNETA", "cuneta que llega"), ("relleno", "ISO-CERCO", "cerco perimetrico existente"), ("relleno", "ISO-TERRENO", "piso / relleno del retiro"),
-                            ("relleno", "ISO-PIEDRA", "umbral de la poza"), ("linea2", "MARCO-METALICO", "marco y contramarco metalico"), ("linea2", "ACERO", "acero (marcos y anclajes)")], 1.8)
+                            ("relleno", "ISO-PIEDRA", "umbral de la poza"), ("linea2", "ACERO", "acero (marcos y asas)")], 1.8)
     return lam
 
 

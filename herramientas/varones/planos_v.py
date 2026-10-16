@@ -502,7 +502,7 @@ def dp03(doc, ox, oy, R, T):
             "2. Tramo normal: marco 3/8\" @0.20 en el eje de losas y muros; cruce de camiones: doble marco 1/2\" @0.15, recubrimiento 0.04.",
             "3. Barras longitudinales 3/8\" @0.25 (@0.20 en el cruce de camiones), traslape 0.40 m; se interrumpen en las juntas.",
             "4. Juntas de dilatacion cada 4.00 m (%d und). Ventana de cuneta 0.40 x H en el muro lado predio, bajo el registro (DP-06C)." % int(dz.P_FIN // 4.0),
-            "5. Registro: abertura 0.70, borde engrosado 0.15 x 0.10 y tapa 0.68 x 0.08 sobre el contramarco (DP-06B)."], hmm=1.6, ancho_mm=380)
+            "5. Registro: tapa ciega 0.68 x 0.08 en rebaje 0.70 x 0.08 de la losa, luz 0.60, borde engrosado 0.15 x 0.10 (DP-06B)."], hmm=1.6, ancho_mm=380)
         out.append(lam)
     return out
 

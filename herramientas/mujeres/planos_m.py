@@ -569,10 +569,10 @@ def dp06b(doc, ox, oy):
     import subprocess, tempfile, ezdxf
     from ezdxf.addons import Importer
     from ezdxf.math import Matrix44
-    lam = B.Lamina(doc, ox, oy, 10, "DP-06B", "DETALLE DE REGISTRO DE LIMPIEZA - TAPA 0.68 x 0.68 C/MARCO Y CONTRAMARCO",
-                   "PLANTA, CORTE, ASIENTO EN REBAJE, ARMADO, CONTRAMARCO, PERFILES, ISOMETRICO Y MATERIALES - ESC. INDICADAS")
+    lam = B.Lamina(doc, ox, oy, 10, "DP-06B", "DETALLE DE REGISTRO DE LIMPIEZA - TAPA CIEGA DE CONCRETO ARMADO 0.68 x 0.68 x 0.08",
+                   "PLANTA, CORTES, ASIENTO EN REBAJE, ARMADO, ASAS, ISOMETRICO Y MATERIALES - SIN MARCO METALICO - ESC. INDICADAS")
     fuente = os.path.join(tempfile.gettempdir(), "dp06b_mujeres_fuente.dxf")
-    subprocess.run([sys.executable, os.path.join(AQUI, "dxf_tapa_m.py"), fuente], check=True, capture_output=True)
+    subprocess.run([sys.executable, os.path.join(os.path.dirname(AQUI), "render_tapa", "dxf_tapa_ciega.py"), fuente, "mujeres"], check=True, capture_output=True)
     src = ezdxf.readfile(fuente); sm = src.modelspace()
     for d in list(sm.query("DIMENSION")): d.explode()
     def fuera(e):
@@ -1043,11 +1043,11 @@ def dp08(doc, ox, oy):
         "CONCRETO ARMADO: f'c = 210 kg/cm2 en colector, aleros de salida y tapas.",
         "CONCRETO SIMPLE: solado f'c = 100 kg/cm2 e = 0.05; una ciclopea f'c = 140 kg/cm2 + 30 % P.M.",
         "EMBOQUILLADO: piedra mediana 6\" a 8\" asentada con concreto f'c = 140 kg/cm2, e = 0.20 sobre relleno compactado e = 0.10.",
-        "ACERO DE REFUERZO: fy = 4200 kg/cm2 (grado 60), corrugado; asas de tapa en acero liso 3/8\".",
+        "ACERO DE REFUERZO: fy = 4200 kg/cm2 (grado 60), corrugado; asas de tapa en fierro liso 1/2\".",
         "RECUBRIMIENTOS: malla centrada en elementos de 0.10; 4.5 cm al eje en cruce de camiones; 2.5 cm en tapas.",
         "TRASLAPES: 3/8\" = 0.40 m; 1/2\" = 0.50 m, alternados.",
         "LOSA SUPERIOR: vaciada monoliticamente con los muros; acabado frotachado en el tramo de vereda.",
-        "REGISTROS: contramarco L 2\"x2\"x3/16\" y marco L 1 1/2\"x1 1/2\"x1/8\" con anclajes; pintura anticorrosiva y esmalte.",
+        "REGISTROS: tapa ciega de concreto armado 0.68 x 0.68 x 0.08 en rebaje 0.70 x 0.08 de la losa; sin marco ni contramarco metalico.",
         "JUNTAS: e = 1\" cada 4.00 m y en el cruce de camiones; poliestireno expandido y sello elastomerico.",
         "CURADO: humedo minimo 7 dias; no transitar sobre la losa antes de 14 dias.",
         "RELLENO: material propio seleccionado en capas de 0.15 m al 95 % del Proctor modificado.",
@@ -1117,26 +1117,22 @@ def dp09(doc, ox, oy):
     _cara(lam, T2, [(-r, yc - r, top - dz.E_TAPA), (r, yc - r, top - dz.E_TAPA), (r, yc + r, top - dz.E_TAPA), (-r, yc + r, top - dz.E_TAPA)], "ISO-CONCRETO-LAT2")
     _cara(lam, T2, [(-l_, yc - l_, top - dz.E_TAPA), (l_, yc - l_, top - dz.E_TAPA), (l_, yc + l_, top - dz.E_TAPA), (-l_, yc + l_, top - dz.E_TAPA)], "ISO-AGUA")
     _cara(lam, T2, [(-r, yc + r, top - dz.E_TAPA), (r, yc + r, top - dz.E_TAPA), (r, yc + r, top), (-r, yc + r, top)], "ISO-CONCRETO-LAT1") if False else None
-    zc = top + 0.30
-    for a, b_ in ((r + 0.051, r - 0.005), ):
-        lam.poli([T2(-a, yc - a, zc), T2(a, yc - a, zc), T2(a, yc + a, zc), T2(-a, yc + a, zc)], "MARCO-METALICO", cerrada=True)
-        lam.poli([T2(-b_, yc - b_, zc), T2(b_, yc - b_, zc), T2(b_, yc + b_, zc), T2(-b_, yc + b_, zc)], "MARCO-METALICO", cerrada=True)
-        lam.poli([T2(-b_, yc - b_, zc - 0.05), T2(b_, yc - b_, zc - 0.05), T2(b_, yc + b_, zc - 0.05)], "MARCO-METALICO")
-    zt_ = top + 0.62; t_ = dz.TAPA / 2
+    zc = top + 0.04
+    zt_ = top + 0.50; t_ = dz.TAPA / 2
     _caja(lam, T2, -t_, t_, yc - t_, yc + t_, zt_ - dz.E_TAPA, zt_, ("ISO-TAPA", "ISO-CONCRETO-LAT1", "ISO-CONCRETO-LAT2"))
-    lam.poli([T2(-t_, yc - t_, zt_ + 0.002), T2(t_, yc - t_, zt_ + 0.002), T2(t_, yc + t_, zt_ + 0.002), T2(-t_, yc + t_, zt_ + 0.002)], "MARCO-METALICO", cerrada=True)
-    for yy in (yc - 0.22, yc + 0.22):
-        lam.poli([T2(-0.08, yy - 0.025, zt_), T2(0.08, yy - 0.025, zt_), T2(0.08, yy + 0.025, zt_), T2(-0.08, yy + 0.025, zt_)], "ISO-ARISTAS", cerrada=True)
+    for yy in (yc - 0.20, yc + 0.20):
+        lam.poli([T2(-0.095, yy - 0.03, zt_), T2(0.095, yy - 0.03, zt_), T2(0.095, yy + 0.03, zt_), T2(-0.095, yy + 0.03, zt_)], "ISO-ARISTAS", cerrada=True)
+        lam.linea(T2(-0.075, yy, zt_ - 0.01), T2(0.075, yy, zt_ - 0.01), "ACERO")
     for q in ((-t_, yc - t_), (t_, yc - t_), (t_, yc + t_)):
-        lam.linea(T2(q[0], q[1], zt_ - dz.E_TAPA - 0.02), T2(q[0], q[1], top + 0.02), "CORTES") if False else lam.linea(T2(q[0], q[1], zt_ - dz.E_TAPA - 0.02), T2(q[0], q[1], zc + 0.04), "GRILLA")
+        lam.linea(T2(q[0], q[1], zt_ - dz.E_TAPA - 0.02), T2(q[0], q[1], zc), "GRILLA")
     lam.juntar_llamadas(); xt = lam.P(685, 0)[0]
-    lam.llamada(T2(t_, yc, zt_), (xt, lam.P(0, 545)[1]), ["tapa de concreto 0.68 x 0.68 x 0.08 con marco L 1 1/2\""], 1.7)
-    lam.llamada(T2(r + 0.03, yc, zc), (xt, lam.P(0, 533)[1]), ["contramarco L 2\"x2\"x3/16\" con anclajes 3/8\""], 1.7)
+    lam.llamada(T2(t_, yc, zt_), (xt, lam.P(0, 545)[1]), ["tapa ciega de concreto armado 0.68 x 0.68 x 0.08 (sin marco)"], 1.7)
+    lam.llamada(T2(0.0, yc + 0.20, zt_), (xt, lam.P(0, 533)[1]), ["2 asas de fierro liso 1/2\" en cajuelas"], 1.7)
     lam.llamada(T2(r, yc - r * 0.2, top - 0.04), (xt, lam.P(0, 521)[1]), ["rebaje 0.70 x 0.08: la tapa apoya en la ceja de 0.05"], 1.7)
     lam.llamada(T2(0.0, yc, top - dz.E_TAPA), (xt, lam.P(0, 509)[1]), ["luz libre 0.60 x 0.60 (borde engrosado 0.15 x 0.10 bajo la losa)"], 1.7)
     lam.llamada(T2(K - 0.3, 0.3, top), (xt, lam.P(0, 497)[1]), ["losa superior e = 0.10"], 1.7)
     lam.volcar_llamadas()
-    lam.titulo_vista(600, 352, "ISOMETRICO 2: REGISTRO DE LIMPIEZA", "vista explotada - colocacion del contramarco y la tapa - ESC. 1/20", ancho_mm=160)
+    lam.titulo_vista(600, 352, "ISOMETRICO 2: REGISTRO DE LIMPIEZA", "vista explotada - colocacion de la tapa ciega en el rebaje - ESC. 1/20", ancho_mm=160)
     # ---------------- 3. empalme de cuneta (losa superior cortada para ver el interior)
     p = 37.95; K = dz.b_ext(p) / 2; cf = dz.CF(p); top = dz.techo(p); Ls = 1.6; yc = 0.8; ncf = 258.74
     o = lam.P(130, 190)
@@ -1216,7 +1212,7 @@ def dp09(doc, ox, oy):
     lam.titulo_vista(560, 120, "ISOMETRICO 4: ESTRUCTURA DE SALIDA", "PROG. 0+139.08 - CF 258.30 - dentro del lindero - ESC. 1/20", ancho_mm=160)
     lam.leyenda2(30, 100, [("relleno", "ISO-CONCRETO-SUP", "concreto armado (cara superior)"), ("relleno", "ISO-CONCRETO-LAT2", "concreto armado (caras laterales)"),
                            ("relleno", "ISO-TAPA", "tapa de registro / junta de tecnopor"), ("relleno", "AGUA-RELLENO", "agua"),
-                           ("relleno", "ISO-CUNETA", "cuneta que llega / piso adyacente"), ("linea2", "MARCO-METALICO", "marco y contramarco metalico"),
+                           ("relleno", "ISO-CUNETA", "cuneta que llega / piso adyacente"), ("linea2", "ACERO", "asas de la tapa (fierro liso 1/2\")"),
                            ("relleno", "ISO-PIEDRA", "emboquillado y una de piedra")], hmm=1.9, ancho_col=115, filas_col=4)
     return lam
 

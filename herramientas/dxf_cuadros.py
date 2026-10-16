@@ -21,7 +21,7 @@ ESPECIFICACIONES = ["CONCRETO ARMADO: f'c = 210 kg/cm2 (colector, cajas y tapas)
            "RECUBRIMIENTOS: 0.04 m en muros y losa de fondo; 0.025 m en losa superior del tramo normal; 0.04 m en el cruce de camiones; 0.025 m en tapas.",
            "TRASLAPES: 3/8\" = 0.40 m ; 1/2\" = 0.50 m, alternados. Barras longitudinales de 9.00 m.",
            "LOSA SUPERIOR: vaciada monoliticamente con los muros en todo el colector; acabado frotachado; sirve de vereda (+260.60).",
-           "REGISTROS: contramarco de angulo %s y marco de angulo L 1 1/2\"x1 1/2\"x1/8\" con anclajes, pintura anticorrosiva y esmalte; tapas de concreto 0.68 x 0.68 x 0.08 con asas." % MC.CM["txt"],
+           "REGISTROS: tapa ciega de concreto armado 0.68 x 0.68 x 0.08 (parrilla 3/8\" @0.10 y 2 asas de fierro liso 1/2\"), vaciada aparte en obra, en rebaje 0.70 x 0.70 x 0.08 de la losa; sin marco ni contramarco metalico.",
            ("JUNTAS: cada 4.00 m, e = 1\", relleno de poliestireno expandido y %s %s. Junta longitudinal de tecnopor de 1\" con el mismo sellador en su cara superior entre el colector y el cimiento del cerco (0+000.00 a 0+058.81); al otro lado, terreno natural: no lleva junta. Tecnopor de 1\" en el contacto con las cunetas." % (MC.SELLO["nombre"], MC.SELLO["txt"])) if MC.SELLO["en_tecnopor"] else
            "JUNTAS: cada 4.00 m, e = 1\", relleno de poliestireno expandido y %s %s. Tecnopor de 1\" entre el colector y el cerco, las cunetas y el piso adyacente." % (MC.SELLO["nombre"], MC.SELLO["txt"]),
            "CAJAS: muros e = 0.15 y losa de fondo e = 0.15 con malla 3/8\" @0.20 en ambas caras; umbral 0.25 x 0.40 en la caja de caida.",
@@ -47,7 +47,7 @@ def dp08(doc, ox, oy, R, T):
     filas, t38, t12 = MC.cuadro_doblado()
     tab = [[a, b, c, d, e_, "%.1f" % f_, "%.1f" % g] for a, b, c, d, e_, f_, g in filas] + [["TOTAL", "", "", "", "", "", "%.1f" % (t38 + t12)]]
     y = lam.tabla(32, 560, ["ELEMENTO", "FORMA", "DIAMETRO", "ESPACIAM.", "LONGITUD (m)", "LONG. TOTAL (m)", "PESO (kg)"], tab, [66, 58, 18, 22, 56, 26, 22], 1.9, 5.0, "CUADRO DE DOBLADO DE ACERO")
-    lam.texto(lam.P(32, y - 5), "Resumen: acero 3/8\" = %.1f kg ; acero 1/2\" = %.1f kg ; total = %.1f kg (incluye traslapes y ganchos). Angulos metalicos: %.1f kg." % (t38, t12, t38 + t12, MC.registros()["contramarco_kg"] + MC.registros()["marco_kg"]), 1.7, "TEXTOS-NOTAS")
+    lam.texto(lam.P(32, y - 5), "Resumen: acero 3/8\" = %.1f kg ; acero 1/2\" = %.1f kg ; total = %.1f kg (incluye traslapes y ganchos). Tapas ciegas de concreto armado: sin angulos metalicos." % (t38, t12, t38 + t12), 1.7, "TEXTOS-NOTAS")
     # figuras de marcos (ESC. 1/15 dentro de la lamina 1/25)
     f = lam.f; be = D["b_ext"]; g = geometria(10.0); h = g["h"]; ef = D["e_fondo"]; et = D["e_losa"]
     k = 25.0 / 15.0
@@ -70,7 +70,7 @@ def dp08(doc, ox, oy, R, T):
     # especificaciones
     esp = ESPECIFICACIONES
     yy = lam.notas(440, 560, "ESPECIFICACIONES TECNICAS", esp, 1.8, ancho_mm=380)
-    filas = [["250", "concreto: contornos y cortes", "0.50"], ["1", "acero corrugado (marcos y barras)", "0.35"], ["5", "acero longitudinal / contramarco", "0.35"],
+    filas = [["250", "concreto: contornos y cortes", "0.50"], ["1", "acero corrugado (marcos y barras)", "0.35"], ["5", "acero longitudinal", "0.35"],
              ["140 / 32", "marcos metalicos y registros", "0.40"], ["30", "llamadas, tapas, cruces vehiculares", "0.18"], ["94", "cotas", "0.18"],
              ["160", "titulos", "0.35"], ["7", "textos y piso terminado", "0.25"], ["3", "cunetas", "0.35"]] + ([["14", "cerco perimetrico", "0.40"]] if CON_CERCO else []) + [
              ["150", "agua y sentido del flujo", "0.25"], ["8 / 254", "auxiliares, rellenos grises y arq. base", "0.13"]]
@@ -164,9 +164,9 @@ def da(doc, ox, oy, R, T):
         lam.volcar_llamadas()
         lam.titulo_vista(xmm + 50, ymm - 50, nm, "PROG. %s - ESC. 1/20" % prog_txt(p), 150)
     filas = [["Acero fy=4200 colector%s - 3/8\"" % (" y cajas" if TXT_CAJAS else ""), "kg", "%.1f" % Rs["acero_38_kg"]], ["Acero fy=4200 colector - 1/2\" (cruce de camiones)", "kg", "%.1f" % Rs["acero_12_kg"]],
-             ["Registros: contramarco %s (%d und)" % (MC.CM["txt"], Rg["n"]), "kg", "%.1f" % Rg["contramarco_kg"]], ["Registros: marco de tapa L 1 1/2\"x1 1/2\"x1/8\"", "kg", "%.1f" % Rg["marco_kg"]],
-             ["Tapas de concreto 0.68 x 0.68 x 0.08", "und / m3", "%d / %.2f" % (Rg["n"], Rg["tapa_conc"])], ["Acero en tapas, bordes, asas y anclajes", "kg", "%.1f" % (Rg["acero_borde_kg"] + Rg["acero_tapa_kg"] + Rg["asas_kg"] + Rg["anclajes_kg"])],
-             ["Pintura anticorrosiva y esmalte en angulos", "m2", "%.2f" % Rg["pintura_m2"]],
+             ["Tapas ciegas de concreto armado 0.68 x 0.68 x 0.08 (sin marco metalico)", "und / m3", "%d / %.2f" % (Rg["n"], Rg["tapa_conc"])],
+             ["Encofrado lateral de las tapas (4 x 0.68 x 0.08)", "m2", "%.2f" % Rg["encofrado_tapa"]],
+             ["Acero en tapas, asas y bordes de la abertura", "kg", "%.1f" % (Rg["acero_borde_kg"] + Rg["acero_tapa_kg"] + Rg["asas_kg"])],
              ["Junta de dilatacion e=1\" con %s (%d und x %.2f m)" % ("tecnopor y sellador asfaltico" if MC.SELLO["en_tecnopor"] else "sello", J["n"], J["L_dilat"] / J["n"]), "m", "%.2f" % J["L_dilat"]],
              [("Junta longitudinal e=1\" de tecnopor y sellador asfaltico con el cerco" if MC.SELLO["en_tecnopor"] else "Junta de tecnopor e=1\" con el cerco (muro)") if J.get("L_tecnopor_cerco", 0) > 0 else TXT_TEC_CL, "m", "%.2f" % (J["L_tecnopor_cerco"] if J.get("L_tecnopor_cerco", 0) > 0 else J.get("L_tecnopor_cl", 0))]] + ([[TXT_TEC_PISO, "m", "%.2f" % J["L_tecnopor_piso"]]] if J["L_tecnopor_piso"] > 0 else []) + [
              ] + ([["Empalme de cuneta al colector (ventana + caida)", "und", "%d" % Rs["empalmes"]]] if Rs.get("empalmes") is not None else [])

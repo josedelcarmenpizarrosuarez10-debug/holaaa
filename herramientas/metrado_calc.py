@@ -21,7 +21,7 @@ CONTRAMARCOS = {
     "1.5x1.5x1/8": dict(clave="1.5x1.5x1/8", txt='L 1 1/2"x1 1/2"x1/8"', ala=1.5 * IN, esp=1 / 8 * IN, kgm=1.83, des=0.152, ala_txt='1 1/2"', ala_mm=38.1, esp_mm=3.2),
 }
 CM = CONTRAMARCOS[os.environ.get("CONTRAMARCO", "1.5x1.5x1/8")]
-LUZ_REG = 0.70 - 2 * CM["ala"]          # luz libre entre alas del contramarco
+LUZ_REG = 0.60                          # luz libre bajo el rebaje de asiento (tapa ciega, lamina DP-06B rev. 02)
 # sellador de las juntas del colector, por proyecto (variable SELLO_JUNTA; CAR Varones la fija en compat.py).
 # Hogar de Refugio: sellador asfaltico 1" x 2" (asfalto liquido RC-250 + arena gruesa) sobre el tecnopor, tambien en la junta
 # con el cerco (EG-2013 MTC, Seccion 510).
@@ -141,10 +141,12 @@ BORDE_PERIM = 3.00     # perimetro medio del borde engrosado (4 x 0.75); CAR Var
 
 def registros():
     n = len([r for r in dz.REGISTROS if r["tipo"] == "registro"]) + EXTRA_REG   # Solange: 7 + 1 en CL + 2 en CC
-    return dict(n=n, contramarco_m=2.80 * n, contramarco_kg=2.80 * n * CM["kgm"], marco_m=2.72 * n, marco_kg=2.72 * n * ANG["1.5x1.5x1/8"],
-                tapa_conc=0.68 * 0.68 * 0.08 * n, borde_conc=BORDE_PERIM * 0.15 * 0.10 * n,
-                acero_borde_kg=8 * 1.40 * n * PESO["1/2"], acero_tapa_kg=14 * 0.62 * n * PESO["3/8"], asas_kg=2 * 0.40 * n * PESO["3/8"], anclajes_kg=8 * 0.20 * n * PESO["3/8"],
-                pintura_m2=(2.80 * CM["des"] + 2.72 * 0.152) * n, losa_descuento=0.70 * 0.70 * D["e_losa"] * (n - EXTRA_REG))   # las aberturas de las cajas ya se descuentan en cajas()
+    # tapa CIEGA de concreto armado (lamina DP-06B rev. 02): sin marco ni contramarco metalico; asiento en rebaje 0.70 x 0.70 x 0.08
+    # de la losa y luz libre 0.60 x 0.60 en el resto del espesor; 2 asas de fierro liso 1/2" de 0.50 m
+    return dict(n=n, contramarco_m=0.0, contramarco_kg=0.0, marco_m=0.0, marco_kg=0.0,
+                tapa_conc=0.68 * 0.68 * 0.08 * n, encofrado_tapa=4 * 0.68 * 0.08 * n, borde_conc=BORDE_PERIM * 0.15 * 0.10 * n,
+                acero_borde_kg=8 * 1.40 * n * PESO["1/2"], acero_tapa_kg=14 * 0.62 * n * PESO["3/8"], asas_kg=2 * 0.50 * n * PESO["1/2"], anclajes_kg=0.0,
+                pintura_m2=0.0, losa_descuento=(0.70 * 0.70 * 0.08 + 0.60 * 0.60 * (D["e_losa"] - 0.08)) * (n - EXTRA_REG))   # las aberturas de las cajas ya se descuentan en cajas()
 
 
 MALLA_S = 0.20          # malla 3/8" @0.20 en ambas caras de losas y muros de las cajas (lamina DP-07)
@@ -249,8 +251,8 @@ def cuadro_doblado():
         ("Colector: barras longitudinales", "recta con traslape 0.40", '3/8"', "0.25 / 0.20", "continua", f("long_L"), f("long_kg")),
         ("Cajas CL y CC: muros y losas", "malla 3/8\" @0.20 ambas caras", '3/8"', "0.20", "ver DP-07", sum(c["acero_kg"] for c in R["cajas"].values()) / PESO["3/8"], sum(c["acero_kg"] for c in R["cajas"].values())),
         ("Registros: refuerzo de borde de abertura", "recta", '1/2"', "2 por lado", "1.40", 8 * 1.40 * Rg["n"], Rg["acero_borde_kg"]),
-        ("Tapas de registro (incluye asas)", "recta / U", '3/8"', "0.10", "0.62 / 0.40", 14 * 0.62 * Rg["n"] + 2 * 0.40 * Rg["n"], Rg["acero_tapa_kg"] + Rg["asas_kg"]),
-        ("Anclajes de contramarco", "L", '3/8"', "8 por registro", "0.20", 8 * 0.20 * Rg["n"], Rg["anclajes_kg"]),
+        ("Tapas ciegas de registro: parrilla", "recta", '3/8"', "0.10", "0.62", 14 * 0.62 * Rg["n"], Rg["acero_tapa_kg"]),
+        ("Tapas ciegas de registro: asas (fierro liso)", "U con ganchos", '1/2"', "2 por tapa", "0.50", 2 * 0.50 * Rg["n"], Rg["asas_kg"]),
     ]
     filas = [fl for fl in filas if fl[6] > 1e-6]
     tot38 = sum(fl[6] for fl in filas if fl[2] == '3/8"'); tot12 = sum(fl[6] for fl in filas if fl[2] == '1/2"')

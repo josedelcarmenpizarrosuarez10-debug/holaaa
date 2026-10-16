@@ -2,8 +2,8 @@
 import json, textwrap, numpy as np, pyvista as pv, vtk
 from PIL import Image, ImageDraw, ImageFont
 src = open('render.py').read(); exec(src[:src.index('P = modelo()')])   # reutiliza texturas y geometria
-from modelo import modelo, ET, REB, LUZ, TAPA, CM_T, CM_L, MT_L, MT_T, CM_TXT, CM_KGM, GANCHO
-CMC = CM_TXT.replace(' ', ''); ALA = CM_TXT.split(' x ')[0][2:]; ESP = CM_TXT.split(' x ')[-1]; LZ = '%.2f' % (2 * LUZ)
+from modelo import modelo, ET, REB, LUZ, TAPA, GANCHO, BI, BW, YA, CJZ
+LZ = '%.2f' % (2 * LUZ)
 
 RW, RH = 1300, 1060
 MAT.update({
@@ -107,74 +107,66 @@ def lamina(nombre, titulo, sub, pts, labels, nota=None):
     S.save('ISO_' + nombre + '.png', optimize=True)
 
 P = modelo()
-V = {}
+X = BI + BW
 # 1 isometrico general
 pts = vista(P, {}, foco=(0, 0, -0.15), escala=1.65, nombre='g1', anclas={
-    'losa': (-0.45, -0.5, 0), 'hg': (0.345, -0.2, 0), 'mt': (0.0, -0.335, 0), 'tapa': (-0.12, -0.05, 0), 'asa': (0.0, -0.22, -0.01),
-    'muro': (0.55, -0.4, -0.35), 'npt': (0.4, 0.5, 0)})
-lamina('g1', '1. ISOMETRICO GENERAL - REGISTRO ARMADO', 'Tapa colocada en la losa superior del colector, a ras del piso terminado', pts, {
-    'losa': 'Losa superior del colector\ne = 0.10 m (vereda)', 'hg': 'Holgura 1 cm por lado\n(tapa 0.68 en\nabertura 0.70)',
-    'mt': 'Marco de tapa\nL 1 1/2" x 1 1/2" x 1/8"', 'tapa': "Tapa de concreto f'c=210\n0.68 x 0.68 x 0.08 m\npeso aprox. 94 kg",
-    'asa': 'Bolsillo del asa\n(asa embutida, no sobresale)', 'muro': 'Muro del colector\ne = 0.15 m', 'npt': 'Piso terminado (NPT)\nsin resaltes'})
+    'losa': (-0.45, -0.5, 0), 'hg': (0.345, -0.2, 0), 'tapa': (-0.12, -0.05, 0), 'asa': (0.0, -YA, -0.01),
+    'muro': (X, -0.4, -0.35), 'npt': (0.4, 0.5, 0)})
+lamina('g1', '1. ISOMETRICO GENERAL - REGISTRO CON TAPA CIEGA', 'Tapa de concreto armado en su rebaje, a ras del piso terminado (vereda)', pts, {
+    'losa': 'Losa superior del colector\ne = 0.10 m (vereda)', 'hg': 'Holgura 1 cm por lado\n(tapa 0.68 en\nrebaje 0.70)',
+    'tapa': "Tapa ciega de concreto\narmado f'c=210\n0.68 x 0.68 x 0.08 m\npeso aprox. 89 kg",
+    'asa': 'Cajuela del asa\n(asa embutida, no sobresale)', 'muro': 'Muro del colector\ne = %.2f m' % BW, 'npt': 'Piso terminado (NPT)\nsin resaltes'})
 # 2 despiece
-offs = {'contramarco': 0.30, 'anclajes': 0.30, 'parrilla': 0.56, 'asas': 0.80, 'tapa': 1.06, 'marco': 1.34}
-pts = vista(P, offs, foco=(0, 0, 0.55), escala=2.35, direc=(1, -1, 0.75), nombre='g2', anclas={
-    'mt': (0.34, -0.2, 1.33), 'tapa': (-0.34, 0.1, 1.02), 'asa': (-0.155, 0.22, 0.74), 'par': (0.31, 0.2, 0.505), 'cm': (-0.2, -0.35, 0.22),
-    'anc': (0.44, 0.125, 0.23), 'losa': (-0.5, -0.5, 0), 'reb': (0.0, 0.35, -0.04)})
-lamina('g2', '2. ISOMETRICO DESPIECE - CADA PIEZA SEPARADA', 'Orden de armado de abajo hacia arriba', pts, {
-    'mt': 'MARCO DE TAPA\nangulo L 1 1/2" x 1 1/2" x 1/8"\n0.68 x 0.68 exterior\n2.72 m - 5.0 kg',
-    'tapa': "CONCRETO DE LA TAPA\nf'c = 210 kg/cm2\n0.68 x 0.68 x 0.08 m\n0.037 m3",
-    'asa': 'ASAS (2 und)\nbarra 3/8" liso\n0.40 m cada una',
+offs = {'parrilla': 0.32, 'asas': 0.52, 'tapa': 0.80}
+pts = vista(P, offs, foco=(0, 0, 0.35), escala=2.10, direc=(1, -1, 0.75), nombre='g2', anclas={
+    'tapa': (-0.34, 0.1, 0.76), 'asa': (-0.225, YA, 0.52 - 0.035), 'par': (0.31, 0.2, 0.32 - 0.055), 'reb': (0.0, -0.35, -0.04),
+    'luz': (0.25, 0.30, -0.10), 'losa': (-0.5, -0.5, 0)})
+lamina('g2', '2. ISOMETRICO DESPIECE - TAPA CIEGA Y REBAJE', 'La tapa se fabrica aparte en obra y se coloca en el rebaje de la losa', pts, {
+    'tapa': "TAPA CIEGA\nconcreto f'c=210\n0.68 x 0.68 x 0.08 m\n0.037 m3 (sin marco)",
+    'asa': 'ASAS (2 und)\nfierro liso 1/2"\n0.50 m cada una',
     'par': 'PARRILLA\n7 + 7 barras 3/8"\n@ 0.10 m, L = 0.62 m\n4.9 kg',
-    'cm': 'CONTRAMARCO\nangulo %s\nasiento de la tapa\n2.80 m - %.1f kg' % (CM_TXT, 2.80 * CM_KGM),
-    'anc': 'ANCLAJES (8 und)\nbarra 3/8", L = 0.20 m\nsoldados e inclinados\nhacia la losa',
-    'losa': 'LOSA DEL COLECTOR\ncon abertura para\nel registro',
-    'reb': 'ABERTURA 0.70 x 0.70\nen todo el espesor\nde la losa'})
-# 3 corte isometrico por la linea de anclajes
-YC = -0.125
+    'reb': 'REBAJE 0.70 x 0.70\nx 0.08 en la losa\n(asiento de la tapa)',
+    'luz': 'LUZ LIBRE\n0.60 x 0.60 m',
+    'losa': 'LOSA DEL COLECTOR\ne = 0.10 m'})
+# 3 corte isometrico por el eje del colector
+YC = 0.0
 pts = vista(P, {}, cut=YC, foco=(0.22, YC, -0.10), escala=0.95, direc=(1, 1.1, 0.55), nombre='g3', anclas={
-    'losa': (0.05, -0.6, 0), 'cm': (0.348, YC, -0.11), 'hg': (0.345, YC, -0.003), 'mt': (0.338, YC, -0.02), 'ap': (0.32, YC, -0.082),
-    'anc': (0.44, YC, -0.07), 'rb': (0.40, YC, -0.045), 'rb2': (0.40, YC, -0.155), 'eng': (0.33, YC, -0.17), 'par': (0.0, YC, -0.0545),
-    'tapa': (0.12, YC, -0.03), 'luz': (0.30, YC, -0.15)})
-lamina('g3', '3. ISOMETRICO EN CORTE - APOYO DE LA TAPA', 'Corte por la linea de anclajes: la tapa asienta sobre el ala del contramarco', pts, {
-    'losa': 'Losa superior e = 0.10', 'cm': 'Contramarco %s\nala vertical embutida,\ncara al ras de la abertura' % CMC,
-    'hg': 'Holgura 1 cm por lado\n(0.70 - 0.68) / 2', 'mt': 'Marco de tapa\nL 1 1/2"x1 1/2"x1/8"', 'ap': 'Asiento de la tapa:\nala del contramarco\na 0.08 bajo el piso',
-    'anc': 'Anclaje 3/8" L = 0.20\nsoldado e inclinado\nhacia la losa', 'rb': 'Refuerzo de borde\n2 barras 1/2" por lado\nL = 1.40 m',
-    'rb2': 'Barra inferior 1/2"\nen el borde engrosado', 'eng': 'Borde engrosado\n0.15 x 0.10 m\nbajo la losa',
-    'par': 'Parrilla 3/8" @ 0.10\nrecubrimiento 2.5 cm', 'tapa': 'Tapa e = 0.08 m', 'luz': 'Luz libre %s x %s\n(entre alas del\ncontramarco)' % (LZ, LZ)})
+    'losa': (0.05, -0.6, 0), 'hg': (0.345, YC, -0.003), 'ap': (0.325, YC, -0.08), 'rb': (0.40, YC - 0.4, -0.045),
+    'eng': (0.38, YC, -0.17), 'par': (0.0, YC, -0.0545), 'tapa': (0.12, YC, -0.03), 'luz': (0.30, YC, -0.13)})
+lamina('g3', '3. ISOMETRICO EN CORTE - ASIENTO DE LA TAPA', 'Corte por el eje del colector: la tapa apoya en el rebaje de concreto de la losa', pts, {
+    'losa': 'Losa superior e = 0.10', 'hg': 'Holgura 1 cm por lado\n(0.70 - 0.68) / 2', 'ap': 'Asiento de la tapa:\nrebaje de concreto\n0.05 por lado, a 0.08\nbajo el piso',
+    'rb': 'Refuerzo de borde\n2 barras 1/2" por lado\nL = 1.40 m', 'eng': 'Borde engrosado\n0.15 x 0.10 m\nbajo la losa',
+    'par': 'Parrilla 3/8" @ 0.10\nrecubrimiento 2.5 cm', 'tapa': 'Tapa ciega e = 0.08 m', 'luz': 'Luz libre %s x %s' % (LZ, LZ)})
 # 4 tapa: armado interior
-T = {k: P[k] for k in ('tapa', 'marco', 'parrilla', 'asas')}
+T = {k: P[k] for k in ('tapa', 'parrilla', 'asas')}
 pts = vista(T, {}, opac={'tapa': 0.22}, foco=(0, 0, -0.04), escala=0.95, nombre='g4', anclas={
-    'mt': (0.34, 0.1, 0), 'par1': (-0.31, -0.2, -0.055), 'par2': (0.2, -0.31, -0.045), 'asa': (0.06, -0.22, -0.015), 'bol': (-0.06, 0.22, -0.026),
-    'gan': (0.155, 0.22, -0.06), 'conc': (-0.2, 0.34, -0.04)})
+    'par1': (-0.31, -0.2, -0.055), 'par2': (0.2, -0.31, -0.045), 'asa': (0.06, -YA, -0.015), 'caj': (-0.06, YA, -CJZ),
+    'gan': (0.225, YA, -0.035), 'conc': (-0.2, 0.34, -0.04)})
 lamina('g4', '4. ISOMETRICO DE LA TAPA - ARMADO INTERIOR', 'Concreto mostrado transparente para ver el acero', pts, {
-    'mt': 'Marco L 1 1/2"x1 1/2"x1/8"\nprotege el canto', 'par1': 'Barras en X\n7 de 3/8", L = 0.62', 'par2': 'Barras en Y\n7 de 3/8", L = 0.62\n@ 0.10 m',
-    'asa': 'Agarradera del asa\n3/8" liso', 'bol': 'Bolsillo del asa\n0.16 x 0.05 x 0.03', 'gan': 'Patas y ganchos del asa\nanclados en el concreto',
-    'conc': "Concreto f'c=210\n0.68 x 0.68 x 0.08"})
-# 5 contramarco con anclajes, aislado
-C = {k: P[k] for k in ('contramarco', 'anclajes')}
-pts = vista(C, {}, foco=(0, 0, -0.10), escala=1.05, direc=(1, -1, 0.9), nombre='g5', anclas={
-    'av': (-0.35, 0.2, -0.11), 'ah': (0.33, -0.2, -0.08), 'anc': (0.44, -0.125, -0.07), 'esq': (0.35, -0.35, -0.08), 'luz': (-0.30, -0.0, -0.08),
-    'sep': (-0.125, 0.44, -0.07)})
-lamina('g5', '5. ISOMETRICO DEL CONTRAMARCO CON ANCLAJES', 'Se fija antes de vaciar la losa, con el asiento a 0.08 bajo el piso', pts, {
-    'av': 'Ala vertical %s hacia abajo\ncara al ras de la abertura' % ALA, 'ah': 'Ala horizontal %s hacia\nadentro: asiento de\nla tapa (%s)' % (ALA, ESP),
-    'anc': 'Anclaje 3/8" L = 0.20\nsoldado e inclinado\nhacia la losa', 'esq': 'Esquinas a 45 grados\nsoldadas', 'luz': 'Luz libre entre alas\n%s x %s m' % (LZ, LZ),
-    'sep': '2 anclajes por lado\na 0.25 m'})
+    'par1': 'Barras en X\n7 de 3/8", L = 0.62', 'par2': 'Barras en Y\n7 de 3/8", L = 0.62\n@ 0.10 m',
+    'asa': 'Agarre del asa\nfierro liso 1/2"', 'caj': 'Cajuela del asa\n0.19 x 0.06 x 0.03', 'gan': 'Ganchos del asa\namarrados a la parrilla',
+    'conc': "Concreto f'c=210\n0.68 x 0.68 x 0.08\ncantos biselados"})
+# 5 rebaje de asiento en la losa (sin la tapa)
+R5 = {k: P[k] for k in ('losa', 'engrosado', 'muros')}
+pts = vista(R5, {}, foco=(0, 0, -0.10), escala=1.25, direc=(1, -1, 0.9), nombre='g5', anclas={
+    'reb': (0.35, -0.2, 0), 'ap': (0.0, -0.325, -0.08), 'luz': (-0.1, -0.30, -0.10), 'esq': (-0.35, -0.35, 0), 'losa': (-0.5, -0.6, 0)})
+lamina('g5', '5. ISOMETRICO DEL REBAJE DE ASIENTO (sin tapa)', 'Se forma en la losa con un cajon de madera antes del vaciado', pts, {
+    'reb': 'Rebaje 0.70 x 0.70\nprofundidad 0.08\n(= espesor de la tapa)', 'ap': 'Asiento plano y\nnivelado: 0.05 m\npor lado',
+    'luz': 'Luz libre %s x %s m\nbajo el asiento' % (LZ, LZ), 'esq': 'Arista superior con\nchaflan 1 x 1 cm', 'losa': 'Losa del colector\ne = 0.10 (vereda)'})
 # 6 losa vista desde abajo con concreto transparente: refuerzo de borde
-L6 = {k: P[k] for k in ('losa', 'engrosado', 'muros', 'refuerzo', 'contramarco', 'anclajes')}
+L6 = {k: P[k] for k in ('losa', 'engrosado', 'muros', 'refuerzo')}
 pts = vista(L6, {}, opac={'losa': 0.25, 'engrosado': 0.25, 'muros': 0.25}, foco=(0, 0, -0.12), escala=1.75, direc=(1, -1, -0.75), nombre='g6', anclas={
-    'rb': (0.40, -0.6, -0.045), 'rbx': (-0.2, -0.40, -0.155), 'gan': (0.51, -0.40, -0.2), 'eng': (-0.375, 0.2, -0.2), 'luz': (0.0, -0.3, -0.2),
-    'muro': (-0.55, 0.5, -0.4), 'anc': (0.44, 0.125, -0.07)})
-lamina('g6', '6. ISOMETRICO DESDE ABAJO - REFUERZO DEL BORDE', 'Losa y muros transparentes: barras de 1/2" alrededor de la abertura', pts, {
+    'rb': (0.40, -0.6, -0.045), 'rbx': (-0.2, -0.40, -0.155), 'gan': (X - 0.04, -0.40, -0.2), 'eng': (-0.375 if BI > LUZ else 0.0, 0.40, -0.2),
+    'luz': (0.0, -0.3, -0.2), 'muro': (-X, 0.5, -0.4)})
+lamina('g6', '6. ISOMETRICO DESDE ABAJO - REFUERZO DEL BORDE', 'Losa y muros transparentes: barras de 1/2" alrededor de la luz libre', pts, {
     'rb': 'Barras 1/2" en el eje\n2 por lado, L = 1.40 m', 'rbx': 'Barra inferior 1/2"\nen el borde engrosado',
     'gan': 'Gancho %.2f m dentro\ndel muro (L = 1.40)' % GANCHO, 'eng': 'Borde engrosado\n0.15 x 0.10 m\n(de %s a 0.90)' % LZ, 'luz': 'Luz libre %s x %s' % (LZ, LZ),
-    'muro': 'Muros del colector\ne = 0.15 m', 'anc': 'Anclajes del\ncontramarco'})
+    'muro': 'Muros del colector\ne = %.2f m' % BW})
 # 7 detalle ampliado de la esquina
-pts = vista(P, {}, cut=YC, foco=(0.36, YC, -0.08), escala=0.32, direc=(1, 1.4, 0.35), nombre='g7', anclas={
-    'cm_v': (0.348, YC, -0.11), 'cm_h': (0.32, YC, -0.082), 'mt_v': (0.3385, YC, -0.03), 'mt_h': (0.32, YC, -0.001), 'hg': (0.345, YC, 0),
-    'ap': (0.46, YC, -0.02), 'anc': (0.40, YC, -0.095), 'tapa': (0.25, YC, -0.05), 'rb': (0.40, YC, -0.045), 'luz': (0.31, YC, -0.12)})
-lamina('g7', '7. DETALLE AMPLIADO - ENCUENTRO MARCO / CONTRAMARCO', 'Esquina del registro en corte, escala grande', pts, {
-    'cm_v': 'Contramarco: ala vertical\n%s x %s embutida' % (ALA, ESP), 'cm_h': 'Contramarco: ala horizontal\n= asiento de la tapa', 'mt_v': 'Marco: ala vertical\n1 1/2" x 1/8"',
-    'mt_h': 'Marco: ala horizontal\nen la cara de la tapa', 'hg': 'Holgura 1 cm', 'ap': 'Losa: cara de la\nabertura 0.70', 'anc': 'Anclaje 3/8" inclinado',
-    'tapa': 'Tapa 0.08 m', 'rb': 'Refuerzo de borde 1/2"', 'luz': 'Concreto del borde\nengrosado bajo el asiento'})
+pts = vista(P, {}, cut=YC, foco=(0.36, YC, -0.07), escala=0.32, direc=(1, 1.4, 0.35), nombre='g7', anclas={
+    'tapa': (0.27, YC, -0.04), 'hg': (0.345, YC, 0), 'ap': (0.325, YC, -0.08), 'reb': (0.35, YC, -0.04), 'luz': (0.30, YC, -0.095),
+    'eng': (0.42, YC, -0.15), 'rb': (0.40, YC, -0.045), 'losa': (0.47, YC, -0.02)})
+lamina('g7', '7. DETALLE AMPLIADO - ASIENTO TAPA / REBAJE', 'Esquina del registro en corte, escala grande', pts, {
+    'tapa': 'Tapa ciega 0.08 m\n(sin marco metalico)', 'hg': 'Holgura 1 cm', 'ap': 'Asiento 0.05 m\nplano y nivelado', 'reb': 'Cara del rebaje 0.70',
+    'luz': 'Cara de la luz libre 0.60', 'eng': 'Borde engrosado', 'rb': 'Refuerzo de borde 1/2"', 'losa': 'Losa e = 0.10'})
 print('ok')

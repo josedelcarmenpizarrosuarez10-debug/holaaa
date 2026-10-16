@@ -53,12 +53,8 @@ def escena_ext(P):
     # segundo registro a 10.73 m (RS-01 a RS-02)
     for dy in (10.73, -10.73):
         t2 = Parte('t2', 'tapa'); t2.box(-0.337, 0.337, dy - 0.337, dy + 0.337, -0.08, 0.0006)
-        m2 = Parte('m2', 'angulo')
-        for r_in, r_out in ((0.3285, 0.34),):
-            m2.box(-r_out, r_out, dy + r_in, dy + r_out, -0.004, 0.0009); m2.box(-r_out, r_out, dy - r_out, dy - r_in, -0.004, 0.0009)
-            m2.box(r_in, r_out, dy - r_in, dy + r_in, -0.004, 0.0009); m2.box(-r_out, -r_in, dy - r_in, dy + r_in, -0.004, 0.0009)
-        gap = Parte('g2', 'sello'); gap.box(-0.35, 0.35, dy - 0.35, dy + 0.35, -0.03, 0.0003)
-        E['t2%s' % dy], E['m2%s' % dy], E['g2%s' % dy] = t2, m2, gap
+        gap = Parte('g2', 'sello'); gap.box(-0.35, 0.35, dy - 0.35, dy + 0.35, -0.03, 0.0003)      # tapa ciega: sin marco metalico
+        E['t2%s' % dy], E['g2%s' % dy] = t2, gap
     return E
 
 MAT['sello'] = dict(color=(0.22, 0.22, 0.22), specular=0.2, specular_power=10, diffuse=0.8, ambient=0.2)

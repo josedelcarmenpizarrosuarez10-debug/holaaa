@@ -1,7 +1,7 @@
-"""Lamina DP-06D: registro de limpieza con tapa 0.68 x 0.68 c/marco y contramarco - COMPONENTES, en DXF.
+"""Lamina DP-06D: registro de limpieza con TAPA CIEGA de concreto armado 0.68 x 0.68 x 0.08 - COMPONENTES, en DXF.
 Cuatro isometricos en color (registro armado, despiece, corte por el registro y armado interior de la tapa), con
-llamadas numeradas, cuadro de componentes y datos clave. Misma geometria del modelo 3D (modelo.py) y del contramarco
-del proyecto (variable CONTRAMARCO; Hogar de Refugio: L 1 1/2" x 1 1/2" x 1/8").
+llamadas numeradas, cuadro de componentes y datos clave. Misma geometria del modelo 3D (modelo.py): tapa en rebaje de
+concreto 0.70 x 0.70 x 0.08, sin marco ni contramarco metalico.
 Escala real (1 unidad = 1 m), lamina A1 a 1/10; las vistas 3 y 4 se dibujan al doble (ESC. 1/5).
 Uso: python3 herramientas/render_tapa/dxf_tapa_3d.py   -> entregables/PLANO_DP-06D_ISOMETRICOS_TAPA_REGISTRO_HOGAR_REFUGIO.dxf
 """
@@ -14,7 +14,7 @@ from ezdxf.enums import TextEntityAlignment as TA
 import dxf_base as B
 import dxf_layouts as L
 from iso3d import Escena, proy
-from modelo import modelo, CM_TXT, CM_KGM, CM_L, LUZ, ET, BI, BW, MURO_APOYO, GANCHO
+from modelo import modelo, LUZ, ET, BI, BW, MURO_APOYO, GANCHO
 # proyecto (por defecto el Hogar de Refugio; CAR Varones: herramientas/varones/planos_v.py fija COLECTOR_B, N_REG y PROY_DP06D)
 N_REG = int(os.environ.get("N_REG", "10"))
 PROY_TXT = os.environ.get("PROY_DP06D", "Hogar de Refugio Temporal \"Mujeres Violentadas\" (CUI 2675514)")
@@ -23,7 +23,7 @@ XM = BI + BW                                  # cara exterior del muro
 SAL = os.path.join(RAIZ, "entregables", "PLANO_DP-06D_ISOMETRICOS_TAPA_REGISTRO_HOGAR_REFUGIO.dxf")
 COL = {"concreto": (196, 194, 188), "tapa": (176, 174, 168), "angulo": (48, 52, 60), "acero": (138, 88, 58), "liso": (128, 124, 118)}
 AZ, NAR, CEL = (31, 78, 121), (192, 80, 20), (235, 241, 248)
-YC = -0.125                                   # plano del corte (linea de anclajes)
+YC = 0.0                                      # plano del corte (eje del colector)
 CAPAS = [("ISO-3D", 7, "CONTINUOUS", 13), ("ISO-3D-ARISTAS", 250, "CONTINUOUS", 13), ("PANEL", 5, "CONTINUOUS", 35),
          ("PANEL-FONDO", 5, "CONTINUOUS", 13), ("LLAMADAS-NUM", 30, "CONTINUOUS", 25)]
 
@@ -131,48 +131,45 @@ def extension(E):
 # ------------------------------------------------------------------ escenas
 def escena(nv, P):
     E = Escena()
-    if nv == 1:                                              # registro armado: un solo solido (losa, tapa y angulos)
+    if nv == 1:                                              # registro armado: tapa ciega en su rebaje
         T = Tr(1.0); R = (-1, 1, -0.75, 0.75, -0.65, 0.01)
-        solido(E, cajas_de(P, ("losa", "engrosado", "muros", "contramarco", "tapa", "marco"), R), T, 0.03)
-        barras(E, P, "asas", T, (-1, 1, -1, 1, -0.03, 0.01), sesgo=0.01)            # agarraderas dentro del bolsillo
+        solido(E, cajas_de(P, ("losa", "engrosado", "muros", "tapa"), R), T, 0.03)
+        barras(E, P, "asas", T, (-1, 1, -1, 1, -0.03, 0.01), sesgo=0.01)            # agarres dentro de las cajuelas
     elif nv == 2:                                            # despiece
         T = Tr(1.0); R = (-1, 1, -0.45, 0.45, -0.38, 0.01)
-        OFF = {"contramarco": 0.17, "anclajes": 0.17, "parrilla": 0.33, "asas": 0.45, "tapa": 0.58, "marco": 0.76}
+        OFF = {"parrilla": 0.24, "asas": 0.40, "tapa": 0.58}
         solido(E, cajas_de(P, ("losa", "engrosado", "muros"), R), T, 0.05)
-        for g, k in enumerate(("contramarco", "anclajes", "parrilla", "asas", "tapa", "marco")):
+        for g, k in enumerate(("parrilla", "asas", "tapa")):
             E.g = g + 1; parte(E, P, k, T, None, dz=OFF[k], paso=0.03)
-    elif nv == 3:                                            # corte por la linea de anclajes
+    elif nv == 3:                                            # corte por el eje del colector (asiento en el rebaje)
         yc, xc = YC + 0.006, 0.50
         T = Tr(2.0, girar=False); R = (-0.12, xc, -0.30, yc, -0.40, 0.01); cortes = ((1, yc), (0, xc))
-        solido(E, cajas_de(P, ("losa", "engrosado", "muros", "contramarco", "tapa", "marco"), R), T, 0.015, cortes=cortes)
+        solido(E, cajas_de(P, ("losa", "engrosado", "muros", "tapa"), R), T, 0.015, cortes=cortes)
         Rb = (-0.12, xc + 0.001, yc - 0.015, yc, -0.40, 0.01)      # solo lo que asoma en la cara del corte
-        for k in ("refuerzo", "anclajes", "parrilla"): barras(E, P, k, T, Rb, n=12, sesgo=0.02)
+        for k in ("refuerzo", "parrilla"): barras(E, P, k, T, Rb, n=12, sesgo=0.02)
         barras(E, P, "refuerzo", T, (xc - 0.015, xc + 0.001, -0.30, yc, -0.40, 0.01), n=12, sesgo=0.02)
     else:                                                    # tapa con concreto transparente
         T = Tr(2.0)
         parte(E, P, "tapa", T, None, paso=0.20, relleno=False)
         for k in ("parrilla", "asas"): barras(E, P, k, T, None, n=10)
-        E.g = 1; parte(E, P, "marco", T, None, paso=0.04)
     return E, T
 
 
 # llamadas: (clave, punto del modelo, desplazamiento del globo en mm)
 LLAM = {
-    1: [("1", (-0.45, -0.55, 0), (-16, 12)), ("9", (0.20, -0.325, 0.0), (-6, -18)), ("8", (-0.1, -0.1, 0), (-20, -6)),
-        ("7", (0.0, 0.22, -0.01), (16, 14)), ("10", (XM, -0.2, -0.35), (16, -10))],
-    2: [("1", (-0.45, -0.40, 0), (-18, 10)), ("4", (0.33, -0.33, 0.17 - 0.08), (22, -6)), ("5", ((0.38, -0.125, 0.17 - 0.20) if MURO_APOYO else (0.44, -0.125, 0.17 - 0.07)), (24, 2)),
-        ("6", (0.2, -0.31, 0.33 - 0.045), (-30, -6)), ("7", (0.155, -0.22, 0.45 - 0.06), (24, -4)), ("8", (0.34, -0.2, 0.58 - 0.04), (24, 2)),
-        ("9", (0.34, -0.34, 0.76), (22, 4)), ("10", (XM, -0.3, -0.30), (18, -8))],
+    1: [("1", (-0.45, -0.55, 0), (-16, 12)), ("hg", (0.345, -0.2, 0.0), (-6, -18)), ("6", (-0.1, -0.1, 0), (-20, -6)),
+        ("5", (0.0, 0.20, -0.01), (16, 14)), ("7", (XM, -0.2, -0.35), (16, -10))],
+    2: [("1", (-0.45, -0.40, 0), (-18, 10)), ("rb", (0.35, -0.2, -0.04), (24, -6)), ("4", (0.2, -0.31, 0.24 - 0.045), (-30, -6)),
+        ("5", (0.225, -0.20, 0.40 - 0.035), (24, -4)), ("6", (0.34, -0.2, 0.58 - 0.04), (24, 2)), ("7", (XM, -0.3, -0.30), (18, -8))],
     3: [("1", (0.45, -0.22, 0.0), (8, 20)), (("cm", (0.40, YC, -0.22), (-40, -4)) if MURO_APOYO else ("2", (0.42, YC, -0.17), (-36, -4))), ("3", (0.40, YC, -0.045), (-30, 6)),
-        ("4", (0.348, YC, -0.11), (10, -22)), ("5", ((0.375, YC, -0.20) if MURO_APOYO else (0.44, YC, -0.07)), (-22, 18)), ("6", (0.0, YC, -0.0545), (12, 22)),
-        ("8", (0.15, YC, -0.03), (10, 24)), ("9", (0.338, YC, -0.025), (-16, 24)), ("10", (XM - 0.03 if MURO_APOYO else 0.47, YC, -0.30), (20, -12)),
-        ("ap", (0.32, YC, -0.082), (-36, -26)), ("hg", (0.345, YC, -0.003), (26, 26))],
-    4: [("6", (-0.31, -0.2, -0.055), (-22, 14)), ("7", (0.06, -0.22, -0.015), (12, -22)), ("8", (-0.2, -0.34, -0.06), (-16, -14)),
-        ("9", (0.34, 0.1, 0.0), (22, -8)), ("h", (-0.12, 0.22, -0.06), (-24, 20))],
+        ("4", (0.0, YC, -0.0545), (12, 22)), ("6", (0.15, YC, -0.03), (10, 24)), ("7", (XM - 0.03 if MURO_APOYO else 0.47, YC, -0.30), (20, -12)),
+        ("ap", (0.325, YC, -0.08), (-36, -26)), ("hg", (0.345, YC, -0.003), (26, 26))],
+    4: [("4", (-0.31, -0.2, -0.055), (-22, 14)), ("5", (0.06, -0.20, -0.015), (12, -22)), ("6", (-0.2, -0.34, -0.06), (-16, -14)),
+        ("h", (-0.12, 0.20, -0.03), (-24, 20))],
 }
-LAB = {"cm": "cabeza del muro", "ap": "asiento %.3f" % CM_L, "hg": "holgura 1 cm", "h": "bolsillo del asa"}
-TIT = {1: ("1. REGISTRO ARMADO (vista general)", "ESC. 1/10"), 2: ("2. DESPIECE: CADA COMPONENTE SEPARADO", "ESC. 1/10 - orden de armado de abajo hacia arriba"),
-       3: ("3. CORTE POR EL REGISTRO: APOYO DE LA TAPA Y REFUERZOS", "ESC. 1/5 - corte por la linea de anclajes"),
+LAB = {"cm": "cabeza del muro", "ap": "asiento 0.05", "hg": "holgura 1 cm", "h": "cajuela del asa", "rb": "rebaje 0.70 x 0.08"}
+TIT = {1: ("1. REGISTRO ARMADO (vista general)", "ESC. 1/10"), 2: ("2. DESPIECE: TAPA CIEGA SOBRE SU REBAJE", "ESC. 1/10 - orden de armado de la tapa"),
+       3: ("3. CORTE POR EL REGISTRO: ASIENTO DE LA TAPA Y REFUERZOS", "ESC. 1/5 - corte por el eje del colector"),
        4: ("4. TAPA: ARMADO INTERIOR (concreto transparente)", "ESC. 1/5")}
 # paneles (mm del papel): x0, y0, x1, y1
 PAN = {1: (27, 343, 426, 562), 2: (430, 343, 829, 562), 3: (27, 116, 426, 337), 4: (430, 116, 829, 337)}
@@ -224,29 +221,24 @@ def vista(lam, P, nv):
         globo(lam, P2(T(np.array(p3, float))), dm, clave)
 
 
-COMP = [("1", "Losa superior del colector e = 0.10 m, concreto f'c=210: abertura 0.70 x 0.70 m en todo su espesor"),
+COMP = [("1", "Losa superior del colector e = 0.10 m, f'c=210: rebaje 0.70 x 0.70 x 0.08 (asiento de la tapa) y luz libre 0.60 x 0.60"),
         ("2", "Borde engrosado 0.15 x 0.10 m bajo la losa, solo en los 2 lados transversales, entre muros (2 x %.2f m: %.3f m3); en los lados largos el asiento es la cabeza del muro" % (2 * BI, 4 * BI * 0.015)
-              if MURO_APOYO else "Borde engrosado 0.15 x 0.10 m bajo la losa, alrededor de la abertura (0.045 m3)"),
+              if MURO_APOYO else "Borde engrosado 0.15 x 0.10 m bajo la losa, alrededor de la luz libre (0.045 m3)"),
         ("3", "Refuerzo de borde: 2 barras de 1/2\" por lado, L = 1.40 m (8 barras, 11.1 kg); las transversales con ganchos de %.2f m dentro de los muros" % GANCHO),
-        ("4", "Contramarco angulo %s: asiento de la tapa a 0.08 bajo el piso (2.80 m, %.1f kg)" % (CM_TXT, 2.80 * CM_KGM)),
-        ("5", "Anclajes de 3/8\" L = 0.20 m soldados al contramarco (8 und): en los lados largos bajan dentro del muro" if MURO_APOYO else "Anclajes de 3/8\" L = 0.20 m soldados al contramarco e inclinados hacia la losa (8 und)"),
-        ("6", "Parrilla de la tapa: 7 + 7 barras de 3/8\" @ 0.10 m, L = 0.62 m, recubrimiento 2.5 cm (4.9 kg)"),
-        ("7", "Asas: 2 barras de 3/8\" liso de 0.40 m, embutidas en bolsillo (no sobresalen del piso)"),
-        ("8", "Tapa de concreto f'c=210: 0.68 x 0.68 x 0.08 m (0.037 m3)"),
-        ("9", "Marco de tapa angulo L 1 1/2\" x 1 1/2\" x 1/8\", 0.68 x 0.68 exterior (2.72 m, 5.0 kg)"),
-        ("10", "Muros del colector e = 0.15 m (ancho interior %.2f m)" % (2 * BI))]
+        ("4", "Parrilla de la tapa: 7 + 7 barras de 3/8\" @ 0.10 m, L = 0.62 m, recubrimiento 2.5 cm (4.9 kg)"),
+        ("5", "Asas: 2 barras de fierro liso 1/2\" de 0.50 m, agarre en cajuela 0.19 x 0.06 x 0.03 (no sobresalen del piso)"),
+        ("6", "Tapa CIEGA de concreto armado f'c=210: 0.68 x 0.68 x 0.08 m (0.037 m3), vaciada aparte en obra, sin marco metalico"),
+        ("7", "Muros del colector e = %.2f m (ancho interior %.2f m)" % (BW, 2 * BI))]
 
 
 def datos():
-    ala = CM_TXT.split(" x ")[0][2:]
-    pint = 2.80 * (0.152 if "1/2" in ala else 0.203) + 2.72 * 0.152
-    return ["Holgura entre marco y contramarco: (0.70 - 0.68) / 2 = 1 cm por lado",
-            "La tapa asienta sobre el ala del contramarco (%s = %.1f cm por lado)" % (ala, CM_L * 100),
-            "Luz libre entre alas del contramarco: %.2f x %.2f m" % (2 * LUZ, 2 * LUZ),
-            "Peso de la tapa: 0.037 m3 x 2,400 kg/m3 + marco 5.0 kg = 94 kg aprox.",
+    return ["Holgura entre tapa y rebaje: (0.70 - 0.68) / 2 = 1 cm por lado",
+            "La tapa asienta en el rebaje de concreto: 0.05 m por lado",
+            "Luz libre del registro bajo el rebaje: 0.60 x 0.60 m",
+            "Peso de la tapa: 0.037 m3 x 2,400 kg/m3 = 89 kg aprox.",
             "Se levanta entre 2 operarios con ganchos en las 2 asas",
             "Tapa a ras del piso terminado: no hay resaltes ni tropiezos",
-            "Angulos con pintura anticorrosiva y esmalte (%.2f m2 por registro)" % pint,
+            "Sin marco ni contramarco metalico: no lleva soldadura ni pintura",
             "Registros fuera de los cruces vehiculares (carga peatonal): %d und" % N_REG]
 
 
@@ -274,14 +266,14 @@ def lamina(doc, ox, oy):
         if nm not in doc.layers:
             ly = doc.layers.add(nm, color=c, linetype=lt); ly.dxf.lineweight = lw
     B.COLOR_RGB.update({"LLAMADAS-NUM": NAR, "PANEL": AZ})
-    lam = B.Lamina(doc, ox, oy, 10, "DP-06D", "REGISTRO DE LIMPIEZA CON TAPA 0.68 x 0.68 C/MARCO Y CONTRAMARCO - COMPONENTES",
-                   "ISOMETRICOS: REGISTRO ARMADO, DESPIECE, CORTE Y ARMADO DE LA TAPA - CONTRAMARCO %s - ESC. INDICADAS" % CM_TXT.replace(" ", ""),
+    lam = B.Lamina(doc, ox, oy, 10, "DP-06D", "REGISTRO DE LIMPIEZA CON TAPA CIEGA DE CONCRETO ARMADO 0.68 x 0.68 x 0.08 - COMPONENTES",
+                   "ISOMETRICOS: REGISTRO ARMADO, DESPIECE, CORTE Y ARMADO DE LA TAPA - SIN MARCO METALICO - ESC. INDICADAS",
                    escala_txt="INDICADA")
     for nm, rgb in (("LLAMADAS-NUM", NAR), ("PANEL", AZ), ("TITULOS-BLANCO", (255, 255, 255))):
         doc.layers.get(nm).rgb = rgb
     solido2d(lam, [lam.P(27, 566), lam.P(829, 566), lam.P(829, 582), lam.P(27, 582)], AZ)
-    lam.texto(lam.P(31, 577), "REGISTRO DE LIMPIEZA CON TAPA 0.68 x 0.68 C/MARCO Y CONTRAMARCO - COMPONENTES", 5.0, "TITULOS-BLANCO", TA.MIDDLE_LEFT)
-    lam.texto(lam.P(31, 569.5), "Colector pluvial frontal - %s - contramarco %s - complementa la lamina DP-06B" % (PROY_TXT, CM_TXT),
+    lam.texto(lam.P(31, 577), "REGISTRO DE LIMPIEZA CON TAPA CIEGA DE CONCRETO ARMADO 0.68 x 0.68 x 0.08 - COMPONENTES", 5.0, "TITULOS-BLANCO", TA.MIDDLE_LEFT)
+    lam.texto(lam.P(31, 569.5), "Colector pluvial frontal - %s - tapa en rebaje de concreto, sin marco ni contramarco - complementa la lamina DP-06B" % PROY_TXT,
               2.4, "TITULOS-BLANCO", TA.MIDDLE_LEFT)
     P = modelo()
     for nv in (1, 2, 3, 4): vista(lam, P, nv)

@@ -1,4 +1,4 @@
-"""Laminas de detalle constructivo por partida (DD-01 a DD-04): registros (contramarco, marco, tapa),
+"""Laminas de detalle constructivo por partida (DD-01 a DD-04): registros (rebaje de asiento y tapa ciega),
 juntas (dilatacion y tecnopor) y empalme de cuneta. Cada lamina lleva despiece, dimensiones, procedimiento
 y un cuadro de componentes por unidad para el analisis de costos unitarios.
 
@@ -81,227 +81,218 @@ def f2(v): return "%.2f" % v
 def f3(v): return "%.3f" % v
 
 
-# ============================================================================= DD-01 contramarco
+# ============================================================================= DD-01 rebaje de asiento (tapa ciega)
+REB, LUZ_L = 0.70, 0.60                       # rebaje 0.70 x 0.70 x 0.08 y luz libre 0.60 x 0.60 (lamina DP-06B rev. 02)
+ASA_C = dict(agarre=0.15, pata=0.02, gancho=0.15)    # asa de fierro liso 1/2": desarrollo 0.49 (se toma 0.50)
+CAJ_C = dict(largo=0.19, ancho=0.06, prof=0.03)      # cajuela del asa
+YA_C = 0.20                                    # eje de las asas
+
+
 def dd01(doc, ox, oy, R, T):
-    lam = B.Lamina(doc, ox, oy, 10, "DD-01", "DETALLE CONSTRUCTIVO: CONTRAMARCO METALICO %s CON ANCLAJES" % CMT,
-                   "PARTIDA 01.04.04.05.01 TAPA DE REGISTRO 0.68x0.68 C/MARCO Y CONTRAMARCO (CONTRAMARCO) - %s - ESC. INDICADAS" % SUB_N_REG)
+    lam = B.Lamina(doc, ox, oy, 10, "DD-01", "DETALLE CONSTRUCTIVO: REBAJE DE ASIENTO DE LA TAPA CIEGA Y REFUERZO DE BORDE DEL REGISTRO",
+                   "PARTIDA 01.04.04.05.01 TAPA CIEGA 0.68x0.68x0.08 (ASIENTO EN LA LOSA) - %s - ESC. INDICADAS" % SUB_N_REG)
     lam.juntar_llamadas()
-    leg, t = L2
-    # ---------------- A. planta del contramarco (1/5)
+    a, u = REB / 2, LUZ_L / 2
+    MURO = D["b"] <= LUZ_L + 1e-6        # colector tan angosto como la luz (CAR Varones): los muros son el asiento en los lados largos
+    bi, xe = D["b"] / 2, D["b"] / 2 + D["e_muro"]
+    # ---------------- A. planta del rebaje (1/5)
     k = 2.0; ox_, oy_ = lam.P(150, 430)
     P = lambda x, y: (ox_ + x * k, oy_ + y * k)
-    a = AB / 2; s_ = 0.55
-    MURO = D["b"] < AB                  # colector mas angosto que la abertura (CAR Varones): los muros (eje vertical en la planta) son el asiento
-    bi, xe = D["b"] / 2, D["b"] / 2 + D["e_muro"]; sx_ = xe if MURO else s_
-    lam.rect(*P(-sx_, -s_), *P(sx_, s_), "CONCRETO")                                 # losa alrededor
+    s_ = 0.55; sx_ = xe if MURO else s_
+    lam.rect(*P(-sx_, -s_), *P(sx_, s_), "CONCRETO")
     if MURO:
         for s in (-1, 1):
-            lam.linea(P(s * bi, -s_), P(s * bi, s_), "CONCRETO-OCULTO")              # caras interiores de los muros
-            lam.rect(*P(-bi, s * a), *P(bi, s * (a + 0.10)), "CONCRETO-OCULTO")      # borde engrosado solo entre muros
+            lam.linea(P(s * bi, -s_), P(s * bi, s_), "CONCRETO-OCULTO")
+            lam.rect(*P(-bi, s * u), *P(bi, s * 0.45), "CONCRETO-OCULTO")
     else:
-        lam.rect(*P(-a - 0.10, -a - 0.10), *P(a + 0.10, a + 0.10), "CONCRETO-OCULTO")    # borde engrosado (oculto)
+        xs = min(0.45, bi)
+        lam.rect(*P(-xs, -0.45), *P(xs, 0.45), "CONCRETO-OCULTO")
+    lam.rect(*P(-a, -a), *P(a, a), "CONCRETO", const_width=0.004)
+    lam.rect(*P(-a + 0.01, -a + 0.01), *P(a - 0.01, a - 0.01), "CONCRETO")          # chaflan
+    lam.rect(*P(-u, -u), *P(u, u), "REGISTRO", const_width=0.004)
+    asiento = [P(-a, -a), P(a, -a), P(a, a), P(-a, a)]
     for s in (-1, 1):
-        lam.rect(*P(s * a, -a), *P(s * (a + t), a), "MARCO-METALICO"); lam.rect(*P(-a, s * a), *P(a, s * (a + t)), "MARCO-METALICO")
-    lam.rect(*P(-a, -a), *P(a, a), "MARCO-METALICO", const_width=0.004)
-    lam.rect(*P(-a + leg, -a + leg), *P(a - leg, a - leg), "MARCO-METALICO", const_width=0.004)
-    for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
-        lam.linea(P(sx * (a + t), sy * (a + t)), P(sx * (a - leg), sy * (a - leg)), "MARCO-METALICO")
-    for s in (-1, 1):
-        for u in (-0.175, 0.175):
-            barra(lam, P(s * (a + t), u), P(s * (a + t + (0.05 if MURO else 0.20)), u), D38, k); barra(lam, P(u, s * (a + t)), P(u, s * (a + t + 0.20)), D38, k)
-    for s in (-1, 1):
-        for d in (a + 0.04, a + 0.075):
+        for d in (0.40,):
             lam.linea(P(s * d, -s_), P(s * d, s_), "ACERO-LONG"); lam.linea(P(-(xe - 0.04 if MURO else s_), s * d), P(xe - 0.04 if MURO else s_, s * d), "ACERO-LONG")
-    lam.cota(P(-a + leg, -s_), P(a - leg, -s_), -4, texto="%.2f (luz libre entre alas)" % MC.LUZ_REG)
-    lam.cota(P(-a, -s_), P(a, -s_), -9, texto="0.70 (luz entre caras de concreto)")
+    lam.cota(P(-u, -s_), P(u, -s_), -4, texto="0.60 (luz libre)")
+    lam.cota(P(-a, -s_), P(a, -s_), -9, texto="0.70 (rebaje)")
     if MURO: lam.cota(P(-bi, -s_), P(bi, -s_), -14, texto="%.2f (interior del colector)" % D["b"])
-    else: lam.cota(P(-a - 0.10, -s_), P(a + 0.10, -s_), -14, texto="0.90 (borde engrosado)")
-    lam.cota(P(s_, -0.175), P(s_, 0.175), 5, horizontal=False, texto="0.35")
-    lam.cota(P(s_, 0.175), P(s_, a + t), 5, horizontal=False, texto="0.175"); lam.cota(P(s_, -a - t), P(s_, -0.175), 5, horizontal=False, texto="0.175")
+    else: lam.cota(P(-0.45, -s_), P(0.45, -s_), -14, texto="0.90 (borde engrosado)")
+    lam.cota(P(s_ if not MURO else xe, u), P(s_ if not MURO else xe, a), 5, horizontal=False, texto="0.05")
     xt = 290
-    LL(lam, P(a + t / 2, 0.30), xt, 540, ["ala vertical del angulo %s pegada a la cara de la abertura" % CMT])
-    LL(lam, P(a - leg / 2, 0.10), xt, 515, ["ala horizontal hacia adentro: asiento de la tapa (%s = %.1f mm)" % (MC.CM["ala_txt"], MC.CM["ala_mm"])])
-    LL(lam, P(0.175 + 0.03, a + 0.12), xt, 490, ["anclaje 3/8\" L = 0.20 soldado al ala vertical, 2 por lado (8 por registro)" + ("; en los muros baja dentro del muro" if MURO else "")])
-    LL(lam, P(a + 0.04, -0.40), xt, 465, ["refuerzo de borde: 2 barras 1/2\" por lado, L = 1.40 (DP-06B)" + ("; las transversales con ganchos dentro de los muros" if MURO else "")])
+    LL(lam, P(a - 0.03, 0.30), xt, 540, ["rebaje 0.70 x 0.70 x 0.08 formado en la losa (asiento de la tapa ciega)"])
+    LL(lam, P(0.0, (a + u) / 2), xt, 515, ["asiento de concreto plano y nivelado: 0.05 por lado, a 0.08 bajo el NPT"])
+    LL(lam, P(-0.20, 0.0), xt, 490, ["luz libre 0.60 x 0.60 (acceso al colector)"])
+    LL(lam, P(0.40, -0.48), xt, 465, ["refuerzo de borde: 2 barras 1/2\" por lado, L = 1.40" + ("; las transversales con ganchos dentro de los muros" if MURO else "")])
     if MURO:
-        LL(lam, P(0.24, -a - 0.07), xt, 440, ["borde engrosado 0.15 x 0.10 solo entre muros (2 lados); en la partida de concreto del colector"])
-        LL(lam, P(xe - 0.03, 0.45), xt, 415, ["muro del colector e = %.2f: asiento del contramarco en los lados largos" % D["e_muro"]])
+        LL(lam, P(0.20, -0.40), xt, 440, ["borde engrosado 0.15 x 0.10 solo entre muros (2 lados); en la partida de concreto del colector"])
+        LL(lam, P(xe - 0.03, 0.45), xt, 415, ["muro del colector e = %.2f: en los lados largos el asiento queda sobre la cabeza del muro" % D["e_muro"]])
     else:
-        LL(lam, P(a + 0.10, -0.46), xt, 440, ["borde engrosado 0.15 x 0.10 bajo la losa (en la partida de concreto del colector)"])
-    LL(lam, P(a - leg / 2, -a + leg / 2), xt, 390 if MURO else 415, ["esquina a inglete de 45 soldada (4 por registro)"])
-    lam.titulo_vista(150, 290, "A. CONTRAMARCO - PLANTA", "ESC. 1/5 - " + TXT_REG_A, 150)
-    # ---------------- B. seccion del contramarco colocado (1/2)
+        LL(lam, P(0.42, -0.42), xt, 440, ["borde engrosado 0.15 x 0.10 bajo la losa (en la partida de concreto del colector)"])
+    LL(lam, P(-a + 0.005, a - 0.005), xt, 390 if MURO else 415, ["chaflan 1 x 1 cm en la arista superior del rebaje"])
+    lam.titulo_vista(150, 290, "A. REBAJE DE ASIENTO - PLANTA (sin tapa)", "ESC. 1/5 - " + TXT_REG_A, 150)
+    # ---------------- B. seccion del asiento (1/2)
     k = 5.0; ox_, oy_ = lam.P(560, 470)
     P = lambda x, y: (ox_ + x * k, oy_ + y * k)
-    conc = [P(0, 0), P(0.30, 0), P(0.30, -0.10), P(0.10, -0.10), P(0.10, -0.20), P(-leg, -0.20), P(-leg, -ET - t), P(-t, -ET - t), P(-t, -ET - leg), P(0, -ET - leg)]
+    conc = [P(0.01, 0), P(0.30, 0), P(0.30, -0.10), P(0.10, -0.10), P(0.10, -0.20), P(-0.05, -0.20), P(-0.05, -ET), P(0, -ET), P(0, -0.01)]
     hatch_conc(lam, conc, 0.8)
-    L_sec(lam, P(0, -ET), leg, t, k, dx=-1, dy=-1)                                     # angulo invertido
-    barra(lam, P(0, -0.115), P(0.18, -0.025), D38, k)                                  # anclaje inclinado hacia la losa
-    lam.solido([P(0, -0.107), P(0.012, -0.107), P(0.012, -0.123), P(0, -0.123)], "MARCO-METALICO")
-    punto_barra(lam, P(0.05, -0.16), D12, k); punto_barra(lam, P(0.085, -0.16), D12, k)
-    barra(lam, P(0.14, -0.05), P(0.30, -0.05), D38, k)
-    tapa = [P(-0.30, -ET), P(-HOLG, -ET), P(-HOLG, 0), P(-0.30, 0)]
+    tapa = [P(-0.30, -ET), P(-HOLG, -ET), P(-HOLG, -0.01), P(-HOLG - 0.01, 0), P(-0.30, 0)]
     lam.poli(tapa, "REGISTRO-TAPA", cerrada=True); lam.achurado(tapa, escala_mm=0.6)
-    L_sec(lam, P(-HOLG, -ET), L15[0], L15[1], k, dx=-1, dy=1)
-    lam.linea(P(0, -0.01), P(0.01, 0), "CONCRETO")
-    lam.poli([P(-0.30, 0), P(-HOLG, 0)], "TERRENO", ancho=0.002); lam.poli([P(0, 0), P(0.30, 0)], "TERRENO", ancho=0.002)
+    punto_barra(lam, P(0.05, -0.045), D12, k); punto_barra(lam, P(0.05, -0.155), D12, k)
+    barra(lam, P(0.14, -0.05), P(0.30, -0.05), D38, k)
+    lam.poli([P(-0.30, 0), P(-HOLG - 0.01, 0)], "TERRENO", ancho=0.002); lam.poli([P(0.01, 0), P(0.30, 0)], "TERRENO", ancho=0.002)
     lam.nivel(P(0.22, 0), D["NPT"], texto="NPT +%.2f" % D["NPT"])
-    lam.cota(P(-leg + t, -ET), P(t, -ET), -5, texto=MC.CM["ala_txt"])
-    lam.cota(P(0.30, -ET - leg), P(0.30, -ET), 5, horizontal=False, texto=MC.CM["ala_txt"]); lam.cota(P(0.30, -ET), P(0.30, 0), 5, horizontal=False, texto="0.08")
+    lam.cota(P(-0.05, -ET), P(0, -ET), -5, texto="0.05")
+    lam.cota(P(0.30, -ET), P(0.30, 0), 5, horizontal=False, texto="0.08"); lam.cota(P(0.30, -0.10), P(0.30, -ET), 5, horizontal=False, texto="0.02")
     lam.cota(P(0.30, -0.20), P(0.30, -0.10), 11, horizontal=False, texto="0.10"); lam.cota(P(0.30, -0.10), P(0.30, 0), 11, horizontal=False, texto="0.10")
-    lam.cota(P(0, -0.20), P(0.18, -0.20), -6, texto="0.18 (anclaje en proyeccion)"); lam.cota(P(-HOLG, 0), P(0, 0), 5, texto="1 cm")
+    lam.cota(P(-HOLG, 0), P(0, 0), 5, texto="1 cm")
     xt = 735
-    LL(lam, P(-leg / 2, -ET - t / 2), xt, 560, ["ala horizontal: asiento de la tapa,", "a 0.08 bajo el NPT"])
-    LL(lam, P(-t / 2, -ET - leg / 2), xt, 540, ["ala vertical embutida, cara exterior", "al ras de la abertura"])
-    LL(lam, P(0.09, -0.07), xt, 520, ["anclaje 3/8\" L = 0.20 inclinado hacia la losa;", "cordon %s x 25 mm a ambos lados" % CORDON])
-    LL(lam, P(0.0675, -0.16), xt, 500, ["refuerzo de borde 2 x 1/2\" (DP-06B)"])
-    LL(lam, P(0.22, -0.05), xt, 480, ["marcos del colector 3/8\" (DP-04)"])
-    LL(lam, P(0.005, -0.005), xt, 460, ["chaflan 1 x 1 cm en la arista", "de la abertura"])
-    LL(lam, P(-0.15, -ET / 2), xt, 440, ["tapa 0.68 x 0.08 con su marco (DD-02),", "holgura 1 cm por lado"])
-    lam.titulo_vista(560, 325, "B. SECCION DEL CONTRAMARCO COLOCADO" + (" (LADO TRANSVERSAL)" if D["b"] < AB else ""),
-                     "ESC. 1/2 - angulo con el ala vertical hacia abajo; la tapa queda al ras del NPT" + ("; en los muros: corte A-A de la DP-06B" if D["b"] < AB else ""), 190)
-    # ---------------- C. despiece (1/5)
-    k = 2.0; ox_, oy_ = lam.P(60, 245)
+    LL(lam, P(-0.025, -ET), xt, 560, ["asiento de concreto: 0.05 por lado,", "a 0.08 bajo el NPT"])
+    LL(lam, P(0.0, -0.04), xt, 540, ["cara del rebaje 0.70 (vertical, lisa)"])
+    LL(lam, P(0.05, -0.155), xt, 520, ["refuerzo de borde 2 x 1/2\" (DP-06B)"])
+    LL(lam, P(0.22, -0.05), xt, 500, ["marcos del colector 3/8\" (DP-04)"])
+    LL(lam, P(0.005, -0.005), xt, 480, ["chaflan 1 x 1 cm en la arista", "del rebaje"])
+    LL(lam, P(0.05, -0.17), xt, 460, ["borde engrosado 0.15 x 0.10"])
+    LL(lam, P(-0.15, -ET / 2), xt, 440, ["tapa ciega 0.68 x 0.08 (DD-02),", "holgura 1 cm por lado"])
+    lam.titulo_vista(560, 325, "B. SECCION DEL ASIENTO DE LA TAPA", "ESC. 1/2 - la tapa queda al ras del NPT; sin marco ni contramarco metalico", 190)
+    # ---------------- C. cajon de madera para formar el rebaje y la luz (1/5)
+    k = 2.0; ox_, oy_ = lam.P(150, 225)
     P = lambda x, y: (ox_ + x * k, oy_ + y * k)
-    for i in range(4):
-        y = -i * 0.10
-        pts = [P(0, y), P(AB + 2 * t, y), P(AB + 2 * t - leg - t, y - leg), P(leg + t, y - leg)]
-        lam.poli(pts, "MARCO-METALICO", cerrada=True); lam.relleno(pts, "MARCO-METALICO")
-        lam.texto(P(AB + 2 * t + 0.05, y - leg / 2), "P%d: angulo %s x %.2f (ingletes 45)" % (i + 1, CMT, AB + 2 * t), 1.8, "TEXTOS", TA.MIDDLE_LEFT)
-    lam.cota(P(0, 0), P(AB + 2 * t, 0), 5, texto="%.2f" % (AB + 2 * t))
-    lam.cota(P(0, -0.30 - leg), P(leg + t, -0.30 - leg), -5, texto="0.055" if MC.CM["clave"] == "2x2x3/16" else "%.3f" % (leg + t))
-    y0 = -0.47
-    for i in range(8):
-        x = 0.05 + i * 0.12
-        barra(lam, P(x, y0), P(x, y0 - 0.20), D38, k); lam.texto(P(x, y0 - 0.23), "A%d" % (i + 1), 1.6, "TEXTOS", TA.MIDDLE_CENTER)
-    lam.texto(P(1.05, y0 - 0.10), "A1 a A8: anclajes 3/8\" corrugado L = 0.20 (8 por registro)", 1.8, "TEXTOS", TA.MIDDLE_LEFT)
-    lam.cota(P(0.05, y0 - 0.20), P(0.05, y0), -6, horizontal=False, texto="0.20")
-    lam.titulo_vista(150, 85, "C. DESPIECE DEL CONTRAMARCO", "ESC. 1/5 - 4 angulos + 8 anclajes por registro", 150)
+    e1 = 0.019                                         # tabla de 3/4"
+    for x0_, x1_, z0_, z1_ in ((-a, a, -ET, 0), (-u, u, -0.20, -ET)):
+        for pts in ([P(x0_, z0_), P(x0_ + e1, z0_), P(x0_ + e1, z1_), P(x0_, z1_)], [P(x1_ - e1, z0_), P(x1_, z0_), P(x1_, z1_), P(x1_ - e1, z1_)]):
+            lam.poli(pts, "RELLENO", cerrada=True); lam.relleno(pts, "RELLENO")
+    for pts in ([P(-a, 0), P(-a + 0.01, 0), P(-a, -0.01)], [P(a, 0), P(a - 0.01, 0), P(a, -0.01)]):
+        lam.poli(pts, "RELLENO", cerrada=True)
+    lam.rect(*P(-a + e1, -ET + 0.005), *P(a - e1, -ET + 0.005 + e1), "RELLENO")
+    lam.linea(P(-0.65, -0.20), P(0.65, -0.20), "CONCRETO-OCULTO"); lam.texto(P(0.66, -0.20), "fondo del encofrado de la losa", 1.6, "TEXTOS", TA.MIDDLE_LEFT)
+    lam.linea(P(-0.65, 0), P(0.65, 0), "TERRENO"); lam.texto(P(0.66, 0), "NPT", 1.6, "TEXTOS", TA.MIDDLE_LEFT)
+    lam.cota(P(-a, 0), P(a, 0), 6, texto="0.70"); lam.cota(P(-u, -0.20), P(u, -0.20), -6, texto="0.60")
+    lam.cota(P(-a, -ET), P(-a, 0), -6, horizontal=False, texto="0.08"); lam.cota(P(-u, -0.20), P(-u, -ET), -6, horizontal=False, texto="0.12")
+    lam.texto(P(0, -0.10), "cajon inferior 0.60 x 0.60 x 0.12", 1.6, "TEXTOS", TA.MIDDLE_CENTER)
+    lam.texto(P(0, -0.035), "cajon superior 0.70 x 0.70 x 0.08", 1.6, "TEXTOS", TA.MIDDLE_CENTER)
+    lam.titulo_vista(150, 160, "C. CAJON DE MADERA PARA EL REBAJE Y LA LUZ", "ESC. 1/5 - tablas de 3/4\" con desmoldante; reutilizable", 150)
     # ---------------- procedimiento, cuadro y leyenda
     lam.notas(330, 255, "PROCEDIMIENTO", [
-        "1. Cortar 4 piezas de angulo %s de %.2f m con los extremos a inglete de 45 y armar el cuadro de 0.70 x 0.70 (medida exterior de las alas verticales)." % (CMT, AB + 2 * t),
-        "2. Soldar las 4 esquinas con electrodo E6011 de 1/8\" (cordon %s por ambas caras); verificar escuadra (diagonales iguales) y planitud." % CORDON,
-        "3. Soldar 8 anclajes 3/8\" L = 0.20 a la cara exterior del ala vertical (2 por lado, a 0.175 de las esquinas), inclinados hacia la losa" + ("; en los lados de los muros, hacia abajo dentro del muro" if D["b"] < AB else "") + "; cordon %s x 25 mm a ambos lados." % CORDON,
-        "4. Limpiar escoria; 2 manos de anticorrosivo epoxico y 2 de esmalte sintetico (incluida en la partida 01.04.04.05.01), salvo en la zona de los anclajes.",
-        "5. Fijar el contramarco al encofrado de la losa con el asiento a 0.08 bajo el NPT, nivelado y amarrado al refuerzo de borde; vaciar la losa con el borde engrosado.",
-        "6. Al desencofrar, retirar rebabas; la tapa con su marco debe asentar en las 4 alas con holgura de 1 cm por lado."], 1.8)
+        "1. Habilitar el refuerzo de borde: 2 barras de 1/2\" por lado, L = 1.40" + (" (las transversales con ganchos dentro de los muros)" if MURO else "") + ", amarradas a los marcos del colector.",
+        "2. Armar el cajon de madera de dos niveles: inferior 0.60 x 0.60 x 0.12 (luz libre y borde engrosado) y superior 0.70 x 0.70 x 0.08 (rebaje), con tira de chaflan 1 x 1 cm.",
+        "3. Aplicar desmoldante y fijar el cajon al encofrado de la losa, a plomo y nivelado, con la cara superior del cajon superior al nivel del NPT.",
+        "4. Vaciar la losa y el borde engrosado con concreto f'c = 210 kg/cm2; vibrar alrededor del cajon y frotachar el asiento plano y nivelado (0.05 por lado).",
+        "5. Retirar el cajon a las 24 h y curar 7 dias. Verificar el rebaje (0.70 x 0.70, tolerancia +/- 5 mm) y el nivel del asiento antes de colocar la tapa ciega (DD-02).",
+        "6. No hay marco ni contramarco metalico: no se suelda ni se pinta; la tapa se apoya directamente en el concreto del asiento."], 1.8)
     n = MC.registros()["n"]
-    L_ang = 4 * (AB + 2 * t); kg_ang = L_ang * MC.CM["kgm"]; L_anc = 8 * 0.20; kg_anc = L_anc * MC.PESO["3/8"]; L_cord = 4 * 2 * leg + 8 * 2 * 0.025
-    filas = [["Angulo %s (4 piezas de %.2f m, %.2f kg/m)" % (CMT, AB + 2 * t, MC.CM["kgm"]), "m / kg", "%.2f / %.2f" % (L_ang, kg_ang), "%.2f / %.2f" % (n * L_ang, n * kg_ang), "01.04.04.05.01 (desagregado: angulos)"],
-             ["Anclajes 3/8\" corrugado L = 0.20 (8 und, 0.56 kg/m)", "m / kg", "%.2f / %.2f" % (L_anc, kg_anc), "%.2f / %.2f" % (n * L_anc, n * kg_anc), "01.04.04.05.01 (desagregado: acero)"],
-             ["Cordon de soldadura %s (4 esquinas x 2 caras + 8 anclajes x 2 lados)" % CORDON, "m", f2(L_cord), f2(n * L_cord), "electrodo E6011 1/8\": aprox. 0.12 kg por registro"],
-             ["Refuerzo de borde de la abertura 2 x 1/2\" por lado, L = 1.40 (8 barras)", "m / kg", "%.2f / %.2f" % (11.2, 11.2 * MC.PESO["1/2"]), "%.2f / %.2f" % (n * 11.2, n * 11.2 * MC.PESO["1/2"]), "01.04.04.05.01 (desagregado: acero; DP-06B)"],
-             [("Borde engrosado 0.15 x 0.10, perimetro %.2f m (2 lados, entre muros)" if D["b"] < AB else "Borde engrosado 0.15 x 0.10, perimetro medio %.2f m") % MC.BORDE_PERIM, "m3", f3(MC.BORDE_PERIM * 0.015), f2(n * MC.BORDE_PERIM * 0.015), "01.04.04.04.01 CONCRETO PARA COLECTOR (ya incluido)"],
-             ["Pintura anticorrosiva + esmalte (desarrollo %.3f m2/m x 2.80 m)" % MC.CM["des"], "m2", f2(2.80 * MC.CM["des"]), f2(n * 2.80 * MC.CM["des"]), "01.04.04.05.01 (desagregado: pintura)"],
-             ["Mano de obra de habilitacion, soldadura y colocacion", "und", "1", "%d" % n, "01.04.04.05.01 TAPA DE REGISTRO (und)"]]
-    cuadro(lam, 330, 200, "CUADRO DE COMPONENTES POR CONTRAMARCO (1 und) Y TOTAL (%d und)" % MC.registros()["n"], filas)
-    lam.leyenda2(560, 150, [("relleno", "MARCO-METALICO", "angulo metalico"), ("linea2", "ACERO", "anclaje 3/8\""), ("linea2", "ACERO-LONG", "refuerzo de borde 1/2\" (proyeccion)"), ("concreto", "CONCRETO", "concreto f'c=210"), ("rect", "REGISTRO-TAPA", "tapa (referencia, ver DD-02)")], 1.8)
+    v_eng = MC.BORDE_PERIM * 0.015; a_caj = 4 * REB * ET + 4 * LUZ_L * 0.12
+    filas = [["Refuerzo de borde 2 x 1/2\" por lado, L = 1.40 (8 barras)", "m / kg", "%.2f / %.2f" % (11.2, 11.2 * MC.PESO["1/2"]), "%.2f / %.2f" % (n * 11.2, n * 11.2 * MC.PESO["1/2"]), "01.04.04.05.01 (desagregado: acero; DP-06B)"],
+             [("Borde engrosado 0.15 x 0.10, perimetro %.2f m (2 lados, entre muros)" if MURO else "Borde engrosado 0.15 x 0.10, perimetro medio %.2f m") % MC.BORDE_PERIM, "m3", f3(v_eng), f2(n * v_eng), "01.04.04.04.01 CONCRETO PARA COLECTOR (ya incluido)"],
+             ["Asiento: losa entre 0.60 y 0.70 en los 0.02 inferiores", "m3", f3((REB ** 2 - LUZ_L ** 2) * 0.02), f3(n * (REB ** 2 - LUZ_L ** 2) * 0.02), "01.04.04.04.01 CONCRETO PARA COLECTOR (ya incluido)"],
+             ["Cajon de madera de 2 niveles (caras 4 x 0.70 x 0.08 + 4 x 0.60 x 0.12)", "m2", f3(a_caj), f3(a_caj), "1 cajon reutilizable (encofrado del colector)"],
+             ["Colocacion de la tapa en el rebaje", "und", "1", "%d" % n, "01.04.04.05.01 TAPA DE REGISTRO (und)"]]
+    cuadro(lam, 330, 200, "CUADRO DE COMPONENTES DEL ASIENTO POR REGISTRO (1 und) Y TOTAL (%d und)" % n, filas)
+    lam.leyenda2(560, 150, [("linea2", "ACERO-LONG", "refuerzo de borde 1/2\" (proyeccion)"), ("concreto", "CONCRETO", "concreto f'c=210 de la losa"),
+                            ("relleno", "RELLENO", "cajon de madera (encofrado)"), ("rect", "REGISTRO-TAPA", "tapa ciega (referencia, ver DD-02)")], 1.8)
     lam.volcar_llamadas()
     return lam
 
 
-# ============================================================================= DD-02 marco y tapa
+# ============================================================================= DD-02 tapa ciega
 def dd02(doc, ox, oy, R, T):
-    lam = B.Lamina(doc, ox, oy, 10, "DD-02", "DETALLE CONSTRUCTIVO: MARCO METALICO L 1 1/2\"x1 1/2\"x1/8\" Y TAPA DE CONCRETO ARMADO 0.68 x 0.68 x 0.08",
-                   "PARTIDA 01.04.04.05.01 TAPA DE REGISTRO 0.68x0.68 C/MARCO Y CONTRAMARCO (TAPA Y MARCO) - %s - ESC. INDICADAS" % SUB_N_TAPAS)
+    lam = B.Lamina(doc, ox, oy, 10, "DD-02", "DETALLE CONSTRUCTIVO: TAPA CIEGA DE CONCRETO ARMADO 0.68 x 0.68 x 0.08 - FABRICACION EN OBRA Y COLOCACION",
+                   "PARTIDA 01.04.04.05.01 TAPA CIEGA 0.68x0.68x0.08 SIN MARCO METALICO - %s - ESC. INDICADAS" % SUB_N_TAPAS)
     lam.juntar_llamadas()
-    leg, t = L15; a = TAPA / 2
+    a = TAPA / 2; w = ASA_C["agarre"] / 2; g = ASA_C["gancho"]; pt = ASA_C["pata"]
     # ---------------- A. planta de la tapa (1/5)
     k = 2.0; ox_, oy_ = lam.P(150, 430)
     P = lambda x, y: (ox_ + x * k, oy_ + y * k)
     lam.rect(*P(-a, -a), *P(a, a), "REGISTRO-TAPA", const_width=0.004)
-    lam.rect(*P(-a + leg, -a + leg), *P(a - leg, a - leg), "MARCO-METALICO")
-    for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1)): lam.linea(P(sx * a, sy * a), P(sx * (a - leg), sy * (a - leg)), "MARCO-METALICO")
+    lam.rect(*P(-a + 0.01, -a + 0.01), *P(a - 0.01, a - 0.01), "REGISTRO-TAPA")
     for i in range(7):
         d = -0.30 + i * 0.10
         barra(lam, P(-0.31, d), P(0.31, d), D38, k); barra(lam, P(d, -0.31), P(d, 0.31), D38, k, "ACERO-LONG")
-    for xa in (-0.15, 0.15):
-        lam.rect(*P(xa - CAJ["largo"] / 2, -CAJ["ancho"] / 2), *P(xa + CAJ["largo"] / 2, CAJ["ancho"] / 2), "CONCRETO-OCULTO")
-        barra(lam, P(xa - ASA["ancho"] / 2, 0), P(xa + ASA["ancho"] / 2, 0), D38, k, "MARCO-METALICO")
-        barra(lam, P(xa - ASA["ancho"] / 2 - ASA["gancho"], 0.012), P(xa - ASA["ancho"] / 2, 0.012), D38, k, "CONCRETO-OCULTO")
-        barra(lam, P(xa + ASA["ancho"] / 2, 0.012), P(xa + ASA["ancho"] / 2 + ASA["gancho"], 0.012), D38, k, "CONCRETO-OCULTO")
+    for ya in (-YA_C, YA_C):
+        lam.rect(*P(-CAJ_C["largo"] / 2, ya - CAJ_C["ancho"] / 2), *P(CAJ_C["largo"] / 2, ya + CAJ_C["ancho"] / 2), "CONCRETO-OCULTO")
+        barra(lam, P(-w, ya), P(w, ya), D12, k, "MARCO-METALICO")
+        barra(lam, P(-w - g, ya + 0.012), P(-w, ya + 0.012), D12, k, "CONCRETO-OCULTO"); barra(lam, P(w, ya + 0.012), P(w + g, ya + 0.012), D12, k, "CONCRETO-OCULTO")
     lam.cota(P(-a, -a), P(a, -a), -6, texto="0.68"); lam.cota(P(-0.31, -a), P(0.31, -a), -11, texto="0.62 (barras)")
-    lam.cota(P(a, -a), P(a, a), 6, horizontal=False, texto="0.68")
+    lam.cota(P(a, -a), P(a, a), 6, horizontal=False, texto="0.68"); lam.cota(P(a, 0), P(a, YA_C), 12, horizontal=False, texto="0.20")
     lam.cota(P(-0.30, a), P(-0.20, a), 5, texto="0.10"); lam.cota(P(-a, a), P(-0.30, a), 5, texto="0.04")
     xt = 265
-    LL(lam, P(a - leg / 2, 0.25), xt, 530, ["marco perimetral: angulo L 1 1/2\"x1 1/2\"x1/8\",", "ala horizontal bajo la tapa (proyeccion)"])
-    LL(lam, P(0.20, 0.20), xt, 500, ["parrilla 7 + 7 barras 3/8\" @0.10, L = 0.62; extremos", "soldados por puntos al ala vertical del marco"])
-    LL(lam, P(0.15 + 0.03, 0.0), xt, 470, ["asa en U de 3/8\" liso (2 und) en cajuela 0.18 x 0.06 x 0.03", "para que no sobresalga; ganchos amarrados a la parrilla"])
-    LL(lam, P(a - leg / 2, -a + leg / 2), xt, 440, ["esquina a inglete de 45 soldada"])
-    lam.titulo_vista(150, 335, "A. TAPA DE CONCRETO ARMADO - PLANTA (armado)", "ESC. 1/5 - " + TXT_REG_B, 150)
-    # ---------------- B. corte de la tapa (1/2)
+    LL(lam, P(a - 0.005, 0.25), xt, 530, ["cantos superiores biselados 1 x 1 cm", "(tapa ciega: sin marco metalico)"])
+    LL(lam, P(0.20, 0.08), xt, 500, ["parrilla 7 + 7 barras 3/8\" @0.10, L = 0.62,", "recubrimiento 2.5 cm"])
+    LL(lam, P(0.03, YA_C), xt, 470, ["asa de fierro liso 1/2\" (2 und) en cajuela 0.19 x 0.06 x 0.03,", "no sobresale; ganchos amarrados a la parrilla"])
+    lam.titulo_vista(150, 335, "A. TAPA CIEGA - PLANTA (armado)", "ESC. 1/5 - " + TXT_REG_B, 150)
+    # ---------------- B. corte de la tapa por el asa (1/2)
     k = 5.0; ox_, oy_ = lam.P(520, 490)
     P = lambda x, y: (ox_ + x * k, oy_ + y * k)
-    tapa = [P(-a, 0), P(a, 0), P(a, ET), P(-a, ET)]
+    cj = CAJ_C["largo"] / 2; pr = CAJ_C["prof"]
+    tapa = [P(-a, 0), P(a, 0), P(a, ET - 0.01), P(a - 0.01, ET), P(cj, ET), P(cj, ET - pr), P(-cj, ET - pr), P(-cj, ET), P(-a + 0.01, ET), P(-a, ET - 0.01)]
     lam.poli(tapa, "REGISTRO-TAPA", cerrada=True, ancho=0.003); lam.achurado(tapa, escala_mm=0.8)
-    L_sec(lam, P(-a, 0), leg, t, k, dx=1, dy=1); L_sec(lam, P(a, 0), leg, t, k, dx=-1, dy=1)
-    for i in range(7): punto_barra(lam, P(-0.30 + i * 0.10, 0.03), D38, k)
-    barra(lam, P(-0.31, 0.03 + D38), P(0.31, 0.03 + D38), D38, k, "ACERO-LONG")
-    xa = -0.15; yt = ET - CAJ["prof"] - 0.008
-    caj = [P(xa - CAJ["largo"] / 2, ET), P(xa + CAJ["largo"] / 2, ET), P(xa + CAJ["largo"] / 2, ET - CAJ["prof"]), P(xa - CAJ["largo"] / 2, ET - CAJ["prof"])]
-    lam.solido([caj[0], caj[1], caj[3], caj[2]], "ISO-TAPA"); lam.poli(caj, "REGISTRO-TAPA", cerrada=True)
-    w = ASA["ancho"] / 2
-    lam.poli([P(xa - w - ASA["gancho"], yt - ASA["pata"]), P(xa - w, yt - ASA["pata"]), P(xa - w, yt), P(xa + w, yt), P(xa + w, yt - ASA["pata"]), P(xa + w + ASA["gancho"], yt - ASA["pata"])], "MARCO-METALICO", ancho=D38 * k)
-    lam.cota(P(-a, 0), P(a, 0), -6, texto="0.68"); lam.cota(P(a, 0), P(a, ET), 8, horizontal=False, texto="0.08"); lam.cota(P(a, 0), P(a, 0.03), 4, horizontal=False, texto="0.03")
-    lam.cota(P(-a, 0), P(-a + leg, 0), -11, texto='1 1/2"'); lam.cota(P(xa - CAJ["largo"] / 2, ET), P(xa + CAJ["largo"] / 2, ET), 5, texto="0.18")
+    for i in range(7): punto_barra(lam, P(-0.30 + i * 0.10, 0.025 + D38 * 1.5), D38, k)
+    barra(lam, P(-0.31, 0.025), P(0.31, 0.025), D38, k, "ACERO-LONG")
+    za = ET - 0.015
+    lam.poli([P(-w - g, za - pt), P(-w, za - pt), P(-w, za), P(w, za), P(w, za - pt), P(w + g, za - pt)], "MARCO-METALICO", ancho=D12 * k)
+    lam.cota(P(-a, 0), P(a, 0), -6, texto="0.68"); lam.cota(P(a, 0), P(a, ET), 8, horizontal=False, texto="0.08"); lam.cota(P(a, 0), P(a, 0.025), 4, horizontal=False, texto="0.025")
+    lam.cota(P(-cj, ET), P(cj, ET), 5, texto="0.19"); lam.cota(P(-a, ET), P(-a + 0.01, ET), 5, texto="bisel 0.01")
     xt = 700
-    LL(lam, P(a - leg / 2, t / 2), xt, 560, ["marco L 1 1/2\"x1 1/2\"x1/8\": ala vertical al ras", "del canto, ala horizontal embutida en el fondo"])
-    LL(lam, P(0.20, 0.03), xt, 535, ["parrilla 3/8\" @0.10 ambos sentidos,", "recubrimiento inferior 0.03"])
-    LL(lam, P(xa + w + 0.05, yt - ASA["pata"]), xt, 510, ["asa 3/8\" liso: ancho 0.12, patas 0.025,", "ganchos de 0.115 bajo la parrilla (L = 0.40)"])
-    LL(lam, P(xa, ET - 0.015), xt, 485, ["cajuela 0.18 x 0.06 x 0.03 (molde de madera", "o tecnopor en el vaciado)"])
-    lam.titulo_vista(520, 445, "B. TAPA - CORTE", "ESC. 1/2", 120)
+    LL(lam, P(a - 0.004, ET - 0.004), xt, 560, ["canto biselado 1 x 1 cm"])
+    LL(lam, P(0.20, 0.025), xt, 540, ["parrilla 3/8\" @0.10 ambos sentidos,", "recubrimiento inferior 2.5 cm"])
+    LL(lam, P(w + 0.06, za - pt), xt, 515, ["asa 1/2\" liso: agarre 0.15, patas 0.02,", "ganchos de 0.15 sobre la parrilla (L = 0.50)"])
+    LL(lam, P(0.0, ET - 0.01), xt, 490, ["cajuela 0.19 x 0.06 x 0.03 (taco de madera", "o tecnopor en el vaciado)"])
+    lam.titulo_vista(520, 445, "B. TAPA CIEGA - CORTE POR EL ASA", "ESC. 1/2", 140)
     # ---------------- C. asa (1/2)
     k = 5.0; ox_, oy_ = lam.P(470, 395)
     P = lambda x, y: (ox_ + x * k, oy_ + y * k)
-    pts = [P(-w - ASA["gancho"], -ASA["pata"]), P(-w, -ASA["pata"]), P(-w, 0), P(w, 0), P(w, -ASA["pata"]), P(w + ASA["gancho"], -ASA["pata"])]
-    lam.poli(pts, "MARCO-METALICO", ancho=D38 * k)
-    lam.cota(P(-w, 0), P(w, 0), 6, texto="0.12"); lam.cota(P(w + ASA["gancho"], -ASA["pata"]), P(w + ASA["gancho"], 0), 6, horizontal=False, texto="0.025")
-    lam.cota(P(w, -ASA["pata"]), P(w + ASA["gancho"], -ASA["pata"]), -5, texto="0.115")
-    lam.texto(lam.P(470, 368), "asa 3/8\" liso: desarrollo L = 0.12 + 2 x 0.025 + 2 x 0.115 = 0.40 m; 2 por tapa", 1.8, "TEXTOS", TA.MIDDLE_CENTER)
+    pts = [P(-w - g, -pt), P(-w, -pt), P(-w, 0), P(w, 0), P(w, -pt), P(w + g, -pt)]
+    lam.poli(pts, "MARCO-METALICO", ancho=D12 * k)
+    lam.cota(P(-w, 0), P(w, 0), 6, texto="0.15"); lam.cota(P(w + g, -pt), P(w + g, 0), 6, horizontal=False, texto="0.02")
+    lam.cota(P(w, -pt), P(w + g, -pt), -5, texto="0.15")
+    lam.texto(lam.P(470, 368), "asa de fierro liso 1/2\": desarrollo 0.15 + 2 x 0.02 + 2 x 0.15 = 0.49 m (se toma 0.50); 2 por tapa", 1.8, "TEXTOS", TA.MIDDLE_CENTER)
     lam.titulo_vista(470, 355, "C. ASA DE IZAJE", "ESC. 1/2", 120)
-    # ---------------- D. secciones de los angulos (1/1)
-    k = 10.0; ox_, oy_ = lam.P(650, 385)
+    # ---------------- D. molde de fabricacion (1/5)
+    k = 2.0; ox_, oy_ = lam.P(690, 400)
     P = lambda x, y: (ox_ + x * k, oy_ + y * k)
-    L_sec(lam, P(0, 0), L2[0], L2[1], k); lam.cota(P(0, 0), P(L2[0], 0), -5, texto="%.1f mm" % MC.CM["ala_mm"]); lam.cota(P(L2[0], 0), P(L2[0], L2[1]), 5, horizontal=False, texto="%.1f mm" % MC.CM["esp_mm"])
-    lam.texto(P(0, L2[0] + 0.012), "%s (contramarco) %.2f kg/m" % (CMT, MC.CM["kgm"]), 1.7, "TEXTOS")
-    L_sec(lam, P(0.10, 0), L15[0], L15[1], k); lam.cota(P(0.10, 0), P(0.10 + L15[0], 0), -5, texto="38.1 mm"); lam.cota(P(0.10 + L15[0], 0), P(0.10 + L15[0], L15[1]), 5, horizontal=False, texto="3.2 mm")
-    lam.texto(P(0.10, L15[0] + 0.012), "L 1 1/2\"x1 1/2\"x1/8\" (marco) 1.83 kg/m", 1.7, "TEXTOS")
-    lam.titulo_vista(700, 355, "D. SECCIONES DE LOS ANGULOS", "ESC. 1/1", 100)
-    # ---------------- E. despiece del marco y la parrilla (1/5)
-    k = 2.0; ox_, oy_ = lam.P(60, 255)
+    e1 = 0.019
+    lam.rect(*P(-0.42, -0.025), *P(0.42, 0), "RELLENO"); lam.relleno([P(-0.42, -0.025), P(0.42, -0.025), P(0.42, 0), P(-0.42, 0)], "RELLENO")
+    for s in (-1, 1):
+        pts = [P(s * a, 0), P(s * (a + e1), 0), P(s * (a + e1), ET), P(s * a, ET)]
+        lam.poli(pts, "RELLENO", cerrada=True); lam.relleno(pts, "RELLENO")
+        lam.poli([P(s * a, ET), P(s * (a - 0.01), ET), P(s * a, ET - 0.01)], "RELLENO", cerrada=True)
+    lam.rect(*P(-a, 0), *P(a, ET), "REGISTRO-TAPA")
+    lam.rect(*P(-cj, ET - pr), *P(cj, ET), "RELLENO")
+    lam.cota(P(-a, ET), P(a, ET), 6, texto="0.68 (interior del molde)"); lam.cota(P(a + e1, 0), P(a + e1, ET), 5, horizontal=False, texto="0.08")
+    lam.texto(P(0, -0.06), "tablero de vaciado 0.80 x 0.80 (base nivelada)", 1.6, "TEXTOS", TA.MIDDLE_CENTER)
+    lam.titulo_vista(690, 355, "D. MOLDE DE FABRICACION", "ESC. 1/5 - madera con desmoldante", 120)
+    # ---------------- E. colocacion en el rebaje (1/5)
+    k = 2.0; ox_, oy_ = lam.P(150, 225)
     P = lambda x, y: (ox_ + x * k, oy_ + y * k)
-    for i in range(4):
-        y = -i * 0.08
-        pts = [P(0, y), P(TAPA, y), P(TAPA - leg, y - leg), P(leg, y - leg)]
-        lam.poli(pts, "MARCO-METALICO", cerrada=True); lam.relleno(pts, "MARCO-METALICO")
-        lam.texto(P(TAPA + 0.05, y - leg / 2), "M%d: angulo L 1 1/2\"x1 1/2\"x1/8\" x 0.68 (ingletes 45)" % (i + 1), 1.8, "TEXTOS", TA.MIDDLE_LEFT)
-    lam.cota(P(0, 0), P(TAPA, 0), 5, texto="0.68")
-    y0 = -0.40
-    for i in range(7): barra(lam, P(0.05 + i * 0.10, y0), P(0.05 + i * 0.10, y0 - 0.31), D38, k)
-    lam.texto(P(0.80, y0 - 0.15), "B1 a B14: 14 barras 3/8\" L = 0.62 (7 en cada sentido)", 1.8, "TEXTOS", TA.MIDDLE_LEFT)
-    lam.cota(P(0.05, y0 - 0.31), P(0.05, y0), -6, horizontal=False, texto="0.62")
-    lam.titulo_vista(150, 95, "E. DESPIECE DEL MARCO Y DE LA PARRILLA", "ESC. 1/5 (barras acortadas en el dibujo)", 150)
+    for s in (-1, 1):
+        hatch_conc(lam, [P(s * (REB / 2 + 0.01), 0), P(s * 0.55, 0), P(s * 0.55, -0.10), P(s * 0.45, -0.10), P(s * 0.45, -0.20), P(s * LUZ_L / 2, -0.20),
+                         P(s * LUZ_L / 2, -ET), P(s * REB / 2, -ET), P(s * REB / 2, -0.01)], 0.6)
+    tp = [P(-a, -ET), P(a, -ET), P(a, -0.01), P(a - 0.01, 0), P(-a + 0.01, 0), P(-a, -0.01)]
+    lam.poli(tp, "REGISTRO-TAPA", cerrada=True); lam.achurado(tp, escala_mm=0.6)
+    lam.cota(P(-REB / 2, 0), P(REB / 2, 0), 6, texto="0.70"); lam.cota(P(-LUZ_L / 2, -0.20), P(LUZ_L / 2, -0.20), -6, texto="0.60")
+    lam.cota(P(a, 0), P(REB / 2, 0), 12, texto="1 cm")
+    lam.texto(P(0, 0.13), "la tapa se baja con 2 ganchos en las asas y asienta en el rebaje, al ras del NPT", 1.6, "TEXTOS", TA.MIDDLE_CENTER)
+    lam.titulo_vista(150, 160, "E. COLOCACION DE LA TAPA EN EL REBAJE", "ESC. 1/5 - sin mortero ni sello (tapa removible)", 150)
     # ---------------- procedimiento, cuadro, leyenda
-    lam.notas(330, 300, "PROCEDIMIENTO DE FABRICACION", [
-        "1. Marco: 4 piezas de angulo L 1 1/2\"x1 1/2\"x1/8\" de 0.68 m a inglete 45, soldadas en las esquinas (E6011 1/8\"); medida exterior 0.68 x 0.68.",
-        "2. Parrilla: 7 + 7 barras 3/8\" de 0.62 m @0.10, amarradas con alambre N 16 y soldadas por puntos en sus extremos al ala vertical del marco (28 puntos).",
-        "3. Asas: 2 barras lisas 3/8\" en U (0.12 x 0.025, ganchos 0.115) amarradas bajo la parrilla; cajuela de 0.18 x 0.06 x 0.03 con molde para que no sobresalgan.",
-        "4. Vaciado en molde metalico o de madera sobre superficie plana, con el marco como encofrado lateral: concreto f'c = 210 kg/cm2, piedra de 1/2\", vibrado.",
-        "5. Curado humedo 7 dias; desmoldar a los 2 dias. Acabado superior frotachado. Pintar el marco con 2 manos de anticorrosivo y 2 de esmalte.",
-        "6. Colocar sobre el contramarco (DD-01): holgura 1 cm por lado; la tapa queda al ras del NPT. Marcar el numero de registro en la tapa."], 1.8)
+    lam.notas(330, 300, "PROCEDIMIENTO DE FABRICACION Y COLOCACION", [
+        "1. Molde: tablero de 0.80 x 0.80 nivelado y molde lateral de madera de 0.68 x 0.68 x 0.08 interior, con tiras de chaflan 1 x 1 cm y desmoldante; reutilizable.",
+        "2. Parrilla: 7 + 7 barras 3/8\" de 0.62 m @0.10, amarradas con alambre N 16, sobre dados de concreto de 2.5 cm (recubrimiento).",
+        "3. Asas: 2 barras de fierro liso 1/2\" (agarre 0.15, patas 0.02 y ganchos de 0.15) amarradas sobre la parrilla; tacos de 0.19 x 0.06 x 0.03 para las cajuelas.",
+        "4. Vaciado con concreto f'c = 210 kg/cm2, piedra de 1/2\", vibrado; acabado superior frotachado al mismo nivel de la vereda.",
+        "5. Desmoldar a las 24 h y curar 7 dias con agua; la tapa no lleva marco ni contramarco metalico (no se suelda ni se pinta).",
+        "6. Colocar la tapa en el rebaje de la losa (DD-01) con 2 operarios y ganchos en las asas: holgura 1 cm por lado, al ras del NPT. Marcar el numero de registro."], 1.8)
     n = MC.registros()["n"]
-    L_m = 4 * TAPA; kg_m = L_m * MC.ANG["1.5x1.5x1/8"]; L_p = 14 * 0.62; kg_p = L_p * MC.PESO["3/8"]; L_a = 2 * 0.40; kg_a = L_a * MC.PESO["3/8"]; vol = TAPA * TAPA * ET
+    L_p = 14 * 0.62; kg_p = L_p * MC.PESO["3/8"]; L_a = 2 * 0.50; kg_a = L_a * MC.PESO["1/2"]; vol = TAPA * TAPA * ET; enc = 4 * TAPA * ET
     filas = [["Concreto f'c = 210 kg/cm2 (0.68 x 0.68 x 0.08)", "m3", f3(vol), f2(n * vol), "01.04.04.05.01 (desagregado: concreto)"],
              ["Parrilla 3/8\" corrugado, 14 barras de 0.62 m", "m / kg", "%.2f / %.2f" % (L_p, kg_p), "%.2f / %.2f" % (n * L_p, n * kg_p), "01.04.04.05.01 (desagregado: acero)"],
-             ["Asas 3/8\" liso, 2 und de 0.40 m", "m / kg", "%.2f / %.2f" % (L_a, kg_a), "%.2f / %.2f" % (n * L_a, n * kg_a), "01.04.04.05.01 (desagregado: acero)"],
-             ["Angulo L 1 1/2\"x1 1/2\"x1/8\" (4 piezas de 0.68 m, 1.83 kg/m)", "m / kg", "%.2f / %.2f" % (L_m, kg_m), "%.2f / %.2f" % (n * L_m, n * kg_m), "01.04.04.05.01 (desagregado: angulos)"],
-             ["Alambre negro N 16 (amarres) / soldadura por puntos (28)", "kg", "0.10 / 0.05", "%.2f / %.2f" % (n * 0.10, n * 0.05), "insumo del ACU"],
-             ["Molde: fondo 0.68 x 0.68 + cajuelas (reutilizable 10 veces)", "m2", f2(TAPA * TAPA), f2(TAPA * TAPA), "insumo del ACU (1 molde)"],
-             ["Pintura anticorrosiva + esmalte del marco (0.152 m2/m x 2.72 m)", "m2", f2(2.72 * 0.152), f2(n * 2.72 * 0.152), "01.04.04.05.01 (desagregado: pintura)"],
-             ["Pintura total por registro: contramarco %.2f + marco %.2f" % (2.80 * MC.CM["des"], 2.72 * 0.152), "m2", f2(2.80 * MC.CM["des"] + 2.72 * 0.152), f2(n * (2.80 * MC.CM["des"] + 2.72 * 0.152)), "01.04.04.05.01 (desagregado: pintura)"],
+             ["Asas de fierro liso 1/2\", 2 und de 0.50 m", "m / kg", "%.2f / %.2f" % (L_a, kg_a), "%.2f / %.2f" % (n * L_a, n * kg_a), "01.04.04.05.01 (desagregado: acero)"],
+             ["Encofrado lateral de la tapa (4 x 0.68 x 0.08)", "m2", f3(enc), f2(n * enc), "01.04.04.05.01 (desagregado: encofrado)"],
+             ["Alambre negro N 16 (0.06 kg por kg de acero)", "kg", "%.2f" % (0.06 * (kg_p + kg_a)), f2(n * 0.06 * (kg_p + kg_a)), "insumo del ACU"],
+             ["Tablero de vaciado 0.80 x 0.80 (reutilizable 6 veces)", "p2", "1.15", f2(n * 1.15), "insumo del ACU"],
              ["Fabricacion, curado y colocacion de la tapa", "und", "1", "%d" % n, "01.04.04.05.01 TAPA DE REGISTRO (und)"]]
-    cuadro(lam, 330, 245, "CUADRO DE COMPONENTES POR TAPA CON MARCO (1 und) Y TOTAL (%d und)" % MC.registros()["n"], filas)
-    lam.leyenda2(560, 180, [("relleno", "MARCO-METALICO", "angulo metalico / asa"), ("linea2", "ACERO", "barra 3/8\" (sentido X)"), ("linea2", "ACERO-LONG", "barra 3/8\" (sentido Y)"), ("concreto", "CONCRETO", "concreto f'c=210 de la tapa"), ("relleno", "ISO-TAPA", "cajuela del asa")], 1.8)
+    cuadro(lam, 330, 245, "CUADRO DE COMPONENTES POR TAPA CIEGA (1 und) Y TOTAL (%d und)" % n, filas)
+    lam.leyenda2(560, 180, [("linea2", "MARCO-METALICO", "asa de fierro liso 1/2\""), ("linea2", "ACERO", "barra 3/8\" (sentido X)"), ("linea2", "ACERO-LONG", "barra 3/8\" (sentido Y)"),
+                            ("concreto", "CONCRETO", "concreto f'c=210 de la tapa"), ("relleno", "RELLENO", "molde / taco de madera")], 1.8)
     lam.volcar_llamadas()
     return lam
 

@@ -348,15 +348,15 @@ def dp06b_anterior(doc, ox, oy, R, T):
 
 
 def dp06b(doc, ox, oy, R, T):
-    """DP-06B rev. 01: la lamina detallada de render_tapa/dxf_tapa.py (papel A1 en mm) insertada a escala en su sitio."""
+    """DP-06B rev. 02: la lamina de la tapa ciega (render_tapa/dxf_tapa_ciega.py, papel A1 en mm) insertada a escala en su sitio."""
     import subprocess, tempfile, ezdxf
     from ezdxf.addons import Importer
     from ezdxf.math import Matrix44
-    lam = B.Lamina(doc, ox, oy, 10, "DP-06B", "DETALLE DE REGISTRO DE LIMPIEZA - TAPA 0.68 x 0.68 C/MARCO Y CONTRAMARCO",
-                   "PLANTA, CORTE, ASIENTO DE LA TAPA, ARMADO, CONTRAMARCO, PERFILES, ISOMETRICO Y MATERIALES - ESC. INDICADAS")
+    lam = B.Lamina(doc, ox, oy, 10, "DP-06B", "DETALLE DE REGISTRO DE LIMPIEZA - TAPA CIEGA DE CONCRETO ARMADO 0.68 x 0.68 x 0.08",
+                   "PLANTA, CORTES, ASIENTO EN REBAJE, ARMADO, ASAS, ISOMETRICO Y MATERIALES - SIN MARCO METALICO - ESC. INDICADAS")
     fuente = os.path.join(tempfile.gettempdir(), "dp06b_fuente.dxf")
-    subprocess.run([sys.executable, os.path.join(AQUI, "render_tapa", "dxf_tapa.py"), fuente], check=True, capture_output=True,
-                   env=dict(os.environ, COLECTOR_B="%.2f" % D["b"]))      # registro dibujado con el ancho del colector del proyecto
+    proy = "varones" if D["b"] < 0.70 else "refugio"                     # registro dibujado con el colector del proyecto
+    subprocess.run([sys.executable, os.path.join(AQUI, "render_tapa", "dxf_tapa_ciega.py"), fuente, proy], check=True, capture_output=True)
     src = ezdxf.readfile(fuente); sm = src.modelspace()
     for d in list(sm.query("DIMENSION")): d.explode()
     def fuera(e):

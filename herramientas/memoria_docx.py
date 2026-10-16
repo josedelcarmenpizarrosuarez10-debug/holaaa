@@ -426,9 +426,10 @@ def construir():
     titulo2(doc, "Criterios constructivos")
     vineta(doc, "Colector cubierto, con losa superior que sirve de vereda, al nivel del terreno del frente y de los pisos de ingreso (%.2f msnm), sin lloraderos." % D["NPT"])
     vineta(doc, "Registros de limpieza a no más de 12 m entre sí y en cada llegada de cuneta, fuera de los cruces vehiculares: "
-                "tapa de concreto armado de 0.68 × 0.68 × 0.08 m con malla de 3/8\" @0.10, luz libre de %.2f m, contramarco de "
-                "ángulo de %s con 8 anclajes de 3/8\" de 0.20 m, marco de ángulo de 1 ½\" × 1 ½\" × 1/8\", borde "
-                "engrosado de la losa de 0.15 × 0.10 m y refuerzo de borde con 8 barras de 1/2\" de 1.40 m." % (MC.LUZ_REG, MC.CM["txt"][2:].replace("x", " × ").replace("1 1/2", "1 ½")))
+                "tapa ciega de concreto armado de 0.68 × 0.68 × 0.08 m vaciada aparte en obra, con parrilla de 3/8\" @0.10 y 2 asas "
+                "de fierro liso de 1/2\" en cajuelas, apoyada en un rebaje de concreto de 0.70 × 0.70 × 0.08 m de la losa (luz libre "
+                "de %.2f m), sin marco ni contramarco metálico; borde engrosado de la losa de 0.15 × 0.10 m y refuerzo de borde con "
+                "8 barras de 1/2\" de 1.40 m." % MC.LUZ_REG)
     vineta(doc, ("Juntas de dilatación cada 4.00 m, con tecnopor de 1\" y sellador asfáltico de 1\" × 2\" (asfalto líquido RC-250 + arena gruesa); "
                  "junta longitudinal de tecnopor de 1\" con el mismo sellador en su cara superior entre el colector y el cimiento del cerco, en todo el tramo pegado al cerco; al otro lado hay terreno natural, sin junta.")
                 if MC.SELLO["clave"] == "asfaltico" else
@@ -440,8 +441,8 @@ def construir():
                 "recubrimiento de 4 cm; traslapes de 0.40 m.")
     vineta(doc, "Excavación con sobreancho de 0.25 m por lado, relleno lateral compactado con material propio seleccionado y "
                 "eliminación del excedente con esponjamiento de 20 %.")
-    vineta(doc, "Las láminas DD-01 a DD-04 desarrollan el detalle constructivo de cada una de estas partidas (contramarco, marco y "
-                "tapa, juntas y empalme de cuneta): despiece, dimensiones, procedimiento y cuadro de componentes por unidad para los "
+    vineta(doc, "Las láminas DD-01 a DD-04 desarrollan el detalle constructivo de cada una de estas partidas (rebaje de asiento y "
+                "tapa ciega, juntas y empalme de cuneta): despiece, dimensiones, procedimiento y cuadro de componentes por unidad para los "
                 "análisis de costos unitarios.")
     if os.path.exists(os.path.join(FIG, "DP-10.png")):
         imagen(doc, os.path.join(FIG, "DP-10.png"), 15.5, "%s: Isométrico general del colector frontal (lámina DP-10)." % NUM.imagen())
@@ -461,7 +462,7 @@ def construir():
              ["Concreto f'c = 210 kg/cm² en losa superior", "m³", f2(RM["conc_losa_m3"])], ["Encofrado y desencofrado", "m²", f2(RM["encof_m2"])],
              ["Acero de refuerzo fy = 4200 kg/cm² en colector y cajas", "kg", f2(RM["acero_colector_kg"])],
              ["Acabado frotachado y bruñado de losa superior", "m²", f2(RM["acabado_m2"])], ["Curado de concreto", "m²", f2(RM["curado_m2"])],
-             ["Registros con tapa de concreto armado, marco y contramarco", "und", "%d" % Rg["n"]],
+             ["Registros con tapa ciega de concreto armado 0.68 × 0.68 × 0.08 (sin marco metálico)", "und", "%d" % Rg["n"]],
              ["Junta de dilatación e = 1\" con sello", "m", f2(RM["juntas"]["L_dilat"])], ["Empalmes de cunetas", "und", "%d" % RM["empalmes"]]]
     tabla(doc, ["PARTIDA", "UND", "METRADO"], filas, anchos=[10.0, 2.0, 3.0])
     leyenda(doc, "%s: Metrados principales del colector pluvial frontal." % NUM.tabla())

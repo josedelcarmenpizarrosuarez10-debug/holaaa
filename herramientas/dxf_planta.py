@@ -487,7 +487,7 @@ def dp02(doc, ox, oy, R, T):
         "1. Corte longitudinal por el eje a escala real 1/50, horizontal = vertical, sin exageracion. Cotas en m.s.n.m. Se ve la cara interior del muro lado predio con las ventanas de las cunetas.",
         "2. El nivel de agua de diseno resulta del calculo de flujo gradualmente variado (memoria de calculo, hoja PERFIL_FLUJO); control: tirante critico en la caida libre a la caja CC.",
         "3. Caudal de diseno 560.6 L/s: CAR Varones (258.7 L/s, dato de su memoria) + Hogar de Refugio (301.9 L/s), TR 25 anos. Velocidad 1.35 m/s (autolimpieza, CE.040).",
-        "4. Registros con tapa de concreto 0.68 x 0.68 x 0.08, borde engrosado 0.15 x 0.10 y contramarco metalico (DP-06B). No hay registros dentro de los cruces vehiculares.",
+        "4. Registros con tapa ciega de concreto armado 0.68 x 0.68 x 0.08 en rebaje de la losa, borde engrosado 0.15 x 0.10, sin marco metalico (DP-06B). No hay registros en los cruces vehiculares.",
         "5. Relleno nivelado del retiro hasta la cota de la losa (+260.60) donde el terreno existente queda por debajo.",
         "6. Perfil por tramos de 20 m en las laminas DP-03A y DP-03B (misma escala); cajas en DP-07; empalme de cunetas en DP-06C.",
     ], 1.7, legado=True)

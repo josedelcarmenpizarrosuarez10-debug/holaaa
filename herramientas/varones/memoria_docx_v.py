@@ -245,9 +245,10 @@ def construir():
     vineta(doc, "ASCE/WEF, Design and Construction of Urban Stormwater Management Systems: esfuerzo tractivo mínimo para autolimpieza con caudales parciales.")
     titulo2(doc, "Criterios constructivos")
     vineta(doc, "Colector cubierto, con losa superior a +%.2f msnm que sirve de vereda, sin lloraderos; registros de limpieza "
-                "(RV-01 a RV-11) a no más de 12 m, en cada llegada de cuneta y en el quiebre, fuera del cruce de camiones, con tapa de "
-                "concreto armado de 0.68 × 0.68 × 0.08 m, contramarco de ángulo de 1 ½\" × 1 ½\" × 1/8\" y marco de 1 ½\" × 1 ½\" × 1/8\"; como el colector (0.60 m) es más angosto que la "
-                "abertura (0.70 m), en los lados largos el contramarco apoya en la cabeza de los muros y el borde engrosado de 0.15 × 0.10 m va solo en "
+                "(RV-01 a RV-11) a no más de 12 m, en cada llegada de cuneta y en el quiebre, fuera del cruce de camiones, con "
+                "tapa ciega de concreto armado de 0.68 × 0.68 × 0.08 m vaciada aparte en obra (parrilla de 3/8\" @0.10 y 2 asas de fierro liso de 1/2\" en cajuelas), "
+                "apoyada en un rebaje de concreto de 0.70 × 0.70 × 0.08 m de la losa, sin marco ni contramarco metálico; como el colector (0.60 m) es tan angosto como la "
+                "luz libre (0.60 m), en los lados largos el rebaje apoya en la cabeza de los muros y el borde engrosado de 0.15 × 0.10 m va solo en "
                 "los 2 lados transversales (láminas DP-06B, DP-06D, DD-01 y DD-02)." % D["NPT"])
     vineta(doc, "Juntas de dilatación cada 4.00 m en toda la sección, con tecnopor de 1\" y sellador asfáltico de 1\" × 2\" (asfalto líquido RC-250 + arena gruesa; EG-2013 MTC, Sección 510); "
                 "junta de tecnopor de 1\" y sellador asfáltico en el contacto con la caja CL. A ambos lados del colector hay terreno natural: no lleva junta longitudinal (lámina DD-03).")
@@ -270,7 +271,7 @@ def construir():
              ["Eliminación de material excedente D<1 km", "m³", f2(PL["01.04.04.02.04"])], ["Concreto f'c = 100 kg/cm² para solado e = 2\"", "m²", f2(PL["01.04.04.03.01"])],
              ["Concreto f'c = 210 kg/cm² para colector", "m³", f2(PL["01.04.04.04.01"])], ["Encofrado y desencofrado de colector", "m²", f2(PL["01.04.04.04.02"])],
              ["Acero fy = 4200 kg/cm² para colector", "kg", f2(PL["01.04.04.04.03"])], ["Acabado frotachado de losa superior (vereda)", "m²", f2(PL["01.04.04.04.04"])],
-             ["Curado de concreto en colector", "m²", f2(PL["01.04.04.04.05"])], ["Tapa de registro 0.68 × 0.68 c/marco y contramarco", "und", "%d" % PL["01.04.04.05.01"]],
+             ["Curado de concreto en colector", "m²", f2(PL["01.04.04.04.05"])], ["Tapa de registro ciega de concreto armado 0.68 × 0.68 × 0.08", "und", "%d" % PL["01.04.04.05.01"]],
              ["Junta de dilatación e = 1\" con tecnopor y sellador asfáltico en colector", "m", f2(PL["01.04.04.06.01"])],
              ["Junta e = 1\" con tecnopor y sellador asfáltico entre colector y caja CL", "m", f2(PL["01.04.04.06.02"])]]
     tabla(doc, ["PARTIDA", "UND", "METRADO"], filas, anchos=[10.0, 2.0, 3.0])
