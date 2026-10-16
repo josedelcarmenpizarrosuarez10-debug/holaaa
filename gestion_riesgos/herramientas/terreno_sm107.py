@@ -12,8 +12,9 @@ import os, sys, json, math
 import numpy as np
 import pymupdf
 
-AQUI = os.path.dirname(os.path.abspath(__file__)); RAIZ = os.path.dirname(os.path.dirname(AQUI))
-INS = os.path.join(RAIZ, "insumos", "vial_sm107"); CALC = os.path.join(RAIZ, "entregables_vial_sm107", "_calc")
+AQUI = os.path.dirname(os.path.abspath(__file__)); RAIZ = os.path.dirname(AQUI)          # carpeta gestion_riesgos
+PROY = os.path.join(RAIZ, "proyectos", "SM-107_TINGO_DE_PONASA_SHAMBOYACU")
+INS = os.path.join(PROY, "insumos"); CALC = os.path.join(PROY, "entregables", "_calc")
 PDF = os.path.join(INS, "PLANO_CLAVE_PC-01_SM107.pdf")
 PROG0 = 19343.39                      # progresiva del inicio del tramo (Tingo de Ponasa)
 FIN_INV = (374968.0, 9223432.0)       # fin del tramo segun el inventario vial (km 44+693.39)

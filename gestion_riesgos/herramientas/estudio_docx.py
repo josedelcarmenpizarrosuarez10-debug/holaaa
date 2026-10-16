@@ -13,7 +13,7 @@ from docx.oxml import OxmlElement
 AQUI = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, AQUI)
 import riesgos_sm107 as RS
 RAIZ = RS.RAIZ; CALC = RS.CALC; FIG = os.path.join(CALC, "fig"); FOTO = os.path.join(CALC, "fotos")
-SAL = os.path.join(RAIZ, "entregables_vial_sm107", "ESTUDIO_GESTION_RIESGOS_EJECUCION_OBRA_SM107.docx")
+SAL = os.path.join(RS.ENT, "ESTUDIO_GESTION_RIESGOS_EJECUCION_OBRA_SM107.docx")
 FT = "Arial"; AZUL = RGBColor(0x1F, 0x4E, 0x79)
 D = json.load(open(os.path.join(CALC, "riesgos.json"))); MC = D["montecarlo"]; EJE = json.load(open(os.path.join(CALC, "eje_terreno.json")))
 LL = json.load(open(os.path.join(CALC, "lluvia_ghcn.json")))
@@ -474,8 +474,8 @@ def main():
               "Monte Carlo, mapa de calor, plan de respuesta, asignación, oportunidades, formato de seguimiento y calendario.",
               "PLANOS_GESTION_RIESGOS_SM107.dxf: PR-01 Plano de ubicación de riesgos (1/25,000, UTM WGS 84 zona 18 S) y PR-02 Diagrama lineal de riesgos por "
               "progresiva, con presentaciones para imprimir; vistas previas en PNG."]: vin(doc, t)
-    pr1 = os.path.join(RAIZ, "entregables_vial_sm107", "vistas_previas", "PR-01_UBICACION_DE_RIESGOS.png")
-    pr2 = os.path.join(RAIZ, "entregables_vial_sm107", "vistas_previas", "PR-02_DIAGRAMA_LINEAL_DE_RIESGOS.png")
+    pr1 = os.path.join(RS.ENT, "vistas_previas", "PR-01_UBICACION_DE_RIESGOS.png")
+    pr2 = os.path.join(RS.ENT, "vistas_previas", "PR-02_DIAGRAMA_LINEAL_DE_RIESGOS.png")
     fig(doc, pr1, 21.0, "Lámina PR-01: plano de ubicación de riesgos (vista previa)", "PLANOS_GESTION_RIESGOS_SM107.dxf.")
     fig(doc, pr2, 21.0, "Lámina PR-02: diagrama lineal de riesgos por progresiva (vista previa)", "PLANOS_GESTION_RIESGOS_SM107.dxf.")
 

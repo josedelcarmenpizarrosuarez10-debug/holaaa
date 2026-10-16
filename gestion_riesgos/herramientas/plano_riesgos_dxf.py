@@ -7,8 +7,8 @@ Uso: python3 plano_riesgos_dxf.py"""
 import os, sys, json, math
 import numpy as np
 from ezdxf.enums import TextEntityAlignment as TA
-AQUI = os.path.dirname(os.path.abspath(__file__)); HERR = os.path.dirname(AQUI); RAIZ = os.path.dirname(HERR)
-for p in (HERR, AQUI):
+AQUI = os.path.dirname(os.path.abspath(__file__))
+for p in (AQUI,):
     if p not in sys.path: sys.path.insert(0, p)
 import dxf_base as B
 import dxf_layouts as L
@@ -21,7 +21,7 @@ B.ENTIDAD = "ENTIDAD: GOBIERNO REGIONAL SAN MARTIN - DIRECCION REGIONAL DE TRANS
 B.UBICACION = "UBICACION: TINGO DE PONASA (KM 19+343.39) - SHAMBOYACU (KM 44+693.39) - PICOTA - SAN MARTIN"
 B.ESPECIALIDAD = "ESPECIALIDAD: GESTION DE RIESGOS EN LA EJECUCION DE OBRA"
 B.ELABORADO = ""
-SAL = os.path.join(RAIZ, "entregables_vial_sm107", "PLANOS_GESTION_RIESGOS_SM107.dxf")
+SAL = os.path.join(RS.ENT, "PLANOS_GESTION_RIESGOS_SM107.dxf")
 CALC = RS.CALC
 
 CAPAS_EXTRA = [("EJE-VIA", 5, "CONTINUOUS"), ("EJE-REFERENCIAL", 5, "DASHED"), ("CURVAS", 9, "CONTINUOUS"), ("CURVAS-MAESTRAS", 8, "CONTINUOUS"),

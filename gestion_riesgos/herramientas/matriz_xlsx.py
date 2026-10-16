@@ -14,7 +14,7 @@ from openpyxl.chart import BarChart, Reference
 AQUI = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, AQUI)
 import riesgos_sm107 as RS
 RAIZ = RS.RAIZ
-SAL = os.path.join(RAIZ, "entregables_vial_sm107", "MATRIZ_GESTION_RIESGOS_EJECUCION_OBRA_SM107.xlsx")
+SAL = os.path.join(RS.ENT, "MATRIZ_GESTION_RIESGOS_EJECUCION_OBRA_SM107.xlsx")
 
 AZUL = PatternFill("solid", fgColor="1F4E79"); AMA = PatternFill("solid", fgColor="FFF2CC"); VER = PatternFill("solid", fgColor="E2EFDA")
 GRIS = PatternFill("solid", fgColor="F2F2F2")

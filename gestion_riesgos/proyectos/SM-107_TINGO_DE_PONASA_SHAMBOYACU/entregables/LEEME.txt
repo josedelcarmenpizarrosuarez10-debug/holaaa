@@ -11,12 +11,12 @@ Entregables
 Marco: Ley N. 32069 y su Reglamento (D.S. N. 009-2025-EF), art. 156; Comunicado N. 016-2025-OECE.
 Metodo: escalas P x I del PMBOK (formatos de la ex Directiva N. 012-2017-OSCE/CD, derogada), VME y Monte Carlo.
 
-Insumos (insumos/vial_sm107): inventario vial, FTE MTC, resumen ejecutivo, presupuesto S10 y plano clave PC-01.
+Insumos (gestion_riesgos/proyectos/SM-107_TINGO_DE_PONASA_SHAMBOYACU/insumos): inventario vial, FTE MTC, resumen ejecutivo, presupuesto S10 y plano clave PC-01.
 
-Regenerar (herramientas/vial_sm107), en este orden:
+Regenerar (desde gestion_riesgos/herramientas), en este orden:
   python3 terreno_sm107.py <carpeta con los tif Copernicus GLO-30 S07/S08 W077>   (eje y terreno)
   python3 riesgos_sm107.py      (registro, analisis y Monte Carlo)
   python3 matriz_xlsx.py        (Excel)
-  python3 plano_riesgos_dxf.py  (DXF) y herramientas/dxf_render.py para las vistas previas
+  python3 plano_riesgos_dxf.py  (DXF) y dxf_render.py para las vistas previas
   python3 figuras_sm107.py      (figuras)
   python3 estudio_docx.py       (Word)

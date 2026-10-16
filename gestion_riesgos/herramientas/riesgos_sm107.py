@@ -11,8 +11,9 @@ Montos en soles a precio de obra (costo directo x 1.3865: gastos generales 10.5 
 import json, os
 import numpy as np
 
-AQUI = os.path.dirname(os.path.abspath(__file__)); RAIZ = os.path.dirname(os.path.dirname(AQUI))
-CALC = os.path.join(RAIZ, "entregables_vial_sm107", "_calc")
+AQUI = os.path.dirname(os.path.abspath(__file__)); RAIZ = os.path.dirname(AQUI)          # carpeta gestion_riesgos
+PROY = os.path.join(RAIZ, "proyectos", "SM-107_TINGO_DE_PONASA_SHAMBOYACU")
+ENT = os.path.join(PROY, "entregables"); INS = os.path.join(PROY, "insumos"); CALC = os.path.join(ENT, "_calc")
 
 # ------------------------------------------------------------------ datos del proyecto (FTE, resumen ejecutivo y S10)
 P = {

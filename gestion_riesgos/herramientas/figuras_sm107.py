@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Figuras del estudio de gestión de riesgos SM-107 (PNG en entregables_vial_sm107/_calc/fig)."""
+"""Figuras del estudio de gestión de riesgos SM-107 (PNG en proyectos/<proyecto>/entregables/_calc/fig)."""
 import os, sys, json
 import numpy as np
 import matplotlib; matplotlib.use("Agg")

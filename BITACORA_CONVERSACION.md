@@ -112,7 +112,7 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   - DD-01, DD-02, DP-06D, DP-08, DP-09, DA-03, isométricos y fotos 3D, especificaciones y memorias actualizados.
 - **Estudio de gestión de riesgos en la ejecución de obra** de la vía SM-107 Tingo de Ponasa – Shamboyacu (CUI 2673852):
   Word, matriz Excel con fórmulas (34 riesgos, 3 oportunidades, P x I, valor esperado, Monte Carlo) y planos PR-01/PR-02
-  en `entregables_vial_sm107/`. Efectos en % del presupuesto; sin montos ni observaciones a los documentos.
+  en `gestion_riesgos/proyectos/SM-107_TINGO_DE_PONASA_SHAMBOYACU/` (carpeta propia `gestion_riesgos/`). Efectos en % del presupuesto; sin montos ni observaciones a los documentos.
 - Se crearon `CLAUDE.md` (reglas y mapa del proyecto) y el skill `diseno-colector-pluvial` para continuar en otra conversación.
 
 ## Cómo imprimir (los tres proyectos)
