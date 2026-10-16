@@ -3,3 +3,4 @@ __pycache__/
 *.pkl
 entregables/_tmp/
 herramientas/especificaciones/_json/
+herramientas/render_tapa/*.png
