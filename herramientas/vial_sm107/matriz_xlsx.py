@@ -19,6 +19,7 @@ SAL = os.path.join(RAIZ, "entregables_vial_sm107", "MATRIZ_GESTION_RIESGOS_EJECU
 AZUL = PatternFill("solid", fgColor="1F4E79"); AMA = PatternFill("solid", fgColor="FFF2CC"); VER = PatternFill("solid", fgColor="E2EFDA")
 GRIS = PatternFill("solid", fgColor="F2F2F2")
 ROJO = PatternFill("solid", fgColor="FF7C80"); NAR = PatternFill("solid", fgColor="FFD966"); VERDE = PatternFill("solid", fgColor="A9D08E")
+PCT = '0.00" %"'; PCT4 = '0.0000" %"'
 B = Side(style="thin", color="808080"); BORDE = Border(left=B, right=B, top=B, bottom=B)
 FT = "Arial"
 
@@ -60,24 +61,23 @@ def main():
 
     # ------------------------------------------------------------------ INDICE
     ws = hoja(wb, "INDICE", "MATRIZ DE GESTIÓN DE RIESGOS EN LA EJECUCIÓN DE LA OBRA", [6, 34, 90])
-    filas = [("DATOS", "Datos del proyecto, presupuesto y costo diario de ampliación"),
+    filas = [("DATOS", "Datos del proyecto y costo diario de ampliación en porcentaje"),
              ("ESCALAS", "Escalas de probabilidad e impacto, umbrales y matriz P x I"),
              ("IDENTIFICACION", "Registro de riesgos: evento, causa, efecto, ubicación y evidencia"),
              ("ANALISIS CUALITATIVO", "Probabilidad, impacto en costo y plazo, P x I y nivel (inherente y residual)"),
-             ("ANALISIS CUANTITATIVO", "Costo y plazo triangulares, valor monetario esperado y exposición de la Entidad"),
+             ("ANALISIS CUANTITATIVO", "Efecto en costo (%) y plazo triangulares, valor esperado y exposición de la Entidad"),
              ("MONTE CARLO", "Resultados de la simulación (20,000 iteraciones), inherente y residual"),
              ("MAPA DE CALOR", "Ubicación de cada riesgo en la matriz P x I, antes y después de la respuesta"),
              ("PLAN DE RESPUESTA", "Estrategia, acciones, responsable, partida, momento y alerta temprana"),
              ("ASIGNACION", "Parte que asume cada riesgo y criterio"),
              ("OPORTUNIDADES", "Oportunidades y su estrategia"),
              ("SEGUIMIENTO", "Formato de seguimiento mensual para el comité de gestión de riesgos"),
-             ("OBSERVACIONES", "Observaciones a los documentos que generan riesgo"),
              ("CALENDARIO", "Lluvias mensuales de referencia y programación recomendada")]
     cab(ws, 4, ["N°", "HOJA", "CONTENIDO"])
     for i, (h, t) in enumerate(filas, 1):
         celda(ws, 4 + i, 1, i, centro=True); celda(ws, 4 + i, 2, h, neg=True); celda(ws, 4 + i, 3, t)
     ws.cell(19, 2, "Celda amarilla = dato; celda verde = fórmula.").font = Font(name=FT, size=9, italic=True)
-    ws.cell(20, 2, "Montos en soles a precio de obra (incluye gastos generales, utilidad e IGV).").font = Font(name=FT, size=9, italic=True)
+    ws.cell(20, 2, "Los efectos en costo se expresan en porcentaje (%) del presupuesto de obra.").font = Font(name=FT, size=9, italic=True)
 
     # ------------------------------------------------------------------ DATOS
     ws = hoja(wb, "DATOS", "DATOS DEL PROYECTO", [52, 22, 60])
@@ -85,23 +85,16 @@ def main():
     datos = [("Código único de inversiones (CUI)", P["cui"], None, "Inventario vial / FTE"),
              ("Entidad", P["entidad"], None, "FTE"), ("Unidad ejecutora presupuestal", P["ue"], None, "FTE"),
              ("Ubicación", P["ubicacion"], None, "FTE"), ("Progresiva inicial", P["prog_ini"], None, "Inventario vial"),
-             ("Progresiva final", P["prog_fin"], None, "Inventario vial"), ("Longitud según inventario vial (km)", P["L_inv"], "0.000", "Inventario vial"),
-             ("Longitud según FTE (km)", P["L_fte"], "0.000", "FTE"), ("Longitud en partida de topografía (km)", P["L_topo"], "0.000", "S10 1.04.01"),
-             ("Costo directo (S/)", P["CD"], "#,##0.00", "S10 al " + P["fecha_ppto"]), ("Gastos generales 10.50 % (S/)", P["GG"], "#,##0.00", "S10"),
-             ("Utilidad 7.00 % (S/)", P["UT"], "#,##0.00", "S10"), ("Subtotal (S/)", P["ST"], "#,##0.00", "S10"), ("IGV 18 % (S/)", P["IGV"], "#,##0.00", "S10"),
-             ("Presupuesto de obra (S/)", P["PO"], "#,##0.00", "S10"), ("Supervisión 3.95 % (S/)", P["SUP"], "#,##0.00", "S10"),
-             ("Costo total de inversión (S/)", P["TOTAL"], "#,##0.00", "S10"), ("Plazo de ejecución (días calendario)", P["plazo"], "0", "Resumen ejecutivo"),
+             ("Progresiva final", P["prog_fin"], None, "Inventario vial"), ("Longitud del tramo (km)", P["L_inv"], "0.000", "Inventario vial"),
+             ("Plazo de ejecución (días calendario)", P["plazo"], "0", "Resumen ejecutivo"),
              ("Modalidad de ejecución", P["modalidad"], None, "FTE 19"), ("Fuente de financiamiento", P["fuente_fin"], None, "FTE 20"),
              ("IMDA actual (veh/día)", P["imda_actual"], "0", "FTE 9.1"), ("Población beneficiaria directa (hab)", P["poblacion"], "#,##0", "FTE 6")]
-    ref = {}
     for i, (a, v, fmt, fu) in enumerate(datos, 5):
-        celda(ws, i, 1, a); celda(ws, i, 2, v, AMA, fmt, centro=isinstance(v, (int, float))); celda(ws, i, 3, fu); ref[a] = "DATOS!$B$%d" % i
+        celda(ws, i, 1, a); celda(ws, i, 2, v, AMA, fmt, centro=isinstance(v, (int, float))); celda(ws, i, 3, fu)
     f = 5 + len(datos)
-    celda(ws, f, 1, "Factor costo directo -> precio de obra", neg=True); celda(ws, f, 2, "=B17*1.18/B14", VER, "0.0000", centro=True); celda(ws, f, 3, "Subtotal x 1.18 / costo directo")
-    celda(ws, f + 1, 1, "Costo por día de ampliación: gastos generales con IGV + supervisión (S/ por día)", neg=True)
-    celda(ws, f + 1, 2, "=(B15*1.18+B20)/B22", VER, "#,##0.00", centro=True); celda(ws, f + 1, 3, "Se reconoce cuando el retraso es atribuible a la Entidad")
-    CDIA = "DATOS!$B$%d" % (f + 1); PO = "DATOS!$B$19"
-    assert ws["A19"].value.startswith("Presupuesto de obra") and ws["A22"].value.startswith("Plazo")
+    celda(ws, f, 1, "Costo de un día de ampliación (gastos generales y supervisión), en % del presupuesto de obra por día", neg=True)
+    celda(ws, f, 2, round(P["costo_dia_pct"], 5), AMA, PCT4, centro=True); celda(ws, f, 3, "Se reconoce cuando el retraso es atribuible a la Entidad")
+    CDIA = "DATOS!$B$%d" % f
 
     # ------------------------------------------------------------------ ESCALAS
     ws = hoja(wb, "ESCALAS", "ESCALAS DE PROBABILIDAD E IMPACTO Y MATRIZ P x I", [16, 10, 58, 18, 18, 16, 16])
@@ -110,7 +103,7 @@ def main():
               "Es probable que ocurra durante la obra", "Se espera que ocurra, casi con certeza"]
     for i, ((t, v), ds) in enumerate(zip(RS.PROB, desc_p)):
         celda(ws, 5 + i, 1, t, neg=True); celda(ws, 5 + i, 2, v, AMA, "0.00", centro=True); celda(ws, 5 + i, 3, ds)
-    cab(ws, 11, ["IMPACTO", "VALOR", "DESCRIPCIÓN", "COSTO HASTA (% PO)", "COSTO HASTA (S/)", "PLAZO HASTA (días)"])
+    cab(ws, 11, ["IMPACTO", "VALOR", "DESCRIPCIÓN", "COSTO HASTA (% DEL PRESUPUESTO DE OBRA)", "PLAZO HASTA (días)"])
     desc_i = ["Efecto mínimo; se absorbe con la holgura del frente", "Afecta un frente; se recupera dentro del mes",
               "Afecta varios frentes o un hito; requiere reprogramar", "Afecta la ruta crítica o el presupuesto de forma significativa",
               "Compromete el plazo total, el financiamiento o la viabilidad"]
@@ -118,10 +111,10 @@ def main():
         r = 12 + i
         celda(ws, r, 1, t, neg=True); celda(ws, r, 2, v, AMA, "0.00", centro=True); celda(ws, r, 3, ds)
         if i < 4:
-            celda(ws, r, 4, RS.IMPACTO_COSTO[i], AMA, "0.0%", centro=True); celda(ws, r, 5, "=D%d*%s" % (r, PO), VER, "#,##0", centro=True)
-            celda(ws, r, 6, RS.IMPACTO_PLAZO[i], AMA, "0", centro=True)
+            celda(ws, r, 4, RS.IMPACTO_COSTO[i] * 100, AMA, PCT, centro=True)
+            celda(ws, r, 5, RS.IMPACTO_PLAZO[i], AMA, "0", centro=True)
         else:
-            celda(ws, r, 4, "mayor", centro=True); celda(ws, r, 5, "mayor", centro=True); celda(ws, r, 6, "mayor", centro=True)
+            celda(ws, r, 4, "mayor", centro=True); celda(ws, r, 5, "mayor", centro=True)
     ws.cell(17, 1, "El nivel de impacto es el mayor entre el de costo y el de plazo, evaluados con el valor más probable.").font = Font(name=FT, size=8, italic=True)
     cab(ws, 19, ["UMBRAL", "P x I", "INTERPRETACIÓN"])
     celda(ws, 20, 1, "ALTO", ROJO, neg=True, centro=True); celda(ws, 20, 2, RS.UMBRAL_ALTO, AMA, "0.00", centro=True)
@@ -153,17 +146,17 @@ def main():
 
     # ------------------------------------------------------------------ ANALISIS CUALITATIVO
     ws = hoja(wb, "ANALISIS CUALITATIVO", "ANÁLISIS CUALITATIVO (P x I)", [7, 44, 12, 7, 14, 8, 10, 8, 8, 11, 7, 8, 12, 12, 7, 8, 12])
-    cab(ws, 4, ["COD.", "RIESGO", "PROBABILIDAD", "P", "COSTO MÁS PROBABLE (S/)", "NIVEL COSTO", "PLAZO MÁS PROBABLE (días)", "NIVEL PLAZO",
+    cab(ws, 4, ["COD.", "RIESGO", "PROBABILIDAD", "P", "COSTO MÁS PROBABLE (% PRESUPUESTO)", "NIVEL COSTO", "PLAZO MÁS PROBABLE (días)", "NIVEL PLAZO",
                 "NIVEL IMPACTO", "IMPACTO", "I", "P x I", "NIVEL INHERENTE", "PROBABILIDAD RESIDUAL", "P RES.", "P x I RES.", "NIVEL RESIDUAL"], 42)
     dv = DataValidation(type="list", formula1="=ESCALAS!$A$5:$A$9", allow_blank=False); ws.add_data_validation(dv)
     for i, r in enumerate(R, 5):
         celda(ws, i, 1, "=IDENTIFICACION!A%d" % i, VER, neg=True, centro=True); celda(ws, i, 2, "=IDENTIFICACION!C%d" % i, VER)
         celda(ws, i, 3, r["P_txt"], AMA, centro=True); dv.add(ws.cell(i, 3))
         celda(ws, i, 4, "=VLOOKUP(C%d,ESCALAS!$A$5:$B$9,2,FALSE)" % i, VER, "0.00", centro=True)
-        celda(ws, i, 5, r["costo"][1], AMA, "#,##0", centro=True)
-        celda(ws, i, 6, "=1+(E{0}>ESCALAS!$E$12)+(E{0}>ESCALAS!$E$13)+(E{0}>ESCALAS!$E$14)+(E{0}>ESCALAS!$E$15)".format(i), VER, "0", centro=True)
+        celda(ws, i, 5, round(r["costo_pct"][1], 4), AMA, PCT, centro=True)
+        celda(ws, i, 6, "=1+(E{0}>ESCALAS!$D$12)+(E{0}>ESCALAS!$D$13)+(E{0}>ESCALAS!$D$14)+(E{0}>ESCALAS!$D$15)".format(i), VER, "0", centro=True)
         celda(ws, i, 7, r["plazo"][1], AMA, "0", centro=True)
-        celda(ws, i, 8, "=1+(G{0}>ESCALAS!$F$12)+(G{0}>ESCALAS!$F$13)+(G{0}>ESCALAS!$F$14)+(G{0}>ESCALAS!$F$15)".format(i), VER, "0", centro=True)
+        celda(ws, i, 8, "=1+(G{0}>ESCALAS!$E$12)+(G{0}>ESCALAS!$E$13)+(G{0}>ESCALAS!$E$14)+(G{0}>ESCALAS!$E$15)".format(i), VER, "0", centro=True)
         celda(ws, i, 9, "=MAX(F%d,H%d)" % (i, i), VER, "0", centro=True)
         celda(ws, i, 10, "=INDEX(ESCALAS!$A$12:$A$16,I%d)" % i, VER, centro=True)
         celda(ws, i, 11, "=INDEX(ESCALAS!$B$12:$B$16,I%d)" % i, VER, "0.00", centro=True)
@@ -184,10 +177,10 @@ def main():
     ws.freeze_panes = "C5"
 
     # ------------------------------------------------------------------ ANALISIS CUANTITATIVO
-    ws = hoja(wb, "ANALISIS CUANTITATIVO", "ANÁLISIS CUANTITATIVO - VALOR MONETARIO ESPERADO", [7, 40, 12, 8, 8, 8, 13, 13, 13, 13, 13, 7, 7, 7, 8, 8, 9, 14, 8, 14])
-    cab(ws, 4, ["COD.", "RIESGO", "ASIGNADO A", "FACTOR ENTIDAD", "FACTOR PÓLIZA", "P", "COSTO MÍN. (S/)", "COSTO MÁS PROB. (S/)", "COSTO MÁX. (S/)",
-                "COSTO MEDIO (S/)", "VME COSTO (S/)", "PLAZO MÍN.", "PLAZO MÁS PROB.", "PLAZO MÁX.", "PLAZO MEDIO", "VME PLAZO (días)", "RUTA CRÍTICA",
-                "EXPOSICIÓN ENTIDAD INHERENTE (S/)", "P RES.", "EXPOSICIÓN ENTIDAD RESIDUAL (S/)"], 54)
+    ws = hoja(wb, "ANALISIS CUANTITATIVO", "ANÁLISIS CUANTITATIVO - VALOR ESPERADO (EFECTO EN COSTO EN % DEL PRESUPUESTO DE OBRA)", [7, 40, 12, 8, 8, 8, 13, 13, 13, 13, 13, 7, 7, 7, 8, 8, 9, 14, 8, 14])
+    cab(ws, 4, ["COD.", "RIESGO", "ASIGNADO A", "FACTOR ENTIDAD", "FACTOR PÓLIZA", "P", "COSTO MÍN. (%)", "COSTO MÁS PROB. (%)", "COSTO MÁX. (%)",
+                "COSTO MEDIO (%)", "VALOR ESPERADO COSTO (%)", "PLAZO MÍN.", "PLAZO MÁS PROB.", "PLAZO MÁX.", "PLAZO MEDIO", "VME PLAZO (días)", "RUTA CRÍTICA",
+                "EXPOSICIÓN ENTIDAD INHERENTE (%)", "P RES.", "EXPOSICIÓN ENTIDAD RESIDUAL (%)"], 54)
     dva = DataValidation(type="list", formula1='"Entidad,Contratista,Compartido"'); ws.add_data_validation(dva)
     for i, r in enumerate(R, 5):
         q = i
@@ -196,25 +189,23 @@ def main():
         celda(ws, i, 4, '=IF(C{0}="Entidad",1,IF(C{0}="Compartido",0.5,0))'.format(i), VER, "0.00", centro=True)
         celda(ws, i, 5, r["fr"], AMA, "0.00", centro=True)
         celda(ws, i, 6, "='ANALISIS CUALITATIVO'!D%d" % q, VER, "0.00", centro=True)
-        for j, v in enumerate(r["costo"]): celda(ws, i, 7 + j, v, AMA, "#,##0", centro=True)
+        for j, v in enumerate(r["costo_pct"]): celda(ws, i, 7 + j, round(v, 4), AMA, PCT, centro=True)
         ws.cell(i, 8).value = "='ANALISIS CUALITATIVO'!E%d" % q; ws.cell(i, 8).fill = VER
-        celda(ws, i, 10, "=AVERAGE(G%d:I%d)" % (i, i), VER, "#,##0", centro=True)
-        celda(ws, i, 11, "=F%d*J%d" % (i, i), VER, "#,##0", centro=True)
+        celda(ws, i, 10, "=AVERAGE(G%d:I%d)" % (i, i), VER, PCT, centro=True)
+        celda(ws, i, 11, "=F%d*J%d" % (i, i), VER, PCT, centro=True)
         for j, v in enumerate(r["plazo"]): celda(ws, i, 12 + j, v, AMA, "0", centro=True)
         ws.cell(i, 13).value = "='ANALISIS CUALITATIVO'!G%d" % q; ws.cell(i, 13).fill = VER
         celda(ws, i, 15, "=AVERAGE(L%d:N%d)" % (i, i), VER, "0.0", centro=True)
         celda(ws, i, 16, "=F%d*O%d" % (i, i), VER, "0.0", centro=True)
         celda(ws, i, 17, "SI" if r["rc"] else "NO", AMA, centro=True)
-        celda(ws, i, 18, '=F{0}*J{0}*D{0}*E{0}+IF(Q{0}="SI",F{0}*O{0}*D{0}*{1},0)'.format(i, CDIA), VER, "#,##0", centro=True)
+        celda(ws, i, 18, '=F{0}*J{0}*D{0}*E{0}+IF(Q{0}="SI",F{0}*O{0}*D{0}*{1},0)'.format(i, CDIA), VER, PCT, centro=True)
         celda(ws, i, 19, "='ANALISIS CUALITATIVO'!O%d" % q, VER, "0.00", centro=True)
-        celda(ws, i, 20, '=S{0}*J{0}*D{0}*E{0}+IF(Q{0}="SI",S{0}*O{0}*D{0}*{1},0)'.format(i, CDIA), VER, "#,##0", centro=True)
+        celda(ws, i, 20, '=S{0}*J{0}*D{0}*E{0}+IF(Q{0}="SI",S{0}*O{0}*D{0}*{1},0)'.format(i, CDIA), VER, PCT, centro=True)
         ws.row_dimensions[i].height = 30
     u = 4 + n; t = u + 1
     celda(ws, t, 2, "TOTAL (suma simple, sin concurrencia de plazos)", GRIS, neg=True)
-    for c in (11, 16, 18, 20): celda(ws, t, c, "=SUM(%s5:%s%d)" % (COL(c), COL(c), u), GRIS, "#,##0", neg=True, centro=True)
-    celda(ws, t + 1, 2, "Exposición de la Entidad / presupuesto de obra", GRIS, neg=True)
-    celda(ws, t + 1, 18, "=R%d/%s" % (t, PO), GRIS, "0.0%", neg=True, centro=True); celda(ws, t + 1, 20, "=T%d/%s" % (t, PO), GRIS, "0.0%", neg=True, centro=True)
-    ws.cell(t + 3, 2, "VME = P x valor medio de la distribución triangular. Factor Entidad: 1 (Entidad), 0.5 (compartido), 0 (contratista); factor póliza: "
+    for c in (11, 16, 18, 20): celda(ws, t, c, "=SUM(%s5:%s%d)" % (COL(c), COL(c), u), GRIS, "0.0" if c == 16 else PCT, neg=True, centro=True)
+    ws.cell(t + 3, 2, "Valor esperado = P x valor medio de la distribución triangular. Factor Entidad: 1 (Entidad), 0.5 (compartido), 0 (contratista); factor póliza: "
                       "fracción que no cubre la póliza CAR. Los días de ruta crítica de la Entidad se valorizan con el costo diario de ampliación (hoja DATOS). "
                       "La suma simple no considera que los retrasos se superponen; la hoja MONTE CARLO sí lo hace.").font = Font(name=FT, size=8, italic=True)
     ws.cell(t + 3, 2).alignment = Alignment(wrap_text=True); ws.merge_cells(start_row=t + 3, start_column=2, end_row=t + 3, end_column=20); ws.row_dimensions[t + 3].height = 36
@@ -223,40 +214,40 @@ def main():
     # ------------------------------------------------------------------ MONTE CARLO
     ws = hoja(wb, "MONTE CARLO", "SIMULACIÓN DE MONTE CARLO (20,000 ITERACIONES)", [44, 16, 16, 16, 16, 16])
     cab(ws, 4, ["RESULTADO", "P10", "P50", "P80", "P90", "MEDIA"])
-    fil = [("Costo para la Entidad - inherente (S/)", MC["inherente"]["entidad"], MC["inherente"]["entidad_media"], "#,##0"),
-           ("Costo para la Entidad - residual (S/)", MC["residual"]["entidad"], MC["residual"]["entidad_media"], "#,##0"),
+    pc = lambda q: {k: v / P["PO"] * 100 for k, v in q.items()}
+    fil = [("Efecto en costo para la Entidad - inherente (% del presupuesto de obra)", pc(MC["inherente"]["entidad"]), MC["inherente"]["entidad_media"] / P["PO"] * 100, PCT),
+           ("Efecto en costo para la Entidad - residual (% del presupuesto de obra)", pc(MC["residual"]["entidad"]), MC["residual"]["entidad_media"] / P["PO"] * 100, PCT),
            ("Retraso total de la obra - inherente (días)", MC["inherente"]["dias"], MC["inherente"]["dias_media"], "0"),
            ("Retraso total de la obra - residual (días)", MC["residual"]["dias"], MC["residual"]["dias_media"], "0"),
            ("Retraso atribuible a la Entidad - inherente (días)", MC["inherente"]["diasE"], None, "0"),
            ("Retraso atribuible a la Entidad - residual (días)", MC["residual"]["diasE"], None, "0"),
-           ("Costo de riesgos del contratista - inherente (S/)", MC["inherente"]["contratista"], MC["inherente"]["contratista_media"], "#,##0"),
-           ("Costo de riesgos del contratista - residual (S/)", MC["residual"]["contratista"], MC["residual"]["contratista_media"], "#,##0")]
+           ("Efecto en costo de riesgos del contratista - inherente (%)", pc(MC["inherente"]["contratista"]), MC["inherente"]["contratista_media"] / P["PO"] * 100, PCT),
+           ("Efecto en costo de riesgos del contratista - residual (%)", pc(MC["residual"]["contratista"]), MC["residual"]["contratista_media"] / P["PO"] * 100, PCT)]
     for i, (t_, q, m, fmt) in enumerate(fil, 5):
         celda(ws, i, 1, t_, neg=True)
         for j, k in enumerate(["10", "50", "80", "90"]): celda(ws, i, 2 + j, q[k], None, fmt, centro=True)
         celda(ws, i, 6, m if m is not None else "—", None, fmt, centro=True)
-    celda(ws, 14, 1, "Reserva de contingencia recomendada (P80 residual, S/)", ROJO, neg=True)
-    celda(ws, 14, 2, MC["residual"]["entidad"]["80"], ROJO, "#,##0", neg=True, centro=True)
-    celda(ws, 14, 3, "=B14/%s" % PO, ROJO, "0.0%", neg=True, centro=True)
+    celda(ws, 14, 1, "Reserva de contingencia recomendada (P80 residual, % del presupuesto de obra)", ROJO, neg=True)
+    celda(ws, 14, 2, MC["residual"]["entidad"]["80"] / P["PO"] * 100, ROJO, PCT, neg=True, centro=True)
     met = ["Método:",
            "1. Cada riesgo ocurre en una iteración con su probabilidad (inherente o residual, hoja ANALISIS CUALITATIVO).",
            "2. Si ocurre, su costo y su retraso se toman de una distribución triangular (mínimo, más probable, máximo).",
-           "3. Costo de la Entidad: riesgos de la Entidad, 50 % de los compartidos (descontando la póliza CAR donde aplica) y los días de ampliación que le corresponden por el costo diario.",
+           "3. Efecto en costo para la Entidad (% del presupuesto de obra): riesgos de la Entidad, 50 % de los compartidos (descontando la póliza CAR donde aplica) y los días de ampliación que le corresponden por el costo diario.",
            "4. Plazo: los riesgos de ruta crítica se agrupan por etapa (inicio, clima, terreno, gestión); en cada grupo se suma el mayor retraso y el 25 % de los demás, y los grupos se suman.",
            "5. Residual: con las respuestas del PLAN DE RESPUESTA ejecutadas en el momento indicado."]
     for k, t_ in enumerate(met): ws.cell(16 + k, 1, t_).font = Font(name=FT, size=9, bold=(k == 0))
     # histogramas
-    ws.cell(24, 1, "Histograma del costo para la Entidad (S/ millones)").font = Font(name=FT, bold=True, size=10, color="1F4E79")
-    cab(ws, 25, ["CLASE (S/ M)", "INHERENTE (%)", "RESIDUAL (%)"])
-    hi, bi = MC["inherente"]["hist_entidad"]; hr, br = MC["residual"]["hist_entidad"]
-    lo = min(bi[0], br[0]); hi_ = max(bi[-1], br[-1]); import numpy as np
-    sI = np.array(MC["inherente"]["muestras_entidad"]) / 1e6; sR = np.array(MC["residual"]["muestras_entidad"]) / 1e6
+    ws.cell(24, 1, "Histograma del efecto en costo para la Entidad (% del presupuesto de obra)").font = Font(name=FT, bold=True, size=10, color="1F4E79")
+    cab(ws, 25, ["CLASE (% PRESUPUESTO)", "INHERENTE (% ITERACIONES)", "RESIDUAL (% ITERACIONES)"])
+    import numpy as np
+    sI = np.array(MC["inherente"]["muestras_entidad"]) / P["PO"] * 100; sR = np.array(MC["residual"]["muestras_entidad"]) / P["PO"] * 100
+    lo = min(sI.min(), sR.min()); hi_ = max(sI.max(), sR.max())
     bins = np.linspace(lo, hi_, 31)
     cI = np.histogram(sI, bins)[0] / len(sI) * 100; cR = np.histogram(sR, bins)[0] / len(sR) * 100
     for k in range(30):
         celda(ws, 26 + k, 1, round((bins[k] + bins[k + 1]) / 2, 2), None, "0.00", centro=True)
         celda(ws, 26 + k, 2, round(float(cI[k]), 2), None, "0.0", centro=True); celda(ws, 26 + k, 3, round(float(cR[k]), 2), None, "0.0", centro=True)
-    ch = BarChart(); ch.title = "Costo para la Entidad"; ch.y_axis.title = "% de iteraciones"; ch.x_axis.title = "S/ millones"
+    ch = BarChart(); ch.title = "Costo para la Entidad"; ch.y_axis.title = "% de iteraciones"; ch.x_axis.title = "% del presupuesto de obra"
     ch.add_data(Reference(ws, min_col=2, min_row=25, max_col=3, max_row=55), titles_from_data=True)
     ch.set_categories(Reference(ws, min_col=1, min_row=26, max_row=55)); ch.height = 8; ch.width = 18; ch.gapWidth = 10
     ws.add_chart(ch, "E24")
@@ -306,20 +297,20 @@ def main():
 
     # ------------------------------------------------------------------ OPORTUNIDADES
     ws = hoja(wb, "OPORTUNIDADES", "OPORTUNIDADES", [7, 40, 40, 12, 7, 14, 14, 14, 14, 12, 50, 20])
-    cab(ws, 4, ["COD.", "OPORTUNIDAD", "CAUSA", "PROBABILIDAD", "P", "AHORRO MÍN. (S/)", "AHORRO MÁS PROB. (S/)", "AHORRO MÁX. (S/)", "VME AHORRO (S/)",
+    cab(ws, 4, ["COD.", "OPORTUNIDAD", "CAUSA", "PROBABILIDAD", "P", "AHORRO MÍN. (%)", "AHORRO MÁS PROB. (%)", "AHORRO MÁX. (%)", "VALOR ESPERADO (%)",
                 "ESTRATEGIA", "ACCIONES", "RESPONSABLE"], 34)
     for i, o in enumerate(RS.OPORT, 5):
         celda(ws, i, 1, o["cod"], neg=True, centro=True); celda(ws, i, 2, o["oport"]); celda(ws, i, 3, o["causa"])
         celda(ws, i, 4, RS.PROB[o["p"]][0], AMA, centro=True); celda(ws, i, 5, "=VLOOKUP(D%d,ESCALAS!$A$5:$B$9,2,FALSE)" % i, VER, "0.00", centro=True)
-        for j, v in enumerate(o["beneficio"]): celda(ws, i, 6 + j, v, AMA, "#,##0", centro=True)
-        celda(ws, i, 9, "=E%d*AVERAGE(F%d:H%d)" % (i, i, i), VER, "#,##0", centro=True)
+        for j, v in enumerate(o["beneficio_pct"]): celda(ws, i, 6 + j, round(v, 4), AMA, PCT, centro=True)
+        celda(ws, i, 9, "=E%d*AVERAGE(F%d:H%d)" % (i, i, i), VER, PCT, centro=True)
         celda(ws, i, 10, o["resp"], centro=True); celda(ws, i, 11, o["acc"]); celda(ws, i, 12, o["quien"]); ws.row_dimensions[i].height = 45
 
     # ------------------------------------------------------------------ SEGUIMIENTO
     ws = hoja(wb, "SEGUIMIENTO", "FORMATO DE SEGUIMIENTO MENSUAL DE RIESGOS (COMITÉ DE GESTIÓN DE RIESGOS)", [7, 40, 12, 12, 12, 12, 12, 40, 18, 30])
     ws["A3"] = "Mes de obra: ______     Fecha de revisión: ____/____/______     Valorización N.°: ______"; ws["A3"].font = Font(name=FT, size=9)
     cab(ws, 5, ["COD.", "RIESGO", "ESTADO", "PROBABILIDAD ACTUAL", "IMPACTO ACTUAL", "NIVEL ACTUAL", "¿ALERTA ACTIVADA?", "ACCIÓN EJECUTADA / PENDIENTE",
-                "RESPONSABLE", "OBSERVACIONES"], 34)
+                "RESPONSABLE", "COMENTARIOS"], 34)
     dve = DataValidation(type="list", formula1='"Activo,Ocurrido,Cerrado,Nuevo"'); dvs = DataValidation(type="list", formula1='"SI,NO"')
     dvp = DataValidation(type="list", formula1="=ESCALAS!$A$5:$A$9"); dvi = DataValidation(type="list", formula1="=ESCALAS!$A$12:$A$16")
     for x in (dve, dvs, dvp, dvi): ws.add_data_validation(x)
@@ -336,14 +327,6 @@ def main():
         for j in range(2, 11): celda(ws, fi, j, None, AMA)
         celda(ws, fi, 3, "Nuevo", AMA, centro=True); dve.add(ws.cell(fi, 3))
     ws.freeze_panes = "C6"
-
-    # ------------------------------------------------------------------ OBSERVACIONES
-    ws = hoja(wb, "OBSERVACIONES", "OBSERVACIONES A LOS DOCUMENTOS DEL PROYECTO QUE GENERAN RIESGO", [5, 26, 48, 52, 46, 12])
-    cab(ws, 4, ["N°", "ASPECTO", "DOCUMENTO Y DATO", "OBSERVACIÓN", "RECOMENDACIÓN", "RIESGO"])
-    for i, o in enumerate(RS.OBS, 1):
-        celda(ws, 4 + i, 1, i, centro=True)
-        for j, v in enumerate(o, 2): celda(ws, 4 + i, j, v, neg=(j == 2), centro=(j == 6))
-        ws.row_dimensions[4 + i].height = 60
 
     # ------------------------------------------------------------------ CALENDARIO
     ws = hoja(wb, "CALENDARIO", "LLUVIA MENSUAL DE REFERENCIA Y PROGRAMACIÓN RECOMENDADA", [12, 14, 14, 14, 14, 16, 70])

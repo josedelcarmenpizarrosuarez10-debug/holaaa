@@ -30,7 +30,8 @@
   "poblacion": 11960,
   "fecha_ppto": "02/12/2024",
   "K": 1.386499999976604,
-  "costo_dia": 21902.259993055555
+  "costo_dia": 21902.259993055555,
+  "costo_dia_pct": 0.01789745862988671
  },
  "riesgos": [
   {
@@ -76,6 +77,11 @@
    "Pr_txt": "Alta",
    "PxIr": 0.14,
    "nivel_r": "MODERADO",
+   "costo_pct": [
+    0.12257268406704175,
+    0.32686049084544466,
+    0.7354361044022506
+   ],
    "c_media": 483333.3333333333,
    "t_media": 31.666666666666668,
    "EMV_costo": 435000.0,
@@ -126,6 +132,11 @@
    "Pr_txt": "Baja",
    "PxIr": 0.06,
    "nivel_r": "MODERADO",
+   "costo_pct": [
+    0.2451453681340835,
+    0.980581472536334,
+    2.860029294897641
+   ],
    "c_media": 1666666.6666666667,
    "t_media": 35.0,
    "EMV_costo": 500000.0,
@@ -176,6 +187,11 @@
    "Pr_txt": "Baja",
    "PxIr": 0.03,
    "nivel_r": "BAJO",
+   "costo_pct": [
+    0.08171512271136117,
+    0.28600292948976413,
+    0.7354361044022506
+   ],
    "c_media": 450000.0,
    "t_media": 24.0,
    "EMV_costo": 225000.0,
@@ -192,7 +208,7 @@
    "causa": "Taludes altos (h = 20 a 30 m) en suelos limosos y arcillosos saturables; pendientes del entorno de hasta 40° (modelo digital).",
    "efecto": "Derrumbes sobre la plataforma, cortes adicionales, banquetas o muros no previstos, riesgo para el personal.",
    "ubic": "36+060 a 36+100 (h = 20 m, LI) y 37+520 a 37+780 (h = 30 m, LI); laderas 34+000 a 37+000 y 43+000 a 44+000",
-   "evid": "Inventario: zonas críticas por inestabilidad de talud. FTE 18.3 declara deslizamientos NO.",
+   "evid": "Inventario: zonas críticas por inestabilidad de talud.",
    "p": 2,
    "costo": [
     200000.0,
@@ -226,6 +242,11 @@
    "Pr_txt": "Baja",
    "PxIr": 0.06,
    "nivel_r": "MODERADO",
+   "costo_pct": [
+    0.16343024542272233,
+    0.5720058589795283,
+    1.6343024542272235
+   ],
    "c_media": 966666.6666666666,
    "t_media": 24.0,
    "EMV_costo": 483333.3333333333,
@@ -259,7 +280,7 @@
    "resp": "Mitigar",
    "acc": "Ejecutar primero los gaviones y la protección de pie en esos sectores; limpieza de alcantarillas y salidas antes del movimiento de tierras; protección temporal con geobolsas.",
    "quien": "Residente / Especialista en geotecnia",
-   "partida": "1.08.04 Muros de gavión (S/ 2.96 M); 1.05.08 Geobolsas",
+   "partida": "1.08.04 Muros de gavión; 1.05.08 Geobolsas",
    "alerta": "Pérdida de material en el borde después de cada lluvia; socavación > 0.30 m al pie.",
    "momento": "Ejecución",
    "fr": 1.0,
@@ -276,6 +297,11 @@
    "Pr_txt": "Moderada",
    "PxIr": 0.05,
    "nivel_r": "MODERADO",
+   "costo_pct": [
+    0.12257268406704175,
+    0.4085756135568059,
+    0.980581472536334
+   ],
    "c_media": 616666.6666666666,
    "t_media": 20.0,
    "EMV_costo": 431666.6666666666,
@@ -326,6 +352,11 @@
    "Pr_txt": "Moderada",
    "PxIr": 0.05,
    "nivel_r": "MODERADO",
+   "costo_pct": [
+    0.16343024542272233,
+    0.490290736268167,
+    1.2257268406704176
+   ],
    "c_media": 766666.6666666666,
    "t_media": 25.0,
    "EMV_costo": 536666.6666666666,
@@ -359,7 +390,7 @@
    "resp": "Mitigar",
    "acc": "Completar calicatas y ensayos CBR cada 500 m antes de la convocatoria; definir criterios de reemplazo en el expediente.",
    "quien": "Entidad (expediente) / Supervisor",
-   "partida": "1.05.06 Mejoramiento de suelos (S/ 3.53 M CD); 1.05.07 Geomalla",
+   "partida": "1.05.06 Mejoramiento de suelos; 1.05.07 Geomalla",
    "alerta": "CBR de campo menor al de diseño en dos sectores consecutivos.",
    "momento": "Antes de la convocatoria",
    "fr": 1.0,
@@ -376,6 +407,11 @@
    "Pr_txt": "Baja",
    "PxIr": 0.06,
    "nivel_r": "MODERADO",
+   "costo_pct": [
+    0.4004041012856697,
+    0.9969244970786063,
+    2.002020506428349
+   ],
    "c_media": 1386666.6666666667,
    "t_media": 23.333333333333332,
    "EMV_costo": 693333.3333333334,
@@ -390,9 +426,9 @@
    "cat": "Insumos y canteras",
    "riesgo": "Cantera insuficiente, sin calidad o sin autorización, con mayor distancia de transporte",
    "causa": "Unos 423,600 m³ de material granular (terraplén, mejoramiento, subbase y base) dependen de canteras de río; la distancia media es ~31 km.",
-   "efecto": "Cada kilómetro adicional cuesta unos S/ 0.92 M a precio de obra; retraso en la producción de agregados.",
+   "efecto": "Cada kilómetro adicional de transporte equivale a cerca de 0.75 % del presupuesto de obra; retraso en la producción de agregados.",
    "ubic": "Cantera de río (4.50 ha) y accesos (2.50 km)",
-   "evid": "S10 1.07.02: transporte > 1 km, 13,074,057 m³k a S/ 1.57; 1.04.07 y 1.04.08 cantera.",
+   "evid": "S10 1.07.02 Transporte de material granular > 1 km; 1.04.07 y 1.04.08 Cantera.",
    "p": 2,
    "costo": [
     920000.0,
@@ -409,7 +445,7 @@
    "resp": "Evitar",
    "acc": "Antes de convocar: ensayos de calidad y cálculo de potencia, autorización de la municipalidad y de la ANA para extracción en cauce, y una cantera alternativa con su distancia.",
    "quien": "Entidad (DRTC)",
-   "partida": "1.04.07, 1.04.08 Cantera; 1.07 Transporte (S/ 25.60 M CD)",
+   "partida": "1.04.07, 1.04.08 Cantera; 1.07 Transporte",
    "alerta": "Potencia útil menor al 120 % del volumen requerido; observación de la autoridad.",
    "momento": "Antes de la convocatoria",
    "fr": 1.0,
@@ -426,6 +462,11 @@
    "Pr_txt": "Muy baja",
    "PxIr": 0.04,
    "nivel_r": "BAJO",
+   "costo_pct": [
+    0.7517791289445228,
+    2.2635088991047043,
+    6.030576056098455
+   ],
    "c_media": 3690000.0,
    "t_media": 35.0,
    "EMV_costo": 1845000.0,
@@ -476,6 +517,11 @@
    "Pr_txt": "Muy baja",
    "PxIr": 0.02,
    "nivel_r": "BAJO",
+   "costo_pct": [
+    0.016343024542272235,
+    0.049029073626816695,
+    0.12257268406704175
+   ],
    "c_media": 76666.66666666667,
    "t_media": 35.0,
    "EMV_costo": 38333.333333333336,
@@ -492,7 +538,7 @@
    "causa": "El ancho pasa de 4.50-6.00 m a 7.00 m más cunetas; derecho de vía de 20 m inexistente; viviendas, cercos y cultivos en el borde.",
    "efecto": "Frentes detenidos, compensaciones, rediseño de cunetas y del eje en zonas urbanas.",
    "ubic": "Tingo de Ponasa 19+343 a 19+800; Aypena 21+940; Nuevo América 26+270; Leoncio Prado 28+080; San Antonio 31+420; Huañipo 33+780; Paucar 38+020; Alfonso Ugarte 38+730; Shamboyacu 44+300 a 44+693",
-   "evid": "FTE 11: acta de libre disponibilidad requerida; PACRI no marcado. Resumen ejecutivo: derecho de vía 'no cuenta'.",
+   "evid": "FTE 11: acta de libre disponibilidad del terreno. Resumen ejecutivo: derecho de vía de 20 m como mínimo con proyecto.",
    "p": 3,
    "costo": [
     100000.0,
@@ -526,6 +572,11 @@
    "Pr_txt": "Baja",
    "PxIr": 0.06,
    "nivel_r": "MODERADO",
+   "costo_pct": [
+    0.08171512271136117,
+    0.32686049084544466,
+    0.980581472536334
+   ],
    "c_media": 566666.6666666666,
    "t_media": 45.0,
    "EMV_costo": 396666.6666666666,
@@ -539,10 +590,10 @@
    "grupo": "inicio",
    "cat": "Interferencias",
    "riesgo": "Interferencias con redes eléctricas, de agua potable y de telecomunicaciones",
-   "causa": "73 postes a reubicar; pases de agua potable y tuberías de PVC bajo la vía; no se marcó el estudio de factibilidad de servicios.",
+   "causa": "73 postes a reubicar; pases de agua potable y tuberías de PVC bajo la vía.",
    "efecto": "Cortes de servicio, reclamos, espera de la concesionaria, frentes detenidos.",
    "ubic": "Pase de agua potable 22+425; PVC 21\" 25+715; PVC 6\" 34+688; postes en las 9 localidades",
-   "evid": "S10 1.04.12 Reubicación de postes (73 und, S/ 164,250); inventario 11.3.",
+   "evid": "S10 1.04.12 Reubicación de postes (73 und); inventario 11.3.",
    "p": 3,
    "costo": [
     50000.0,
@@ -576,6 +627,11 @@
    "Pr_txt": "Baja",
    "PxIr": 0.03,
    "nivel_r": "BAJO",
+   "costo_pct": [
+    0.04085756135568058,
+    0.16343024542272233,
+    0.4085756135568059
+   ],
    "c_media": 250000.0,
    "t_media": 25.0,
    "EMV_costo": 175000.0,
@@ -626,6 +682,11 @@
    "Pr_txt": "Baja",
    "PxIr": 0.03,
    "nivel_r": "BAJO",
+   "costo_pct": [
+    0.04085756135568058,
+    0.12257268406704175,
+    0.32686049084544466
+   ],
    "c_media": 200000.0,
    "t_media": 16.666666666666668,
    "EMV_costo": 100000.0,
@@ -642,7 +703,7 @@
    "causa": "Expectativas de empleo local, polvo, ruido, accesos a viviendas y afectaciones de predios.",
    "efecto": "Paralización de frentes, reprogramación, compromisos adicionales.",
    "ubic": "Localidades del tramo",
-   "evid": "S10 1.11.08 Plan de gestión social, S/ 27,600, programado solo para 3 meses.",
+   "evid": "S10 1.11.08 Plan de gestión social.",
    "p": 2,
    "costo": [
     50000.0,
@@ -676,6 +737,11 @@
    "Pr_txt": "Baja",
    "PxIr": 0.03,
    "nivel_r": "BAJO",
+   "costo_pct": [
+    0.04085756135568058,
+    0.16343024542272233,
+    0.490290736268167
+   ],
    "c_media": 283333.3333333333,
    "t_media": 21.666666666666668,
    "EMV_costo": 141666.66666666666,
@@ -689,10 +755,10 @@
    "grupo": "inicio",
    "cat": "Permisos",
    "riesgo": "Hallazgos arqueológicos o falta del instrumento de intervención arqueológica aprobado",
-   "causa": "En la FTE no se marcó el CIRA; el presupuesto solo considera monitoreo arqueológico (S/ 12,000).",
+   "causa": "Cortes, canteras, DME y ensanches en zonas que pueden tener restos arqueológicos; el proyecto contempla un plan de monitoreo arqueológico.",
    "efecto": "Paralización de frentes por el Ministerio de Cultura hasta el rescate o la liberación.",
    "ubic": "Cortes, canteras, DME y ensanches",
-   "evid": "FTE 11: CIRA sin marcar; S10 1.12.01 Plan y monitoreo arqueológico.",
+   "evid": "S10 1.12.01 Plan y monitoreo arqueológico.",
    "p": 1,
    "costo": [
     20000.0,
@@ -726,6 +792,11 @@
    "Pr_txt": "Muy baja",
    "PxIr": 0.02,
    "nivel_r": "BAJO",
+   "costo_pct": [
+    0.016343024542272235,
+    0.06537209816908894,
+    0.2451453681340835
+   ],
    "c_media": 133333.33333333334,
    "t_media": 43.333333333333336,
    "EMV_costo": 40000.0,
@@ -742,7 +813,7 @@
    "causa": "La FTE señala que se requiere estudio de impacto ambiental; sin certificación no se puede iniciar la obra.",
    "efecto": "Inicio postergado o cambios del Plan de Manejo Ambiental.",
    "ubic": "Todo el proyecto y áreas auxiliares",
-   "evid": "FTE 11 y 21; S10 1.11 Plan de manejo ambiental (S/ 1.18 M CD).",
+   "evid": "FTE 11 y 21; S10 1.11 Plan de manejo ambiental.",
    "p": 2,
    "costo": [
     30000.0,
@@ -776,6 +847,11 @@
    "Pr_txt": "Muy baja",
    "PxIr": 0.04,
    "nivel_r": "BAJO",
+   "costo_pct": [
+    0.024514536813408348,
+    0.08171512271136117,
+    0.2451453681340835
+   ],
    "c_media": 143333.33333333334,
    "t_media": 70.0,
    "EMV_costo": 71666.66666666667,
@@ -788,11 +864,11 @@
    "pr": 1,
    "grupo": "inicio",
    "cat": "Expediente técnico",
-   "riesgo": "Deficiencias e incompatibilidades del expediente técnico (metrados, longitudes, diseños)",
-   "causa": "Diferencias de longitud (24.09, 24.70 y 25.350 km), puentes con metrados repetidos y partidas con unidad o metrado dudoso (ver sección 7).",
+   "riesgo": "Deficiencias del expediente técnico (metrados, diseños, estudios básicos)",
+   "causa": "Información de campo o de diseño incompleta o desactualizada (topografía, estudios básicos, metrados) que obliga a ajustar el expediente durante la obra.",
    "efecto": "Adicionales, deductivos, consultas y controversias; mayor plazo.",
    "ubic": "Todo el expediente",
-   "evid": "S10, FTE e inventario vial (sección 7 del estudio).",
+   "evid": "Expediente técnico del proyecto.",
    "p": 3,
    "costo": [
     500000.0,
@@ -807,9 +883,9 @@
    "rc": true,
    "asig": "Entidad",
    "resp": "Evitar",
-   "acc": "Revisión integral y compatibilización del expediente antes de convocar; levantar las observaciones de la sección 7; en solo construcción, el contratista revisa el expediente e informa los riesgos al supervisor.",
+   "acc": "Revisión integral y compatibilización del expediente antes de convocar; en solo construcción, el contratista revisa el expediente e informa los riesgos al supervisor.",
    "quien": "Entidad (DRTC) / Proyectista",
-   "partida": "2.50 M Expediente técnico",
+   "partida": "Expediente técnico",
    "alerta": "Consulta de obra que revela incompatibilidad.",
    "momento": "Antes de la convocatoria",
    "fr": 1.0,
@@ -826,6 +902,11 @@
    "Pr_txt": "Baja",
    "PxIr": 0.06,
    "nivel_r": "MODERADO",
+   "costo_pct": [
+    0.4085756135568059,
+    1.2257268406704176,
+    3.268604908454447
+   ],
    "c_media": 2000000.0,
    "t_media": 31.666666666666668,
    "EMV_costo": 1400000.0,
@@ -839,7 +920,7 @@
    "grupo": "otros",
    "cat": "Económico",
    "riesgo": "Variación de precios de insumos críticos (asfalto, combustible, acero, TMC)",
-   "causa": "El cemento asfáltico (S/ 5.76 M CD), el transporte (S/ 25.60 M CD) y las vigas metálicas dependen de precios internacionales.",
+   "causa": "El cemento asfáltico (6.5 % de la obra), el transporte (29.0 %) y las vigas metálicas dependen de precios internacionales.",
    "efecto": "Mayor costo vía reajuste de precios; presión sobre el financiamiento.",
    "ubic": "Todo el proyecto",
    "evid": "S10: 1.06.02.03 Cemento asfáltico; 1.07 Transporte; 1.10 Vigas metálicas 84.49 t por puente.",
@@ -859,7 +940,7 @@
    "resp": "Aceptar / Mitigar",
    "acc": "Reajuste por fórmulas polinómicas según el reglamento; previsión presupuestal multianual; abastecimiento anticipado de asfalto.",
    "quien": "Entidad (DRTC) / Oficina de Presupuesto",
-   "partida": "Reajustes (fuera del costo directo)",
+   "partida": "Reajustes de precios",
    "alerta": "Índices unificados INEI con alza > 5 % en el trimestre.",
    "momento": "Ejecución",
    "fr": 1.0,
@@ -876,6 +957,11 @@
    "Pr_txt": "Alta",
    "PxIr": 0.14,
    "nivel_r": "MODERADO",
+   "costo_pct": [
+    0.32686049084544466,
+    0.980581472536334,
+    2.451453681340835
+   ],
    "c_media": 1533333.3333333333,
    "t_media": 0.0,
    "EMV_costo": 1073333.3333333333,
@@ -926,6 +1012,11 @@
    "Pr_txt": "Baja",
    "PxIr": 0.03,
    "nivel_r": "BAJO",
+   "costo_pct": [
+    0.04085756135568058,
+    0.12257268406704175,
+    0.32686049084544466
+   ],
    "c_media": 200000.0,
    "t_media": 24.0,
    "EMV_costo": 100000.0,
@@ -942,7 +1033,7 @@
    "causa": "Zona alejada de talleres; transporte de equipo por la PE-5N.",
    "efecto": "Baja producción y retraso del pavimento.",
    "ubic": "Planta y frentes",
-   "evid": "S10 1.01.03 Movilización de equipo (S/ 93,408).",
+   "evid": "S10 1.01.03 Movilización de equipo y maquinaria pesada.",
    "p": 2,
    "costo": [
     50000.0,
@@ -976,6 +1067,11 @@
    "Pr_txt": "Baja",
    "PxIr": 0.03,
    "nivel_r": "BAJO",
+   "costo_pct": [
+    0.04085756135568058,
+    0.16343024542272233,
+    0.4085756135568059
+   ],
    "c_media": 250000.0,
    "t_media": 16.666666666666668,
    "EMV_costo": 125000.0,
@@ -992,7 +1088,7 @@
    "causa": "IMD de 254 veh/día, un carril, desvíos, maquinaria y peatones en 9 localidades.",
    "efecto": "Víctimas, responsabilidad civil y penal, paralización del frente.",
    "ubic": "Todo el tramo, en especial las localidades",
-   "evid": "FTE: IMDA 254 veh/día. S10 1.04.02 Mantenimiento de tránsito (S/ 578,336).",
+   "evid": "FTE: IMDA 254 veh/día. S10 1.04.02 Mantenimiento de tránsito temporal y seguridad vial.",
    "p": 2,
    "costo": [
     20000.0,
@@ -1026,6 +1122,11 @@
    "Pr_txt": "Baja",
    "PxIr": 0.015,
    "nivel_r": "BAJO",
+   "costo_pct": [
+    0.016343024542272235,
+    0.08171512271136117,
+    0.4085756135568059
+   ],
    "c_media": 206666.66666666666,
    "t_media": 8.666666666666666,
    "EMV_costo": 103333.33333333333,
@@ -1042,7 +1143,7 @@
    "causa": "Montaje de vigas metálicas, excavación bajo agua y cortes altos.",
    "efecto": "Lesiones o fatalidades, paralización por la autoridad de trabajo.",
    "ubic": "Puentes y cortes en ladera",
-   "evid": "S10 1.02 Seguridad y salud (S/ 268,295); 1.10 Montaje de estructuras metálicas.",
+   "evid": "S10 1.02 Seguridad y salud ocupacional; 1.10 Montaje de estructuras metálicas.",
    "p": 1,
    "costo": [
     30000.0,
@@ -1076,6 +1177,11 @@
    "Pr_txt": "Muy baja",
    "PxIr": 0.01,
    "nivel_r": "BAJO",
+   "costo_pct": [
+    0.024514536813408348,
+    0.12257268406704175,
+    0.490290736268167
+   ],
    "c_media": 260000.0,
    "t_media": 14.333333333333334,
    "EMV_costo": 78000.0,
@@ -1126,6 +1232,11 @@
    "Pr_txt": "Muy baja",
    "PxIr": 0.01,
    "nivel_r": "BAJO",
+   "costo_pct": [
+    0.04085756135568058,
+    0.2451453681340835,
+    1.2257268406704176
+   ],
    "c_media": 616666.6666666666,
    "t_media": 21.666666666666668,
    "EMV_costo": 61666.666666666664,
@@ -1139,7 +1250,7 @@
    "grupo": "inicio",
    "cat": "Económico",
    "riesgo": "Retraso en el financiamiento o en los pagos de valorizaciones",
-   "causa": "Fuente de recursos determinados (canon, FONCOR) sujeta a variaciones; inversión de S/ 132.70 M en 24 meses.",
+   "causa": "Fuente de recursos determinados (canon, FONCOR) sujeta a variaciones; inversión alta concentrada en 24 meses.",
    "efecto": "Ritmo de obra menor, paralización y reconocimiento de gastos generales.",
    "ubic": "Todo el proyecto",
    "evid": "FTE 20: recursos determinados. Resumen ejecutivo: canon, FONCOR, RDR.",
@@ -1176,6 +1287,11 @@
    "Pr_txt": "Baja",
    "PxIr": 0.06,
    "nivel_r": "MODERADO",
+   "costo_pct": [
+    0.08171512271136117,
+    0.32686049084544466,
+    1.2257268406704176
+   ],
    "c_media": 666666.6666666666,
    "t_media": 43.333333333333336,
    "EMV_costo": 333333.3333333333,
@@ -1189,7 +1305,7 @@
    "grupo": "gestion",
    "cat": "Gestión del contrato",
    "riesgo": "Demoras en la absolución de consultas, aprobación de prestaciones adicionales y decisiones de la Entidad",
-   "causa": "Volumen de consultas por las observaciones del expediente; designación tardía de la supervisión.",
+   "causa": "Volumen de consultas técnicas durante la obra; designación tardía de la supervisión.",
    "efecto": "Frentes detenidos, ampliaciones de plazo y controversias.",
    "ubic": "Todo el proyecto",
    "evid": "—",
@@ -1207,7 +1323,7 @@
    "rc": true,
    "asig": "Entidad",
    "resp": "Mitigar",
-   "acc": "Comité de gestión de riesgos (obra mayor a S/ 50 M); plazos internos de respuesta; supervisión contratada antes del inicio; junta de prevención y resolución de disputas cuando corresponda.",
+   "acc": "Comité de gestión de riesgos; plazos internos de respuesta; supervisión contratada antes del inicio; junta de prevención y resolución de disputas cuando corresponda.",
    "quien": "Entidad (DRTC)",
    "partida": "—",
    "alerta": "Consulta sin respuesta en el plazo del reglamento.",
@@ -1226,6 +1342,11 @@
    "Pr_txt": "Baja",
    "PxIr": 0.03,
    "nivel_r": "BAJO",
+   "costo_pct": [
+    0.04085756135568058,
+    0.12257268406704175,
+    0.4085756135568059
+   ],
    "c_media": 233333.33333333334,
    "t_media": 24.0,
    "EMV_costo": 116666.66666666667,
@@ -1239,10 +1360,10 @@
    "grupo": "inicio",
    "cat": "Ambiental",
    "riesgo": "Áreas de depósito de material excedente (DME) insuficientes",
-   "causa": "Se presupuesta 0.38 ha de DME para 297,756 m³ de excedente (altura equivalente de 78 m).",
+   "causa": "La obra genera cerca de 298,000 m³ de material excedente que deben disponerse en DME autorizados y cercanos a la vía.",
    "efecto": "DME adicionales, mayor transporte, observaciones ambientales.",
    "ubic": "DME del proyecto",
-   "evid": "S10 1.04.04 DME 0.38 ha; 1.11.01.01 Acomodo de 297,756 m³.",
+   "evid": "S10 1.04.04 Habilitación de DME; 1.11.01.01 Acomodo de material excedente.",
    "p": 4,
    "costo": [
     300000.0,
@@ -1276,6 +1397,11 @@
    "Pr_txt": "Baja",
    "PxIr": 0.06,
    "nivel_r": "MODERADO",
+   "costo_pct": [
+    0.2451453681340835,
+    0.7354361044022506,
+    1.6343024542272235
+   ],
    "c_media": 1066666.6666666667,
    "t_media": 25.0,
    "EMV_costo": 960000.0000000001,
@@ -1326,6 +1452,11 @@
    "Pr_txt": "Muy baja",
    "PxIr": 0.01,
    "nivel_r": "BAJO",
+   "costo_pct": [
+    0.024514536813408348,
+    0.08171512271136117,
+    0.32686049084544466
+   ],
    "c_media": 176666.66666666666,
    "t_media": 14.333333333333334,
    "EMV_costo": 52999.99999999999,
@@ -1342,7 +1473,7 @@
    "causa": "No existe vía alterna; demolición y reconstrucción de 5 puentes en el mismo eje.",
    "efecto": "Aislamiento de centros poblados, reclamos, exigencia de puentes provisionales.",
    "ubic": "Puentes 20+300, 29+300, 37+870, 38+800, 44+040",
-   "evid": "S10: desvío temporal 4 a 85 m por puente; 1.04.11 Desvío temporal 18 'm'.",
+   "evid": "S10: desvíos temporales en cada puente; 1.04.11 Desvío temporal durante la ejecución.",
    "p": 2,
    "costo": [
     30000.0,
@@ -1376,6 +1507,11 @@
    "Pr_txt": "Baja",
    "PxIr": 0.03,
    "nivel_r": "BAJO",
+   "costo_pct": [
+    0.024514536813408348,
+    0.09805814725363339,
+    0.2451453681340835
+   ],
    "c_media": 150000.0,
    "t_media": 12.666666666666666,
    "EMV_costo": 75000.0,
@@ -1426,6 +1562,11 @@
    "Pr_txt": "Muy baja",
    "PxIr": 0.01,
    "nivel_r": "BAJO",
+   "costo_pct": [
+    0.08171512271136117,
+    0.32686049084544466,
+    0.980581472536334
+   ],
    "c_media": 566666.6666666666,
    "t_media": 20.0,
    "EMV_costo": 169999.99999999997,
@@ -1442,7 +1583,7 @@
    "causa": "Zona endémica de selva; campamento con agua estancada.",
    "efecto": "Ausentismo y menor rendimiento.",
    "ubic": "Campamento y frentes",
-   "evid": "S10 1.02.05 Recursos para respuesta ante emergencias (S/ 10,500).",
+   "evid": "S10 1.02.05 Recursos para respuesta ante emergencias.",
    "p": 2,
    "costo": [
     20000.0,
@@ -1476,6 +1617,11 @@
    "Pr_txt": "Baja",
    "PxIr": 0.03,
    "nivel_r": "BAJO",
+   "costo_pct": [
+    0.016343024542272235,
+    0.049029073626816695,
+    0.16343024542272233
+   ],
    "c_media": 93333.33333333333,
    "t_media": 14.333333333333334,
    "EMV_costo": 46666.666666666664,
@@ -1526,6 +1672,11 @@
    "Pr_txt": "Baja",
    "PxIr": 0.03,
    "nivel_r": "BAJO",
+   "costo_pct": [
+    0.016343024542272235,
+    0.08171512271136117,
+    0.2451453681340835
+   ],
    "c_media": 140000.0,
    "t_media": 14.333333333333334,
    "EMV_costo": 42000.0,
@@ -1576,6 +1727,11 @@
    "Pr_txt": "Baja",
    "PxIr": 0.015,
    "nivel_r": "BAJO",
+   "costo_pct": [
+    0.016343024542272235,
+    0.049029073626816695,
+    0.12257268406704175
+   ],
    "c_media": 76666.66666666667,
    "t_media": 4.666666666666667,
    "EMV_costo": 38333.333333333336,
@@ -1626,6 +1782,11 @@
    "Pr_txt": "Baja",
    "PxIr": 0.015,
    "nivel_r": "BAJO",
+   "costo_pct": [
+    0.004085756135568059,
+    0.016343024542272235,
+    0.06537209816908894
+   ],
    "c_media": 35000.0,
    "t_media": 2.6666666666666665,
    "EMV_costo": 10500.0,
@@ -1676,6 +1837,11 @@
    "Pr_txt": "Muy baja",
    "PxIr": 0.01,
    "nivel_r": "BAJO",
+   "costo_pct": [
+    0.04085756135568058,
+    0.20428780677840294,
+    0.6537209816908893
+   ],
    "c_media": 366666.6666666667,
    "t_media": 23.333333333333332,
    "EMV_costo": 110000.0,
@@ -1689,10 +1855,10 @@
    "grupo": "terreno",
    "cat": "Expediente técnico",
    "riesgo": "Cambio de diseño de puentes por condiciones de cauce, socavación o cimentación distintas",
-   "causa": "Puentes Tingo de Ponasa y Barco con metrados de subestructura idénticos; luces de 40 m en cauces con socavación.",
+   "causa": "Puentes de 12 a 40 m en cauces con socavación y suelos de fundación variables.",
    "efecto": "Mayores profundidades de cimentación o luces, adicionales y plazo.",
    "ubic": "Puentes Tingo de Ponasa 20+300 y Barco 29+300",
-   "evid": "S10 1.10.01.02 y 1.10.02.02: mismas cantidades de concreto, acero y falsa zapata.",
+   "evid": "S10 1.10 Puentes; inventario vial 11.2 (puentes existentes).",
    "p": 1,
    "costo": [
     200000.0,
@@ -1709,7 +1875,7 @@
    "resp": "Evitar",
    "acc": "Verificar por puente el estudio hidrológico, hidráulico, de socavación y geotécnico (Manual de Puentes del MTC) antes de convocar.",
    "quien": "Entidad / Proyectista",
-   "partida": "1.10 Puentes (S/ 9.87 M CD)",
+   "partida": "1.10 Puentes",
    "alerta": "Perforación con estrato de apoyo más profundo que el de diseño.",
    "momento": "Antes de la convocatoria",
    "fr": 1.0,
@@ -1726,6 +1892,11 @@
    "Pr_txt": "Muy baja",
    "PxIr": 0.02,
    "nivel_r": "BAJO",
+   "costo_pct": [
+    0.16343024542272233,
+    0.6537209816908893,
+    2.042878067784029
+   ],
    "c_media": 1166666.6666666667,
    "t_media": 45.0,
    "EMV_costo": 350000.0,
@@ -1753,7 +1924,13 @@
    "resp": "Explotar",
    "acc": "Clasificar el material de corte y usar el apto en terraplenes; reduce préstamo y transporte.",
    "quien": "Contratista / Supervisor",
+   "beneficio_pct": [
+    0.08171512271136117,
+    0.2451453681340835,
+    0.5720058589795283
+   ],
    "P": 0.5,
+   "EMV_pct": 0.14981105830416214,
    "EMV": 183333.33333333334,
    "EMV_plazo": 0.0
   },
@@ -1775,7 +1952,13 @@
    "resp": "Mejorar",
    "acc": "Cronograma con hitos de estiaje y frentes paralelos; reduce la exposición a R-01 y R-03.",
    "quien": "Contratista / Entidad",
+   "beneficio_pct": [
+    0.0,
+    0.0,
+    0.0
+   ],
    "P": 0.7,
+   "EMV_pct": 0.0,
    "EMV": 0.0,
    "EMV_plazo": 11.666666666666666
   },
@@ -1797,145 +1980,16 @@
    "resp": "Mejorar",
    "acc": "Contratos de suministro al inicio de obra con entregas programadas.",
    "quien": "Contratista",
+   "beneficio_pct": [
+    0.04085756135568058,
+    0.12257268406704175,
+    0.32686049084544466
+   ],
    "P": 0.3,
+   "EMV_pct": 0.049029073626816695,
    "EMV": 60000.0,
    "EMV_plazo": 2.0
   }
- ],
- "observaciones": [
-  [
-   "Longitud del tramo",
-   "FTE (24.70 km, fin 44+090); S10 1.04.01 Topografía (24.09 km); inventario vial (25.350 km, fin 44+693.39); eje del plano clave PC-01 (24.77 km hasta 44+090)",
-   "Tres longitudes distintas para la misma meta física; el tramo 44+090 a 44+693 (zona urbana de Shamboyacu) no está en el PC-01.",
-   "Fijar una sola longitud y progresivas con la topografía del expediente y ajustar todos los metrados por kilómetro.",
-   "R-16"
-  ],
-  [
-   "Plazo de ejecución",
-   "Resumen ejecutivo: 720 días (24 meses); FTE 15.2 y 15.3: ejecución física en 8 meses (meses 3 a 10)",
-   "Plazos incompatibles; afecta gastos generales, cronograma climático y partidas mensuales.",
-   "Definir el plazo con un cronograma por ruta crítica y calendario de lluvias.",
-   "R-16"
-  ],
-  [
-   "Peligros declarados en la FTE",
-   "FTE 18.3: deslizamientos NO, inundaciones NO",
-   "El inventario registra inundación por arrozales (20+360 a 21+170), empozamientos e inestabilidad de taludes de 20 y 30 m (36+060 y 37+520).",
-   "Corregir la FTE y sustentar las medidas de reducción en el expediente (taludes, drenaje, subdrenaje).",
-   "R-04, R-06"
-  ],
-  [
-   "Orografía",
-   "FTE y resumen ejecutivo: orografía plana",
-   "El modelo digital Copernicus GLO-30 muestra terreno ondulado desde el km 23 (relieve local de 20 a 90 m y laderas de hasta 40°).",
-   "Revisar la clasificación orográfica y el diseño geométrico en 23+000 a 44+693.",
-   "R-04"
-  ],
-  [
-   "Prueba de carga del puente Paucarillo",
-   "S10 1.10.03.04.08: 46.00 glb x S/ 5,813.86 = S/ 267,437.56",
-   "En los demás puentes la cantidad es 1.00 glb; sobrecosto aparente de S/ 261,623.70 de costo directo.",
-   "Corregir el metrado a 1.00 glb.",
-   "R-16"
-  ],
-  [
-   "Precio de la base granular",
-   "S10 1.06.01.02: S/ 36.51/m³ frente a 1.06.01.01 Subbase S/ 165.83/m³",
-   "La base suele costar más que la subbase; el precio parece incompleto.",
-   "Revisar el análisis de precios unitarios.",
-   "R-16, R-17"
-  ],
-  [
-   "Cemento asfáltico",
-   "S10 1.06.02.03: 1,440,431.91 gal para 10,469.02 m³ de MAC (unos 138 gal/m³)",
-   "El consumo usual es del orden de 30 a 40 gal/m³; la cantidad parece sobrestimada unas 3 a 4 veces (S/ 5.76 M de costo directo).",
-   "Recalcular con el diseño de mezcla (contenido óptimo de asfalto y densidad).",
-   "R-16, R-17"
-  ],
-  [
-   "Imprimación y carpeta",
-   "S10: imprimación 122,176 m²; MAC 10,469.02 m³; carpeta e = 2\" según el resumen ejecutivo",
-   "122,176 m² x 0.05 m = 6,109 m³; el volumen de MAC es 1.7 veces mayor.",
-   "Compatibilizar espesor, área y volumen de la carpeta.",
-   "R-16"
-  ],
-  [
-   "Depósito de material excedente",
-   "S10 1.04.04: DME 0.38 ha; 1.11.01.01: acomodo de 297,756.23 m³",
-   "Equivale a 78 m de altura de relleno; el área es insuficiente.",
-   "Identificar DME de 6 a 7.5 ha y ajustar accesos y transporte.",
-   "R-25"
-  ],
-  [
-   "Desvío temporal",
-   "S10 1.04.11: 18.00 m x S/ 12,768.99 = S/ 229,841.82",
-   "El precio corresponde a un kilómetro (igual al de habilitación de accesos); la unidad parece errada.",
-   "Revisar unidad y metrado.",
-   "R-16, R-27"
-  ],
-  [
-   "Metrados de puentes",
-   "S10 1.10.01.02 y 1.10.02.02 (Tingo de Ponasa y Barco); 1.10.03 a 1.10.05 (Paucarillo, Apangurayco, Chanchamayco)",
-   "Subestructuras con cantidades idénticas en cauces distintos (p. ej. 954.48 m³ de concreto y 52,715.90 kg de acero en ambos puentes de 40 m).",
-   "Verificar estudios de hidrología, socavación y geotecnia por puente.",
-   "R-34"
-  ],
-  [
-   "Plan de contingencias",
-   "S10 1.11.09: S/ 1,600 (1 simulacro y 1 capacitación)",
-   "Insuficiente para 24 meses de obra con 5 puentes y dos temporadas de lluvias.",
-   "Presupuestar el plan de contingencias de obra con recursos para emergencias por lluvias.",
-   "R-02"
-  ],
-  [
-   "Plan de gestión social y riego para polvo",
-   "S10 1.11.08 (3 meses) y 1.11.04 (18 meses)",
-   "Duraciones menores que el plazo de obra.",
-   "Ajustar a la duración real de la obra.",
-   "R-13"
-  ],
-  [
-   "Diseño sísmico de puentes",
-   "FTE 18.3: medida 'diseño de acuerdo con la Norma E.030'",
-   "Los puentes se diseñan con el Manual de Puentes del MTC (R.D. N.° 19-2018-MTC/14); la E.030 aplica a edificaciones.",
-   "Corregir la referencia.",
-   "R-22"
-  ],
-  [
-   "Textos de otro proyecto",
-   "Resumen ejecutivo H.1 a H.3",
-   "Se menciona la vía SM-119 Puerto Tarata - Alto Cuñumbuza, el distrito de Pajarillo y una carretera de 42.89 km.",
-   "Corregir los textos de sostenibilidad.",
-   "R-16"
-  ],
-  [
-   "Operación y mantenimiento",
-   "Resumen ejecutivo, cuadros 08 y 09: 'mantenimiento de cables y anclajes' de puentes",
-   "Los puentes proyectados son de vigas y losa; no tienen cables.",
-   "Recalcular los costos de O&M de puentes.",
-   "R-16"
-  ],
-  [
-   "Ubicación administrativa",
-   "FTE: ubigeo 220708 y distrito Tingo de Ponasa; resumen ejecutivo: ubigeo 220709, distrito Shamboyacu",
-   "Datos administrativos inconsistentes entre documentos.",
-   "Uniformizar distrito y ubigeo con el INEI.",
-   "R-16"
-  ],
-  [
-   "Monto en letras",
-   "S10, página 9: 'CIENTO TREINTA Y UN MILLONES CUATROCIENTOS NOVENTA Y DOS MIL ...'",
-   "No coincide con el total en números (S/ 132,696,945.59).",
-   "Corregir el monto en letras.",
-   "R-16"
-  ],
-  [
-   "Interferencias, CIRA y PACRI",
-   "FTE 11: no se marcó el estudio de factibilidad de servicios, el CIRA ni el PACRI",
-   "Hay 73 postes a reubicar, pases de agua potable bajo la vía y ensanche en 9 localidades.",
-   "Evaluar y tramitar cada documento antes de convocar.",
-   "R-10, R-11, R-14"
-  ]
  ],
  "montecarlo": {
   "inherente": {

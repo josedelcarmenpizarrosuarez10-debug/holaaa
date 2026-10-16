@@ -28,6 +28,7 @@ P = {
 }
 P["K"] = P["ST"] * 1.18 / P["CD"]                      # factor costo directo -> precio de obra
 P["costo_dia"] = (P["GG"] * 1.18 + P["SUP"]) / P["plazo"]   # gastos generales + supervisión por día de ampliación
+P["costo_dia_pct"] = P["costo_dia"] / P["PO"] * 100
 
 PROB = [("Muy baja", 0.10), ("Baja", 0.30), ("Moderada", 0.50), ("Alta", 0.70), ("Muy alta", 0.90)]
 IMP = [("Muy bajo", 0.05), ("Bajo", 0.10), ("Moderado", 0.20), ("Alto", 0.40), ("Muy alto", 0.80)]
@@ -36,53 +37,6 @@ IMPACTO_COSTO = [0.001, 0.005, 0.015, 0.04]            # fracción del presupues
 IMPACTO_PLAZO = [7, 21, 45, 90]                        # días calendario
 UMBRAL_ALTO, UMBRAL_MOD = 0.18, 0.05
 
-
-# ------------------------------------------------------------------ observaciones a los documentos que generan riesgo (R-16 y otros)
-OBS = [
- ("Longitud del tramo", "FTE (24.70 km, fin 44+090); S10 1.04.01 Topografía (24.09 km); inventario vial (25.350 km, fin 44+693.39); eje del plano clave PC-01 (24.77 km hasta 44+090)",
-  "Tres longitudes distintas para la misma meta física; el tramo 44+090 a 44+693 (zona urbana de Shamboyacu) no está en el PC-01.",
-  "Fijar una sola longitud y progresivas con la topografía del expediente y ajustar todos los metrados por kilómetro.", "R-16"),
- ("Plazo de ejecución", "Resumen ejecutivo: 720 días (24 meses); FTE 15.2 y 15.3: ejecución física en 8 meses (meses 3 a 10)",
-  "Plazos incompatibles; afecta gastos generales, cronograma climático y partidas mensuales.", "Definir el plazo con un cronograma por ruta crítica y calendario de lluvias.", "R-16"),
- ("Peligros declarados en la FTE", "FTE 18.3: deslizamientos NO, inundaciones NO",
-  "El inventario registra inundación por arrozales (20+360 a 21+170), empozamientos e inestabilidad de taludes de 20 y 30 m (36+060 y 37+520).",
-  "Corregir la FTE y sustentar las medidas de reducción en el expediente (taludes, drenaje, subdrenaje).", "R-04, R-06"),
- ("Orografía", "FTE y resumen ejecutivo: orografía plana",
-  "El modelo digital Copernicus GLO-30 muestra terreno ondulado desde el km 23 (relieve local de 20 a 90 m y laderas de hasta 40°).",
-  "Revisar la clasificación orográfica y el diseño geométrico en 23+000 a 44+693.", "R-04"),
- ("Prueba de carga del puente Paucarillo", "S10 1.10.03.04.08: 46.00 glb x S/ 5,813.86 = S/ 267,437.56",
-  "En los demás puentes la cantidad es 1.00 glb; sobrecosto aparente de S/ 261,623.70 de costo directo.", "Corregir el metrado a 1.00 glb.", "R-16"),
- ("Precio de la base granular", "S10 1.06.01.02: S/ 36.51/m³ frente a 1.06.01.01 Subbase S/ 165.83/m³",
-  "La base suele costar más que la subbase; el precio parece incompleto.", "Revisar el análisis de precios unitarios.", "R-16, R-17"),
- ("Cemento asfáltico", "S10 1.06.02.03: 1,440,431.91 gal para 10,469.02 m³ de MAC (unos 138 gal/m³)",
-  "El consumo usual es del orden de 30 a 40 gal/m³; la cantidad parece sobrestimada unas 3 a 4 veces (S/ 5.76 M de costo directo).",
-  "Recalcular con el diseño de mezcla (contenido óptimo de asfalto y densidad).", "R-16, R-17"),
- ("Imprimación y carpeta", "S10: imprimación 122,176 m²; MAC 10,469.02 m³; carpeta e = 2\" según el resumen ejecutivo",
-  "122,176 m² x 0.05 m = 6,109 m³; el volumen de MAC es 1.7 veces mayor.", "Compatibilizar espesor, área y volumen de la carpeta.", "R-16"),
- ("Depósito de material excedente", "S10 1.04.04: DME 0.38 ha; 1.11.01.01: acomodo de 297,756.23 m³",
-  "Equivale a 78 m de altura de relleno; el área es insuficiente.", "Identificar DME de 6 a 7.5 ha y ajustar accesos y transporte.", "R-25"),
- ("Desvío temporal", "S10 1.04.11: 18.00 m x S/ 12,768.99 = S/ 229,841.82",
-  "El precio corresponde a un kilómetro (igual al de habilitación de accesos); la unidad parece errada.", "Revisar unidad y metrado.", "R-16, R-27"),
- ("Metrados de puentes", "S10 1.10.01.02 y 1.10.02.02 (Tingo de Ponasa y Barco); 1.10.03 a 1.10.05 (Paucarillo, Apangurayco, Chanchamayco)",
-  "Subestructuras con cantidades idénticas en cauces distintos (p. ej. 954.48 m³ de concreto y 52,715.90 kg de acero en ambos puentes de 40 m).",
-  "Verificar estudios de hidrología, socavación y geotecnia por puente.", "R-34"),
- ("Plan de contingencias", "S10 1.11.09: S/ 1,600 (1 simulacro y 1 capacitación)",
-  "Insuficiente para 24 meses de obra con 5 puentes y dos temporadas de lluvias.", "Presupuestar el plan de contingencias de obra con recursos para emergencias por lluvias.", "R-02"),
- ("Plan de gestión social y riego para polvo", "S10 1.11.08 (3 meses) y 1.11.04 (18 meses)",
-  "Duraciones menores que el plazo de obra.", "Ajustar a la duración real de la obra.", "R-13"),
- ("Diseño sísmico de puentes", "FTE 18.3: medida 'diseño de acuerdo con la Norma E.030'",
-  "Los puentes se diseñan con el Manual de Puentes del MTC (R.D. N.° 19-2018-MTC/14); la E.030 aplica a edificaciones.", "Corregir la referencia.", "R-22"),
- ("Textos de otro proyecto", "Resumen ejecutivo H.1 a H.3",
-  "Se menciona la vía SM-119 Puerto Tarata - Alto Cuñumbuza, el distrito de Pajarillo y una carretera de 42.89 km.", "Corregir los textos de sostenibilidad.", "R-16"),
- ("Operación y mantenimiento", "Resumen ejecutivo, cuadros 08 y 09: 'mantenimiento de cables y anclajes' de puentes",
-  "Los puentes proyectados son de vigas y losa; no tienen cables.", "Recalcular los costos de O&M de puentes.", "R-16"),
- ("Ubicación administrativa", "FTE: ubigeo 220708 y distrito Tingo de Ponasa; resumen ejecutivo: ubigeo 220709, distrito Shamboyacu",
-  "Datos administrativos inconsistentes entre documentos.", "Uniformizar distrito y ubigeo con el INEI.", "R-16"),
- ("Monto en letras", "S10, página 9: 'CIENTO TREINTA Y UN MILLONES CUATROCIENTOS NOVENTA Y DOS MIL ...'",
-  "No coincide con el total en números (S/ 132,696,945.59).", "Corregir el monto en letras.", "R-16"),
- ("Interferencias, CIRA y PACRI", "FTE 11: no se marcó el estudio de factibilidad de servicios, el CIRA ni el PACRI",
-  "Hay 73 postes a reubicar, pases de agua potable bajo la vía y ensanche en 9 localidades.", "Evaluar y tramitar cada documento antes de convocar.", "R-10, R-11, R-14"),
-]
 
 def nivel_impacto(costo, dias):
     ic = sum(costo > u * P["PO"] for u in IMPACTO_COSTO); ip = sum(dias > u for u in IMPACTO_PLAZO)
@@ -130,7 +84,7 @@ R = [
       causa="Taludes altos (h = 20 a 30 m) en suelos limosos y arcillosos saturables; pendientes del entorno de hasta 40° (modelo digital).",
       efecto="Derrumbes sobre la plataforma, cortes adicionales, banquetas o muros no previstos, riesgo para el personal.",
       ubic="36+060 a 36+100 (h = 20 m, LI) y 37+520 a 37+780 (h = 30 m, LI); laderas 34+000 a 37+000 y 43+000 a 44+000",
-      evid="Inventario: zonas críticas por inestabilidad de talud. FTE 18.3 declara deslizamientos NO.",
+      evid="Inventario: zonas críticas por inestabilidad de talud.",
       p=2, costo=(200*K, 700*K, 2000*K), plazo=(7, 20, 45), rc=True, asig="Compartido", resp="Mitigar",
       acc="Antes del inicio: verificar la estabilidad de cortes (factor de seguridad estático y seudoestático) y el diseño de muros en esos "
           "sectores; durante la obra: cortes por banquetas de arriba hacia abajo, drenaje de coronación, hitos de control de desplazamiento.",
@@ -144,7 +98,7 @@ R = [
       p=3, costo=(150*K, 500*K, 1200*K), plazo=(5, 15, 40), rc=False, asig="Contratista", resp="Mitigar",
       acc="Ejecutar primero los gaviones y la protección de pie en esos sectores; limpieza de alcantarillas y salidas antes del "
           "movimiento de tierras; protección temporal con geobolsas.",
-      quien="Residente / Especialista en geotecnia", partida="1.08.04 Muros de gavión (S/ 2.96 M); 1.05.08 Geobolsas",
+      quien="Residente / Especialista en geotecnia", partida="1.08.04 Muros de gavión; 1.05.08 Geobolsas",
       alerta="Pérdida de material en el borde después de cada lluvia; socavación > 0.30 m al pie.", momento="Ejecución"),
  dict(cod="R-06", pr=2, grupo="terreno", cat="Clima y naturaleza", riesgo="Saturación de terraplenes por inundación de arrozales, canales de riego y empozamientos",
       causa="La vía cruza zonas de cultivo de arroz con riego por inundación y sectores sin elemento de descarga.",
@@ -162,16 +116,16 @@ R = [
       ubic="Sectores de terreno natural y material de préstamo expuesto", evid="Inventario 10.2: terreno natural limoso y arcilloso. S10: mejoramiento 59,801 m³.",
       p=2, costo=(490*K, 1220*K, 2450*K), plazo=(10, 20, 40), rc=False, asig="Entidad", resp="Mitigar",
       acc="Completar calicatas y ensayos CBR cada 500 m antes de la convocatoria; definir criterios de reemplazo en el expediente.",
-      quien="Entidad (expediente) / Supervisor", partida="1.05.06 Mejoramiento de suelos (S/ 3.53 M CD); 1.05.07 Geomalla",
+      quien="Entidad (expediente) / Supervisor", partida="1.05.06 Mejoramiento de suelos; 1.05.07 Geomalla",
       alerta="CBR de campo menor al de diseño en dos sectores consecutivos.", momento="Antes de la convocatoria"),
  dict(cod="R-08", pr=0, grupo="terreno", cat="Insumos y canteras", riesgo="Cantera insuficiente, sin calidad o sin autorización, con mayor distancia de transporte",
       causa="Unos 423,600 m³ de material granular (terraplén, mejoramiento, subbase y base) dependen de canteras de río; la distancia media es ~31 km.",
-      efecto="Cada kilómetro adicional cuesta unos S/ 0.92 M a precio de obra; retraso en la producción de agregados.",
-      ubic="Cantera de río (4.50 ha) y accesos (2.50 km)", evid="S10 1.07.02: transporte > 1 km, 13,074,057 m³k a S/ 1.57; 1.04.07 y 1.04.08 cantera.",
+      efecto="Cada kilómetro adicional de transporte equivale a cerca de 0.75 % del presupuesto de obra; retraso en la producción de agregados.",
+      ubic="Cantera de río (4.50 ha) y accesos (2.50 km)", evid="S10 1.07.02 Transporte de material granular > 1 km; 1.04.07 y 1.04.08 Cantera.",
       p=2, costo=(920*K, 2770*K, 7380*K), plazo=(15, 30, 60), rc=True, asig="Entidad", resp="Evitar",
       acc="Antes de convocar: ensayos de calidad y cálculo de potencia, autorización de la municipalidad y de la ANA para extracción en cauce, "
           "y una cantera alternativa con su distancia.",
-      quien="Entidad (DRTC)", partida="1.04.07, 1.04.08 Cantera; 1.07 Transporte (S/ 25.60 M CD)",
+      quien="Entidad (DRTC)", partida="1.04.07, 1.04.08 Cantera; 1.07 Transporte",
       alerta="Potencia útil menor al 120 % del volumen requerido; observación de la autoridad.", momento="Antes de la convocatoria"),
  dict(cod="R-09", pr=0, grupo="inicio", cat="Permisos", riesgo="Demora en autorizaciones de uso de agua y de extracción de material de cauce",
       causa="Trámites ante la Autoridad Local del Agua y la municipalidad no iniciados en la fase de formulación.",
@@ -185,17 +139,17 @@ R = [
       efecto="Frentes detenidos, compensaciones, rediseño de cunetas y del eje en zonas urbanas.",
       ubic="Tingo de Ponasa 19+343 a 19+800; Aypena 21+940; Nuevo América 26+270; Leoncio Prado 28+080; San Antonio 31+420; Huañipo 33+780; "
            "Paucar 38+020; Alfonso Ugarte 38+730; Shamboyacu 44+300 a 44+693",
-      evid="FTE 11: acta de libre disponibilidad requerida; PACRI no marcado. Resumen ejecutivo: derecho de vía 'no cuenta'.",
+      evid="FTE 11: acta de libre disponibilidad del terreno. Resumen ejecutivo: derecho de vía de 20 m como mínimo con proyecto.",
       p=3, costo=(100*K, 400*K, 1200*K), plazo=(15, 30, 90), rc=True, asig="Entidad", resp="Evitar",
       acc="Catastro de afectaciones por progresiva; actas de libre disponibilidad firmadas; evaluar el PACRI y el saneamiento físico-legal "
           "(Ley N.° 30025) antes de la convocatoria.",
       quien="Entidad (DRTC) / Municipalidades", partida="Fuera del presupuesto de obra (gestión de la Entidad)",
       alerta="Predio sin acta a 60 días de su frente de trabajo.", momento="Antes de la convocatoria"),
  dict(cod="R-11", pr=1, grupo="inicio", cat="Interferencias", riesgo="Interferencias con redes eléctricas, de agua potable y de telecomunicaciones",
-      causa="73 postes a reubicar; pases de agua potable y tuberías de PVC bajo la vía; no se marcó el estudio de factibilidad de servicios.",
+      causa="73 postes a reubicar; pases de agua potable y tuberías de PVC bajo la vía.",
       efecto="Cortes de servicio, reclamos, espera de la concesionaria, frentes detenidos.",
       ubic="Pase de agua potable 22+425; PVC 21\" 25+715; PVC 6\" 34+688; postes en las 9 localidades",
-      evid="S10 1.04.12 Reubicación de postes (73 und, S/ 164,250); inventario 11.3.",
+      evid="S10 1.04.12 Reubicación de postes (73 und); inventario 11.3.",
       p=3, costo=(50*K, 200*K, 500*K), plazo=(10, 20, 45), rc=True, asig="Entidad", resp="Mitigar",
       acc="Factibilidad y presupuesto aprobados por la concesionaria eléctrica y las JASS o EPS antes del inicio; cronograma de cortes programados.",
       quien="Entidad / Contratista", partida="1.04.12 Reubicación de postes", alerta="Concesionaria sin respuesta a 30 días.", momento="Antes del inicio"),
@@ -211,15 +165,15 @@ R = [
  dict(cod="R-13", pr=1, grupo="gestion", cat="Social y predios", riesgo="Conflictos sociales y paralizaciones de la población",
       causa="Expectativas de empleo local, polvo, ruido, accesos a viviendas y afectaciones de predios.",
       efecto="Paralización de frentes, reprogramación, compromisos adicionales.",
-      ubic="Localidades del tramo", evid="S10 1.11.08 Plan de gestión social, S/ 27,600, programado solo para 3 meses.",
+      ubic="Localidades del tramo", evid="S10 1.11.08 Plan de gestión social.",
       p=2, costo=(50*K, 200*K, 600*K), plazo=(5, 15, 45), rc=True, asig="Compartido", resp="Mitigar",
       acc="Relacionamiento comunitario durante todo el plazo, oficina de atención de quejas, contratación de mano de obra local, riego para polvo en zonas pobladas.",
       quien="Entidad / Contratista (especialista social)", partida="1.11.08 Plan de gestión social; 1.11.04 Riego para polvo",
       alerta="Actas de reclamo sin respuesta; convocatoria a paro.", momento="Antes del inicio y ejecución"),
  dict(cod="R-14", pr=0, grupo="inicio", cat="Permisos", riesgo="Hallazgos arqueológicos o falta del instrumento de intervención arqueológica aprobado",
-      causa="En la FTE no se marcó el CIRA; el presupuesto solo considera monitoreo arqueológico (S/ 12,000).",
+      causa="Cortes, canteras, DME y ensanches en zonas que pueden tener restos arqueológicos; el proyecto contempla un plan de monitoreo arqueológico.",
       efecto="Paralización de frentes por el Ministerio de Cultura hasta el rescate o la liberación.",
-      ubic="Cortes, canteras, DME y ensanches", evid="FTE 11: CIRA sin marcar; S10 1.12.01 Plan y monitoreo arqueológico.",
+      ubic="Cortes, canteras, DME y ensanches", evid="S10 1.12.01 Plan y monitoreo arqueológico.",
       p=1, costo=(20*K, 80*K, 300*K), plazo=(10, 30, 90), rc=True, asig="Entidad", resp="Evitar",
       acc="Tramitar ante el Ministerio de Cultura el instrumento que corresponda (Reglamento de Intervenciones Arqueológicas, D.S. N.° 011-2022-MC) "
           "antes del inicio, incluidas las áreas auxiliares.",
@@ -227,25 +181,25 @@ R = [
  dict(cod="R-15", pr=0, grupo="inicio", cat="Permisos", riesgo="Demora o condicionamiento de la certificación ambiental",
       causa="La FTE señala que se requiere estudio de impacto ambiental; sin certificación no se puede iniciar la obra.",
       efecto="Inicio postergado o cambios del Plan de Manejo Ambiental.",
-      ubic="Todo el proyecto y áreas auxiliares", evid="FTE 11 y 21; S10 1.11 Plan de manejo ambiental (S/ 1.18 M CD).",
+      ubic="Todo el proyecto y áreas auxiliares", evid="FTE 11 y 21; S10 1.11 Plan de manejo ambiental.",
       p=2, costo=(30*K, 100*K, 300*K), plazo=(30, 60, 120), rc=True, asig="Entidad", resp="Evitar",
       acc="Obtener la certificación ambiental de la autoridad competente del SEIA (Ley N.° 27446) antes de convocar; compatibilizar el PMA con el presupuesto.",
       quien="Entidad (DRTC)", partida="1.11 Plan de manejo ambiental", alerta="Observaciones de la autoridad sin levantar.", momento="Antes de la convocatoria"),
- dict(cod="R-16", pr=1, grupo="inicio", cat="Expediente técnico", riesgo="Deficiencias e incompatibilidades del expediente técnico (metrados, longitudes, diseños)",
-      causa="Diferencias de longitud (24.09, 24.70 y 25.350 km), puentes con metrados repetidos y partidas con unidad o metrado dudoso (ver sección 7).",
+ dict(cod="R-16", pr=1, grupo="inicio", cat="Expediente técnico", riesgo="Deficiencias del expediente técnico (metrados, diseños, estudios básicos)",
+      causa="Información de campo o de diseño incompleta o desactualizada (topografía, estudios básicos, metrados) que obliga a ajustar el expediente durante la obra.",
       efecto="Adicionales, deductivos, consultas y controversias; mayor plazo.",
-      ubic="Todo el expediente", evid="S10, FTE e inventario vial (sección 7 del estudio).",
+      ubic="Todo el expediente", evid="Expediente técnico del proyecto.",
       p=3, costo=(500*K, 1500*K, 4000*K), plazo=(10, 25, 60), rc=True, asig="Entidad", resp="Evitar",
-      acc="Revisión integral y compatibilización del expediente antes de convocar; levantar las observaciones de la sección 7; "
+      acc="Revisión integral y compatibilización del expediente antes de convocar; "
           "en solo construcción, el contratista revisa el expediente e informa los riesgos al supervisor.",
-      quien="Entidad (DRTC) / Proyectista", partida="2.50 M Expediente técnico", alerta="Consulta de obra que revela incompatibilidad.", momento="Antes de la convocatoria"),
+      quien="Entidad (DRTC) / Proyectista", partida="Expediente técnico", alerta="Consulta de obra que revela incompatibilidad.", momento="Antes de la convocatoria"),
  dict(cod="R-17", pr=3, grupo="otros", cat="Económico", riesgo="Variación de precios de insumos críticos (asfalto, combustible, acero, TMC)",
-      causa="El cemento asfáltico (S/ 5.76 M CD), el transporte (S/ 25.60 M CD) y las vigas metálicas dependen de precios internacionales.",
+      causa="El cemento asfáltico (6.5 % de la obra), el transporte (29.0 %) y las vigas metálicas dependen de precios internacionales.",
       efecto="Mayor costo vía reajuste de precios; presión sobre el financiamiento.",
       ubic="Todo el proyecto", evid="S10: 1.06.02.03 Cemento asfáltico; 1.07 Transporte; 1.10 Vigas metálicas 84.49 t por puente.",
       p=3, costo=(400*K, 1200*K, 3000*K), plazo=(0, 0, 0), rc=False, asig="Entidad", resp="Aceptar / Mitigar",
       acc="Reajuste por fórmulas polinómicas según el reglamento; previsión presupuestal multianual; abastecimiento anticipado de asfalto.",
-      quien="Entidad (DRTC) / Oficina de Presupuesto", partida="Reajustes (fuera del costo directo)", alerta="Índices unificados INEI con alza > 5 % en el trimestre.", momento="Ejecución"),
+      quien="Entidad (DRTC) / Oficina de Presupuesto", partida="Reajustes de precios", alerta="Índices unificados INEI con alza > 5 % en el trimestre.", momento="Ejecución"),
  dict(cod="R-18", pr=1, grupo="gestion", cat="Insumos y canteras", riesgo="Retraso en el suministro de materiales de importación o fabricación especial",
       causa="Cemento asfáltico, TMC MP-68, vigas metálicas (84.49 t en cada puente de 40 m), neoprenos y geosintéticos con plazos largos.",
       efecto="Frentes detenidos, puentes fuera de secuencia.",
@@ -256,14 +210,14 @@ R = [
  dict(cod="R-19", pr=1, grupo="gestion", cat="Ejecución", riesgo="Falla o insuficiencia de equipos (planta de asfalto, chancadora, compactación)",
       causa="Zona alejada de talleres; transporte de equipo por la PE-5N.",
       efecto="Baja producción y retraso del pavimento.",
-      ubic="Planta y frentes", evid="S10 1.01.03 Movilización de equipo (S/ 93,408).",
+      ubic="Planta y frentes", evid="S10 1.01.03 Movilización de equipo y maquinaria pesada.",
       p=2, costo=(50*K, 200*K, 500*K), plazo=(5, 15, 30), rc=True, asig="Contratista", resp="Mitigar",
       acc="Equipo de respaldo, mantenimiento preventivo y repuestos críticos en obra.", quien="Contratista", partida="Costos del contratista",
       alerta="Disponibilidad mecánica < 85 %.", momento="Ejecución"),
  dict(cod="R-20", pr=1, grupo="otros", cat="Seguridad", riesgo="Accidentes de tránsito y atropellos en la vía en servicio durante la obra",
       causa="IMD de 254 veh/día, un carril, desvíos, maquinaria y peatones en 9 localidades.",
       efecto="Víctimas, responsabilidad civil y penal, paralización del frente.",
-      ubic="Todo el tramo, en especial las localidades", evid="FTE: IMDA 254 veh/día. S10 1.04.02 Mantenimiento de tránsito (S/ 578,336).",
+      ubic="Todo el tramo, en especial las localidades", evid="FTE: IMDA 254 veh/día. S10 1.04.02 Mantenimiento de tránsito temporal y seguridad vial.",
       p=2, costo=(20*K, 100*K, 500*K), plazo=(1, 5, 20), rc=False, asig="Contratista", resp="Mitigar / Transferir",
       acc="Plan de manejo de tránsito aprobado, controladores, señalización transitoria, horarios; seguro de responsabilidad civil y SCTR.",
       quien="Contratista (prevencionista)", partida="1.04.02 Mantenimiento de tránsito; 1.02.03 Señalización transitoria",
@@ -271,7 +225,7 @@ R = [
  dict(cod="R-21", pr=0, grupo="otros", cat="Seguridad", riesgo="Accidentes de trabajo graves (izaje de vigas, trabajo en agua, excavaciones, maquinaria)",
       causa="Montaje de vigas metálicas, excavación bajo agua y cortes altos.",
       efecto="Lesiones o fatalidades, paralización por la autoridad de trabajo.",
-      ubic="Puentes y cortes en ladera", evid="S10 1.02 Seguridad y salud (S/ 268,295); 1.10 Montaje de estructuras metálicas.",
+      ubic="Puentes y cortes en ladera", evid="S10 1.02 Seguridad y salud ocupacional; 1.10 Montaje de estructuras metálicas.",
       p=1, costo=(30*K, 150*K, 600*K), plazo=(3, 10, 30), rc=False, asig="Contratista", resp="Mitigar / Transferir",
       acc="Plan de seguridad y salud en el trabajo (Ley N.° 29783 y D.S. N.° 011-2019-TR), procedimientos de izaje, permisos de trabajo de alto riesgo, SCTR.",
       quien="Contratista (prevencionista)", partida="1.02 Seguridad y salud ocupacional", alerta="Acto o condición subestándar repetida.", momento="Ejecución"),
@@ -283,24 +237,24 @@ R = [
       acc="Póliza CAR; puentes diseñados con el Manual de Puentes del MTC; plan de respuesta ante emergencias.",
       quien="Entidad / Contratista", partida="Póliza CAR; 1.02.05 Recursos para emergencias", alerta="Reporte del IGP de sismo sentido en la zona.", momento="Ejecución"),
  dict(cod="R-23", pr=1, grupo="inicio", cat="Económico", riesgo="Retraso en el financiamiento o en los pagos de valorizaciones",
-      causa="Fuente de recursos determinados (canon, FONCOR) sujeta a variaciones; inversión de S/ 132.70 M en 24 meses.",
+      causa="Fuente de recursos determinados (canon, FONCOR) sujeta a variaciones; inversión alta concentrada en 24 meses.",
       efecto="Ritmo de obra menor, paralización y reconocimiento de gastos generales.",
       ubic="Todo el proyecto", evid="FTE 20: recursos determinados. Resumen ejecutivo: canon, FONCOR, RDR.",
       p=2, costo=(100*K, 400*K, 1500*K), plazo=(10, 30, 90), rc=True, asig="Entidad", resp="Mitigar",
       acc="Certificación y previsión presupuestal multianual antes de convocar; cronograma de desembolsos alineado al calendario de avance.",
       quien="Entidad (Gerencia de Presupuesto)", partida="—", alerta="Valorización impaga a 30 días.", momento="Antes de la convocatoria y ejecución"),
  dict(cod="R-24", pr=1, grupo="gestion", cat="Gestión del contrato", riesgo="Demoras en la absolución de consultas, aprobación de prestaciones adicionales y decisiones de la Entidad",
-      causa="Volumen de consultas por las observaciones del expediente; designación tardía de la supervisión.",
+      causa="Volumen de consultas técnicas durante la obra; designación tardía de la supervisión.",
       efecto="Frentes detenidos, ampliaciones de plazo y controversias.",
       ubic="Todo el proyecto", evid="—",
       p=2, costo=(50*K, 150*K, 500*K), plazo=(7, 20, 45), rc=True, asig="Entidad", resp="Mitigar",
-      acc="Comité de gestión de riesgos (obra mayor a S/ 50 M); plazos internos de respuesta; supervisión contratada antes del inicio; "
+      acc="Comité de gestión de riesgos; plazos internos de respuesta; supervisión contratada antes del inicio; "
           "junta de prevención y resolución de disputas cuando corresponda.",
       quien="Entidad (DRTC)", partida="—", alerta="Consulta sin respuesta en el plazo del reglamento.", momento="Ejecución"),
  dict(cod="R-25", pr=1, grupo="inicio", cat="Ambiental", riesgo="Áreas de depósito de material excedente (DME) insuficientes",
-      causa="Se presupuesta 0.38 ha de DME para 297,756 m³ de excedente (altura equivalente de 78 m).",
+      causa="La obra genera cerca de 298,000 m³ de material excedente que deben disponerse en DME autorizados y cercanos a la vía.",
       efecto="DME adicionales, mayor transporte, observaciones ambientales.",
-      ubic="DME del proyecto", evid="S10 1.04.04 DME 0.38 ha; 1.11.01.01 Acomodo de 297,756 m³.",
+      ubic="DME del proyecto", evid="S10 1.04.04 Habilitación de DME; 1.11.01.01 Acomodo de material excedente.",
       p=4, costo=(300*K, 900*K, 2000*K), plazo=(10, 20, 45), rc=True, asig="Entidad", resp="Evitar",
       acc="Identificar DME con capacidad suficiente (unas 6 a 7.5 ha con 4 a 5 m de altura), con autorización del propietario y ubicación aprobada en el estudio ambiental.",
       quien="Entidad (expediente) / Especialista ambiental", partida="1.04.03, 1.04.04, 1.11.01 DME",
@@ -315,7 +269,7 @@ R = [
  dict(cod="R-27", pr=1, grupo="gestion", cat="Ejecución", riesgo="Interrupción prolongada del tránsito y del acceso a las localidades",
       causa="No existe vía alterna; demolición y reconstrucción de 5 puentes en el mismo eje.",
       efecto="Aislamiento de centros poblados, reclamos, exigencia de puentes provisionales.",
-      ubic="Puentes 20+300, 29+300, 37+870, 38+800, 44+040", evid="S10: desvío temporal 4 a 85 m por puente; 1.04.11 Desvío temporal 18 'm'.",
+      ubic="Puentes 20+300, 29+300, 37+870, 38+800, 44+040", evid="S10: desvíos temporales en cada puente; 1.04.11 Desvío temporal durante la ejecución.",
       p=2, costo=(30*K, 120*K, 300*K), plazo=(3, 10, 25), rc=False, asig="Contratista", resp="Mitigar",
       acc="Desvíos con badén o puente modular provisional en los puentes de 40 m; demoler el puente existente solo con el desvío habilitado.",
       quien="Contratista / Supervisor", partida="1.04.11 Desvío temporal; desvíos de cada puente", alerta="Desvío intransitable después de una lluvia.", momento="Ejecución de puentes"),
@@ -329,7 +283,7 @@ R = [
  dict(cod="R-29", pr=1, grupo="otros", cat="Seguridad", riesgo="Enfermedades transmitidas por vectores (dengue) y emergencias sanitarias en el personal",
       causa="Zona endémica de selva; campamento con agua estancada.",
       efecto="Ausentismo y menor rendimiento.",
-      ubic="Campamento y frentes", evid="S10 1.02.05 Recursos para respuesta ante emergencias (S/ 10,500).",
+      ubic="Campamento y frentes", evid="S10 1.02.05 Recursos para respuesta ante emergencias.",
       p=2, costo=(20*K, 60*K, 200*K), plazo=(3, 10, 30), rc=False, asig="Contratista", resp="Mitigar",
       acc="Plan de salud, control de vectores en campamento, repelentes y coordinación con el establecimiento de salud de Tingo de Ponasa.",
       quien="Contratista", partida="1.02 Seguridad y salud", alerta="Casos febriles en el personal.", momento="Ejecución"),
@@ -360,12 +314,12 @@ R = [
       acc="Evaluación de la capacidad de carga antes del inicio; prohibir el paso de equipo con cargas superiores; transportar el equipo pesado por desvío o vado.",
       quien="Contratista / Supervisor", partida="1.04.02 Mantenimiento de tránsito", alerta="Fisuras o deflexión visible en el tablero.", momento="Inicio y ejecución"),
  dict(cod="R-34", pr=0, grupo="terreno", cat="Expediente técnico", riesgo="Cambio de diseño de puentes por condiciones de cauce, socavación o cimentación distintas",
-      causa="Puentes Tingo de Ponasa y Barco con metrados de subestructura idénticos; luces de 40 m en cauces con socavación.",
+      causa="Puentes de 12 a 40 m en cauces con socavación y suelos de fundación variables.",
       efecto="Mayores profundidades de cimentación o luces, adicionales y plazo.",
-      ubic="Puentes Tingo de Ponasa 20+300 y Barco 29+300", evid="S10 1.10.01.02 y 1.10.02.02: mismas cantidades de concreto, acero y falsa zapata.",
+      ubic="Puentes Tingo de Ponasa 20+300 y Barco 29+300", evid="S10 1.10 Puentes; inventario vial 11.2 (puentes existentes).",
       p=1, costo=(200*K, 800*K, 2500*K), plazo=(15, 30, 90), rc=True, asig="Entidad", resp="Evitar",
       acc="Verificar por puente el estudio hidrológico, hidráulico, de socavación y geotécnico (Manual de Puentes del MTC) antes de convocar.",
-      quien="Entidad / Proyectista", partida="1.10 Puentes (S/ 9.87 M CD)", alerta="Perforación con estrato de apoyo más profundo que el de diseño.", momento="Antes de la convocatoria"),
+      quien="Entidad / Proyectista", partida="1.10 Puentes", alerta="Perforación con estrato de apoyo más profundo que el de diseño.", momento="Antes de la convocatoria"),
 ]
 
 OPORT = [
@@ -398,11 +352,13 @@ def calcular():
         r["PxI"] = round(r["P"] * r["I"], 4); r["nivel"] = nivel_riesgo(r["PxI"])
         r["Pr"] = PROB[r["pr"]][1]; r["Pr_txt"] = PROB[r["pr"]][0]
         r["PxIr"] = round(r["Pr"] * r["I"], 4); r["nivel_r"] = nivel_riesgo(r["PxIr"])
+        r["costo_pct"] = tuple(v / P["PO"] * 100 for v in r["costo"])
         r["c_media"] = sum(r["costo"]) / 3.0; r["t_media"] = sum(r["plazo"]) / 3.0
         r["EMV_costo"] = r["P"] * r["c_media"]; r["EMV_plazo"] = r["P"] * r["t_media"]
         r["EMV_costo_r"] = r["Pr"] * r["c_media"]; r["EMV_plazo_r"] = r["Pr"] * r["t_media"]
     for o in OPORT:
-        o["P"] = PROB[o["p"]][1]; o["EMV"] = o["P"] * sum(o["beneficio"]) / 3.0; o["EMV_plazo"] = o["P"] * sum(o["plazo"]) / 3.0
+        o["beneficio_pct"] = tuple(v / P["PO"] * 100 for v in o["beneficio"])
+        o["P"] = PROB[o["p"]][1]; o["EMV_pct"] = o["P"] * sum(o["beneficio"]) / 3.0 / P["PO"] * 100; o["EMV"] = o["P"] * sum(o["beneficio"]) / 3.0; o["EMV_plazo"] = o["P"] * sum(o["plazo"]) / 3.0
 
 
 def montecarlo(n=20000, semilla=2673852, residual=False):
@@ -444,7 +400,7 @@ def montecarlo(n=20000, semilla=2673852, residual=False):
 def todo():
     calcular(); mc = {"inherente": montecarlo(), "residual": montecarlo(residual=True)}
     os.makedirs(CALC, exist_ok=True)
-    json.dump({"proyecto": P, "riesgos": R, "oportunidades": OPORT, "observaciones": OBS, "montecarlo": mc, "grupos": GRUPOS, "concurrencia": CONCURRENCIA}, open(os.path.join(CALC, "riesgos.json"), "w"), ensure_ascii=False, indent=1)
+    json.dump({"proyecto": P, "riesgos": R, "oportunidades": OPORT, "montecarlo": mc, "grupos": GRUPOS, "concurrencia": CONCURRENCIA}, open(os.path.join(CALC, "riesgos.json"), "w"), ensure_ascii=False, indent=1)
     return mc
 
 

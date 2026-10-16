@@ -18,8 +18,7 @@ FT = "Arial"; AZUL = RGBColor(0x1F, 0x4E, 0x79)
 D = json.load(open(os.path.join(CALC, "riesgos.json"))); MC = D["montecarlo"]; EJE = json.load(open(os.path.join(CALC, "eje_terreno.json")))
 LL = json.load(open(os.path.join(CALC, "lluvia_ghcn.json")))
 RS.calcular(); P = RS.P; R = RS.R
-m = lambda v: "S/ {:,.2f}".format(v)
-mm_ = lambda v: "S/ {:,.2f} M".format(v / 1e6)
+pc = lambda v: "%.1f %%" % (v / P["PO"] * 100)          # porcentaje del presupuesto de obra
 
 
 # ------------------------------------------------------------------ utilidades
@@ -151,8 +150,7 @@ def main():
     par(doc, "CUI N.° %s" % P["cui"], 12, True, C, despues=40)
     tabla(doc, ["DATO", "DESCRIPCIÓN"], [["Ubicación", "Distrito de Shamboyacu, provincia de Picota, departamento de San Martín"],
                                         ["Tramo", "Tingo de Ponasa (km 19+343.39) - Shamboyacu (km 44+693.39); 25.350 km según inventario vial"],
-                                        ["Presupuesto de obra", m(P["PO"]) + " (costo al " + P["fecha_ppto"] + ")"],
-                                        ["Costo total de inversión", m(P["TOTAL"])], ["Plazo de ejecución", "%d días calendario" % P["plazo"]],
+                                        ["Plazo de ejecución", "%d días calendario" % P["plazo"]],
                                         ["Modalidad", P["modalidad"]]], [4.5, 11.5], tam=9)
     par(doc, "OCTUBRE 2026", 11, True, C, antes=40)
     doc.add_page_break()
@@ -198,8 +196,7 @@ def main():
            ["Situación con proyecto", "Calzada de 6.00 m y bermas de 0.50 m con carpeta asfáltica en caliente", "FTE"],
            ["IMDA actual / proyectado", "%d / %d veh/día" % (P["imda_actual"], P["imda_proy"]), "FTE"],
            ["Población beneficiaria directa", "{:,} habitantes".format(P["poblacion"]), "FTE"],
-           ["Costo directo", m(P["CD"]), "Presupuesto S10"], ["Presupuesto de obra (con IGV)", m(P["PO"]), "Presupuesto S10"],
-           ["Costo total de inversión", m(P["TOTAL"]), "Presupuesto S10"], ["Plazo de ejecución", "%d días calendario" % P["plazo"], "Resumen ejecutivo"],
+           ["Plazo de ejecución", "%d días calendario" % P["plazo"], "Resumen ejecutivo"],
            ["Modalidad y financiamiento", "%s; %s" % (P["modalidad"], P["fuente_fin"].lower()), "FTE"]], [4.2, 7.2, 4.6], tam=8)
 
     # ------------------------------------------------------------------ 2 marco normativo
@@ -209,7 +206,7 @@ def main():
     vin(doc, "Reglamento de la Ley N.° 32069, aprobado por D.S. N.° 009-2025-EF, y sus modificatorias. El artículo 156 regula la gestión de riesgos en obras: "
              "en las obras segmentadas como avanzadas la matriz de riesgos forma parte del expediente de contratación y contiene, como mínimo, la "
              "identificación de los riesgos, su responsable y su análisis cualitativo y cuantitativo; la entidad asigna cada riesgo a la parte que puede "
-             "gestionarlo y mitigarlo; y, cuando la cuantía supera los S/ 50 000 000, conforma un comité de gestión de riesgos que acompaña las fases de la "
+             "gestionarlo y mitigarlo; y, cuando la cuantía de la obra supera el monto que fija el reglamento, conforma un comité de gestión de riesgos que acompaña las fases de la "
              "contratación, aprueba los riesgos y oportunidades nuevos y sus respuestas, y hace el seguimiento de las alertas tempranas.")
     vin(doc, "Comunicado N.° 016-2025-OECE: la aplicación de los artículos 128 y 156 del reglamento es obligatoria y no depende de la emisión de la directiva "
              "de la Dirección General de Abastecimiento.")
@@ -250,23 +247,23 @@ def main():
         (sum(1 for c in ctrl if c[1] < 12), EJE["longitud_pc01_m"] / 1000))
     fig(doc, os.path.join(FIG, "f1_mapa.png"), 16.0, "Ubicación del tramo y de los sectores y puntos con riesgo identificado",
         "eje del plano clave PC-01 georreferenciado; sectores del estudio de inventario vial; relieve del modelo Copernicus GLO-30.")
-    tit(doc, "3.2", "Componentes y costos de la obra", 2)
+    tit(doc, "3.2", "Componentes de la obra", 2)
     comp = [("Obras provisionales", 626158.06), ("Seguridad y salud ocupacional", 268294.80), ("Demoliciones y desmontajes", 7286663.26),
             ("Obras preliminares", 1148377.50), ("Movimiento de tierras", 13693530.47), ("Pavimentos", 17951289.35), ("Transporte", 25602427.13),
             ("Obras de arte y drenaje", 9537008.29), ("Señalización y seguridad vial", 1089422.57), ("Puentes (5)", 9869727.35),
             ("Plan de manejo ambiental", 1177898.83), ("Plan arqueológico", 12000.00)]
-    ctab(doc, "Componentes del costo directo (presupuesto S10)")
-    tabla(doc, ["COMPONENTE", "COSTO DIRECTO (S/)", "% DEL CD"], [[c, "{:,.2f}".format(v), "%.1f %%" % (v / P["CD"] * 100)] for c, v in comp] +
-          [["COSTO DIRECTO", "{:,.2f}".format(P["CD"]), "100.0 %"]], [8.5, 4.0, 2.5], tam=8, alinear=[L_, WD_ALIGN_PARAGRAPH.RIGHT, C])
-    par(doc, "El transporte (29.0 %) y el movimiento de tierras (15.5 %) suman casi la mitad del costo directo: los riesgos de canteras, distancias de "
+    ctab(doc, "Participación de los componentes de la obra (presupuesto S10)")
+    tabla(doc, ["COMPONENTE", "PARTICIPACIÓN (%)"], [[c, "%.1f %%" % (v / P["CD"] * 100)] for c, v in comp] + [["TOTAL", "100.0 %"]],
+          [9.5, 4.0], tam=8, alinear=[L_, C])
+    par(doc, "El transporte (29.0 %) y el movimiento de tierras (15.5 %) suman casi la mitad de la obra: los riesgos de canteras, distancias de "
              "transporte, depósitos de material excedente y suelos de subrasante tienen el mayor peso económico.")
     ctab(doc, "Puentes a reemplazar")
-    tabla(doc, ["PUENTE", "PROGRESIVA", "LUZ", "COSTO DIRECTO (S/)", "PUENTE EXISTENTE (INVENTARIO)"],
-          [["Tingo de Ponasa", "20+300", "40.00 m", "3,619,664.38", "20+300 a 20+337, viga y losa, h = 8.00 m"],
-           ["Barco", "29+300", "40.00 m", "3,687,055.05", "29+329 a 29+360, L = 31 m, señal de carga máx. 30 t"],
-           ["Paucarillo", "37+870", "20.00 m", "1,092,279.51", "37+960 a 37+974, L = 14 m"],
-           ["Apangurayco", "38+800", "15.00 m", "763,556.43", "38+919 a 38+929, L = 10 m"],
-           ["Chanchamayco", "44+040", "12.00 m", "707,171.98", "44+149 a 44+158, pontón L = 9 m"]], [3.0, 2.2, 1.8, 3.0, 6.0], tam=8)
+    tabla(doc, ["PUENTE", "PROGRESIVA", "LUZ", "PUENTE EXISTENTE (INVENTARIO)"],
+          [["Tingo de Ponasa", "20+300", "40.00 m", "20+300 a 20+337, viga y losa, h = 8.00 m"],
+           ["Barco", "29+300", "40.00 m", "29+329 a 29+360, L = 31 m, señal de carga máx. 30 t"],
+           ["Paucarillo", "37+870", "20.00 m", "37+960 a 37+974, L = 14 m"],
+           ["Apangurayco", "38+800", "15.00 m", "38+919 a 38+929, L = 10 m"],
+           ["Chanchamayco", "44+040", "12.00 m", "44+149 a 44+158, pontón L = 9 m"]], [3.2, 2.4, 2.0, 8.4], tam=8)
     tit(doc, "3.3", "Estado de la vía y puntos críticos", 2)
     par(doc, "El inventario vial registra, entre otros, 5 puentes, 50 alcantarillas (varias colmatadas o semicolmatadas), 28 badenes, 6 cruces de canal de "
              "regadío, 30 señales y 26 puntos o sectores críticos. La calzada tiene un solo carril de 4.50 a 6.20 m, con encalaminado, baches, pérdida del "
@@ -288,8 +285,7 @@ def main():
     par(doc, "El perfil del terreno se obtuvo del modelo digital Copernicus GLO-30 (30 m), que incluye la altura de la vegetación; sus valores son "
              "referenciales. Del inicio al km 23 el terreno es llano (cotas de %.0f a %.0f msnm, pendientes del entorno menores de 15°), con arrozales y "
              "zonas inundables. Desde el km 23 el terreno es ondulado: cotas de %.0f a %.0f msnm, relieve local de 20 a 90 m y laderas de hasta %.0f°, "
-             "con los valores mayores entre los km 34 y 37 y entre los km 41 y 44. Allí están los taludes inestables y las erosiones del inventario. "
-             "La FTE clasifica la orografía como plana, lo que no corresponde a la segunda mitad del tramo." %
+             "con los valores mayores entre los km 34 y 37 y entre los km 41 y 44. Allí están los taludes inestables y las erosiones del inventario. " %
         (min(t["z"] for t in plano), max(t["z"] for t in plano), min(t["z"] for t in ondu), max(t["z"] for t in ondu), max(t["pend_max_grados"] for t in ondu)))
     fig(doc, os.path.join(FIG, "f2_perfil.png"), 16.0, "Perfil del terreno y pendiente máxima del entorno (franja de 150 m a cada lado)",
         "modelo digital Copernicus GLO-30; sectores críticos del estudio de inventario vial.")
@@ -310,7 +306,7 @@ def main():
               "económicos, suministros, ejecución, seguridad y ambiente).",
               "Análisis cualitativo: probabilidad (P) e impacto (I) con las escalas de la Tabla N.° %02d; el impacto se obtiene del valor más probable de costo y "
               "de plazo de cada riesgo (Tabla N.° %02d) y se toma el mayor. El nivel resulta de P x I." % (NUMT[0] + 1, NUMT[0] + 2),
-              "Análisis cuantitativo: costo y retraso de cada riesgo con distribución triangular (mínimo, más probable, máximo); valor monetario esperado (VME); "
+              "Análisis cuantitativo: costo y retraso de cada riesgo con distribución triangular (mínimo, más probable, máximo); valor esperado; "
               "simulación de Monte Carlo para obtener la reserva de contingencia y el retraso probable.",
               "Respuesta: estrategia (evitar, mitigar, transferir o aceptar), acciones, responsable, partida que la financia, momento y alerta temprana.",
               "Asignación: a la Entidad, al contratista o compartido, según quién controla la causa.",
@@ -320,19 +316,18 @@ def main():
                                                                                            "Puede ocurrir durante la obra", "Es probable que ocurra", "Se espera que ocurra"])],
           [3.0, 2.0, 11.0], tam=8, alinear=[L_, C, L_])
     ctab(doc, "Escala de impacto (valor más probable)")
-    lim_c = ["< %s" % mm_(RS.IMPACTO_COSTO[0] * P["PO"])] + ["%s a %s" % (mm_(RS.IMPACTO_COSTO[i - 1] * P["PO"]), mm_(RS.IMPACTO_COSTO[i] * P["PO"])) for i in range(1, 4)] + ["> %s" % mm_(RS.IMPACTO_COSTO[3] * P["PO"])]
     lim_p = ["< 7 días", "7 a 21 días", "21 a 45 días", "45 a 90 días", "> 90 días"]
     pct = ["< 0.1 %", "0.1 a 0.5 %", "0.5 a 1.5 %", "1.5 a 4.0 %", "> 4.0 %"]
-    tabla(doc, ["NIVEL", "VALOR", "COSTO (% DEL PRESUPUESTO DE OBRA)", "COSTO (S/)", "PLAZO"],
-          [[t, "%.2f" % v, pct[i], lim_c[i], lim_p[i]] for i, (t, v) in enumerate(RS.IMP)], [2.6, 1.6, 4.4, 4.6, 2.8], tam=8, alinear=[L_, C, C, C, C])
+    tabla(doc, ["NIVEL", "VALOR", "COSTO (% DEL PRESUPUESTO DE OBRA)", "PLAZO"],
+          [[t, "%.2f" % v, pct[i], lim_p[i]] for i, (t, v) in enumerate(RS.IMP)], [3.0, 2.0, 6.0, 4.0], tam=8, alinear=[L_, C, C, C])
     ctab(doc, "Niveles de riesgo y tratamiento")
     tabla(doc, ["NIVEL", "P x I", "TRATAMIENTO"], [["ALTO", ">= 0.18", "Respuesta obligatoria antes del inicio o de la actividad afectada; seguimiento mensual del comité"],
                                                   ["MODERADO", "0.05 a 0.18", "Respuesta planificada; seguimiento del residente y del supervisor"],
                                                   ["BAJO", "< 0.05", "Se acepta; se vigila con el registro"]], [3.0, 2.5, 10.5], tam=8, colores=colnivel, alinear=[C, C, L_])
-    par(doc, "Montos a precio de obra: el costo directo se multiplica por %.4f (gastos generales, utilidad e IGV). Cada día de ampliación atribuible a la "
-             "Entidad se valoriza en %s (gastos generales con IGV y supervisión por día). En la simulación, los retrasos de la ruta crítica se agrupan "
-             "por etapa (inicio, clima, terreno y gestión): dentro de cada grupo se suma el mayor retraso y el %d %% de los demás, porque actúan sobre los "
-             "mismos frentes y períodos; los grupos se suman entre sí." % (P["K"], m(P["costo_dia"]), int(D["concurrencia"] * 100)))
+    par(doc, "El efecto en costo de cada riesgo se expresa en porcentaje del presupuesto de obra. Cada día de ampliación atribuible a la Entidad "
+             "equivale a %.3f %% del presupuesto de obra (gastos generales y supervisión por día). En la simulación, los retrasos de la ruta crítica se "
+             "agrupan por etapa (inicio, clima, terreno y gestión): dentro de cada grupo se suma el mayor retraso y el %d %% de los demás, porque actúan "
+             "sobre los mismos frentes y períodos; los grupos se suman entre sí." % (P["costo_dia_pct"], int(D["concurrencia"] * 100)))
 
     # ------------------------------------------------------------------ 5 identificacion
     tit(doc, "5", "Identificación de riesgos")
@@ -344,7 +339,7 @@ def main():
 
     # ------------------------------------------------------------------ 6 cualitativo
     tit(doc, "6", "Análisis cualitativo")
-    par(doc, "Resultado inherente (sin respuesta): %d riesgos de nivel ALTO, %d MODERADO y %d BAJO. Con las respuestas del capítulo 9 ejecutadas en el momento "
+    par(doc, "Resultado inherente (sin respuesta): %d riesgos de nivel ALTO, %d MODERADO y %d BAJO. Con las respuestas del capítulo 8 ejecutadas en el momento "
              "indicado (residual): %d ALTO, %d MODERADO y %d BAJO." % (n_niv["ALTO"], n_niv["MODERADO"], n_niv["BAJO"], n_res["ALTO"], n_res["MODERADO"], n_res["BAJO"]))
     ctab(doc, "Análisis cualitativo P x I")
     filas = [[r["cod"], r["riesgo"], r["P_txt"], r["I_txt"], "%.3f" % r["PxI"], r["nivel"], r["Pr_txt"], "%.3f" % r["PxIr"], r["nivel_r"]] for r in sorted(R, key=lambda r: (-r["PxI"], r["cod"]))]
@@ -357,65 +352,57 @@ def main():
 
     # ------------------------------------------------------------------ 7 cuantitativo
     tit(doc, "7", "Análisis cuantitativo")
-    tit(doc, "7.1", "Valor monetario esperado", 2)
-    par(doc, "El valor monetario esperado (VME) de cada riesgo es su probabilidad por el valor medio de su distribución triangular. La tabla muestra los "
-             "riesgos con mayor VME de costo; la lista completa, con fórmulas, está en la hoja ANALISIS CUANTITATIVO.")
+    tit(doc, "7.1", "Valor esperado", 2)
+    par(doc, "El valor esperado de cada riesgo es su probabilidad por el valor medio de su distribución triangular, en porcentaje del presupuesto de obra "
+             "y en días. La tabla muestra los riesgos con mayor valor esperado; la lista completa, con fórmulas, está en la hoja ANALISIS CUANTITATIVO.")
     top = sorted(R, key=lambda r: -r["EMV_costo"])[:15]
-    ctab(doc, "Riesgos con mayor valor monetario esperado")
-    tabla(doc, ["COD.", "RIESGO", "ASIGNADO", "P", "COSTO MÍN. - MÁS PROB. - MÁX. (S/ miles)", "VME COSTO (S/)", "VME PLAZO (días)"],
-          [[r["cod"], r["riesgo"], r["asig"], "%.2f" % r["P"], "%s - %s - %s" % tuple("{:,.0f}".format(v / 1000) for v in r["costo"]), "{:,.0f}".format(r["EMV_costo"]),
-            "%.1f" % r["EMV_plazo"]] for r in top], [1.2, 5.2, 1.9, 0.9, 3.2, 2.0, 1.6], tam=7, alinear=[C, L_, C, C, C, WD_ALIGN_PARAGRAPH.RIGHT, C])
+    ctab(doc, "Riesgos con mayor valor esperado")
+    tabla(doc, ["COD.", "RIESGO", "ASIGNADO", "P", "EFECTO EN COSTO MÍN. - MÁS PROB. - MÁX. (%)", "VALOR ESPERADO COSTO (%)", "VALOR ESPERADO PLAZO (días)"],
+          [[r["cod"], r["riesgo"], r["asig"], "%.2f" % r["P"], "%.2f - %.2f - %.2f" % r["costo_pct"], "%.2f" % (r["EMV_costo"] / P["PO"] * 100),
+            "%.1f" % r["EMV_plazo"]] for r in top], [1.2, 5.2, 1.9, 0.9, 3.2, 2.0, 1.6], tam=7, alinear=[C, L_, C, C, C, C, C])
     tit(doc, "7.2", "Simulación de Monte Carlo", 2)
     par(doc, "Se corrieron 20,000 iteraciones. En cada una, cada riesgo ocurre o no según su probabilidad y, si ocurre, su costo y su retraso se toman de su "
              "distribución triangular. Para la Entidad se suman los riesgos que le corresponden, la mitad de los compartidos (descontando lo que cubre la "
              "póliza CAR en R-02 y R-22) y el costo de los días de ampliación que le son atribuibles.")
     ctab(doc, "Resultados de la simulación")
-    f2 = lambda q: "{:,.2f}".format(q / 1e6)
+    f2 = lambda q: "%.2f %%" % (q / P["PO"] * 100)
     tabla(doc, ["RESULTADO", "P50", "P80", "P90", "MEDIA"],
-          [["Costo para la Entidad, inherente (S/ M)", f2(I_["entidad"]["50"]), f2(I_["entidad"]["80"]), f2(I_["entidad"]["90"]), f2(I_["entidad_media"])],
-           ["Costo para la Entidad, residual (S/ M)", f2(Rr["entidad"]["50"]), f2(Rr["entidad"]["80"]), f2(Rr["entidad"]["90"]), f2(Rr["entidad_media"])],
+          [["Efecto en costo para la Entidad, inherente (% del presupuesto)", f2(I_["entidad"]["50"]), f2(I_["entidad"]["80"]), f2(I_["entidad"]["90"]), f2(I_["entidad_media"])],
+           ["Efecto en costo para la Entidad, residual (% del presupuesto)", f2(Rr["entidad"]["50"]), f2(Rr["entidad"]["80"]), f2(Rr["entidad"]["90"]), f2(Rr["entidad_media"])],
            ["Retraso de la obra, inherente (días)", "%.0f" % I_["dias"]["50"], "%.0f" % I_["dias"]["80"], "%.0f" % I_["dias"]["90"], "%.0f" % I_["dias_media"]],
            ["Retraso de la obra, residual (días)", "%.0f" % Rr["dias"]["50"], "%.0f" % Rr["dias"]["80"], "%.0f" % Rr["dias"]["90"], "%.0f" % Rr["dias_media"]],
            ["Retraso atribuible a la Entidad, residual (días)", "%.0f" % Rr["diasE"]["50"], "%.0f" % Rr["diasE"]["80"], "%.0f" % Rr["diasE"]["90"], "—"],
-           ["Costo de riesgos del contratista, residual (S/ M)", f2(Rr["contratista"]["50"]), f2(Rr["contratista"]["80"]), f2(Rr["contratista"]["90"]), f2(Rr["contratista_media"])]],
+           ["Efecto en costo de riesgos del contratista, residual (%)", f2(Rr["contratista"]["50"]), f2(Rr["contratista"]["80"]), f2(Rr["contratista"]["90"]), f2(Rr["contratista_media"])]],
           [7.6, 2.0, 2.0, 2.0, 2.0], tam=8, alinear=[L_, C, C, C, C])
-    fig(doc, os.path.join(FIG, "f5_montecarlo.png"), 16.5, "Curvas de probabilidad acumulada del costo para la Entidad y del retraso", "simulación de Monte Carlo, matriz de gestión de riesgos.")
+    fig(doc, os.path.join(FIG, "f5_montecarlo.png"), 16.5, "Curvas de probabilidad acumulada del efecto en costo para la Entidad y del retraso", "simulación de Monte Carlo, matriz de gestión de riesgos.")
     par(doc, "Lectura de los resultados:", neg=True)
-    vin(doc, "Sin respuesta, la exposición de la Entidad al 80 %% de confianza es de %s (%.1f %% del presupuesto de obra) y la obra podría retrasarse unos %.0f días." %
-        (mm_(I_["entidad"]["80"]), I_["entidad"]["80"] / P["PO"] * 100, I_["dias"]["80"]))
-    vin(doc, "Con las respuestas ejecutadas, baja a %s (%.1f %%) y el retraso a unos %.0f días. La mayor reducción viene de las acciones previas a la convocatoria "
-             "(canteras, DME, certificación ambiental, predios, interferencias y revisión del expediente)." % (mm_(Rr["entidad"]["80"]), Rr["entidad"]["80"] / P["PO"] * 100, Rr["dias"]["80"]))
-    vin(doc, "Reserva de contingencia recomendada para la Entidad: %s (P80 residual, %.1f %% del presupuesto de obra), para cubrir prestaciones adicionales, "
-             "mayores metrados, reajustes y ampliaciones de plazo derivados de los riesgos que asume." % (mm_(reserva), reserva / P["PO"] * 100))
+    vin(doc, "Sin respuesta, la exposición de la Entidad al 80 %% de confianza es de %s del presupuesto de obra y la obra podría retrasarse unos %.0f días." %
+        (pc(I_["entidad"]["80"]), I_["dias"]["80"]))
+    vin(doc, "Con las respuestas ejecutadas, baja a %s y el retraso a unos %.0f días. La mayor reducción viene de las acciones previas a la convocatoria "
+             "(canteras, DME, certificación ambiental, predios, interferencias y revisión del expediente)." % (pc(Rr["entidad"]["80"]), Rr["dias"]["80"]))
+    vin(doc, "Reserva de contingencia recomendada para la Entidad: %s del presupuesto de obra (P80 residual), para cubrir prestaciones adicionales, "
+             "mayores metrados, reajustes y ampliaciones de plazo derivados de los riesgos que asume." % pc(reserva))
     vin(doc, "El retraso residual (P80 de %.0f días) se debe sobre todo a las lluvias y a la gestión de la obra; para no superar los %d días hay que programar los "
              "puentes, terraplenes y carpeta en estiaje y abrir frentes paralelos (oportunidad O-02)." % (Rr["dias"]["80"], P["plazo"]))
 
-    # ------------------------------------------------------------------ 8 observaciones
-    tit(doc, "8", "Observaciones a los documentos del proyecto")
-    par(doc, "La revisión cruzada del inventario vial, la FTE, su resumen ejecutivo y el presupuesto S10 encontró las siguientes incompatibilidades. Cada una es "
-             "una causa del riesgo R-16 o de otro riesgo, y debe levantarse antes de la convocatoria:")
-    ctab(doc, "Observaciones que generan riesgo")
-    tabla(doc, ["N.°", "ASPECTO", "DATO EN LOS DOCUMENTOS", "OBSERVACIÓN", "RECOMENDACIÓN", "RIESGO"],
-          [[str(i), o[0], o[1], o[2], o[3], o[4]] for i, o in enumerate(RS.OBS, 1)], [0.8, 2.4, 3.8, 4.2, 3.6, 1.4], tam=7, alinear=[C, L_, L_, L_, L_, C])
-
     # ------------------------------------------------------------------ 9 respuesta
-    tit(doc, "9", "Plan de respuesta")
-    tit(doc, "9.1", "Acciones previas a la convocatoria", 2)
+    tit(doc, "8", "Plan de respuesta")
+    tit(doc, "8.1", "Acciones previas a la convocatoria", 2)
     par(doc, "Son las acciones de mayor efecto, porque eliminan o reducen riesgos de la Entidad antes de que exista un contrato:")
     previas = [r for r in R if "convocatoria" in r["momento"].lower() or "antes del inicio" in r["momento"].lower()]
     for r in sorted(previas, key=lambda r: -r["PxI"]): vin(doc, "%s (%s): %s" % (r["cod"], r["nivel"], r["acc"]))
-    tit(doc, "9.2", "Programación según la temporada de lluvias", 2)
+    tit(doc, "8.2", "Programación según la temporada de lluvias", 2)
     for t in ["Estiaje (junio a setiembre): cimentaciones y estribos de los 5 puentes, terraplenes en los sectores de arrozal (20+360 a 21+170 y 22+270 a 22+960), base y carpeta asfáltica.",
               "Transición (mayo, diciembre a febrero): cortes con drenaje de coronación, subbase y base con protección, desvíos de cauce y fabricación de vigas metálicas.",
               "Lluviosa (marzo, abril, octubre y noviembre): alcantarillas, cunetas, gaviones y muros, demoliciones menores, señalización y trabajos en taller."]: vin(doc, t)
-    tit(doc, "9.3", "Plan de respuesta por riesgo", 2)
+    tit(doc, "8.3", "Plan de respuesta por riesgo", 2)
     ctab(doc, "Plan de respuesta")
     tabla(doc, ["COD.", "NIVEL", "ESTRATEGIA", "ACCIONES", "RESPONSABLE", "ALERTA TEMPRANA"],
           [[r["cod"], r["nivel"], r["resp"], r["acc"], r["quien"], r["alerta"]] for r in R], [1.1, 1.9, 1.8, 5.5, 2.5, 3.2], tam=7,
           colores=lambda i, j, v: NIVCOL.get(v) if j == 1 else None, alinear=[C, C, C, L_, L_, L_])
 
     # ------------------------------------------------------------------ 10 asignacion
-    tit(doc, "10", "Asignación de riesgos")
+    tit(doc, "9", "Asignación de riesgos")
     par(doc, "Se asigna cada riesgo a la parte que controla su causa y puede gestionarlo y mitigarlo a menor costo (artículo 156 del reglamento): "
              "%d a la Entidad, %d al contratista y %d compartidos." % (n_as["Entidad"], n_as["Contratista"], n_as["Compartido"]))
     for k, t in (("Entidad", "decisiones, permisos, predios, interferencias, financiamiento, canteras y DME definidos en el expediente, y el contenido del expediente "
@@ -429,22 +416,22 @@ def main():
     tabla(doc, ["COD.", "RIESGO", "ASIGNADO A"], [[r["cod"], r["riesgo"], r["asig"]] for r in R], [1.4, 11.6, 3.0], tam=7.5, alinear=[C, L_, C])
 
     # ------------------------------------------------------------------ 11 oportunidades
-    tit(doc, "11", "Oportunidades")
+    tit(doc, "10", "Oportunidades")
     ctab(doc, "Oportunidades identificadas")
-    tabla(doc, ["COD.", "OPORTUNIDAD", "ESTRATEGIA", "ACCIONES", "VME AHORRO"],
-          [[o["cod"], o["oport"], o["resp"], o["acc"], ("{:,.0f}".format(o["EMV"]) if o["EMV"] else "%.0f días" % o["EMV_plazo"])] for o in RS.OPORT],
+    tabla(doc, ["COD.", "OPORTUNIDAD", "ESTRATEGIA", "ACCIONES", "VALOR ESPERADO"],
+          [[o["cod"], o["oport"], o["resp"], o["acc"], ("%.2f %%" % o["EMV_pct"] if o["EMV"] else "%.0f días" % o["EMV_plazo"])] for o in RS.OPORT],
           [1.2, 4.4, 1.8, 6.6, 2.0], tam=8)
 
     # ------------------------------------------------------------------ 12 seguimiento
-    tit(doc, "12", "Organización y seguimiento")
-    tit(doc, "12.1", "Comité de gestión de riesgos", 2)
-    par(doc, "La cuantía de la obra (%s) supera los S/ 50 000 000, por lo que la Entidad debe conformar el comité de gestión de riesgos del artículo 156 del "
-             "reglamento. Se propone integrarlo con:" % m(P["PO"]))
+    tit(doc, "11", "Organización y seguimiento")
+    tit(doc, "11.1", "Comité de gestión de riesgos", 2)
+    par(doc, "La cuantía de la obra supera el monto a partir del cual el artículo 156 del reglamento exige conformar un comité de gestión de riesgos. "
+             "Se propone integrarlo con:")
     for t in ["El director de caminos de la DRTC San Martín o su representante, que lo preside.", "Un representante del área usuaria y uno de la dependencia encargada de las contrataciones.",
               "El inspector o el supervisor de obra.", "Como invitados: el residente de obra y los especialistas que se requieran (geotecnia, puentes, ambiental, social)."]: vin(doc, t)
     par(doc, "Funciones: aprobar la matriz al inicio de la obra; revisar mensualmente los riesgos de nivel ALTO y MODERADO y las alertas tempranas; aprobar los riesgos "
              "y oportunidades nuevos y sus respuestas; decidir el uso de la reserva de contingencia; y registrar sus acuerdos en acta.")
-    tit(doc, "12.2", "Ciclo de seguimiento", 2)
+    tit(doc, "11.2", "Ciclo de seguimiento", 2)
     for t in ["Cada semana: el residente revisa las alertas tempranas de los riesgos de su frente y las anota en el cuaderno de obra.",
               "Cada mes, con la valorización: el supervisor actualiza la hoja SEGUIMIENTO de la matriz (estado, probabilidad e impacto actuales, acción ejecutada) "
               "y la presenta al comité.",
@@ -452,40 +439,39 @@ def main():
               "Al cierre de cada temporada de lluvias y al término de la obra: lecciones aprendidas y cierre de los riesgos que ya no aplican."]: vin(doc, t)
 
     # ------------------------------------------------------------------ 13 conclusiones
-    tit(doc, "13", "Conclusiones y recomendaciones")
-    tit(doc, "13.1", "Conclusiones", 2)
+    tit(doc, "12", "Conclusiones y recomendaciones")
+    tit(doc, "12.1", "Conclusiones", 2)
     concl = ["Se identificaron %d riesgos y %d oportunidades para la ejecución de la obra. Sin respuesta, %d son de nivel ALTO: canteras y transporte (R-08), "
              "certificación ambiental (R-15), lluvias estacionales (R-01) y depósitos de material excedente (R-25)." % (len(R), len(RS.OPORT), n_niv["ALTO"]),
              "Con el plan de respuesta, ningún riesgo queda en nivel ALTO; %d quedan en MODERADO." % n_res["MODERADO"],
-             "La exposición de la Entidad al 80 %% de confianza baja de %s a %s si las acciones previas a la convocatoria se ejecutan a tiempo." % (mm_(I_["entidad"]["80"]), mm_(Rr["entidad"]["80"])),
-             "La FTE declara que no hay deslizamientos ni inundaciones y que la orografía es plana. El inventario vial y el relieve muestran lo contrario: inundación por "
-             "arrozales, empozamientos, taludes de 20 y 30 m y terreno ondulado desde el km 23.",
-             "Los documentos tienen %d incompatibilidades que generan riesgo (capítulo 8). Entre ellas: tres longitudes distintas del tramo, plazo de 8 meses "
-             "frente a 720 días, DME de 0.38 ha para 297,756 m³ y metrados de puentes repetidos." % len(RS.OBS)]
+             "La exposición de la Entidad al 80 %% de confianza baja de %s a %s del presupuesto de obra si las acciones previas a la convocatoria se "
+             "ejecutan a tiempo; el retraso probable baja de %.0f a %.0f días." % (pc(I_["entidad"]["80"]), pc(Rr["entidad"]["80"]), I_["dias"]["80"], Rr["dias"]["80"]),
+             "Los sectores con mayor exposición durante la obra son los arrozales e inundaciones de 20+360 a 22+960, los taludes y erosiones de 34+400 a 40+000, "
+             "los cinco puentes y las zonas pobladas, donde coinciden el tránsito, los predios y las interferencias."]
     for t in concl: vin(doc, t)
-    tit(doc, "13.2", "Recomendaciones", 2)
-    rec = ["Levantar las observaciones del capítulo 8 y compatibilizar el expediente técnico antes de la convocatoria.",
+    tit(doc, "12.2", "Recomendaciones", 2)
+    rec = ["Revisar y compatibilizar el expediente técnico antes de la convocatoria.",
            "Obtener antes de convocar la certificación ambiental, el instrumento arqueológico, las autorizaciones de agua y de extracción en cauce, las actas de "
            "libre disponibilidad y la factibilidad de las concesionarias. También confirmar la potencia y calidad de canteras y la capacidad de los DME.",
            "Verificar con estudios por sitio la estabilidad de los cortes en 36+060 y 37+520 y la hidráulica, la socavación y la cimentación de cada puente.",
-           "Prever una reserva de contingencia de %s (P80 residual) y la certificación y previsión presupuestal multianual del proyecto." % mm_(reserva),
+           "Prever una reserva de contingencia de %s del presupuesto de obra (P80 residual) y la certificación y previsión presupuestal multianual del proyecto." % pc(reserva),
            "Conformar el comité de gestión de riesgos e incorporar la matriz (Excel) al expediente de contratación, con la asignación propuesta.",
            "Exigir al contratista la póliza Todo Riesgo Construcción, el seguro de responsabilidad civil, el plan de manejo del tránsito y el cronograma con calendario de lluvias.",
            "Adecuar la matriz a la directiva de gestión de riesgos de la Dirección General de Abastecimiento si se publica antes de la convocatoria."]
     for t in rec: vin(doc, t)
     par(doc, "Fuentes: estudio de inventario vial SM-107 (2026), FTE del MTC (registro 01/04/2025) y su resumen ejecutivo (diciembre 2024), presupuesto S10 "
-             "(costo al 02/12/2024), plano clave PC-01 (noviembre 2024), modelo Copernicus GLO-30 y NOAA GHCN-Daily.", 8.5, cur=True, antes=6)
+             "plano clave PC-01 (noviembre 2024), modelo Copernicus GLO-30 y NOAA GHCN-Daily.", 8.5, cur=True, antes=6)
     par(doc, "\n\n_______________________________\nEspecialista en gestión de riesgos\nCIP: __________", 9, al=C, antes=18)
 
     # ------------------------------------------------------------------ anexos (horizontal)
     sa = seccion(doc, True)
-    tit(doc, "14", "Anexos")
-    tit(doc, "14.1", "Anexo 1: Registro de riesgos", 2)
+    tit(doc, "13", "Anexos")
+    tit(doc, "13.1", "Anexo 1: Registro de riesgos", 2)
     tabla(doc, ["COD.", "RIESGO", "CAUSA", "EFECTO", "EVIDENCIA", "MOMENTO", "PARTIDA O RECURSO"],
           [[r["cod"], r["riesgo"], r["causa"], r["efecto"], r["evid"], r["momento"], r["partida"]] for r in R], [1.2, 4.2, 5.0, 4.0, 4.6, 2.2, 4.4], tam=6.5)
-    tit(doc, "14.2", "Anexo 2: Documentos que acompañan el estudio", 2)
+    tit(doc, "13.2", "Anexo 2: Documentos que acompañan el estudio", 2)
     for t in ["MATRIZ_GESTION_RIESGOS_EJECUCION_OBRA_SM107.xlsx: datos, escalas, identificación, análisis cualitativo y cuantitativo con fórmulas, "
-              "Monte Carlo, mapa de calor, plan de respuesta, asignación, oportunidades, formato de seguimiento, observaciones y calendario.",
+              "Monte Carlo, mapa de calor, plan de respuesta, asignación, oportunidades, formato de seguimiento y calendario.",
               "PLANOS_GESTION_RIESGOS_SM107.dxf: PR-01 Plano de ubicación de riesgos (1/25,000, UTM WGS 84 zona 18 S) y PR-02 Diagrama lineal de riesgos por "
               "progresiva, con presentaciones para imprimir; vistas previas en PNG."]: vin(doc, t)
     pr1 = os.path.join(RAIZ, "entregables_vial_sm107", "vistas_previas", "PR-01_UBICACION_DE_RIESGOS.png")

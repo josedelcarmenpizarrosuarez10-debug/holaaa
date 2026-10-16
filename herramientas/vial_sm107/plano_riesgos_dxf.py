@@ -197,8 +197,7 @@ def pr01(doc):
                  (36420, "R-05  EROSION h=2 m 36+380-36+460"), (37650, "R-04  TALUD h=30 m 37+520-37+780"),
                  (37870, "R-03 R-27 R-33  PUENTE PAUCARILLO (37+870)"), (38800, "R-03 R-27 R-33  PUENTE APANGURAYCO (38+800)"),
                  (39610, "R-05  EROSION h=3-5 m 39+380-39+840"), (40380, "R-06  EMPOZAMIENTO 40+380"), (42280, "R-06  QUEBRADA SIN DESCARGA 42+280"),
-                 (43640, "R-05 R-06  EROSION 43+620, EMPOZAMIENTO 43+660"), (44040, "R-03 R-27 R-33  PUENTE CHANCHAMAYCO (44+040)"),
-                 (44400, "R-16  TRAMO 44+090-44+693 FUERA DEL PC-01")]
+                 (43640, "R-05 R-06  EROSION 43+620, EMPOZAMIENTO 43+660"), (44040, "R-03 R-27 R-33  PUENTE CHANCHAMAYCO (44+040)")]
     return lam, etiquetas, (mx0, my0, mx1, my1)
 
 
@@ -229,7 +228,7 @@ def llamadas(lam, etiquetas, caja):
 
 def leyenda_y_cuadro(lam, etiquetas):
     y = lam.leyenda2(612, 572, [("linea2", "EJE-VIA", "Eje de via (plano clave PC-01, georreferenciado)"),
-                                ("discontinua", "EJE-REFERENCIAL", "Tramo 44+090 a 44+693 (fuera del PC-01)"),
+                                ("discontinua", "EJE-REFERENCIAL", "Tramo final 44+090 a 44+693 (referencial)"),
                                 ("linea2", "R-INUNDACION", "Inundacion / empozamiento (R-06)"), ("linea2", "R-EROSION", "Erosion de plataforma (R-05)"),
                                 ("linea2", "R-TALUDES", "Inestabilidad de taludes (R-04)"), ("linea2", "R-RIEGO", "Canal y cruces de riego (R-12)"),
                                 ("linea2", "R-PLATAFORMA", "Plataforma angosta: transito en obra (R-20, R-27)"),

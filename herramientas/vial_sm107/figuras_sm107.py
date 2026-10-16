@@ -113,11 +113,12 @@ def fig_mc():
     MC = json.load(open(os.path.join(CALC, "riesgos.json")))["montecarlo"]
     fig, (a1, a2) = plt.subplots(1, 2, figsize=(11, 3.9))
     for k, col, et in (("inherente", "#c0504d", "Inherente"), ("residual", "#4f81bd", "Residual")):
-        s = np.array(MC[k]["muestras_entidad"]) / 1e6; a1.plot(s, np.linspace(0, 100, len(s)), color=col, lw=1.6, label=et)
-        p80 = MC[k]["entidad"]["80"] / 1e6; a1.axvline(p80, color=col, ls="--", lw=0.8); a1.text(p80, 5, " P80 = %.2f" % p80, color=col, fontsize=7)
+        PO = RS.P["PO"]
+        s = np.array(MC[k]["muestras_entidad"]) / PO * 100; a1.plot(s, np.linspace(0, 100, len(s)), color=col, lw=1.6, label=et)
+        p80 = MC[k]["entidad"]["80"] / PO * 100; a1.axvline(p80, color=col, ls="--", lw=0.8); a1.text(p80, 5, " P80 = %.1f %%" % p80, color=col, fontsize=7)
         s = np.array(MC[k]["muestras_dias"]); a2.plot(s, np.linspace(0, 100, len(s)), color=col, lw=1.6, label=et)
         d80 = MC[k]["dias"]["80"]; a2.axvline(d80, color=col, ls="--", lw=0.8); a2.text(d80, 5, " P80 = %d d" % d80, color=col, fontsize=7)
-    a1.set_xlabel("Costo para la Entidad (S/ millones)"); a1.set_ylabel("Probabilidad acumulada (%)"); a1.grid(alpha=0.3); a1.legend(fontsize=8)
+    a1.set_xlabel("Efecto en costo para la Entidad (% del presupuesto de obra)"); a1.set_ylabel("Probabilidad acumulada (%)"); a1.grid(alpha=0.3); a1.legend(fontsize=8)
     a2.set_xlabel("Retraso total de la obra (días)"); a2.grid(alpha=0.3); a2.legend(fontsize=8)
     fig.suptitle("Simulación de Monte Carlo (20,000 iteraciones): curvas de probabilidad acumulada", fontsize=9)
     fig.tight_layout(); fig.savefig(os.path.join(FIG, "f5_montecarlo.png"), dpi=170); plt.close(fig)
