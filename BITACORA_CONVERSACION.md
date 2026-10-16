@@ -102,6 +102,19 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   - Revisados también: llegada de Varones a la caja CL (ventana 0.60 × 1.17 en su muro este, techo 261.05 igual en ambos expedientes, caída libre de 0.28 sobre el nivel de agua 259.606), salida del Refugio de la CL (0.80 × 1.40) y ubicación UTM del R-01 (345666.974, 9282776.560), igual en el Refugio y en Mujeres.
 - **Ambos proyectos:** DA-02 muestra el total de concreto del colector (Refugio 58.41 m³ = su partida 01.04.04.04.01) y el acabado con su nombre Delphin ("frotachado de losa superior (vereda)").
 
+## 16 de octubre de 2026: tapa ciega en los 3 CAR y estudio de riesgos de la SM-107
+- **Tapa ciega de concreto armado** (sin marco metálico) en lugar de tapa con marco y contramarco:
+  tapa 0.68 × 0.68 × 0.08 vaciada en obra, parrilla 3/8" @0.10, 2 asas de fierro liso 1/2" en cajuelas, asiento en rebaje de
+  concreto 0.70 × 0.70 × 0.08 de la losa (luz 0.60), borde engrosado y refuerzo de borde 8 Ø 1/2".
+  - DP-06B nueva en los 3 CAR (sueltas: `entregables_solange/PLANO_DP-06B_DETALLE_TAPA_REGISTRO.dxf`,
+    `entregables_varones/PLANO_DP-06B_DETALLE_TAPA_CIEGA_CAR_VARONES.dxf`, `entregables_mujeres/PLANO_DP-06B_DETALLE_TAPA_CIEGA_CAR_MUJERES.dxf`).
+  - Metrado actualizado solo en Refugio (10 tapas, ACU S/ 182.06) y Varones (11 tapas); CAR Mujeres sin cambio en su metrado.
+  - DD-01, DD-02, DP-06D, DP-08, DP-09, DA-03, isométricos y fotos 3D, especificaciones y memorias actualizados.
+- **Estudio de gestión de riesgos en la ejecución de obra** de la vía SM-107 Tingo de Ponasa – Shamboyacu (CUI 2673852):
+  Word, matriz Excel con fórmulas (34 riesgos, 3 oportunidades, P x I, valor esperado, Monte Carlo) y planos PR-01/PR-02
+  en `entregables_vial_sm107/`. Efectos en % del presupuesto; sin montos ni observaciones a los documentos.
+- Se crearon `CLAUDE.md` (reglas y mapa del proyecto) y el skill `diseno-colector-pluvial` para continuar en otra conversación.
+
 ## Cómo imprimir (los tres proyectos)
 1. Abrir la pestaña de la lámina (DP-00, DP-01, ...).
 2. Ctrl+P: área = Presentación, escala 1:1, centrar.
@@ -117,7 +130,7 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 
 ## Reglas que se mantienen
 - No modificar los metrados del usuario.
-- Vistas previas en PNG; nada de PDF.
+- Vistas previas en PNG; PDF solo si el usuario lo pide.
 - Escala real ("si algo mide 0.56, así debe medir").
 - No mezclar partidas ni láminas.
 - Decir "cota de fondo".

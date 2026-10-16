@@ -109,3 +109,19 @@ abajo igual que los puntos que senalan, para que las lineas no se crucen.
 - Franja de etiquetas: un rotulo cuyo punto queda bajo el texto de otro ya puesto no tiene fila libre y sube al borde de la
   lamina. En los extremos (cajas, referencias) usar pocas etiquetas, cortas, o texto suelto junto al objeto (LINDERO).
 - Toda lamina con presentaciones de AutoCAD (dxf_layouts.presentaciones) y lamina indice DP-00 (dxf_layouts.indice).
+
+## 13. Lecciones de la tapa ciega y de los planos de riesgos (oct. 2026)
+- Vista previa: `python3 herramientas/dxf_render.py <dxf> <png> x0 y0 x1 y1 110 color`. Cajas de cada lamina en
+  `entregables/_calc/laminas.json` (Varones `entregables_varones/_calc/`, Mujeres `PLANOS_COLECTOR_MEJORADOS/laminas.json`).
+  Laminas sueltas en mm de papel: caja 0 0 841 594; DP-06D (en m): 0 0 8.41 5.94. Renderizar en paralelo con `xargs -P 4`.
+- Mirar SIEMPRE la vista previa antes de entregar y corregir: llamadas que se cruzan, cotas que pisan textos, rotulo con
+  textos largos (el subtitulo del PLANO no debe pasar de ~110 caracteres), "MODERADO" o palabras partidas en celdas angostas.
+- Mapas con muchas etiquetas: en lugar de lineas largas a una columna lejana, poner marcas numeradas (circulo con N°)
+  junto a cada punto, del lado del eje con mas espacio, y un cuadro con el significado de cada numero.
+- Rellenos (hatch) de capas nuevas: dar color RGB en `B.COLOR_RGB` o usar `color=256` (por capa); si no, salen negros.
+- Rotulo: `B.PROYECTO`, `B.UBICACION`, `B.ESPECIALIDAD`, `B.ENTIDAD` y `B.ELABORADO` se fijan por proyecto antes de crear
+  las laminas ("ELABORADO" vacio = no se escribe).
+- Laminas importadas en milimetros de papel a juegos en metros (DP-06B): ezdxf Importer excluyendo marco/membrete
+  (entidades con insercion x ≥ 588 e y ≤ 92 y capas LAMINA/MEMBRETE).
+- Un cambio de detalle (tapa ciega) obliga a revisar todas las laminas donde aparece: DP-06B, DP-06D, DD-01, DD-02, DP-08,
+  DP-09 (isometrico del registro), DA-03, DP-01 (nota) y las leyendas.
