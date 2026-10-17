@@ -13,6 +13,8 @@ Leer completo antes de trabajar. Detalle técnico en los skills de `.claude/skil
 - Todo en español. Actualizar todo lo relacionado de forma coherente (metrado ↔ planos ↔ especificaciones ↔ memoria).
 - No mezclar partidas ni láminas entre proyectos.
 - Estudios de gestión de riesgos de obra: sin montos en soles ni "observaciones" a documentos ajenos; efectos en % del presupuesto.
+- PSST y gestión de riesgos: siempre con su matriz (IPERC o matriz de riesgos) en Excel con fórmulas y un Word ordenado con tablas y gráficos.
+  El método es estándar para cualquier tipo de obra en el Perú (no solo vial o CAR). Cada tema en su carpeta: `seguridad_salud_trabajo/` y `gestion_riesgos/`.
 
 ## Proyectos
 | Proyecto | Responsable | CUI | Colector | Carpeta de entregables | Generador |
@@ -20,6 +22,7 @@ Leer completo antes de trabajar. Detalle técnico en los skills de `.claude/skil
 | CAR Varones | Katiuska | 2705619 | b 0.60, muros 0.15, 11 registros | `entregables_varones/` | `herramientas/varones/` (`planos_v.py`, `compat.py`, `diseno_v.py`) |
 | Hogar de Refugio Temporal "Mujeres Violentadas" | Solange | 2675514 | b 0.80, muros 0.15, 10 registros | `entregables/` y `entregables_solange/` | `herramientas/diseno.py`, `planos_dxf.py`, `memoria_*.py`, `metrado_*.py` |
 | CAR Mujeres | Wilma | 2717013 | b 1.50, muros 0.10, 15 registros | `entregables_mujeres/` | `herramientas/mujeres/` (`datos_m.py`, `planos_m.py`) – **metrado congelado** |
+| Vía SM-107 Tingo de Ponasa – Shamboyacu (PSST) | – | 2673852 | (plan de seguridad y salud en el trabajo) | `seguridad_salud_trabajo/proyectos/SM-107_TINGO_DE_PONASA_SHAMBOYACU/` | `seguridad_salud_trabajo/herramientas/` (`generar.py`) |
 | Vía SM-107 Tingo de Ponasa – Shamboyacu | – | 2673852 | (estudio de gestión de riesgos de obra) | `gestion_riesgos/proyectos/SM-107_TINGO_DE_PONASA_SHAMBOYACU/` | `gestion_riesgos/herramientas/` |
 
 Cadena hidráulica: Varones (0.60) → caja de llegada CL → Refugio (0.80) → caja de caída CC → R-01 del CAR Mujeres (1.50) → salida.
@@ -32,9 +35,12 @@ Cadena hidráulica: Varones (0.60) → caja de llegada CL → Refugio (0.80) →
   - Tapa de registro: `render_tapa/` (`dxf_tapa_ciega.py` DP-06B, `dxf_tapa_3d.py` DP-06D, `modelo.py`, `iso.py`, `foto.py`), `tapa_ciega.py` (parche de planillas).
   - Especificaciones: `especificaciones/espec.py` → `_json/` → `node docx_espec.js <json> <docx>`.
   - Edición de planillas sin romper formato: `angulo_contramarco_refugio.Libro` (XML) + `recalcular()` con LibreOffice.
-- `.claude/skills/`: `diseno-colector-pluvial` (criterios y decisiones de diseño), `planos-ordenados` (dibujo sin cruces), `metrado-cunetas`.
+- `.claude/skills/`: `diseno-colector-pluvial` (criterios y decisiones de diseño), `planos-ordenados` (dibujo sin cruces), `metrado-cunetas`, `psst-iperc` (plan de seguridad y salud en el trabajo).
 - `MetraP/`: programa de metrados (ejecutable Windows con `build_exe.bat`).
 - `gestion_riesgos/`: estudios de gestión de riesgos durante la ejecución de obra, separados de los colectores. `herramientas/` (generadores, con copia propia de `dxf_base.py`, `dxf_layouts.py`, `dxf_render.py`) y `proyectos/<proyecto>/insumos` y `proyectos/<proyecto>/entregables`. Ver `gestion_riesgos/README.md`.
+- `seguridad_salud_trabajo/`: programa estándar del Plan de Seguridad y Salud en el Trabajo (IPERC R.M. 050-2013-TR, Word y Excel) para cualquier obra.
+  `herramientas/biblioteca.py` (actividades, peligros y controles), `importar_s10.py`, `generar.py`; `proyectos/<proyecto>/insumos/DATOS_PROYECTO.xlsx`.
+  Ver `seguridad_salud_trabajo/README.md` y el skill `psst-iperc`.
 
 ## Cómo regenerar (Hogar de Refugio)
 ```
