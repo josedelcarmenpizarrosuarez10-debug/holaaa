@@ -10,7 +10,7 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
 CAMPOS = [  # campo, descripción, ejemplo
-    ("codigo", "Código corto para nombrar los archivos", "SM107"),
+    ("codigo", "Código corto para nombrar los archivos (sin espacios)", "OBRA01"),
     ("nombre", "Nombre del proyecto de inversión", ""),
     ("cui", "Código único de inversiones (CUI)", ""),
     ("entidad", "Entidad", ""),

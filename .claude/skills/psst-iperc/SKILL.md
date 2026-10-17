@@ -1,14 +1,15 @@
 ---
 name: psst-iperc
-description: Elaborar el Plan de Seguridad y Salud en el Trabajo (PSST) de cualquier obra en el Perú con su matriz IPERC (R.M. N.° 050-2013-TR), en Word ordenado con tablas y gráficos y Excel con fórmulas, usando el programa estándar de seguridad_salud_trabajo/. Usar cuando el usuario pida un PSST, IPERC, matriz IPER, plan de seguridad de obra o actualizar uno existente.
+description: Elaborar el Plan de Seguridad y Salud en el Trabajo (PSST) de cualquier obra en el Perú con su matriz IPERC (R.M. N.° 050-2013-TR), en Word ordenado con tablas y gráficos y Excel con fórmulas, usando el programa general de la carpeta PROGRAMA DE ELABORACION DE PSST/. Usar cuando el usuario pida un PSST, IPERC, matriz IPER, plan de seguridad de obra o actualizar uno existente.
 ---
 # PSST con matriz IPERC (programa estándar)
 
-1. Crear `seguridad_salud_trabajo/proyectos/<NOMBRE>/insumos/` y el libro de datos:
-   `python3 seguridad_salud_trabajo/herramientas/importar_s10.py <presupuesto.pdf> <.../insumos/DATOS_PROYECTO.xlsx>`
-   (o `--plantilla` y pegar las partidas). Llenar PROYECTO, PERSONAL (histograma por mes) y EMERGENCIA.
+1. Crear `"PROGRAMA DE ELABORACION DE PSST/proyectos/<NOMBRE>/insumos/"`, copiar `plantilla/DATOS_PROYECTO.xlsx` y cargar partidas:
+   `python3 "PROGRAMA DE ELABORACION DE PSST/herramientas/importar_s10.py" <presupuesto.pdf> <.../insumos/DATOS_PROYECTO.xlsx>`
+   (o pegarlas en la hoja PARTIDAS). Llenar PROYECTO, PERSONAL (histograma por mes) y EMERGENCIA.
    Condiciones del lugar en PROYECTO.condiciones: selva, altura (o altitud > 2500), cauces, zona_poblada, transito.
-2. `python3 seguridad_salud_trabajo/herramientas/generar.py seguridad_salud_trabajo/proyectos/<NOMBRE>`.
+2. `python3 "PROGRAMA DE ELABORACION DE PSST/herramientas/generar.py" "PROGRAMA DE ELABORACION DE PSST/proyectos/<NOMBRE>"`.
+   Solo generar el PSST de una obra cuando el usuario lo pida; la carpeta guarda el programa general.
 3. Si avisa "partidas sin actividad reconocida": ampliar `biblioteca.py` (regex de la actividad o actividad nueva con
    `pel(...)`), nunca editar a mano el Word o el Excel.
 4. Revisar el Word (soffice a PDF, pdftoppm) y el Excel recalculado con LibreOffice (sin errores #).

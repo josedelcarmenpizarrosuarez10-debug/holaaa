@@ -136,10 +136,10 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Decir "cota de fondo".
 - Citar los proyectos por nombre y CUI.
 
-## 17 de octubre de 2026: carpetas separadas y programa estándar del PSST
+## 17 de octubre de 2026: carpetas separadas y programa general de PSST
 - El estudio de gestión de riesgos de la SM-107 se movió a `gestion_riesgos/` (herramientas y proyectos/<proyecto>/insumos|entregables).
-- Se creó `seguridad_salud_trabajo/`: programa estándar del Plan de Seguridad y Salud en el Trabajo para cualquier obra en el Perú.
-  Lee el presupuesto (S10 en PDF o partidas pegadas en Excel), reconoce las actividades con la biblioteca de peligros, calcula el IPERC
-  (R.M. N.° 050-2013-TR, inicial y residual) y genera el Word del plan (estructura G.050 / D.S. N.° 011-2019-TR) y el Excel con fórmulas.
-- Primer proyecto: vía SM-107 (CUI 2673852): 28 actividades, 109 peligros; 99 significativos antes de los controles y 0 después.
-- No se encontró en el repositorio ningún PSST anterior de los CAR o del Refugio; si el usuario los sube, van a `seguridad_salud_trabajo/proyectos/<CAR>/`.
+- Se creó la carpeta `PROGRAMA DE ELABORACION DE PSST/`: programa general del Plan de Seguridad y Salud en el Trabajo para cualquier obra
+  en el Perú. Lee el presupuesto (S10 en PDF o partidas pegadas en Excel), reconoce las actividades con la biblioteca de peligros, calcula
+  el IPERC (R.M. N.° 050-2013-TR, inicial y residual) y genera el Word del plan (estructura G.050 / D.S. N.° 011-2019-TR) y el Excel con fórmulas.
+- El usuario pidió solo el programa general: no se deja ningún PSST de proyecto en la carpeta (se retiró el de la SM-107 que se había generado).
+- No se encontró en el repositorio ningún PSST anterior de los CAR o del Refugio; si el usuario los sube, se guardan en `proyectos/<obra>/`.
