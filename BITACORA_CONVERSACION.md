@@ -143,3 +143,12 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   el IPERC (R.M. N.° 050-2013-TR, inicial y residual) y genera el Word del plan (estructura G.050 / D.S. N.° 011-2019-TR) y el Excel con fórmulas.
 - El usuario pidió solo el programa general: no se deja ningún PSST de proyecto en la carpeta (se retiró el de la SM-107 que se había generado).
 - No se encontró en el repositorio ningún PSST anterior de los CAR o del Refugio; si el usuario los sube, se guardan en `proyectos/<obra>/`.
+
+## 19 de octubre de 2026: isométricos pluviales de la banca de jardinería – CAR Mujeres (CUI 2717013)
+- Insumo: `insumos/wilma/detalle_banca/DETALLE_DE_BANCA_TIPO_01.dxf` (dibujado a escala real).
+- Generador `herramientas/techo/planos_banca_m.py` → `entregables_mujeres/PLANOS_ISOMETRICO_BANCA_JARDINERIA_CAR_MUJERES.dxf`
+  (DB-01 isométrico de la banca 1/15; DB-02 detalle de canaleta, sumidero y bajada 1/5 con corte de la canaleta) y PNG en `vistas_previas_banca/`.
+- Canaleta de aluzinc 0.18 x 0.20 (indicación del usuario); compatibilizado con la red de techo del CAR Mujeres: S = 1 %, PVC 4", 3 codos,
+  abrazadera F°G°, falsa columna 0.20 x 0.15 x 1.30. Cobertura con vuelo 0.05 dentro de la canaleta.
+- Diferencias encontradas en el plano de la banca: falsa columna rotulada H = 1.50 pero dibujada de 1.20; S = 0.5 % (resto del CAR 1 %);
+  la cobertura termina en el borde de la canaleta; la salida de la bajada no está definida; tildes mal puestas (METÀLICA, CIRCULACIÒN).
