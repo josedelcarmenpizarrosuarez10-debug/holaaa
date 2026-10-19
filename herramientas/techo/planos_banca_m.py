@@ -56,7 +56,7 @@ Z_UN2 = 2.029                           # union bajo el segundo codo (1.973 a 2.
 Y_COLG = AY - 0.088                     # colgador sobre el tramo horizontal
 ZABR = 1.77                             # abrazadera a la columna
 DT = T.DT                               # PVC 4": diametro exterior 0.114
-SOPS = [0.10, 0.70, 1.30, 1.90]         # soportes de platina @0.60
+SOPS = [0.40, 1.60]                     # 2 soportes de platina 1" x 1/8" (0.40 de cada extremo, 1.20 entre ellos)
 SEAT = (1.194, YCOL[0], 0.45, 0.50)     # asiento: y0, y1, z0, z1 (0.606 de fondo; +0.50)
 LISTONES = [0.58 + 0.30 * k for k in range(6)]   # celosia (elevacion E2): listones de 0.20 @0.30
 s = S_CAN / 100.0
@@ -206,7 +206,7 @@ def escena_banca():
 LEYENDA = [(ALUZ, "Canaleta de aluzinc 0.18 x 0.20 (ancho x alto interiores)"), (CUPULA, "Sumidero tipo cupula 4\""),
            (PVC, "Tubo PVC 4\" (niple, tramo bajo la canaleta y bajada)"), (ACC, "Codos PVC 4\" x 90° con campanas (2)"),
            (UNION, "Uniones PVC 4\" (2)"), (COLG, "Colgador F°G° con varilla roscada 3/8\" a la viga"),
-           (ABRZ, "Abrazadera F°G° 1\" x 1/8\" a la columna"), (PLAT, "Soporte de platina F°G° 1\" x 1/8\" @0.60"),
+           (ABRZ, "Abrazadera F°G° 1\" x 1/8\" a la columna"), (PLAT, "Soporte de platina F°G° 1\" x 1/8\" (2 por canaleta)"),
            (CONC, "Falsa columna de drenaje pluvial CL-01"), (METAL, "Estructura metalica de la banca"),
            (MADERA, "Asiento y celosia de madera")]
 
@@ -219,7 +219,7 @@ def db01(doc, ox, oy):
     items = [((0.60, 0.80, zcob(0.80)), ["Cobertura de panel metalico aluzinc e = 0.35 mm, A = 1 m (solo contorno)"]),
              ((0.80, 1.65, zvig(1.65) + 0.076), ["Correa metalica: tubo rectangular 2\" x 3\" x 3 mm"]),
              ((0.80, YC1, zc(0.80) + 0.12), ["Canaleta de aluzinc 0.18 x 0.20 (ancho x alto interiores), L = 2.00 m, S = 0.5 %"]),
-             ((SOPS[2], YC1 + T.EPL, zc(SOPS[2]) + 0.08), ["Soporte de platina F°G° 1\" x 1/8\" @0.60 (4 soportes)"]),
+             ((SOPS[0], YC1 + T.EPL, zc(SOPS[0]) + 0.08), ["2 soportes de platina F°G° 1\" x 1/8\" a 0.40 de cada extremo"]),
              ((XS, YSUM, zc(XS) + 0.06), ["Sumidero tipo cupula 4\" en el fondo de la canaleta"]),
              ((XS, Y_COLG, ZH + 0.15), ["Colgador F°G° con varilla roscada 3/8\" a la viga metalica 2\" x 2\""]),
              ((XS, (YSUM + YT) / 2 - 0.05, ZH - DT / 2), ["Codos PVC 4\" x 90°, uniones y tramo bajo la canaleta"]),
@@ -318,7 +318,7 @@ def db02(doc, ox, oy):
     items = [((1.55, 2.05, zcob(2.05)), ["Cobertura de panel aluzinc (contorno)"]),
              ((1.50, YC0 - 0.05, zc(1.50) + CH + 0.006), ["Ala posterior de la canaleta sobre la viga (0.10)"]),
              ((1.45, YC1, zc(1.45) + 0.12), ["Canaleta de aluzinc 0.18 x 0.20 (ancho x alto interiores), S = 0.5 %"]),
-             ((SOPS[3], YC1 + T.EPL, zc(SOPS[3]) + 0.10), ["Soporte de platina F°G° 1\" x 1/8\" @0.60 con oreja sobre el borde"]),
+             ((SOPS[1], YC1 + T.EPL, zc(SOPS[1]) + 0.10), ["Soporte de platina F°G° 1\" x 1/8\" con oreja sobre el borde (2 por canaleta)"]),
              ((AX, YSUM, zc(AX) + 0.10), ["Tapa lateral de aluzinc remachada y sellada"]),
              ((XS + 0.03, YSUM, zc(XS) + 0.06), ["Sumidero tipo cupula 4\""]),
              ((XS + UN[0], YSUM, Z_UN1 + 0.025), ["Niple y union PVC 4\" bajo el sumidero"]),
@@ -460,6 +460,8 @@ def corte_bb(lam, xmm, ymm):
         lam.nivel(v(x, z), z, t, 1 if x > 1 else -1, 1.8)
     v.cota((0.0, zc(0.0) + CH + 0.08), (AX, zc(AX) + CH + 0.08), 10, True, "2.00")
     v.cota((XS, zc(XS) + CH), (AX, zc(AX) + CH), 4, True, "0.30")
+    v.cota((0.0, zc(0.0)), (SOPS[0], zc(SOPS[0])), -5, True, "0.40")
+    v.cota((SOPS[0], zc(SOPS[0])), (SOPS[1], zc(SOPS[1])), -5, True, "1.20")
     v.cota((COL[0][0], JARDIN - 0.06), (COL[1][1], JARDIN - 0.06), -6, True, "1.50")
     v.cota((COL[0][1], SEAT[3] + 0.04), (COL[1][0], SEAT[3] + 0.04), 0, True, "1.30")
     v.cota((XS - FCX / 2, ZFC[0] - 0.02), (XS + FCX / 2, ZFC[0] - 0.02), -14, True, "0.20")
@@ -468,7 +470,7 @@ def corte_bb(lam, xmm, ymm):
     xtx = v(AX + 0.42, 0)[0]
     for (u, w), t in (((0.40, zcob(AY + VUELO)), ["Cobertura panel aluzinc e = 0.35 mm"]),
                       ((0.25, zcr + 0.04), ["Correa tubo rectangular 2\" x 3\" x 3 mm"]),
-                      ((SOPS[1], zc(SOPS[1]) + 0.10), ["Soporte de platina F°G° 1\" x 1/8\" @0.60"]),
+                      ((SOPS[0], zc(SOPS[0]) + 0.10), ["2 soportes de platina F°G° 1\" x 1/8\""]),
                       ((1.10, zc(1.10) + 0.05), ["Canaleta de aluzinc 0.18 x 0.20, L = 2.00, S = 0.5 %"]),
                       ((AX, zc(AX) + 0.10), ["Tapa lateral de aluzinc"]),
                       ((XS + r, zc(XS) - 0.03), ["Sumidero cupula 4\", niple y union PVC 4\""]),
