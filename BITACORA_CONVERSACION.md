@@ -144,11 +144,13 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - El usuario pidió solo el programa general: no se deja ningún PSST de proyecto en la carpeta (se retiró el de la SM-107 que se había generado).
 - No se encontró en el repositorio ningún PSST anterior de los CAR o del Refugio; si el usuario los sube, se guardan en `proyectos/<obra>/`.
 
-## 19 de octubre de 2026: isométricos pluviales de la banca de jardinería – CAR Mujeres (CUI 2717013)
+## 19 de octubre de 2026: drenaje pluvial de la banca de jardinería – CAR Mujeres (CUI 2717013)
 - Insumo: `insumos/wilma/detalle_banca/DETALLE_DE_BANCA_TIPO_01.dxf` (dibujado a escala real).
-- Generador `herramientas/techo/planos_banca_m.py` → `entregables_mujeres/PLANOS_ISOMETRICO_BANCA_JARDINERIA_CAR_MUJERES.dxf`
-  (DB-01 isométrico de la banca 1/15; DB-02 detalle de canaleta, sumidero y bajada 1/5 con corte de la canaleta) y PNG en `vistas_previas_banca/`.
-- Canaleta de aluzinc 0.18 x 0.20 (indicación del usuario); compatibilizado con la red de techo del CAR Mujeres: S = 1 %, PVC 4", 3 codos,
-  abrazadera F°G°, falsa columna 0.20 x 0.15 x 1.30. Cobertura con vuelo 0.05 dentro de la canaleta.
-- Diferencias encontradas en el plano de la banca: falsa columna rotulada H = 1.50 pero dibujada de 1.20; S = 0.5 % (resto del CAR 1 %);
-  la cobertura termina en el borde de la canaleta; la salida de la bajada no está definida; tildes mal puestas (METÀLICA, CIRCULACIÒN).
+- Generador `herramientas/techo/planos_banca_m.py` → `entregables_mujeres/PLANOS_ISOMETRICO_BANCA_JARDINERIA_CAR_MUJERES.dxf`:
+  DB-01 isométrico 1/15; DB-02 extremo de la canaleta 1/5 con corte de canaleta y sección C-C de la falsa columna;
+  DB-03 corte A-A (lateral) y corte B-B (frontal) 1/10 con cotas y niveles. PNG en `vistas_previas_banca/`.
+- Regla del usuario: ser fiel al dibujo. Todo sale del corte A-A y de la planta: canaleta 0.18 x 0.20 (indicación del usuario),
+  S = 0.5 %, sumidero cúpula 4", niple, unión, codo, tramo de 0.38 con colgador a la viga 2" x 2", codo, unión, bajada,
+  abrazadera a la columna (+1.77), falsa columna CL-01 0.20 x 0.15 de -0.15 a +1.05, cobertura hasta la cara posterior de la canaleta.
+- Diferencias del plano de origen (informadas al usuario): falsa columna rotulada H = 1.50 pero dibujada 1.20; la elevación E2
+  la dibuja de 0.15 de ancho y la planta de 0.20; no se indica a dónde descarga la bajada.
