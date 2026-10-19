@@ -157,3 +157,16 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   la dibuja de 0.15 de ancho y la planta de 0.20; no se indica a dónde descarga la bajada.
 - Metrado para 16 techos iguales: `entregables_mujeres/METRADO_CANALETA_Y_ACCESORIOS_BANCAS_CAR_MUJERES.xlsx` (generador `herramientas/techo/metrado_banca_m.py`), sin tubo ni falsa columna.
 - Espesor de la canaleta, tapas y boquilla de las bancas: plancha de aluzinc e = 0.50 mm (un tramo de 2.00 m con 2 soportes; los techos principales siguen con galvanizado e = 0.9 mm).
+
+## 19-10-2026 – CAR Mujeres (Wilma, CUI 2717013): canaleta de bancas en la planilla general
+- Pedido: meter en el Excel general de metrados (vigente 09-10-2026) solo los 4 ítems de la canaleta de los techos de las bancas
+  (canaleta, tapa lateral, soporte, boquilla) y crear una hoja nueva de metrado de ese techo.
+- Hecho con `herramientas/mujeres/bancas_en_planilla_m.py` (edición del XML, conserva formato):
+  - Hoja nueva METRADO CANALETA BANCAS (formato de METRADO CANALETAS): 16 techos x 2.00 m, 2 tapas, 2 soportes y 1 boquilla por techo.
+  - PLANILLA GENERAL y RESUMEN: subtítulo 1.4.4.5.4 RED DE RECOLECCION TECHO DE BANCAS DE JARDINERIA (después de ACCESORIOS),
+    ítems 1.4.4.5.4.1 a 1.4.4.5.4.4 = 32.00 m, 32, 32 y 16 und. El resto solo baja de fila (PLANILLA +6, RESUMEN +5); se verificó
+    que todos los valores anteriores quedan idénticos.
+  - Codos, colgador y abrazadera de las bancas no se agregan: ya están en METRADO MONTANTES (BC-01 a BC-16).
+- Corregido en `angulo_contramarco_refugio.py` (desplazar y recalcular): fórmulas compartidas de Excel (`<f t="shared" .../>`).
+- Observación (no se cambió): el RESUMEN no tiene fila para el CODO DESAGÜE PVC Ø4" x 45° (PLANILLA 1.4.4.5.3.2).
+- Salida: `entregables_mujeres/METRADO_DRENAJE_PLUVIAL_CAR_MUJERES_09-10-2026_CON_BANCAS.xlsx`.
