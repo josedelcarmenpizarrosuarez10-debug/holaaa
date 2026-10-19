@@ -168,5 +168,6 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
     que todos los valores anteriores quedan idénticos.
   - Codos, colgador y abrazadera de las bancas no se agregan: ya están en METRADO MONTANTES (BC-01 a BC-16).
 - Corregido en `angulo_contramarco_refugio.py` (desplazar y recalcular): fórmulas compartidas de Excel (`<f t="shared" .../>`).
-- Observación (no se cambió): el RESUMEN no tiene fila para el CODO DESAGÜE PVC Ø4" x 45° (PLANILLA 1.4.4.5.3.2).
+- A pedido del usuario se agregó al RESUMEN el CODO DESAGÜE PVC Ø4" x 45° (1.4.4.5.3.2 = PLANILLA K161, de METRADO MONTANTES),
+  que faltaba; COLGADOR y ABRAZADERA pasan a 1.4.4.5.3.3 y 1.4.4.5.3.4, igual que en la PLANILLA.
 - Salida: `entregables_mujeres/METRADO_DRENAJE_PLUVIAL_CAR_MUJERES_09-10-2026_CON_BANCAS.xlsx`.

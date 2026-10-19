@@ -3,7 +3,8 @@ bancas de jardineria tipo 01 (canaleta, tapa lateral, soporte y boquilla), con u
 
 - Hoja nueva METRADO CANALETA BANCAS (formato de METRADO CANALETAS), despues de METRADO CANALETAS.
 - PLANILLA GENERAL DE METRADOS: subtitulo 1.4.4.5.4 RED DE RECOLECCION TECHO DE BANCAS DE JARDINERIA despues de ACCESORIOS.
-- RESUMEN: el mismo subtitulo y los 4 items antes de 1.4.4.6 COLECTOR PLUVIAL FRONTAL.
+- RESUMEN: el mismo subtitulo y los 4 items antes de 1.4.4.6 COLECTOR PLUVIAL FRONTAL; ademas la fila del CODO DESAGUE PVC
+  4" x 45 (PLANILLA 1.4.4.5.3.2, de METRADO MONTANTES) que faltaba, con la numeracion de ACCESORIOS igual a la PLANILLA.
 No cambia ningun otro valor: las filas siguientes solo bajan y sus referencias se corrigen.
 Uso: python3 herramientas/mujeres/bancas_en_planilla_m.py
 """
@@ -135,9 +136,15 @@ def main():
         if not re.match(r'<row r="5[3-6]"', p):
             partes[i] = re.sub(r"((?:&apos;|')PLANILLA GENERAL DE METRADOS(?:&apos;|')!\$?[A-Z]+\$?)(\d+)", mov, p)
     L.x[RES] = "".join(partes).replace('<dimension ref="A1:E79"/>', '<dimension ref="A1:E%d"/>' % (79 + DR))
+    # ---- RESUMEN: codo 45 (fila 50) que faltaba; colgador y abrazadera toman la numeracion de la PLANILLA
+    L.desplazar(RES, 50, 79 + DR, 1); L.insertar_copia(RES, 49, 50)
+    assert L.leer(PG, "A161") == "1.4.4.5.3.2" and "45" in L.leer(PG, "B161")
+    L.texto(RES, "A50", "1.4.4.5.3.2"); L.texto(RES, "B50", L.leer(PG, "B161")); L.formula(RES, "D50", "+'%s'!K161" % PG)
+    L.texto(RES, "A51", "1.4.4.5.3.3"); L.texto(RES, "A52", "1.4.4.5.3.4")
+    L.x[RES] = L.x[RES].replace('<dimension ref="A1:E%d"/>' % (79 + DR), '<dimension ref="A1:E%d"/>' % (80 + DR))
     wb = L.F["xl/workbook.xml"].decode()
     wb = wb.replace("'PLANILLA GENERAL DE METRADOS'!$A$1:$L$320", "'PLANILLA GENERAL DE METRADOS'!$A$1:$L$%d" % (320 + DP))
-    wb = wb.replace("RESUMEN!$A$1:$D$79", "RESUMEN!$A$1:$D$%d" % (79 + DR))
+    wb = wb.replace("RESUMEN!$A$1:$D$79", "RESUMEN!$A$1:$D$%d" % (80 + DR))
     L.F["xl/workbook.xml"] = wb.encode()
     L.guardar(SAL)
     print("valores recalculados:", recalcular(SAL, [RES, PG, NB])); print(SAL)
