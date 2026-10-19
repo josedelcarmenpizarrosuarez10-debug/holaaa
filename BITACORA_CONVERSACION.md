@@ -150,7 +150,9 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   DB-01 isométrico 1/15; DB-02 extremo de la canaleta 1/5 con corte de canaleta y sección C-C de la falsa columna;
   DB-03 corte A-A (lateral) y corte B-B (frontal) 1/10 con cotas y niveles. PNG en `vistas_previas_banca/`.
 - Regla del usuario: ser fiel al dibujo. Todo sale del corte A-A y de la planta: canaleta 0.18 x 0.20 (indicación del usuario),
-  S = 0.5 %, sumidero cúpula 4", niple, unión, codo, tramo de 0.38 con colgador a la viga 2" x 2", codo, unión, bajada,
+  S = 0.5 %, un solo tramo de 2.00 m por techo (a una agua, sin uniones), boquilla de aluzinc (brida 0.16 x 0.16, cuello Ø 0.10),
+  niple, codo, tramo de 0.38 con colgador a la viga 2" x 2", codo, bajada,
   2 soportes de platina 1" x 1/8" a 0.40 de cada extremo (1.20 entre ellos), abrazadera a la columna (+1.77), falsa columna CL-01 0.20 x 0.15 de -0.15 a +1.05, cobertura hasta la cara posterior de la canaleta.
 - Diferencias del plano de origen (informadas al usuario): falsa columna rotulada H = 1.50 pero dibujada 1.20; la elevación E2
   la dibuja de 0.15 de ancho y la planta de 0.20; no se indica a dónde descarga la bajada.
+- Metrado para 16 techos iguales: `entregables_mujeres/METRADO_CANALETA_Y_ACCESORIOS_BANCAS_CAR_MUJERES.xlsx` (generador `herramientas/techo/metrado_banca_m.py`), sin tubo ni falsa columna.

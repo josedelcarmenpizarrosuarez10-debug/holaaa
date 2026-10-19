@@ -33,8 +33,8 @@ CB, CH = 0.18, 0.20                     # canaleta de aluzinc: ancho x alto inte
 YC0 = AY + 0.01                         # cara interior posterior de la canaleta
 YC1 = YC0 + CB                          # cara interior frontal
 ALA = 0.10                              # ala posterior apoyada sobre la viga, bajo la cobertura
-ZB = 2.385                              # fondo de la canaleta en el sumidero
-S_CAN = 0.50                            # pendiente del plano (S = 0.5 %) hacia el sumidero
+ZB = 2.385                              # fondo de la canaleta en la boquilla
+S_CAN = 0.50                            # pendiente del plano (S = 0.5 %) hacia la boquilla; un solo tramo de 2.00 m
 VUELO = 0.013                           # la cobertura termina sobre la cara posterior de la canaleta (corte A-A)
 PEND = 0.125                            # cobertura: 0.30 de caida en 2.40
 Z_COB0 = 2.997                          # cara superior de la cobertura en y = 0
@@ -42,17 +42,17 @@ E_COB = 0.03
 COL = [(0.25, 0.35), (1.65, 1.75)]      # columnas de tubo rectangular 4" x 10" x 3 mm (0.10 en x, 0.25 en y)
 YCOL = (1.80, 2.05)
 JARDIN = -0.15                          # jardin 0.15 bajo la circulacion
-XS = 1.70                               # eje del sumidero y de la bajada (eje de la columna derecha)
+XS = 1.70                               # eje de la boquilla y de la bajada (eje de la columna derecha)
 FCX, FCY = 0.20, 0.15                   # falsa columna CL-01 (planta): 0.20 x 0.15
 YFC = (YCOL[1], YCOL[1] + FCY)          # contra la cara de la columna, del lado de la canaleta
 ZFC = (JARDIN, 1.05)                    # dibujada de -0.15 a +1.05 (corte A-A y elevacion E2)
 YT = YCOL[1] + 0.0655                   # eje de la bajada (planta: 0.0655 desde la cara de la columna)
-YSUM = (YC0 + YC1) / 2                  # eje del sumidero
+YSUM = (YC0 + YC1) / 2                  # eje de la boquilla
 ZH = 2.129                              # eje del tramo horizontal bajo la canaleta
 R_CODO, CAMP = 0.055, 0.045             # codo PVC 4" x 90 (radio de eje y campana): 0.10 del eje al extremo
-UN = (0.063, 0.051)                     # union PVC 4": radio exterior y largo
-Z_UN1 = 2.233                           # union bajo el sumidero (2.233 a 2.284)
-Z_UN2 = 2.029                           # union bajo el segundo codo (1.973 a 2.024)
+BRIDA, DB_, LC = 0.16, 0.10, 0.15       # boquilla: brida 0.16 x 0.16 bajo el fondo, cuello Ø 0.10 x 0.15 dentro del tubo PVC 4"
+ZC_TOP = ZH + R_CODO + CAMP             # extremo superior del primer codo (llega el niple de la boquilla)
+ZC_BOT = ZH - R_CODO - CAMP             # extremo inferior del segundo codo (sale la bajada)
 Y_COLG = AY - 0.088                     # colgador sobre el tramo horizontal
 ZABR = 1.77                             # abrazadera a la columna
 DT = T.DT                               # PVC 4": diametro exterior 0.114
@@ -66,7 +66,7 @@ zvig = lambda y: Z_COB0 - E_COB - 0.076 - PEND * y      # cara superior de la vi
 
 ALUZ, PLAT, CAB, ROSCA, COLG = (204, 210, 218), T.PLAT, T.CAB, T.ROSCA, T.COLG
 PVC, ACC, ABRZ, CONC = T.PVC, T.ACC, T.ABRZ, T.CONC
-METAL, MADERA, PISO, TIERRA, CUPULA, UNION = (120, 128, 140), (196, 150, 98), (224, 222, 214), (206, 222, 184), (90, 96, 104), (96, 140, 210)
+METAL, MADERA, PISO, TIERRA = (120, 128, 140), (196, 150, 98), (224, 222, 214), (206, 222, 184)
 
 
 # ================================================================== modelo 3D
@@ -74,8 +74,6 @@ def tubo(E, a, b):
     E.cilindro(a, b, DT / 2, PVC, n=20, paso=0.10)
 
 
-def union3d(E, z, x, y):
-    E.cilindro((x, y, z), (x, y, z + UN[1]), UN[0], UNION, n=20, tapas=False, paso=1.0)
 
 
 def abrazadera(E, z, x, yw, yt):
@@ -101,16 +99,16 @@ def colgador(E, x, y, zt, z_viga):
     E.caja(x - 0.006, y - 0.025, zt + r + 0.002, x + 0.006, y + 0.025, zt + r + 0.010, COLG, 0.05)
 
 
-def cupula(E, x, y, z):
-    r0 = 0.052
-    E.cilindro((x, y, z), (x, y, z + 0.008), r0 + 0.012, CUPULA, n=24, tapas=True, paso=1.0)
-    for k in range(10):
-        a = 2 * np.pi * k / 10
-        E.cilindro((x + r0 * np.cos(a), y + r0 * np.sin(a), z + 0.008), (x + 0.02 * np.cos(a), y + 0.02 * np.sin(a), z + 0.075),
-                   0.0035, CUPULA, n=6, tapas=False, paso=1.0)
-    E.disco((x, y, z + 0.075), (0, 0, 1), 0.024, CUPULA, n=16)
-    for zz, rr in ((0.03, 0.044), (0.055, 0.031)):
-        E.cilindro((x, y, z + zz), (x, y, z + zz + 0.004), rr, CUPULA, n=20, tapas=False, paso=1.0)
+def boquilla(E, x, y, z):
+    """Boquilla de plancha: abertura Ø 0.10 en el fondo, brida 0.16 x 0.16 bajo el fondo con 8 remaches y cuello Ø 0.10 x 0.15."""
+    E.disco((x, y, z + 0.0005), (0, 0, 1), DB_ / 2, (70, 74, 80), n=24, sesgo=0.02)
+    d = BRIDA / 2 - 0.015
+    for dx, dy in ((-d, -d), (0, -d), (d, -d), (-d, 0), (d, 0), (-d, d), (0, d), (d, d)):
+        E.disco((x + dx, y + dy, z + 0.0006), (0, 0, 1), 0.0032, T.REM, sesgo=0.02)
+    E.g = 1
+    h = BRIDA / 2
+    E.quad((x - h, y - h, z - 0.0012), (x + h, y - h, z - 0.0012), (x + h, y + h, z - 0.0012), (x - h, y + h, z - 0.0012), ALUZ, 0.05)
+    E.cilindro((x, y, z - 0.0012), (x, y, z - LC), DB_ / 2, ALUZ, n=24, tapas=False, paso=0.05)
 
 
 def canaleta(E, x0=0.0, x1=AX):
@@ -136,20 +134,18 @@ def canaleta(E, x0=0.0, x1=AX):
         E.g = 8; E.caja(xs - w, YC1, z - ep, xs + w, YC1 + ep, z + CH, PLAT, 0.03)
         E.caja(xs - w, YC1 - 0.03, z + CH, xs + w, YC1 + ep, z + CH + ep, PLAT, 0.03)
     E.g = 6
-    cupula(E, XS, YSUM, zc(XS) + 0.0006)
+    boquilla(E, XS, YSUM, zc(XS))
 
 
 def bajada(E, z_min=None):
     r = R_CODO + CAMP
     E.g = 3
-    tubo(E, (XS, YSUM, zc(XS) - 0.010), (XS, YSUM, Z_UN1 + UN[1]))                     # niple del sumidero
-    union3d(E, Z_UN1, XS, YSUM)
+    tubo(E, (XS, YSUM, zc(XS) - 0.010), (XS, YSUM, ZC_TOP))                            # niple: recibe el cuello de la boquilla
     E.codo((XS, YSUM, ZH), (0, 0, -1), (0, -1, 0), R_CODO, DT / 2, ACC, campana=CAMP)
     tubo(E, (XS, YSUM - r, ZH), (XS, YT + r, ZH))                                       # tramo bajo la canaleta
     E.codo((XS, YT, ZH), (0, -1, 0), (0, 0, -1), R_CODO, DT / 2, ACC, campana=CAMP)
-    union3d(E, Z_UN2 - UN[1], XS, YT)
     zfin = ZFC[1] if z_min is None else max(z_min, ZFC[1])
-    tubo(E, (XS, YT, Z_UN2 - UN[1]), (XS, YT, zfin))                                     # bajada vista
+    tubo(E, (XS, YT, ZC_BOT), (XS, YT, zfin))                                     # bajada vista
     if z_min is None:
         E.g = 1; tubo(E, (XS, YT, ZFC[1]), (XS, YT, ZFC[0]))                             # dentro de la falsa columna
     E.g = 9
@@ -203,9 +199,9 @@ def escena_banca():
     return E
 
 
-LEYENDA = [(ALUZ, "Canaleta de aluzinc 0.18 x 0.20 (ancho x alto interiores)"), (CUPULA, "Sumidero tipo cupula 4\""),
+LEYENDA = [(ALUZ, "Canaleta de aluzinc 0.18 x 0.20 (ancho x alto interiores)"), (ALUZ, "Boquilla de plancha de aluzinc Ø 4\" (brida y cuello)"),
            (PVC, "Tubo PVC 4\" (niple, tramo bajo la canaleta y bajada)"), (ACC, "Codos PVC 4\" x 90° con campanas (2)"),
-           (UNION, "Uniones PVC 4\" (2)"), (COLG, "Colgador F°G° con varilla roscada 3/8\" a la viga"),
+           (COLG, "Colgador F°G° con varilla roscada 3/8\" a la viga"),
            (ABRZ, "Abrazadera F°G° 1\" x 1/8\" a la columna"), (PLAT, "Soporte de platina F°G° 1\" x 1/8\" (2 por canaleta)"),
            (CONC, "Falsa columna de drenaje pluvial CL-01"), (METAL, "Estructura metalica de la banca"),
            (MADERA, "Asiento y celosia de madera")]
@@ -213,16 +209,16 @@ LEYENDA = [(ALUZ, "Canaleta de aluzinc 0.18 x 0.20 (ancho x alto interiores)"), 
 
 def db01(doc, ox, oy):
     lam = B.Lamina(doc, ox, oy, 15, "DB-01", "ISOMETRICO DEL DRENAJE PLUVIAL DE LA BANCA DE JARDINERIA",
-                   "BANCA TIPO 01: CANALETA, SUMIDERO CUPULA 4\", COLGADOR, BAJADA PVC 4\" Y FALSA COLUMNA CL-01 - " + P["nombre"])
+                   "BANCA TIPO 01: CANALETA, BOQUILLA 4\", COLGADOR, BAJADA PVC 4\" Y FALSA COLUMNA CL-01 - " + P["nombre"])
     E = escena_banca()
     P2 = E.dibujar(lam, 245, 335)
     items = [((0.60, 0.80, zcob(0.80)), ["Cobertura de panel metalico aluzinc e = 0.35 mm, A = 1 m (solo contorno)"]),
              ((0.80, 1.65, zvig(1.65) + 0.076), ["Correa metalica: tubo rectangular 2\" x 3\" x 3 mm"]),
              ((0.80, YC1, zc(0.80) + 0.12), ["Canaleta de aluzinc 0.18 x 0.20 (ancho x alto interiores), L = 2.00 m, S = 0.5 %"]),
              ((SOPS[0], YC1 + T.EPL, zc(SOPS[0]) + 0.08), ["2 soportes de platina F°G° 1\" x 1/8\" a 0.40 de cada extremo"]),
-             ((XS, YSUM, zc(XS) + 0.06), ["Sumidero tipo cupula 4\" en el fondo de la canaleta"]),
+             ((XS + 0.03, YSUM, zc(XS)), ["Boquilla Ø 4\" en el fondo de la canaleta (brida 0.16 x 0.16 y cuello Ø 0.10)"]),
              ((XS, Y_COLG, ZH + 0.15), ["Colgador F°G° con varilla roscada 3/8\" a la viga metalica 2\" x 2\""]),
-             ((XS, (YSUM + YT) / 2 - 0.05, ZH - DT / 2), ["Codos PVC 4\" x 90°, uniones y tramo bajo la canaleta"]),
+             ((XS, (YSUM + YT) / 2 - 0.05, ZH - DT / 2), ["Codos PVC 4\" x 90° (2) y tramo bajo la canaleta"]),
              ((XS + DT / 2, YT, ZABR + 0.02), ["Abrazadera F°G° 1\" x 1/8\" fijada a la columna"]),
              ((XS + DT / 2, YT, 1.40), ["Bajada PVC 4\" adosada a la columna metalica 4\" x 10\" x 3 mm"]),
              ((XS + FCX / 2, YFC[1], 0.55), ["Falsa columna de drenaje pluvial CL-01 de 0.20 x 0.15 (de -0.15 a +1.05)"]),
@@ -235,7 +231,7 @@ def db01(doc, ox, oy):
     lam.notas(640, 455, "NOTAS", [
         "1. Medidas del detalle de banca tipo 01 (planta, planta de techo, corte A-A y elevaciones E1 y E2).",
         "2. Canaleta de aluzinc de 0.18 de ancho x 0.20 de alto interiores, del largo del techo (2.00 m), S = 0.5 %.",
-        "3. Recorrido de la bajada segun el corte A-A: sumidero cupula, union, codo, tramo con colgador, codo, union y bajada.",
+        "3. Un solo tramo de canaleta de 2.00 m por techo (techo a una agua). Bajada: boquilla, niple, codo, tramo con colgador, codo y bajada.",
         "4. Cortes A-A y B-B con cotas y niveles en la lamina DB-03; extremo de la canaleta en DB-02.",
     ], hmm=1.8, ancho_mm=190)
     return lam
@@ -263,10 +259,9 @@ def seccion_canaleta(lam, xmm, ymm):
     ep = T.EPL
     lam.poli([p(YC0 - ep, ZB + CH), p(YC0 - ep, ZB - ep), p(YC1 + ep, ZB - ep), p(YC1 + ep, ZB + CH + ep), p(YC1 - 0.03, ZB + CH + ep)], "PLATINA")
     yc = YSUM
-    for dy in (-0.052, 0.052): lam.linea(p(yc + dy, ZB + 0.008), p(yc + dy * 0.4, ZB + 0.075), "TUBO-PVC")
-    lam.linea(p(yc - 0.064, ZB + 0.008), p(yc + 0.064, ZB + 0.008), "TUBO-PVC")
-    lam.linea(p(yc - 0.021, ZB + 0.075), p(yc + 0.021, ZB + 0.075), "TUBO-PVC")
-    for dy in (-DT / 2, DT / 2): lam.linea(p(yc + dy, ZB), p(yc + dy, Z_UN1 + UN[1]), "TUBO-PVC")
+    for dy in (-DT / 2, DT / 2): lam.linea(p(yc + dy, ZB), p(yc + dy, ZC_TOP), "TUBO-PVC")
+    for dy in (-DB_ / 2, DB_ / 2): lam.linea(p(yc + dy, ZB), p(yc + dy, ZB - LC), "TUBERIA-OCULTA")
+    lam.poli([p(yc - BRIDA / 2, ZB - 0.003), p(yc + BRIDA / 2, ZB - 0.003)], "PLANCHA-GALV", ancho=0.003)
     lam.poli([p(YC0 - 0.20, zcob(YC0 - 0.20)), p(AY + VUELO, zcob(AY + VUELO)), p(AY + VUELO, zcob(AY + VUELO) - E_COB),
               p(YC0 - 0.20, zcob(YC0 - 0.20) - E_COB)], "COBERTURA")
     lam.poli([p(YC0 - 0.20, zvig(YC0 - 0.20 + 0.01)), p(AY, zvig(AY)), p(AY, zvig(AY) - 0.05), p(YC0 - 0.20, zvig(YC0 - 0.19) - 0.05)], "ESTRUCTURA-METALICA")
@@ -279,11 +274,11 @@ def seccion_canaleta(lam, xmm, ymm):
                         ((YC0 - 0.06, ZB + CH + 0.008), "Ala posterior sobre la viga (0.10)"),
                         ((YC1, ZB + 0.17), "Canaleta de aluzinc 0.18 x 0.20 (interiores)"),
                         ((YC1 + ep, ZB + 0.10), "Soporte de platina F°G° 1\" x 1/8\""),
-                        ((yc + 0.03, ZB + 0.03), "Sumidero tipo cupula 4\""),
-                        ((yc + DT / 2, ZB - 0.07), "Niple PVC 4\" a la union")):
+                        ((yc + BRIDA / 2 - 0.01, ZB - 0.004), "Boquilla: brida 0.16 x 0.16 remachada y sellada"),
+                        ((yc + DB_ / 2, ZB - 0.10), "Cuello Ø 0.10 x 0.15 dentro del niple PVC 4\"")):
         q = p(y, z); lam.llamada(q, (xt, q[1]), [txt], 2.0)
     lam.volcar_llamadas()
-    lam.titulo_vista(xmm + 30, ymm - 45, "CORTE DE LA CANALETA", "ESC. 1/5 - por el sumidero (corte A-A)", 80)
+    lam.titulo_vista(xmm + 30, ymm - 45, "CORTE DE LA CANALETA", "ESC. 1/5 - por la boquilla (corte A-A)", 80)
 
 
 def seccion_falsa_columna(lam, xmm, ymm):
@@ -311,7 +306,7 @@ def seccion_falsa_columna(lam, xmm, ymm):
 
 
 def db02(doc, ox, oy):
-    lam = B.Lamina(doc, ox, oy, 5, "DB-02", "DETALLE ISOMETRICO DE CANALETA, SUMIDERO, COLGADOR Y BAJADA DE LA BANCA",
+    lam = B.Lamina(doc, ox, oy, 5, "DB-02", "DETALLE ISOMETRICO DE CANALETA, BOQUILLA, COLGADOR Y BAJADA DE LA BANCA",
                    "BANCA DE JARDINERIA TIPO 01 - EXTREMO DE LA CANALETA SOBRE LA COLUMNA DERECHA - " + P["nombre"])
     E = escena_detalle()
     P2 = E.dibujar(lam, 330, 205)
@@ -320,17 +315,16 @@ def db02(doc, ox, oy):
              ((1.45, YC1, zc(1.45) + 0.12), ["Canaleta de aluzinc 0.18 x 0.20 (ancho x alto interiores), S = 0.5 %"]),
              ((SOPS[1], YC1 + T.EPL, zc(SOPS[1]) + 0.10), ["Soporte de platina F°G° 1\" x 1/8\" con oreja sobre el borde (2 por canaleta)"]),
              ((AX, YSUM, zc(AX) + 0.10), ["Tapa lateral de aluzinc remachada y sellada"]),
-             ((XS + 0.03, YSUM, zc(XS) + 0.06), ["Sumidero tipo cupula 4\""]),
-             ((XS + UN[0], YSUM, Z_UN1 + 0.025), ["Niple y union PVC 4\" bajo el sumidero"]),
+             ((XS + 0.03, YSUM, zc(XS)), ["Boquilla Ø 4\": abertura Ø 0.10, brida 0.16 x 0.16 con 8 remaches y sellador"]),
+             ((XS + DT / 2, YSUM, (ZB + ZC_TOP) / 2), ["Niple PVC 4\" con el cuello de la boquilla adentro"]),
              ((XS, Y_COLG, zvig(Y_COLG) - 0.12), ["Colgador F°G°: varilla roscada 3/8\" con tuercas, colgada de la viga 2\" x 2\""]),
              ((XS, Y_COLG + 0.02, ZH - DT / 2 - 0.006), ["Banda del colgador sobre el tramo PVC 4\""]),
              ((XS + DT / 2 * 0.7, YT, ZH - 0.05), ["Codos PVC 4\" x 90° con campanas"]),
-             ((XS + UN[0], YT, Z_UN2 - 0.025), ["Union PVC 4\" bajo el segundo codo"]),
              ((XS + DT / 2 + 0.004, YT, ZABR), ["Abrazadera F°G° 1\" x 1/8\" con 2 pernos a la columna"]),
              ((XS + DT / 2, YT, 1.60), ["Bajada PVC 4\" (cortada): sigue a la falsa columna CL-01"]),
              ((COL[1][0], YCOL[0], 1.70), ["Columna metalica 4\" x 10\" x 3 mm (cortada)"])]
     T._llamadas(lam, P2, items, 545)
-    lam.titulo_vista(300, 52, "ISOMETRICO DEL EXTREMO DE LA CANALETA", "ESC. 1/5 - canaleta, sumidero, colgador, codos y bajada", 170)
+    lam.titulo_vista(300, 52, "ISOMETRICO DEL EXTREMO DE LA CANALETA", "ESC. 1/5 - canaleta, boquilla, colgador, codos y bajada", 170)
     seccion_canaleta(lam, 70, 500)
     seccion_falsa_columna(lam, 640, 470)
     return lam
@@ -364,16 +358,14 @@ def corte_aa(lam, xmm, ymm):
     # canaleta
     lam.relleno([v(H(YC1), ZB), v(H(YC0), ZB), v(H(YC0), ZB + CH), v(H(YC1), ZB + CH)], "GALV-RELL")
     v.pl([(H(YC1 - 0.015), ZB + CH), (H(YC1), ZB + CH), (H(YC1), ZB), (H(YC0), ZB), (H(YC0), ZB + CH), (H(YC0 - ALA), ZB + CH + 0.012)], "PLANCHA-GALV", ancho=0.003)
-    for dy in (-0.052, 0.052): v.ln((H(YSUM + dy), ZB + 0.008), (H(YSUM + dy * 0.4), ZB + 0.075), "TUBO-PVC")
-    v.ln((H(YSUM + 0.021), ZB + 0.075), (H(YSUM - 0.021), ZB + 0.075), "TUBO-PVC")
-    # tuberia: niple, union, codo, tramo, codo, union, bajada, tramo oculto en la falsa columna
-    tubo_v(v, H(YSUM), ZB, Z_UN1 + UN[1])
-    v.rect(H(YSUM) - UN[0], Z_UN1, H(YSUM) + UN[0], Z_UN1 + UN[1], "ACCESORIO-PVC")
+    # tuberia: boquilla, niple, codo, tramo, codo, bajada, tramo oculto en la falsa columna
+    tubo_v(v, H(YSUM), ZB, ZC_TOP)
+    for dy in (-DB_ / 2, DB_ / 2): v.ln((H(YSUM) + dy, ZB), (H(YSUM) + dy, ZB - LC), "TUBERIA-OCULTA")
+    v.pl([(H(YSUM) - BRIDA / 2, ZB - 0.003), (H(YSUM) + BRIDA / 2, ZB - 0.003)], "PLANCHA-GALV", ancho=0.003)
     T.codo2d(v, (H(YSUM), ZH), (0, -1), (1, 0), R_CODO, r, camp=CAMP)
     T.tubo2d(v, (H(YSUM) + rc, ZH), (H(YT) - rc, ZH))
     T.codo2d(v, (H(YT), ZH), (1, 0), (0, -1), R_CODO, r, camp=CAMP)
-    v.rect(H(YT) - UN[0], Z_UN2 - UN[1], H(YT) + UN[0], Z_UN2, "ACCESORIO-PVC")
-    tubo_v(v, H(YT), Z_UN2 - UN[1], ZFC[1])
+    tubo_v(v, H(YT), ZC_BOT, ZFC[1])
     tubo_v(v, H(YT), ZFC[1], ZFC[0], oculto=True)
     # colgador y abrazadera
     hc = H(Y_COLG); zv = zvig(Y_COLG) - 0.05
@@ -400,10 +392,10 @@ def corte_aa(lam, xmm, ymm):
     xtx = v(hmax + 0.12, 0)[0]
     for (u, w), t in (((H(AY - 0.10), zcob(AY - 0.10)), ["Cobertura panel aluzinc e = 0.35 mm"]),
                       ((H(AY - 0.30), zvig(AY - 0.30) - 0.025), ["Viga metalica tubo 2\" x 2\" x 3 mm"]),
-                      ((H(YSUM), ZB + 0.06), ["Sumidero tipo cupula 4\""]),
+                      ((H(YSUM) + BRIDA / 2 - 0.01, ZB - 0.004), ["Boquilla Ø 4\" (brida y cuello Ø 0.10)"]),
                       ((H(YC1), ZB + 0.15), ["Canaleta de aluzinc 0.18 x 0.20, S = 0.5 %"]),
                       ((hc, ZH + 0.15), ["Colgador F°G° con varilla roscada 3/8\""]),
-                      ((H(YSUM) + 0.05, ZH - 0.05), ["Codos PVC 4\" x 90° y uniones"]),
+                      ((H(YSUM) + 0.05, ZH - 0.05), ["Codos PVC 4\" x 90° (2)"]),
                       ((H(YT) - r - 0.004, ZABR), ["Abrazadera F°G° 1\" x 1/8\" a la columna"]),
                       ((H(YT) - r, 1.40), ["Bajada PVC 4\""]),
                       ((H(YCOL[0]) - 0.02, 1.60), ["Columna metalica 4\" x 10\" x 3 mm"]),
@@ -429,7 +421,7 @@ def corte_bb(lam, xmm, ymm):
         v.rect(xm - 0.025, zt, xm + 0.025, zt + 0.05, "ESTRUCTURA-METALICA")              # viga 2" x 2" en seccion
     for z0 in LISTONES: v.rect(COL[0][1], z0, COL[1][0], z0 + 0.20, "MADERA")
     v.rect(COL[0][1], SEAT[2], COL[1][0], SEAT[3], "MADERA")
-    # correa del borde, cobertura y canaleta en elevacion (pendiente hacia el sumidero)
+    # correa del borde, cobertura y canaleta en elevacion (pendiente hacia la boquilla)
     zcr = zvig(AY - 0.05)
     v.rect(0.0, zcr, AX, zcr + 0.076, "ESTRUCTURA-METALICA")
     v.pl([(0.0, zcob(AY + VUELO)), (AX, zcob(AY + VUELO))], "COBERTURA", ancho=0.006)
@@ -438,15 +430,15 @@ def corte_bb(lam, xmm, ymm):
     for xs in SOPS: v.pl([(xs, zc(xs) - T.EPL), (xs, zc(xs) + CH)], "PLATINA", ancho=T.ANP)
     lam.flecha(v(0.55, zc(0.55) + 0.12), v(1.35, zc(1.35) + 0.12), "FLUJO", 3.0)
     lam.texto(v(0.95, zc(0.95) + 0.15), "S = 0.5 %", 2.0, "TEXTOS", TA.MIDDLE_CENTER)
-    # bajada vista de frente: niple, union, codos (el tramo horizontal va hacia la columna), union, bajada
-    tubo_v(v, XS, zc(XS), Z_UN1 + UN[1])
-    v.rect(XS - UN[0], Z_UN1, XS + UN[0], Z_UN1 + UN[1], "ACCESORIO-PVC")
+    # bajada vista de frente: boquilla, niple, codos (el tramo horizontal va hacia la columna), bajada
+    tubo_v(v, XS, zc(XS), ZC_TOP)
+    v.pl([(XS - BRIDA / 2, zc(XS) - 0.003), (XS + BRIDA / 2, zc(XS) - 0.003)], "PLANCHA-GALV", ancho=0.003)
+    for dx in (-DB_ / 2, DB_ / 2): v.ln((XS + dx, zc(XS)), (XS + dx, zc(XS) - LC), "TUBERIA-OCULTA")
     zc1, zc2 = ZH + R_CODO + CAMP, ZH - R_CODO - CAMP
-    lam.relleno([v(XS - r - 0.007, zc2), v(XS + r + 0.007, zc2), v(XS + r + 0.007, Z_UN1), v(XS - r - 0.007, Z_UN1)], "ACCES-RELL")
-    v.rect(XS - r - 0.007, zc2, XS + r + 0.007, Z_UN1, "ACCESORIO-PVC")
+    lam.relleno([v(XS - r - 0.007, zc2), v(XS + r + 0.007, zc2), v(XS + r + 0.007, ZC_TOP), v(XS - r - 0.007, ZC_TOP)], "ACCES-RELL")
+    v.rect(XS - r - 0.007, zc2, XS + r + 0.007, ZC_TOP, "ACCESORIO-PVC")
     v.circ((XS, ZH), r, "ACCESORIO-PVC")
-    v.rect(XS - UN[0], Z_UN2 - UN[1], XS + UN[0], Z_UN2, "ACCESORIO-PVC")
-    tubo_v(v, XS, Z_UN2 - UN[1], ZFC[1])
+    tubo_v(v, XS, ZC_BOT, ZFC[1])
     # colgador (detras del tramo) y abrazadera
     v.pl([(XS, ZH + r + 0.008), (XS, zvig(Y_COLG) - 0.05)], "COLGADOR", ancho=0.0095)
     lam.relleno([v(XS - r - 0.004, ZABR - T.ANP / 2), v(XS + r + 0.004, ZABR - T.ANP / 2), v(XS + r + 0.004, ZABR + T.ANP / 2), v(XS - r - 0.004, ZABR + T.ANP / 2)], "ABRZ-RELL")
@@ -473,7 +465,7 @@ def corte_bb(lam, xmm, ymm):
                       ((SOPS[0], zc(SOPS[0]) + 0.10), ["2 soportes de platina F°G° 1\" x 1/8\""]),
                       ((1.10, zc(1.10) + 0.05), ["Canaleta de aluzinc 0.18 x 0.20, L = 2.00, S = 0.5 %"]),
                       ((AX, zc(AX) + 0.10), ["Tapa lateral de aluzinc"]),
-                      ((XS + r, zc(XS) - 0.03), ["Sumidero cupula 4\", niple y union PVC 4\""]),
+                      ((XS + r, zc(XS) - 0.03), ["Boquilla Ø 4\" y niple PVC 4\""]),
                       ((XS, ZH + 0.25), ["Colgador F°G° con varilla roscada 3/8\""]),
                       ((XS + r + 0.007, ZH), ["Codos PVC 4\" x 90° (el tramo horizontal va a la columna)"]),
                       ((XS + r + 0.004, ZABR), ["Abrazadera F°G° 1\" x 1/8\""]),
@@ -488,7 +480,7 @@ def corte_bb(lam, xmm, ymm):
 
 def db03(doc, ox, oy):
     lam = B.Lamina(doc, ox, oy, 10, "DB-03", "CORTES A-A Y B-B DEL DRENAJE PLUVIAL DE LA BANCA DE JARDINERIA",
-                   "BANCA TIPO 01: CANALETA, SUMIDERO, COLGADOR, BAJADA PVC 4\" Y FALSA COLUMNA CL-01 - " + P["nombre"])
+                   "BANCA TIPO 01: CANALETA, BOQUILLA, COLGADOR, BAJADA PVC 4\" Y FALSA COLUMNA CL-01 - " + P["nombre"])
     corte_aa(lam, 45, 140)
     corte_bb(lam, 395, 140)
     return lam

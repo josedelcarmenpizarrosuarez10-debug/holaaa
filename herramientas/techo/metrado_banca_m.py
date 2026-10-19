@@ -19,14 +19,14 @@ F = lambda **k: Font(name="Arial", size=k.pop("size", 9), **k)
 # (item, descripcion, und, cantidad por banca, sustento)
 FILAS = [
     ("01", "CANALETA DE PLANCHA DE ALUZINC, SECCION INTERIOR 0.18 m (ANCHO) x 0.20 m (ALTO)", "m", BM.AX,
-     "Largo del techo de la banca: 2.00 m (planta de techo; corte B-B, lamina DB-03)"),
-    ("02", "TAPA LATERAL DE ALUZINC P/CANALETA", "und", 2, "Una en cada extremo de la canaleta"),
+     "1 tramo de 2.00 m por techo (techo a una agua, sin uniones de canaleta)"),
+    ("02", "TAPA LATERAL DE ALUZINC P/CANALETA", "und", 2, "Una en cada extremo del tramo"),
     ("03", "SOPORTE DE PLATINA F°G° 1\" x 1/8\" P/CANALETA", "und", len(BM.SOPS), "A 0.40 m de cada extremo, 1.20 m entre ellos (DB-03)"),
-    ("04", "SUMIDERO DE CANALETA TIPO CUPULA 4\"", "und", 1, "En el fondo de la canaleta, a 0.30 m del extremo, sobre la bajada"),
-    ("05", "CODO PVC 4\" x 90°", "und", 2, "Bajo el sumidero y sobre la bajada (corte A-A)"),
-    ("06", "UNION PVC 4\"", "und", 2, "Bajo el sumidero y bajo el segundo codo (corte A-A)"),
-    ("07", "COLGADOR F°G° C/VARILLA ROSCADA 3/8\" P/TUBERIA PVC 4\"", "und", 1, "Sobre el tramo horizontal, colgado de la viga metalica 2\" x 2\""),
-    ("08", "ABRAZADERA DE PLATINA F°G° 1\" x 1/8\" P/TUBERIA PVC 4\"", "und", 1, "En la bajada, fijada a la columna metalica (+1.77)"),
+    ("04", "BOQUILLA DE PLANCHA DE ALUZINC P/CONEXION DE CANALETA A TUBERIA PVC 4\"", "und", 1,
+     "Brida 0.16 x 0.16 con 8 remaches y sellador, cuello Ø 0.10 x 0.15; a 0.30 m del extremo"),
+    ("05", "CODO PVC 4\" x 90°", "und", 2, "Bajo la boquilla y sobre la bajada (corte A-A)"),
+    ("06", "COLGADOR F°G° C/VARILLA ROSCADA 3/8\" P/TUBERIA PVC 4\"", "und", 1, "Sobre el tramo horizontal, colgado de la viga metalica 2\" x 2\""),
+    ("07", "ABRAZADERA DE PLATINA F°G° 1\" x 1/8\" P/TUBERIA PVC 4\"", "und", 1, "En la bajada, fijada a la columna metalica (+1.77)"),
 ]
 
 
@@ -44,11 +44,11 @@ def main():
         ws.cell(i, 1, a).font = F(bold=True); ws.merge_cells(start_row=i, start_column=2, end_row=i, end_column=7)
         c = ws.cell(i, 2, b); c.font = F(); c.alignment = Alignment(wrap_text=True, vertical="top")
     ws.row_dimensions[4].height = 36
-    ws.cell(8, 1, "N.° DE BANCAS (techos iguales)").font = F(bold=True)
+    ws.cell(8, 1, "N.° DE TECHOS IGUALES (BANCAS)").font = F(bold=True)
     ws.merge_cells("A8:C8")
     c = ws.cell(8, 4, N_BANCAS); c.fill = PatternFill("solid", fgColor=AMA); c.font = F(bold=True, size=11); c.border = BOR
     c.alignment = Alignment(horizontal="center")
-    cab = ["ITEM", "DESCRIPCION", "UND.", "CANT. POR BANCA", "N.° BANCAS", "TOTAL", "SUSTENTO (LAMINAS DB-01 A DB-03)"]
+    cab = ["ITEM", "DESCRIPCION", "UND.", "METRADO POR TECHO", "N.° DE TECHOS", "TOTAL", "SUSTENTO (LAMINAS DB-01 A DB-03)"]
     for j, t in enumerate(cab, 1):
         c = ws.cell(10, j, t); c.font = F(bold=True, color="FFFFFF"); c.fill = PatternFill("solid", fgColor=AZUL)
         c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True); c.border = BOR
@@ -66,7 +66,7 @@ def main():
         ws.row_dimensions[i].height = 26
     n = 11 + len(FILAS) + 1
     ws.merge_cells(start_row=n, start_column=1, end_row=n, end_column=7)
-    c = ws.cell(n, 1, "Notas: no incluye el tubo PVC 4\" ni la falsa columna. Celda amarilla = dato; celda verde = formula. "
+    c = ws.cell(n, 1, "Notas: no incluye el tubo PVC 4\" ni la falsa columna. Un solo tramo de canaleta por techo (a una agua), sin uniones. Celda amarilla = dato; celda verde = formula. "
                       "Cantidades por banca segun el detalle de banca tipo 01 y las laminas DB-01 (isometrico), DB-02 (detalles) y DB-03 (cortes A-A y B-B).")
     c.font = F(italic=True, size=8); c.alignment = Alignment(wrap_text=True); c.fill = PatternFill("solid", fgColor=GRIS)
     ws.row_dimensions[n].height = 30
