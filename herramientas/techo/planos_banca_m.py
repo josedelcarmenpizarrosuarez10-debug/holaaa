@@ -29,7 +29,7 @@ B.COLOR_RGB.update({"METAL-RELL": (150, 156, 166), "MADERA-RELL": (214, 178, 132
 # x: largo de la banca (techo 2.00, la bajada en la columna derecha); y: fondo (techo 2.40, borde bajo con la canaleta en y = 2.40)
 # z: sobre el NPT 259.50 de la circulacion (NPT 262.50 = +3.00)
 AX, AY = 2.00, 2.40
-CB, CH = 0.18, 0.20                     # canaleta de aluzinc: ancho x alto interiores
+CB, CH = 0.18, 0.20                     # canaleta de plancha de aluzinc e = 0.50 mm: ancho x alto interiores
 YC0 = AY + 0.01                         # cara interior posterior de la canaleta
 YC1 = YC0 + CB                          # cara interior frontal
 ALA = 0.10                              # ala posterior apoyada sobre la viga, bajo la cobertura
@@ -199,7 +199,7 @@ def escena_banca():
     return E
 
 
-LEYENDA = [(ALUZ, "Canaleta de aluzinc 0.18 x 0.20 (ancho x alto interiores)"), (ALUZ, "Boquilla de plancha de aluzinc Ø 4\" (brida y cuello)"),
+LEYENDA = [(ALUZ, "Canaleta de aluzinc e = 0.50 mm, 0.18 x 0.20 (ancho x alto interiores)"), (ALUZ, "Boquilla de plancha de aluzinc e = 0.50 mm Ø 4\" (brida y cuello)"),
            (PVC, "Tubo PVC 4\" (niple, tramo bajo la canaleta y bajada)"), (ACC, "Codos PVC 4\" x 90° con campanas (2)"),
            (COLG, "Colgador F°G° con varilla roscada 3/8\" a la viga"),
            (ABRZ, "Abrazadera F°G° 1\" x 1/8\" a la columna"), (PLAT, "Soporte de platina F°G° 1\" x 1/8\" (2 por canaleta)"),
@@ -214,7 +214,7 @@ def db01(doc, ox, oy):
     P2 = E.dibujar(lam, 245, 335)
     items = [((0.60, 0.80, zcob(0.80)), ["Cobertura de panel metalico aluzinc e = 0.35 mm, A = 1 m (solo contorno)"]),
              ((0.80, 1.65, zvig(1.65) + 0.076), ["Correa metalica: tubo rectangular 2\" x 3\" x 3 mm"]),
-             ((0.80, YC1, zc(0.80) + 0.12), ["Canaleta de aluzinc 0.18 x 0.20 (ancho x alto interiores), L = 2.00 m, S = 0.5 %"]),
+             ((0.80, YC1, zc(0.80) + 0.12), ["Canaleta de plancha de aluzinc e = 0.50 mm, 0.18 x 0.20 (ancho x alto interiores), L = 2.00 m, S = 0.5 %"]),
              ((SOPS[0], YC1 + T.EPL, zc(SOPS[0]) + 0.08), ["2 soportes de platina F°G° 1\" x 1/8\" a 0.40 de cada extremo"]),
              ((XS + 0.03, YSUM, zc(XS)), ["Boquilla Ø 4\" en el fondo de la canaleta (brida 0.16 x 0.16 y cuello Ø 0.10)"]),
              ((XS, Y_COLG, ZH + 0.15), ["Colgador F°G° con varilla roscada 3/8\" a la viga metalica 2\" x 2\""]),
@@ -230,7 +230,7 @@ def db01(doc, ox, oy):
     T.leyenda_colores(lam, 640, 560, LEYENDA)
     lam.notas(640, 455, "NOTAS", [
         "1. Medidas del detalle de banca tipo 01 (planta, planta de techo, corte A-A y elevaciones E1 y E2).",
-        "2. Canaleta de aluzinc de 0.18 de ancho x 0.20 de alto interiores, del largo del techo (2.00 m), S = 0.5 %.",
+        "2. Canaleta, tapas y boquilla de plancha de aluzinc e = 0.50 mm; seccion interior 0.18 de ancho x 0.20 de alto, del largo del techo (2.00 m), S = 0.5 %.",
         "3. Un solo tramo de canaleta de 2.00 m por techo (techo a una agua). Bajada: boquilla, niple, codo, tramo con colgador, codo y bajada.",
         "4. Cortes A-A y B-B con cotas y niveles en la lamina DB-03; extremo de la canaleta en DB-02.",
     ], hmm=1.8, ancho_mm=190)
@@ -272,7 +272,7 @@ def seccion_canaleta(lam, xmm, ymm):
     for (y, z), txt in (((AY + 0.005, zcob(AY + 0.005) - 0.01), "Cobertura de aluzinc e = 0.35 mm"),
                         ((YC0 - 0.19, zvig(YC0 - 0.19) - 0.04), "Viga metalica tubo 2\" x 2\" x 3 mm"),
                         ((YC0 - 0.06, ZB + CH + 0.008), "Ala posterior sobre la viga (0.10)"),
-                        ((YC1, ZB + 0.17), "Canaleta de aluzinc 0.18 x 0.20 (interiores)"),
+                        ((YC1, ZB + 0.17), "Canaleta de aluzinc e = 0.50 mm, 0.18 x 0.20 (interiores)"),
                         ((YC1 + ep, ZB + 0.10), "Soporte de platina F°G° 1\" x 1/8\""),
                         ((yc + BRIDA / 2 - 0.01, ZB - 0.004), "Boquilla: brida 0.16 x 0.16 remachada y sellada"),
                         ((yc + DB_ / 2, ZB - 0.10), "Cuello Ø 0.10 x 0.15 dentro del niple PVC 4\"")):
@@ -312,9 +312,9 @@ def db02(doc, ox, oy):
     P2 = E.dibujar(lam, 330, 205)
     items = [((1.55, 2.05, zcob(2.05)), ["Cobertura de panel aluzinc (contorno)"]),
              ((1.50, YC0 - 0.05, zc(1.50) + CH + 0.006), ["Ala posterior de la canaleta sobre la viga (0.10)"]),
-             ((1.45, YC1, zc(1.45) + 0.12), ["Canaleta de aluzinc 0.18 x 0.20 (ancho x alto interiores), S = 0.5 %"]),
+             ((1.45, YC1, zc(1.45) + 0.12), ["Canaleta de plancha de aluzinc e = 0.50 mm, 0.18 x 0.20 (interiores), S = 0.5 %"]),
              ((SOPS[1], YC1 + T.EPL, zc(SOPS[1]) + 0.10), ["Soporte de platina F°G° 1\" x 1/8\" con oreja sobre el borde (2 por canaleta)"]),
-             ((AX, YSUM, zc(AX) + 0.10), ["Tapa lateral de aluzinc remachada y sellada"]),
+             ((AX, YSUM, zc(AX) + 0.10), ["Tapa lateral de aluzinc e = 0.50 mm remachada y sellada"]),
              ((XS + 0.03, YSUM, zc(XS)), ["Boquilla Ø 4\": abertura Ø 0.10, brida 0.16 x 0.16 con 8 remaches y sellador"]),
              ((XS + DT / 2, YSUM, (ZB + ZC_TOP) / 2), ["Niple PVC 4\" con el cuello de la boquilla adentro"]),
              ((XS, Y_COLG, zvig(Y_COLG) - 0.12), ["Colgador F°G°: varilla roscada 3/8\" con tuercas, colgada de la viga 2\" x 2\""]),
@@ -393,7 +393,7 @@ def corte_aa(lam, xmm, ymm):
     for (u, w), t in (((H(AY - 0.10), zcob(AY - 0.10)), ["Cobertura panel aluzinc e = 0.35 mm"]),
                       ((H(AY - 0.30), zvig(AY - 0.30) - 0.025), ["Viga metalica tubo 2\" x 2\" x 3 mm"]),
                       ((H(YSUM) + BRIDA / 2 - 0.01, ZB - 0.004), ["Boquilla Ø 4\" (brida y cuello Ø 0.10)"]),
-                      ((H(YC1), ZB + 0.15), ["Canaleta de aluzinc 0.18 x 0.20, S = 0.5 %"]),
+                      ((H(YC1), ZB + 0.15), ["Canaleta de aluzinc e = 0.50 mm, 0.18 x 0.20, S = 0.5 %"]),
                       ((hc, ZH + 0.15), ["Colgador F°G° con varilla roscada 3/8\""]),
                       ((H(YSUM) + 0.05, ZH - 0.05), ["Codos PVC 4\" x 90° (2)"]),
                       ((H(YT) - r - 0.004, ZABR), ["Abrazadera F°G° 1\" x 1/8\" a la columna"]),
@@ -463,8 +463,8 @@ def corte_bb(lam, xmm, ymm):
     for (u, w), t in (((0.40, zcob(AY + VUELO)), ["Cobertura panel aluzinc e = 0.35 mm"]),
                       ((0.25, zcr + 0.04), ["Correa tubo rectangular 2\" x 3\" x 3 mm"]),
                       ((SOPS[0], zc(SOPS[0]) + 0.10), ["2 soportes de platina F°G° 1\" x 1/8\""]),
-                      ((1.10, zc(1.10) + 0.05), ["Canaleta de aluzinc 0.18 x 0.20, L = 2.00, S = 0.5 %"]),
-                      ((AX, zc(AX) + 0.10), ["Tapa lateral de aluzinc"]),
+                      ((1.10, zc(1.10) + 0.05), ["Canaleta de aluzinc e = 0.50 mm, 0.18 x 0.20, L = 2.00, S = 0.5 %"]),
+                      ((AX, zc(AX) + 0.10), ["Tapa lateral de aluzinc e = 0.50 mm"]),
                       ((XS + r, zc(XS) - 0.03), ["Boquilla Ø 4\" y niple PVC 4\""]),
                       ((XS, ZH + 0.25), ["Colgador F°G° con varilla roscada 3/8\""]),
                       ((XS + r + 0.007, ZH), ["Codos PVC 4\" x 90° (el tramo horizontal va a la columna)"]),

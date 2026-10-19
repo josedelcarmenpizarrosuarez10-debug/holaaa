@@ -156,3 +156,4 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Diferencias del plano de origen (informadas al usuario): falsa columna rotulada H = 1.50 pero dibujada 1.20; la elevación E2
   la dibuja de 0.15 de ancho y la planta de 0.20; no se indica a dónde descarga la bajada.
 - Metrado para 16 techos iguales: `entregables_mujeres/METRADO_CANALETA_Y_ACCESORIOS_BANCAS_CAR_MUJERES.xlsx` (generador `herramientas/techo/metrado_banca_m.py`), sin tubo ni falsa columna.
+- Espesor de la canaleta, tapas y boquilla de las bancas: plancha de aluzinc e = 0.50 mm (un tramo de 2.00 m con 2 soportes; los techos principales siguen con galvanizado e = 0.9 mm).

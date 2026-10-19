@@ -18,11 +18,11 @@ F = lambda **k: Font(name="Arial", size=k.pop("size", 9), **k)
 
 # (item, descripcion, und, cantidad por banca, sustento)
 FILAS = [
-    ("01", "CANALETA DE PLANCHA DE ALUZINC, SECCION INTERIOR 0.18 m (ANCHO) x 0.20 m (ALTO)", "m", BM.AX,
+    ("01", "CANALETA DE PLANCHA DE ALUZINC e=0.50mm, SECCION INTERIOR 0.18 m (ANCHO) x 0.20 m (ALTO)", "m", BM.AX,
      "1 tramo de 2.00 m por techo (techo a una agua, sin uniones de canaleta)"),
-    ("02", "TAPA LATERAL DE ALUZINC P/CANALETA", "und", 2, "Una en cada extremo del tramo"),
+    ("02", "TAPA LATERAL DE PLANCHA DE ALUZINC e=0.50mm P/CANALETA", "und", 2, "Una en cada extremo del tramo"),
     ("03", "SOPORTE DE PLATINA F°G° 1\" x 1/8\" P/CANALETA", "und", len(BM.SOPS), "A 0.40 m de cada extremo, 1.20 m entre ellos (DB-03)"),
-    ("04", "BOQUILLA DE PLANCHA DE ALUZINC P/CONEXION DE CANALETA A TUBERIA PVC 4\"", "und", 1,
+    ("04", "BOQUILLA DE PLANCHA DE ALUZINC e=0.50mm P/CONEXION DE CANALETA A TUBERIA PVC 4\"", "und", 1,
      "Brida 0.16 x 0.16 con 8 remaches y sellador, cuello Ø 0.10 x 0.15; a 0.30 m del extremo"),
     ("05", "CODO PVC 4\" x 90°", "und", 2, "Bajo la boquilla y sobre la bajada (corte A-A)"),
     ("06", "COLGADOR F°G° C/VARILLA ROSCADA 3/8\" P/TUBERIA PVC 4\"", "und", 1, "Sobre el tramo horizontal, colgado de la viga metalica 2\" x 2\""),
