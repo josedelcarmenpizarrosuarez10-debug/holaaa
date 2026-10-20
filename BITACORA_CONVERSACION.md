@@ -248,3 +248,11 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   * area del CAR Varones 6 752.03 m2 (la de su memoria) en vez de 6 752.06; C del Refugio 0.807 (no 0.808) en la tabla de Wilma.
 - Wilma: copia revisada en entregables_mujeres/MEMORIA_HIDROLOGICA_CAR_MUJERES_CON_COLECTOR.docx (el insumo no se toca).
 - Pendiente de decidir: las memorias de calculo en PDF (Refugio y CAR Mujeres) aun dicen 6752.06 y 0.808 (diferencias de redondeo).
+
+## 20-10-2026 – Memoria hidrologica de Wilma con los codigos de lamina nuevos (PLANOS_ANDFY_MUJERES.rar)
+- El usuario renombro las laminas del CAR Mujeres (46 PDF; lista en insumos/wilma/LISTA_PLANOS_ANDFY_MUJERES.txt).
+- En la memoria de Wilma (entregables_mujeres/MEMORIA_HIDROLOGICA_CAR_MUJERES_CON_COLECTOR.docx): DP-04 -> ST-CG-01 y ST-CG-02,
+  DP-06A -> STP-CG, DP-07 -> ESDAE-01, DP-09 -> IC-01 (isometrico 4: estructura de salida).
+- Tapa del registro segun el plano D-RL: tapa ciega 0.68 x 0.68 x 0.08 sin marco ni contramarco metalico, en rebaje 0.70 x 0.70 x 0.08,
+  2 asas de fierro liso 1/2" en cajuelas, borde engrosado 0.15 x 0.10 (la memoria decia marco L 1 1/2" y contramarco L 2").
+- Tabla 25 (secciones tipicas) y estructura de salida coinciden con STP-CG, ESDAE-01 e IC-01. Hecho en herramientas/revision_hidrologia.py.

@@ -189,8 +189,37 @@ def revisar(origen, destino, clave):
         _texto(p, re.sub(r"\(TR = 25 años, I = 210\.98 mm/h, FS = 1\.15\)",
                          "(TR = 25 años, tc = 15 min, I = 155.66 mm/h, C ponderado = %.3f, FS = 1.15)" % me["C"], p.text))
         cambios.append("I = 155.66 en el caudal total")
+    if clave == "mujeres": planos_mujeres(d, cambios)
     d.save(destino)
     return ", ".join(cambios)
+
+
+# codigos de lamina del juego de planos del CAR Mujeres (PLANOS_ANDFY_MUJERES, set. 2026) que cita la memoria
+PLANOS_M = {
+    "Fuente: planos DP-04 y DP-06A del colector pluvial.":
+        "Fuente: planos ST-CG-01 y ST-CG-02 (secciones transversales del colector) y STP-CG (secciones típicas del colector).",
+    "Fuente: plano DP-06A, detalles típicos del colector.": "Fuente: plano STP-CG, secciones típicas del colector.",
+    "Fuente: plano DP-07 del colector pluvial.": "Fuente: plano ESDAE-01, estructura de salida con dos aleros y emboquillado.",
+    "Fuente: plano DP-09 del colector pluvial.": "Fuente: plano IC-01, isométricos constructivos (isométrico 4: estructura de salida).",
+}
+TAPA_M = ("Cada registro tiene una luz libre de 0.60 × 0.60 m y una tapa ciega de concreto armado de 0.68 × 0.68 × 0.08 m "
+          "(f'c = 210 kg/cm², parrilla de 3/8\" @0.10 en ambos sentidos), sin marco ni contramarco metálico. La tapa se vacía aparte "
+          "en obra y se asienta en un rebaje de 0.70 × 0.70 × 0.08 m formado en la losa (asiento de 0.05 m por lado y holgura de 1 cm), "
+          "de modo que queda al ras de la vereda y es removible; se levanta con dos asas de fierro liso de 1/2\" alojadas en cajuelas, "
+          "que no sobresalen (peso aproximado de 89 kg). El borde del registro lleva un engrosamiento de 0.15 × 0.10 m bajo la losa con "
+          "2 barras de 1/2\" por lado. Detalle en el plano D-RL.")
+
+
+def planos_mujeres(d, cambios):
+    """Memoria de Wilma: codigos de lamina del juego de planos vigente y tapa ciega segun el plano D-RL."""
+    for p in d.paragraphs:
+        t = p.text.strip()
+        if t in PLANOS_M:
+            _texto(p, PLANOS_M[t]); cambios.append(t.split("plano")[-1].split(" del")[0].split(",")[0].strip() + " -> lamina nueva")
+        elif t.startswith("Cada registro tiene una luz libre de 0.60") and "contramarco de ángulo" in t:
+            _texto(p, TAPA_M); cambios.append("tapa ciega segun D-RL")
+        elif t.endswith("Las tapas deberán permanecer colocadas y aseguradas en su contramarco."):
+            _texto(p, t.replace("aseguradas en su contramarco.", "asentadas en su rebaje.")); cambios.append("tapa en su rebaje")
 
 
 ARCH = {
