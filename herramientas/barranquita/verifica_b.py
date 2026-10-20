@@ -5,12 +5,13 @@
 3. Pendiente minima de la cota de fondo >= 0.5 % en cada tramo.
 4. Profundidad: h = 0.30 m al inicio de cada ramal y h >= 0.25 m en todo el recorrido.
 5. Empalmes: la cuneta que llega lo hace a la misma cota o por encima de la que recibe (no remansa).
-6. Descargas por gravedad: desde la cota de fondo de cada descarga, un canal de salida al 0.5 % sale a la superficie
-   del terreno de las curvas de nivel (no queda enterrado).
+6. Descargas por el cerco: el terreno exterior no queda sobre la cota de fondo de la descarga (no se excava fuera del
+   cerco) y baja por debajo de ella a pocos metros (el agua se aleja sola por la pendiente natural).
 7. Niveles de piso: el borde de la cuneta no queda por encima del piso terminado (NPT) de los bloques vecinos.
 8. Capacidad: tirante normal con el caudal de diseno <= h - 0.05 m (borde libre) en cada tramo.
 9. Velocidad: V <= 3.0 m/s (concreto, CE.040); los tramos que pasan se resuelven con gradas o caidas.
 10. Interferencias: el eje de la cuneta no corta muros de los bloques (distancia al muro >= 0.30 m).
+11. Limite de intervencion: toda la red queda dentro del cerco perimetrico; solo las descargas lo atraviesan.
 
 Caudal de diseno (referencial): metodo racional con el area tributaria de cada tramo dentro del cerco (cada punto de 1 m2
 va a la cuneta mas cercana; techos a dos aguas: cada mitad al alero de su lado), C = 0.80, I = 211 mm/h
@@ -30,8 +31,8 @@ CALC = os.path.join(RAIZ, "entregables_barranquita", "_calc")
 C_ESC, P10, TC, FS = 0.80, 35.163, 10.0, 1.15
 I_MMH = P10 / (TC / 60.0)                    # Dick y Peschke con tc = 10 min (tc / 10 = 1)
 N_CAP, N_VEL, VMAX = 0.015, 0.013, 3.0
-DIR_SAL = {"D1": None, "D2": (-0.7071, 0.7071), "D3": (0.0, -1.0), "D4": (-0.7071, -0.7071)}
-RECEPTOR = {"D3": "Jr. Alfonso Ugarte, punto bajo de la calle (183.00)", "D4": "Jr. Alfonso Ugarte (calzada que baja al punto bajo)"}
+RECEPTOR = {}
+DIR_EXT = DS.DIR_SALIDA
 
 
 def yn(Q, S, n):
@@ -60,7 +61,7 @@ def main():
     fines = {}
     for c, r in ram.items():
         fin = r["nudos"][-1]
-        if fin.startswith("D"): fines[c] = fin
+        if fin in DS.DESCARGAS: fines[c] = fin
     cambio = True
     while cambio:
         cambio = False
@@ -71,7 +72,7 @@ def main():
                 if c2 != c and fin in r2["nudos"][1:] and c2 in fines: fines[c] = fines[c2]; cambio = True; break
     sin = [c for c in ram if c not in fines]
     ok(1, "Conectividad: todos los ramales llegan a una descarga", "CUMPLE" if not sin else "NO CUMPLE",
-       "22 ramales: " + ", ".join("%s->%s" % (c, fines[c]) for c in ram) if not sin else "sin salida: " + ", ".join(sin))
+       "%d ramales: " % len(ram) + "" + ", ".join("%s->%s" % (c, fines[c]) for c in ram) if not sin else "sin salida: " + ", ".join(sin))
     # 2 contrapendiente
     malos = []
     for c, r in ram.items():
@@ -81,14 +82,14 @@ def main():
     ok(2, "Sin contrapendiente en la cota de fondo (cada 0.50 m)", "CUMPLE" if not malos else "NO CUMPLE",
        "la cota de fondo baja en todos los puntos" if not malos else "; ".join(malos))
     # 3 pendiente minima
-    smin = min((t["S"], c, t) for c, r in ram.items() for t in r["tramos"])
+    smin = min(((t["S"], c, t) for c, r in ram.items() for t in r["tramos"]), key=lambda e: (e[0], e[1]))
     ok(3, "Pendiente minima de la cota de fondo >= 0.5 %", "CUMPLE" if smin[0] >= DS.S0 - 1e-4 else "NO CUMPLE",
        "minima %.2f %% (%s %s-%s); maxima %.2f %%" % (100 * smin[0], smin[1], nom[smin[2]["de"]], nom[smin[2]["a"]],
                                                      100 * max(t["S"] for r in ram.values() for t in r["tramos"])))
     # 4 profundidades
     h0 = [round(r["perfil"][0][1] - r["perfil"][0][2], 3) for r in ram.values()]
-    hmin = min((p[1] - p[2], c, p[0]) for c, r in ram.items() for p in r["perfil"])
-    hmax = max((p[1] - p[2], c, p[0]) for c, r in ram.items() for p in r["perfil"])
+    hmin = min(((p[1] - p[2], c, p[0]) for c, r in ram.items() for p in r["perfil"]), key=lambda e: e[0])
+    hmax = max(((p[1] - p[2], c, p[0]) for c, r in ram.items() for p in r["perfil"]), key=lambda e: e[0])
     ok(4, "Profundidad: 0.30 m al inicio y >= 0.25 m en todo el recorrido",
        "CUMPLE" if min(h0) >= DS.H0 - 1e-3 and hmin[0] >= DS.HMIN - 1e-3 else "NO CUMPLE",
        "inicio %.2f a %.2f; minima %.2f (%s); maxima %.2f (%s, prog %.1f)" % (min(h0), max(h0), hmin[0], hmin[1], hmax[0], hmax[1], hmax[2]))
@@ -96,7 +97,7 @@ def main():
     emp = []
     for c, r in ram.items():
         fin = r["nudos"][-1]
-        if fin.startswith("D"): continue
+        if fin in DS.DESCARGAS: continue
         cf_llega = r["perfil"][-1][2]
         for c2, r2 in ram.items():
             if c2 != c and fin in r2["nudos"][1:]:
@@ -110,29 +111,41 @@ def main():
     ok(5, "Empalmes: la cuneta que llega no queda por debajo de la que recibe", "CUMPLE" if not mal else "NO CUMPLE",
        "%d empalmes; caida maxima %.2f m (%s en %s)" % (len(emp), max(e[5] for e in emp), max(emp, key=lambda e: e[5])[0],
                                                        max(emp, key=lambda e: e[5])[2]) if not mal else str(mal))
-    # 6 descargas a la luz
+    # 6 descargas por el cerco: el terreno exterior no queda sobre la cota de fondo (no hay que excavar fuera del cerco)
+    #   y baja por debajo de ella a pocos metros (el agua se aleja sola por la pendiente natural)
     desc = []
-    for D in ("D1", "D2", "D3", "D4"):
+    for D in sorted(k for k in N if k.startswith("D") and not k.endswith("n")):
         rr = [r for r in ram.values() if r["nudos"][-1] == D]
         cf = min(r["perfil"][-1][2] for r in rr); x, y = N[D]
-        u = DIR_SAL[D]
-        if u is None:
-            a = N[rr[0]["nudos"][-2]]; L = math.dist(a, (x, y)); u = ((x - a[0]) / L, (y - a[1]) / L)
-        dl, corte = None, 0.0
+        a = N[rr[0]["nudos"][-2]]; Lg = math.dist(a, (x, y)); u = ((x - a[0]) / Lg, (y - a[1]) / Lg)
+        if D in DIR_EXT: u = DIR_EXT[D]
+        perfil_ext = []
         for k in range(1, 61):
-            d = 0.5 * k; zt = z(x + u[0] * d, y + u[1] * d)
-            if not np.isfinite(zt): break
-            inv = cf - DS.S0 * d; corte = max(corte, zt - inv)
-            if zt <= inv: dl = d; break
-        desc.append({"D": D, "cf": round(cf, 3), "terreno": round(z(x, y), 2), "sale_a_m": dl, "corte_max": round(corte, 2),
-                     "estado": "SALE POR GRAVEDAD" if dl is not None else "CONDICIONADO AL RECEPTOR",
-                     "receptor": RECEPTOR.get(D, R["descargas"][D])})
-    malas = [d for d in desc if d["sale_a_m"] is None]
-    ok(6, "Descargas por gravedad: el canal de salida (0.5 %) sale a la superficie del terreno",
-       "CUMPLE" if not malas else "CUMPLE CON CONDICION",
-       "; ".join("%s CF %.3f: %s" % (d["D"], d["cf"], ("sale a la superficie a %.1f m (corte max %.2f)" % (d["sale_a_m"], d["corte_max"]))
-                                        if d["sale_a_m"] is not None else "terreno plano a %.2f: requiere receptor (%s)" % (d["terreno"], d["receptor"]))
-                 for d in desc))
+            d = 0.25 * k; zt = z(x + u[0] * d, y + u[1] * d)
+            if np.isfinite(zt): perfil_ext.append((d, zt))
+        if D in DS.POZA:
+            # poza de salida: rebalsa a nivel del fondo interior junto al cerco; afuera el fondo natural no sube y baja aguas abajo
+            nivel = DS.rasante_fn()(*N[D + "n"])
+            sube = max([zt - nivel for d, zt in perfil_ext if d <= 2.0] + [-9])
+            baja = next((d for d, zt in perfil_ext if zt <= nivel - 0.25), None)
+            ok6 = sube <= 0.05 and baja is not None
+            desc.append({"D": D, "cf": round(cf, 3), "nivel_rebalse": round(nivel, 2), "terreno": round(z(x, y), 2), "sale_a_m": baja,
+                         "corte_max": round(max(sube, 0), 2), "tipo": "poza", "estado": "SALE POR GRAVEDAD" if ok6 else "NO SALE",
+                         "receptor": R["descargas"][D], "exterior": [[d, round(zt, 2)] for d, zt in perfil_ext[:60:4]]})
+            continue
+        sobre = max([zt - cf for d, zt in perfil_ext if d <= 1.0] + [-9])
+        baja = next((d for d, zt in perfil_ext if zt <= cf - 0.05), None)
+        ok6 = baja is not None and baja <= 2.0
+        desc.append({"D": D, "cf": round(cf, 3), "terreno": round(z(x, y), 2), "sale_a_m": baja, "corte_max": round(max(sobre, 0), 2), "tipo": "pase",
+                     "estado": "SALE POR GRAVEDAD" if ok6 else "NO SALE", "receptor": R["descargas"][D],
+                     "exterior": [[d, round(zt, 2)] for d, zt in perfil_ext[:12]]})
+    malas = [d for d in desc if d["estado"] != "SALE POR GRAVEDAD"]
+    ok(6, "Descargas por el cerco: el agua sale por gravedad al terreno exterior sin obras fuera del cerco",
+       "CUMPLE" if not malas else "NO CUMPLE",
+       "; ".join("%s C.F. %.3f: %s" % (d["D"], d["cf"], (("poza de salida: rebalsa a %.2f (fondo de la hondonada); afuera el fondo no sube y baja 0.25 m a %.1f m" % (d["nivel_rebalse"], d["sale_a_m"]))
+                                        if d.get("tipo") == "poza" else ("pase en el cimiento del cerco; el terreno exterior queda bajo la C.F. a %.1f m del cerco" % d["sale_a_m"]))
+                                        if d["estado"] == "SALE POR GRAVEDAD" else ("el terreno exterior (curvas cada 0.50 m) baja bajo la C.F. a %.1f m" % d["sale_a_m"]
+                                        if d["sale_a_m"] else "el terreno exterior queda %.2f m sobre la C.F. en los 10 m revisados" % d["corte_max"])) for d in desc))
     # 7 NPT
     pts, ras = [], []
     for c, r in ram.items():
@@ -151,6 +164,7 @@ def main():
             try:
                 ntn = float(s.split("NTN=")[1].replace("+", "").strip()); rel = float(s.split("NPT=")[1].split("\n")[0].replace("+", "").strip())
             except ValueError: continue
+            if not Path(DS.CERCO).contains_point((x, y)): continue          # rotulos de areas exteriores al cerco
             dd = np.hypot(pts[:, 0] - x, pts[:, 1] - y); k = int(dd.argmin())
             if dd[k] < 5: npt.append((round(ntn + rel, 2), round(float(ras[k]), 2), round(float(dd[k]), 1)))
     altos = [n for n in npt if n[1] > n[0] + 0.005]
@@ -178,6 +192,8 @@ def main():
             A += area[(c, j)]; out.append(A)
         acum[c] = out; return out
     filas = []; peor_cap, peor_v = None, None
+    inv = {v: k for k, v in nom.items()}
+    hreq = json.load(open(DS.HREQ)) if os.path.exists(DS.HREQ) else {}
     for c, r in ram.items():
         Ac = total(c)
         for j, t in enumerate(r["tramos"]):
@@ -186,8 +202,11 @@ def main():
             hdisp = min(t["h_de"], t["h_a"]); llen = y / hdisp
             f = {"ramal": c, "de": nom[t["de"]], "a": nom[t["a"]], "A_m2": round(Ac[j], 0), "Q_ls": round(1000 * Q, 1), "S": round(100 * S, 2),
                  "y": round(y, 3), "h": round(hdisp, 2), "borde_libre": round(hdisp - y, 3), "V": round(V, 2),
-                 "cap": "CUMPLE" if hdisp - y >= DS.BL - 1e-3 else "NO CUMPLE", "vel": "CUMPLE" if V <= VMAX else "GRADAS"}
+                 "cap": "CUMPLE" if hdisp - y >= DS.BL - 1e-3 else "NO CUMPLE", "vel": "CUMPLE" if V <= VMAX or t["a"] in DS.POZA else "GRADAS"}     # en la poza el agua se remansa
             filas.append(f)
+            need = y + DS.BL + 0.005                        # profundidad que necesita el tramo por capacidad
+            clave = "%s|%s|%s" % (c, t["de"], t["a"])
+            if need > DS.HMIN and hdisp - y < DS.BL: hreq[clave] = round(max(need, hreq.get(clave, 0)), 3)
             if peor_cap is None or f["borde_libre"] < peor_cap["borde_libre"]: peor_cap = f
             if peor_v is None or f["V"] > peor_v["V"]: peor_v = f
     ncap = [f for f in filas if f["cap"] != "CUMPLE"]; nvel = [f for f in filas if f["vel"] != "CUMPLE"]
@@ -214,6 +233,21 @@ def main():
     ok(10, "El eje no corta muros de los bloques (>= 0.30 m)", "CUMPLE" if cerca == 0 else "REVISAR",
        "distancia minima eje-muro %.2f m en %d puntos revisados" % (float(dmin.min()), len(pts)) if cerca == 0 else
        "%d puntos a menos de 0.30 m de un muro (min %.2f m)" % (cerca, float(dmin.min())))
+    # 11 dentro del cerco: los bordes de la cuneta (eje +- 0.30) quedan dentro del cerco, salvo el paso por el cerco (Dn -> D)
+    ce = Path(DS.CERCO); fuera = []
+    for c, r in ram.items():
+        xy = [tuple(N[n]) for n in r["nudos"]]
+        for i in range(len(xy) - 1):
+            if r["nudos"][i + 1].startswith("D") and not r["nudos"][i + 1].endswith("n"): continue
+            a, b = xy[i], xy[i + 1]; L = math.dist(a, b); u = ((b[0] - a[0]) / L, (b[1] - a[1]) / L)
+            for k in range(int(L / 0.25) + 1):
+                t = min(L, k * 0.25); p = (a[0] + u[0] * t, a[1] + u[1] * t)
+                for sg in (-1, 1):
+                    q = (p[0] - u[1] * 0.30 * sg, p[1] + u[0] * 0.30 * sg)
+                    if not ce.contains_point(q): fuera.append((c, round(q[0], 2), round(q[1], 2))); break
+    ok(11, "Toda la red dentro del cerco perimetrico (limite de intervencion)", "CUMPLE" if not fuera else "NO CUMPLE",
+       "ningun borde de cuneta pasa el cerco; solo las 3 salidas lo atraviesan" if not fuera else "%d puntos fuera: %s" % (len(fuera), fuera[:5]))
+    json.dump(hreq, open(DS.HREQ, "w"), indent=1)
     out = {"comprobaciones": res, "descargas": desc, "hidraulica": filas, "empalmes": emp,
            "hidrologia": {"C": C_ESC, "I": round(I_MMH, 1), "tc": TC, "FS": FS, "P10": P10, "n_cap": N_CAP, "n_vel": N_VEL, "A_total": Atot}}
     json.dump(out, open(os.path.join(CALC, "verificacion.json"), "w"), indent=1, ensure_ascii=False)

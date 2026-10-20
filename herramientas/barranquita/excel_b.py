@@ -13,8 +13,14 @@ _b = Side(style="thin", color="808080"); BOR = Border(left=_b, right=_b, top=_b,
 F = lambda **k: Font(name="Arial", size=k.pop("size", 9), **k)
 PROY = ("MEJORAMIENTO Y AMPLIACION DEL SERVICIO DE EDUCACION PRIMARIA EN LA I.E. N.° 0590, DISTRITO DE BARRANQUITA, PROVINCIA DE LAMAS, "
         "DEPARTAMENTO DE SAN MARTIN - C.I. N.° 468901")
-SIS = {1: "SISTEMA 1 - OESTE (descarga D1)", 2: "SISTEMA 2 - FRENTE SUR (descarga D3)", 3: "SISTEMA 3 - NOR-ESTE (descarga D2)",
-       4: "SISTEMA 4 - INGRESO SUR-ESTE (descarga D4)"}
+SIS = {1: "SISTEMA 1 - OESTE (descarga D1)", 2: "SISTEMA 2 - FRENTE SUR (descarga D3)", 3: "SISTEMA 3 - NOR-ESTE (descarga D2)"}
+
+
+def ult_perfil():
+    """Ultima lamina de perfiles (segun laminas.json de planos_b.py)."""
+    f = os.path.join(RAIZ, "entregables_barranquita", "_calc", "laminas.json")
+    n = len(json.load(open(f))) - 8 if os.path.exists(f) else 3      # DC-00, DC-01, DC-02, perfiles y 5 laminas mas
+    return "DC-%02d" % (2 + n)
 
 
 def cab(ws, fila, textos, anchos=None):
@@ -92,18 +98,18 @@ def main():
     pasa = {}
     for r in R["ramales"]:
         for n in r["nudos"]: pasa.setdefault(n, []).append(r["codigo"])
-    orden = sorted(nom, key=lambda n: (nom[n].startswith("D"), nom[n]))
+    orden = sorted(nom, key=lambda n: (nom[n] in R["descargas"], nom[n]))
     for i, n in enumerate(orden, 5):
         x, y = R["nudos"][n]
         for j, v in enumerate([nom[n], x, y, ", ".join(pasa[n]), R["descargas"].get(n, "")], 1):
-            cc = wn.cell(i, j, v); cc.font = F(bold=nom[n].startswith("D")); cc.border = BOR
+            cc = wn.cell(i, j, v); cc.font = F(bold=nom[n] in R["descargas"]); cc.border = BOR
             if j in (2, 3): cc.number_format = "0.000"
     # ---- resumen
     wr = wb.create_sheet("RESUMEN", 0)
     titulo(wr, "RESUMEN DEL PLANTEAMIENTO PRELIMINAR DE CUNETAS POR SISTEMA", 6)
     cab(wr, 4, ["SISTEMA", "LONGITUD (m)", "CON REJILLA (m)", "TAPADO (m)", "h MAXIMA (m)", "DESCARGA"], [48, 14, 15, 13, 13, 70])
-    for i, k in enumerate((1, 2, 3, 4), 5):
-        d = {1: "D1", 2: "D3", 3: "D2", 4: "D4"}[k]
+    for i, k in enumerate((1, 2, 3), 5):
+        d = {1: "D1", 2: "D3", 3: "D2"}[k]
         vals = [SIS[k], "=SUMIF(TRAMOS!$A$5:$A$%d,%d,TRAMOS!$E$5:$E$%d)" % (ft, k, ft), "=SUMIF(TRAMOS!$A$5:$A$%d,%d,TRAMOS!$N$5:$N$%d)" % (ft, k, ft),
                 "=SUMIF(TRAMOS!$A$5:$A$%d,%d,TRAMOS!$M$5:$M$%d)" % (ft, k, ft),
                 max(max(t["h_max"] for t in r["tramos"]) for r in R["ramales"] if r["sistema"] == k), d + ": " + R["descargas"][d]]
@@ -111,22 +117,24 @@ def main():
             cc = wr.cell(i, j, v); cc.font = F(); cc.border = BOR
             if j in (2, 3, 4, 5): cc.number_format = "0.00"; cc.alignment = Alignment(horizontal="center")
             if isinstance(v, str) and v.startswith("="): cc.fill = PatternFill("solid", fgColor=VER)
-    wr.cell(9, 1, "TOTAL").font = F(bold=True)
+    wr.cell(8, 1, "TOTAL").font = F(bold=True)
     for j, col in ((2, "B"), (3, "C"), (4, "D")):
-        cc = wr.cell(9, j, "=SUM(%s5:%s8)" % (col, col)); cc.font = F(bold=True); cc.number_format = "0.00"; cc.fill = PatternFill("solid", fgColor=VER); cc.border = BOR
+        cc = wr.cell(8, j, "=SUM(%s5:%s7)" % (col, col)); cc.font = F(bold=True); cc.number_format = "0.00"; cc.fill = PatternFill("solid", fgColor=VER); cc.border = BOR
     notas = ["Planteamiento preliminar sobre los ejes de cunetas del plano PLANTA_GENERAL_590_2 (capas 0_ CUNETAS y 0_REJILLA).",
              "Sentidos de flujo y descargas segun las curvas de nivel C-TOPO del mismo plano. Techos a dos aguas: cada alero descarga a su lado.",
-             "Rasante: NTN +184.50 en la plataforma de los bloques; terreno de las curvas en el resto (monticulo de 185.5 recortado a +184.50).",
-             "D1, D2 y D4 salen a la superficie del terreno por gravedad; D3 entrega al punto bajo del Jr. Alfonso Ugarte (183.00): confirmar su evacuacion.",
+             "Area de intervencion = interior del cerco perimetrico: todas las cunetas quedan dentro del cerco (las perimetrales a 0.60 m de su eje).",
+             "Rasante: NTN +184.50 en la plataforma; en el resto del area dentro del cerco, el terreno de las curvas recortado a +184.50.",
+             "D1 y D3 salen por un pase en el cimiento del cerco; D2 por una poza de salida (0.80 x 0.80 m) que rebalsa a nivel del terreno. Fuera del cerco no hay obra.",
              "Tramos de fuerte pendiente con V > 3.0 m/s: gradas de concreto (hoja HIDRAULICA). Verificacion completa en la hoja VERIFICACION.",
-             "Ver planos PLANTEAMIENTO_CUNETAS_IE0590_BARRANQUITA.dxf: DC-01 planta, DC-02 cuadro y secciones, DC-03 a DC-06 perfiles, DC-07 y DC-08 isometricos, DC-09 y DC-10 cortes."]
+             "Ver planos PLANTEAMIENTO_CUNETAS_IE0590_BARRANQUITA.dxf: DC-01 planta, DC-02 cuadro y secciones, DC-03 a %s perfiles, %s y %s isometricos, %s y %s cortes, %s detalle de descargas." % (
+                 (ult_perfil(),) + tuple("DC-%02d" % (int(ult_perfil()[-2:]) + i) for i in range(1, 6)))]
     wr.cell(11, 1, "NOTAS").font = F(bold=True, color=AZUL)
     for i, t in enumerate(notas, 12):
         wr.cell(i, 1, "%d. %s" % (i - 11, t)).font = F(size=8)
     # ---- verificacion (10 comprobaciones) e hidraulica con el caudal de diseno
     Vf = json.load(open(os.path.join(RAIZ, "entregables_barranquita", "_calc", "verificacion.json")))
     wv = wb.create_sheet("VERIFICACION", 1)
-    titulo(wv, "VERIFICACION DEL PLANTEAMIENTO (10 COMPROBACIONES)", 4)
+    titulo(wv, "VERIFICACION DEL PLANTEAMIENTO (%d COMPROBACIONES)" % len(Vf["comprobaciones"]), 4)
     cab(wv, 4, ["N.", "COMPROBACION", "RESULTADO", "DETALLE"], [5, 62, 22, 120])
     for i, c_ in enumerate(Vf["comprobaciones"], 5):
         for j, v in enumerate([c_["n"], c_["comprobacion"], c_["estado"], c_["detalle"]], 1):
@@ -137,8 +145,8 @@ def main():
     wv.cell(r0, 2, "DESCARGAS").font = F(bold=True, color=AZUL)
     cab(wv, r0 + 1, ["", "DESCARGA", "COTA DE FONDO", "SALIDA POR GRAVEDAD"])
     for i, d in enumerate(Vf["descargas"], r0 + 2):
-        txt = ("sale a la superficie del terreno a %.1f m (corte maximo %.2f m)" % (d["sale_a_m"], d["corte_max"])) if d["sale_a_m"] is not None else \
-              "terreno plano: entrega al %s" % d["receptor"]
+        txt = (("poza de salida: rebalsa a %.2f; el fondo exterior no sube y baja 0.25 m a %.1f m" % (d["nivel_rebalse"], d["sale_a_m"])) if d["tipo"] == "poza"
+               else ("pase en el cimiento del cerco: el terreno exterior queda bajo la C.F. a %.1f m (perfilado maximo %.2f m, sin obra)" % (d["sale_a_m"], d["corte_max"])))
         for j, v in enumerate(["", d["D"], d["cf"], txt], 1):
             cc = wv.cell(i, j, v); cc.font = F(); cc.border = BOR
     h = Vf["hidrologia"]

@@ -198,3 +198,22 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   (la calle debe evacuar ese punto bajo: confirmar).
 - Planta en bloques de AutoCAD; isometricos DC-07 (sur) y DC-08 (norte); cortes DC-09 (A-A a D-D por las descargas) y DC-10 (E-E, F-F).
 - Hallazgo: iso3d / dxf_base.iso proyectan en espejo (corregido solo en iso_b.py; las laminas de otros proyectos no se tocaron).
+
+## 20-10-2026 (v2) – Barranquita: todo dentro del cerco perimetrico y 3D solo de cunetas
+- Pedido del usuario: el 3D solo de las cunetas, con todo el terreno y todas las veredas (sin edificaciones); el area de intervencion es
+  el interior del cerco perimetrico: las cunetas no pueden dibujarse ni proyectarse fuera del cerco, pero el agua si puede salir por el.
+  El usuario confirmo el cerco delimitado (revision/CERCO_PERIMETRICO_PARA_CONFIRMAR.png).
+- Rediseno: las perimetrales del planteamiento que quedaban fuera del cerco (sur-oeste, frente y este) pasan a 0.60 m por dentro de su eje;
+  se elimina el sistema 4 (R-21 fuera del cerco). Quedan 19 ramales, 825.6 m (756.1 con rejilla, 69.6 tapados), 3 sistemas:
+  1 oeste -> D1, 2 frente sur -> D3, 3 nor-este -> D2.
+- Descargas por el cerco: D1 (lado C22-C1, x = 820.7) y D3 (junto a C14, x = 935.5) con pase en el cimiento del cerco; el terreno
+  exterior queda bajo la cota de fondo a 1.0 m y 2.0 m (solo perfilado del terreno, sin obra). D2 (cerco norte, x = 965.5) con poza de
+  salida 0.80 x 0.80 que rebalsa a 180.62 (nivel del terreno) hacia el fondo de la hondonada natural (baja 0.25 m a 10.8 m).
+- calcula_b.py: la profundidad minima de cada tramo sube hasta que el tirante de diseno deja 0.05 m de borde libre (hmin_req.json).
+  verifica_b.py: 11 comprobaciones, todas cumplen (gradas en R-01 P-06-D1, R-12 P-41-P-43 y R-15 P-52-P-41). Corregido: R-11 termina en
+  el nudo previo a D3 y se tomaba como descarga (su empalme no se revisaba); ahora 16 empalmes revisados.
+- Planos: DC-01 con el bloque LIMITE_DE_INTERVENCION y la poza; DC-06 y DC-07 isometricos solo de cunetas sobre el terreno y las veredas
+  (bloques ISO_TERRENO_VEREDAS e ISO_CUNETAS); DC-08 cortes A-A (D1), B-B (D2, poza) y C-C (D3); DC-09 cortes generales; DC-10 detalle
+  isometrico de las tres descargas a 1/75 (rejillas, tapados, gradas, poza, cerco y agua). Laminas numeradas correlativas.
+- Pendiente: levantamiento de detalle en la hondonada de D2 (curvas cada 0.50 m; el modelo es plano en 180.5), confirmar el CUI, y que
+  se acepte el perfilado de 1.0 / 2.0 m de terreno fuera del cerco en D1 y D3.
