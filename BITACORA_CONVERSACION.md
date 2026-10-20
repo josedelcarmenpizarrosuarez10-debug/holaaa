@@ -256,3 +256,13 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Tapa del registro segun el plano D-RL: tapa ciega 0.68 x 0.68 x 0.08 sin marco ni contramarco metalico, en rebaje 0.70 x 0.70 x 0.08,
   2 asas de fierro liso 1/2" en cajuelas, borde engrosado 0.15 x 0.10 (la memoria decia marco L 1 1/2" y contramarco L 2").
 - Tabla 25 (secciones tipicas) y estructura de salida coinciden con STP-CG, ESDAE-01 e IC-01. Hecho en herramientas/revision_hidrologia.py.
+
+## 20-10-2026 – Memoria descriptiva de drenaje pluvial del CAR Mujeres (Wilma, CUI 2717013)
+- Generador: herramientas/mujeres/memoria_descriptiva_m.py (carátula, encabezado, logos y estilos de insumos/wilma/MEMORIA_IISS_CAR_MUJERES.docx).
+  `python3 herramientas/mujeres/memoria_descriptiva_m.py figuras <carpeta PDF de PLANOS_ANDFY_MUJERES>` recorta 6 figuras sin rótulo
+  (RGDPLV-01, PCPLV-01, STP-CG, D-RL, D-ECC, ESDAE-01) en entregables_mujeres/figuras_memoria_descriptiva/;
+  `python3 herramientas/mujeres/memoria_descriptiva_m.py` arma el Word en dos pasadas (la segunda pone las páginas del índice).
+- Salida: entregables_mujeres/MEMORIA_DESCRIPTIVA_DRENAJE_PLUVIAL_CAR_MUJERES.docx (14 capítulos, 12 tablas, 6 figuras, 23 páginas).
+- Datos: memoria hidrológica revisada, 46 planos, metrado vigente (RESUMEN y hojas por eje, solo lectura).
+- Pendiente de decisión del usuario: la partida 1.4.4.6.5.1 del metrado dice "TAPA DE REGISTRO 0.68x0.68 C/MARCO Y CONTRAMARCO" y el
+  isométrico 2 de IC-01 dibuja marco L 1 1/2" y contramarco L 2"; D-RL y la memoria indican tapa ciega en rebaje sin marco. No se tocó.
