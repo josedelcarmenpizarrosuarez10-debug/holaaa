@@ -217,3 +217,18 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   isometrico de las tres descargas a 1/75 (rejillas, tapados, gradas, poza, cerco y agua). Laminas numeradas correlativas.
 - Pendiente: levantamiento de detalle en la hondonada de D2 (curvas cada 0.50 m; el modelo es plano en 180.5), confirmar el CUI, y que
   se acepte el perfilado de 1.0 / 2.0 m de terreno fuera del cerco en D1 y D3.
+
+## 20-10-2026 (v3) – Barranquita: cunetas en las lineas magenta del usuario (techos a dos aguas)
+- Insumo: PLANTA_GENERAL_590 ULTIMA VERSION.dxf (381 MB, ZIP en 3 partes: el orden real es PARTE_02, PARTE_03, PARTE_01).
+  Curvas C-TOPO, cerco (capa 2), cunetas preliminares y textos NPT iguales a la version anterior; cambian veredas, techos, muros y pisos.
+- El usuario trazo 30 lineas magenta (capa 0, 792.6 m) a los lados de cada edificacion: todos los techos son a dos aguas y cada lado
+  recibe su canaleta, por eso alli va cuneta. Copia en insumos/barranquita/cunetas_magenta_usuario.json; base_sitio.pkl rehecha.
+- Red v3: 19 ramales, 973.3 m (44.5 m tapados), 4 sistemas: 1 oeste -> D1 (339.7 m), 2 centro y frente sur -> D3 (239.4 m),
+  3 nor-este y losa -> D2 (301.1 m), 4 norte -> D4 (93.1 m, nueva). Se quitaron las cunetas sin linea magenta (perimetral sur-oeste,
+  bajada x=937.3, y=838.8, x=971.7 y el inicio de la perimetral este); quedan solo las uniones necesarias hasta las descargas.
+- Descargas: D1 se movio frente al extremo de la linea 0 (cerco C22-C1, x = 820.1); D4 nueva en el cerco norte C3-C4 (x = 911.0) entre el
+  bloque norte y el bloque del centro (talud de la quebrada). Pase en el cimiento en D1, D3 y D4 (terreno exterior bajo la C.F. a 0.8,
+  1.8 y 0.8 m); poza en D2. El lado oeste y sur de la losa iba primero a D3, pero cruzaba una franja natural a 183.5 delante del frente
+  (h = 1.33 y D3 sin salida): se mando por el lado este de la losa a D2. PLAT ampliada en la esquina sur-oeste de la losa (NTN 184.50).
+- Verificacion: 11 de 11 (gradas en R-01 al pase D1, R-12 al norte de la losa y R-15 x=971.7 -> perimetral). Profundidad maxima 0.85 m (R-07).
+- Planos: 12 laminas (DC-00 a DC-11): cortes A-A a D-D por D1, D2, D3 y D4 (DC-08) y detalle 3D de las 4 descargas (DC-11).

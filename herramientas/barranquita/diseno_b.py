@@ -1,7 +1,8 @@
 """Planteamiento preliminar de cunetas - I.E. N.° 0590, Barranquita (Lamas - San Martin).
 
-Red de cunetas sobre los ejes del planteamiento preliminar del usuario (capa 0_ CUNETAS / 0_REJILLA del plano
-PLANTA_GENERAL_590_2), con los sentidos de flujo, empalmes y descargas elegidos segun las curvas de nivel.
+Red de cunetas sobre las lineas magenta que el usuario trazo en el plano "PLANTA_GENERAL_590 ULTIMA VERSION" a los lados de
+cada edificacion (techos a dos aguas: canaleta y cuneta a ambos lados), unidas hasta descargas por gravedad en el cerco
+perimetrico (limite de intervencion: ninguna obra fuera del cerco). Sentidos de flujo y descargas segun las curvas de nivel.
 
 Criterios del usuario:
 - Seccion: ancho total 0.60 m = muros de 0.10 m + 0.40 m libres.
@@ -30,7 +31,7 @@ SAL = os.path.join(RAIZ, "entregables_barranquita", "_calc", "diseno.json")
 
 # plataforma de los bloques (NTN +184.50)
 PLAT = [(354827, 9249852), (354844, 9249875), (354878, 9249843.5), (354884, 9249853), (354917, 9249855.5), (354917, 9249867),
-        (354950, 9249867), (354950, 9249854.5), (354973, 9249854.5), (354978.2, 9249840), (354978.2, 9249795), (354955, 9249795),
+        (354950, 9249867), (354950, 9249854.5), (354973, 9249854.5), (354978.2, 9249840), (354978.2, 9249795), (354952.5, 9249795),
         (354950, 9249803), (354885, 9249803), (354872, 9249807), (354866, 9249811)]
 
 
@@ -77,77 +78,90 @@ Y = 9249000.0
 P = lambda x, y: (354000.0 + x, Y + y)
 O = offset_cerco()
 OC = lambda k: O[k - 1]                                      # vertice interior junto a Ck
-# --- nudos (coordenadas UTM del eje de la cuneta)
+# --- nudos (coordenadas UTM del eje de la cuneta). Los ejes son las lineas magenta del plano "ULTIMA VERSION" (lados de cada
+# edificacion: techos a dos aguas, canaleta a ambos lados); los demas nudos son las uniones hasta las descargas.
 N = {
+    # pabellones oeste A (lineas 0, 1), B (2, 5), C (3, 4) y bloque D (6, 7)
+    "A0": P(844.67, 873.87), "A1": P(822.02, 851.41), "B5a": P(876.15, 842.90),
     "W1a": P(853.10, 865.70), "W12": P(844.95, 857.55), "W13": P(838.81, 851.41), "W1b": P(830.70, 843.30),
-    "W2a": P(867.80, 834.70), "W4a": P(876.10, 842.67), "W34": P(862.00, 828.20),
+    "W2a": P(867.80, 834.70), "W34": P(862.00, 828.20),
     "W3c": P(866.80, 823.40), "W3d": P(881.60, 817.40), "N885": P(885.10, 815.97),
+    "T29e": P(906.62, 804.22), "T29w": P(885.30, 804.18), "T7e": P(879.56, 805.51), "T7w": P(863.11, 812.40), "T4s": P(858.19, 815.42),
+    # bloques del centro (lineas 8 a 11, 16, 17, 20, 21, 26, 28, 29)
     "X885a": P(884.91, 851.50), "X885b": P(884.91, 825.40),
     "X896a": P(896.84, 851.45), "X896b": P(896.84, 839.94), "X896c": P(896.84, 822.09), "X896d": P(896.84, 815.97),
-    "X919a": P(919.61, 815.97), "X919b": P(919.61, 800.53 + D_CERCO), "K1": P(926.97 + D_CERCO, 800.53 + D_CERCO),
+    "X919a": P(919.61, 815.97), "X919c": P(919.61, 804.20), "X919b": P(919.61, 800.53 + D_CERCO), "K1": P(926.97 + D_CERCO, 800.53 + D_CERCO),
     "X932a": P(932.64, 839.94), "X932b": P(932.64, 822.09), "X932c": P(932.64, 815.97),
-    "X936a": P(936.52, 853.47), "X936b": P(936.52, 839.94), "Y853a": P(918.70, 853.47),
-    "X937a": P(937.26, 815.97), "X937b": P(937.26, 804.40), "K2": P(937.26, 795.10),
+    "X936b": P(936.52, 839.94), "T17n": P(936.47, 851.69), "T11w": P(897.16, 851.69), "J11": P(911.00, 851.69),
+    "T28e": P(949.97, 804.09),
+    # bloque norte (lineas 12, 13)
+    "Y853c": P(950.03, 853.47), "J4": P(911.00, 853.60),
+    "T12w": P(918.93, 865.08), "T12e": P(950.13, 865.08), "T12k": P(950.60, 869.58 - D_CERCO),
+    # bloque nor-este y losa (lineas 14, 15, 18, 19, 22 a 25, 27)
     "Y815e": P(935.26, 815.97), "X952a": P(952.32, 815.97), "X952b": P(952.32, 838.82), "X952c": P(952.32, 839.94),
-    "X971a": P(971.71, 839.94), "X971b": P(971.71, 851.87),
-    "X948a": P(948.13, 838.82), "X948b": P(948.13, 851.87), "X948c": P(948.13, 853.47), "Y853b": P(941.39, 853.47), "Y853c": P(950.03, 853.47),
-    "L1": P(955.92, 796.00), "L2": P(976.90, 796.00), "L3": P(976.90, 831.28), "L4": P(952.52, 831.28),
-    "E0": P(976.90, 786.30), "Q1": P(976.90, 851.87), "Q2": P(976.90, 860.50), "Q3": P(968.00, 869.58 - D_CERCO),
+    "X971a": P(971.71, 839.94), "X971b": P(971.71, 851.87), "X948a": P(948.13, 838.82), "X948b": P(948.13, 851.87),
+    "T22w": P(953.20, 796.03), "T25n": P(953.10, 811.69),
+    "L2": P(976.90, 796.00), "L3": P(976.90, 831.28), "L4": P(952.52, 831.28),
+    "Q0": P(976.90, 839.94), "Q1": P(976.90, 851.87), "Q2": P(976.90, 860.50), "Q3": P(968.00, 869.58 - D_CERCO),
     "D2n": P(965.50, 869.58 - D_CERCO), "D2": P(965.50, 869.58),
-    "S19": OC(19), "S20": OC(20), "S21": OC(21), "S22": OC(22),
 }
-# perimetral sur-oeste: sale por el cerco donde el talud exterior cae mas rapido (lado C22-C1, a 54 m de C22)
-_a, _b = OC(22), OC(1); _L = math.dist(_a, _b); _u = ((_b[0] - _a[0]) / _L, (_b[1] - _a[1]) / _L)
-N["D1n"] = (_a[0] + _u[0] * 54.0, _a[1] + _u[1] * 54.0)
-N["D1"] = pie(N["D1n"], CERCO[21], CERCO[0])
-N["C1"] = pie(N["W1b"], OC(22), N["D1n"])
-# frente sur: sale por el cerco entre C14 y C15 junto a C14 (x = 935.5), donde el terreno exterior cae hacia la calle
+# D1: pase por el cerco sur-oeste (lado C22-C1) frente al extremo de la linea 0, donde el talud exterior cae rapido
+N["D1"] = pie(N["A1"], CERCO[21], CERCO[0])
+_u = np.subtract(N["A1"], N["D1"]); _u = _u / np.linalg.norm(_u)
+N["D1n"] = (N["D1"][0] + _u[0] * D_CERCO, N["D1"][1] + _u[1] * D_CERCO)
+# D3: frente sur, cerco entre C14 y C15 junto a C14 (x = 935.5), donde el terreno exterior cae hacia la calle
 N["D3"] = en_recta(CERCO[13], CERCO[14], 354935.50)
 _u = (CERCO[14][0] - CERCO[13][0], CERCO[14][1] - CERCO[13][1]); _L = math.hypot(*_u)
 N["D3n"] = (N["D3"][0] + _u[1] / _L * D_CERCO, N["D3"][1] - _u[0] / _L * D_CERCO)
 N["F1"] = (N["K1"][0], en_recta(OC(15), OC(14), N["K1"][0])[1])
-N["K3"] = (N["D3n"][0], N["K2"][1])                           # quiebre para no cortar la esquina C13 del cerco
+# D4: cerco norte (lado C3-C4, y = 854.70) entre el bloque norte y el bloque del centro, sobre el talud de la quebrada
+N["D4"] = en_recta(CERCO[2], CERCO[3], 354911.00)
+N["D4n"] = (N["D4"][0], N["D4"][1] - D_CERCO)
 
 # --- ramales: (codigo, sistema, nudos en el sentido del flujo, descripcion). Todos empiezan con h = 0.30 m.
 # Todo dentro del cerco; el ultimo tramo de cada descarga (Dn -> D) es el paso por el cerco.
 RAMALES = [
-    # Sistema 1 - Oeste: descarga D1 (cerco junto a la esquina oeste C1, terreno exterior hacia la quebrada)
-    ("R-01", 1, ["S19", "S20", "S21", "S22", "C1", "D1n", "D1"], "Perimetral sur-oeste por dentro del cerco (C19 a C1)"),
-    ("R-02", 1, ["W1a", "W12", "W13", "W1b", "C1"], "Pabellones oeste: extremo nor-oeste del patio, empalma a R-01"),
-    ("R-03", 1, ["W2a", "W12"], "Pabellones oeste: alero sur-oeste del pabellon norte"),
-    ("R-04", 1, ["W4a", "W2a", "W34", "W13"], "Pabellones oeste: extremo sur-este del patio y alero nor-este del pabellon sur"),
-    ("R-05", 1, ["X885a", "X885b", "N885", "W3d", "W3c", "W34"], "Bloque x=884.9 (lado oeste) y union al patio de pabellones oeste"),
-    ("R-06", 1, ["X896d", "N885"], "Tramo y=815.97 entre x=896.8 y x=885.1"),
-    # Sistema 2 - Frente sur: descarga D3 (cerco sur entre C15 y C14, hacia el Jr. Alfonso Ugarte)
-    ("R-07", 2, ["X896a", "X896b", "X896c", "X896d", "X919a", "X919b", "K1", "F1", "D3n", "D3"], "Patio central (x=896.8, y=815.97), bajada x=919.6 y atrio de ingreso a D3"),
-    ("R-08", 2, ["X932a", "X896b"], "Patio central: alero sur del pabellon norte (y=839.94)"),
+    # Sistema 1 - Oeste: descarga D1 (cerco sur-oeste, talud hacia la quebrada del oeste)
+    ("R-01", 1, ["A0", "A1", "D1n", "D1"], "Pabellon oeste A: lado nor-oeste y salida D1"),
+    ("R-02", 1, ["B5a", "W1a", "W12", "W13", "W1b", "D1n"], "Pabellon oeste B: lado nor-este; pabellon A: lado sur-este; union a D1"),
+    ("R-03", 1, ["W2a", "W12"], "Pabellon oeste B: lado sur-oeste (patio)"),
+    ("R-04", 1, ["X885a", "X885b", "N885", "W3d", "W3c", "W34", "W13"], "Bloque x=884.9 (lado oeste), bloque D (lado norte) y pabellon C (lado nor-este)"),
+    ("R-05", 1, ["T29e", "T29w", "T7e", "T7w", "T4s", "W1b"], "Bloque del ingreso (lado sur), bloque D (lado sur) y pabellon C (lado sur-oeste)"),
+    ("R-06", 1, ["X896d", "N885"], "Bloque del ingreso: lado norte (y=815.97) al oeste de x=896.8"),
+    # Sistema 2 - Centro y frente sur: descarga D3 (cerco sur junto a C14, hacia el Jr. Alfonso Ugarte)
+    ("R-07", 2, ["X896a", "X896b", "X896c", "X896d", "X919a", "X919c", "X919b", "K1", "F1", "D3n", "D3"], "Patio central (x=896.8), y=815.97, bajada x=919.6 y atrio de ingreso a D3"),
+    ("R-08", 2, ["X936b", "X932a", "X896b"], "Bloque del centro: lado sur (y=839.94)"),
     ("R-09", 2, ["X932b", "X896c"], "Patio central: y=822.09"),
-    ("R-10", 2, ["Y853a", "X936a", "X936b", "X932a", "X932b", "X932c", "X919a"], "Bloque norte (alero sur), x=936.5, x=932.6 (muro de contencion) e y=815.97"),
-    ("R-11", 2, ["X937a", "X937b", "K2", "K3", "D3n"], "Bajada x=937.3 por el atrio de ingreso a D3"),
-    # Sistema 3 - Nor-este: descarga D2 (cerco norte, x = 965.5, hondonada que baja a la quebrada)
-    ("R-12", 3, ["E0", "L2", "L3", "Q1", "Q2", "Q3", "D2n", "D2"], "Perimetral este por dentro del cerco (x=976.9) y salida al cerco norte"),
-    ("R-13", 3, ["L1", "L2"], "Losa deportiva: lado sur"),
-    ("R-14", 3, ["L4", "L3"], "Losa deportiva: lado norte"),
-    ("R-15", 3, ["Y815e", "X952a", "X952b", "X952c", "X971a", "X971b", "Q1"], "Bloque nor-este: y=815.97, x=952.3, y=839.94, x=971.7"),
-    ("R-16", 3, ["X948a", "X952b"], "Bloque nor-este: tramo y=838.8"),
-    ("R-17", 3, ["X948a", "X948b", "X971b"], "Bloque nor-este: x=948.1 e y=851.87"),
-    ("R-18", 3, ["Y853b", "X948c", "X948b"], "Bloque norte (alero sur, lado este) y x=948.1"),
-    ("R-19", 3, ["Y853c", "X948c"], "Remate y=853.47 al este de x=948.1"),
+    ("R-10", 2, ["X932a", "X932b", "X932c", "X919a"], "x=932.6 y bloque del frente: lado norte (y=815.97)"),
+    ("R-11", 2, ["T28e", "X919c"], "Bloque del frente: lado sur (y=804.1)"),
+    # Sistema 3 - Nor-este: descarga D2 (poza en el cerco norte, x = 965.5, hondonada natural)
+    ("R-12", 3, ["T25n", "T22w", "L2", "L3", "Q0", "Q1", "Q2", "Q3", "D2n", "D2"], "Losa: lados oeste, sur y este; union por dentro del cerco a D2"),
+    ("R-13", 3, ["L4", "L3"], "Losa: lado norte (y=831.3)"),
+    ("R-14", 3, ["Y815e", "X952a", "X952b", "X952c", "X971a", "Q0"], "y=815.97, x=952.3 y bloque nor-este: lado sur (y=839.9)"),
+    ("R-15", 3, ["X948a", "X948b", "X971b", "Q1"], "Bloque nor-este: lado oeste (x=948.1) y lado norte (y=851.9)"),
+    ("R-16", 3, ["T12w", "T12e", "T12k", "D2n"], "Bloque norte: lado norte (y=865.1) y union a D2 por el norte de la planta de tratamiento"),
+    # Sistema 4 - Norte: descarga D4 (cerco norte, x = 911.0, talud de la quebrada del norte)
+    ("R-17", 4, ["Y853c", "J4", "D4n", "D4"], "Bloque norte: lado sur (y=853.5) y salida D4"),
+    ("R-18", 4, ["X936b", "T17n", "J11", "J4"], "Bloque del centro: lado este (x=936.5) y lado norte (y=851.7), tramo este"),
+    ("R-19", 4, ["T11w", "J11"], "Bloque del centro: lado norte (y=851.7), tramo oeste"),
 ]
+# sistemas: nombre y descarga (los colores de cada sistema estan en planos_b.py e iso_b.py)
+SISTEMAS = {1: ("OESTE", "D1"), 2: ("CENTRO Y FRENTE SUR", "D3"), 3: ("NOR-ESTE Y LOSA", "D2"), 4: ("NORTE", "D4")}
 POZA = {"D2"}                                                 # descargas con poza de salida (rebalse a nivel del terreno)
 POZA_DIM = (0.80, 0.80)                                       # poza: ancho y largo interior (m), fondo a la cota de fondo de llegada
 DIR_SALIDA = {"D2": (-0.6, 0.8)}                              # D2: el fondo de la hondonada exterior baja hacia el nor-oeste
-DESCARGAS = {"D1": "Cerco sur-oeste (lado C22-C1, x = 820.7): al talud natural que baja a la quebrada del oeste",
+DESCARGAS = {"D1": "Cerco sur-oeste (lado C22-C1, x = %.1f): al talud natural que baja a la quebrada del oeste" % (N["D1"][0] - 354000),
              "D2": "Cerco norte (x = 965.5): poza de salida que rebalsa a nivel del fondo de la hondonada natural (baja a la quebrada del norte)",
-             "D3": "Cerco sur junto a C14 (x = 935.5): al terreno exterior que baja al Jr. Alfonso Ugarte (183.00)"}
+             "D3": "Cerco sur junto a C14 (x = 935.5): al terreno exterior que baja al Jr. Alfonso Ugarte (183.00)",
+             "D4": "Cerco norte (lado C3-C4, x = 911.0): al talud natural que baja a la quebrada del norte"}
 
-# tramos tapados que no salen de las veredas del plano: ingresos y conexiones nuevas (codigo, nudo a, nudo b, motivo)
-TAPADOS_FIJOS = [("R-02", "W1b", "C1", "Conexion nueva a la perimetral (cruza la vereda)"),
-                 ("R-07", "X919b", "D3", "Atrio del ingreso principal y paso por el cerco"),
-                 ("R-11", "X937b", "D3n", "Atrio del ingreso principal"),
+# tramos tapados que no salen de las veredas del plano: ingresos y pases por el cerco (codigo, nudo a, nudo b, motivo)
+TAPADOS_FIJOS = [("R-07", "X919b", "D3", "Atrio del ingreso principal y paso por el cerco"),
                  ("R-12", "Q2", "D2", "Patio pavimentado del nor-este y paso por el cerco"),
-                 ("R-15", "X971b", "Q1", "Conexion nueva a la perimetral este"), ("R-05", "X885b", "N885", "Conexion nueva x=884.9"),
-                 ("R-01", "D1n", "D1", "Paso por el cerco")]
+                 ("R-01", "D1n", "D1", "Paso por el cerco"), ("R-17", "D4n", "D4", "Paso por el cerco")]
+# uniones nuevas (no son lados de edificacion): rasante en linea recta entre sus extremos (relleno compactado)
+CONEXIONES = [("R-04", "X885b", "N885"), ("R-05", "T29w", "T7e"), ("R-05", "T7w", "T4s"), ("R-02", "W1b", "D1n"),
+              ("R-14", "X971a", "Q0"), ("R-15", "X971b", "Q1")]
 
 
 def plataforma():
@@ -198,8 +212,8 @@ def calcular():
         s = [0.0]
         for i in range(1, len(pts)): s.append(s[-1] + math.dist(pts[i - 1][:2], pts[i][:2]))
         r = [ras(p[0], p[1]) for p in pts]
-        for c, a, b, mot in TAPADOS_FIJOS:              # conexiones nuevas: rasante recta entre extremos (relleno)
-            if c == cod and mot.startswith("Conexion"):
+        for c, a, b in CONEXIONES:                       # conexiones nuevas: rasante recta entre extremos (relleno)
+            if c == cod:
                 ia = [i for i, p in enumerate(pts) if p[2] == a][0]; ib = [i for i, p in enumerate(pts) if p[2] == b][-1]
                 for i in range(ia + 1, ib): r[i] = r[ia] + (r[ib] - r[ia]) * (s[i] - s[ia]) / (s[ib] - s[ia])
         geo[cod] = (pts, s, r)

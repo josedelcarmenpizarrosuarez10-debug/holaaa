@@ -13,7 +13,10 @@ _b = Side(style="thin", color="808080"); BOR = Border(left=_b, right=_b, top=_b,
 F = lambda **k: Font(name="Arial", size=k.pop("size", 9), **k)
 PROY = ("MEJORAMIENTO Y AMPLIACION DEL SERVICIO DE EDUCACION PRIMARIA EN LA I.E. N.° 0590, DISTRITO DE BARRANQUITA, PROVINCIA DE LAMAS, "
         "DEPARTAMENTO DE SAN MARTIN - C.I. N.° 468901")
-SIS = {1: "SISTEMA 1 - OESTE (descarga D1)", 2: "SISTEMA 2 - FRENTE SUR (descarga D3)", 3: "SISTEMA 3 - NOR-ESTE (descarga D2)"}
+sys.path.insert(0, AQUI)
+import diseno_b as DS
+SIS = {k: "SISTEMA %d - %s (descarga %s)" % (k, v[0], v[1]) for k, v in DS.SISTEMAS.items()}
+DESC_SIS = {k: v[1] for k, v in DS.SISTEMAS.items()}
 
 
 def ult_perfil():
@@ -108,8 +111,9 @@ def main():
     wr = wb.create_sheet("RESUMEN", 0)
     titulo(wr, "RESUMEN DEL PLANTEAMIENTO PRELIMINAR DE CUNETAS POR SISTEMA", 6)
     cab(wr, 4, ["SISTEMA", "LONGITUD (m)", "CON REJILLA (m)", "TAPADO (m)", "h MAXIMA (m)", "DESCARGA"], [48, 14, 15, 13, 13, 70])
-    for i, k in enumerate((1, 2, 3), 5):
-        d = {1: "D1", 2: "D3", 3: "D2"}[k]
+    sis = sorted({r["sistema"] for r in R["ramales"]})
+    for i, k in enumerate(sis, 5):
+        d = DESC_SIS[k]
         vals = [SIS[k], "=SUMIF(TRAMOS!$A$5:$A$%d,%d,TRAMOS!$E$5:$E$%d)" % (ft, k, ft), "=SUMIF(TRAMOS!$A$5:$A$%d,%d,TRAMOS!$N$5:$N$%d)" % (ft, k, ft),
                 "=SUMIF(TRAMOS!$A$5:$A$%d,%d,TRAMOS!$M$5:$M$%d)" % (ft, k, ft),
                 max(max(t["h_max"] for t in r["tramos"]) for r in R["ramales"] if r["sistema"] == k), d + ": " + R["descargas"][d]]
@@ -117,14 +121,15 @@ def main():
             cc = wr.cell(i, j, v); cc.font = F(); cc.border = BOR
             if j in (2, 3, 4, 5): cc.number_format = "0.00"; cc.alignment = Alignment(horizontal="center")
             if isinstance(v, str) and v.startswith("="): cc.fill = PatternFill("solid", fgColor=VER)
-    wr.cell(8, 1, "TOTAL").font = F(bold=True)
+    ft_r = 5 + len(sis)
+    wr.cell(ft_r, 1, "TOTAL").font = F(bold=True)
     for j, col in ((2, "B"), (3, "C"), (4, "D")):
-        cc = wr.cell(8, j, "=SUM(%s5:%s7)" % (col, col)); cc.font = F(bold=True); cc.number_format = "0.00"; cc.fill = PatternFill("solid", fgColor=VER); cc.border = BOR
-    notas = ["Planteamiento preliminar sobre los ejes de cunetas del plano PLANTA_GENERAL_590_2 (capas 0_ CUNETAS y 0_REJILLA).",
+        cc = wr.cell(ft_r, j, "=SUM(%s5:%s%d)" % (col, col, ft_r - 1)); cc.font = F(bold=True); cc.number_format = "0.00"; cc.fill = PatternFill("solid", fgColor=VER); cc.border = BOR
+    notas = ["Planteamiento preliminar: ejes de cuneta en las lineas magenta del plano PLANTA_GENERAL_590 ULTIMA VERSION (lados de cada bloque, techos a dos aguas) y uniones hasta las descargas.",
              "Sentidos de flujo y descargas segun las curvas de nivel C-TOPO del mismo plano. Techos a dos aguas: cada alero descarga a su lado.",
              "Area de intervencion = interior del cerco perimetrico: todas las cunetas quedan dentro del cerco (las perimetrales a 0.60 m de su eje).",
              "Rasante: NTN +184.50 en la plataforma; en el resto del area dentro del cerco, el terreno de las curvas recortado a +184.50.",
-             "D1 y D3 salen por un pase en el cimiento del cerco; D2 por una poza de salida (0.80 x 0.80 m) que rebalsa a nivel del terreno. Fuera del cerco no hay obra.",
+             "D1, D3 y D4 salen por un pase en el cimiento del cerco; D2 por una poza de salida (0.80 x 0.80 m) que rebalsa a nivel del terreno. Fuera del cerco no hay obra.",
              "Tramos de fuerte pendiente con V > 3.0 m/s: gradas de concreto (hoja HIDRAULICA). Verificacion completa en la hoja VERIFICACION.",
              "Ver planos PLANTEAMIENTO_CUNETAS_IE0590_BARRANQUITA.dxf: DC-01 planta, DC-02 cuadro y secciones, DC-03 a %s perfiles, %s y %s isometricos, %s y %s cortes, %s detalle de descargas." % (
                  (ult_perfil(),) + tuple("DC-%02d" % (int(ult_perfil()[-2:]) + i) for i in range(1, 6)))]

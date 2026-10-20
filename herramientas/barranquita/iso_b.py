@@ -23,13 +23,14 @@ import diseno_b as DS
 
 XC, YC, ZC = 354895.0, 9249832.0, 182.0
 CAJA = (354801.0, 9249772.0, 354990.0, 9249896.0)        # cerco + ~12 m de terreno exterior
-RGB_SIS = {1: (40, 90, 225), 2: (215, 45, 200), 3: (25, 150, 60)}
-RGB = {"ISO-S1": RGB_SIS[1], "ISO-S2": RGB_SIS[2], "ISO-S3": RGB_SIS[3], "ISO-TAP": (150, 150, 150), "ISO-GRAD": (225, 30, 30),
+RGB_SIS = {1: (40, 90, 225), 2: (215, 45, 200), 3: (25, 150, 60), 4: (245, 140, 20)}
+SIS = sorted(DS.SISTEMAS)
+RGB = {"ISO-S1": RGB_SIS[1], "ISO-S2": RGB_SIS[2], "ISO-S3": RGB_SIS[3], "ISO-S4": RGB_SIS[4], "ISO-TAP": (150, 150, 150), "ISO-GRAD": (225, 30, 30),
        "ISO-FONDO": (110, 110, 110), "ISO-MURO-INT": (200, 196, 188), "ISO-REJ": (60, 60, 60), "ISO-AGUA-D": (40, 120, 230),
        "ISO-PLAT": (226, 222, 210), "ISO-TERR": (196, 214, 170), "ISO-VER": (248, 248, 246), "ISO-CERCO": (200, 30, 30),
        "ISO-POZA": (175, 175, 175), "ISO-CURVAS": (150, 120, 85), "ISO-VER-BORDE": (120, 120, 120)}
-NOM = {1: "SISTEMA 1 - OESTE (D1)", 2: "SISTEMA 2 - FRENTE SUR (D3)", 3: "SISTEMA 3 - NOR-ESTE (D2)"}
-COL_TXT = {1: 5, 2: 6, 3: 94}
+NOM = {k: "SISTEMA %d - %s (%s)" % (k, v[0], v[1]) for k, v in DS.SISTEMAS.items()}
+COL_TXT = {1: 5, 2: 6, 3: 94, 4: 30}
 H_VER, H_CERCO, E_CERCO = 0.10, 0.30, 0.15
 COD_DET = "DC-10"                                          # lamina del detalle de descargas (la fija planos_b.py)
 
@@ -293,7 +294,7 @@ def terreno(E, vis, caja, paso, ver_malla=False):
 def cerco(E, R, vis, caja=None):
     """Sardinel rojo sobre el eje del cerco (limite de intervencion), abierto en el pase de cada descarga."""
     L = vis.L; ras = DS.rasante_fn(); ce = DS.CERCO; n = len(ce)
-    pases = [tuple(R["nudos"][d]) for d in ("D1", "D2", "D3")]
+    pases = [tuple(R["nudos"][d]) for d in DS.DESCARGAS]
     E.g = 2
     for k in range(n):
         a, b = ce[k], ce[(k + 1) % n]; Lg = math.dist(a, b)
@@ -367,7 +368,7 @@ def rosa(lam, vis, P2, xmm, ymm):
 
 
 def leyenda(lam, xmm, ymm, detalle=False):
-    items = [("relleno", "ISO-S%d" % k, "Cuneta del " + NOM[k].lower().replace("(d", "(D")) for k in (1, 2, 3)]
+    items = [("relleno", "ISO-S%d" % k, "Cuneta del " + NOM[k].lower().replace("(d", "(D")) for k in SIS]
     items += [("relleno", "ISO-TAP", "Tramo tapado con losa (cruce de vereda, atrio, pase)"), ("relleno", "ISO-GRAD", "Gradas de concreto (V > 3 m/s)"),
               ("relleno", "ISO-FONDO", "Fondo de cuneta (cota de fondo de diseno)")]
     if detalle: items += [("relleno", "ISO-REJ", "Rejilla de platinas (tramos abiertos)"), ("relleno", "ISO-POZA", "Poza de salida D2 (rebalse a nivel del terreno)")]
@@ -401,7 +402,7 @@ def isometrico(doc, R, V, ox, oy, codigo, giro, titulo, sub):
         while any(abs(pt[1] - q[1]) < 10 * lam.f and abs(pt[0] - q[0]) < 120 * lam.f for q in usados): pt = (pt[0], pt[1] + 11 * lam.f)
         usados.append(pt)
         lam.llamada(p0, pt, txt, hmm=2.2, al=TA.LEFT if dx > 0 else TA.RIGHT)
-    for k in (1, 2, 3):
+    for k in SIS:
         rr = [r for r in R["ramales"] if r["sistema"] == k]; pts = [R["nudos"][n] for r in rr for n in r["nudos"]]
         cx, cy = sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts)
         pc = P2(vis.L(cx, cy, 190.0))
@@ -418,11 +419,12 @@ def isometrico(doc, R, V, ox, oy, codigo, giro, titulo, sub):
 
 
 def detalles(doc, R, V, ox, oy, codigo="DC-10"):
-    """Detalle: isometricos de las tres descargas a 1/75, con rejillas, tapados, gradas, poza y el agua fuera del cerco."""
-    lam = B.Lamina(doc, ox, oy, 75, codigo, "DETALLE ISOMETRICO DE LAS DESCARGAS POR EL CERCO (D1, D2 Y D3)",
+    """Detalle: isometricos de cada descarga a 1/75, con rejillas, tapados, gradas, poza y el agua fuera del cerco."""
+    lam = B.Lamina(doc, ox, oy, 75, codigo, "DETALLE ISOMETRICO DE LAS DESCARGAS POR EL CERCO (%s)" % (", ".join(sorted(DS.DESCARGAS)[:-1]) + " Y " + sorted(DS.DESCARGAS)[-1]),
                    "CUNETAS DENTRO DEL CERCO, PASE O POZA EN EL CERCO Y SALIDA DEL AGUA AL TERRENO NATURAL - ESCALA REAL", escala_txt="1/75 (H = V)")
-    xs = {"D1": 150, "D3": 425, "D2": 690}; half = 5.5; ymm = 330
-    for D in ("D1", "D3", "D2"):
+    orden = ["D1", "D3", "D4", "D2"]; orden = [d for d in orden if d in DS.DESCARGAS]
+    paso = 790.0 / len(orden); xs = {D: 25 + paso * (i + 0.5) for i, D in enumerate(orden)}; half = 4.5; ymm = 330
+    for D in orden:
         d = next(v for v in V["descargas"] if v["D"] == D); x, y = R["nudos"][D]
         rr = next(r for r in R["ramales"] if r["nudos"][-1] == D); a = R["nudos"][rr["nudos"][-2]]
         u = DS.DIR_SALIDA.get(D) or ((x - a[0]) / math.dist(a, (x, y)), (y - a[1]) / math.dist(a, (x, y)))
@@ -439,7 +441,7 @@ def detalles(doc, R, V, ox, oy, codigo="DC-10"):
         with EnBloque(lam, "ISO_DETALLE_CUNETAS_" + D):
             dibujar(Ec, lam, xs[D], ymm)
         lam.titulo_vista(xs[D], 520, "DESCARGA %s - %s" % (D, "POZA DE SALIDA" if d["tipo"] == "poza" else "PASE EN EL CERCO"),
-                         "Ramal %s - C.F. %.3f - el observador mira en el sentido del agua" % (rr["codigo"], d["cf"]), ancho_mm=150)
+                         "Ramal %s - C.F. %.3f - el observador mira en el sentido del agua" % (rr["codigo"], d["cf"]), ancho_mm=min(150, paso - 30))
         pts = fl[D]
         if len(pts) >= 2:
             pa, pb = P2(vis.L(*pts[-2])), P2(vis.L(*pts[-1])); lam.flecha(pa, pb, "LLAMADAS", tam_mm=5.0)
@@ -449,15 +451,15 @@ def detalles(doc, R, V, ox, oy, codigo="DC-10"):
                ["PASE EN EL CIMIENTO DEL CERCO (tramo tapado)", "C.F. %.3f en el eje del cerco" % d["cf"],
                 "terreno exterior bajo la C.F. a %.1f m (solo perfilado)" % d["sale_a_m"]])
         px = (p0[0] - lam.ox) / lam.f
-        lam.llamada(p0, lam.P(min(max(px - 15, xs[D] - 125), xs[D] + 20), 440), txt, hmm=2.2)
+        lam.llamada(p0, lam.P(min(max(px - 15, xs[D] - paso / 2 + 8), xs[D] + paso / 2 - 95), 440), txt, hmm=1.8)
         import textwrap
-        lam.textos(lam.P(xs[D] - 120, 190), textwrap.wrap("Receptor: " + d["receptor"], 70), 1.9, "TEXTOS")
-        rosa(lam, vis, P2, xs[D] + 85, 150)
-    lam.leyenda2(25, 70, [("relleno", "ISO-S1", "Cuneta sistema 1"), ("relleno", "ISO-S2", "Cuneta sistema 2"), ("relleno", "ISO-S3", "Cuneta sistema 3"),
+        lam.textos(lam.P(xs[D] - paso / 2 + 8, 190), textwrap.wrap("Receptor: " + d["receptor"], 62), 1.8, "TEXTOS")
+        rosa(lam, vis, P2, xs[D] + paso / 2 - 50, 140)
+    lam.leyenda2(25, 70, [("relleno", "ISO-S%d" % k, "Cuneta sistema %d" % k) for k in SIS] + [
                           ("relleno", "ISO-TAP", "Tapado (losa)"), ("relleno", "ISO-REJ", "Rejilla de platinas"), ("relleno", "ISO-GRAD", "Gradas"),
                           ("relleno", "ISO-POZA", "Poza de salida D2"), ("relleno", "ISO-AGUA-D", "Agua fuera del cerco"), ("relleno", "ISO-CERCO", "Cerco = limite"),
                           ("relleno", "ISO-VER", "Vereda (+0.10)"), ("relleno", "ISO-PLAT", "Terreno terminado"), ("relleno", "ISO-TERR", "Terreno natural")],
-                 hmm=1.6, ancho_col=75, filas_col=3)
+                 hmm=1.6, ancho_col=62, filas_col=3)
     return lam
 
 

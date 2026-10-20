@@ -28,11 +28,13 @@ B.ELABORADO = ""
 B.FECHA = "OCT. 2026"
 
 DIR_DESCARGA = DS.DIR_SALIDA                   # D2: el agua sale de lado, por el fondo de la hondonada natural
-COL_SIS = {1: 5, 2: 6, 3: 94}
-NOM_BLQ = {1: "SISTEMA_1_OESTE", 2: "SISTEMA_2_FRENTE_SUR", 3: "SISTEMA_3_NORESTE"}
-NOM_SIS = {1: "SISTEMA 1 - OESTE (descarga D1)", 2: "SISTEMA 2 - FRENTE SUR (descarga D3)", 3: "SISTEMA 3 - NOR-ESTE (descarga D2)"}
+COL_SIS = {1: 5, 2: 6, 3: 94, 4: 30}
+SIS = sorted(DS.SISTEMAS)
+NOM_BLQ = {k: "SISTEMA_%d_%s" % (k, v[0].replace(" Y ", "_").replace(" ", "_").replace("-", "")) for k, v in DS.SISTEMAS.items()}
+NOM_SIS = {k: "SISTEMA %d - %s (descarga %s)" % (k, v[0], v[1]) for k, v in DS.SISTEMAS.items()}
+LISTA_D = ", ".join(sorted(DS.DESCARGAS)[:-1]) + " Y " + sorted(DS.DESCARGAS)[-1]       # "D1, D2, D3 Y D4"
 CAPAS_EXTRA = [("CURVAS", 33, "CONTINUOUS"), ("CURVAS-TXT", 33, "CONTINUOUS"), ("ARQ-TECHO", 8, "CONTINUOUS"), ("ARQ-VEREDA", 9, "CONTINUOUS"),
-               ("CUNETA-S1", 5, "CONTINUOUS"), ("CUNETA-S2", 6, "CONTINUOUS"), ("CUNETA-S3", 94, "CONTINUOUS"),
+               ("CUNETA-S1", 5, "CONTINUOUS"), ("CUNETA-S2", 6, "CONTINUOUS"), ("CUNETA-S3", 94, "CONTINUOUS"), ("CUNETA-S4", 30, "CONTINUOUS"),
                ("CUNETA-REJILLA", 254, "CONTINUOUS"), ("CUNETA-REJ-LIN", 8, "CONTINUOUS"), ("CUNETA-TAPADO", 252, "CONTINUOUS"),
                ("FLUJO-C", 7, "CONTINUOUS"), ("LIMITE-INTERV", 1, "DASHED"), ("POZA", 8, "CONTINUOUS"), ("CUNETA-GRADAS", 1, "CONTINUOUS"), ("NUDOS", 7, "CONTINUOUS"), ("DESCARGA", 1, "CONTINUOUS"), ("MURO-CONT", 6, "CONTINUOUS")]
 RGB_EXTRA = {"CURVAS": (176, 136, 96), "CURVAS-TXT": (150, 110, 70), "CUNETA-REJILLA": (232, 232, 232), "CUNETA-TAPADO": (160, 160, 160)}
@@ -44,7 +46,7 @@ def preparar(doc):
             ly = doc.layers.add(n, color=c, linetype=lt)
             if n in RGB_EXTRA: ly.rgb = RGB_EXTRA[n]
     for n, rgb in RGB_EXTRA.items(): B.COLOR_RGB[n] = rgb
-    for n, g in (("CUNETA-S1", 35), ("CUNETA-S2", 35), ("CUNETA-S3", 35), ("LIMITE-INTERV", 70), ("CURVAS", 13), ("ARQ-TECHO", 13),
+    for n, g in (("CUNETA-S1", 35), ("CUNETA-S2", 35), ("CUNETA-S3", 35), ("CUNETA-S4", 35), ("LIMITE-INTERV", 70), ("CURVAS", 13), ("ARQ-TECHO", 13),
                  ("ARQ-VEREDA", 9), ("DESCARGA", 35)):
         doc.layers.get(n).dxf.lineweight = g
 
@@ -154,7 +156,7 @@ def dc01(doc, R, V):
     with EnBloque(lam, "LIMITE_DE_INTERVENCION", "LIMITE-INTERV"):     # cerco perimetrico confirmado
         lam.poli(DS.CERCO, "LIMITE-INTERV", cerrada=True, ancho=0.35)
     ram = R["ramales"]; tap = {r["codigo"]: r["tapados"] for r in ram}; nom = R["nombre"]; grad = gradas_de(V)
-    for k in (1, 2, 3):
+    for k in SIS:
         with EnBloque(lam, "CUNETAS_" + NOM_BLQ[k], "CUNETA-S%d" % k):
             rr = [r for r in ram if r["sistema"] == k]
             for r in rr:                                       # banda exterior 0.60 (color del sistema)
@@ -222,10 +224,10 @@ def dc01(doc, R, V):
             E.poner(((pa[0] + pb[0]) / 2, (pa[1] + pb[1]) / 2), "GRADAS", 1.6, "TEXTOS", color=1, d_mm=1.4)
     lam.bloque("SIMB-NORTE", lam.P(785, 548))
     # leyenda, notas y cuadro de descargas (franja inferior)
-    items = [("linea2", "CUNETA-S%d" % k, NOM_SIS[k]) for k in (1, 2, 3)]
+    items = [("linea2", "CUNETA-S%d" % k, NOM_SIS[k]) for k in SIS]
     items += [("relleno", "CUNETA-REJILLA", "Cuneta 0.60 m (0.40 libre) con rejilla metalica"), ("relleno", "CUNETA-TAPADO", "Tramo tapado (losa) - cruce de vereda / ingreso"),
               ("linea2", "CUNETA-GRADAS", "Gradas de concreto (pendiente fuerte, V > 3 m/s)"),
-              ("linea", "FLUJO-C", "Sentido del flujo"), ("linea2", "DESCARGA", "Descarga D1 a D3: agua sobre el terreno natural"), ("linea", "CURVAS", "Curva de nivel cada 0.50 m (C-TOPO)"),
+              ("linea", "FLUJO-C", "Sentido del flujo"), ("linea2", "DESCARGA", "Descarga %s a %s: agua sobre el terreno natural" % (min(DS.DESCARGAS), max(DS.DESCARGAS))), ("linea", "CURVAS", "Curva de nivel cada 0.50 m (C-TOPO)"),
               ("linea", "ARQ-TECHO", "Proyeccion de techos (a dos aguas)"), ("linea", "CERCO", "Cerco perimetrico (plano de arquitectura)"),
               ("linea2", "LIMITE-INTERV", "Limite de intervencion = cerco perimetrico"), ("linea", "POZA", "Poza de salida (D2)")]
     lam.leyenda2(30, 128, items, hmm=1.7, ancho_col=118, filas_col=6)
@@ -240,9 +242,12 @@ def dc01(doc, R, V):
         "3. Rasante: NTN +184.50 en la plataforma; en el resto del area dentro del cerco, el terreno de las curvas C-TOPO (recortado a +184.50).",
         "4. Techos a dos aguas: cada alero descarga a la cuneta de su lado. Rejilla en tramos abiertos; losa tapa en cruces de vereda e ingresos.",
         "5. Cotas de fondo, profundidades y pendientes por tramo en la lamina DC-02 y en los perfiles DC-03 en adelante.",
-        "6. Todas las cunetas quedan dentro del cerco (limite de intervencion). D1 y D3 salen por un pase en el cimiento del cerco; D2 por una poza que rebalsa al terreno.",
-        "7. Fuera del cerco no hay obra: el agua sigue por el terreno natural (D1 y D3 solo perfilado de 1.0 y 2.0 m donde el terreno queda sobre la C.F.).",
-        "8. Bloques de AutoCAD: ARQUITECTURA_BASE, CURVAS_DE_NIVEL, LIMITE_DE_INTERVENCION, CUNETAS_SISTEMA_1 a 3 (uno por sector) y ROTULOS_RED."], hmm=1.5, ancho_mm=355)
+        "6. Todas las cunetas quedan dentro del cerco (limite de intervencion). %s salen por un pase en el cimiento del cerco; %s por una poza que rebalsa al terreno."
+        % (", ".join(d["D"] for d in V["descargas"] if d["tipo"] == "pase"), ", ".join(d["D"] for d in V["descargas"] if d["tipo"] == "poza")),
+        "7. Fuera del cerco no hay obra: el agua sigue por el terreno natural (%s)." % "; ".join(
+            "%s perfilado de %.1f m donde el terreno queda sobre la C.F." % (d["D"], d["sale_a_m"]) for d in V["descargas"] if d["tipo"] == "pase"),
+        "8. Ejes de cuneta: lineas magenta del plano ULTIMA VERSION (lados de cada bloque: techos a dos aguas) y uniones hasta las descargas.",
+        "9. Bloques de AutoCAD: ARQUITECTURA_BASE, CURVAS_DE_NIVEL, LIMITE_DE_INTERVENCION, CUNETAS_SISTEMA_1 a %d (uno por sector) y ROTULOS_RED." % max(SIS)], hmm=1.5, ancho_mm=355)
     return lam
 
 
@@ -301,13 +306,13 @@ def dc02(doc, R, ox, oy):
     lam.tabla(30 + sum(anch) + 10, 566, cab, filas[mitad:], anch, hmm=1.8, alto_mm=5.6)
     # resumen por sistema
     res = []
-    for k in (1, 2, 3):
+    for k in SIS:
         rr = [r for r in R["ramales"] if r["sistema"] == k]
         L = sum(r["L"] for r in rr); Lt = sum(t["L_tapado"] for r in rr for t in r["tramos"])
         hx = max(t["h_max"] for r in rr for t in r["tramos"])
         res.append([NOM_SIS[k], "%d" % len(rr), "%.2f" % L, "%.2f" % (L - Lt), "%.2f" % Lt, "%.2f" % hx])
     Lt = sum(float(x[2]) for x in res); res.append(["TOTAL", "%d" % len(R["ramales"]), "%.2f" % Lt, "%.2f" % sum(float(x[3]) for x in res),
-                                                   "%.2f" % sum(float(x[4]) for x in res), "%.2f" % max(float(x[5]) for x in res[:3])])
+                                                   "%.2f" % sum(float(x[4]) for x in res), "%.2f" % max(float(x[5]) for x in res[:len(SIS)])])
     lam.tabla(30, 128, ["SISTEMA", "RAMALES", "LONGITUD (m)", "CON REJILLA (m)", "TAPADO (m)", "h MAX (m)"], res, [86, 20, 28, 32, 26, 22],
               hmm=1.8, alto_mm=5.6, titulo="RESUMEN POR SISTEMA")
     # secciones tipicas a 1/5 debajo de los cuadros
@@ -476,9 +481,9 @@ def construir():
     k0 = 3 + len(lp); C = lambda i: "DC-%02d" % (k0 + i)    # laminas correlativas despues de los perfiles
     ISO.COD_DET = C(4)
     l7 = ISO.isometrico(doc, R, V, l1.ox, oyi, C(0), 157.5, "ISOMETRICO DE LA RED DE CUNETAS - VISTA DESDE EL SUR",
-                        "SOLO CUNETAS SOBRE EL TERRENO Y LAS VEREDAS, DENTRO DEL CERCO: DESCARGAS D1 Y D3 - ESCALA REAL")
+                        "SOLO CUNETAS SOBRE EL TERRENO Y LAS VEREDAS, DENTRO DEL CERCO: DESCARGAS D1, D3 Y D4 - ESCALA REAL")
     l8 = ISO.isometrico(doc, R, V, l1.ox + 841 * 0.35 + 30, oyi, C(1), -22.5, "ISOMETRICO DE LA RED DE CUNETAS - VISTA DESDE EL NORTE",
-                        "SOLO CUNETAS SOBRE EL TERRENO Y LAS VEREDAS, DENTRO DEL CERCO: DESCARGAS D2 Y D1 - ESCALA REAL")
+                        "SOLO CUNETAS SOBRE EL TERRENO Y LAS VEREDAS, DENTRO DEL CERCO: DESCARGAS D2, D4 Y D1 - ESCALA REAL")
     lams[C(0)] = l7; lams[C(1)] = l8
     CT.capas(doc)
     l9 = CT.dc09(doc, R, V, l8.ox + 841 * 0.35 + 30, oyi, C(2)); lams[C(2)] = l9
@@ -488,7 +493,7 @@ def construir():
            ("DC-02", "CUADRO DE TRAMOS Y SECCIONES TIPICAS DE CUNETA", "A1", "1/5")] + \
           [(l.codigo, "PERFILES LONGITUDINALES DE CUNETAS", "A1", "1/100") for l in lp] + \
           [(C(0), "ISOMETRICO DE LA RED - VISTA DESDE EL SUR", "A1", "1/350"), (C(1), "ISOMETRICO DE LA RED - VISTA DESDE EL NORTE", "A1", "1/350"),
-           (C(2), "CORTES POR LAS DESCARGAS D1, D2 Y D3", "A1", "1/100"), (C(3), "CORTES GENERALES DEL TERRENO Y LA RED", "A1", "1/250"),
+           (C(2), "CORTES POR LAS DESCARGAS " + LISTA_D, "A1", "1/100"), (C(3), "CORTES GENERALES DEL TERRENO Y LA RED", "A1", "1/250"),
            (C(4), "DETALLE ISOMETRICO DE LAS DESCARGAS POR EL CERCO", "A1", "1/75")]
     l0 = indice(doc, l1.ox - 420 * 0.025 - 20, l1.oy, ind); lams = {"DC-00": l0, **lams}
     LY.presentaciones(doc, lams)

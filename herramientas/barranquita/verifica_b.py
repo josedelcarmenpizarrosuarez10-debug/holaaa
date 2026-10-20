@@ -246,7 +246,7 @@ def main():
                     q = (p[0] - u[1] * 0.30 * sg, p[1] + u[0] * 0.30 * sg)
                     if not ce.contains_point(q): fuera.append((c, round(q[0], 2), round(q[1], 2))); break
     ok(11, "Toda la red dentro del cerco perimetrico (limite de intervencion)", "CUMPLE" if not fuera else "NO CUMPLE",
-       "ningun borde de cuneta pasa el cerco; solo las 3 salidas lo atraviesan" if not fuera else "%d puntos fuera: %s" % (len(fuera), fuera[:5]))
+       "ningun borde de cuneta pasa el cerco; solo las %d salidas lo atraviesan" % len(DS.DESCARGAS) if not fuera else "%d puntos fuera: %s" % (len(fuera), fuera[:5]))
     json.dump(hreq, open(DS.HREQ, "w"), indent=1)
     out = {"comprobaciones": res, "descargas": desc, "hidraulica": filas, "empalmes": emp,
            "hidrologia": {"C": C_ESC, "I": round(I_MMH, 1), "tc": TC, "FS": FS, "P10": P10, "n_cap": N_CAP, "n_vel": N_VEL, "A_total": Atot}}

@@ -1,6 +1,6 @@
 """Cortes del planteamiento de cunetas - I.E. N.° 0590, Barranquita.
 
-Cortes por las descargas: A-A, B-B y C-C por las descargas D1, D2 y D3 (1/100, H = V): cuneta en su eje (losa de fondo, rasante,
+Cortes por las descargas (CORTES_D, 1/100, H = V): cuneta en su eje (losa de fondo, rasante,
 gradas) hasta el cerco perimetrico (limite de intervencion), pase en el cimiento del cerco o poza de salida, y el agua
 que sigue sobre el terreno natural exterior (fuera del cerco no se dibuja ninguna obra).
 Cortes generales: E-E (norte-sur) y F-F (oeste-este) a 1/250 (H = V): terreno natural, plataforma +184.50,
@@ -17,7 +17,7 @@ from matplotlib.path import Path
 import terreno_b as T
 import diseno_b as DS
 
-COL_SIS = {1: 5, 2: 6, 3: 94}
+COL_SIS = {1: 5, 2: 6, 3: 94, 4: 30}
 NPT, H_ALERO, H_CUMB = 184.65, 3.00, 1.10          # bloques (solo en los cortes): alero 3.00 m sobre el NPT, cumbrera 1.10 m mas
 
 
@@ -316,28 +316,30 @@ def cola(R, cod, largo, ext, u_ext=None):
     return cam, sa, r
 
 
+CORTES_D = [  # (letra, descarga, ramal, m de cuneta antes del cerco, m de terreno exterior, descripcion del receptor)
+    ("A", "D1", "R-01", 26.0, 8.0, "el agua sigue por el talud natural a la quebrada del oeste"),
+    ("B", "D2", "R-12", 24.0, 12.0, "rebalsa al fondo de la hondonada que baja a la quebrada del norte"),
+    ("C", "D3", "R-07", 25.0, 8.0, "el agua sigue por el terreno exterior que baja a la calle (183.00)"),
+    ("D", "D4", "R-17", 25.0, 8.0, "el agua sigue por el talud natural a la quebrada del norte")]
+
+
 def dc09(doc, R, V, ox, oy, codigo="DC-08"):
-    lam = B.Lamina(doc, ox, oy, 100, codigo, "CORTES POR LAS DESCARGAS D1, D2 Y D3",
+    lista = ", ".join(c[1] for c in CORTES_D[:-1]) + " Y " + CORTES_D[-1][1]
+    lam = B.Lamina(doc, ox, oy, 100, codigo, "CORTES POR LAS DESCARGAS " + lista,
                    "CUNETA EN SU EJE HASTA EL CERCO, PASE O POZA EN EL CERCO Y AGUA SOBRE EL TERRENO NATURAL - ESC. H = V = 1/100")
-    # A-A: R-01 (ultimos 35 m) + 8 m de terreno exterior
-    cam, sa, r = cola(R, "R-01", 35.0, 8.0)
-    corte(lam, R, V, Camino(cam), 40, 450, "CORTE A-A: PERIMETRAL R-01 Y DESCARGA D1 (CERCO SUR-OESTE, TALUD HACIA LA QUEBRADA DEL OESTE)",
-          ejes=[("R-01", sa, r["L"], 0.0)], desc={"D": "D1", "s": r["L"] - sa, "txt": "el agua sigue por el talud natural a la quebrada"})
-    # B-B: R-12 (ultimos 45 m, gradas) + 14 m por la hondonada exterior
-    cam, sa, r = cola(R, "R-12", 45.0, 14.0, DS.DIR_SALIDA["D2"])
-    corte(lam, R, V, Camino(cam), 40, 280, "CORTE B-B: PERIMETRAL ESTE R-12 (GRADAS) Y POZA DE SALIDA D2 (CERCO NORTE, HONDONADA NATURAL)",
-          ejes=[("R-12", sa, r["L"], 0.0)], desc={"D": "D2", "s": r["L"] - sa, "txt": "rebalsa al fondo de la hondonada que baja a la quebrada del norte"})
-    # C-C: R-07 (ultimos 35 m por el atrio) + 8 m de terreno exterior hacia el Jr. Alfonso Ugarte
-    cam, sa, r = cola(R, "R-07", 35.0, 8.0)
-    corte(lam, R, V, Camino(cam), 40, 115, "CORTE C-C: BAJADA R-07 POR EL ATRIO DE INGRESO Y DESCARGA D3 (CERCO SUR, JR. ALFONSO UGARTE)",
-          ejes=[("R-07", sa, r["L"], 0.0)], desc={"D": "D3", "s": r["L"] - sa, "txt": "el agua sigue por el terreno exterior que baja a la calle (183.00)"})
-    lam.notas(520, 440, "NOTAS", ["1. Cortes a escala real 1/100 sin exageracion vertical. Terreno natural en linea discontinua",
-                                  "   (curvas C-TOPO); suelo terminado relleno (plataforma +184.50 dentro del cerco).",
-                                  "2. Las cunetas terminan en el cerco perimetrico (limite de intervencion): fuera del cerco no se",
-                                  "   construye; el agua sale por el pase en el cimiento (D1, D3) o rebalsa de la poza (D2).",
-                                  "3. D1 y D3: donde el terreno exterior queda sobre la C.F. (1.0 m y 2.0 m) solo se perfila el terreno.",
-                                  "4. Gradas (escalones de 0.15 m) donde la velocidad pasaria de 3.0 m/s."],
-              hmm=1.6, ancho_mm=260)
+    pos = [(40, 345), (450, 345), (40, 120), (450, 120)]
+    for (let, D, cod, largo, ext, txt), (xm, ym) in zip(CORTES_D, pos):
+        d = next(v for v in V["descargas"] if v["D"] == D)
+        cam, sa, r = cola(R, cod, largo, ext, DS.DIR_SALIDA.get(D))
+        corte(lam, R, V, Camino(cam), xm, ym, "CORTE %s-%s: RAMAL %s Y DESCARGA %s (%s)" % (let, let, cod, D, "POZA DE SALIDA" if d["tipo"] == "poza" else "PASE EN EL CERCO"),
+              ejes=[(cod, sa, r["L"], 0.0)], desc={"D": D, "s": r["L"] - sa, "txt": txt}, txt_h=1.6)
+    pas = [d for d in V["descargas"] if d["tipo"] == "pase"]; poz = [d for d in V["descargas"] if d["tipo"] == "poza"]
+    lam.notas(30, 62, "NOTAS", ["1. Cortes a escala real 1/100 sin exageracion vertical. Terreno natural en linea discontinua (curvas C-TOPO); suelo terminado relleno.",
+                                "2. Las cunetas terminan en el cerco perimetrico (limite de intervencion): fuera del cerco no se construye; el agua sale por el pase",
+                                "   en el cimiento (%s) o rebalsa de la poza (%s)." % (", ".join(d["D"] for d in pas), ", ".join(d["D"] for d in poz)),
+                                "3. Donde el terreno exterior queda sobre la C.F. solo se perfila el terreno: %s." % ", ".join("%s %.1f m" % (d["D"], d["sale_a_m"]) for d in pas),
+                                "4. Gradas (escalones de 0.15 m) donde la velocidad pasaria de 3.0 m/s."],
+              hmm=1.5, ancho_mm=380)
     return lam
 
 
