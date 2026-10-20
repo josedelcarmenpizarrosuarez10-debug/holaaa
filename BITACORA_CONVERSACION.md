@@ -232,3 +232,19 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   (h = 1.33 y D3 sin salida): se mando por el lado este de la losa a D2. PLAT ampliada en la esquina sur-oeste de la losa (NTN 184.50).
 - Verificacion: 11 de 11 (gradas en R-01 al pase D1, R-12 al norte de la losa y R-15 x=971.7 -> perimetral). Profundidad maxima 0.85 m (R-07).
 - Planos: 12 laminas (DC-00 a DC-11): cortes A-A a D-D por D1, D2, D3 y D4 (DC-08) y detalle 3D de las 4 descargas (DC-11).
+
+## 20-10-2026 – Revision coordinada de las memorias hidrologicas de los 3 proyectos del colector compartido
+- Pedido: revisar que la memoria de Wilma (CAR Mujeres, CUI 2717013) cuadre con Solange (Hogar de Refugio, CUI 2675514) y Katiuska
+  (CAR Varones, CUI 2705619), y explicar en detalle por que el colector usa 155.66 mm/h y las cunetas 210.98 mm/h.
+- Cuadran: 258.7 + 301.9 = 560.7 L/s (560.68) al R-01; 262.3 L/s Mujeres; 822.9 L/s en la salida; misma lluvia P24 = 121.81 mm,
+  TR 25, FS 1.15; cota de fondo de entrega 258.89 >= 258.72; NA 259.062.
+- Corregido (solo textos, ningun caudal ni diseno cambia), con herramientas/revision_hidrologia.py (mismo texto en las tres):
+  * bloque "Intensidad de diseno: 210.98 mm/h en cunetas y 155.66 mm/h en el colector" (Dick-Peschke con P24, tc = 10 + 3 + 2 = 15 min,
+    por que no 210.98 en el colector, C ponderado del colector y caudales compartidos), despues de la tabla de caudales del colector;
+  * "Coeficiente adoptado": C = 0.88 para canaletas, montantes, sumideros y cunetas; el colector con C ponderado;
+  * el "7,2 %" de la plantilla: 25,0 % (Mujeres, C 0.704), 9,0 % (Refugio, C 0.807), 14,2 % (Varones, C 0.771);
+  * Katiuska decia que sus 258.7 L/s salian con I = 210.98: es con I = 155.66 (tc 15 min); su celda de comprobacion (DATOS B13) daba
+    350.7 y ahora da 258.7;
+  * area del CAR Varones 6 752.03 m2 (la de su memoria) en vez de 6 752.06; C del Refugio 0.807 (no 0.808) en la tabla de Wilma.
+- Wilma: copia revisada en entregables_mujeres/MEMORIA_HIDROLOGICA_CAR_MUJERES_CON_COLECTOR.docx (el insumo no se toca).
+- Pendiente de decidir: las memorias de calculo en PDF (Refugio y CAR Mujeres) aun dicen 6752.06 y 0.808 (diferencias de redondeo).

@@ -27,7 +27,7 @@ D = dict(
     # hidrologia
     TR=25, P10=35.163, P20=41.816, tc=15, FS=1.15,
     A_refugio=7520.41, CA_refugio=6072.3596,     # C ponderado 0.8074
-    A_varones=6752.06, CA_varones=5203.3213,     # C ponderado 0.7707
+    A_varones=6752.03, CA_varones=5203.3213,     # C ponderado 0.7707 (area de la memoria del CAR Varones: 6 752.029 m2)
     Q_refugio=301.9, Q_varones=258.7,            # L/s (memorias HIDRO-CE040)
     # geometria del colector
     b=0.80, e_muro=0.15, e_fondo=0.15, e_losa=0.10, e_losa_camion=0.25,

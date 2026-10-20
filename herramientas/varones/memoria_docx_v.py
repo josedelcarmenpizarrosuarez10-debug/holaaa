@@ -325,3 +325,6 @@ def verificar(n_par, n_tab):
 
 if __name__ == "__main__":
     n1, n2 = construir(); print(DEST); verificar(n1, n2)
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    import revision_hidrologia as RH                     # texto comun de intensidades y caudales de los tres proyectos
+    print("revision:", RH.revisar(DEST, DEST, "varones"))

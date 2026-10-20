@@ -536,3 +536,5 @@ if __name__ == "__main__":
     n_par, n_tab = construir()
     print(DEST)
     verificar(n_par, n_tab)
+    import revision_hidrologia as RH                     # texto comun de intensidades y caudales de los tres proyectos
+    print("revision:", RH.revisar(DEST, DEST, "refugio"))
