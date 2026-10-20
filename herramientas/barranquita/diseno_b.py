@@ -54,7 +54,7 @@ P = lambda x, y: (354000.0 + x, Y + y)
 # --- nudos (coordenadas UTM del eje de la cuneta)
 N = {
     "D1": P(812.50, 854.29), "A1": P(858.75, 810.03), "A2": P(879.05, 801.72), "A3": P(910.09, 795.53), "A4": P(918.70, 793.80),
-    "D3": P(938.00, 789.90), "E0": P(979.50, 786.24), "E1": P(979.50, 833.66), "E2": P(979.50, 837.76), "D2": P(979.50, 860.50), "E3": P(979.50, 869.53),
+    "E7": P(938.00, 789.90), "E0": P(979.50, 786.24), "E1": P(979.50, 833.66), "E2": P(979.50, 837.76), "D2": P(979.50, 860.50), "E3": P(979.50, 869.53),
     "G1": P(974.70, 782.60), "D4": P(969.77, 783.60),
     "W1a": P(853.10, 865.70), "W12": P(844.95, 857.55), "W13": P(838.81, 851.41), "W1b": P(830.70, 843.30),
     "W2a": P(867.80, 834.70), "W4a": P(876.10, 842.67), "W34": P(862.00, 828.20),
@@ -71,8 +71,9 @@ N = {
     "L1": P(955.92, 796.00), "L2": P(976.90, 796.00), "L3": P(976.90, 831.28), "L4": P(952.52, 831.28), "CL": P(979.50, 831.28),
 }
 N["C1"] = pie(N["W1b"], N["D1"], N["A1"])
-N["J919"] = en_recta(N["A4"], N["D3"], N["X919a"][0])
-N["J937"] = en_recta(N["A4"], N["D3"], N["X937a"][0])
+N["J919"] = en_recta(N["A4"], N["E7"], N["X919a"][0])
+N["D3"] = en_recta(N["A4"], N["E7"], 354924.97)               # punto bajo de la rasante del frente sur (183.25)
+N["J937"] = en_recta(N["A4"], N["E7"], N["X937a"][0])
 
 # --- ramales: (codigo, sistema, nudos en el sentido del flujo, descripcion). Todos empiezan con h = 0.30 m.
 RAMALES = [
@@ -84,8 +85,9 @@ RAMALES = [
     ("R-05", 1, ["X885a", "X885b", "N885", "W3d", "W3c", "W34"], "Bloque x=884.9 (lado oeste) y union al patio de pabellones oeste"),
     ("R-06", 1, ["X896d", "N885"], "Tramo y=815.97 entre x=896.8 y x=885.1"),
     # Sistema 2 - Sur: descarga D3 (frente sur, ingreso principal)
-    ("R-07", 2, ["A2", "A3", "A4", "J919", "J937", "D3"], "Perimetral del frente sur (ingreso)"),
-    ("R-08", 2, ["X896a", "X896b", "X896c", "X896d", "X919a", "X919b", "J919"], "Patio central: lado oeste, y=815.97 y bajada x=919.6 al frente"),
+    ("R-07", 2, ["A2", "A3", "A4", "D3"], "Perimetral del frente sur, tramo oeste (baja a D3)"),
+    ("R-23", 2, ["E7", "J937", "D3"], "Perimetral del frente sur, tramo este (baja a D3)"),
+    ("R-08", 2, ["X896a", "X896b", "X896c", "X896d", "X919a", "X919b", "D3"], "Patio central: lado oeste, y=815.97 y bajada x=919.6 directa a D3"),
     ("R-09", 2, ["X932a", "X896b"], "Patio central: alero sur del pabellon norte (y=839.94)"),
     ("R-10", 2, ["X932b", "X896c"], "Patio central: y=822.09"),
     ("R-11", 2, ["Y853a", "X936a", "X936b", "X932a", "X932b", "X932c", "X919a"], "Bloque norte (alero sur), x=936.5, x=932.6 (muro de contencion) e y=815.97"),
@@ -105,12 +107,12 @@ RAMALES = [
 ]
 DESCARGAS = {"D1": "Esquina oeste: al terreno natural (quebrada al oeste / nor-oeste)",
              "D2": "Perimetral este, punto bajo (y = 860.5): a la cabecera de la quebrada del norte",
-             "D3": "Frente sur (ingreso): al exterior / cuneta de la via - confirmar receptor",
-             "D4": "Ingreso sur-este: al exterior - confirmar receptor"}
+             "D3": "Frente sur, punto bajo (x = 925.0): al Jr. Alfonso Ugarte en su punto bajo (183.00) - confirmar evacuacion de la calle",
+             "D4": "Ingreso sur-este: a la calzada del Jr. Alfonso Ugarte, que baja hacia su punto bajo"}
 
 # tramos tapados que no salen de las veredas del plano: ingresos y conexiones nuevas (codigo, nudo a, nudo b, motivo)
 TAPADOS_FIJOS = [("R-07", "A3", "A4", "Ingreso peatonal del frente sur"), ("R-13", "E1", "E2", "Ingreso vehicular este"),
-                 ("R-02", "W1b", "C1", "Conexion nueva a la perimetral (cruza la vereda)"), ("R-08", "X919b", "J919", "Conexion nueva al frente sur (cruza la vereda)"),
+                 ("R-02", "W1b", "C1", "Conexion nueva a la perimetral (cruza la vereda)"), ("R-08", "X919b", "D3", "Conexion nueva directa a D3 (cruza la vereda)"),
                  ("R-12", "X937b", "J937", "Conexion nueva al frente sur"), ("R-14", "L3", "CL", "Conexion nueva a la perimetral este"),
                  ("R-16", "X971b", "C971", "Conexion nueva a la perimetral este"), ("R-05", "X885b", "N885", "Conexion nueva x=884.9")]
 

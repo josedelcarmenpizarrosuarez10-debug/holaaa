@@ -39,7 +39,8 @@ Cadena hidráulica: Varones (0.60) → caja de llegada CL → Refugio (0.80) →
 - `MetraP/`: programa de metrados (ejecutable Windows con `build_exe.bat`).
 - `herramientas/barranquita/`: I.E. 0590 Barranquita. Base del sitio en `insumos/barranquita/base_sitio.pkl` (extraída del DXF
   PLANTA_GENERAL_590_2 de 332 MB, que no se versiona; la copia real del sitio es la que está sobre las curvas C-TOPO, en UTM).
-  `python3 herramientas/barranquita/diseno_b.py && python3 herramientas/barranquita/planos_b.py && python3 herramientas/barranquita/excel_b.py`.
+  `python3 herramientas/barranquita/diseno_b.py && python3 herramientas/barranquita/verifica_b.py && python3 herramientas/barranquita/planos_b.py`
+  `&& python3 herramientas/barranquita/excel_b.py` (verifica_b: 10 comprobaciones; iso_b: isometricos DC-07/08; cortes_b: DC-09/10).
 - `gestion_riesgos/`: estudios de gestión de riesgos durante la ejecución de obra, separados de los colectores. `herramientas/` (generadores, con copia propia de `dxf_base.py`, `dxf_layouts.py`, `dxf_render.py`) y `proyectos/<proyecto>/insumos` y `proyectos/<proyecto>/entregables`. Ver `gestion_riesgos/README.md`.
 - `PROGRAMA DE ELABORACION DE PSST/`: programa general del Plan de Seguridad y Salud en el Trabajo para todo tipo de obra (IPERC R.M. 050-2013-TR,
   Word y Excel). `herramientas/` (`biblioteca.py`, `importar_s10.py`, `generar.py`), `plantilla/DATOS_PROYECTO.xlsx`, `proyectos/<obra>/`,

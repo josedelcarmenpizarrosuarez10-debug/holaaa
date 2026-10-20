@@ -1,0 +1,324 @@
+"""Cortes del planteamiento de cunetas - I.E. N.° 0590, Barranquita.
+
+DC-09: cortes A-A, B-B, C-C y D-D por las descargas D1 a D4 (1/100, H = V): cuneta en su eje (losa de fondo, rasante,
+gradas), canal de salida hasta la superficie del terreno y la flecha del agua hacia la quebrada o la calle.
+DC-10: cortes generales E-E (norte-sur) y F-F (oeste-este) a 1/250 (H = V): terreno natural, plataforma +184.50,
+bloques con techo a dos aguas y cada cuneta cortada con su cota de fondo.
+Lo usa planos_b.py.
+"""
+import os, sys, math
+import numpy as np
+AQUI = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, AQUI)
+import dxf_base as B
+from ezdxf.enums import TextEntityAlignment as TA
+from matplotlib.path import Path
+import terreno_b as T
+import diseno_b as DS
+import iso_b as ISO
+
+COL_SIS = {1: 5, 2: 6, 3: 94, 4: 30}
+NPT = ISO.NPT
+
+
+def capas(doc):
+    for n, c, rgb in (("CORTE-SUELO", 7, (232, 222, 200)), ("CORTE-BLOQUE", 8, (240, 237, 230)), ("CORTE-TECHO", 1, (200, 110, 90)),
+                      ("RELLENO", 32, (214, 190, 150))):
+        ly = doc.layers.get(n) if n in doc.layers else doc.layers.add(n, color=c)
+        ly.rgb = rgb; B.COLOR_RGB[n] = rgb
+
+
+class Camino:
+    """Polilinea en planta con progresiva."""
+    def __init__(self, pts):
+        self.p = [tuple(p) for p in pts]; self.s = [0.0]
+        for i in range(1, len(self.p)): self.s.append(self.s[-1] + math.dist(self.p[i - 1], self.p[i]))
+        self.L = self.s[-1]
+
+    def punto(self, s):
+        for i in range(len(self.p) - 1):
+            if s <= self.s[i + 1] + 1e-9 or i == len(self.p) - 2:
+                L = self.s[i + 1] - self.s[i]; t = 0 if L == 0 else (s - self.s[i]) / L
+                a, b = self.p[i], self.p[i + 1]
+                return (a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])), ((b[0] - a[0]) / L, (b[1] - a[1]) / L)
+
+    def cruces(self, a, b):
+        """Progresivas donde el segmento a-b cruza el camino."""
+        out = []
+        for i in range(len(self.p) - 1):
+            p, q = self.p[i], self.p[i + 1]
+            d1 = (q[0] - p[0], q[1] - p[1]); d2 = (b[0] - a[0], b[1] - a[1]); den = d1[0] * d2[1] - d1[1] * d2[0]
+            if abs(den) < 1e-9: continue
+            t = ((a[0] - p[0]) * d2[1] - (a[1] - p[1]) * d2[0]) / den; u = ((a[0] - p[0]) * d1[1] - (a[1] - p[1]) * d1[0]) / den
+            if 0 <= t <= 1 and 0 <= u <= 1: out.append((self.s[i] + t * math.dist(p, q), u))
+        return out
+
+
+def perfil_cf(r, s):
+    P = r["perfil"]; k = min(range(len(P)), key=lambda i: abs(P[i][0] - s)); return P[k][1], P[k][2]
+
+
+def nombre_bloque(n):
+    import re
+    n = n.upper().replace("EDIFICACIÓN", "BLOQUE").replace("EDIFICACION", "BLOQUE").replace("_FINAL", "")
+    n = re.sub(r"0(\d)\1{2,}", r"0\1", n); n = re.sub(r"\s+", " ", n).strip()
+    return n[:24] or "BLOQUE"
+
+
+def corte(lam, R, V, cam, xmm, ymm, titulo, zmin=None, zmax=None, ejes=(), desc=None, paso_z=0.5, txt_h=1.8, marcas=()):
+    """Dibuja un corte por el camino cam con origen (xmm, ymm) = esquina inferior izquierda del dibujo (zref)."""
+    f = lam.f; zt = T.modelo(); ras = DS.rasante_fn(); ce = Path(DS.CERCO)
+    S = np.arange(0, cam.L + 0.01, 0.25)
+    nat = []; fin = []
+    for s in S:
+        (x, y), u = cam.punto(s); nat.append(zt(x, y)); fin.append(ras(x, y))
+    nat = np.array(nat); fin = np.array(fin)
+    zlo = zmin if zmin is not None else math.floor((np.nanmin(fin) - 1.0) * 2) / 2
+    zhi = zmax if zmax is not None else math.ceil((np.nanmax(fin) + 2.0))
+    X = lambda s: lam.P(xmm + s / f, 0)[0]
+    Yz = lambda z: lam.P(0, ymm + (z - zlo) / f)[1]
+    # suelo terminado relleno
+    ok = np.isfinite(fin)
+    pts = [(X(s), Yz(z)) for s, z, k in zip(S, fin, ok) if k]
+    if len(pts) > 1:
+        lam.relleno(pts + [(pts[-1][0], Yz(zlo)), (pts[0][0], Yz(zlo))], "CORTE-SUELO")
+        lam.poli(pts, "TERRENO")
+    pn = [(X(s), Yz(z)) for s, z in zip(S, nat) if np.isfinite(z)]
+    if len(pn) > 1: lam.poli(pn, "TERRENO-EXISTENTE")
+    # bloques cortados (techo a dos aguas: cumbrera en el eje largo)
+    G = T.cargar(); items = []; z_techo = float(np.nanmax(fin))
+    for q, c, A, nombre in ISO.bloques(G):
+        pth = Path(q); dentro = [pth.contains_point(cam.punto(s)[0]) for s in S]
+        i = 0
+        while i < len(S):
+            if dentro[i]:
+                j = i
+                while j + 1 < len(S) and dentro[j + 1]: j += 1
+                if S[j] - S[i] > 0.6:
+                    z0, z1 = DS.NTN_PLAT, NPT + ISO.H_ALERO
+                    if len(q) == 4:
+                        l01, l12 = math.dist(q[0], q[1]), math.dist(q[1], q[2])
+                        a0, a1, b0, b1 = (q[0], q[1], q[3], q[2]) if l01 >= l12 else (q[1], q[2], q[0], q[3])
+                        m0 = ((a0[0] + b0[0]) / 2, (a0[1] + b0[1]) / 2); m1 = ((a1[0] + b1[0]) / 2, (a1[1] + b1[1]) / 2)
+                        w = math.dist(a0, b0)
+                        def zr(p):
+                            dx, dy = m1[0] - m0[0], m1[1] - m0[1]; Lr = math.hypot(dx, dy)
+                            d = abs((p[0] - m0[0]) * dy - (p[1] - m0[1]) * dx) / Lr
+                            return z1 + ISO.H_CUMB * max(0.0, 1 - 2 * d / w)
+                    else:
+                        zr = lambda p: z1
+                    techo = [(X(S[k]), Yz(zr(cam.punto(S[k])[0]))) for k in range(i, j + 1)]
+                    cuerpo = [(X(S[i]), Yz(z0))] + [(X(S[i]), Yz(z1))] + [(X(S[j]), Yz(z1)), (X(S[j]), Yz(z0))]
+                    lam.relleno(cuerpo, "CORTE-BLOQUE"); lam.poli(cuerpo, "ARQ-BASE", cerrada=True)
+                    z_techo = max(z_techo, z1 + ISO.H_CUMB)
+                    tt = techo + [(X(S[j]), Yz(z1)), (X(S[i]), Yz(z1))]
+                    lam.relleno(tt, "CORTE-TECHO"); lam.poli(techo, "ARQ-BASE")
+                    lam.linea((X(S[i]), Yz(NPT)), (X(S[j]), Yz(NPT)), "ARQ-BASE")
+                    nom = nombre_bloque(nombre)
+                    lam.texto(((X(S[i]) + X(S[j])) / 2, Yz(z0 + 1.4)), nom, txt_h * 0.8, "TEXTOS", TA.MIDDLE_CENTER)
+                    lam.texto(((X(S[i]) + X(S[j])) / 2, Yz(z0 + 0.55)), "NPT +%.2f" % NPT, txt_h * 0.75, "TEXTOS", TA.MIDDLE_CENTER)
+                i = j + 1
+            else: i += 1
+    # cerco (lineas reales de la capa 2 del plano de arquitectura)
+    vistos = []
+    for pp, cl, b in G["geo"].get("2", []):
+        q = [(p[0], p[1]) for p in pp]
+        for k in range(len(q) - 1):
+            for s, u in cam.cruces(q[k], q[k + 1]):
+                if any(abs(s - v) < 1.0 for v in vistos): continue
+                vistos.append(s); z = ras(*cam.punto(s)[0])
+                if np.isfinite(z):
+                    lam.rect(X(s) - 0.075, Yz(z - 0.6), X(s) + 0.075, Yz(z + 2.4), "CERCO")
+                    items.append((X(s), Yz(z + 2.4), ["CERCO"], 14))
+    # cuneta a lo largo del eje (cortes por las descargas)
+    for ramal_eje, sa, sb, s_cam in ejes:
+        r = next(x for x in R["ramales"] if x["codigo"] == ramal_eje)
+        grad = {(f_["ramal"], f_["de"], f_["a"]) for f_ in V["hidraulica"] if f_["vel"] != "CUMPLE"}
+        seg = [p for p in r["perfil"] if sa - 1e-6 <= p[0] <= sb + 1e-6]
+        off = s_cam - sa
+        fondo = [(X(p[0] + off), Yz(p[2])) for p in seg]; losa = [(X(p[0] + off), Yz(p[2] - 0.10)) for p in seg]
+        rasl = [(X(p[0] + off), Yz(p[1])) for p in seg]
+        # gradas: fondo en escalones de 0.15 m en los tramos de fuerte pendiente
+        acc = 0.0; nomb = R["nombre"]; esc = []
+        for t in r["tramos"]:
+            if (r["codigo"], nomb[t["de"]], nomb[t["a"]]) in grad: esc.append((acc, acc + t["L"]))
+            acc += t["L"]
+        # relleno compactado donde la cuneta va por encima del terreno (conexiones nuevas)
+        rel = []
+        for p in seg:
+            (xx, yy), u_ = cam.punto(p[0] + off); zg = ras(xx, yy)
+            rel.append((p[0] + off, p[2] - 0.10, zg))
+        i = 0
+        while i < len(rel):
+            if np.isfinite(rel[i][2]) and rel[i][1] > rel[i][2] + 0.05:
+                j = i
+                while j + 1 < len(rel) and np.isfinite(rel[j + 1][2]) and rel[j + 1][1] > rel[j + 1][2] + 0.05: j += 1
+                if j > i:
+                    top = [(X(rel[k][0]), Yz(rel[k][1])) for k in range(i, j + 1)]; bot = [(X(rel[k][0]), Yz(rel[k][2])) for k in range(j, i - 1, -1)]
+                    lam.relleno(top + bot, "RELLENO"); lam.poli(top + bot, "RELLENO", cerrada=True)
+                    m = (i + j) // 2; items.append((X(rel[m][0]), Yz(rel[m][1]), ["RELLENO COMPACTADO"], 32))
+                i = j + 1
+            else: i += 1
+        lam.relleno(fondo + losa[::-1], "CONCRETO-ACHURADO"); lam.poli(losa, "CONCRETO")
+        if esc:
+            esc_pts = []
+            for p in seg:
+                if any(a <= p[0] <= b for a, b in esc):
+                    z = math.floor(p[2] / 0.15) * 0.15 + 0.15 * (1 if (p[2] % 0.15) > 0.075 else 0)
+                    if esc_pts and abs(esc_pts[-1][1] - Yz(z)) > 1e-9: esc_pts.append((X(p[0] + off), esc_pts[-1][1]))
+                    esc_pts.append((X(p[0] + off), Yz(z)))
+                else:
+                    if len(esc_pts) > 1: lam.poli(esc_pts, "CUNETA-GRADAS"); esc_pts = []
+            if len(esc_pts) > 1: lam.poli(esc_pts, "CUNETA-GRADAS")
+        lam.poli(fondo, "CONCRETO"); lam.poli(rasl, "CONCRETO")
+        for s0_, s1_ in r["tapados"]:
+            a, b = max(s0_, sa), min(s1_, sb)
+            if b - a > 0.3:
+                pp = [(X(p[0] + off), Yz(p[1])) for p in seg if a <= p[0] <= b]; ll = [(x, y - 0.10) for x, y in pp]
+                lam.relleno(pp + ll[::-1], "CONCRETO-ACHURADO"); lam.poli(pp + ll[::-1], "CONCRETO", cerrada=True)
+        # agua (tirante normal del ultimo tramo)
+        hid = [f_ for f_ in V["hidraulica"] if f_["ramal"] == r["codigo"]]
+        yagua = hid[-1]["y"] if hid else 0.1
+        nomb = R["nombre"]
+        lam.poli([(x, y + yagua) for x, y in fondo[-max(2, len(fondo) // 3):]], "AGUA")
+        acc = 0.0
+        nodos = [(0.0, r["tramos"][0]["de"])] + [(sum(t["L"] for t in r["tramos"][:i + 1]), t["a"]) for i, t in enumerate(r["tramos"])]
+        for sN, n in nodos:
+            if sa - 1e-6 <= sN <= sb + 1e-6:
+                rz, cf = perfil_cf(r, sN)
+                items.append((X(sN + off), Yz(rz), ["%s  C.F. %.3f" % (nomb[n], cf), "rasante %.2f  h %.2f" % (rz, rz - cf)], 7))
+        if esc:
+            for a, b in esc:
+                m = (max(a, sa) + min(b, sb)) / 2
+                if sa <= m <= sb:
+                    rz, cf = perfil_cf(r, m); items.append((X(m + off), Yz(rz), ["GRADAS (S fuerte)"], 1))
+    # cunetas cortadas transversalmente
+    for r in R["ramales"]:
+        if r["codigo"] in [e[0] for e in ejes]: continue
+        acc = 0.0
+        for t in r["tramos"]:
+            a, b = R["nudos"][t["de"]], R["nudos"][t["a"]]
+            for s, u in cam.cruces(a, b):
+                rz, cf = perfil_cf(r, acc + u * t["L"])
+                e, bi = DS.E_MURO, DS.B_INT; W = 2 * e + bi; x0 = X(s) - W / 2
+                cont = [(x0, Yz(cf - 0.10)), (x0 + W, Yz(cf - 0.10)), (x0 + W, Yz(rz)), (x0 + e + bi, Yz(rz)), (x0 + e + bi, Yz(cf)),
+                        (x0 + e, Yz(cf)), (x0 + e, Yz(rz)), (x0, Yz(rz))]
+                lam.relleno(cont, "CONCRETO-ACHURADO"); lam.poli(cont, "CONCRETO", cerrada=True)
+                items.append((X(s), Yz(rz), ["%s  C.F. %.3f" % (r["codigo"], cf), "h %.2f" % (rz - cf)], COL_SIS[r["sistema"]]))
+            acc += t["L"]
+    # descarga: canal de salida y agua hacia el terreno
+    if desc:
+        d = next(x for x in V["descargas"] if x["D"] == desc["D"]); sD = desc["s"]
+        cf = d["cf"]; Ls = d["sale_a_m"] if d["sale_a_m"] is not None else 3.0
+        pts = [(X(sD), Yz(cf)), (X(sD + Ls), Yz(cf - DS.S0 * Ls))]
+        lam.poli(pts, "CONCRETO"); lam.poli([(x, y - 0.10) for x, y in pts], "CONCRETO")
+        # flecha del agua sobre el terreno natural, aguas abajo
+        sw = [s for s in S if s >= sD + Ls]
+        if len(sw) > 2:
+            ag = [(X(s), Yz(zt(*cam.punto(s)[0]) + 0.12)) for s in sw[: min(len(sw), 40)] if np.isfinite(zt(*cam.punto(s)[0]))]
+            if len(ag) > 1:
+                lam.poli(ag, "DESCARGA", ancho=0.06 if f < 0.2 else 0.15); lam.flecha(ag[-2], ag[-1], "DESCARGA", tam_mm=4)
+        items.append((X(sD), Yz(cf), ["%s DESCARGA  C.F. %.3f" % (desc["D"], cf), desc["txt"]], 1))
+    # ejes: cotas cada paso_z y progresivas
+    z = math.ceil(zlo / paso_z) * paso_z
+    while z <= zhi + 1e-6:
+        lam.linea((X(0) - 2 * f, Yz(z)), (X(0), Yz(z)), "GRILLA"); lam.texto((X(0) - 2.5 * f, Yz(z)), "%.2f" % z, 1.4, "TEXTOS", TA.MIDDLE_RIGHT); z += paso_z
+    lam.linea((X(0), Yz(zlo)), (X(0), Yz(zhi)), "GRILLA"); lam.linea((X(0), Yz(zlo)), (X(cam.L), Yz(zlo)), "GRILLA")
+    pp = 0.0; dp = 5.0 if f <= 0.1 else 10.0
+    while pp <= cam.L + 1e-6:
+        lam.linea((X(pp), Yz(zlo)), (X(pp), Yz(zlo) - 1.5 * f), "GRILLA"); lam.texto((X(pp), Yz(zlo) - 2.2 * f), "%.0f" % pp, 1.3, "TEXTOS", TA.TOP_CENTER); pp += dp
+
+    for sm, t in marcas:                                   # referencias (calle, quebrada, talud)
+        (xx, yy), u_ = cam.punto(sm); zg = ras(xx, yy)
+        if np.isfinite(zg): items.append((X(sm), Yz(zg), [t], 8))
+    y_lab = Yz(z_techo) + 30 * f
+    if items: rotulos(lam, items, Yz(z_techo) + 3 * f, y_lab, txt_h)
+    lam.texto((lam.P(xmm, 0)[0], y_lab + 5 * f), titulo, 3.0, "TITULOS", TA.LEFT)
+    return Yz(zlo)
+
+
+def rotulos(lam, items, y_min, y_max, hmm):
+    """Rotulos en filas entre y_min y y_max (modelo), sin pisarse; los de un mismo punto se juntan."""
+    f = lam.f; h = hmm * B.K_TXT["TEXTOS"] * f; lh = 1.5 * h; ch = 0.66 * h
+    junt = []
+    for x, y, ls, col in sorted(items, key=lambda e: e[0]):
+        if junt and abs(junt[-1][0] - x) < 1.2 * f:
+            junt[-1] = (junt[-1][0], max(junt[-1][1], y), junt[-1][2] + [t for t in ls if t not in junt[-1][2]], junt[-1][3])
+        else: junt.append((x, y, list(ls), col))
+    nfil = max(1, int((y_max - y_min) / (2 * lh + 1.5 * f)))
+    filas = [[] for _ in range(nfil)]
+    for x, y, ls, col in junt:
+        w = max(len(t) for t in ls) * ch + 1.5 * f
+        elegido = None
+        for k in range(nfil):
+            if all(x + w < a - 1.0 * f or x > b + 1.0 * f for a, b in filas[k]): elegido = k; break
+        if elegido is None: elegido = min(range(nfil), key=lambda k: len(filas[k]))
+        filas[elegido].append((x, x + w))
+        yb = y_min + elegido * (2 * lh + 1.5 * f) + 0.5 * f
+        lam.linea((x, y), (x, yb), "LLAMADAS"); lam.circulo((x, y), 0.5 * f, "LLAMADAS")
+        for i, t in enumerate(ls[:3]):
+            lam.texto((x + 0.8 * f, yb + (min(len(ls), 3) - 1 - i) * lh), t, hmm, "TEXTOS", TA.BOTTOM_LEFT, color=col)
+
+
+def extender(p, u, d):
+    return (p[0] + u[0] * d, p[1] + u[1] * d)
+
+
+def dc09(doc, R, V, ox, oy):
+    lam = B.Lamina(doc, ox, oy, 100, "DC-09", "CORTES POR LAS DESCARGAS D1 A D4", "CUNETA EN SU EJE, CANAL DE SALIDA Y AGUA HACIA EL TERRENO - ESC. H = V = 1/100")
+    N = R["nudos"]; ram = {r["codigo"]: r for r in R["ramales"]}
+    def ult(c, n):
+        r = ram[c]; return sum(t["L"] for t in r["tramos"][:len(r["tramos"]) - n]), r["L"]
+    # A-A: R-01 (ultimos 30 m) + 10 m de salida hacia el oeste
+    r = ram["R-01"]; sa = r["L"] - 30.0
+    p0 = None; acc = 0.0; xy = [tuple(N[n]) for n in r["nudos"]]
+    camA = []; s_acc = 0.0
+    for i in range(len(xy) - 1):
+        L = math.dist(xy[i], xy[i + 1])
+        if s_acc + L > sa:
+            t = max(0, (sa - s_acc) / L)
+            if not camA: camA.append((xy[i][0] + t * (xy[i + 1][0] - xy[i][0]), xy[i][1] + t * (xy[i + 1][1] - xy[i][1])))
+            camA.append(xy[i + 1])
+        s_acc += L
+    a, b = xy[-2], xy[-1]; u = ((b[0] - a[0]) / math.dist(a, b), (b[1] - a[1]) / math.dist(a, b)); camA.append(extender(b, u, 12))
+    yb = corte(lam, R, V, Camino(camA), 40, 470, "CORTE A-A: RAMAL R-01 Y DESCARGA D1 (ESQUINA OESTE, HACIA LA QUEBRADA)", ejes=[("R-01", sa, r["L"], 0.0)], desc={"D": "D1", "s": 30.0, "txt": "sale a la superficie y baja a la quebrada"})
+    # B-B: R-16 (P-48 -> P-49 -> P-38) + R-13 hasta D2 + salida al nor-oeste
+    r = ram["R-16"]; nn = r["nudos"]; i48 = nn.index("X971a")
+    camB = [tuple(N[n]) for n in nn[i48:]] + [tuple(N["D2"])]
+    camB.append(extender(N["D2"], (-0.7071, 0.7071), 10))
+    s16 = sum(t["L"] for t in r["tramos"][:i48]); r13 = ram["R-13"]; i38 = r13["nudos"].index("C971")
+    s13 = sum(t["L"] for t in r13["tramos"][:i38])
+    yb = corte(lam, R, V, Camino(camB), 40, 330, "CORTE B-B: RAMAL R-16 (GRADAS), PERIMETRAL R-13 Y DESCARGA D2 (CABECERA DE LA QUEBRADA)",
+               ejes=[("R-16", s16, r["L"], 0.0), ("R-13", s13, r13["L"], r["L"] - s16)], desc={"D": "D2", "s": Camino(camB[:-1]).L, "txt": "sale a la superficie a la hondonada que baja a la quebrada"})
+    # C-C: R-08 bajada (P-24 -> P-25 -> D3) + calle
+    r = ram["R-08"]; nn = r["nudos"]; i24 = nn.index("X919a")
+    camC = [tuple(N[n]) for n in nn[i24:]]; a, b = camC[-2], camC[-1]
+    camC.append(extender(b, (0, -1), 10))
+    s08 = sum(t["L"] for t in r["tramos"][:i24])
+    corte(lam, R, V, Camino(camC), 40, 205, "CORTE C-C: BAJADA R-08 DEL PATIO CENTRAL Y DESCARGA D3 AL JR. ALFONSO UGARTE", ejes=[("R-08", s08, r["L"], 0.0)], desc={"D": "D3", "s": Camino(camC[:-1]).L, "txt": "al punto bajo de la calle (183.00): confirmar su evacuacion"})
+    # D-D: R-21 + salida
+    r = ram["R-21"]; camD = [tuple(N[n]) for n in r["nudos"]]; camD.append(extender(N["D4"], (-0.7071, -0.7071), 10))
+    corte(lam, R, V, Camino(camD), 40, 75, "CORTE D-D: CUNETA R-21 DEL INGRESO SUR-ESTE Y DESCARGA D4", ejes=[("R-21", 0.0, r["L"], 0.0)], desc={"D": "D4", "s": r["L"], "txt": "sale a la calzada, que baja al punto bajo de la calle"})
+    lam.notas(250, 95, "NOTAS", ["1. Cortes a escala real 1/100 sin exageracion vertical. Terreno natural en linea discontinua (curvas C-TOPO);",
+                                 "   suelo terminado relleno (plataforma +184.50 dentro del cerco). Cuneta: losa de fondo 0.10 m y rasante (borde).",
+                                 "2. Canal de salida a 0.5 % desde la cota de fondo de la descarga hasta la superficie del terreno (verificacion 6).",
+                                 "3. Gradas (escalones de 0.15 m) donde la velocidad pasaria de 3.0 m/s; paso del cerco con abertura en el cimiento."],
+              hmm=1.6, ancho_mm=380)
+    return lam
+
+
+def dc10(doc, R, V, ox, oy):
+    lam = B.Lamina(doc, ox, oy, 250, "DC-10", "CORTES GENERALES DEL TERRENO Y LA RED DE CUNETAS",
+                   "CORTE E-E (SUR - NORTE) Y CORTE F-F (OESTE - ESTE) - ESC. H = V = 1/250")
+    camE = Camino([(354925.0, 9249778.0), (354925.0, 9249890.0)])
+    corte(lam, R, V, camE, 40, 400, "CORTE E-E (x = 354925): JR. ALFONSO UGARTE - FRENTE SUR - PATIO CENTRAL - BLOQUE NORTE - QUEBRADA",
+          zmin=175.0, zmax=190.0, paso_z=1.0, txt_h=1.6, marcas=[(7.0, "JR. ALFONSO UGARTE (183.00)"), (100.0, "QUEBRADA (NORTE)"), (90.5, "TALUD")])
+    camF = Camino([(354806.0, 9249846.0), (354988.0, 9249846.0)])
+    corte(lam, R, V, camF, 40, 175, "CORTE F-F (y = 9249846): QUEBRADA OESTE - PABELLONES OESTE - PATIO CENTRAL - BLOQUE NOR-ESTE - CERCO ESTE",
+          zmin=178.0, zmax=190.0, paso_z=1.0, txt_h=1.6, marcas=[(5.0, "QUEBRADA (OESTE)"), (168.0, "HONDONADA: CABECERA DE QUEBRADA")])
+    lam.notas(30, 100, "NOTAS", ["1. Escala real 1/250 sin exageracion vertical. Terreno natural (curvas C-TOPO) en linea discontinua;",
+                                 "   suelo terminado relleno: plataforma de los bloques +184.50 (NPT +184.65) y terreno natural fuera del cerco.",
+                                 "2. Cada cuneta cortada se dibuja a escala con su cota de fondo (C.F.) y su profundidad h.",
+                                 "3. Altura de bloques referencial: alero 3.00 m sobre el NPT, cumbrera 1.10 m mas arriba (techos a dos aguas)."],
+              hmm=1.6, ancho_mm=560)
+    return lam

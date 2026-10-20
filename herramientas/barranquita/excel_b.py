@@ -117,11 +117,50 @@ def main():
     notas = ["Planteamiento preliminar sobre los ejes de cunetas del plano PLANTA_GENERAL_590_2 (capas 0_ CUNETAS y 0_REJILLA).",
              "Sentidos de flujo y descargas segun las curvas de nivel C-TOPO del mismo plano. Techos a dos aguas: cada alero descarga a su lado.",
              "Rasante: NTN +184.50 en la plataforma de los bloques; terreno de las curvas en el resto (monticulo de 185.5 recortado a +184.50).",
-             "Confirmar el receptor de las descargas D3 y D4 (frente sur e ingreso sur-este) y verificar caudales con la hidrologia del proyecto.",
-             "Ver planos PLANTEAMIENTO_CUNETAS_IE0590_BARRANQUITA.dxf (DC-01 planta, DC-02 cuadro y secciones, DC-03 en adelante perfiles)."]
+             "D1, D2 y D4 salen a la superficie del terreno por gravedad; D3 entrega al punto bajo del Jr. Alfonso Ugarte (183.00): confirmar su evacuacion.",
+             "Tramos de fuerte pendiente con V > 3.0 m/s: gradas de concreto (hoja HIDRAULICA). Verificacion completa en la hoja VERIFICACION.",
+             "Ver planos PLANTEAMIENTO_CUNETAS_IE0590_BARRANQUITA.dxf: DC-01 planta, DC-02 cuadro y secciones, DC-03 a DC-06 perfiles, DC-07 y DC-08 isometricos, DC-09 y DC-10 cortes."]
     wr.cell(11, 1, "NOTAS").font = F(bold=True, color=AZUL)
     for i, t in enumerate(notas, 12):
         wr.cell(i, 1, "%d. %s" % (i - 11, t)).font = F(size=8)
+    # ---- verificacion (10 comprobaciones) e hidraulica con el caudal de diseno
+    Vf = json.load(open(os.path.join(RAIZ, "entregables_barranquita", "_calc", "verificacion.json")))
+    wv = wb.create_sheet("VERIFICACION", 1)
+    titulo(wv, "VERIFICACION DEL PLANTEAMIENTO (10 COMPROBACIONES)", 4)
+    cab(wv, 4, ["N.", "COMPROBACION", "RESULTADO", "DETALLE"], [5, 62, 22, 120])
+    for i, c_ in enumerate(Vf["comprobaciones"], 5):
+        for j, v in enumerate([c_["n"], c_["comprobacion"], c_["estado"], c_["detalle"]], 1):
+            cc = wv.cell(i, j, v); cc.font = F(bold=(j == 3)); cc.border = BOR; cc.alignment = Alignment(wrap_text=True, vertical="top")
+            if j == 3: cc.fill = PatternFill("solid", fgColor=VER if c_["estado"] == "CUMPLE" else AMA)
+        wv.row_dimensions[i].height = 15 * max(1, len(str(c_["detalle"])) // 95 + 1)
+    r0 = 5 + len(Vf["comprobaciones"]) + 1
+    wv.cell(r0, 2, "DESCARGAS").font = F(bold=True, color=AZUL)
+    cab(wv, r0 + 1, ["", "DESCARGA", "COTA DE FONDO", "SALIDA POR GRAVEDAD"])
+    for i, d in enumerate(Vf["descargas"], r0 + 2):
+        txt = ("sale a la superficie del terreno a %.1f m (corte maximo %.2f m)" % (d["sale_a_m"], d["corte_max"])) if d["sale_a_m"] is not None else \
+              "terreno plano: entrega al %s" % d["receptor"]
+        for j, v in enumerate(["", d["D"], d["cf"], txt], 1):
+            cc = wv.cell(i, j, v); cc.font = F(); cc.border = BOR
+    h = Vf["hidrologia"]
+    wh = wb.create_sheet("HIDRAULICA", 3)
+    titulo(wh, "CAUDAL DE DISENO, TIRANTE Y VELOCIDAD POR TRAMO (REFERENCIAL)", 13)
+    par = [("C (escorrentia)", h["C"]), ("I (mm/h)", h["I"]), ("Factor de seguridad", h["FS"]), ("Velocidad maxima (m/s)", 3.0)]
+    for i, (t, v) in enumerate(par, 4):
+        wh.cell(i, 1, t).font = F(); cc = wh.cell(i, 2, v); cc.font = F(bold=True); cc.fill = PatternFill("solid", fgColor=AMA); cc.border = BOR
+    wh.cell(8, 1, "I: tc = %.0f min, TR = 25 anos, P10 = %.2f mm (estacion usada en el Hogar de Refugio - Morales); reemplazar por la del proyecto. "
+                  "Area tributaria: cada m2 dentro del cerco a la cuneta mas cercana." % (h["tc"], h["P10"])).font = F(italic=True, size=8)
+    cab(wh, 10, ["RAMAL", "DE", "A", "AREA (m2)", "Q (l/s)", "S (%)", "TIRANTE y (m)", "h (m)", "BORDE LIBRE (m)", "V (m/s)", "CAPACIDAD", "VELOCIDAD", "OBSERVACION"],
+        [9, 7, 7, 11, 10, 8, 12, 8, 13, 9, 12, 12, 46])
+    for i, fh in enumerate(Vf["hidraulica"], 11):
+        vals = [fh["ramal"], fh["de"], fh["a"], fh["A_m2"], "=1000*$B$4*$B$5*D%d/3600000*$B$6" % i, fh["S"], fh["y"], fh["h"], "=H%d-G%d" % (i, i),
+                fh["V"], '=IF(I%d>=0.05,"CUMPLE","NO CUMPLE")' % i, '=IF(J%d<=$B$7,"CUMPLE","GRADAS")' % i,
+                "gradas de concreto (escalones) en este tramo" if fh["vel"] != "CUMPLE" else ""]
+        for j, v in enumerate(vals, 1):
+            cc = wh.cell(i, j, v); cc.font = F(); cc.border = BOR; cc.alignment = Alignment(horizontal="center" if j < 13 else "left")
+            if j in (7, 9): cc.number_format = "0.000"
+            if j in (5, 10): cc.number_format = "0.00"
+            if isinstance(v, str) and v.startswith("="): cc.fill = PatternFill("solid", fgColor=VER)
+    wh.freeze_panes = "D11"
     for ws in wb.worksheets:
         ws.sheet_view.showGridLines = False; ws.page_setup.orientation = "landscape"; ws.page_setup.fitToWidth = 1
         ws.sheet_properties.pageSetUpPr.fitToPage = True; ws.page_setup.fitToHeight = 0

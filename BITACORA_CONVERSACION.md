@@ -187,3 +187,14 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   vistas_previas/*.png.
 - Pendiente de confirmar: receptores de D3 y D4, CUI, caudales con la hidrología; aleros sin cuneta (lado norte de los pabellones oeste,
   lado norte del bloque norte y de la fila central) descargan al terreno hacia la quebrada.
+
+## 20-10-2026 (cont.) – Barranquita: verificacion de 10 puntos, bloques, isometricos y cortes
+- verifica_b.py: conectividad, sin contrapendiente, S >= 0.5 %, h 0.30/0.25, empalmes, descargas a la luz, NPT, capacidad con Q de diseno
+  (C 0.80, I 211 mm/h tc 10 min de la estacion del Refugio - referencial), V <= 3.0 m/s y muros.
+- Hallazgos y correcciones: D3 quedaba 7 cm bajo la calle y el ultimo tramo del frente no tenia capacidad -> D3 se movio al punto bajo
+  del frente (x = 925.0, rasante 183.25, C.F. 182.99 = nivel de la calle 183.00); el frente se partio en R-07 (oeste) y R-23 (este) y la
+  bajada R-08 llega directo a D3. Seis tramos con V > 3 m/s llevan gradas.
+- Resultado: 9 de 10 cumplen; D1, D2 y D4 salen a la superficie a 1.5, 5.5 y 7.0 m; D3 entrega al punto bajo del Jr. Alfonso Ugarte
+  (la calle debe evacuar ese punto bajo: confirmar).
+- Planta en bloques de AutoCAD; isometricos DC-07 (sur) y DC-08 (norte); cortes DC-09 (A-A a D-D por las descargas) y DC-10 (E-E, F-F).
+- Hallazgo: iso3d / dxf_base.iso proyectan en espejo (corregido solo en iso_b.py; las laminas de otros proyectos no se tocaron).
