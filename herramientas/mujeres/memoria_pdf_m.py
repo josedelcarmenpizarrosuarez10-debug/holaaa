@@ -14,7 +14,7 @@ XLSX = os.path.join(RAIZ, "insumos", "wilma", "MEMORIA_CALCULO_COLECTOR_CAR_MUJE
 SALIDA = os.path.join(RAIZ, "entregables_mujeres", "MEMORIA_CALCULO_COLECTOR_CAR_MUJERES.pdf")
 PROYECTO = ("“CREACIÓN DEL SERVICIO DE PROTECCIÓN INTEGRAL A NIÑAS, NIÑOS Y ADOLESCENTES SIN CUIDADOS PARENTALES O EN RIESGO "
             "DE PERDERLOS EN CENTRO DE ACOGIDA RESIDENCIAL - MUJERES DISTRITO DE MORALES DE LA PROVINCIA DE SAN MARTÍN DEL "
-            "DEPARTAMENTO DE SAN MARTÍN”, con CUI N.° 2717013 · SAN MARTIN - SAN MARTIN - MORALES · octubre 2026")
+            "DEPARTAMENTO DE SAN MARTÍN”, con CUI N.° 2717013 · SAN MARTIN - SAN MARTIN - MORALES · setiembre 2026")
 
 # ------------------------------------------------------------------ tildes (los textos del libro van sin tildes)
 TILDES = {
@@ -63,9 +63,33 @@ def fmt(v):
 
 
 # ------------------------------------------------------------------ lectura del libro recalculado
+# Correcciones de coherencia sobre una copia temporal del libro (el insumo no se modifica):
+#  - area del CAR Varones 6 752.03 m2 (la de su memoria hidrologica; el caudal sale de C x A y no cambia);
+#  - sin nombres de personas en la tabla de caudales;
+#  - la estacion del quiebre vereda / tramo final en 0+078.42 (el libro la tenia en 78.47); se calcula del lado del tramo final.
+AREA_VARONES = 6752.03
+NOMBRES = (" (Katiuska)", " (Solange)", " (Wilma)")
+
+
+def corregir(ruta):
+    wb = openpyxl.load_workbook(ruta)
+    ca, pf, da = wb["CAUDALES"], wb["PERFIL_FLUJO"], wb["DATOS"]
+    for r in range(5, 8):
+        a = ca.cell(r, 1).value
+        for n in NOMBRES: a = a.replace(n, "")
+        ca.cell(r, 1).value = a
+        if a.startswith("CAR Varones"): ca.cell(r, 2).value = AREA_VARONES
+    pk = da["B20"].value
+    for r in range(5, 80):
+        x = pf.cell(r, 1).value
+        if isinstance(x, (int, float)) and pk < x < pk + 0.10: pf.cell(r, 1).value = pk + 0.0001
+    wb.save(ruta)
+
+
 def libro():
     tmp = tempfile.mkdtemp()
     shutil.copy(XLSX, os.path.join(tmp, "m.xlsx"))
+    corregir(os.path.join(tmp, "m.xlsx"))
     subprocess.run(["soffice", "--headless", "--convert-to", "xlsx", "--outdir", os.path.join(tmp, "c"), os.path.join(tmp, "m.xlsx")],
                    check=True, capture_output=True)
     wb = openpyxl.load_workbook(os.path.join(tmp, "c", "m.xlsx"), data_only=True)
@@ -209,7 +233,7 @@ def construir():
     # ---------------------------------------------------------- 2. caudales
     out.append('<h2><span class="n">2.</span>Caudales de diseño: método racional</h2>')
     out.append(formulas(["Q = C · I · A · FS / 3 600 000 &nbsp;[m<sup>3</sup>/s] &nbsp;(I en mm/h, A en m<sup>2</sup>); &nbsp;C ponderado = Σ(C·A) / ΣA"]))
-    rows = [[tilde(a), b, c, d, e, f, tilde(g or ""), tilde(h or "")] for a, b, c, d, e, f, g, h in filas(CA, 5, 8, 8)]
+    rows = [[tilde(a), "%.2f" % b, c, d, e, f, tilde(g or ""), tilde(h or "")] for a, b, c, d, e, f, g, h in filas(CA, 5, 8, 8)]
     out.append(tabla(["Proyecto", "Área (m²)", "C × A (m²)", "C pond.", "I (mm/h)", "Q (L/s)", "Ingresa al colector en", "Fuente"], rows,
                      anchos=["21%", "9%", "10%", "7%", "8%", "8%", "19%", "18%"], alinear={1: "r", 2: "r", 3: "r", 4: "r", 5: "r"}))
     out.append("<h3>%s</h3>" % esc(v(CA, "A10")))

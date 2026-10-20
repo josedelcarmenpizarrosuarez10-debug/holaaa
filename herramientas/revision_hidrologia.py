@@ -220,6 +220,18 @@ def planos_mujeres(d, cambios):
             _texto(p, TAPA_M); cambios.append("tapa ciega segun D-RL")
         elif t.endswith("Las tapas deberán permanecer colocadas y aseguradas en su contramarco."):
             _texto(p, t.replace("aseguradas en su contramarco.", "asentadas en su rebaje.")); cambios.append("tapa en su rebaje")
+        for r in p.runs:
+            for x, y in PERFIL_M.items():
+                if x in r.text:
+                    r.text = r.text.replace(x, y); cambios.append(y)
+
+
+# rangos del perfil de flujo completo de la memoria de calculo (todas las estaciones, no solo los ejes)
+PERFIL_M = {
+    "números de Froude entre 0.52 y 0.74": "números de Froude entre 0.51 y 0.74",
+    "velocidades se mantienen entre 1.13 y 1.43 m/s": "velocidades se mantienen entre 1.02 y 1.43 m/s",
+    "manteniéndose un borde libre mínimo de 0.10 m": "manteniéndose un borde libre mínimo de 0.091 m",
+}
 
 
 ARCH = {

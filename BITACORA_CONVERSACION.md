@@ -266,3 +266,15 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Datos: memoria hidrológica revisada, 46 planos, metrado vigente (RESUMEN y hojas por eje, solo lectura).
 - Pendiente de decisión del usuario: la partida 1.4.4.6.5.1 del metrado dice "TAPA DE REGISTRO 0.68x0.68 C/MARCO Y CONTRAMARCO" y el
   isométrico 2 de IC-01 dibuja marco L 1 1/2" y contramarco L 2"; D-RL y la memoria indican tapa ciega en rebaje sin marco. No se tocó.
+
+## 20-10-2026 – Revision de la memoria de calculo del colector del CAR Mujeres (PDF) y correcciones de coherencia
+- Revisado a mano: intensidad 155.66, caudales (822.93 L/s), vertido sobre la cresta (H 0.245, NA 258.785), perfil (91 estaciones,
+  llenado 0.815, BL 0.087) y los 11 elementos estructurales: todo cumple.
+- Corregido en herramientas/mujeres/memoria_pdf_m.py (sobre copia temporal del libro; el insumo no se toca): area CAR Varones
+  6752.03 (total 21764.00), sin nombres de personas, estacion del quiebre en 0+078.42 (era 78.47), fecha setiembre 2026.
+- Memoria hidrologica de Wilma (revision_hidrologia.py, PERFIL_M) y memoria descriptiva: Froude 0.51-0.74 y V 1.02-1.43 m/s
+  (perfil completo, no solo los ejes); borde libre minimo en el cruce de camiones 0.091 m (decia 0.10).
+- Memoria descriptiva: el cruce de la Carretera Oasis (baden o alcantarilla) queda fuera del alcance; recomendacion de comunicarlo a
+  la entidad de la via.
+- Pendiente (usuario): la tapa del R-07 (0+060.15, rebaje 0+059.80 a 0+060.50) entra 0.20 m en el cruce de camiones (0+054 a 0+060)
+  y solo esta verificada para rueda de auto (con HL-93: Mu 3.1 > phiMn 1.12). Confirmar por donde pasan los camiones.

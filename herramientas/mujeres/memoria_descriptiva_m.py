@@ -759,8 +759,9 @@ def generar(paginas=None):
     W.p('En la salida, el agua vierte sobre la berma hasta la cresta de la Carretera Oasis (258.54 m s. n. m.), que '
         'actúa como vertedero de cresta ancha (ancho efectivo 4.00 m, C = 1.70) y fija el nivel del agua en '
         '258.785 m s. n. m. (carga H = 0.245 m). Con esa condición, el flujo es **subcrítico** en todo el recorrido '
-        '(número de Froude de 0.52 a 0.74), con velocidades de 1.13 a 1.43 m/s, un llenado máximo de 81.5 % de la '
-        'altura interior y un borde libre mínimo de 0.087 m.')
+        '(número de Froude de 0.51 a 0.74), con velocidades de 1.02 a 1.43 m/s, un llenado máximo de 81.5 % de la '
+        'altura interior y un borde libre mínimo de 0.087 m en el Eje 02. En el cruce de camiones (0+054.00 a 0+060.00) la '
+        'cara inferior de la losa desciende 0.10 m por su mayor espesor y el borde libre mínimo es de 0.091 m.')
     W.tabla('Perfil de cotas de fondo y nivel de agua',
             ['Punto', 'Progresiva', 'Cota de fondo', 'Nivel de agua'],
             [['Eje 02', '0+000.00', '258.720', '259.063'], ['Eje 07', '0+037.95', '258.605', '259.000'],
@@ -777,6 +778,9 @@ def generar(paginas=None):
         'concreto ciclópeo f\'c = 140 kg/cm² + 30 % P.M. de 0.35 m × 0.65 m en el extremo, que protege la estructura '
         'contra la socavación. Los últimos 4.00 m del colector se desvían 0.85 m hacia el interior para que toda la '
         'estructura quede dentro del lindero. El detalle se presenta en la lámina ESDAE-01.')
+    W.p('El cruce de las aguas hacia el otro lado de la Carretera Oasis (badén o alcantarilla) queda fuera del alcance '
+        'del presente proyecto, que entrega el caudal sobre la berma dentro del lindero; su solución corresponde a la '
+        'entidad a cargo de la vía.')
     W.figura('ESDAE-01', 'Estructura de salida con dos aleros y emboquillado')
 
     W.subtitulo('VERIFICACIÓN ESTRUCTURAL')
@@ -862,6 +866,7 @@ def generar(paginas=None):
         'Verificar con control topográfico la pendiente mínima de 1.0 % en canaletas, 0.5 % en cunetas y 0.302 % en el colector, así como las cotas de fondo de los empalmes, evitando contrapendientes.',
         'Confirmar con el Estudio de Mecánica de Suelos la capacidad portante (≥ 0.80 kg/cm²) y que el nivel freático se encuentra por debajo del fondo de la excavación del colector.',
         'Confirmar el ingreso de camiones por el acceso secundario, condición considerada en el diseño de la sección reforzada del colector.',
+        'Comunicar a la entidad a cargo de la Carretera Oasis el caudal de entrega (822.9 L/s) y el punto de descarga, para que evalúe el cruce de las aguas bajo o sobre la vía (badén o alcantarilla), que queda fuera del alcance del proyecto.',
         'No elevar la cota de la berma ni de la calzada de la Carretera Oasis frente a la salida sin evaluar nuevamente el colector, ya que su cresta controla el nivel del agua.',
         'Coordinar con los proyectos CAR Varones y Hogar de Refugio Temporal la ejecución de sus entregas en el registro R-01, respetando la cota de fondo y el caudal indicados.',
         'Efectuar una prueba de escurrimiento con suministro controlado de agua en los puntos altos, verificando que el flujo llegue a los puntos de descarga sin empozamientos, filtraciones ni desbordes.',
