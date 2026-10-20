@@ -22,6 +22,7 @@ Leer completo antes de trabajar. Detalle técnico en los skills de `.claude/skil
 | CAR Varones | Katiuska | 2705619 | b 0.60, muros 0.15, 11 registros | `entregables_varones/` | `herramientas/varones/` (`planos_v.py`, `compat.py`, `diseno_v.py`) |
 | Hogar de Refugio Temporal "Mujeres Violentadas" | Solange | 2675514 | b 0.80, muros 0.15, 10 registros | `entregables/` y `entregables_solange/` | `herramientas/diseno.py`, `planos_dxf.py`, `memoria_*.py`, `metrado_*.py` |
 | CAR Mujeres | Wilma | 2717013 | b 1.50, muros 0.10, 15 registros | `entregables_mujeres/` | `herramientas/mujeres/` (`datos_m.py`, `planos_m.py`) – **metrado congelado** |
+| I.E. N.° 0590 Barranquita (Lamas) – planteamiento preliminar de cunetas | – | C.I. 468901 (confirmar CUI) | cunetas 0.60 (muros 0.10, libre 0.40), h inicial 0.30, S 0.5 % | `entregables_barranquita/` | `herramientas/barranquita/` (`diseno_b.py`, `planos_b.py`, `excel_b.py`) |
 | Vía SM-107 Tingo de Ponasa – Shamboyacu | – | 2673852 | (estudio de gestión de riesgos de obra) | `gestion_riesgos/proyectos/SM-107_TINGO_DE_PONASA_SHAMBOYACU/` | `gestion_riesgos/herramientas/` |
 
 Cadena hidráulica: Varones (0.60) → caja de llegada CL → Refugio (0.80) → caja de caída CC → R-01 del CAR Mujeres (1.50) → salida.
@@ -36,6 +37,9 @@ Cadena hidráulica: Varones (0.60) → caja de llegada CL → Refugio (0.80) →
   - Edición de planillas sin romper formato: `angulo_contramarco_refugio.Libro` (XML) + `recalcular()` con LibreOffice.
 - `.claude/skills/`: `diseno-colector-pluvial` (criterios y decisiones de diseño), `planos-ordenados` (dibujo sin cruces), `metrado-cunetas`, `psst-iperc` (plan de seguridad y salud en el trabajo).
 - `MetraP/`: programa de metrados (ejecutable Windows con `build_exe.bat`).
+- `herramientas/barranquita/`: I.E. 0590 Barranquita. Base del sitio en `insumos/barranquita/base_sitio.pkl` (extraída del DXF
+  PLANTA_GENERAL_590_2 de 332 MB, que no se versiona; la copia real del sitio es la que está sobre las curvas C-TOPO, en UTM).
+  `python3 herramientas/barranquita/diseno_b.py && python3 herramientas/barranquita/planos_b.py && python3 herramientas/barranquita/excel_b.py`.
 - `gestion_riesgos/`: estudios de gestión de riesgos durante la ejecución de obra, separados de los colectores. `herramientas/` (generadores, con copia propia de `dxf_base.py`, `dxf_layouts.py`, `dxf_render.py`) y `proyectos/<proyecto>/insumos` y `proyectos/<proyecto>/entregables`. Ver `gestion_riesgos/README.md`.
 - `PROGRAMA DE ELABORACION DE PSST/`: programa general del Plan de Seguridad y Salud en el Trabajo para todo tipo de obra (IPERC R.M. 050-2013-TR,
   Word y Excel). `herramientas/` (`biblioteca.py`, `importar_s10.py`, `generar.py`), `plantilla/DATOS_PROYECTO.xlsx`, `proyectos/<obra>/`,

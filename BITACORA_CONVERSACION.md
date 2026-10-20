@@ -171,3 +171,19 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - A pedido del usuario se agregó al RESUMEN el CODO DESAGÜE PVC Ø4" x 45° (1.4.4.5.3.2 = PLANILLA K161, de METRADO MONTANTES),
   que faltaba; COLGADOR y ABRAZADERA pasan a 1.4.4.5.3.3 y 1.4.4.5.3.4, igual que en la PLANILLA.
 - Salida: `entregables_mujeres/METRADO_DRENAJE_PLUVIAL_CAR_MUJERES_09-10-2026_CON_BANCAS.xlsx`.
+
+## 20-10-2026 – I.E. N.° 0590 Barranquita (Lamas): planteamiento preliminar de cunetas
+- Insumo: PLANTA_GENERAL_590_2.dxf (332 MB, en dos partes .zip). Proyecto del rótulo: "MEJORAMIENTO Y AMPLIACIÓN DEL SERVICIO DE
+  EDUCACIÓN PRIMARIA EN I.E 0590, DISTRITO DE BARRANQUITA, PROVINCIA DE LAMAS", C.I 468901 (confirmar si es el CUI).
+- El DXF tiene 3 copias del conjunto; la real es la que está sobre las curvas C-TOPO (175.0 a 188.5 cada 0.50 m, UTM).
+  Base reducida en insumos/barranquita/base_sitio.pkl.
+- Criterios del usuario: cuneta 0.60 m (muros 0.10 + 0.40 libre), h inicial 0.30 (mínima 0.25), S = 0.5 %, rejillas, tramos tapados
+  en cruces de vereda, techos a dos aguas, que toda el agua salga por gravedad.
+- Red sobre los ejes del planteamiento del usuario (capas 0_ CUNETAS y 0_REJILLA): 22 ramales, 894.6 m (836.1 con rejilla, 58.6 tapados),
+  4 sistemas y descargas D1 (esquina oeste), D2 (perimetral este en y = 860.5, cabecera de la quebrada), D3 (frente sur, ingreso) y
+  D4 (ingreso sur-este). Profundidad máxima 0.83 m. Rasante: NTN +184.50 en la plataforma; terreno de las curvas fuera (montículo de
+  185.5 recortado a +184.50); conexiones nuevas con rasante recta.
+- Entregables: entregables_barranquita/PLANTEAMIENTO_CUNETAS_IE0590_BARRANQUITA.dxf (DC-00 a DC-06), CUADRO_TRAMOS_CUNETAS_IE0590_BARRANQUITA.xlsx,
+  vistas_previas/*.png.
+- Pendiente de confirmar: receptores de D3 y D4, CUI, caudales con la hidrología; aleros sin cuneta (lado norte de los pabellones oeste,
+  lado norte del bloque norte y de la fila central) descargan al terreno hacia la quebrada.
