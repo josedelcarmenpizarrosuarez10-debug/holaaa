@@ -278,3 +278,13 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   la entidad de la via.
 - Pendiente (usuario): la tapa del R-07 (0+060.15, rebaje 0+059.80 a 0+060.50) entra 0.20 m en el cruce de camiones (0+054 a 0+060)
   y solo esta verificada para rueda de auto (con HL-93: Mu 3.1 > phiMn 1.12). Confirmar por donde pasan los camiones.
+
+## 20-10-2026 – Barranquita: niveles del interior del cerco (indicacion del usuario)
+- Interior del cerco nivelado (sin hondonadas): pisos y pasadizos NPT +184.65; borde superior de las cunetas +184.60; areas verdes
+  +184.55. Fuera del cerco, terreno natural.
+- Patio de maniobra y estacionamiento (nor-este, 470 m2, NTN +184.50 del plano): se queda en su nivel; las cunetas que lo bordean
+  (R-12, R-13, R-14, R-15 y R-16 en ese tramo) van AL RAS del patio (+184.50), con rejilla en los tramos abiertos (no 5 cm abajo:
+  el usuario no quiere hueco). Poligono diseno_b.PATIO.
+- D2 ya no es poza: pase en el cimiento como D1, D3 y D4 (POZA = set()).
+- Resultado: 11 de 11 comprobaciones; profundidad maxima 0.92 m (R-07); C.F. de salida D1 183.660, D2 183.704, D3 183.576, D4 184.099.
+- Recomendacion pendiente: rejilla de transito vehicular en las cunetas del patio de maniobra.

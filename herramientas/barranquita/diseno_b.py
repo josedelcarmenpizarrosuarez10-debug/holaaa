@@ -11,9 +11,11 @@ Criterios del usuario:
 - Rejilla en los tramos abiertos; tramo tapado (losa) donde la cuneta cruza veredas o ingresos.
 - Techos a dos aguas (cumbrera en el eje largo de cada bloque): cada alero descarga a la cuneta o al terreno de su lado.
 
-Rasante (borde superior de la cuneta): dentro de la plataforma de los bloques NTN = +184.50 (rotulos NTN del plano);
-dentro del cerco, el terreno de las curvas C-TOPO recortado a +184.50 (el monticulo de 185.5 se corta); fuera del cerco, el
-terreno natural. En las conexiones nuevas (tramos cortos de relleno) la rasante va en linea recta entre sus extremos.
+Niveles (indicacion del usuario, 20-10-2026): todo el interior del cerco queda nivelado, sin hondonadas. Pisos y pasadizos
+NPT +184.65; borde superior de las cunetas (rasante) +184.60; areas verdes +184.55. Fuera del cerco, el terreno natural de
+las curvas C-TOPO. Con la rasante horizontal, la profundidad crece con la pendiente de fondo de 0.5 %.
+Excepcion: el PATIO DE MANIOBRA Y ESTACIONAMIENTO (nor-este, 470 m2) queda en su nivel del plano NTN +184.50; las cunetas que lo
+bordean van al ras del patio (+184.50), con rejilla en los tramos abiertos para que el agua del patio entre por ella.
 Uso: python3 herramientas/barranquita/diseno_b.py   -> entregables_barranquita/_calc/diseno.json
 """
 import os, sys, json, math
@@ -25,7 +27,12 @@ import terreno_b as T
 
 B_INT, E_MURO, B_TOT = 0.40, 0.10, 0.60
 H0, HMIN, S0 = 0.30, 0.25, 0.005
-NTN_PLAT = 184.50
+NPT, RASANTE, NIVEL_AV = 184.65, 184.60, 184.55   # pisos y pasadizos, borde de cuneta, areas verdes
+NTN_PLAT = RASANTE                         # nivel del terreno terminado junto a la cuneta (dentro del cerco)
+NIVEL_PATIO, RAS_PATIO = 184.50, 184.50    # patio de maniobra (NTN del plano); cunetas al ras del patio
+# patio de maniobra y estacionamiento: entre la losa (y = 831.3), el cerco este, el cerco norte y x = 951.5; incluye los ejes de
+# las cunetas que lo bordean (lado norte de la losa, lados sur y norte del bloque nor-este, cerco este y cerco norte hasta D2)
+PATIO = [(354000.0 + x, 9249000.0 + y) for x, y in ((951.5, 830.8), (977.5, 830.8), (977.5, 869.6), (951.5, 869.6))]
 N_MAN, BL = 0.013, 0.05                  # Manning (concreto) y borde libre para la capacidad
 SAL = os.path.join(RAIZ, "entregables_barranquita", "_calc", "diseno.json")
 
@@ -134,7 +141,7 @@ RAMALES = [
     ("R-09", 2, ["X932b", "X896c"], "Patio central: y=822.09"),
     ("R-10", 2, ["X932a", "X932b", "X932c", "X919a"], "x=932.6 y bloque del frente: lado norte (y=815.97)"),
     ("R-11", 2, ["T28e", "X919c"], "Bloque del frente: lado sur (y=804.1)"),
-    # Sistema 3 - Nor-este: descarga D2 (poza en el cerco norte, x = 965.5, hondonada natural)
+    # Sistema 3 - Nor-este: descarga D2 (pase en el cerco norte, x = 965.5, hacia la hondonada natural exterior)
     ("R-12", 3, ["T25n", "T22w", "L2", "L3", "Q0", "Q1", "Q2", "Q3", "D2n", "D2"], "Losa: lados oeste, sur y este; union por dentro del cerco a D2"),
     ("R-13", 3, ["L4", "L3"], "Losa: lado norte (y=831.3)"),
     ("R-14", 3, ["Y815e", "X952a", "X952b", "X952c", "X971a", "Q0"], "y=815.97, x=952.3 y bloque nor-este: lado sur (y=839.9)"),
@@ -147,11 +154,11 @@ RAMALES = [
 ]
 # sistemas: nombre y descarga (los colores de cada sistema estan en planos_b.py e iso_b.py)
 SISTEMAS = {1: ("OESTE", "D1"), 2: ("CENTRO Y FRENTE SUR", "D3"), 3: ("NOR-ESTE Y LOSA", "D2"), 4: ("NORTE", "D4")}
-POZA = {"D2"}                                                 # descargas con poza de salida (rebalse a nivel del terreno)
+POZA = set()                                                  # interior nivelado: D2 tambien es pase en el cimiento (sin poza)
 POZA_DIM = (0.80, 0.80)                                       # poza: ancho y largo interior (m), fondo a la cota de fondo de llegada
 DIR_SALIDA = {"D2": (-0.6, 0.8)}                              # D2: el fondo de la hondonada exterior baja hacia el nor-oeste
 DESCARGAS = {"D1": "Cerco sur-oeste (lado C22-C1, x = %.1f): al talud natural que baja a la quebrada del oeste" % (N["D1"][0] - 354000),
-             "D2": "Cerco norte (x = 965.5): poza de salida que rebalsa a nivel del fondo de la hondonada natural (baja a la quebrada del norte)",
+             "D2": "Cerco norte (x = 965.5): pase en el cimiento del cerco al terreno exterior que baja a la quebrada del norte",
              "D3": "Cerco sur junto a C14 (x = 935.5): al terreno exterior que baja al Jr. Alfonso Ugarte (183.00)",
              "D4": "Cerco norte (lado C3-C4, x = 911.0): al talud natural que baja a la quebrada del norte"}
 
@@ -169,10 +176,10 @@ def plataforma():
 
 
 def rasante_fn():
-    z = T.modelo(); pl = plataforma(); ce = Path(CERCO)
+    z = T.modelo(); ce = Path(CERCO); pa = Path(PATIO)
     def ras(x, y):
-        if pl.contains_point((x, y)): return NTN_PLAT
-        if ce.contains_point((x, y)): return min(z(x, y), NTN_PLAT)
+        if pa.contains_point((x, y)): return RAS_PATIO    # cunetas al ras del patio de maniobra (+184.50)
+        if ce.contains_point((x, y)): return RASANTE      # interior nivelado
         return z(x, y)
     return ras
 
@@ -248,7 +255,8 @@ def calcular():
         for n in nudos:
             if n not in nombre: nombre[n] = n if n in DESCARGAS else "P-%02d" % (1 + sum(1 for v in nombre.values() if v.startswith("P")))
     res = {"criterios": {"b_int": B_INT, "muro": E_MURO, "b_tot": B_TOT, "h0": H0, "hmin": HMIN, "S": S0, "ntn_plataforma": NTN_PLAT,
-                         "n_manning": N_MAN, "borde_libre": BL},
+                         "n_manning": N_MAN, "borde_libre": BL, "npt": NPT, "rasante": RASANTE, "nivel_area_verde": NIVEL_AV,
+                         "nivel_patio": NIVEL_PATIO, "rasante_patio": RAS_PATIO},
            "nudos": {k: [round(v[0], 3), round(v[1], 3)] for k, v in N.items() if k in nombre}, "nombre": nombre, "descargas": DESCARGAS, "ramales": []}
     for cod, sis, nudos, desc in RAMALES:
         pts, s, r = geo[cod]; f = fondo[cod]

@@ -7,7 +7,7 @@
 5. Empalmes: la cuneta que llega lo hace a la misma cota o por encima de la que recibe (no remansa).
 6. Descargas por el cerco: el terreno exterior no queda sobre la cota de fondo de la descarga (no se excava fuera del
    cerco) y baja por debajo de ella a pocos metros (el agua se aleja sola por la pendiente natural).
-7. Niveles de piso: el borde de la cuneta no queda por encima del piso terminado (NPT) de los bloques vecinos.
+7. Niveles: borde de la cuneta +184.60, 0.05 m bajo el NPT +184.65 y 0.05 m sobre el area verde +184.55.
 8. Capacidad: tirante normal con el caudal de diseno <= h - 0.05 m (borde libre) en cada tramo.
 9. Velocidad: V <= 3.0 m/s (concreto, CE.040); los tramos que pasan se resuelven con gradas o caidas.
 10. Interferencias: el eje de la cuneta no corta muros de los bloques (distancia al muro >= 0.30 m).
@@ -167,10 +167,18 @@ def main():
             if not Path(DS.CERCO).contains_point((x, y)): continue          # rotulos de areas exteriores al cerco
             dd = np.hypot(pts[:, 0] - x, pts[:, 1] - y); k = int(dd.argmin())
             if dd[k] < 5: npt.append((round(ntn + rel, 2), round(float(ras[k]), 2), round(float(dd[k]), 1)))
-    altos = [n for n in npt if n[1] > n[0] + 0.005]
-    ok(7, "Borde de la cuneta por debajo del NPT de los bloques vecinos", "CUMPLE" if not altos else "NO CUMPLE",
-       "%d rotulos NPT revisados (bloques a menos de 5 m de una cuneta); NPT de 183.50 a 184.65; borde de cuneta <= NPT en todos" % len(npt)
-       if not altos else "borde sobre NPT: %s" % altos)
+    # niveles del usuario (20-10-2026): pisos y pasadizos +184.65, borde de cuneta +184.60, areas verdes +184.55 (interior nivelado)
+    altos = [float(r) for r in ras if r > DS.NPT - 0.05 + 0.005 and r < 900]
+    pat = Path(DS.PATIO)
+    altos += [float(r) for p, r in zip(pts, ras) if pat.contains_point(p) and r > DS.NIVEL_PATIO + 0.005]
+    n_pat = sum(1 for p in pts if pat.contains_point(p))
+    difer = sorted({n[0] for n in npt if abs(n[0] - DS.NPT) > 0.005 and abs(n[0] - DS.NIVEL_PATIO) > 0.005})
+    ok(7, "Borde de la cuneta 0.05 m bajo el NPT (+%.2f) y 0.05 m sobre el area verde (+%.2f)" % (DS.NPT, DS.NIVEL_AV),
+       "CUMPLE" if not altos else "NO CUMPLE",
+       ("borde de cuneta +%.2f en la red dentro del cerco (NPT +%.2f, area verde +%.2f); junto al patio de maniobra (NTN +%.2f) "
+        "borde al ras +%.2f en %d puntos" % (DS.RASANTE, DS.NPT, DS.NIVEL_AV, DS.NIVEL_PATIO, DS.RAS_PATIO, n_pat)
+        + ("; rotulos del plano de arquitectura con otro nivel junto a cunetas: %s (se toma +%.2f segun el usuario)"
+           % (", ".join("%.2f" % v for v in difer), DS.NPT) if difer else "")) if not altos else "borde sobre NPT - 0.05: %d puntos" % len(altos))
     # 8 y 9 capacidad y velocidad con el caudal de diseno
     cel = []; ce = Path(DS.CERCO)
     xs = np.arange(354805, 354985, 1.0) + 0.5; ys = np.arange(9249775, 9249890, 1.0) + 0.5

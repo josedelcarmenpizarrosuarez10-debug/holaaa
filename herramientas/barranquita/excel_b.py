@@ -56,7 +56,7 @@ def main():
            ("Profundidad al inicio de cada ramal", c["h0"], "m", "Criterio del usuario"),
            ("Profundidad minima", c["hmin"], "m", "Donde el terreno cae mas que la cuneta"),
            ("Pendiente de la cota de fondo", c["S"], "m/m", "0.5 %; mayor donde el terreno cae mas"),
-           ("NTN de la plataforma de los bloques", c["ntn_plataforma"], "m", "Rotulos NTN del plano de arquitectura"),
+           ("Borde superior de la cuneta (rasante)", c["rasante"], "m", "Indicacion del usuario: NPT +%.2f (pisos y pasadizos), area verde +%.2f" % (c["npt"], c["nivel_area_verde"])),
            ("Coeficiente de Manning (concreto)", c["n_manning"], "", "Para la capacidad de cada tramo"),
            ("Borde libre", c["borde_libre"], "m", "Tirante maximo = h - borde libre")]
     for i, (t, v, u, o) in enumerate(par, 5):
@@ -128,8 +128,8 @@ def main():
     notas = ["Planteamiento preliminar: ejes de cuneta en las lineas magenta del plano PLANTA_GENERAL_590 ULTIMA VERSION (lados de cada bloque, techos a dos aguas) y uniones hasta las descargas.",
              "Sentidos de flujo y descargas segun las curvas de nivel C-TOPO del mismo plano. Techos a dos aguas: cada alero descarga a su lado.",
              "Area de intervencion = interior del cerco perimetrico: todas las cunetas quedan dentro del cerco (las perimetrales a 0.60 m de su eje).",
-             "Rasante: NTN +184.50 en la plataforma; en el resto del area dentro del cerco, el terreno de las curvas recortado a +184.50.",
-             "D1, D3 y D4 salen por un pase en el cimiento del cerco; D2 por una poza de salida (0.80 x 0.80 m) que rebalsa a nivel del terreno. Fuera del cerco no hay obra.",
+             "Interior del cerco nivelado: pisos y pasadizos NPT +184.65; borde de cuneta +184.60; areas verdes +184.55; patio de maniobra +184.50 (cuneta al ras, con rejilla). Fuera del cerco, el terreno natural.",
+             "D1, D2, D3 y D4 salen por un pase en el cimiento del cerco. Fuera del cerco no hay obra.",
              "Tramos de fuerte pendiente con V > 3.0 m/s: gradas de concreto (hoja HIDRAULICA). Verificacion completa en la hoja VERIFICACION.",
              "Ver planos PLANTEAMIENTO_CUNETAS_IE0590_BARRANQUITA.dxf: DC-01 planta, DC-02 cuadro y secciones, DC-03 a %s perfiles, %s y %s isometricos, %s y %s cortes, %s detalle de descargas." % (
                  (ult_perfil(),) + tuple("DC-%02d" % (int(ult_perfil()[-2:]) + i) for i in range(1, 6)))]

@@ -40,6 +40,8 @@ CAPAS_EXTRA = [("CURVAS", 33, "CONTINUOUS"), ("CURVAS-TXT", 33, "CONTINUOUS"), (
 RGB_EXTRA = {"CURVAS": (176, 136, 96), "CURVAS-TXT": (150, 110, 70), "CUNETA-REJILLA": (232, 232, 232), "CUNETA-TAPADO": (160, 160, 160)}
 
 
+DS_NIV = "Interior del cerco nivelado: pisos y pasadizos NPT +184.65; borde de cuneta +184.60; areas verdes +184.55; patio de maniobra +184.50 (cuneta al ras, con rejilla)."
+
 def preparar(doc):
     for n, c, lt in CAPAS_EXTRA:
         if n not in doc.layers:
@@ -229,7 +231,7 @@ def dc01(doc, R, V):
               ("linea2", "CUNETA-GRADAS", "Gradas de concreto (pendiente fuerte, V > 3 m/s)"),
               ("linea", "FLUJO-C", "Sentido del flujo"), ("linea2", "DESCARGA", "Descarga %s a %s: agua sobre el terreno natural" % (min(DS.DESCARGAS), max(DS.DESCARGAS))), ("linea", "CURVAS", "Curva de nivel cada 0.50 m (C-TOPO)"),
               ("linea", "ARQ-TECHO", "Proyeccion de techos (a dos aguas)"), ("linea", "CERCO", "Cerco perimetrico (plano de arquitectura)"),
-              ("linea2", "LIMITE-INTERV", "Limite de intervencion = cerco perimetrico"), ("linea", "POZA", "Poza de salida (D2)")]
+              ("linea2", "LIMITE-INTERV", "Limite de intervencion = cerco perimetrico")] + [("linea", "POZA", "Poza de salida (%s)" % ", ".join(sorted(DS.POZA)))] * bool(DS.POZA)
     lam.leyenda2(30, 128, items, hmm=1.7, ancho_col=118, filas_col=6)
     est = {d["D"]: d for d in V["descargas"]}
     filas = [[k, "%.3f" % est[k]["cf"], v.split(":")[0], ("poza: rebalsa a %.2f; afuera baja 0.25 m a %.1f m" % (est[k]["nivel_rebalse"], est[k]["sale_a_m"]))
@@ -239,11 +241,11 @@ def dc01(doc, R, V):
     lam.notas(275, 72, "CRITERIOS DEL PLANTEAMIENTO", [
         "1. Cuneta rectangular de concreto: ancho total %.2f m = muros de %.2f m + %.2f m libres; losa de fondo de 0.10 m." % (c["b_tot"], c["muro"], c["b_int"]),
         "2. Profundidad al inicio de cada ramal %.2f m; minima %.2f m donde el terreno cae mas que la cuneta; cota de fondo con S = %.1f %%." % (c["h0"], c["hmin"], 100 * c["S"]),
-        "3. Rasante: NTN +184.50 en la plataforma; en el resto del area dentro del cerco, el terreno de las curvas C-TOPO (recortado a +184.50).",
+        "3. %s" % DS_NIV,
         "4. Techos a dos aguas: cada alero descarga a la cuneta de su lado. Rejilla en tramos abiertos; losa tapa en cruces de vereda e ingresos.",
         "5. Cotas de fondo, profundidades y pendientes por tramo en la lamina DC-02 y en los perfiles DC-03 en adelante.",
-        "6. Todas las cunetas quedan dentro del cerco (limite de intervencion). %s salen por un pase en el cimiento del cerco; %s por una poza que rebalsa al terreno."
-        % (", ".join(d["D"] for d in V["descargas"] if d["tipo"] == "pase"), ", ".join(d["D"] for d in V["descargas"] if d["tipo"] == "poza")),
+        "6. Todas las cunetas quedan dentro del cerco (limite de intervencion). %s salen por un pase en el cimiento del cerco%s."
+        % (", ".join(d["D"] for d in V["descargas"] if d["tipo"] == "pase"), "".join("; %s por una poza que rebalsa al terreno" % d["D"] for d in V["descargas"] if d["tipo"] == "poza")),
         "7. Fuera del cerco no hay obra: el agua sigue por el terreno natural (%s)." % "; ".join(
             "%s perfilado de %.1f m donde el terreno queda sobre la C.F." % (d["D"], d["sale_a_m"]) for d in V["descargas"] if d["tipo"] == "pase"),
         "8. Ejes de cuneta: lineas magenta del plano ULTIMA VERSION (lados de cada bloque: techos a dos aguas) y uniones hasta las descargas.",
