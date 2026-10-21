@@ -214,9 +214,9 @@ def dc01(doc, R, V):
     lam.bloque("SIMB-NORTE", lam.P(785, 548))
     # leyenda, notas y cuadro de descargas (franja inferior)
     items = [("linea2", "CUNETA-S%d" % k, "Rotulo de eje: " + NOM_SIS[k]) for k in SIS]
-    items += [("linea", "CUN-REJ-BORDE", "Cuneta con rejilla: 0.60 m = muros 0.10 + 0.40 libres (platinas cada 0.10 m)"),
-              ("linea", "CUN-TAP-BORDE", "Cuneta tapada: losa e = 0.10 m (veredas, ingresos, patio y pase por el cerco)"),
-              ("rect", "CUN-TAPA-INSP", "Tapa de inspeccion 0.60 x 0.60 (%d en total)" % len(PC.TAPAS))] + \
+    items += [("linea", "CUN-REJ-BORDE", "Cuneta con rejilla: 0.60 m (0.40 libre)"),
+              ("linea", "CUN-TAP-BORDE", "Cuneta tapada: losa e = 0.10 m"),
+              ("rect", "CUN-TAPA-INSP", "Tapa de inspeccion 0.60 x 0.60 (%d und)" % len(PC.TAPAS))] + \
              [("linea2", "CUNETA-GRADAS", "Gradas de concreto (pendiente fuerte, V > 3 m/s)")] * bool(grad) + [
               ("linea2", "CUN-FLUJO", "Sentido del flujo (escala real)"), ("linea2", "DESCARGA", "Descarga %s a %s: agua sobre el terreno natural" % (min(DS.DESCARGAS), max(DS.DESCARGAS))), ("linea", "CURVAS", "Curva de nivel cada 0.50 m (C-TOPO)"),
               ("linea", "ARQ-TECHO", "Proyeccion de techos (a dos aguas)"), ("linea", "CERCO", "Cerco perimetrico (plano de arquitectura)"),

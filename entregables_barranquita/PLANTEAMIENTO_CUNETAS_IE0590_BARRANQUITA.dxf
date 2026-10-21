@@ -489,7 +489,7 @@ $SKPOLY
   9
 $TDCREATE
  40
-2461335.527002315
+2461335.527951389
   9
 $TDUCREATE
  40
@@ -497,7 +497,7 @@ $TDUCREATE
   9
 $TDUPDATE
  40
-2461335.527199074
+2461335.528171296
   9
 $TDUUPDATE
  40
@@ -929,11 +929,11 @@ $PSTYLEMODE
   9
 $FINGERPRINTGUID
   2
-{46A44A99-C16D-4CAF-81C6-34CA0F138F43}
+{403CE47A-30AA-46B6-8E7A-B9859A02285A}
   9
 $VERSIONGUID
   2
-{0BAB3A5B-6EA9-4FE0-B43A-F699533FAD97}
+{7188552A-A339-448B-97A2-132D2D666CD7}
   9
 $EXTNAMES
 290
@@ -1323,9 +1323,9 @@ ISM
   0
 CLASS
   1
-LAYOUT
+ACDBPLACEHOLDER
   2
-AcDbLayout
+AcDbPlaceHolder
   3
 ObjectDBX Classes
  90
@@ -1339,9 +1339,9 @@ ObjectDBX Classes
   0
 CLASS
   1
-ACDBPLACEHOLDER
+LAYOUT
   2
-AcDbPlaceHolder
+AcDbLayout
   3
 ObjectDBX Classes
  90
@@ -637083,7 +637083,7 @@ AcDbText
  40
 0.5525
   1
-Cuneta con rejilla: 0.60 m = muros 0.10 + 0.40 libres (platinas cada 0.10 m)
+Cuneta con rejilla: 0.60 m (0.40 libre)
   7
 STANDARD
  11
@@ -637141,7 +637141,7 @@ AcDbText
  40
 0.5525
   1
-Cuneta tapada: losa e = 0.10 m (veredas, ingresos, patio y pase por el cerco)
+Cuneta tapada: losa e = 0.10 m
   7
 STANDARD
  11
@@ -637207,7 +637207,7 @@ AcDbText
  40
 0.5525
   1
-Tapa de inspeccion 0.60 x 0.60 (10 en total)
+Tapa de inspeccion 0.60 x 0.60 (10 und)
   7
 STANDARD
  11
@@ -1051371,7 +1051371,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-10-21T12:38:53.537211+00:00
+1.4.4 @ 2026-10-21T12:40:15.448826+00:00
   0
 LAYOUT
   5
@@ -1053943,7 +1053943,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-10-21T12:39:10.281197+00:00
+1.4.4 @ 2026-10-21T12:40:34.851239+00:00
   0
 ENDSEC
   0
