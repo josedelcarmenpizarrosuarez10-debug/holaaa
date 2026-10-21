@@ -490,3 +490,8 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   lectura; la misma de la memoria descriptiva): recuadro con el titulo de cada documento, "SERVICIO DE DISEÑO DE DRENAJE PLUVIAL PARA
   ELABORACIÓN DEL EXPEDIENTE TÉCNICO DE PI:", nombre del proyecto con CUI 2717013 y fecha SEPTIEMBRE- 2026; encabezado DRENAJE PLUVIAL.
 - Salida: entregables_mujeres/CARATULAS_DRENAJE_PLUVIAL_CAR_MUJERES.docx (6 paginas).
+- Pedido siguiente: caratulas "mas elegantes, con foto del CAR". caratulas_m.py ya arma el diseno grafico (escudo del GORE San Martin,
+  servicio y proyecto, imagen principal, franja granate con el titulo, vista aerea del terreno con la ubicacion y la fecha); imagenes del
+  proyecto en entregables_mujeres/figuras_caratula/ (vista 3D del resumen ejecutivo, vista aerea de la caratula de la memoria hidrologica,
+  escudo de la plantilla IISS). El usuario va a enviar la foto que quiere como imagen principal: el Word entregado queda como estaba hasta
+  regenerarlo con esa foto.
