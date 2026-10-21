@@ -32,6 +32,7 @@ CALC = os.path.join(RAIZ, "entregables_barranquita", "_calc")
 import hidrologia_b as H
 HID = H.resultados()                         # lluvia transpuesta de Tarapoto a Barranquita (T = 25 anos, Dick y Peschke)
 TC, P10, I_MMH = HID["tc"], HID["P_tc"], HID["I"]
+FS = 1.15                                    # factor de seguridad de los caudales (mismo criterio de los proyectos de Morales)
 N_CAP, N_VEL, VMAX = 0.015, 0.013, 3.0
 RECEPTOR = {}
 DIR_EXT = DS.DIR_SALIDA
@@ -198,9 +199,11 @@ def main():
     Ccel = np.full(len(P), H.C_SUP["verde"]); tipo = np.array(["verde"] * len(P), dtype=object)
     for k in ("pavimento", "techo"):
         m = shapely.contains_xy(SUP[k], P[:, 0], P[:, 1]); Ccel[m] = H.C_SUP[k]; tipo[m] = k
-    area, areaC = {}, {}
+    area, areaC, area_eje = {}, {}, {}
     for k, (c, j, a, b) in enumerate(segs):
         sel = asg == k; area[(c, j)] = float(sel.sum()); areaC[(c, j)] = float(Ccel[sel].sum())
+        e = area_eje.setdefault(c, {t: 0.0 for t in H.C_SUP})
+        for t in H.C_SUP: e[t] += float((tipo[sel] == t).sum())
     acum = {}
     def total(c):
         """Area y area x C acumuladas al final de cada tramo (con los ejes que entregan aguas arriba)."""
@@ -218,7 +221,7 @@ def main():
     for c, r in ram.items():
         Ac = total(c)
         for j, t in enumerate(r["tramos"]):
-            Q = I_MMH * Ac[j][1] / 3.6e6                    # metodo racional: Q = C I A / 3.6e6 (C ponderado del area de aporte)
+            Q = I_MMH * Ac[j][1] / 3.6e6 * FS               # metodo racional: Q = C I A FS / 3.6e6 (C ponderado del area de aporte)
             S = max(t["S"], DS.S0); y = yn(Q, S, N_CAP); yv = yn(Q, S, N_VEL); V = Q / (DS.B_INT * yv)
             hdisp = min(t["h_de"], t["h_a"]) - (DS.E_TAPA if t["L_tapado"] > 0 else 0.0); llen = y / hdisp   # en tapado, altura libre bajo la losa
             f = {"ramal": c, "de": nom[t["de"]], "a": nom[t["a"]], "A_m2": round(Ac[j][0], 0), "C": round(Ac[j][1] / Ac[j][0], 3), "Q_ls": round(1000 * Q, 1), "S": round(100 * S, 2),
@@ -273,7 +276,7 @@ def main():
     out = {"comprobaciones": res, "descargas": desc, "hidraulica": filas, "empalmes": emp,
            "hidrologia": {"C": round(Cpond, 3), "I": round(I_MMH, 2), "tc": TC, "P10": round(P10, 2), "P24": round(HID["P24"], 2),
                           "T": HID["T"], "factor": round(HID["factor"], 4), "n_cap": N_CAP, "n_vel": N_VEL, "A_total": Atot,
-                          "superficies": {k: {"A": v, "C": H.C_SUP[k]} for k, v in sup_area.items()}}}
+                          "superficies": {k: {"A": v, "C": H.C_SUP[k]} for k, v in sup_area.items()}, "FS": FS, "areas_eje": area_eje}}
     json.dump(out, open(os.path.join(CALC, "verificacion.json"), "w"), indent=1, ensure_ascii=False)
     for c in res: print("%2d %-75s %s\n     %s" % (c["n"], c["comprobacion"], c["estado"], c["detalle"]))
 

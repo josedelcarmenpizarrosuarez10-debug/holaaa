@@ -366,3 +366,15 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   (pie de cerros, lluvia orografica) y San Antonio no se usan. Factor 2.2137; P24 T25 = 269.62 mm; I (tc 10 min) = 467.00 mm/h.
 - Cunetas 0.40 / 0.60 siguen cumpliendo en los 91 tramos (Q max 264.7 l/s, borde libre min 0.110 m, V max 1.82 m/s); diseno.json,
   planos, metrado y especificaciones sin cambios de cantidades. Actualizadas las memorias hidrologica, descriptiva y de calculo.
+
+## 21-10-2026 – Barranquita: memoria hidrologica completa con la estructura de los CAR
+- Usuario: "por que tan pocas paginas ... no tienes de los CAR el ejemplo?" -> hidrologica_doc_b.py con la estructura de los estudios
+  hidrologicos de Morales (aspectos generales, estudio hidrologico, caudales, drenaje, conclusiones, recomendaciones, anexos): 29 paginas,
+  clima de 5 estaciones (Cuadros 05 y 06 del estudio de Barranquita), las 4 distribuciones con sus formulas y tablas, K-S dato por dato,
+  IDF, tiempo de concentracion (Kirpich, SCS y recorrido; todos < 10 min -> tc = 10 min por CE.040), riesgo de excedencia, coeficientes
+  CE.040 Tabla 1.a, coberturas de techo, montantes por Wyly-Eaton (4" = 7.0 l/s), canaleta 0.25 x 0.20, verificacion de los 91 tramos.
+- Se agrega el factor de seguridad 1.15 a los caudales (mismo criterio de los CAR): Q max 304.4 l/s, borde libre min 0.064 m (EJE-12
+  llegando a D2): sigue cumpliendo sin cambiar la geometria. Normativa: CE.040 (R.M. 126-2021-VIVIENDA) en lugar de OS.060.
+- Usuario pidio datos de 2024-2025: la serie Pmax24 de Tarapoto ya llega a 2024; los totales anuales de la llanura son 2013-2017. El
+  internet del entorno sigue bloqueado para senamhi.gob.pe, power.larc.nasa.gov y data.chc.ucsb.edu (403): pendiente descargar series
+  recientes de Navarro / Shanusi / Pelejo cuando el usuario habilite la red o envie los datos.

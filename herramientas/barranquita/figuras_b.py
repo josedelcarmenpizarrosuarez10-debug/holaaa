@@ -83,9 +83,18 @@ def recortes():
         im.crop((int(caja[0] * W), int(caja[1] * Hh), int(caja[2] * W), int(caja[3] * Hh))).save(_g(nombre))
 
 
+def meses():
+    import hidrologica_doc_b as HD
+    fig, ax = plt.subplots(figsize=(8.0, 3.8)); m = ["E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"]
+    for k, v in HD.P_MENSUAL.items():
+        ax.plot(range(12), v, marker="o", ms=3, lw=2 if k in ("Navarro", "Pelejo", "Shanusi") else 1.1, ls="-" if k in ("Navarro", "Pelejo", "Shanusi") else "--", label=k)
+    ax.set_xticks(range(12)); ax.set_xticklabels(m); ax.set_ylabel("Precipitación mensual (mm)"); ax.grid(alpha=0.3); ax.legend(fontsize=8, ncol=3)
+    fig.tight_layout(); fig.savefig(_g("fig_meses.png"), dpi=170); plt.close(fig)
+
+
 def todas(HID):
     os.makedirs(DIR, exist_ok=True)
-    serie(HID); frecuencias(HID); idf(HID); superficies(); recortes()
+    serie(HID); frecuencias(HID); idf(HID); superficies(); recortes(); meses()
 
 
 if __name__ == "__main__":

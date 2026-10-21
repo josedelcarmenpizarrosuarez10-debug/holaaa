@@ -66,18 +66,19 @@ def construir():
               "Promedio de Navarro (2,349.79), Pelejo (2,332.92) y Shanusi (2,444.00), SENAMHI 2013-2017 (estudio hidrologico de Barranquita)"),
              ("Factor de transposicion Pa Barranquita / Pa Tarapoto", "=B6/B5", "0.0000", "MTC Manual de Hidrologia: transposicion de datos"),
              ("Periodo de retorno de diseno T (anos)", H.T_DISENO, "0", "Mismo criterio de los proyectos de Morales (T = 25 anos)"),
-             ("Tiempo de concentracion de cunetas tc (min)", H.TC, "0.0", "Duracion minima (OS.060)"),
-             ("Coeficiente de Manning para capacidad (concreto con rejilla)", 0.015, "0.000", "OS.060; mismo valor de los proyectos de Morales"),
-             ("Coeficiente de Manning para velocidad (concreto liso)", 0.013, "0.000", "OS.060"),
+             ("Tiempo de concentracion de cunetas tc (min)", H.TC, "0.0", "Duracion minima (Norma CE.040)"),
+             ("Coeficiente de Manning para capacidad (concreto con rejilla)", 0.015, "0.000", "CE.040; mismo valor de los proyectos de Morales"),
+             ("Coeficiente de Manning para velocidad (concreto liso)", 0.013, "0.000", "CE.040"),
              ("Luz libre de la cuneta b (m)", DS.B_INT, "0.00", "Planos DC-02: 0.40 m libres + muros 0.10 m = 0.60 m"),
              ("Borde libre minimo (m)", DS.BL, "0.00", "Criterio de diseno"),
-             ("Velocidad maxima en concreto (m/s)", 3.0, "0.00", "OS.060"),
+             ("Velocidad maxima en concreto (m/s)", 3.0, "0.00", "CE.040"),
              ("Precipitacion maxima en 24 h de diseno, T = 25 anos (mm)", "=FRECUENCIAS!H%d" % 0, "0.00", "Hoja FRECUENCIAS (Log-Normal)"),
              ("Precipitacion en tc - Dick y Peschke P = P24 (tc/1440)^0.25 (mm)", "=B15*(B9/1440)^0.25", "0.00", "Dick y Peschke"),
              ("Intensidad de diseno I = P x 60 / tc (mm/h)", "=B16*60/B9", "0.00", "Para el metodo racional"),
              ("Coeficiente de escorrentia - techos", H.C_SUP["techo"], "0.00", "T = 25 anos (proyectos de Morales)"),
              ("Coeficiente de escorrentia - veredas, pisos y patio", H.C_SUP["pavimento"], "0.00", "T = 25 anos"),
-             ("Coeficiente de escorrentia - areas verdes y terreno", H.C_SUP["verde"], "0.00", "T = 25 anos (pendiente moderada)")]
+             ("Coeficiente de escorrentia - areas verdes y terreno", H.C_SUP["verde"], "0.00", "T = 25 anos (pendiente moderada)"),
+             ("Factor de seguridad de los caudales FS", 1.15, "0.00", "Mismo criterio de los proyectos de Morales (Q = C I A FS)")]
     tabla_cab(wd, 4, ["PARAMETRO", "VALOR", "", "FUENTE / CRITERIO"], [70, 12, 2, 80])
     for i, (t, v, fmt, fte) in enumerate(datos):
         r = 5 + i; cel(wd, r, 1, t); cel(wd, r, 2, v, fmt, bold=True, fill=AM); cel(wd, r, 4, fte)
@@ -199,7 +200,7 @@ def construir():
         r = 9 + i; Qm = f["Q_ls"] / 1000.0
         y = yn(Qm, f["S"] / 100.0, 0.015); yv = yn(Qm, f["S"] / 100.0, 0.013)
         vals = [(f["ramal"], None), (f["de"], None), (f["a"], None), (f["A_m2"], "#,##0"), (f.get("C", hv["C"]), "0.000"),
-                ("=DATOS!$B$17", "0.00"), ("=E{r}*F{r}*D{r}/3600000".format(r=r), "0.0000"), ("=G{r}*1000".format(r=r), "0.0"),
+                ("=DATOS!$B$17", "0.00"), ("=E{r}*F{r}*D{r}*DATOS!$B$21/3600000".format(r=r), "0.0000"), ("=G{r}*1000".format(r=r), "0.0"),
                 (f["S"], "0.00"), (f["h"], "0.00"), (round(y, 4), "0.000"), ("=DATOS!$B$12*K{r}".format(r=r), "0.0000"),
                 ("=DATOS!$B$12+2*K{r}".format(r=r), "0.000"), ("=L{r}/M{r}".format(r=r), "0.0000"),
                 ("=L{r}*N{r}^(2/3)*SQRT(I{r}/100)/DATOS!$B$10".format(r=r), "0.0000"), ("=J{r}-K{r}".format(r=r), "0.000"),

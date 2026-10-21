@@ -154,7 +154,7 @@ def generalidades(D):
         "departamento de San Martín”, C.I. N° 468901. Comprenden las partidas del metrado, en el mismo orden y con las mismas unidades, y se "
         "complementan con los planos %s, la memoria descriptiva y la memoria hidrológica." % PLANOS)
     D.h(2, "Normas")
-    D.vinetas(["Reglamento Nacional de Edificaciones: OS.060, E.060, IS.010, G.050.", "Normas Técnicas Peruanas de cemento, agregados, acero y ensayos de concreto.",
+    D.vinetas(["Reglamento Nacional de Edificaciones: CE.040 Drenaje Pluvial (R.M. N° 126-2021-VIVIENDA), E.060, IS.010 y G.050.", "Normas Técnicas Peruanas de cemento, agregados, acero y ensayos de concreto.",
                "Especificaciones Técnicas Generales para Construcción EG-2013 (MTC).", "R.V.M. N° 208-2019-MINEDU (locales educativos)."])
     D.h(2, "Materiales")
     D.vinetas([("Cemento: ", "Portland tipo I (NTP 334.009), almacenado bajo techo y sobre tarimas."),

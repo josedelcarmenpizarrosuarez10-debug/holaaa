@@ -8,6 +8,7 @@ AQUI = os.path.dirname(os.path.abspath(__file__)); RAIZ = os.path.dirname(os.pat
 sys.path.insert(0, AQUI)
 import hidrologia_b as H, diseno_b as DS, cantidades_b as Q, figuras_b as FG
 from word_b import Doc
+import hidrologica_doc_b as HD
 
 ENT = os.path.join(RAIZ, "entregables_barranquita"); CALC = os.path.join(ENT, "_calc")
 fig = lambda n: os.path.join(FG.DIR, n)
@@ -38,7 +39,7 @@ def contexto():
     return dict(HID=HID, A=A, V=V, R=R, ind=ind, q=q, dsc=dsc, hv=hv, hid=hid, por_eje=por_eje, sis=sis,
                 Qmax=max(f["Q_ls"] for f in hid), Vmax=max(f["V"] for f in hid), BLmin=min(f["borde_libre"] for f in hid),
                 L=sum(r["L"] for r in R["ramales"]), Ltap=sum(x["L_tapado"] for x in q), tapas=sum(x["tapas"] for x in q),
-                hmax=max(x["h_max"] for x in q))
+                hmax=max(x["h_max"] for x in q), FIG=FG.DIR)
 
 
 # ============================================================================== MEMORIA HIDROLOGICA
@@ -280,7 +281,7 @@ def descriptiva(D, c):
     D.h(2, "Criterios de diseño")
     D.vinetas([("Lluvia de diseño: ", "estación CO Tarapoto transpuesta a Barranquita (factor %.3f), T = 25 años, P24 = %.2f mm, I = %.2f mm/h "
                                      "con tc = 10 min (ver memoria hidrológica)." % (c["HID"]["factor"], c["HID"]["P24"], c["HID"]["I"])),
-               ("Caudales: ", "método racional con coeficiente de escorrentía ponderado %.2f." % hv["C"]),
+               ("Caudales: ", "método racional con coeficiente de escorrentía ponderado %.2f y factor de seguridad de 1.15." % hv["C"]),
                ("Sección de cuneta: ", "rectangular de concreto armado o simple, 0.60 m de ancho total (muros de 0.10 m y 0.40 m libres), losa de "
                                       "fondo de 0.10 m sobre solado de 4\"; profundidad variable de 0.30 m al inicio a %.2f m como máximo." % c["hmax"]),
                ("Pendiente: ", "cota de fondo con pendiente mínima de 0.5 %; el borde sigue el nivel del piso."),
@@ -313,7 +314,7 @@ def descriptiva(D, c):
              ["Junta de dilatación de 1\" con sellador asfáltico", "m", mil(tot("junta"))], ["Junta asfáltica entre cuneta y piso", "m", mil(tot("junta_piso"))]]
     D.tabla("Principales metas físicas (ver metrado)", ["Descripción", "Und.", "Cantidad"], filas, [10, 1.5, 3], fuente="METRADO_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.xlsx.")
     D.h(1, "Normas técnicas")
-    D.vinetas(["Reglamento Nacional de Edificaciones: Norma OS.060 Drenaje Pluvial Urbano; Norma E.060 Concreto Armado; Norma IS.010 Instalaciones Sanitarias.",
+    D.vinetas(["Reglamento Nacional de Edificaciones: Norma Técnica CE.040 Drenaje Pluvial (R.M. N° 126-2021-VIVIENDA); Norma E.060 Concreto Armado; Norma IS.010 Instalaciones Sanitarias para Edificaciones.",
                "Manual de Hidrología, Hidráulica y Drenaje del Ministerio de Transportes y Comunicaciones.",
                "Norma Técnica “Criterios de diseño para locales educativos de primaria y secundaria”, R.V.M. N° 208-2019-MINEDU.",
                "Especificaciones Técnicas Generales para Construcción EG-2013 (MTC), sección 510 (juntas).",
@@ -331,5 +332,5 @@ def generar(nombre, titulo, sub, fn, corto):
 
 if __name__ == "__main__":
     FG.todas(H.resultados())
-    generar("MEMORIA_HIDROLOGICA_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.docx", "MEMORIA HIDROLÓGICA", "Drenaje pluvial - red de cunetas", hidrologica, "MEMORIA HIDROLÓGICA")
+    generar("MEMORIA_HIDROLOGICA_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.docx", "ESTUDIO HIDROLÓGICO Y DE DRENAJE PLUVIAL", "Memoria hidrológica - red de cunetas", HD.memoria, "MEMORIA HIDROLÓGICA")
     generar("MEMORIA_DESCRIPTIVA_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.docx", "MEMORIA DESCRIPTIVA", "Drenaje pluvial - red de cunetas", descriptiva, "MEMORIA DESCRIPTIVA")
