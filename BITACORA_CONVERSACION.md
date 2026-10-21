@@ -392,3 +392,15 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   archivos de ensayo en los cuatro formatos.
 - Pendiente: datos reales (archivos del usuario o dominios habilitados en la configuracion de red).
 
+
+## 21-10-2026 – Barranquita: datos diarios de Pongo de Caynarachi (003317) entregados por el usuario
+- Insumo: insumos/barranquita/lluvia/qc00003317_pongo_de_caynarachi.txt (SENAMHI, datos historicos con control de calidad:
+  anio mes dia pp tmax tmin, -99.9 sin dato), nov-1963 a abr-2014 (may-jun 2014 sin lluvia), 125 dias faltantes.
+- lluvia_datos_b.py: Pmax 24 h anual 1964-2013 (50 anios): media 107.8 mm, desv. 35.0, max 226.3 (1968). K-S: Gumbel 0.104,
+  Log-Normal 0.111, LP3 0.119, Normal 0.159 (critico 0.19). P24 T25 = 179.39 mm (Gumbel); I (tc 10 min) = 310.71 mm/h.
+- Comparacion: Tarapoto transpuesta x 2.2137 (vigente) P24 T25 = 269.62 mm, I = 467.00 mm/h; Tarapoto sin transponer 121.8 mm.
+  Caynarachi llueve 3.3 a 3.8 veces Tarapoto al anio pero su maxima T25 es solo 1.47 veces: la transposicion por lluvia anual
+  sobreestima la maxima en 24 h.
+- Totales anuales de Caynarachi 1981-1990 anomalos (5,255 a 7,060 mm; el resto 1,680 a 4,333): no afectan las maximas, pero no
+  sirven para la lluvia media anual sin depurar.
+- Pendiente decision del usuario: serie propia de Caynarachi o mantener Tarapoto transpuesta. hidrologia_b.py sin cambios.
