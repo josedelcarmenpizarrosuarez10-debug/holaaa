@@ -473,3 +473,12 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Pedido "pasame un indice de planos y caratula de planos en un solo Word": indice_planos_b.py -> CARATULA_E_INDICE_DE_PLANOS_IE0590_BARRANQUITA.docx
   (pag. 1 caratula comun con titulo PLANOS; pag. 2 indice de las 19 laminas DC-01 a DC-19 por grupos, con formato A1 y escala de _calc/indice.json
   y el contenido leido del DXF impreso: ejes y progresivas de cada perfil, secciones por lamina, eje de salida de cada descarga). Planos sin cambios.
+
+## 21-10-2026 – Indice de planos del CAR Mujeres (Wilma, CUI 2717013) en Word
+- Pedido: "armame un indice de planos en Word del CAR Mujeres segun el PDF de planos ultimo" (PLANOS_ANDFY_MUJERES, 46 laminas, set. 2026).
+- herramientas/mujeres/indice_planos_m.py <carpeta PDF>: lee cada PDF sin modificarlo (formato del papel, titulo y escala del rotulo,
+  escalas de los dibujos, secciones / tramos / progresivas / BC / cortes que distinguen laminas de igual titulo), comprueba cada titulo
+  contra el rotulo y guarda entregables_mujeres/_calc/indice_planos.json; sin argumento arma el Word desde el JSON.
+- Salida: entregables_mujeres/INDICE_DE_PLANOS_DRENAJE_PLUVIAL_CAR_MUJERES.docx (encabezado con logo y proyecto de la plantilla IISS de
+  Wilma, especialidad DRENAJE PLUVIAL; 46 laminas en el orden del juego: 3 A0, 15 A1, 21 A2, 7 A3; 2 paginas).
+- Observacion para el usuario: las laminas 45 y 46 tienen el mismo codigo DI-CBCB en el rotulo.

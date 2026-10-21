@@ -1,0 +1,578 @@
+[
+ {
+  "n": 1,
+  "archivo": "01 DRENAJE CAR MUJERES_PA_A0_01.pdf",
+  "codigo": "RGDPLV-01",
+  "titulo": "RED GENERAL DRENAJE PLUVIAL",
+  "contenido": "",
+  "formato": "A0",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/150",
+   "1/200"
+  ]
+ },
+ {
+  "n": 2,
+  "archivo": "02 DRENAJE CAR MUJERES_PA_A1_01.pdf",
+  "codigo": "ST-DPLV-01",
+  "titulo": "SECCIONES TRANSVERSALES",
+  "contenido": "SECCIONES 01 A 18",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/13"
+  ]
+ },
+ {
+  "n": 3,
+  "archivo": "03 DRENAJE CAR MUJERES_PA_A1_02.pdf",
+  "codigo": "ST-DPLV-02",
+  "titulo": "SECCIONES TRANSVERSALES",
+  "contenido": "SECCIONES 19 A 36",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/14"
+  ]
+ },
+ {
+  "n": 4,
+  "archivo": "04 DRENAJE CAR MUJERES_PA_A1_03.pdf",
+  "codigo": "ST-DPLV-03",
+  "titulo": "SECCIONES TRANSVERSALES",
+  "contenido": "SECCIONES 37 A 54",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/14"
+  ]
+ },
+ {
+  "n": 5,
+  "archivo": "05 DRENAJE CAR MUJERES_PA_A2_01.pdf",
+  "codigo": "ST-DPLV-04",
+  "titulo": "SECCIONES TRANSVERSALES",
+  "contenido": "SECCIONES 55 A 66",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/15"
+  ]
+ },
+ {
+  "n": 6,
+  "archivo": "06 DRENAJE CAR MUJERES_PA_A0_02.pdf",
+  "codigo": "PL-DPLV-01",
+  "titulo": "PERFILES LONGITUDINALES",
+  "contenido": "CUNETAS, CON LAS SECCIONES 01 A 66",
+  "formato": "A0",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/140"
+  ]
+ },
+ {
+  "n": 7,
+  "archivo": "07 DRENAJE CAR MUJERES_PA_A2_02.pdf",
+  "codigo": "IM-DPLV 01",
+  "titulo": "DETALLE INSTALACIÓN MONTANTE PLUVIAL - EDIF 01",
+  "contenido": "CORTE A-A",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/50",
+   "1/75"
+  ]
+ },
+ {
+  "n": 8,
+  "archivo": "08 DRENAJE CAR MUJERES_PA_A2_03.pdf",
+  "codigo": "IM-DPLV 02",
+  "titulo": "DETALLE INSTALACIÓN MONTANTE PLUVIAL - EDIF 02",
+  "contenido": "CORTE A-A",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/50",
+   "1/55"
+  ]
+ },
+ {
+  "n": 9,
+  "archivo": "09 DRENAJE CAR MUJERES_PA_A2_04.pdf",
+  "codigo": "IM-DPLV 03",
+  "titulo": "DETALLE INSTALACIÓN MONTANTE PLUVIAL - EDIF 03",
+  "contenido": "CORTE A-A",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/50",
+   "1/75"
+  ]
+ },
+ {
+  "n": 10,
+  "archivo": "10 DRENAJE CAR MUJERES_PA_A2_05.pdf",
+  "codigo": "IM-DPLV 04",
+  "titulo": "DETALLE INSTALACIÓN MONTANTE PLUVIAL - EDIF 04",
+  "contenido": "CORTE A-A",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/50",
+   "1/70"
+  ]
+ },
+ {
+  "n": 11,
+  "archivo": "11 DRENAJE CAR MUJERES_PA_A2_06.pdf",
+  "codigo": "IM-DPLV 05",
+  "titulo": "DETALLE INSTALACIÓN MONTANTE PLUVIAL - EDIF 05",
+  "contenido": "CORTE A-A",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/50",
+   "1/55"
+  ]
+ },
+ {
+  "n": 12,
+  "archivo": "12 DRENAJE CAR MUJERES_PA_A2_07.pdf",
+  "codigo": "IM-DPLV 06",
+  "titulo": "DETALLE INSTALACIÓN MONTANTE PLUVIAL - EDIF 06",
+  "contenido": "CORTE A-A",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/50"
+  ]
+ },
+ {
+  "n": 13,
+  "archivo": "13 DRENAJE CAR MUJERES_PA_A2_08.pdf",
+  "codigo": "IM-DPLV 07",
+  "titulo": "DETALLE INSTALACIÓN MONTANTE PLUVIAL - EDIF 07",
+  "contenido": "CORTE A-A",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/50",
+   "1/70"
+  ]
+ },
+ {
+  "n": 14,
+  "archivo": "14 DRENAJE CAR MUJERES_PA_A2_14.pdf",
+  "codigo": "IM-DPLV 08",
+  "titulo": "DETALLE INSTALACIÓN MONTANTE PLUVIAL - EDIF 08",
+  "contenido": "CORTE A-A",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/50",
+   "1/70"
+  ]
+ },
+ {
+  "n": 15,
+  "archivo": "15 DRENAJE CAR MUJERES_PA_A1_04.pdf",
+  "codigo": "IM-DPLV 09",
+  "titulo": "DETALLE INSTALACIÓN MONTANTE PLUVIAL - EDIF 09",
+  "contenido": "CORTES A-A Y B-B",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/50",
+   "1/60"
+  ]
+ },
+ {
+  "n": 16,
+  "archivo": "16 DRENAJE CAR MUJERES_PA_A2_09.pdf",
+  "codigo": "IM-DPLV 10",
+  "titulo": "DETALLE INSTALACIÓN MONTANTE PLUVIAL - EDIF 10",
+  "contenido": "CORTE A-A",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/50"
+  ]
+ },
+ {
+  "n": 17,
+  "archivo": "17 DRENAJE CAR MUJERES_PA_A3_01.pdf",
+  "codigo": "IM-ING-DPLV 01",
+  "titulo": "DETALLE INSTALACIÓN MONTANTE PLUVIAL - INGRESO 01",
+  "contenido": "",
+  "formato": "A3",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/50",
+   "1/60"
+  ]
+ },
+ {
+  "n": 18,
+  "archivo": "18 DRENAJE CAR MUJERES_PA_A3_04.pdf",
+  "codigo": "IM-ING-DPLV 02",
+  "titulo": "DETALLE INSTALACIÓN MONTANTE PLUVIAL - INGRESO 02",
+  "contenido": "",
+  "formato": "A3",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/50",
+   "1/65"
+  ]
+ },
+ {
+  "n": 19,
+  "archivo": "19 DRENAJE CAR MUJERES_PA_A0_03.pdf",
+  "codigo": "PCPLV-01",
+  "titulo": "PLANTA DEL COLECTOR PLUVIAL",
+  "contenido": "",
+  "formato": "A0",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/150"
+  ]
+ },
+ {
+  "n": 20,
+  "archivo": "20 DRENAJE CAR MUJERES_PA_A1_05.pdf",
+  "codigo": "PLGC-01",
+  "titulo": "PERFIL LONGITUDINAL GENERAL DEL COLECTOR",
+  "contenido": "PERFILES 1 A 3: PROG. 0+000.00 A 0+139.08",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": []
+ },
+ {
+  "n": 21,
+  "archivo": "21 DRENAJE CAR MUJERES_PA_A2_15.pdf",
+  "codigo": "PLDT-CG T01 03",
+  "titulo": "PERFIL LONGITUDINAL DETALLADO DEL COLECTOR T01-T03",
+  "contenido": "TRAMOS 1 A 3: PROG. 0+000.00 A 0+046.36",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/40"
+  ]
+ },
+ {
+  "n": 22,
+  "archivo": "22 DRENAJE CAR MUJERES_PA_A2_16.pdf",
+  "codigo": "PLDT-CG T04 06",
+  "titulo": "PERFIL LONGITUDINAL DETALLADO DEL COLECTOR T04-T06",
+  "contenido": "TRAMOS 4 A 6: PROG. 0+046.36 A 0+092.72",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/40"
+  ]
+ },
+ {
+  "n": 23,
+  "archivo": "23 DRENAJE CAR MUJERES_PA_A2_17.pdf",
+  "codigo": "PLDT-CG T07 09",
+  "titulo": "PERFIL LONGITUDINAL DETALLADO DEL COLECTOR T07-T09",
+  "contenido": "TRAMOS 7 A 9: PROG. 0+092.72 A 0+139.08",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/40"
+  ]
+ },
+ {
+  "n": 24,
+  "archivo": "24 DRENAJE CAR MUJERES_PA_A1_09.pdf",
+  "codigo": "ST-CG-01",
+  "titulo": "SECCIONES TRANSVERSALES DEL COLECTOR-01",
+  "contenido": "SECCIONES S-01 A S-09",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/15",
+   "1/16"
+  ]
+ },
+ {
+  "n": 25,
+  "archivo": "25 DRENAJE CAR MUJERES_PA_A1_10.pdf",
+  "codigo": "ST-CG-02",
+  "titulo": "SECCIONES TRANSVERSALES DEL COLECTOR-02",
+  "contenido": "SECCIONES S-10 A S-15",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/15",
+   "1/16"
+  ]
+ },
+ {
+  "n": 26,
+  "archivo": "26 DRENAJE CAR MUJERES_PA_A1_11.pdf",
+  "codigo": "ISM-ST-01",
+  "titulo": "ISOMÉTRICOS DE LAS SECCIONES TRANSVERSALES-01",
+  "contenido": "ISOMÉTRICOS S-01 A S-09",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/25"
+  ]
+ },
+ {
+  "n": 27,
+  "archivo": "27 DRENAJE CAR MUJERES_PA_A1_12.pdf",
+  "codigo": "ISM-ST-02",
+  "titulo": "ISOMÉTRICOS DE LAS SECCIONES TRANSVERSALES-02",
+  "contenido": "ISOMÉTRICOS S-10 A S-15",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/18"
+  ]
+ },
+ {
+  "n": 28,
+  "archivo": "28 DRENAJE CAR MUJERES_PA_A2_10.pdf",
+  "codigo": "STP-CG",
+  "titulo": "SECCIONES TÍPICAS DEL COLECTOR",
+  "contenido": "",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/10",
+   "1/15"
+  ]
+ },
+ {
+  "n": 29,
+  "archivo": "29 DRENAJE CAR MUJERES_PA_A1_13.pdf",
+  "codigo": "D-RL",
+  "titulo": "DETALLE DE REGISTRO DE LIMPIEZA - TAPA CIEGA DE CONCRETO ARMADO 0.68x0.68x0.08 EN REBAJE",
+  "contenido": "",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/2",
+   "1/5",
+   "1/10",
+   "1/18"
+  ]
+ },
+ {
+  "n": 30,
+  "archivo": "30 DRENAJE CAR MUJERES_PA_A1_15.pdf",
+  "codigo": "IC-01",
+  "titulo": "ISOMÉTRICOS CONSTRUCTIVOS",
+  "contenido": "ISOMÉTRICO 1: COLECTOR A NIVEL DE VEREDA; ISOMÉTRICO 2: REGISTRO DE LIMPIEZA; ISOMÉTRICO 3: EMPALME DE CUNETA; ISOMÉTRICO 4: ESTRUCTURA DE SALIDA",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/20"
+  ]
+ },
+ {
+  "n": 31,
+  "archivo": "31 DRENAJE CAR MUJERES_PA_A1_16.pdf",
+  "codigo": "DCTSA-01",
+  "titulo": "DETALLES DE CANALETA DE TECHO, SOPORTE Y ACCESORIOS",
+  "contenido": "",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/5"
+  ]
+ },
+ {
+  "n": 32,
+  "archivo": "32 DRENAJE CAR MUJERES_PA_A2_11.pdf",
+  "codigo": "D-ECC",
+  "titulo": "DETALLE DEL EMPALME DE CUNETA AL COLECTOR Y DE LA JUNTA DE DILATACIÓN",
+  "contenido": "",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/10",
+   "1/11"
+  ]
+ },
+ {
+  "n": 33,
+  "archivo": "33 DRENAJE CAR MUJERES_PA_A1_14.pdf",
+  "codigo": "ESDAE-01",
+  "titulo": "ESTRUCTURA DE SALIDA CON DOS ALEROS Y EMBOQUILLADO",
+  "contenido": "ELEVACIÓN FRONTAL, CORTES A-A Y B-B",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/15",
+   "1/16"
+  ]
+ },
+ {
+  "n": 34,
+  "archivo": "34 DRENAJE CAR MUJERES_PA_A1_17.pdf",
+  "codigo": "ISM-MPLV",
+  "titulo": "ISOMÉTRICO DEL MONTANTE PLUVIAL TÍPICO",
+  "contenido": "",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/10",
+   "1/12",
+   "1/15"
+  ]
+ },
+ {
+  "n": 35,
+  "archivo": "35 DRENAJE CAR MUJERES_PA_A1_18.pdf",
+  "codigo": "DS-01",
+  "titulo": "ISOMÉTRICO DE LA CAJA SUMIDERO DE PISO - DETALLE DE CAJA SUMIDERO DE PISO: CORTE, PLANTA Y DESAGREGADO",
+  "contenido": "",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/5",
+   "1/7"
+  ]
+ },
+ {
+  "n": 36,
+  "archivo": "36 DRENAJE CAR MUJERES_PA_A2_12.pdf",
+  "codigo": "DFC-MPLV-01",
+  "titulo": "DETALLE FALSA COLUMNA - MONTANTE PLUVIAL",
+  "contenido": "",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/10"
+  ]
+ },
+ {
+  "n": 37,
+  "archivo": "37 DRENAJE CAR MUJERES_PA_A2_13.pdf",
+  "codigo": "DT-RDTJ-01",
+  "titulo": "DETALLE RED DRENAJE TECHO JARDINERAS",
+  "contenido": "BC-01 A BC-04",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/30"
+  ]
+ },
+ {
+  "n": 38,
+  "archivo": "38 DRENAJE CAR MUJERES_PA_A2_18.pdf",
+  "codigo": "DT-RDTJ-02",
+  "titulo": "DETALLE RED DRENAJE TECHO JARDINERAS",
+  "contenido": "BC-05 A BC-08",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/30"
+  ]
+ },
+ {
+  "n": 39,
+  "archivo": "39 DRENAJE CAR MUJERES_PA_A3_02.pdf",
+  "codigo": "DT-RDTJ-03",
+  "titulo": "DETALLE RED DRENAJE TECHO JARDINERAS",
+  "contenido": "BC-09",
+  "formato": "A3",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/25"
+  ]
+ },
+ {
+  "n": 40,
+  "archivo": "40 DRENAJE CAR MUJERES_PA_A3_03.pdf",
+  "codigo": "DT-RDTJ-04",
+  "titulo": "DETALLE RED DRENAJE TECHO JARDINERAS",
+  "contenido": "BC-10",
+  "formato": "A3",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/25"
+  ]
+ },
+ {
+  "n": 41,
+  "archivo": "41 DRENAJE CAR MUJERES_PA_A2_19.pdf",
+  "codigo": "DT-RDTJ-05",
+  "titulo": "DETALLE RED DRENAJE TECHO JARDINERAS",
+  "contenido": "BC-11 A BC-12",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/25"
+  ]
+ },
+ {
+  "n": 42,
+  "archivo": "42 DRENAJE CAR MUJERES_PA_A2_20.pdf",
+  "codigo": "DT-RDTJ-06",
+  "titulo": "DETALLE RED DRENAJE TECHO JARDINERAS",
+  "contenido": "BC-13 A BC-14",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/25"
+  ]
+ },
+ {
+  "n": 43,
+  "archivo": "43 DRENAJE CAR MUJERES_PA_A3_05.pdf",
+  "codigo": "DT-RDTJ-07",
+  "titulo": "DETALLE RED DRENAJE TECHO JARDINERAS",
+  "contenido": "BC-15 A BC-16",
+  "formato": "A3",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/30"
+  ]
+ },
+ {
+  "n": 44,
+  "archivo": "44 DRENAJE CAR MUJERES_PA_A2_21.pdf",
+  "codigo": "IDP-BJ",
+  "titulo": "ISOMÉTRICO DEL DRENAJE PLUVIAL DE LA BANCA DE JARDINERÍA",
+  "contenido": "BANCA DE JARDINERÍA TIPO 01",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/10",
+   "1/15",
+   "1/20"
+  ]
+ },
+ {
+  "n": 45,
+  "archivo": "45 DRENAJE CAR MUJERES_PA_A3_06.pdf",
+  "codigo": "DI-CBCB",
+  "titulo": "DETALLE ISOMÉTRICO DE CANALETA, BOQUILLA, COLGADOR Y BAJADA DE LA BANCA",
+  "contenido": "CORTE DE LA CANALETA E ISOMÉTRICO DEL EXTREMO DE LA CANALETA",
+  "formato": "A3",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/5",
+   "1/11"
+  ]
+ },
+ {
+  "n": 46,
+  "archivo": "46 DRENAJE CAR MUJERES_PA_A3_07.pdf",
+  "codigo": "DI-CBCB",
+  "titulo": "CORTES A-A Y B-B DEL DRENAJE PLUVIAL DE LA BANCA DE JARDINERÍA",
+  "contenido": "CORTE A-A (LATERAL) Y CORTE B-B (FRONTAL)",
+  "formato": "A3",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/10",
+   "1/20"
+  ]
+ }
+]
