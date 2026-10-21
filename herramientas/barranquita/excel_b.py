@@ -163,7 +163,7 @@ def main():
     h = Vf["hidrologia"]
     wh = wb.create_sheet("HIDRAULICA", 3)
     titulo(wh, "CAUDAL DE DISENO, TIRANTE Y VELOCIDAD POR TRAMO (REFERENCIAL)", 13)
-    par = [("C (escorrentia)", h["C"]), ("I (mm/h)", h["I"]), ("Factor de seguridad", h["FS"]), ("Velocidad maxima (m/s)", 3.0)]
+    par = [("C ponderado (escorrentia)", h["C"]), ("I (mm/h), T = 25 anos, tc = 10 min", h["I"]), ("P max 24 h transpuesta (mm)", h["P24"]), ("Velocidad maxima (m/s)", 3.0)]
     for i, (t, v) in enumerate(par, 4):
         wh.cell(i, 1, t).font = F(); cc = wh.cell(i, 2, v); cc.font = F(bold=True); cc.fill = PatternFill("solid", fgColor=AMA); cc.border = BOR
     wh.cell(8, 1, "I: tc = %.0f min, TR = 25 anos, P10 = %.2f mm (estacion usada en el Hogar de Refugio - Morales); reemplazar por la del proyecto. "

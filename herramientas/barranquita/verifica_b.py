@@ -28,8 +28,9 @@ import terreno_b as T
 import diseno_b as DS
 
 CALC = os.path.join(RAIZ, "entregables_barranquita", "_calc")
-C_ESC, P10, TC, FS = 0.80, 35.163, 10.0, 1.15
-I_MMH = P10 / (TC / 60.0)                    # Dick y Peschke con tc = 10 min (tc / 10 = 1)
+import hidrologia_b as H
+HID = H.resultados()                         # lluvia transpuesta de Tarapoto a Barranquita (T = 25 anos, Dick y Peschke)
+TC, P10, I_MMH = HID["tc"], HID["P_tc"], HID["I"]
 N_CAP, N_VEL, VMAX = 0.015, 0.013, 3.0
 RECEPTOR = {}
 DIR_EXT = DS.DIR_SALIDA
@@ -190,16 +191,25 @@ def main():
         for j, t in enumerate(r["tramos"]):
             segs.append((c, j, N[t["de"]], N[t["a"]]))
     D2 = np.stack([seg_dist(P, a, b)[0] for c, j, a, b in segs], 1); asg = D2.argmin(1)
-    area = {}
-    for k, (c, j, a, b) in enumerate(segs): area[(c, j)] = float((asg == k).sum())
+    # coeficiente de escorrentia de cada celda de 1 m2 segun su superficie (techo, pavimento o area verde)
+    import shapely
+    SUP = H.superficies(G, DS.CERCO, DS.PATIO)
+    Ccel = np.full(len(P), H.C_SUP["verde"]); tipo = np.array(["verde"] * len(P), dtype=object)
+    for k in ("pavimento", "techo"):
+        m = shapely.contains_xy(SUP[k], P[:, 0], P[:, 1]); Ccel[m] = H.C_SUP[k]; tipo[m] = k
+    area, areaC = {}, {}
+    for k, (c, j, a, b) in enumerate(segs):
+        sel = asg == k; area[(c, j)] = float(sel.sum()); areaC[(c, j)] = float(Ccel[sel].sum())
     acum = {}
     def total(c):
+        """Area y area x C acumuladas al final de cada tramo (con los ejes que entregan aguas arriba)."""
         if c in acum: return acum[c]
-        r = ram[c]; out = []; A = 0.0
+        r = ram[c]; out = []; A = 0.0; AC = 0.0
         for j, t in enumerate(r["tramos"]):
             for c2, r2 in ram.items():
-                if c2 != c and r2["nudos"][-1] == t["de"] and j > 0: A += total(c2)[-1]
-            A += area[(c, j)]; out.append(A)
+                if c2 != c and r2["nudos"][-1] == t["de"] and j > 0:
+                    A += total(c2)[-1][0]; AC += total(c2)[-1][1]
+            A += area[(c, j)]; AC += areaC[(c, j)]; out.append((A, AC))
         acum[c] = out; return out
     filas = []; peor_cap, peor_v = None, None
     inv = {v: k for k, v in nom.items()}
@@ -207,10 +217,10 @@ def main():
     for c, r in ram.items():
         Ac = total(c)
         for j, t in enumerate(r["tramos"]):
-            Q = C_ESC * I_MMH * Ac[j] / 3.6e6 * FS
+            Q = I_MMH * Ac[j][1] / 3.6e6                    # metodo racional: Q = C I A / 3.6e6 (C ponderado del area de aporte)
             S = max(t["S"], DS.S0); y = yn(Q, S, N_CAP); yv = yn(Q, S, N_VEL); V = Q / (DS.B_INT * yv)
             hdisp = min(t["h_de"], t["h_a"]) - (DS.E_TAPA if t["L_tapado"] > 0 else 0.0); llen = y / hdisp   # en tapado, altura libre bajo la losa
-            f = {"ramal": c, "de": nom[t["de"]], "a": nom[t["a"]], "A_m2": round(Ac[j], 0), "Q_ls": round(1000 * Q, 1), "S": round(100 * S, 2),
+            f = {"ramal": c, "de": nom[t["de"]], "a": nom[t["a"]], "A_m2": round(Ac[j][0], 0), "C": round(Ac[j][1] / Ac[j][0], 3), "Q_ls": round(1000 * Q, 1), "S": round(100 * S, 2),
                  "y": round(y, 3), "h": round(hdisp, 2), "borde_libre": round(hdisp - y, 3), "V": round(V, 2),
                  "cap": "CUMPLE" if hdisp - y >= DS.BL - 1e-3 else "NO CUMPLE", "vel": "CUMPLE" if V <= VMAX or t["a"] in DS.POZA else "GRADAS"}     # en la poza el agua se remansa
             filas.append(f)
@@ -220,10 +230,11 @@ def main():
             if peor_cap is None or f["borde_libre"] < peor_cap["borde_libre"]: peor_cap = f
             if peor_v is None or f["V"] > peor_v["V"]: peor_v = f
     ncap = [f for f in filas if f["cap"] != "CUMPLE"]; nvel = [f for f in filas if f["vel"] != "CUMPLE"]
-    Atot = sum(area.values())
+    Atot = sum(area.values()); Cpond = sum(areaC.values()) / Atot
+    sup_area = {k: float((tipo == k).sum()) for k in H.C_SUP}
     ok(8, "Capacidad con el caudal de diseno (borde libre >= 0.05 m)", "CUMPLE" if not ncap else "NO CUMPLE",
-       "I = %.0f mm/h, C = %.2f, area total %.0f m2; menor borde libre %.3f m en %s %s-%s (Q %.1f l/s, y %.3f, h %.2f)" % (
-           I_MMH, C_ESC, Atot, peor_cap["borde_libre"], peor_cap["ramal"], peor_cap["de"], peor_cap["a"], peor_cap["Q_ls"], peor_cap["y"], peor_cap["h"])
+       "I = %.0f mm/h, C ponderado = %.2f, area total %.0f m2; menor borde libre %.3f m en %s %s-%s (Q %.1f l/s, y %.3f, h %.2f)" % (
+           I_MMH, Cpond, Atot, peor_cap["borde_libre"], peor_cap["ramal"], peor_cap["de"], peor_cap["a"], peor_cap["Q_ls"], peor_cap["y"], peor_cap["h"])
        + ("" if not ncap else "; no cumplen: " + ", ".join("%s %s-%s" % (f["ramal"], f["de"], f["a"]) for f in ncap)))
     ok(9, "Velocidad maxima 3.0 m/s (concreto)", "CUMPLE" if not nvel else "CUMPLE CON GRADAS",
        ("V max %.2f m/s" % peor_v["V"]) if not nvel else "tramos de fuerte pendiente con V > 3.0 m/s: " +
@@ -259,7 +270,9 @@ def main():
        "ningun borde de cuneta pasa el cerco; solo las %d salidas lo atraviesan" % len(DS.DESCARGAS) if not fuera else "%d puntos fuera: %s" % (len(fuera), fuera[:5]))
     json.dump(hreq, open(DS.HREQ, "w"), indent=1)
     out = {"comprobaciones": res, "descargas": desc, "hidraulica": filas, "empalmes": emp,
-           "hidrologia": {"C": C_ESC, "I": round(I_MMH, 1), "tc": TC, "FS": FS, "P10": P10, "n_cap": N_CAP, "n_vel": N_VEL, "A_total": Atot}}
+           "hidrologia": {"C": round(Cpond, 3), "I": round(I_MMH, 2), "tc": TC, "P10": round(P10, 2), "P24": round(HID["P24"], 2),
+                          "T": HID["T"], "factor": round(HID["factor"], 4), "n_cap": N_CAP, "n_vel": N_VEL, "A_total": Atot,
+                          "superficies": {k: {"A": v, "C": H.C_SUP[k]} for k, v in sup_area.items()}}}
     json.dump(out, open(os.path.join(CALC, "verificacion.json"), "w"), indent=1, ensure_ascii=False)
     for c in res: print("%2d %-75s %s\n     %s" % (c["n"], c["comprobacion"], c["estado"], c["detalle"]))
 
