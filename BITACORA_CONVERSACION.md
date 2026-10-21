@@ -466,3 +466,5 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   ubicacion y fecha); sin nombre ni CIP del proyectista. Word: primera pagina sin encabezado; Excel: hoja CARÁTULA al inicio, A4 vertical.
 - docx_espec.js: portada con foto solo si el JSON trae "caratula" (las especificaciones de los CAR siguen igual).
 - coteja_analisis_b.py ignora la franja de la caratula (1696 valores, 0 diferencias). Metrado identico; planos sin cambios.
+- Pedido "solo necesito el archivo en un solo Word, solo las caratulas": caratula_b.solo_caratulas() (python3 herramientas/barranquita/caratula_b.py)
+  genera entregables_barranquita/CARATULAS_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.docx con las 6 caratulas, una por pagina (A4, 6 paginas).

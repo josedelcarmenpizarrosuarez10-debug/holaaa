@@ -57,7 +57,7 @@ def datos(clave):
 
 
 # ------------------------------------------------------------------------------------------------ Word (python-docx)
-def word(d, clave, ancho_cm=15.5):
+def word(d, clave, ancho_cm=15.5, salto=True):
     """Agrega la caratula al inicio del documento python-docx `d` (pagina propia, sin encabezado ni pie)."""
     from docx.shared import Pt, Cm, RGBColor
     from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
@@ -98,8 +98,25 @@ def word(d, clave, ancho_cm=15.5):
         r = q.add_run(txt); r.bold = True; r.font.size = Pt(tam); r.font.name = "Arial"; r.font.color.rgb = rgb("FFFFFF")
     par(ESPECIALIDAD, 10.5, True, None, antes=10, despues=2)
     par(UBICACION, 10, False, None, despues=8)
-    par(FECHA, 12, True, AZUL, despues=0)
-    d.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
+    p = par(FECHA, 12, True, AZUL, despues=0)
+    if salto: p.add_run().add_break(WD_BREAK.PAGE)
+
+
+def solo_caratulas(sal=None):
+    """Un solo Word con las seis caratulas, una por pagina, en el orden de entrega de los documentos."""
+    from docx import Document
+    from docx.shared import Cm
+    sal = sal or os.path.join(RAIZ, "entregables_barranquita", "CARATULAS_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.docx")
+    d = Document()
+    s = d.sections[0]; s.page_width, s.page_height = Cm(21.0), Cm(29.7)
+    s.left_margin = Cm(3.0); s.right_margin = Cm(2.5); s.top_margin = Cm(2.5); s.bottom_margin = Cm(2.2)
+    d.element.body.remove(d.paragraphs[0]._p) if d.paragraphs else None
+    claves = ("metrado", "hidrologica", "descriptiva", "calculo", "especificaciones", "analisis")
+    for i, k in enumerate(claves):
+        word(d, k, salto=i < len(claves) - 1)
+    d.core_properties.author = ""; d.core_properties.title = "Carátulas - Drenaje pluvial I.E. N° 0590 Barranquita"
+    d.save(sal)
+    return sal
 
 
 # ------------------------------------------------------------------------------------------------ Excel (openpyxl)
@@ -210,3 +227,7 @@ def uno(doc, ctx, clave, nombre="CARÁTULA"):
     a = CellRangeAddress(); a.Sheet = 0; a.StartColumn = 0; a.StartRow = 0; a.EndColumn = 7; a.EndRow = 16
     ws.setPrintAreas((a,))
     return ws
+
+
+if __name__ == "__main__":
+    print(solo_caratulas())
