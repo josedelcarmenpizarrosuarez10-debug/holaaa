@@ -92,8 +92,9 @@ def secciones(R):
         sel = []
         for c in cand:                                     # se juntan las secciones a menos de 0.25 m (queda la del nudo)
             if sel and c[0] - sel[-1][0] < 0.25:
-                if c[2] > sel[-1][2]: sel[-1] = c
-                elif c[1] and c[1] not in sel[-1][1] and c[2] == sel[-1][2]: sel[-1][1] += "; " + c[1]
+                notas = [t for t in (sel[-1][1], c[1]) if t]
+                if c[2] > sel[-1][2]: sel[-1] = list(c)
+                sel[-1][1] = "; ".join(dict.fromkeys(t for n_ in notas for t in n_.split("; ")))
                 continue
             sel.append(list(c))
         lst = []
@@ -216,7 +217,7 @@ def perfil(lam, R, SEC, pz, xmm, ymm):
         lam.linea((xs, lam.P(0, yg)[1]), (xs, lam.P(0, yg1)[1]), "GUITARRA")
         # recuadro
         lineas = ["NCT: %.2f" % x["nct"], "NCF: %.2f" % x["ncf"], " H: %.2f m" % x["h"], " EL: %.2f m" % EL, " EM: %.2f m" % EM]
-        if x["nota"]: lineas.append(x["nota"])
+        if x["nota"]: lineas += x["nota"].split("; ")              # cada aviso en su linea (no se sale del recuadro)
         alto = 2.4 + 3.7 * len(lineas)
         cx = lam.P(xd0 + xc, 0)[0]; yc0 = ytop + (12 + fila * CAJA_PASO) * f    # borde inferior del recuadro
         w = CAJA_W * f

@@ -27,7 +27,7 @@
    "ncf": 183.708,
    "h": 0.892,
    "tap": true,
-   "nota": "Llega EJE-02",
+   "nota": "Inicio de tapado; Llega EJE-02",
    "eje": "EJE-01"
   },
   {
@@ -349,7 +349,7 @@
    "ncf": 183.794,
    "h": 0.806,
    "tap": true,
-   "nota": "",
+   "nota": "Inicio de tapado",
    "eje": "EJE-07"
   },
   {
@@ -579,7 +579,7 @@
    "ncf": 183.927,
    "h": 0.573,
    "tap": false,
-   "nota": "Llega EJE-13",
+   "nota": "Llega EJE-13; Cambio de borde",
    "eje": "EJE-12"
   },
   {
@@ -609,7 +609,7 @@
    "ncf": 183.781,
    "h": 0.719,
    "tap": true,
-   "nota": "",
+   "nota": "Inicio de tapado",
    "eje": "EJE-12"
   },
   {
@@ -919,7 +919,7 @@
    "ncf": 184.102,
    "h": 0.498,
    "tap": true,
-   "nota": "",
+   "nota": "Inicio de tapado",
    "eje": "EJE-17"
   },
   {
