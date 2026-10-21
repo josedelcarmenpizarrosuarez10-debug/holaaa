@@ -1,29 +1,59 @@
-"""Hidrologia de la I.E. N.° 0590 Barranquita (C.I. 468901): lluvia de diseno transpuesta desde la estacion CO Tarapoto.
+"""Hidrologia de la I.E. N.° 0590 Barranquita (C.I. 468901): lluvia de diseno con la estacion Pongo de Caynarachi (SENAMHI).
 
-1. Serie de precipitacion maxima en 24 h de la estacion CO "Tarapoto" (SENAMHI, 1999-2024, 26 anos): la misma serie de los
-   estudios hidrologicos de los proyectos de Morales (Hogar de Refugio, CUI 2675514; CAR Mujeres, CUI 2717013).
-2. Transposicion a Barranquita por la relacion de precipitacion media anual (Manual de Hidrologia, Hidraulica y Drenaje MTC,
-   transposicion de informacion pluviometrica): factor = P anual Barranquita / P anual Tarapoto. La llanura del Caynarachi -
-   Huallaga (184 m s. n. m.) se representa con la precipitacion media anual de Yurimaguas (2,039.6 mm, misma altitud y misma
-   fuente que Tarapoto, 1,073.1 mm); queda dentro del rango 1,800 - 2,400 mm/ano de la memoria de arquitectura del proyecto.
-   Actualizado (usuario, opcion A): la precipitacion anual de Barranquita es el promedio de las estaciones de llanura Navarro,
-   Pelejo y Shanusi (SENAMHI, 2013-2017) del estudio hidrologico del expediente de agua potable y alcantarillado de Barranquita:
-   2,375.6 mm; Pongo de Caynarachi (3,853.2 mm, al pie de los cerros, lluvia orografica) no se usa.
-3. Analisis de frecuencias (Normal, Log-Normal, Log-Pearson III, Gumbel), prueba de Kolmogorov-Smirnov y periodo de retorno
+1. Serie de precipitacion maxima en 24 h de la estacion Pongo de Caynarachi (codigo 003317, SENAMHI, datos diarios historicos con
+   control de calidad, insumos/barranquita/lluvia/qc00003317_pongo_de_caynarachi.txt): los 25 anios completos mas recientes,
+   1989-2013 (indicacion del usuario: "solo 25 anios desde el anio mas reciente hacia abajo"; 2014 solo tiene enero a abril).
+   Misma subcuenca del rio Caynarachi que Barranquita; se usa la serie medida, sin transposicion (factor 1.0).
+   Antes (hasta el 21-10-2026): serie CO Tarapoto 1999-2024 transpuesta x 2.2137 (SERIE_TARAPOTO), que se conserva solo como contraste:
+   la transposicion por lluvia anual sobreestima la maxima en 24 h (Caynarachi llueve 3.3 a 3.8 veces Tarapoto al anio, pero su
+   maxima T 25 es solo 1.4 a 1.5 veces).
+2. Analisis de frecuencias (Normal, Log-Normal, Log-Pearson III, Gumbel), prueba de Kolmogorov-Smirnov y periodo de retorno
    T = 25 anos (mismo criterio de los proyectos de Morales).
-4. Lluvias de corta duracion por Dick y Peschke, intensidades, curvas IDF (I = K T^m / t^n) e intensidad de diseno con tc = 10 min.
-5. Coeficientes de escorrentia por tipo de superficie (techos, pavimentos, areas verdes) medidos en la planta del proyecto.
+3. Lluvias de corta duracion por Dick y Peschke, intensidades, curvas IDF (I = K T^m / t^n) e intensidad de diseno con tc = 10 min.
+4. Coeficientes de escorrentia por tipo de superficie (techos, pavimentos, areas verdes) medidos en la planta del proyecto.
 """
 import math, json, os, sys
 import numpy as np
 AQUI = os.path.dirname(os.path.abspath(__file__)); RAIZ = os.path.dirname(os.path.dirname(AQUI))
 sys.path.insert(0, AQUI)
 
-ESTACION = {"nombre": 'CO "Tarapoto"', "tipo": "Meteorologica convencional", "entidad": "SENAMHI", "departamento": "San Martin",
+ESTACION = {"nombre": "Pongo de Caynarachi", "codigo": "003317", "tipo": "Meteorologica convencional", "entidad": "SENAMHI",
+            "departamento": "San Martin", "provincia": "Lamas", "distrito": "Caynarachi", "altitud": 230, "periodo": "1989–2013",
+            "anios": 25}
+# precipitacion maxima en 24 h por mes (mm) del archivo diario del SENAMHI; None = mes sin datos (enero 2005, julio 2008)
+SERIE = {
+    1989: [74.4, 82.7, 80.1, 61.9, 78.4, 77.5, 76.1, 58.1, 64.4, 141.9, 69.4, 46.9],
+    1990: [81.5, 97.9, 62.6, 78.8, 61.2, 56.2, 41.6, 49.5, 65.4, 57.4, 115.1, 74.0],
+    1991: [46.5, 53.7, 106.7, 56.6, 60.3, 83.4, 33.4, 32.5, 95.3, 55.3, 114.8, 88.4],
+    1992: [63.3, 37.3, 103.8, 123.0, 98.7, 30.5, 45.3, 70.7, 60.2, 77.5, 50.0, 120.4],
+    1993: [64.2, 89.1, 73.7, 62.5, 72.7, 76.1, 37.3, 32.1, 75.2, 64.9, 46.6, 74.0],
+    1994: [63.2, 64.0, 143.2, 84.5, 82.1, 53.4, 76.0, 81.5, 65.5, 110.1, 60.0, 179.9],
+    1995: [37.0, 74.3, 77.6, 50.9, 84.2, 29.2, 30.0, 81.2, 44.2, 57.1, 46.1, 73.5],
+    1996: [96.4, 50.7, 73.2, 35.1, 60.2, 39.5, 14.8, 73.0, 29.1, 80.9, 55.9, 76.8],
+    1997: [87.3, 70.1, 53.1, 71.2, 51.5, 41.9, 17.0, 40.0, 65.5, 97.3, 86.9, 103.9],
+    1998: [72.5, 78.2, 95.4, 78.9, 67.1, 72.2, 56.6, 22.0, 31.9, 76.3, 171.8, 79.7],
+    1999: [146.0, 122.0, 75.0, 40.7, 64.0, 70.2, 35.5, 27.8, 61.5, 40.1, 62.1, 56.9],
+    2000: [56.8, 101.7, 59.5, 97.0, 65.4, 75.9, 43.1, 31.1, 108.5, 71.3, 87.4, 70.4],
+    2001: [47.7, 76.8, 75.8, 74.9, 77.3, 52.4, 40.8, 26.1, 35.0, 74.7, 78.0, 76.8],
+    2002: [27.8, 77.2, 63.4, 78.0, 46.7, 35.5, 52.3, 32.2, 45.4, 88.7, 67.1, 75.3],
+    2003: [59.0, 45.1, 61.2, 75.5, 138.5, 75.2, 57.1, 21.0, 69.7, 81.5, 100.8, 82.8],
+    2004: [47.4, 81.6, 76.3, 75.3, 87.0, 32.5, 44.4, 55.5, 44.3, 75.5, 90.2, 66.1],
+    2005: [None, 80.8, 76.7, 97.3, 45.0, 65.6, 17.0, 75.6, 23.0, 70.5, 77.3, 66.2],
+    2006: [80.7, 39.5, 81.5, 66.9, 48.7, 68.0, 35.8, 51.0, 52.7, 71.6, 72.2, 102.5],
+    2007: [56.2, 33.3, 74.6, 76.5, 39.2, 46.8, 58.7, 33.0, 47.5, 76.0, 77.3, 76.5],
+    2008: [57.8, 86.9, 74.0, 70.5, 67.0, 51.0, None, 25.9, 48.0, 55.2, 43.0, 100.4],
+    2009: [87.0, 69.7, 58.0, 52.2, 70.0, 75.5, 77.2, 25.3, 70.4, 76.2, 59.0, 78.8],
+    2010: [40.0, 79.0, 69.2, 128.0, 103.0, 56.5, 56.5, 15.2, 36.5, 75.8, 80.8, 73.8],
+    2011: [73.8, 76.3, 80.8, 60.7, 77.8, 67.3, 58.8, 57.3, 57.0, 70.0, 101.0, 77.6],
+    2012: [110.2, 56.5, 58.0, 87.2, 77.6, 25.5, 51.2, 12.1, 48.0, 48.2, 72.0, 54.8],
+    2013: [78.7, 76.4, 64.5, 62.5, 53.6, 74.5, 81.2, 64.9, 54.8, 76.8, 84.0, 30.7],
+}
+# serie anterior (contraste en la memoria): CO Tarapoto 1999-2024, transpuesta por la relacion de lluvia anual
+ESTACION_TARAPOTO = {"nombre": 'CO "Tarapoto"', "tipo": "Meteorologica convencional", "entidad": "SENAMHI", "departamento": "San Martin",
             "provincia": "San Martin", "distrito": "Tarapoto", "latitud": "06° 28' S", "longitud": "76° 22' O", "altitud": 356,
             "periodo": "1999-2024"}
 # precipitacion maxima en 24 h por mes (mm); None = sin dato
-SERIE = {
+SERIE_TARAPOTO = {
     1999: [79.3, 42.5, 39.3, 16.9, 54.5, 17.5, 27.9, 23.0, 11.3, 17.3, 48.8, 46.5],
     2000: [27.5, 34.2, 15.6, 34.7, 30.2, 12.6, 17.5, 52.6, 82.5, 19.4, 24.2, 30.3],
     2001: [16.2, 32.0, 35.0, 75.9, 40.3, 13.8, 40.6, 21.3, 24.3, 61.0, 30.0, 42.2],
@@ -64,7 +94,8 @@ P_ANUAL_BARRANQUITA = round(sum(e[4] for e in ESTACIONES_ZONA if e[5]) / sum(1 f
 FUENTE_ANUAL = ("Tarapoto: precipitacion media anual de 1,073.1 mm (SENAMHI). Barranquita: promedio de las estaciones de llanura Navarro, "
                 "Pelejo y Shanusi (SENAMHI, 2013-2017), Cuadro N° 05 del estudio hidrologico del expediente de agua potable y alcantarillado "
                 "sanitario del distrito de Barranquita (Municipalidad Distrital de Barranquita)")
-FACTOR = P_ANUAL_BARRANQUITA / P_ANUAL_TARAPOTO
+FACTOR_TARAPOTO = P_ANUAL_BARRANQUITA / P_ANUAL_TARAPOTO   # transposicion anterior (solo contraste)
+FACTOR = 1.0                      # serie medida de Pongo de Caynarachi: sin transposicion
 T_DISENO = 25                     # anos
 TC = 10.0                         # min (cunetas: tiempo de concentracion minimo)
 PERIODOS = [2, 5, 10, 20, 25, 50, 100, 200, 500]
@@ -76,8 +107,8 @@ NOM_SUP = {"techo": "Techos y coberturas (TR4 / panel termoacustico)", "paviment
 KS_CRIT = {5: 0.56, 10: 0.41, 15: 0.34, 20: 0.29, 25: 0.27, 30: 0.24, 34: 0.23, 40: 0.21, 45: 0.20, 50: 0.19}   # alfa = 0.05
 
 
-def maximos():
-    return [(a, max(v for v in m if v is not None)) for a, m in SERIE.items()]
+def maximos(serie=None):
+    return [(a, max(v for v in m if v is not None)) for a, m in (serie or SERIE).items()]
 
 
 def _phi(z): return 0.5 * (1 + math.erf(z / math.sqrt(2)))
@@ -100,7 +131,7 @@ def estad(x):
 
 
 def analisis(factor=FACTOR):
-    """Analisis de frecuencias de la serie transpuesta (P anual Barranquita / P anual Tarapoto)."""
+    """Analisis de frecuencias de la serie de diseno (factor 1.0: serie medida de Pongo de Caynarachi)."""
     serie = [(a, round(p * factor, 2)) for a, p in maximos()]
     x = [p for _, p in serie]; n, m, s, cs = estad(x)
     lx = [math.log10(p) for p in x]; _, ml, sl, csl = estad(lx)
@@ -133,6 +164,18 @@ def analisis(factor=FACTOR):
     return {"serie": serie, "n": n, "media": m, "desv": s, "cs": cs, "media_log": ml, "desv_log": sl, "cs_log": csl,
             "gumbel_alfa": a_g, "gumbel_u": u_g, "tabla": tab, "ks": ks, "ks_critico": crit, "elegida": mejor,
             "orden": [(xs[i], fe[i]) for i in range(n)]}
+
+
+def contraste_tarapoto():
+    """Resultado con la serie anterior (CO Tarapoto transpuesta x FACTOR_TARAPOTO), solo para comparar en la memoria."""
+    global SERIE
+    viejo = SERIE; SERIE = SERIE_TARAPOTO
+    try:
+        A = analisis(FACTOR_TARAPOTO); d = A["elegida"]; P24 = A["tabla"][T_DISENO][d]
+        A0 = analisis(1.0); P0 = A0["tabla"][T_DISENO][A0["elegida"]]
+    finally:
+        SERIE = viejo
+    return {"factor": FACTOR_TARAPOTO, "elegida": d, "P24": P24, "I": p_dur(P24, TC) * 60.0 / TC, "P24_sin": P0, "n": A["n"]}
 
 
 def p_dur(P24, D):

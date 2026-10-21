@@ -50,6 +50,10 @@ def por_eje():
         PISO = unary_union([SUP["pavimento"], SUP["techo"]])
     except Exception:
         PISO = None
+    CJP = os.path.join(CALC, "junta_piso.json")
+    cache_jp = json.load(open(CJP))["junta_piso"] if PISO is None else {}
+    if PISO is None and not os.path.exists(CJP):
+        raise SystemExit("Sin base del sitio (base_sitio.pkl) ni _calc/junta_piso.json: no se puede metrar la junta con el piso")
     for r in R["ramales"]:
         P = r["perfil"]; L = r["L"]
         L_tap = sum(b - a for a, b in r["tapados"]); L_rej = L - L_tap
@@ -90,7 +94,11 @@ def por_eje():
                     "encofrado": round(enc, 2), "curado": round(cur, 2), "acero": round(acero, 2),
                     "solado": round(BT * L, 2), "limpieza": round(B_EXC * L, 2), "excavacion": round(exc, 3), "refine": round(BT * L, 2),
                     "relleno": round(rell, 3), "eliminacion": round((exc - rell) * ESPONJ, 3),
-                    "rejilla": round(L_rej, 2), "tapas": n_tapas, "n_juntas": n_j, "l_junta": round(l_junta, 3), "junta": round(n_j * l_junta, 2), "junta_piso": round(min(j_piso, 2 * L), 2)})
+                    "rejilla": round(L_rej, 2), "tapas": n_tapas, "n_juntas": n_j, "l_junta": round(l_junta, 3), "junta": round(n_j * l_junta, 2),
+                    "junta_piso": round(min(j_piso, 2 * L), 2) if PISO is not None else cache_jp.get(r["codigo"], 0.0)})
+    if PISO is not None:                                    # cache para corridas sin la base del sitio
+        json.dump({"fuente": "cantidades_b / base_sitio.pkl", "junta_piso": {x["eje"]: x["junta_piso"] for x in out if x["junta_piso"]}},
+                  open(CJP, "w"), indent=1)
     return out
 
 

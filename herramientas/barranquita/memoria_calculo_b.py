@@ -1,6 +1,6 @@
 """Memoria de calculo hidrologico e hidraulico (Excel con formulas) de la red de cunetas de la I.E. N.° 0590 Barranquita.
 
-Hojas: RESUMEN, DATOS, SERIE (Pmax 24 h CO Tarapoto y serie transpuesta), FRECUENCIAS (Normal, Log-Normal, Log-Pearson III,
+Hojas: RESUMEN, DATOS, SERIE (Pmax 24 h de la estacion Pongo de Caynarachi, 1989-2013), FRECUENCIAS (Normal, Log-Normal, Log-Pearson III,
 Gumbel), KS (Kolmogorov-Smirnov), IDF (Dick y Peschke y regresion I = K T^m / t^n), SUPERFICIES (coeficiente de escorrentia),
 CAUDALES (metodo racional y Manning por tramo) y DESCARGAS. Los valores coinciden con hidrologia_b.py y verifica_b.py.
 """
@@ -61,10 +61,14 @@ def construir():
     wi = wb.create_sheet("IDF"); wsu = wb.create_sheet("SUPERFICIES"); wc = wb.create_sheet("CAUDALES"); wdc = wb.create_sheet("DESCARGAS")
     # ------------------------------------------------------------------ DATOS
     cabecera(wd, "DATOS GENERALES Y PARAMETROS DE DISENO", 4)
-    datos = [("Precipitacion media anual - estacion CO Tarapoto (mm)", H.P_ANUAL_TARAPOTO, "0.0", "SENAMHI (dato de la estacion)"),
-             ("Precipitacion media anual - llanura Caynarachi - Huallaga, Barranquita (mm)", H.P_ANUAL_BARRANQUITA, "0.0",
-              "Promedio de Navarro (2,349.79), Pelejo (2,332.92) y Shanusi (2,444.00), SENAMHI 2013-2017 (estudio hidrologico de Barranquita)"),
-             ("Factor de transposicion Pa Barranquita / Pa Tarapoto", "=B6/B5", "0.0000", "MTC Manual de Hidrologia: transposicion de datos"),
+    DN = {"normal": "Normal", "lognormal": "Log-Normal", "lp3": "Log-Pearson III", "gumbel": "Gumbel"}; EL = A["elegida"]
+    pac = H.ESTACIONES_ZONA[[x[0] for x in H.ESTACIONES_ZONA].index("Pongo de Caynarachi")][4]
+    datos = [("Precipitacion media anual - estacion Pongo de Caynarachi (mm)", pac, "0.0",
+              "Referencial: SENAMHI 2013-2017, Cuadro N° 05 del estudio hidrologico de Barranquita"),
+             ("Precipitacion media anual - llanura de Barranquita (mm)", H.P_ANUAL_BARRANQUITA, "0.0",
+              "Referencial: promedio de Navarro (2,349.79), Pelejo (2,332.92) y Shanusi (2,444.00), SENAMHI 2013-2017"),
+             ("Factor aplicado a la serie de maximas", H.FACTOR, "0.0000",
+              "Serie medida de Pongo de Caynarachi (misma subcuenca del rio Caynarachi): sin transposicion"),
              ("Periodo de retorno de diseno T (anos)", H.T_DISENO, "0", "Mismo criterio de los proyectos de Morales (T = 25 anos)"),
              ("Tiempo de concentracion de cunetas tc (min)", H.TC, "0.0", "Duracion minima (Norma CE.040)"),
              ("Coeficiente de Manning para capacidad (concreto con rejilla)", 0.015, "0.000", "CE.040; mismo valor de los proyectos de Morales"),
@@ -72,7 +76,7 @@ def construir():
              ("Luz libre de la cuneta b (m)", DS.B_INT, "0.00", "Planos DC-02: 0.40 m libres + muros 0.10 m = 0.60 m"),
              ("Borde libre minimo (m)", DS.BL, "0.00", "Criterio de diseno"),
              ("Velocidad maxima en concreto (m/s)", 3.0, "0.00", "CE.040"),
-             ("Precipitacion maxima en 24 h de diseno, T = 25 anos (mm)", "=FRECUENCIAS!H%d" % 0, "0.00", "Hoja FRECUENCIAS (Log-Normal)"),
+             ("Precipitacion maxima en 24 h de diseno, T = 25 anos (mm)", "=FRECUENCIAS!H%d" % 0, "0.00", "Hoja FRECUENCIAS (%s)" % DN[EL]),
              ("Precipitacion en tc - Dick y Peschke P = P24 (tc/1440)^0.25 (mm)", "=B15*(B9/1440)^0.25", "0.00", "Dick y Peschke"),
              ("Intensidad de diseno I = P x 60 / tc (mm/h)", "=B16*60/B9", "0.00", "Para el metodo racional"),
              ("Coeficiente de escorrentia - techos", H.C_SUP["techo"], "0.00", "T = 25 anos (proyectos de Morales)"),
@@ -83,11 +87,11 @@ def construir():
     for i, (t, v, fmt, fte) in enumerate(datos):
         r = 5 + i; cel(wd, r, 1, t); cel(wd, r, 2, v, fmt, bold=True, fill=AM); cel(wd, r, 4, fte)
     # ------------------------------------------------------------------ SERIE
-    cabecera(ws_, "PRECIPITACION MAXIMA EN 24 HORAS - ESTACION CO TARAPOTO (SENAMHI) Y SERIE TRANSPUESTA A BARRANQUITA", 16)
+    cabecera(ws_, "PRECIPITACION MAXIMA EN 24 HORAS - ESTACION PONGO DE CAYNARACHI (SENAMHI, CODIGO 003317)", 16)
     e = H.ESTACION
-    cel(ws_, 8, 1, "Estacion: %s - %s - Lat. %s - Long. %s - Altitud %d m s. n. m. - %s, %s - periodo %s" % (
-        e["nombre"], e["tipo"], e["latitud"], e["longitud"], e["altitud"], e["distrito"], e["departamento"], e["periodo"]), borde=False)
-    tabla_cab(ws_, 10, ["AÑO"] + MESES + ["P MAX TARAPOTO (mm)", "P MAX BARRANQUITA (mm)", "LOG10 P"], [7] + [6] * 12 + [12, 13, 9])
+    cel(ws_, 8, 1, "Estacion: %s (codigo %s) - %s - Altitud %d m s. n. m. - %s, %s, %s - periodo %s (%d anos completos mas recientes del registro diario)" % (
+        e["nombre"], e["codigo"], e["tipo"], e["altitud"], e["distrito"], e["provincia"], e["departamento"], e["periodo"], e["anios"]), borde=False)
+    tabla_cab(ws_, 10, ["AÑO"] + MESES + ["P MAX ANUAL (mm)", "P MAX DE DISENO (mm)", "LOG10 P"], [7] + [6] * 12 + [12, 13, 9])
     r0 = 11
     for i, (a, m) in enumerate(H.SERIE.items()):
         r = r0 + i; cel(ws_, r, 1, a)
@@ -96,10 +100,11 @@ def construir():
         cel(ws_, r, 15, "=N%d*DATOS!$B$7" % r, "0.00", bold=True, fill=VE)
         cel(ws_, r, 16, "=LOG10(O%d)" % r, "0.0000")
     r1 = r0 + len(H.SERIE) - 1
-    cel(ws_, r1 + 2, 1, "2020: sin datos de abril a julio; 2024: datos de enero a julio (se conserva el maximo registrado, igual que en los estudios de Morales).", borde=False)
+    cel(ws_, r1 + 2, 1, "Maximas mensuales obtenidas de los registros diarios del SENAMHI. S/D: enero de 2005 y julio de 2008 sin datos (se conservan los maximos de "
+        "los otros once meses). 2014 (solo enero a abril) no se considera.", borde=False)
     rngO, rngP = "SERIE!$O$%d:$O$%d" % (r0, r1), "SERIE!$P$%d:$P$%d" % (r0, r1)
     # ------------------------------------------------------------------ FRECUENCIAS
-    cabecera(wf, "ANALISIS DE FRECUENCIAS DE LA SERIE TRANSPUESTA (mm)", 9)
+    cabecera(wf, "ANALISIS DE FRECUENCIAS DE LA SERIE DE PONGO DE CAYNARACHI 1989-2013 (mm)", 9)
     est = [("Numero de datos n", "=COUNT(%s)" % rngO, "0"), ("Media aritmetica", "=AVERAGE(%s)" % rngO, "0.00"),
            ("Desviacion estandar", "=STDEV(%s)" % rngO, "0.00"), ("Coeficiente de asimetria", "=SKEW(%s)" % rngO, "0.000"),
            ("Media de log P", "=AVERAGE(%s)" % rngP, "0.0000"), ("Desviacion estandar de log P", "=STDEV(%s)" % rngP, "0.0000"),
@@ -108,7 +113,7 @@ def construir():
     for i, (t, f_, fmt) in enumerate(est):
         cel(wf, 5 + i, 1, t); cel(wf, 5 + i, 2, f_, fmt, bold=True)
     wf.column_dimensions["A"].width = 38
-    tabla_cab(wf, 16, ["T (anos)", "z", "NORMAL", "LOG-NORMAL", "KT LP III", "LOG-PEARSON III", "KT GUMBEL", "GUMBEL", "DISEÑO (Log-Normal)"],
+    tabla_cab(wf, 16, ["T (anos)", "z", "NORMAL", "LOG-NORMAL", "KT LP III", "LOG-PEARSON III", "KT GUMBEL", "GUMBEL", "DISEÑO (%s)" % DN[EL]],
               [38, 9, 11, 12, 10, 13, 11, 11, 14])
     filaT = {}
     for i, T in enumerate(H.PERIODOS):
@@ -121,10 +126,10 @@ def construir():
         cel(wf, r, 6, "=10^($B$9+E%d*$B$10)" % r, "0.00")
         cel(wf, r, 7, "=-SQRT(6)/PI()*(0.5772+LN(LN(A%d/(A%d-1))))" % (r, r), "0.000")
         cel(wf, r, 8, "=$B$6+G%d*$B$7" % r, "0.00")
-        cel(wf, r, 9, "=D%d" % r, "0.00", bold=True, fill=VE)
+        cel(wf, r, 9, "=%s%d" % ({"normal": "C", "lognormal": "D", "lp3": "F", "gumbel": "H"}[EL], r), "0.00", bold=True, fill=VE)
     # P24 de diseno en DATOS (T = 25)
     wd.cell(15, 2).value = "=FRECUENCIAS!I%d" % filaT[H.T_DISENO]
-    cel(wf, 27, 1, "Se adopta la distribucion Log-Normal: menor estadistico de Kolmogorov-Smirnov (hoja KS), igual que en los estudios de Morales.", borde=False)
+    cel(wf, 27, 1, "Se adopta la distribucion %s: menor estadistico de Kolmogorov-Smirnov (hoja KS)." % DN[EL], borde=False)
     # ------------------------------------------------------------------ KS
     cabecera(wk, "PRUEBA DE BONDAD DE AJUSTE DE KOLMOGOROV-SMIRNOV (alfa = 0.05)", 11)
     tabla_cab(wk, 8, ["m", "P ordenada (mm)", "F empirica m/(n+1)", "F Normal", "F Log-Normal", "F Log-Pearson III", "F Gumbel",
@@ -156,7 +161,7 @@ def construir():
     for j in range(4): cel(wk, rm + 1, 8 + j, A["ks_critico"], "0.00")
     cel(wk, rm + 2, 7, "Ajuste", bold=True)
     for j in range(4): cel(wk, rm + 2, 8 + j, '=IF(%s%d<%s%d,"ACEPTA","RECHAZA")' % (CL(8 + j), rm, CL(8 + j), rm + 1))
-    cel(wk, rm + 4, 1, "F Log-Pearson III por Wilson-Hilferty (valor calculado). D critico para n = 26 y alfa = 0.05: 0.27 (tabla de Smirnov).", borde=False)
+    cel(wk, rm + 4, 1, "F Log-Pearson III por Wilson-Hilferty (valor calculado). D critico para n = %d y alfa = 0.05: %.2f (tabla de Smirnov)." % (A["n"], A["ks_critico"]), borde=False)
     # ------------------------------------------------------------------ IDF
     cabecera(wi, "LLUVIAS E INTENSIDADES MAXIMAS (DICK Y PESCHKE) Y CURVAS IDF", 11)
     cel(wi, 8, 1, "P (mm) para la duracion D: P = P24 (D / 1440)^0.25", borde=False, bold=True)
@@ -220,9 +225,9 @@ def construir():
             cel(wdc, r, j, v, fmt)
     # ------------------------------------------------------------------ RESUMEN
     cabecera(wr, "MEMORIA DE CALCULO - DRENAJE PLUVIAL (RED DE CUNETAS)", 3)
-    res = [("Estacion de referencia", "CO Tarapoto (SENAMHI), 1999-2024, 26 anos", None),
-           ("Factor de transposicion a Barranquita", "=DATOS!B7", "0.0000"),
-           ("Distribucion adoptada", "Log-Normal (menor D de Kolmogorov-Smirnov)", None),
+    res = [("Estacion de referencia", "Pongo de Caynarachi (SENAMHI, codigo 003317), %s, %d anos" % (H.ESTACION["periodo"], A["n"]), None),
+           ("Factor aplicado a la serie", "=DATOS!B7", "0.0000"),
+           ("Distribucion adoptada", "%s (menor D de Kolmogorov-Smirnov)" % DN[EL], None),
            ("Periodo de retorno (anos)", "=DATOS!B8", "0"), ("Precipitacion maxima en 24 h de diseno (mm)", "=DATOS!B15", "0.00"),
            ("Tiempo de concentracion (min)", "=DATOS!B9", "0.0"), ("Intensidad de diseno (mm/h)", "=DATOS!B17", "0.00"),
            ("Coeficiente de escorrentia ponderado", "=SUPERFICIES!C12", "0.000"), ("Area de aporte dentro del cerco (m2)", "=SUPERFICIES!B12", "#,##0"),

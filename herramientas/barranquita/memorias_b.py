@@ -1,7 +1,7 @@
 """Memorias de drenaje pluvial (Word) de la I.E. N.° 0590 Barranquita (C.I. 468901):
 - MEMORIA_HIDROLOGICA_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.docx
 - MEMORIA_DESCRIPTIVA_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.docx
-Datos: hidrologia_b (lluvia transpuesta de Tarapoto), verificacion.json, diseno.json, cantidades_b (metrado) e indice de planos.
+Datos: hidrologia_b (lluvia de la estacion Pongo de Caynarachi 1989-2013), verificacion.json, diseno.json, cantidades_b (metrado) e indice de planos.
 """
 import os, sys, json, re
 AQUI = os.path.dirname(os.path.abspath(__file__)); RAIZ = os.path.dirname(os.path.dirname(AQUI))
@@ -279,8 +279,9 @@ def descriptiva(D, c):
         "del piso, con junta asfáltica al mismo nivel.")
     D.h(1, "Descripción del sistema de drenaje pluvial")
     D.h(2, "Criterios de diseño")
-    D.vinetas([("Lluvia de diseño: ", "estación CO Tarapoto transpuesta a Barranquita (factor %.3f), T = 25 años, P24 = %.2f mm, I = %.2f mm/h "
-                                     "con tc = 10 min (ver memoria hidrológica)." % (c["HID"]["factor"], c["HID"]["P24"], c["HID"]["I"])),
+    D.vinetas([("Lluvia de diseño: ", "estación Pongo de Caynarachi del SENAMHI (código 003317, misma subcuenca del río Caynarachi), serie de "
+                                     "precipitación máxima en 24 horas %s (25 años), T = 25 años, P24 = %.2f mm, I = %.2f mm/h con tc = 10 min "
+                                     "(ver memoria hidrológica)." % (H.ESTACION["periodo"], c["HID"]["P24"], c["HID"]["I"])),
                ("Caudales: ", "método racional con coeficiente de escorrentía ponderado %.2f y factor de seguridad de 1.15." % hv["C"]),
                ("Sección de cuneta: ", "rectangular de concreto armado o simple, 0.60 m de ancho total (muros de 0.10 m y 0.40 m libres), losa de "
                                       "fondo de 0.10 m sobre solado de 4\"; profundidad variable de 0.30 m al inicio a %.2f m como máximo." % c["hmax"]),

@@ -15,22 +15,22 @@
 
 Caudal de diseno: metodo racional con el area tributaria de cada tramo dentro del cerco (cada punto de 1 m2
 va a la cuneta mas cercana; techos a dos aguas: cada mitad al alero de su lado), C por superficie (techos y pavimentos 0.88,
-areas verdes 0.40) e I de hidrologia_b (Tarapoto transpuesta, T = 25 anos, tc = 10 min).
-(tc = 10 min, TR = 25 anos, P10 = 35.16 mm de la estacion usada en el Hogar de Refugio - Morales; reemplazar por la del
-proyecto), factor de seguridad 1.15.
+areas verdes 0.40) e I de hidrologia_b (estacion Pongo de Caynarachi 1989-2013, T = 25 anos, tc = 10 min), factor de seguridad 1.15.
 Uso: python3 herramientas/barranquita/verifica_b.py -> entregables_barranquita/_calc/verificacion.json
+     python3 herramientas/barranquita/verifica_b.py --solo-lluvia: cambio de lluvia sin base del sitio (base_sitio.pkl): rehace las
+     comprobaciones 8 y 9 con la I vigente sobre la geometria y las areas de verificacion.json (Q proporcional a I, metodo racional);
+     exige hmin_req.json vacio (ninguna profundidad fijada por capacidad), asi la geometria no depende de la lluvia.
 """
 import os, sys, json, math
 import numpy as np
 from matplotlib.path import Path
 AQUI = os.path.dirname(os.path.abspath(__file__)); RAIZ = os.path.dirname(os.path.dirname(AQUI))
 sys.path.insert(0, AQUI)
-import terreno_b as T
 import diseno_b as DS
 
 CALC = os.path.join(RAIZ, "entregables_barranquita", "_calc")
 import hidrologia_b as H
-HID = H.resultados()                         # lluvia transpuesta de Tarapoto a Barranquita (T = 25 anos, Dick y Peschke)
+HID = H.resultados()                         # lluvia de diseno: Pongo de Caynarachi 1989-2013 (T = 25 anos, Dick y Peschke)
 TC, P10, I_MMH = HID["tc"], HID["P_tc"], HID["I"]
 FS = 1.15                                    # factor de seguridad de los caudales (mismo criterio de los proyectos de Morales)
 N_CAP, N_VEL, VMAX = 0.015, 0.013, 3.0
@@ -55,6 +55,7 @@ def seg_dist(P, a, b):
 
 
 def main():
+    import terreno_b as T
     R = json.load(open(os.path.join(CALC, "diseno.json"))); z = T.modelo(); G = T.cargar()
     ram = {r["codigo"]: r for r in R["ramales"]}; N = R["nudos"]; nom = R["nombre"]
     res = []
@@ -281,5 +282,38 @@ def main():
     for c in res: print("%2d %-75s %s\n     %s" % (c["n"], c["comprobacion"], c["estado"], c["detalle"]))
 
 
+
+
+def solo_lluvia():
+    """Cambio de lluvia: rehace capacidad (8) y velocidad (9) sobre la geometria vigente; Q nuevo = Q anterior x I nuevo / I anterior."""
+    hreq = json.load(open(DS.HREQ)) if os.path.exists(DS.HREQ) else {}
+    if hreq: raise SystemExit("hmin_req.json no esta vacio: hay profundidades fijadas por capacidad; correr calcula_b.py con la base del sitio")
+    ruta = os.path.join(CALC, "verificacion.json"); out = json.load(open(ruta, encoding="utf-8"))
+    hv = out["hidrologia"]; k = I_MMH / hv["I"]; filas = []; peor_cap = peor_v = None
+    for f0 in out["hidraulica"]:
+        Q = f0["Q_ls"] / 1000.0 * k; S = f0["S"] / 100.0; hdisp = f0["h"]
+        y = yn(Q, S, N_CAP); yv = yn(Q, S, N_VEL); V = Q / (DS.B_INT * yv)
+        f = dict(f0, Q_ls=round(1000 * Q, 1), y=round(y, 3), borde_libre=round(hdisp - y, 3), V=round(V, 2),
+                 cap="CUMPLE" if hdisp - y >= DS.BL - 1e-3 else "NO CUMPLE", vel="CUMPLE" if V <= VMAX else "GRADAS")
+        filas.append(f)
+        if peor_cap is None or f["borde_libre"] < peor_cap["borde_libre"]: peor_cap = f
+        if peor_v is None or f["V"] > peor_v["V"]: peor_v = f
+    ncap = [f for f in filas if f["cap"] != "CUMPLE"]; nvel = [f for f in filas if f["vel"] != "CUMPLE"]
+    for c in out["comprobaciones"]:
+        if c["n"] == 8:
+            c["estado"] = "CUMPLE" if not ncap else "NO CUMPLE"
+            c["detalle"] = ("I = %.0f mm/h, C ponderado = %.2f, area total %.0f m2; menor borde libre %.3f m en %s %s-%s (Q %.1f l/s, y %.3f, h %.2f)" % (
+                I_MMH, hv["C"], hv["A_total"], peor_cap["borde_libre"], peor_cap["ramal"], peor_cap["de"], peor_cap["a"], peor_cap["Q_ls"],
+                peor_cap["y"], peor_cap["h"]) + ("" if not ncap else "; no cumplen: " + ", ".join("%s %s-%s" % (f["ramal"], f["de"], f["a"]) for f in ncap)))
+        if c["n"] == 9:
+            c["estado"] = "CUMPLE" if not nvel else "CUMPLE CON GRADAS"
+            c["detalle"] = ("V max %.2f m/s" % peor_v["V"]) if not nvel else "tramos con V > 3.0 m/s: " + ", ".join(
+                "%s %s-%s (S %.1f %%, V %.2f)" % (f["ramal"], f["de"], f["a"], f["S"], f["V"]) for f in nvel)
+    out["hidraulica"] = filas
+    hv.update({"I": round(I_MMH, 2), "P10": round(P10, 2), "P24": round(HID["P24"], 2), "T": HID["T"], "factor": round(HID["factor"], 4)})
+    json.dump(out, open(ruta, "w"), indent=1, ensure_ascii=False)
+    for c in out["comprobaciones"]: print("%2d %-75s %s\n     %s" % (c["n"], c["comprobacion"], c["estado"], c["detalle"]))
+
+
 if __name__ == "__main__":
-    main()
+    solo_lluvia() if "--solo-lluvia" in sys.argv else main()

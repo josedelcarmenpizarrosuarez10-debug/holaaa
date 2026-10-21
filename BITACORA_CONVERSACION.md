@@ -404,3 +404,21 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Totales anuales de Caynarachi 1981-1990 anomalos (5,255 a 7,060 mm; el resto 1,680 a 4,333): no afectan las maximas, pero no
   sirven para la lluvia media anual sin depurar.
 - Pendiente decision del usuario: serie propia de Caynarachi o mantener Tarapoto transpuesta. hidrologia_b.py sin cambios.
+
+## 21-10-2026 – Barranquita: lluvia de diseno con la serie medida de Pongo de Caynarachi (decision del usuario)
+- Usuario: "si usa estos datos pero solo 25 anos desde el ano mas reciente hasta abajo". Serie Pmax 24 h de Pongo de Caynarachi
+  (SENAMHI 003317) 1989-2013 (25 anios completos mas recientes; 2014 solo enero-abril). Faltan enero 2005 y julio 2008 (se
+  conservan los maximos de los otros 11 meses). Sin transposicion (factor 1.0).
+- K-S (critico 0.27): Gumbel 0.069 (adoptada), LP3 0.070, Log-Normal 0.095, Normal 0.130. T 25: P24 166.64 mm; tc 10 min
+  P 48.11 mm, I = 288.63 mm/h; IDF K 1009.51, m 0.1372, n 0.75 (antes Tarapoto transpuesta: 269.62 mm, 467.00 mm/h).
+- Cunetas 0.40 / 0.60: cumplen los 91 tramos (11 de 11 comprobaciones). Q max 188.1 l/s (EJE-12 a D2; antes 304.4), borde libre
+  min 0.129 m (EJE-11 P-48 a P-33; antes 0.064), V max 1.62 m/s. hmin_req.json vacio: ninguna profundidad depende de la lluvia,
+  cotas de fondo, descargas y metrado sin cambios (METRADO identico celda por celda; texto de especificaciones igual).
+- base_sitio.pkl no esta en el repositorio (.gitignore *.pkl; se extrajo en una sesion anterior del DXF de 381 MB y no hay script):
+  verifica_b.py --solo-lluvia rehace las comprobaciones 8 y 9 sobre la geometria vigente; caches _calc/coberturas.json (de la memoria
+  hidrologica anterior) y _calc/junta_piso.json (del metrado vigente, 748.76 m); figuras de superficies y recortes se conservan.
+- Regenerados: verificacion.json, CUADRO_TRAMOS, MEMORIA_CALCULO (Excel recalculado con LibreOffice: P24 166.64, I 288.63, Q max
+  188.2, 0 tramos que no cumplen), MEMORIA_HIDROLOGICA (estacion, cobertura, serie, representatividad con contraste frente a
+  Tarapoto, distribucion adoptada y conclusiones automaticas), MEMORIA_DESCRIPTIVA, METRADO y ESPECIFICACIONES (sin cambios).
+- Pendiente: laminas DC-16 a DC-19 (texto "AGUA DE DISENO: Q = ... l/s, tirante" y nivel de agua en perfil e isometrico) y la figura
+  fig_descarga_d1.png siguen con el caudal anterior hasta regenerar planos_b.py con base_sitio.pkl.

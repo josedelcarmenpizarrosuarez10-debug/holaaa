@@ -36,6 +36,9 @@ def manning(b, y, S, n):
 def coberturas():
     """Techos dentro del cerco (proyeccion horizontal) agrupados por cobertura, con el eje que recibe su agua."""
     import terreno_b as T
+    cache = os.path.join(RAIZ, "entregables_barranquita", "_calc", "coberturas.json")
+    if not os.path.exists(T.GEO):                     # sin base del sitio: areas de techo de la ultima corrida con la base
+        return json.load(open(cache, encoding="utf-8"))["coberturas"]
     from shapely.geometry import LineString
     SUP = H.superficies(T.cargar(), DS.CERCO, DS.PATIO)
     R = json.load(open(os.path.join(RAIZ, "entregables_barranquita", "_calc", "diseno.json")))
@@ -45,6 +48,8 @@ def coberturas():
         if p.area < 4: continue
         ejes = sorted(lin, key=lambda c: lin[c].distance(p))[:2]
         out.append({"A": p.area, "ejes": ejes})
+    json.dump({"fuente": "terreno_b / base_sitio.pkl", "coberturas": [{"A": round(x["A"], 2), "ejes": x["ejes"]} for x in out]},
+              open(cache, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
     return out
 
 
@@ -150,18 +155,19 @@ def memoria(D, c):
             fuente="Estudio hidrológico del expediente de agua potable y alcantarillado del distrito de Barranquita, Cuadro N° 06 (SENAMHI).")
     D.h(2, "Estación meteorológica de referencia")
     e = H.ESTACION
-    D.p("Las estaciones de la zona (San Antonio, Pongo de Caynarachi, Navarro, Pelejo y Shanusi) cuentan con información de precipitación "
-        "total mensual, pero no con series publicadas de precipitación máxima en 24 horas. Por ello, para el análisis de lluvias extremas "
-        "se adopta la Estación Convencional CO “Tarapoto” del SENAMHI, con la serie de precipitación máxima en 24 horas 1999–2024 empleada en "
-        "los estudios de Morales, y se traslada a Barranquita mediante la relación de precipitaciones medias anuales (ítem 2.5).")
+    D.p("Las estaciones de llanura Navarro, Pelejo y Shanusi solo cuentan con información de precipitación total mensual (2013–2017), "
+        "insuficiente para un análisis de lluvias máximas. Para el análisis de lluvias extremas se adopta la estación %s (código %s) del "
+        "SENAMHI, ubicada en la misma subcuenca del río Caynarachi que el local, a 37 km de Barranquita por carretera, con registros diarios "
+        "de precipitación desde noviembre de 1963 (datos históricos con control de calidad del SENAMHI)." % (e["nombre"], e["codigo"]))
     D.tabla("Características de la estación de referencia", ["Característica", "Información"],
-            [["Estación", e["nombre"]], ["Tipo", e["tipo"]], ["Entidad responsable", e["entidad"]], ["Departamento / provincia / distrito", "San Martín / San Martín / Tarapoto"],
-             ["Latitud / longitud", "%s / %s" % (e["latitud"], e["longitud"])], ["Altitud", "%d m s. n. m." % e["altitud"]],
-             ["Variable", "Precipitación máxima en 24 horas"], ["Unidad", "milímetros (mm)"], ["Período documental", "%s (26 años)" % e["periodo"]]], [6.5, 9])
-    D.p("Como referencia técnica, el numeral 3.4 del Manual de Hidrología, Hidráulica y Drenaje del MTC recomienda un mínimo de 25 años de "
-        "registro; la serie disponible tiene 26 años calendario. Los años 2020 (sin datos de abril a julio) y 2024 (datos de enero a julio) "
-        "son incompletos: sus máximos se conservan como observaciones válidas, con el mismo tratamiento de los estudios de Morales, porque "
-        "2020 registra el mayor valor de la serie (152.5 mm en enero) y excluirlo subestimaría los eventos extremos.")
+            [["Estación", e["nombre"]], ["Código", e["codigo"]], ["Tipo", e["tipo"]], ["Entidad responsable", e["entidad"]],
+             ["Departamento / provincia / distrito", "San Martín / Lamas / Caynarachi"], ["Altitud", "%d m s. n. m." % e["altitud"]],
+             ["Variable", "Precipitación diaria (máxima en 24 horas)"], ["Unidad", "milímetros (mm)"],
+             ["Registro disponible", "noviembre de 1963 a abril de 2014"], ["Período adoptado", "%s (%d años)" % (e["periodo"], e["anios"])]], [6.5, 9])
+    D.p("El numeral 3.4 del Manual de Hidrología, Hidráulica y Drenaje del MTC recomienda un mínimo de 25 años de registro. Se adoptan los "
+        "25 años completos más recientes del registro (%s); el año 2014 solo tiene datos de enero a abril y no se considera. En el período "
+        "adoptado faltan los datos de enero de 2005 y de julio de 2008; ambos años tienen los otros once meses completos y sus máximos se "
+        "conservan, sin reemplazar los vacíos por ceros ni promedios." % e["periodo"])
     # =========================================================================== 2
     D.h(1, "Estudio hidrológico")
     D.h(2, "Introducción")
@@ -173,9 +179,9 @@ def memoria(D, c):
         "sectores permeables; por ello se evalúa el aporte de cada tipo de superficie y su recorrido hasta la cuneta más cercana.")
     D.h(2, "Metodología empleada")
     for tit, txt in [
-        ("a) Recopilación y organización de la información. ", "Se integra la serie de precipitación máxima en 24 horas de la estación CO Tarapoto (1999–2024) y la precipitación total anual de las estaciones del SENAMHI de la zona. Se usan la topografía y los planos del proyecto para reconocer los niveles, las coberturas y los recorridos del escurrimiento."),
-        ("b) Revisión de calidad y conformación de la serie. ", "Se verifica la transcripción de los registros y la correspondencia entre los valores mensuales y los máximos anuales; los vacíos no se reemplazan por ceros ni promedios."),
-        ("c) Transposición de la información. ", "La serie de Tarapoto se traslada a Barranquita con la relación entre la precipitación media anual de la llanura y la de Tarapoto (Manual de Hidrología del MTC)."),
+        ("a) Recopilación y organización de la información. ", "Se integran los registros diarios de precipitación de la estación Pongo de Caynarachi (SENAMHI) y la precipitación total anual de las estaciones del SENAMHI de la zona. Se usan la topografía y los planos del proyecto para reconocer los niveles, las coberturas y los recorridos del escurrimiento."),
+        ("b) Revisión de calidad y conformación de la serie. ", "De los registros diarios se obtienen las máximas en 24 horas de cada mes y de cada año; se toman los 25 años completos más recientes y los vacíos no se reemplazan por ceros ni promedios."),
+        ("c) Representatividad de la información. ", "Se usa la serie medida en la misma subcuenca, sin transposición, y se contrasta con la transposición de la estación CO Tarapoto por la relación de precipitaciones anuales."),
         ("d) Caracterización estadística y análisis de frecuencia. ", "Se calculan la media, la desviación estándar y la asimetría, y se ajustan las distribuciones Normal, Log-Normal, Log-Pearson tipo III y Gumbel (numeral 3.7.1 del Manual del MTC)."),
         ("e) Evaluación del ajuste y selección del modelo. ", "Se aplica la prueba de Kolmogorov-Smirnov y se comparan las precipitaciones estimadas; se selecciona la distribución de mejor ajuste."),
         ("f) Precipitaciones e intensidades de diseño. ", "Con la distribución seleccionada se obtienen las precipitaciones para los períodos de retorno; las lluvias de corta duración se obtienen por Dick y Peschke y se construyen las curvas IDF."),
@@ -184,33 +190,36 @@ def memoria(D, c):
         ("i) Integración con la evaluación hidráulica. ", "Los caudales se verifican en cada tramo de cuneta con Manning, y se evalúan las descargas por el cerco.")]:
         D.p(txt, neg=tit)
     D.h(2, "Análisis estadístico de datos")
-    D.tabla("Cobertura de la información de la estación CO Tarapoto", ["Componente", "Período", "Condición"],
-            [["Registros del documento complementario", "1999–2004", "Seis años con valores completos"], ["Registros del cuadro principal", "2005–2019", "Quince años con valores completos"],
-             ["Año con meses sin información", "2020", "Sin datos de abril a julio; se conserva el máximo de enero (152.5 mm)"],
-             ["Registros recientes", "2021–2023", "Tres años con valores completos"], ["Último año", "2024", "Datos de enero a julio"],
-             ["Cobertura total", "1999–2024", "26 años calendario: 24 completos y 2 parciales"]], [5.5, 2.5, 7.5],
-            fuente="SENAMHI, estación CO Tarapoto.")
+    D.tabla("Cobertura de la información de la estación Pongo de Caynarachi", ["Componente", "Período", "Condición"],
+            [["Registro diario disponible", "1963–2014", "Noviembre de 1963 a abril de 2014"],
+             ["Años completos", "1989–2013", "23 años con los doce meses completos"],
+             ["Años con un mes sin datos", "2005 y 2008", "Sin datos en enero de 2005 y julio de 2008; se conservan sus máximos"],
+             ["Año no considerado", "2014", "Solo enero a abril"],
+             ["Período adoptado", "1989–2013", "25 años, los más recientes del registro"]], [5.5, 2.5, 7.5],
+            fuente="SENAMHI, estación Pongo de Caynarachi (003317), datos diarios históricos con control de calidad.")
     filas = [[a] + [("S/D" if v is None else "%.1f" % v) for v in m] + ["%.1f" % max(v for v in m if v is not None)] for a, m in H.SERIE.items()]
-    D.tabla("Precipitación máxima en 24 horas, estación CO Tarapoto (mm)", ["Año"] + [x[0] for x in MESES] + ["Máx."],
-            filas, [1.2] + [1.0] * 12 + [1.3], tam=7, fuente="SENAMHI, estación CO Tarapoto. S/D: sin dato.")
-    D.h(2, "Transposición de la información a Barranquita")
-    D.p("Barranquita (184 m s. n. m.) se encuentra en la llanura del Caynarachi, con un régimen de lluvias mucho mayor que el de Tarapoto "
-        "(356 m s. n. m.). Para no subestimar las lluvias de diseño, la serie de Tarapoto se transpone con la relación de precipitaciones "
-        "medias anuales, procedimiento de transposición de información pluviométrica del Manual de Hidrología del MTC:")
-    D.formula("P (Barranquita) = P (Tarapoto) × Pa (Barranquita) / Pa (Tarapoto)")
-    D.p("La precipitación media anual de Barranquita se obtiene de las estaciones de llanura Navarro, Pelejo y Shanusi (100 a 160 m s. n. m.), "
-        "de altitud y relieve similares a los del local. La estación Pongo de Caynarachi se excluye porque está al pie de los cerros, a la salida "
-        "del pongo, y registra lluvias orográficas mayores que las de la llanura; San Antonio (430 m s. n. m.) se encuentra fuera de la llanura.")
-    D.tabla("Precipitación total anual de las estaciones de la zona", ["Estación SENAMHI", "Código", "Provincia / distrito", "Altitud", "P anual (mm)", "Uso"],
-            [[x[0], x[1], x[2], x[3], mil(x[4]), "Se usa" if x[5] else "No se usa"] for x in H.ESTACIONES_ZONA] +
-            [["Promedio adoptado (Navarro, Pelejo y Shanusi)", "", "", "", mil(H.P_ANUAL_BARRANQUITA), ""]], [4, 1.6, 3.8, 1.6, 2.2, 2.2], tam=8, total=True,
-            fuente="Estudio hidrológico, Cuadro N° 05, expediente de agua potable y alcantarillado del distrito de Barranquita (SENAMHI).")
-    D.tabla("Factor de transposición", ["Concepto", "Valor"],
-            [["Precipitación media anual en Tarapoto", "%s mm" % mil(H.P_ANUAL_TARAPOTO, 1)], ["Precipitación media anual en la llanura de Barranquita", "%s mm" % mil(H.P_ANUAL_BARRANQUITA, 2)],
-             ["Factor de transposición", "%.4f" % HID["factor"]]], [10, 5])
-    filas = [[a, "%.1f" % p0, "%.2f" % p1] for (a, p0), (_, p1) in zip(H.maximos(), A["serie"])]
-    D.tabla("Serie de precipitación máxima anual en 24 horas (mm)", ["Año", "Tarapoto", "Barranquita (transpuesta)"], filas, [3, 4, 5], tam=8)
-    D.figura(os.path.join(c["FIG"], "fig_serie.png"), "Precipitación máxima anual en 24 h: Tarapoto y serie transpuesta a Barranquita.", 15.5)
+    D.tabla("Precipitación máxima en 24 horas, estación Pongo de Caynarachi (mm)", ["Año"] + [x[0] for x in MESES] + ["Máx."],
+            filas, [1.2] + [1.0] * 12 + [1.3], tam=7, fuente="SENAMHI, estación Pongo de Caynarachi (003317). S/D: sin dato.")
+    mx = H.maximos(); amax = max(mx, key=lambda t: t[1]); amin = min(mx, key=lambda t: t[1])
+    D.p("La serie de máximos anuales tiene %d valores, de %.1f mm (%d) a %.1f mm (%d)." % (len(mx), amin[1], amin[0], amax[1], amax[0]))
+    D.figura(os.path.join(c["FIG"], "fig_serie.png"), "Precipitación máxima anual en 24 h, estación Pongo de Caynarachi (1989–2013).", 15.5)
+    D.h(2, "Representatividad de la serie para Barranquita")
+    D.p("Barranquita (184 m s. n. m.) se encuentra en la llanura del Caynarachi. La estación Pongo de Caynarachi (%d m s. n. m.) está en la "
+        "misma subcuenca, al pie de los cerros, donde la precipitación anual es mayor que en la llanura; por ello su serie de máximas en "
+        "24 horas se usa directamente, sin transposición, con criterio conservador para el local." % H.ESTACION["altitud"])
+    D.tabla("Precipitación total anual de las estaciones de la zona", ["Estación SENAMHI", "Código", "Provincia / distrito", "Altitud", "P anual (mm)"],
+            [[x[0], x[1], x[2], x[3], mil(x[4])] for x in H.ESTACIONES_ZONA], [4.2, 1.8, 4.5, 1.8, 2.6], tam=8,
+            fuente="Estudio hidrológico, Cuadro N° 05, expediente de agua potable y alcantarillado del distrito de Barranquita (SENAMHI, 2013–2017).")
+    CT = H.contraste_tarapoto(); pac = H.ESTACIONES_ZONA[[x[0] for x in H.ESTACIONES_ZONA].index("Pongo de Caynarachi")][4]
+    D.p("Como contraste, la serie de precipitación máxima en 24 horas de la estación CO Tarapoto (1999–2024), transpuesta a Barranquita con "
+        "la relación de precipitaciones medias anuales (factor %.4f), daría %.2f mm para T = 25 años. Los registros medidos muestran que esa "
+        "relación no se conserva en las máximas diarias: Pongo de Caynarachi llueve %.1f veces más que Tarapoto al año, pero su precipitación "
+        "máxima en 24 horas de 25 años es solo %.2f veces la de Tarapoto (%.2f mm frente a %.2f mm). Por ello se adopta la serie medida en la "
+        "subcuenca y no la transposición." % (CT["factor"], CT["P24"], pac / H.P_ANUAL_TARAPOTO, HID["P24"] / CT["P24_sin"], HID["P24"], CT["P24_sin"]))
+    D.tabla("Comparación de la precipitación máxima en 24 h para T = 25 años", ["Serie", "Años", "P24 (mm)", "I tc = 10 min (mm/h)"],
+            [["Pongo de Caynarachi, medida (adoptada)", "%s (%d)" % (H.ESTACION["periodo"], A["n"]), f2(HID["P24"]), f2(HID["I"])],
+             ["CO Tarapoto, medida", "1999–2024 (%d)" % CT["n"], f2(CT["P24_sin"]), f2(H.p_dur(CT["P24_sin"], H.TC) * 60 / H.TC)],
+             ["CO Tarapoto transpuesta (factor %.4f)" % CT["factor"], "1999–2024 (%d)" % CT["n"], f2(CT["P24"]), f2(CT["I"])]], [6.5, 3, 2.5, 3.5], tam=8.5)
     D.h(2, "Análisis de intensidades")
     D.p("La intensidad de precipitación expresa la lluvia acumulada por unidad de tiempo y es el parámetro que determina los caudales del "
         "método racional. Como los registros son de 24 horas, las lluvias de corta duración se obtienen por desagregación temporal (Dick y "
@@ -232,7 +241,7 @@ def memoria(D, c):
     D.formula("KT = (2/Cs) · [ (1 + Cs·zT/6 − Cs²/36)³ − 1 ]          xT = 10^(ȳ + KT · sy)")
     D.p("Distribución Extrema tipo I de Gumbel (máximos):")
     D.formula("F(x) = exp[−exp(−(x − u)/α)]     α = √6·s/π     u = x̄ − 0.5772·α     KT = −(√6/π)·[0.5772 + ln(ln(T/(T−1)))]")
-    D.tabla("Parámetros estadísticos de la serie transpuesta", ["Parámetro", "Valor"],
+    D.tabla("Parámetros estadísticos de la serie de Pongo de Caynarachi", ["Parámetro", "Valor"],
             [["Número de datos (n)", A["n"]], ["Media (mm)", f2(A["media"])], ["Desviación estándar (mm)", f2(A["desv"])], ["Coeficiente de asimetría", "%.3f" % A["cs"]],
              ["Media de log P", "%.4f" % A["media_log"]], ["Desviación estándar de log P", "%.4f" % A["desv_log"]], ["Asimetría de log P", "%.4f" % A["cs_log"]],
              ["Gumbel: α (mm)", "%.3f" % A["gumbel_alfa"]], ["Gumbel: u (mm)", "%.3f" % A["gumbel_u"]]], [9, 4])
@@ -241,13 +250,13 @@ def memoria(D, c):
         ("lognormal", "Distribución Log-Normal", ["T (años)", "F = 1 − 1/T", "z", "log P", "P máx. (mm)"], lambda T, t: [T, "%.4f" % (1 - 1 / T), "%.3f" % t["z"], "%.4f" % math.log10(t["lognormal"]), f2(t["lognormal"])]),
         ("lp3", "Distribución Log-Pearson tipo III", ["T (años)", "z", "KT", "log P", "P máx. (mm)"], lambda T, t: [T, "%.3f" % t["z"], "%.3f" % t["kt_lp3"], "%.4f" % math.log10(t["lp3"]), f2(t["lp3"])]),
         ("gumbel", "Distribución Extrema tipo I - Gumbel", ["T (años)", "KT", "P máx. (mm)"], lambda T, t: [T, "%.4f" % t["kt_gumbel"], f2(t["gumbel"])])):
-        D.tabla(nom + " - serie transpuesta", cab, [fil(T, A["tabla"][T]) for T in H.PERIODOS], None, tam=8.5)
+        D.tabla(nom + " - serie de Pongo de Caynarachi", cab, [fil(T, A["tabla"][T]) for T in H.PERIODOS], None, tam=8.5)
     D.h(2, "Pruebas de bondad de ajuste")
     D.p("La prueba de Kolmogorov-Smirnov compara la distribución empírica de la muestra con la distribución acumulada de cada modelo; el "
         "estadístico es la mayor diferencia absoluta entre ambas:")
     D.formula("D = máx | F(xi) − Fe(xi) |          Fe(xi) = i / (n + 1)")
-    D.p("Se adopta un nivel de significación α = 0.05. Para n = 26 el valor crítico es 0.27 (tabla de Smirnov); una distribución se acepta si "
-        "D < 0.27. La selección considera además la representación de los eventos de mayor magnitud y la coherencia de las estimaciones.")
+    D.p("Se adopta un nivel de significación α = 0.05. Para n = %d el valor crítico es %.2f (tabla de Smirnov); una distribución se acepta si "
+        "D < %.2f. La selección considera además la representación de los eventos de mayor magnitud y la coherencia de las estimaciones." % (A["n"], A["ks_critico"], A["ks_critico"]))
     D.tabla("Valores críticos de Kolmogorov-Smirnov", ["n", "α = 0.20", "α = 0.10", "α = 0.05", "α = 0.01"],
             [[5, 0.45, 0.51, 0.56, 0.67], [10, 0.32, 0.37, 0.41, 0.49], [15, 0.27, 0.30, 0.34, 0.40], [20, 0.23, 0.26, 0.29, 0.36], [25, 0.21, 0.24, 0.27, 0.32],
              [30, 0.19, 0.22, 0.24, 0.29], [40, 0.17, 0.19, 0.21, 0.25], [50, 0.15, 0.17, 0.19, 0.23]], [2, 2.5, 2.5, 2.5, 2.5],
@@ -272,12 +281,14 @@ def memoria(D, c):
     D.tabla("Resumen de la prueba de Kolmogorov-Smirnov", ["Distribución", "D máx.", "D crítico", "Resultado"],
             [[n, "%.4f" % ks[k], "%.2f" % A["ks_critico"], "Se acepta" + (" (adoptada)" if k == A["elegida"] else "")]
              for k, n in (("normal", "Normal"), ("lognormal", "Log-Normal"), ("lp3", "Log-Pearson III"), ("gumbel", "Gumbel"))], [5, 3, 3, 4])
-    D.p("Las cuatro distribuciones se aceptan al nivel de significación de 0.05. La distribución Log-Normal presenta el menor estadístico "
-        "(D = %.4f) y estimaciones intermedias entre la Normal y las distribuciones de cola más pesada, por lo que se adopta para el diseño, "
-        "igual que en los estudios de Morales." % ks["lognormal"])
-    filas = [[T] + [f2(A["tabla"][T][k]) for k in ("normal", "lognormal", "lp3", "gumbel")] + [f2(A["tabla"][T]["lognormal"])] for T in H.PERIODOS]
+    DN = {"normal": "Normal", "lognormal": "Log-Normal", "lp3": "Log-Pearson III", "gumbel": "Gumbel"}; el = A["elegida"]; acep = [k for k in DN if ks[k] < A["ks_critico"]]
+    D.p("%s al nivel de significación de 0.05. La distribución %s presenta el menor estadístico (D = %.4f), por lo que se adopta para el "
+        "diseño; para T = 25 años da %.2f mm, entre los valores de las demás distribuciones (%.2f a %.2f mm)." % (
+            "Las cuatro distribuciones se aceptan" if len(acep) == 4 else "Se aceptan las distribuciones " + ", ".join(DN[k] for k in acep),
+            DN[el], ks[el], A["tabla"][25][el], min(A["tabla"][25][k] for k in DN), max(A["tabla"][25][k] for k in DN)))
+    filas = [[T] + [f2(A["tabla"][T][k]) for k in ("normal", "lognormal", "lp3", "gumbel")] + [f2(A["tabla"][T][el])] for T in H.PERIODOS]
     D.tabla("Resumen de precipitaciones máximas en 24 h por distribución (mm)", ["T (años)", "Normal", "Log-Normal", "Log-Pearson III", "Gumbel", "Diseño"], filas, [2, 2.6, 2.6, 2.8, 2.6, 2.6])
-    D.figura(os.path.join(c["FIG"], "fig_frecuencias.png"), "Ajuste de las distribuciones a la serie transpuesta.", 14.5)
+    D.figura(os.path.join(c["FIG"], "fig_frecuencias.png"), "Ajuste de las distribuciones a la serie de Pongo de Caynarachi.", 14.5)
     D.h(2, "Curvas intensidad - duración - frecuencia")
     D.p("Las lluvias de corta duración se obtienen de la precipitación máxima en 24 horas mediante la expresión de Dick y Peschke, recomendada "
         "por el Manual de Hidrología del MTC cuando no se dispone de registros pluviográficos:")
@@ -451,9 +462,10 @@ def memoria(D, c):
     D.h(1, "Conclusiones")
     D.vinetas([
         "Se determinaron los parámetros hidrológicos e hidráulicos del sistema de drenaje pluvial del proyecto %s, C.I. N° 468901." % nom_p,
-        "La serie de precipitación máxima en 24 horas de la estación CO Tarapoto (1999–2024) se trasladó a Barranquita con un factor de %.4f, "
-        "obtenido con la precipitación media anual de las estaciones de llanura Navarro, Pelejo y Shanusi (%s mm)." % (HID["factor"], mil(H.P_ANUAL_BARRANQUITA)),
-        "La distribución Log-Normal presenta el mejor ajuste (Kolmogorov-Smirnov D = %.4f < 0.27). La precipitación máxima en 24 horas para T = 25 años es %.2f mm." % (ks["lognormal"], HID["P24"]),
+        "La lluvia de diseño se obtuvo de la serie de precipitación máxima en 24 horas de la estación Pongo de Caynarachi (SENAMHI, código 003317), "
+        "en la misma subcuenca del río Caynarachi, con los 25 años completos más recientes del registro (%s), sin transposición." % H.ESTACION["periodo"],
+        "La distribución %s presenta el mejor ajuste (Kolmogorov-Smirnov D = %.4f < %.2f). La precipitación máxima en 24 horas para T = 25 años es %.2f mm." % (
+            {"normal": "Normal", "lognormal": "Log-Normal", "lp3": "Log-Pearson III", "gumbel": "Gumbel"}[A["elegida"]], ks[A["elegida"]], A["ks_critico"], HID["P24"]),
         "La intensidad de diseño para tc = 10 minutos (Dick y Peschke) es %.2f mm/h; la ecuación IDF es I = %.2f T^%.4f / t^%.4f." % (HID["I"], HID["K"], HID["m"], HID["n"]),
         "El área de intervención es de %s m², con coeficiente de escorrentía ponderado de %.3f, y los caudales se afectan por un factor de seguridad de %.2f." % (mil(hv["A_total"], 0), hv["C"], FS),
         "La red de cunetas tiene %s m en 19 ejes y 4 sistemas; las cunetas de 0.60 m de ancho total (0.40 m libres) cumplen en todos los tramos, con caudal máximo de %.1f l/s, borde libre mínimo de %.3f m y velocidad máxima de %.2f m/s." % (mil(c["L"]), c["Qmax"], c["BLmin"], c["Vmax"]),
@@ -469,7 +481,7 @@ def memoria(D, c):
         "Antes de la puesta en funcionamiento, retirar residuos de obra y realizar una prueba de escurrimiento desde los puntos altos de cada sistema.",
         "Limpiar canaletas, rejillas, tapas de inspección y cunetas antes y durante la temporada de lluvias (noviembre a abril), e implementar un programa de mantenimiento preventivo.",
         "Toda ampliación futura de techos o pavimentos requiere una nueva evaluación hidrológica e hidráulica.",
-        "Cuando el SENAMHI disponga de series de precipitación máxima en 24 horas de Navarro, Pelejo o Shanusi con registros recientes, contrastarlas con la serie transpuesta."])
+        "Cuando el SENAMHI publique los registros diarios posteriores a 2013 de Pongo de Caynarachi, o series diarias de Navarro, Pelejo o Shanusi, actualizar el análisis de frecuencias con los años recientes."])
     D.h(1, "Anexos")
     D.vinetas(["Memoria de cálculo hidrológico e hidráulico (Excel): MEMORIA_CALCULO_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.xlsx.",
                "Planos de drenaje pluvial DC-01 a DC-19 (PLANTEAMIENTO_CUNETAS_IE0590_BARRANQUITA.dxf)."])

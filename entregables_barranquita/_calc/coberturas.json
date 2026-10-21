@@ -1,0 +1,75 @@
+{
+ "fuente": "MEMORIA_HIDROLOGICA (version generada con base_sitio.pkl, 21-10-2026)",
+ "coberturas": [
+  {
+   "A": 379.99,
+   "ejes": [
+    "EJE-16",
+    "EJE-17"
+   ]
+  },
+  {
+   "A": 136.42,
+   "ejes": [
+    "EJE-15",
+    "EJE-14"
+   ]
+  },
+  {
+   "A": 136.42,
+   "ejes": [
+    "EJE-15",
+    "EJE-14"
+   ]
+  },
+  {
+   "A": 235.27,
+   "ejes": [
+    "EJE-04",
+    "EJE-07"
+   ]
+  },
+  {
+   "A": 586.33,
+   "ejes": [
+    "EJE-14",
+    "EJE-10"
+   ]
+  },
+  {
+   "A": 150.38,
+   "ejes": [
+    "EJE-11",
+    "EJE-14"
+   ]
+  },
+  {
+   "A": 204.11,
+   "ejes": [
+    "EJE-10",
+    "EJE-11"
+   ]
+  },
+  {
+   "A": 255.05,
+   "ejes": [
+    "EJE-05",
+    "EJE-07"
+   ]
+  },
+  {
+   "A": 42.49,
+   "ejes": [
+    "EJE-07",
+    "EJE-11"
+   ]
+  },
+  {
+   "A": 20.05,
+   "ejes": [
+    "EJE-12",
+    "EJE-11"
+   ]
+  }
+ ]
+}

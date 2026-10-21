@@ -16,21 +16,22 @@ def _g(nombre): return os.path.join(DIR, nombre)
 
 
 def serie(HID):
-    A = HID["analisis"]; anos = [a for a, _ in A["serie"]]; tr = [p for _, p in H.maximos()]; bq = [p for _, p in A["serie"]]
+    A = HID["analisis"]; anos = [a for a, _ in A["serie"]]; bq = [p for _, p in A["serie"]]
     fig, ax = plt.subplots(figsize=(8.5, 3.6)); x = np.arange(len(anos))
-    ax.bar(x - 0.2, tr, 0.4, color="#7fa7d9", label="CO Tarapoto (registrada)")
-    ax.bar(x + 0.2, bq, 0.4, color="#1f3a68", label="Barranquita (transpuesta x %.3f)" % HID["factor"])
+    ax.bar(x, bq, 0.6, color="#1f3a68", label="Pongo de Caynarachi, SENAMHI 003317 (%s)" % H.ESTACION["periodo"])
+    ax.axhline(A["media"], color="#7fa7d9", lw=1.2, ls="--", label="Media %.1f mm" % A["media"])
     ax.set_xticks(x); ax.set_xticklabels(anos, rotation=90); ax.set_ylabel("P máx. 24 h (mm)"); ax.grid(axis="y", alpha=0.3)
-    ax.legend(loc="upper left", fontsize=8); fig.tight_layout(); fig.savefig(_g("fig_serie.png"), dpi=170); plt.close(fig)
+    ax.set_ylim(0, max(bq) * 1.22); ax.legend(loc="upper center", fontsize=8, ncol=2, frameon=False)
+    fig.tight_layout(); fig.savefig(_g("fig_serie.png"), dpi=170); plt.close(fig)
 
 
 def frecuencias(HID):
     A = HID["analisis"]; T = H.PERIODOS
     fig, ax = plt.subplots(figsize=(7.5, 4.0))
-    for k, nom, est in (("normal", "Normal", "--"), ("lognormal", "Log-Normal (adoptada)", "-"), ("lp3", "Log-Pearson III", "-."), ("gumbel", "Gumbel", ":")):
-        ax.plot(T, [A["tabla"][t][k] for t in T], est, lw=2 if k == "lognormal" else 1.3, label=nom, marker="o", ms=3)
+    for k, nom, est in (("normal", "Normal", "--"), ("lognormal", "Log-Normal", "-"), ("lp3", "Log-Pearson III", "-."), ("gumbel", "Gumbel", ":")):
+        ax.plot(T, [A["tabla"][t][k] for t in T], est, lw=2 if k == A["elegida"] else 1.3, label=nom + (" (adoptada)" if k == A["elegida"] else ""), marker="o", ms=3)
     xs = [p for p, _ in A["orden"]]; Tr = [1 / (1 - f) for _, f in A["orden"]]
-    ax.plot(Tr, xs, "k.", ms=6, label="Serie transpuesta (Weibull)")
+    ax.plot(Tr, xs, "k.", ms=6, label="Serie Pongo de Caynarachi (Weibull)")
     ax.axvline(H.T_DISENO, color="r", lw=0.8); ax.annotate("T = 25 años\nP24 = %.1f mm" % HID["P24"], (H.T_DISENO, HID["P24"]), xytext=(40, HID["P24"] - 55),
                                                           arrowprops=dict(arrowstyle="->", color="r"), fontsize=8, color="r")
     ax.set_xscale("log"); ax.set_xlabel("Periodo de retorno T (años)"); ax.set_ylabel("P máx. 24 h (mm)"); ax.grid(alpha=0.3, which="both")
@@ -94,7 +95,10 @@ def meses():
 
 def todas(HID):
     os.makedirs(DIR, exist_ok=True)
-    serie(HID); frecuencias(HID); idf(HID); superficies(); recortes(); meses()
+    serie(HID); frecuencias(HID); idf(HID); meses()
+    import terreno_b as T
+    if os.path.exists(T.GEO): superficies()          # sin base del sitio se conserva fig_superficies.png (no depende de la lluvia)
+    recortes()
 
 
 if __name__ == "__main__":

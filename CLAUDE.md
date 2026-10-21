@@ -45,10 +45,12 @@ Cadena hidráulica: Varones (0.60) → caja de llegada CL → Refugio (0.80) →
   descarga con planta, perfil e isometrico; iso_b ya no se usa: el usuario no quiere el 3D de toda la red). Quiebres a 45 grados en planta
   (chaflanes de 0.60 m en cada esquina, `diseno_b.chaflanes`), no se muestran en perfiles. Area de intervencion = dentro del cerco perimetrico (`diseno_b.CERCO`, confirmado por
   el usuario): ninguna cuneta sale del cerco; el agua sale por pase en el cimiento (D1 a D4; sin pozas).
-  Expediente de drenaje (Word/Excel): `hidrologia_b.py` (estacion CO Tarapoto transpuesta x 2.21: Pa Navarro-Pelejo-Shanusi 2,375.6 / Tarapoto 1,073.1,
-  Log-Normal T = 25, Dick-Peschke, I = 467 mm/h; `lluvia_datos_b.py` lee datos diarios SENAMHI / NASA POWER / CHIRPS de
+  Expediente de drenaje (Word/Excel): `hidrologia_b.py` (serie Pmax 24 h de la estacion Pongo de Caynarachi SENAMHI 003317, 25 anios 1989-2013, sin
+  transposicion; Gumbel T = 25: P24 166.64 mm, Dick-Peschke, I = 288.63 mm/h; Tarapoto transpuesta x 2.21 solo como contraste; `lluvia_datos_b.py` lee datos diarios SENAMHI / NASA POWER / CHIRPS de
   `insumos/barranquita/lluvia/` y compara sin modificar el diseno), `metrado_b.py`, `memoria_calculo_b.py`, `memorias_b.py` (memoria hidrologica y
-  descriptiva), `espec_b.py`; regenerar con `python3 herramientas/barranquita/metrado_b.py && ... memoria_calculo_b.py && memorias_b.py && espec_b.py`.
+  descriptiva), `espec_b.py`. Sin `base_sitio.pkl`: `verifica_b.py --solo-lluvia` (cambio de lluvia sobre la geometria vigente) y caches
+  `_calc/coberturas.json` (areas de techo) y `_calc/junta_piso.json` (junta con el piso por eje); los planos (`planos_b.py`) si necesitan la base.
+  Regenerar con `python3 herramientas/barranquita/metrado_b.py && ... memoria_calculo_b.py && memorias_b.py && espec_b.py`.
   Ejes de cuneta (v3): lineas magenta del plano "PLANTA_GENERAL_590 ULTIMA VERSION" (lados de cada bloque, techos a dos aguas),
   copiadas en `insumos/barranquita/cunetas_magenta_usuario.json`; la base del sitio (`base_sitio.pkl`) es de esa version.
 - `gestion_riesgos/`: estudios de gestión de riesgos durante la ejecución de obra, separados de los colectores. `herramientas/` (generadores, con copia propia de `dxf_base.py`, `dxf_layouts.py`, `dxf_render.py`) y `proyectos/<proyecto>/insumos` y `proyectos/<proyecto>/entregables`. Ver `gestion_riesgos/README.md`.

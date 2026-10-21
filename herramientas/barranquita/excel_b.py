@@ -163,10 +163,10 @@ def main():
     h = Vf["hidrologia"]
     wh = wb.create_sheet("HIDRAULICA", 3)
     titulo(wh, "CAUDAL DE DISENO, TIRANTE Y VELOCIDAD POR TRAMO (REFERENCIAL)", 13)
-    par = [("C ponderado (escorrentia)", h["C"]), ("I (mm/h), T = 25 anos, tc = 10 min", h["I"]), ("P max 24 h transpuesta (mm)", h["P24"]), ("Velocidad maxima (m/s)", 3.0)]
+    par = [("C ponderado (escorrentia)", h["C"]), ("I (mm/h), T = 25 anos, tc = 10 min", h["I"]), ("P max 24 h, T = 25 anos, Pongo de Caynarachi (mm)", h["P24"]), ("Velocidad maxima (m/s)", 3.0)]
     for i, (t, v) in enumerate(par, 4):
         wh.cell(i, 1, t).font = F(); cc = wh.cell(i, 2, v); cc.font = F(bold=True); cc.fill = PatternFill("solid", fgColor=AMA); cc.border = BOR
-    wh.cell(8, 1, "I: tc = %.0f min, TR = 25 anos, P10 = %.2f mm (estacion usada en el Hogar de Refugio - Morales); reemplazar por la del proyecto. "
+    wh.cell(8, 1, "I: tc = %.0f min, TR = 25 anos, P10 = %.2f mm (estacion Pongo de Caynarachi, SENAMHI 003317, 1989-2013; Dick y Peschke). "
                   "Area tributaria: cada m2 dentro del cerco a la cuneta mas cercana." % (h["tc"], h["P10"])).font = F(italic=True, size=8)
     cab(wh, 10, ["EJE", "DE", "A", "AREA (m2)", "Q (l/s)", "S (%)", "TIRANTE y (m)", "h (m)", "BORDE LIBRE (m)", "V (m/s)", "CAPACIDAD", "VELOCIDAD", "OBSERVACION"],
         [9, 7, 7, 11, 10, 8, 12, 8, 13, 9, 12, 12, 46])
