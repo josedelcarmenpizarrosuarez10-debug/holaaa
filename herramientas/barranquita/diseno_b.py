@@ -129,28 +129,28 @@ N["D4n"] = (N["D4"][0], N["D4"][1] - D_CERCO)
 # Todo dentro del cerco; el ultimo tramo de cada descarga (Dn -> D) es el paso por el cerco.
 RAMALES = [
     # Sistema 1 - Oeste: descarga D1 (cerco sur-oeste, talud hacia la quebrada del oeste)
-    ("R-01", 1, ["A0", "A1", "D1n", "D1"], "Pabellon oeste A: lado nor-oeste y salida D1"),
-    ("R-02", 1, ["B5a", "W1a", "W12", "W13", "W1b", "D1n"], "Pabellon oeste B: lado nor-este; pabellon A: lado sur-este; union a D1"),
-    ("R-03", 1, ["W2a", "W12"], "Pabellon oeste B: lado sur-oeste (patio)"),
-    ("R-04", 1, ["X885a", "X885b", "N885", "W3d", "W3c", "W34", "W13"], "Bloque x=884.9 (lado oeste), bloque D (lado norte) y pabellon C (lado nor-este)"),
-    ("R-05", 1, ["T29e", "T29w", "T7e", "T7w", "T4s", "W1b"], "Bloque del ingreso (lado sur), bloque D (lado sur) y pabellon C (lado sur-oeste)"),
-    ("R-06", 1, ["X896d", "N885"], "Bloque del ingreso: lado norte (y=815.97) al oeste de x=896.8"),
+    ("EJE-01", 1, ["A0", "A1", "D1n", "D1"], "Pabellon oeste A: lado nor-oeste y salida D1"),
+    ("EJE-02", 1, ["B5a", "W1a", "W12", "W13", "W1b", "D1n"], "Pabellon oeste B: lado nor-este; pabellon A: lado sur-este; union a D1"),
+    ("EJE-03", 1, ["W2a", "W12"], "Pabellon oeste B: lado sur-oeste (patio)"),
+    ("EJE-04", 1, ["X885a", "X885b", "N885", "W3d", "W3c", "W34", "W13"], "Bloque x=884.9 (lado oeste), bloque D (lado norte) y pabellon C (lado nor-este)"),
+    ("EJE-05", 1, ["T29e", "T29w", "T7e", "T7w", "T4s", "W1b"], "Bloque del ingreso (lado sur), bloque D (lado sur) y pabellon C (lado sur-oeste)"),
+    ("EJE-06", 1, ["X896d", "N885"], "Bloque del ingreso: lado norte (y=815.97) al oeste de x=896.8"),
     # Sistema 2 - Centro y frente sur: descarga D3 (cerco sur junto a C14, hacia el Jr. Alfonso Ugarte)
-    ("R-07", 2, ["X896a", "X896b", "X896c", "X896d", "X919a", "X919c", "X919b", "K1", "F1", "D3n", "D3"], "Patio central (x=896.8), y=815.97, bajada x=919.6 y atrio de ingreso a D3"),
-    ("R-08", 2, ["X936b", "X932a", "X896b"], "Bloque del centro: lado sur (y=839.94)"),
-    ("R-09", 2, ["X932b", "X896c"], "Patio central: y=822.09"),
-    ("R-10", 2, ["X932a", "X932b", "X932c", "X919a"], "x=932.6 y bloque del frente: lado norte (y=815.97)"),
-    ("R-11", 2, ["T28e", "X919c"], "Bloque del frente: lado sur (y=804.1)"),
+    ("EJE-07", 2, ["X896a", "X896b", "X896c", "X896d", "X919a", "X919c", "X919b", "K1", "F1", "D3n", "D3"], "Patio central (x=896.8), y=815.97, bajada x=919.6 y atrio de ingreso a D3"),
+    ("EJE-08", 2, ["X936b", "X932a", "X896b"], "Bloque del centro: lado sur (y=839.94)"),
+    ("EJE-09", 2, ["X932b", "X896c"], "Patio central: y=822.09"),
+    ("EJE-10", 2, ["X932a", "X932b", "X932c", "X919a"], "x=932.6 y bloque del frente: lado norte (y=815.97)"),
+    ("EJE-11", 2, ["T28e", "X919c"], "Bloque del frente: lado sur (y=804.1)"),
     # Sistema 3 - Nor-este: descarga D2 (pase en el cerco norte, x = 965.5, hacia la hondonada natural exterior)
-    ("R-12", 3, ["T25n", "T22w", "L2", "L3", "Q0", "Q1", "Q2", "Q3", "D2n", "D2"], "Losa: lados oeste, sur y este; union por dentro del cerco a D2"),
-    ("R-13", 3, ["L4", "L3"], "Losa: lado norte (y=831.3)"),
-    ("R-14", 3, ["Y815e", "X952a", "X952b", "X952c", "X971a", "Q0"], "y=815.97, x=952.3 y bloque nor-este: lado sur (y=839.9)"),
-    ("R-15", 3, ["X948a", "X948b", "X971b", "Q1"], "Bloque nor-este: lado oeste (x=948.1) y lado norte (y=851.9)"),
-    ("R-16", 3, ["T12w", "T12e", "T12k", "D2n"], "Bloque norte: lado norte (y=865.1) y union a D2 por el norte de la planta de tratamiento"),
+    ("EJE-12", 3, ["T25n", "T22w", "L2", "L3", "Q0", "Q1", "Q2", "Q3", "D2n", "D2"], "Losa: lados oeste, sur y este; union por dentro del cerco a D2"),
+    ("EJE-13", 3, ["L4", "L3"], "Losa: lado norte (y=831.3)"),
+    ("EJE-14", 3, ["Y815e", "X952a", "X952b", "X952c", "X971a", "Q0"], "y=815.97, x=952.3 y bloque nor-este: lado sur (y=839.9)"),
+    ("EJE-15", 3, ["X948a", "X948b", "X971b", "Q1"], "Bloque nor-este: lado oeste (x=948.1) y lado norte (y=851.9)"),
+    ("EJE-16", 3, ["T12w", "T12e", "T12k", "D2n"], "Bloque norte: lado norte (y=865.1) y union a D2 por el norte de la planta de tratamiento"),
     # Sistema 4 - Norte: descarga D4 (cerco norte, x = 911.0, talud de la quebrada del norte)
-    ("R-17", 4, ["Y853c", "J4", "D4n", "D4"], "Bloque norte: lado sur (y=853.5) y salida D4"),
-    ("R-18", 4, ["X936b", "T17n", "J11", "J4"], "Bloque del centro: lado este (x=936.5) y lado norte (y=851.7), tramo este"),
-    ("R-19", 4, ["T11w", "J11"], "Bloque del centro: lado norte (y=851.7), tramo oeste"),
+    ("EJE-17", 4, ["Y853c", "J4", "D4n", "D4"], "Bloque norte: lado sur (y=853.5) y salida D4"),
+    ("EJE-18", 4, ["X936b", "T17n", "J11", "J4"], "Bloque del centro: lado este (x=936.5) y lado norte (y=851.7), tramo este"),
+    ("EJE-19", 4, ["T11w", "J11"], "Bloque del centro: lado norte (y=851.7), tramo oeste"),
 ]
 # sistemas: nombre y descarga (los colores de cada sistema estan en planos_b.py e iso_b.py)
 SISTEMAS = {1: ("OESTE", "D1"), 2: ("CENTRO Y FRENTE SUR", "D3"), 3: ("NOR-ESTE Y LOSA", "D2"), 4: ("NORTE", "D4")}
@@ -163,12 +163,12 @@ DESCARGAS = {"D1": "Cerco sur-oeste (lado C22-C1, x = %.1f): al talud natural qu
              "D4": "Cerco norte (lado C3-C4, x = 911.0): al talud natural que baja a la quebrada del norte"}
 
 # tramos tapados que no salen de las veredas del plano: ingresos y pases por el cerco (codigo, nudo a, nudo b, motivo)
-TAPADOS_FIJOS = [("R-07", "X919b", "D3", "Atrio del ingreso principal y paso por el cerco"),
-                 ("R-12", "Q2", "D2", "Patio pavimentado del nor-este y paso por el cerco"),
-                 ("R-01", "D1n", "D1", "Paso por el cerco"), ("R-17", "D4n", "D4", "Paso por el cerco")]
+TAPADOS_FIJOS = [("EJE-07", "X919b", "D3", "Atrio del ingreso principal y paso por el cerco"),
+                 ("EJE-12", "Q2", "D2", "Patio pavimentado del nor-este y paso por el cerco"),
+                 ("EJE-01", "D1n", "D1", "Paso por el cerco"), ("EJE-17", "D4n", "D4", "Paso por el cerco")]
 # uniones nuevas (no son lados de edificacion): rasante en linea recta entre sus extremos (relleno compactado)
-CONEXIONES = [("R-04", "X885b", "N885"), ("R-05", "T29w", "T7e"), ("R-05", "T7w", "T4s"), ("R-02", "W1b", "D1n"),
-              ("R-14", "X971a", "Q0"), ("R-15", "X971b", "Q1")]
+CONEXIONES = [("EJE-04", "X885b", "N885"), ("EJE-05", "T29w", "T7e"), ("EJE-05", "T7w", "T4s"), ("EJE-02", "W1b", "D1n"),
+              ("EJE-14", "X971a", "Q0"), ("EJE-15", "X971b", "Q1")]
 
 
 def plataforma():

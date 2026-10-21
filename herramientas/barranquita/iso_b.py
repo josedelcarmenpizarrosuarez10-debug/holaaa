@@ -441,7 +441,7 @@ def detalles(doc, R, V, ox, oy, codigo="DC-10"):
         with EnBloque(lam, "ISO_DETALLE_CUNETAS_" + D):
             dibujar(Ec, lam, xs[D], ymm)
         lam.titulo_vista(xs[D], 520, "DESCARGA %s - %s" % (D, "POZA DE SALIDA" if d["tipo"] == "poza" else "PASE EN EL CERCO"),
-                         "Ramal %s - C.F. %.3f - el observador mira en el sentido del agua" % (rr["codigo"], d["cf"]), ancho_mm=min(150, paso - 30))
+                         "%s - C.F. %.3f - el observador mira en el sentido del agua" % (rr["codigo"], d["cf"]), ancho_mm=min(150, paso - 30))
         pts = fl[D]
         if len(pts) >= 2:
             pa, pb = P2(vis.L(*pts[-2])), P2(vis.L(*pts[-1])); lam.flecha(pa, pb, "LLAMADAS", tam_mm=5.0)

@@ -357,7 +357,7 @@
  },
  "ramales": [
   {
-   "codigo": "R-01",
+   "codigo": "EJE-01",
    "sistema": 1,
    "nudos": [
     "A0",
@@ -787,7 +787,7 @@
    ]
   },
   {
-   "codigo": "R-02",
+   "codigo": "EJE-02",
    "sistema": 1,
    "nudos": [
     "B5a",
@@ -1666,7 +1666,7 @@
    ]
   },
   {
-   "codigo": "R-03",
+   "codigo": "EJE-03",
    "sistema": 1,
    "nudos": [
     "W2a",
@@ -2027,7 +2027,7 @@
    ]
   },
   {
-   "codigo": "R-04",
+   "codigo": "EJE-04",
    "sistema": 1,
    "nudos": [
     "X885a",
@@ -3108,7 +3108,7 @@
    ]
   },
   {
-   "codigo": "R-05",
+   "codigo": "EJE-05",
    "sistema": 1,
    "nudos": [
     "T29e",
@@ -4122,7 +4122,7 @@
    ]
   },
   {
-   "codigo": "R-06",
+   "codigo": "EJE-06",
    "sistema": 1,
    "nudos": [
     "X896d",
@@ -4278,7 +4278,7 @@
    ]
   },
   {
-   "codigo": "R-07",
+   "codigo": "EJE-07",
    "sistema": 2,
    "nudos": [
     "X896a",
@@ -5467,7 +5467,7 @@
    ]
   },
   {
-   "codigo": "R-08",
+   "codigo": "EJE-08",
    "sistema": 2,
    "nudos": [
     "X936b",
@@ -5920,7 +5920,7 @@
    ]
   },
   {
-   "codigo": "R-09",
+   "codigo": "EJE-09",
    "sistema": 2,
    "nudos": [
     "X932b",
@@ -6316,7 +6316,7 @@
    ]
   },
   {
-   "codigo": "R-10",
+   "codigo": "EJE-10",
    "sistema": 2,
    "nudos": [
     "X932a",
@@ -6766,7 +6766,7 @@
    ]
   },
   {
-   "codigo": "R-11",
+   "codigo": "EJE-11",
    "sistema": 2,
    "nudos": [
     "T28e",
@@ -7112,7 +7112,7 @@
    ]
   },
   {
-   "codigo": "R-12",
+   "codigo": "EJE-12",
    "sistema": 3,
    "nudos": [
     "T25n",
@@ -8504,7 +8504,7 @@
    ]
   },
   {
-   "codigo": "R-13",
+   "codigo": "EJE-13",
    "sistema": 3,
    "nudos": [
     "L4",
@@ -8785,7 +8785,7 @@
    ]
   },
   {
-   "codigo": "R-14",
+   "codigo": "EJE-14",
    "sistema": 3,
    "nudos": [
     "Y815e",
@@ -9559,7 +9559,7 @@
    ]
   },
   {
-   "codigo": "R-15",
+   "codigo": "EJE-15",
    "sistema": 3,
    "nudos": [
     "X948a",
@@ -10059,7 +10059,7 @@
    ]
   },
   {
-   "codigo": "R-16",
+   "codigo": "EJE-16",
    "sistema": 3,
    "nudos": [
     "T12w",
@@ -10634,7 +10634,7 @@
    ]
   },
   {
-   "codigo": "R-17",
+   "codigo": "EJE-17",
    "sistema": 4,
    "nudos": [
     "Y853c",
@@ -11123,7 +11123,7 @@
    ]
   },
   {
-   "codigo": "R-18",
+   "codigo": "EJE-18",
    "sistema": 4,
    "nudos": [
     "X936b",
@@ -11588,7 +11588,7 @@
    ]
   },
   {
-   "codigo": "R-19",
+   "codigo": "EJE-19",
    "sistema": 4,
    "nudos": [
     "T11w",

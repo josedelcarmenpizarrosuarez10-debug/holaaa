@@ -1,7 +1,7 @@
 """Planos del planteamiento preliminar de cunetas - I.E. N.° 0590, Barranquita (Lamas - San Martin).
 
 DC-00 indice; DC-01 planta general de cunetas (1/250, coordenadas UTM reales); DC-02 cuadro de tramos y secciones tipicas
-(1/5); DC-03... perfiles longitudinales (1/100, horizontal = vertical).
+(1/5); DC-03... perfiles longitudinales por eje (1/50, H = V) y secciones transversales (1/20) de perfiles_b.py.
 Lee entregables_barranquita/_calc/diseno.json (diseno_b.py) y la base del sitio (insumos/barranquita/base_sitio.pkl).
 Uso: python3 herramientas/barranquita/planos_b.py
 """
@@ -15,6 +15,7 @@ import terreno_b as T
 import diseno_b as DS
 import iso_b as ISO
 import cortes_b as CT
+import perfiles_b as PB
 
 SAL = os.path.join(RAIZ, "entregables_barranquita", "PLANTEAMIENTO_CUNETAS_IE0590_BARRANQUITA.dxf")
 CALC = os.path.join(RAIZ, "entregables_barranquita", "_calc")
@@ -196,7 +197,7 @@ def dc01(doc, R, V):
         for n, xy in R["nudos"].items():
             if n in DS.DESCARGAS: continue
             lam.circulo(tuple(xy), 0.30, "NUDOS")
-        for r in ram:                                          # codigo del ramal junto a su tramo mas largo
+        for r in ram:                                          # codigo del eje junto a su tramo mas largo
             pts = puntos_ramal(R, r["nudos"]); i = max(range(len(pts) - 1), key=lambda k: math.dist(pts[k], pts[k + 1]))
             L = math.dist(pts[i], pts[i + 1]); ux, uy = (pts[i + 1][0] - pts[i][0]) / L, (pts[i + 1][1] - pts[i][1]) / L
             c = (pts[i][0] + ux * L * 0.62, pts[i][1] + uy * L * 0.62)
@@ -240,7 +241,7 @@ def dc01(doc, R, V):
     c = R["criterios"]
     lam.notas(275, 72, "CRITERIOS DEL PLANTEAMIENTO", [
         "1. Cuneta rectangular de concreto: ancho total %.2f m = muros de %.2f m + %.2f m libres; losa de fondo de 0.10 m." % (c["b_tot"], c["muro"], c["b_int"]),
-        "2. Profundidad al inicio de cada ramal %.2f m; minima %.2f m donde el terreno cae mas que la cuneta; cota de fondo con S = %.1f %%." % (c["h0"], c["hmin"], 100 * c["S"]),
+        "2. Profundidad al inicio de cada eje %.2f m; minima %.2f m donde el terreno cae mas que la cuneta; cota de fondo con S = %.1f %%." % (c["h0"], c["hmin"], 100 * c["S"]),
         "3. %s" % DS_NIV,
         "4. Techos a dos aguas: cada alero descarga a la cuneta de su lado. Rejilla en tramos abiertos; losa tapa en cruces de vereda e ingresos.",
         "5. Cotas de fondo, profundidades y pendientes por tramo en la lamina DC-02 y en los perfiles DC-03 en adelante.",
@@ -301,7 +302,7 @@ def dc02(doc, R, ox, oy):
         for t in r["tramos"]:
             filas.append([r["codigo"], nom[t["de"]], nom[t["a"]], "%.2f" % t["L"], "%.2f" % t["ras_de"], "%.2f" % t["ras_a"], "%.3f" % t["cf_de"],
                           "%.3f" % t["cf_a"], "%.2f" % t["h_de"], "%.2f" % t["h_a"], "%.2f" % (100 * t["S"]), "%.2f" % t["L_tapado"]])
-    cab = ["RAMAL", "DE", "A", "L (m)", "RAS. DE", "RAS. A", "C.F. DE", "C.F. A", "h DE", "h A", "S (%)", "TAPADO (m)"]
+    cab = ["EJE", "DE", "A", "L (m)", "RAS. DE", "RAS. A", "C.F. DE", "C.F. A", "h DE", "h A", "S (%)", "TAPADO (m)"]
     anch = [16, 14, 14, 17, 20, 20, 21, 21, 14, 14, 15, 20]
     mitad = (len(filas) + 1) // 2
     lam.tabla(30, 566, cab, filas[:mitad], anch, hmm=1.8, alto_mm=5.6, titulo="CUADRO DE TRAMOS (C.F. = COTA DE FONDO, RAS. = RASANTE, h = PROFUNDIDAD)")
@@ -315,7 +316,7 @@ def dc02(doc, R, ox, oy):
         res.append([NOM_SIS[k], "%d" % len(rr), "%.2f" % L, "%.2f" % (L - Lt), "%.2f" % Lt, "%.2f" % hx])
     Lt = sum(float(x[2]) for x in res); res.append(["TOTAL", "%d" % len(R["ramales"]), "%.2f" % Lt, "%.2f" % sum(float(x[3]) for x in res),
                                                    "%.2f" % sum(float(x[4]) for x in res), "%.2f" % max(float(x[5]) for x in res[:len(SIS)])])
-    lam.tabla(30, 128, ["SISTEMA", "RAMALES", "LONGITUD (m)", "CON REJILLA (m)", "TAPADO (m)", "h MAX (m)"], res, [86, 20, 28, 32, 26, 22],
+    lam.tabla(30, 128, ["SISTEMA", "EJES", "LONGITUD (m)", "CON REJILLA (m)", "TAPADO (m)", "h MAX (m)"], res, [86, 20, 28, 32, 26, 22],
               hmm=1.8, alto_mm=5.6, titulo="RESUMEN POR SISTEMA")
     # secciones tipicas a 1/5 debajo de los cuadros
     seccion(lam, *lam.P(300, 172), 0.30, False, "SECCION TIPICA CON REJILLA")
@@ -327,131 +328,6 @@ def dc02(doc, R, ox, oy):
         "4. h = profundidad libre desde la rasante hasta la cota de fondo: 0.30 m al inicio; variable segun el cuadro de tramos.",
         "5. Secciones dibujadas con h = 0.30 m; los valores de cada tramo estan en el cuadro y en los perfiles."], hmm=1.6, ancho_mm=330)
     return lam
-
-
-# ----------------------------------------------------------------------------- perfiles 1/100
-ANCHO_FR = 74.0          # m de perfil por franja
-
-
-def piezas(R):
-    out = []
-    for r in R["ramales"]:
-        L = r["L"]; n = max(1, int(math.ceil(L / ANCHO_FR))); paso = L / n
-        for k in range(n): out.append((r, k * paso, (k + 1) * paso, n > 1))
-    return out
-
-
-def perfil(lam, r, s0, s1, xmm, ymm_base, alto_mm, R):
-    """Perfil del ramal r entre s0 y s1 con su guitarra; xmm, ymm_base = esquina inferior izquierda de la guitarra (mm)."""
-    f = lam.f; P = r["perfil"]; nom = R["nombre"]
-    seg = [p for p in P if s0 - 1e-6 <= p[0] <= s1 + 1e-6]
-    zmin = min(p[2] for p in seg) - 0.20; zmax = max(p[1] for p in seg) + 0.30
-    zref = math.floor(zmin * 2) / 2
-    filas = ["PROGRESIVA (m)", "RASANTE", "COTA DE FONDO", "PROFUNDIDAD h", "PENDIENTE S (%)"]
-    alto_g = 6.5; y_g = ymm_base; y0d = y_g + alto_g * len(filas) + 6       # el dibujo empieza sobre la guitarra
-    X = lambda s: lam.P(xmm + 32 + (s - s0) / f, 0)[0]
-    Yz = lambda z: lam.P(0, y0d + (z - zref) / f)[1]
-    # guitarra
-    xg1 = xmm + 32 + (s1 - s0) / f
-    for i, t in enumerate(filas):
-        yy = y_g + alto_g * (len(filas) - i)
-        lam.linea(lam.P(xmm, yy), lam.P(xg1, yy), "GUITARRA")
-        lam.texto(lam.P(xmm + 1, yy - alto_g / 2), t, 1.45, "TEXTOS", TA.MIDDLE_LEFT)
-    lam.linea(lam.P(xmm, y_g), lam.P(xg1, y_g), "GUITARRA"); lam.linea(lam.P(xmm, y_g), lam.P(xmm, y_g + alto_g * len(filas)), "GUITARRA")
-    lam.linea(lam.P(xmm + 30, y_g), lam.P(xmm + 30, y_g + alto_g * len(filas)), "GUITARRA")
-    # dibujo: concreto de la losa de fondo y muros (vista), rasante y fondo
-    fondo = [(X(p[0]), Yz(p[2])) for p in seg]; ras = [(X(p[0]), Yz(p[1])) for p in seg]
-    bajo = [(X(p[0]), Yz(p[2] - 0.10)) for p in seg]
-    lam.relleno(fondo + bajo[::-1], "CONCRETO-ACHURADO"); lam.poli(fondo, "CONCRETO"); lam.poli(bajo, "CONCRETO")
-    lam.poli(ras, "TERRENO")
-    for s_a, s_b in r["tapados"]:
-        a, b = max(s_a, s0), min(s_b, s1)
-        if b - a > 0.3:
-            pts = [(X(p[0]), Yz(p[1])) for p in seg if a <= p[0] <= b]
-            if len(pts) > 1:
-                low = [(x, y - 0.10) for x, y in pts]
-                lam.relleno(pts + low[::-1], "CONCRETO-ACHURADO"); lam.poli(pts + low[::-1], "CONCRETO", cerrada=True)
-    # eje de cotas
-    z = zref
-    while z <= zmax + 0.01:
-        lam.linea((X(s0) - 1.5 * f, Yz(z)), (X(s0), Yz(z)), "GRILLA")
-        lam.texto((X(s0) - 2.0 * f, Yz(z)), "%.2f" % z, 1.3, "TEXTOS", TA.MIDDLE_RIGHT)
-        z += 0.5
-    lam.linea((X(s0), Yz(zref)), (X(s0), Yz(zmax)), "GRILLA")
-    # estaciones: nudos + cada 10 m
-    est = []
-    acc = 0.0; tr = r["tramos"]
-    nodos = [(0.0, tr[0]["de"])]
-    for t in tr: acc += t["L"]; nodos.append((acc, t["a"]))
-    for sN, n in nodos:
-        if s0 - 1e-6 <= sN <= s1 + 1e-6: est.append((sN, n))
-    for sx in (s0, s1):
-        if all(abs(sx - e[0]) > 1.0 for e in est): est.append((sx, None))
-    k = math.ceil(s0 / 10) * 10
-    while k < s1 - 1e-6:
-        if all(abs(k - e[0]) > 3.0 for e in est): est.append((k, None))
-        k += 10
-    est.sort()
-    def val(sv):
-        best = min(seg, key=lambda p: abs(p[0] - sv)); return best
-    ult = -1e9
-    for sv, n in est:
-        p = val(sv); xs = X(sv)
-        lam.linea((xs, Yz(p[2])), (xs, lam.P(0, y_g + alto_g * len(filas))[1]), "GRILLA")
-        if n:
-            lam.linea((xs, Yz(p[1])), (xs, Yz(p[1]) + 4 * f), "TEXTOS")
-            lam.texto((xs, Yz(p[1]) + 4.6 * f), nom[n], 1.6, "TEXTOS", TA.BOTTOM_CENTER)
-        if (xs - ult) / f < 6.5: continue
-        ult = xs
-        for i, v in enumerate(["%.2f" % sv, "%.2f" % p[1], "%.3f" % p[2], "%.2f" % (p[1] - p[2])]):
-            lam.texto((xs, lam.P(0, y_g + alto_g * (len(filas) - i - 0.5))[1]), v, 1.25, "TEXTOS", TA.MIDDLE_CENTER)
-    # pendiente por tramo
-    acc = 0.0
-    for t in tr:
-        a, b = acc, acc + t["L"]; acc = b
-        a2, b2 = max(a, s0), min(b, s1)
-        if b2 - a2 > 0.5:
-            lam.texto(((X(a2) + X(b2)) / 2, lam.P(0, y_g + alto_g * 0.5)[1]), "%.2f" % (100 * t["S"]), 1.25, "TEXTOS", TA.MIDDLE_CENTER)
-            lam.linea((X(b2), lam.P(0, y_g)[1]), (X(b2), lam.P(0, y_g + alto_g)[1]), "GUITARRA")
-    tit = "PERFIL %s - %s" % (r["codigo"], r["descripcion"].upper())
-    if s0 > 0 or s1 < r["L"] - 0.01: tit += "  (PROG. %.2f A %.2f)" % (s0, s1)
-    lam.texto(lam.P(xmm, y0d + (zmax - zref) / f + 7), tit, 2.4, "TITULOS", TA.LEFT)
-    return y0d + (zmax - zref) / f + 12
-
-
-def perfiles(doc, R, ox0, oy0, sep):
-    """Reparte los perfiles en laminas A1 (4 franjas por lamina)."""
-    pz = piezas(R); lams = []; k = 0; num = 3
-    franjas = []
-    cur, ancho = [], 0.0
-    for p in pz:
-        L = p[2] - p[1]
-        if ancho + L + (8 if cur else 0) > ANCHO_FR and cur:
-            franjas.append(cur); cur, ancho = [], 0.0
-        cur.append(p); ancho += L + (8 if len(cur) > 1 else 0)
-    if cur: franjas.append(cur)
-    # alto de cada franja segun el desnivel
-    def alto(fr):
-        return max((max(q[1] for q in p[0]["perfil"] if p[1] <= q[0] <= p[2]) - min(q[2] for q in p[0]["perfil"] if p[1] <= q[0] <= p[2]) + 0.8) * 10
-                   for p in fr) + 6.5 * 5 + 22
-    i = 0
-    while i < len(franjas):
-        ox = ox0 + (num - 3) * sep
-        lam = B.Lamina(doc, ox, oy0, 100, "DC-%02d" % num, "PERFILES LONGITUDINALES DE CUNETAS",
-                       "RASANTE, COTA DE FONDO, PROFUNDIDAD Y PENDIENTE POR RAMAL - ESC. H = V = 1/100")
-        ytop = 580; usados = []
-        while i < len(franjas):
-            a = alto(franjas[i])
-            ybase = ytop - a
-            limite = 108 if True else 12
-            if ybase < limite: break
-            x = 30
-            for (r, s0, s1, part) in franjas[i]:
-                perfil(lam, r, s0, s1, x, ybase, a, R)
-                x += 32 + (s1 - s0) * 10 + 8 * 10 / 10 * 1.0 + 10
-            ytop = ybase - 4; i += 1
-        lams.append(lam); num += 1
-    return lams
 
 
 def indice(doc, ox, oy, lista):
@@ -476,11 +352,14 @@ def construir():
     l1 = dc01(doc, R, V); lams["DC-01"] = l1
     ox2, oy2 = l1.ox, l1.oy - 594 * 0.25 - 60
     l2 = dc02(doc, R, ox2, oy2); lams["DC-02"] = l2
-    lp = perfiles(doc, R, ox2 + 841 * 0.005 + 20, oy2, 841 * 0.1 + 15)
-    for l in lp: lams[l.codigo] = l
+    SEC = PB.secciones(R); PB.capas(doc)
+    lp = PB.perfiles(doc, R, SEC, ox2 + 841 * 0.005 + 20, oy2, 841 * PB.ESC_P / 1000 + 15, 3)
+    xs = ox2 + 841 * 0.005 + 20 + len(lp) * (841 * PB.ESC_P / 1000 + 15)
+    lsec = PB.cortes(doc, SEC, xs, oy2, 841 * PB.ESC_S / 1000 + 15, 3 + len(lp))
+    for l in lp + lsec: lams[l.codigo] = l
     ISO.capas_iso(doc)
     oyi = l1.oy + 594 * 0.25 + 60
-    k0 = 3 + len(lp); C = lambda i: "DC-%02d" % (k0 + i)    # laminas correlativas despues de los perfiles
+    k0 = 3 + len(lp) + len(lsec); C = lambda i: "DC-%02d" % (k0 + i)    # laminas correlativas despues de perfiles y secciones
     ISO.COD_DET = C(4)
     l7 = ISO.isometrico(doc, R, V, l1.ox, oyi, C(0), 157.5, "ISOMETRICO DE LA RED DE CUNETAS - VISTA DESDE EL SUR",
                         "SOLO CUNETAS SOBRE EL TERRENO Y LAS VEREDAS, DENTRO DEL CERCO: DESCARGAS D1, D3 Y D4 - ESCALA REAL")
@@ -493,7 +372,8 @@ def construir():
     l11 = ISO.detalles(doc, R, V, l10.ox + 841 * 0.25 + 30, oyi, C(4)); lams[C(4)] = l11
     ind = [("DC-01", "PLANTA GENERAL DE CUNETAS - PLANTEAMIENTO PRELIMINAR", "A1", "1/250"),
            ("DC-02", "CUADRO DE TRAMOS Y SECCIONES TIPICAS DE CUNETA", "A1", "1/5")] + \
-          [(l.codigo, "PERFILES LONGITUDINALES DE CUNETAS", "A1", "1/100") for l in lp] + \
+          [(l.codigo, "PERFILES LONGITUDINALES DE CUNETAS POR EJE", "A1", "1/%d" % PB.ESC_P) for l in lp] + \
+          [(l.codigo, "SECCIONES TRANSVERSALES DE CUNETAS", "A1", "1/%d" % PB.ESC_S) for l in lsec] + \
           [(C(0), "ISOMETRICO DE LA RED - VISTA DESDE EL SUR", "A1", "1/350"), (C(1), "ISOMETRICO DE LA RED - VISTA DESDE EL NORTE", "A1", "1/350"),
            (C(2), "CORTES POR LAS DESCARGAS " + LISTA_D, "A1", "1/100"), (C(3), "CORTES GENERALES DEL TERRENO Y LA RED", "A1", "1/250"),
            (C(4), "DETALLE ISOMETRICO DE LAS DESCARGAS POR EL CERCO", "A1", "1/75")]
@@ -502,6 +382,9 @@ def construir():
     doc.audit(); doc.saveas(SAL)
     cajas = {k: [l.ox, l.oy, l.ox + l.W * l.f, l.oy + l.H * l.f] for k, l in lams.items()}
     json.dump(cajas, open(os.path.join(CALC, "laminas.json"), "w"), indent=1)
+    json.dump(ind, open(os.path.join(CALC, "indice.json"), "w"), indent=1, ensure_ascii=False)
+    json.dump({e: [{k: (round(v, 3) if isinstance(v, float) else v) for k, v in x.items()} for x in l] for e, l in SEC.items()},
+              open(os.path.join(CALC, "secciones.json"), "w"), indent=1, ensure_ascii=False)
     print(SAL); print(cajas)
 
 

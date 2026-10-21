@@ -288,3 +288,14 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - D2 ya no es poza: pase en el cimiento como D1, D3 y D4 (POZA = set()).
 - Resultado: 11 de 11 comprobaciones; profundidad maxima 0.92 m (R-07); C.F. de salida D1 183.660, D2 183.704, D3 183.576, D4 184.099.
 - Recomendacion pendiente: rejilla de transito vehicular en las cunetas del patio de maniobra.
+
+## 21-10-2026 – Barranquita: perfiles longitudinales por eje y secciones (estilo de las laminas del usuario)
+- Los 19 ramales pasan a llamarse EJE-01 ... EJE-19 (misma geometria, mismos nudos: no se mueve ni se junta ninguna linea).
+- herramientas/barranquita/perfiles_b.py: perfiles a 1/50 (H = V) con el estilo del usuario: NCT azul (abierto) / verde (tapado,
+  cara superior e inferior de la losa), NCF magenta (cara superior e inferior de la losa de fondo), linea roja en cada seccion,
+  referencias "Altura relativa al NPT" cada 0.15 m (0.00 = NPT +184.65), recuadro SECCION nn (NCT, NCF, H, EL, EM y conexion:
+  "Llega EJE-xx", "Entrega a EJE-yy", "Descarga Dn") y guitarra Progresiva / Etiqueta / Longitud / Pendiente con progresivas cada 5 m.
+- 96 secciones numeradas en orden (inicio y fin de eje, nudos, empalmes, inicio y fin de tapado, cambio de borde junto al patio);
+  cada una con su corte a 1/20 (rejilla movil de platinas o losa tapa, marco 3/8"@0.25, longitudinales 3/8"@0.20 / @0.22, junta
+  asfaltica 1" con el piso). Laminas: DC-03 a DC-11 perfiles, DC-12 a DC-15 secciones; isometricos y cortes pasan a DC-16 a DC-20.
+- Excel: hoja SECCIONES (mismas 96 secciones) y nota de laminas leida de _calc/indice.json.

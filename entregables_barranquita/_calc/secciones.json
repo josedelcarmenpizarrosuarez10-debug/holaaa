@@ -1,0 +1,1000 @@
+{
+ "EJE-01": [
+  {
+   "n": 1,
+   "s": 0.0,
+   "nct": 184.6,
+   "ncf": 184.3,
+   "h": 0.3,
+   "tap": false,
+   "nota": "Inicio del eje",
+   "eje": "EJE-01"
+  },
+  {
+   "n": 2,
+   "s": 31.9,
+   "nct": 184.6,
+   "ncf": 184.141,
+   "h": 0.459,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-01"
+  },
+  {
+   "n": 3,
+   "s": 34.05,
+   "nct": 184.6,
+   "ncf": 183.708,
+   "h": 0.892,
+   "tap": true,
+   "nota": "Llega EJE-02",
+   "eje": "EJE-01"
+  },
+  {
+   "n": 4,
+   "s": 34.64,
+   "nct": 183.91,
+   "ncf": 183.66,
+   "h": 0.25,
+   "tap": true,
+   "nota": "Descarga D1",
+   "eje": "EJE-01"
+  }
+ ],
+ "EJE-02": [
+  {
+   "n": 5,
+   "s": 0.0,
+   "nct": 184.6,
+   "ncf": 184.3,
+   "h": 0.3,
+   "tap": false,
+   "nota": "Inicio del eje",
+   "eje": "EJE-02"
+  },
+  {
+   "n": 6,
+   "s": 32.42,
+   "nct": 184.6,
+   "ncf": 184.138,
+   "h": 0.462,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-02"
+  },
+  {
+   "n": 7,
+   "s": 43.95,
+   "nct": 184.6,
+   "ncf": 184.08,
+   "h": 0.52,
+   "tap": false,
+   "nota": "Llega EJE-03",
+   "eje": "EJE-02"
+  },
+  {
+   "n": 8,
+   "s": 52.63,
+   "nct": 184.6,
+   "ncf": 183.826,
+   "h": 0.774,
+   "tap": false,
+   "nota": "Llega EJE-04",
+   "eje": "EJE-02"
+  },
+  {
+   "n": 9,
+   "s": 64.1,
+   "nct": 184.6,
+   "ncf": 183.768,
+   "h": 0.832,
+   "tap": false,
+   "nota": "Llega EJE-05",
+   "eje": "EJE-02"
+  },
+  {
+   "n": 10,
+   "s": 76.2,
+   "nct": 184.6,
+   "ncf": 183.708,
+   "h": 0.892,
+   "tap": false,
+   "nota": "Entrega a EJE-01",
+   "eje": "EJE-02"
+  }
+ ],
+ "EJE-03": [
+  {
+   "n": 11,
+   "s": 0.0,
+   "nct": 184.6,
+   "ncf": 184.3,
+   "h": 0.3,
+   "tap": false,
+   "nota": "Inicio del eje",
+   "eje": "EJE-03"
+  },
+  {
+   "n": 12,
+   "s": 32.31,
+   "nct": 184.6,
+   "ncf": 184.138,
+   "h": 0.462,
+   "tap": false,
+   "nota": "Entrega a EJE-02",
+   "eje": "EJE-03"
+  }
+ ],
+ "EJE-04": [
+  {
+   "n": 13,
+   "s": 0.0,
+   "nct": 184.6,
+   "ncf": 184.3,
+   "h": 0.3,
+   "tap": false,
+   "nota": "Inicio del eje",
+   "eje": "EJE-04"
+  },
+  {
+   "n": 14,
+   "s": 26.1,
+   "nct": 184.6,
+   "ncf": 184.17,
+   "h": 0.43,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-04"
+  },
+  {
+   "n": 15,
+   "s": 35.53,
+   "nct": 184.6,
+   "ncf": 184.122,
+   "h": 0.478,
+   "tap": false,
+   "nota": "Llega EJE-06",
+   "eje": "EJE-04"
+  },
+  {
+   "n": 16,
+   "s": 39.31,
+   "nct": 184.6,
+   "ncf": 184.103,
+   "h": 0.497,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-04"
+  },
+  {
+   "n": 17,
+   "s": 55.28,
+   "nct": 184.6,
+   "ncf": 184.024,
+   "h": 0.576,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-04"
+  },
+  {
+   "n": 18,
+   "s": 62.07,
+   "nct": 184.6,
+   "ncf": 183.99,
+   "h": 0.61,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-04"
+  },
+  {
+   "n": 19,
+   "s": 94.88,
+   "nct": 184.6,
+   "ncf": 183.826,
+   "h": 0.774,
+   "tap": false,
+   "nota": "Entrega a EJE-02",
+   "eje": "EJE-04"
+  }
+ ],
+ "EJE-05": [
+  {
+   "n": 20,
+   "s": 0.0,
+   "nct": 184.6,
+   "ncf": 184.3,
+   "h": 0.3,
+   "tap": false,
+   "nota": "Inicio del eje",
+   "eje": "EJE-05"
+  },
+  {
+   "n": 21,
+   "s": 21.32,
+   "nct": 184.6,
+   "ncf": 184.193,
+   "h": 0.407,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-05"
+  },
+  {
+   "n": 22,
+   "s": 27.21,
+   "nct": 184.6,
+   "ncf": 184.164,
+   "h": 0.436,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-05"
+  },
+  {
+   "n": 23,
+   "s": 45.04,
+   "nct": 184.6,
+   "ncf": 184.075,
+   "h": 0.525,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-05"
+  },
+  {
+   "n": 24,
+   "s": 50.81,
+   "nct": 184.6,
+   "ncf": 184.046,
+   "h": 0.554,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-05"
+  },
+  {
+   "n": 25,
+   "s": 89.97,
+   "nct": 184.6,
+   "ncf": 183.85,
+   "h": 0.75,
+   "tap": false,
+   "nota": "Entrega a EJE-02",
+   "eje": "EJE-05"
+  }
+ ],
+ "EJE-06": [
+  {
+   "n": 26,
+   "s": 0.0,
+   "nct": 184.6,
+   "ncf": 184.3,
+   "h": 0.3,
+   "tap": false,
+   "nota": "Inicio del eje",
+   "eje": "EJE-06"
+  },
+  {
+   "n": 27,
+   "s": 11.74,
+   "nct": 184.6,
+   "ncf": 184.241,
+   "h": 0.359,
+   "tap": false,
+   "nota": "Entrega a EJE-04",
+   "eje": "EJE-06"
+  }
+ ],
+ "EJE-07": [
+  {
+   "n": 28,
+   "s": 0.0,
+   "nct": 184.6,
+   "ncf": 184.3,
+   "h": 0.3,
+   "tap": false,
+   "nota": "Inicio del eje",
+   "eje": "EJE-07"
+  },
+  {
+   "n": 29,
+   "s": 11.51,
+   "nct": 184.6,
+   "ncf": 184.102,
+   "h": 0.498,
+   "tap": false,
+   "nota": "Llega EJE-08",
+   "eje": "EJE-07"
+  },
+  {
+   "n": 30,
+   "s": 29.36,
+   "nct": 184.6,
+   "ncf": 184.012,
+   "h": 0.588,
+   "tap": false,
+   "nota": "Llega EJE-09",
+   "eje": "EJE-07"
+  },
+  {
+   "n": 31,
+   "s": 35.48,
+   "nct": 184.6,
+   "ncf": 183.982,
+   "h": 0.618,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-07"
+  },
+  {
+   "n": 32,
+   "s": 58.25,
+   "nct": 184.6,
+   "ncf": 183.868,
+   "h": 0.732,
+   "tap": false,
+   "nota": "Llega EJE-10",
+   "eje": "EJE-07"
+  },
+  {
+   "n": 33,
+   "s": 70.02,
+   "nct": 184.6,
+   "ncf": 183.809,
+   "h": 0.791,
+   "tap": false,
+   "nota": "Llega EJE-11",
+   "eje": "EJE-07"
+  },
+  {
+   "n": 34,
+   "s": 73.09,
+   "nct": 184.6,
+   "ncf": 183.794,
+   "h": 0.806,
+   "tap": true,
+   "nota": "",
+   "eje": "EJE-07"
+  },
+  {
+   "n": 35,
+   "s": 81.05,
+   "nct": 184.6,
+   "ncf": 183.754,
+   "h": 0.846,
+   "tap": true,
+   "nota": "",
+   "eje": "EJE-07"
+  },
+  {
+   "n": 36,
+   "s": 87.74,
+   "nct": 184.6,
+   "ncf": 183.72,
+   "h": 0.88,
+   "tap": true,
+   "nota": "",
+   "eje": "EJE-07"
+  },
+  {
+   "n": 37,
+   "s": 95.95,
+   "nct": 184.6,
+   "ncf": 183.679,
+   "h": 0.921,
+   "tap": true,
+   "nota": "",
+   "eje": "EJE-07"
+  },
+  {
+   "n": 38,
+   "s": 96.54,
+   "nct": 183.826,
+   "ncf": 183.576,
+   "h": 0.25,
+   "tap": true,
+   "nota": "Descarga D3",
+   "eje": "EJE-07"
+  }
+ ],
+ "EJE-08": [
+  {
+   "n": 39,
+   "s": 0.0,
+   "nct": 184.6,
+   "ncf": 184.3,
+   "h": 0.3,
+   "tap": false,
+   "nota": "Inicio del eje",
+   "eje": "EJE-08"
+  },
+  {
+   "n": 40,
+   "s": 3.88,
+   "nct": 184.6,
+   "ncf": 184.281,
+   "h": 0.319,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-08"
+  },
+  {
+   "n": 41,
+   "s": 39.68,
+   "nct": 184.6,
+   "ncf": 184.102,
+   "h": 0.498,
+   "tap": false,
+   "nota": "Entrega a EJE-07",
+   "eje": "EJE-08"
+  }
+ ],
+ "EJE-09": [
+  {
+   "n": 42,
+   "s": 0.0,
+   "nct": 184.6,
+   "ncf": 184.3,
+   "h": 0.3,
+   "tap": false,
+   "nota": "Inicio del eje",
+   "eje": "EJE-09"
+  },
+  {
+   "n": 43,
+   "s": 35.8,
+   "nct": 184.6,
+   "ncf": 184.121,
+   "h": 0.479,
+   "tap": false,
+   "nota": "Entrega a EJE-07",
+   "eje": "EJE-09"
+  }
+ ],
+ "EJE-10": [
+  {
+   "n": 44,
+   "s": 0.0,
+   "nct": 184.6,
+   "ncf": 184.3,
+   "h": 0.3,
+   "tap": false,
+   "nota": "Inicio del eje",
+   "eje": "EJE-10"
+  },
+  {
+   "n": 45,
+   "s": 17.85,
+   "nct": 184.6,
+   "ncf": 184.211,
+   "h": 0.389,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-10"
+  },
+  {
+   "n": 46,
+   "s": 23.97,
+   "nct": 184.6,
+   "ncf": 184.18,
+   "h": 0.42,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-10"
+  },
+  {
+   "n": 47,
+   "s": 37.0,
+   "nct": 184.6,
+   "ncf": 184.115,
+   "h": 0.485,
+   "tap": false,
+   "nota": "Entrega a EJE-07",
+   "eje": "EJE-10"
+  }
+ ],
+ "EJE-11": [
+  {
+   "n": 48,
+   "s": 0.0,
+   "nct": 184.6,
+   "ncf": 184.3,
+   "h": 0.3,
+   "tap": false,
+   "nota": "Inicio del eje",
+   "eje": "EJE-11"
+  },
+  {
+   "n": 49,
+   "s": 19.41,
+   "nct": 184.6,
+   "ncf": 184.203,
+   "h": 0.397,
+   "tap": true,
+   "nota": "Inicio de tapado",
+   "eje": "EJE-11"
+  },
+  {
+   "n": 50,
+   "s": 19.91,
+   "nct": 184.6,
+   "ncf": 184.2,
+   "h": 0.4,
+   "tap": false,
+   "nota": "Fin de tapado",
+   "eje": "EJE-11"
+  },
+  {
+   "n": 51,
+   "s": 30.36,
+   "nct": 184.6,
+   "ncf": 184.148,
+   "h": 0.452,
+   "tap": false,
+   "nota": "Entrega a EJE-07",
+   "eje": "EJE-11"
+  }
+ ],
+ "EJE-12": [
+  {
+   "n": 52,
+   "s": 0.0,
+   "nct": 184.6,
+   "ncf": 184.3,
+   "h": 0.3,
+   "tap": false,
+   "nota": "Inicio del eje",
+   "eje": "EJE-12"
+  },
+  {
+   "n": 53,
+   "s": 15.66,
+   "nct": 184.6,
+   "ncf": 184.222,
+   "h": 0.378,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-12"
+  },
+  {
+   "n": 54,
+   "s": 39.36,
+   "nct": 184.6,
+   "ncf": 184.103,
+   "h": 0.497,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-12"
+  },
+  {
+   "n": 55,
+   "s": 74.14,
+   "nct": 184.6,
+   "ncf": 183.929,
+   "h": 0.671,
+   "tap": false,
+   "nota": "Cambio de borde",
+   "eje": "EJE-12"
+  },
+  {
+   "n": 56,
+   "s": 74.64,
+   "nct": 184.5,
+   "ncf": 183.927,
+   "h": 0.573,
+   "tap": false,
+   "nota": "Llega EJE-13",
+   "eje": "EJE-12"
+  },
+  {
+   "n": 57,
+   "s": 83.3,
+   "nct": 184.5,
+   "ncf": 183.883,
+   "h": 0.617,
+   "tap": false,
+   "nota": "Llega EJE-14",
+   "eje": "EJE-12"
+  },
+  {
+   "n": 58,
+   "s": 95.23,
+   "nct": 184.5,
+   "ncf": 183.824,
+   "h": 0.676,
+   "tap": false,
+   "nota": "Llega EJE-15",
+   "eje": "EJE-12"
+  },
+  {
+   "n": 59,
+   "s": 103.86,
+   "nct": 184.5,
+   "ncf": 183.781,
+   "h": 0.719,
+   "tap": true,
+   "nota": "",
+   "eje": "EJE-12"
+  },
+  {
+   "n": 60,
+   "s": 116.15,
+   "nct": 184.5,
+   "ncf": 183.719,
+   "h": 0.781,
+   "tap": true,
+   "nota": "",
+   "eje": "EJE-12"
+  },
+  {
+   "n": 61,
+   "s": 118.65,
+   "nct": 184.5,
+   "ncf": 183.707,
+   "h": 0.793,
+   "tap": true,
+   "nota": "Llega EJE-16",
+   "eje": "EJE-12"
+  },
+  {
+   "n": 62,
+   "s": 119.25,
+   "nct": 184.5,
+   "ncf": 183.704,
+   "h": 0.796,
+   "tap": true,
+   "nota": "Descarga D2",
+   "eje": "EJE-12"
+  }
+ ],
+ "EJE-13": [
+  {
+   "n": 63,
+   "s": 0.0,
+   "nct": 184.5,
+   "ncf": 184.2,
+   "h": 0.3,
+   "tap": false,
+   "nota": "Inicio del eje",
+   "eje": "EJE-13"
+  },
+  {
+   "n": 64,
+   "s": 24.38,
+   "nct": 184.5,
+   "ncf": 184.078,
+   "h": 0.422,
+   "tap": false,
+   "nota": "Entrega a EJE-12",
+   "eje": "EJE-13"
+  }
+ ],
+ "EJE-14": [
+  {
+   "n": 65,
+   "s": 0.0,
+   "nct": 184.6,
+   "ncf": 184.3,
+   "h": 0.3,
+   "tap": false,
+   "nota": "Inicio del eje",
+   "eje": "EJE-14"
+  },
+  {
+   "n": 66,
+   "s": 17.06,
+   "nct": 184.6,
+   "ncf": 184.215,
+   "h": 0.385,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-14"
+  },
+  {
+   "n": 67,
+   "s": 31.47,
+   "nct": 184.6,
+   "ncf": 184.143,
+   "h": 0.457,
+   "tap": false,
+   "nota": "Cambio de borde",
+   "eje": "EJE-14"
+  },
+  {
+   "n": 68,
+   "s": 31.96,
+   "nct": 184.5,
+   "ncf": 184.14,
+   "h": 0.36,
+   "tap": false,
+   "nota": "Cambio de borde",
+   "eje": "EJE-14"
+  },
+  {
+   "n": 69,
+   "s": 39.91,
+   "nct": 184.5,
+   "ncf": 184.1,
+   "h": 0.4,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-14"
+  },
+  {
+   "n": 70,
+   "s": 41.03,
+   "nct": 184.5,
+   "ncf": 184.095,
+   "h": 0.405,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-14"
+  },
+  {
+   "n": 71,
+   "s": 60.42,
+   "nct": 184.5,
+   "ncf": 183.998,
+   "h": 0.502,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-14"
+  },
+  {
+   "n": 72,
+   "s": 65.61,
+   "nct": 184.5,
+   "ncf": 183.972,
+   "h": 0.528,
+   "tap": false,
+   "nota": "Entrega a EJE-12",
+   "eje": "EJE-14"
+  }
+ ],
+ "EJE-15": [
+  {
+   "n": 73,
+   "s": 0.0,
+   "nct": 184.6,
+   "ncf": 184.3,
+   "h": 0.3,
+   "tap": false,
+   "nota": "Inicio del eje",
+   "eje": "EJE-15"
+  },
+  {
+   "n": 74,
+   "s": 13.05,
+   "nct": 184.6,
+   "ncf": 184.235,
+   "h": 0.365,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-15"
+  },
+  {
+   "n": 75,
+   "s": 16.0,
+   "nct": 184.6,
+   "ncf": 184.22,
+   "h": 0.38,
+   "tap": false,
+   "nota": "Cambio de borde",
+   "eje": "EJE-15"
+  },
+  {
+   "n": 76,
+   "s": 16.49,
+   "nct": 184.5,
+   "ncf": 184.218,
+   "h": 0.282,
+   "tap": false,
+   "nota": "Cambio de borde",
+   "eje": "EJE-15"
+  },
+  {
+   "n": 77,
+   "s": 36.63,
+   "nct": 184.5,
+   "ncf": 184.117,
+   "h": 0.383,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-15"
+  },
+  {
+   "n": 78,
+   "s": 41.82,
+   "nct": 184.5,
+   "ncf": 184.091,
+   "h": 0.409,
+   "tap": false,
+   "nota": "Entrega a EJE-12",
+   "eje": "EJE-15"
+  }
+ ],
+ "EJE-16": [
+  {
+   "n": 79,
+   "s": 0.0,
+   "nct": 184.6,
+   "ncf": 184.3,
+   "h": 0.3,
+   "tap": false,
+   "nota": "Inicio del eje",
+   "eje": "EJE-16"
+  },
+  {
+   "n": 80,
+   "s": 31.2,
+   "nct": 184.6,
+   "ncf": 184.144,
+   "h": 0.456,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-16"
+  },
+  {
+   "n": 81,
+   "s": 35.13,
+   "nct": 184.6,
+   "ncf": 184.124,
+   "h": 0.476,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-16"
+  },
+  {
+   "n": 82,
+   "s": 35.62,
+   "nct": 184.6,
+   "ncf": 184.122,
+   "h": 0.478,
+   "tap": false,
+   "nota": "Cambio de borde",
+   "eje": "EJE-16"
+  },
+  {
+   "n": 83,
+   "s": 36.12,
+   "nct": 184.5,
+   "ncf": 184.119,
+   "h": 0.381,
+   "tap": false,
+   "nota": "Cambio de borde",
+   "eje": "EJE-16"
+  },
+  {
+   "n": 84,
+   "s": 50.03,
+   "nct": 184.5,
+   "ncf": 184.05,
+   "h": 0.45,
+   "tap": false,
+   "nota": "Entrega a EJE-12",
+   "eje": "EJE-16"
+  }
+ ],
+ "EJE-17": [
+  {
+   "n": 85,
+   "s": 0.0,
+   "nct": 184.6,
+   "ncf": 184.3,
+   "h": 0.3,
+   "tap": false,
+   "nota": "Inicio del eje",
+   "eje": "EJE-17"
+  },
+  {
+   "n": 86,
+   "s": 8.89,
+   "nct": 184.6,
+   "ncf": 184.256,
+   "h": 0.344,
+   "tap": true,
+   "nota": "Inicio de tapado",
+   "eje": "EJE-17"
+  },
+  {
+   "n": 87,
+   "s": 12.85,
+   "nct": 184.6,
+   "ncf": 184.236,
+   "h": 0.364,
+   "tap": false,
+   "nota": "Fin de tapado",
+   "eje": "EJE-17"
+  },
+  {
+   "n": 88,
+   "s": 39.03,
+   "nct": 184.6,
+   "ncf": 184.104,
+   "h": 0.496,
+   "tap": false,
+   "nota": "Llega EJE-18",
+   "eje": "EJE-17"
+  },
+  {
+   "n": 89,
+   "s": 39.53,
+   "nct": 184.6,
+   "ncf": 184.102,
+   "h": 0.498,
+   "tap": true,
+   "nota": "",
+   "eje": "EJE-17"
+  },
+  {
+   "n": 90,
+   "s": 40.13,
+   "nct": 184.6,
+   "ncf": 184.099,
+   "h": 0.501,
+   "tap": true,
+   "nota": "Descarga D4",
+   "eje": "EJE-17"
+  }
+ ],
+ "EJE-18": [
+  {
+   "n": 91,
+   "s": 0.0,
+   "nct": 184.6,
+   "ncf": 184.3,
+   "h": 0.3,
+   "tap": false,
+   "nota": "Inicio del eje",
+   "eje": "EJE-18"
+  },
+  {
+   "n": 92,
+   "s": 11.75,
+   "nct": 184.6,
+   "ncf": 184.241,
+   "h": 0.359,
+   "tap": false,
+   "nota": "",
+   "eje": "EJE-18"
+  },
+  {
+   "n": 93,
+   "s": 37.22,
+   "nct": 184.6,
+   "ncf": 184.114,
+   "h": 0.486,
+   "tap": false,
+   "nota": "Llega EJE-19",
+   "eje": "EJE-18"
+  },
+  {
+   "n": 94,
+   "s": 39.13,
+   "nct": 184.6,
+   "ncf": 184.104,
+   "h": 0.496,
+   "tap": false,
+   "nota": "Entrega a EJE-17",
+   "eje": "EJE-18"
+  }
+ ],
+ "EJE-19": [
+  {
+   "n": 95,
+   "s": 0.0,
+   "nct": 184.6,
+   "ncf": 184.3,
+   "h": 0.3,
+   "tap": false,
+   "nota": "Inicio del eje",
+   "eje": "EJE-19"
+  },
+  {
+   "n": 96,
+   "s": 13.84,
+   "nct": 184.6,
+   "ncf": 184.231,
+   "h": 0.369,
+   "tap": false,
+   "nota": "Entrega a EJE-18",
+   "eje": "EJE-19"
+  }
+ ]
+}

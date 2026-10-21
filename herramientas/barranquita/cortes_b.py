@@ -317,10 +317,10 @@ def cola(R, cod, largo, ext, u_ext=None):
 
 
 CORTES_D = [  # (letra, descarga, ramal, m de cuneta antes del cerco, m de terreno exterior, descripcion del receptor)
-    ("A", "D1", "R-01", 26.0, 8.0, "el agua sigue por el talud natural a la quebrada del oeste"),
-    ("B", "D2", "R-12", 24.0, 12.0, "el agua sigue por el terreno natural que baja a la quebrada del norte"),
-    ("C", "D3", "R-07", 25.0, 8.0, "el agua sigue por el terreno exterior que baja a la calle (183.00)"),
-    ("D", "D4", "R-17", 25.0, 8.0, "el agua sigue por el talud natural a la quebrada del norte")]
+    ("A", "D1", "EJE-01", 26.0, 8.0, "el agua sigue por el talud natural a la quebrada del oeste"),
+    ("B", "D2", "EJE-12", 24.0, 12.0, "el agua sigue por el terreno natural que baja a la quebrada del norte"),
+    ("C", "D3", "EJE-07", 25.0, 8.0, "el agua sigue por el terreno exterior que baja a la calle (183.00)"),
+    ("D", "D4", "EJE-17", 25.0, 8.0, "el agua sigue por el talud natural a la quebrada del norte")]
 
 
 def dc09(doc, R, V, ox, oy, codigo="DC-08"):
@@ -331,7 +331,7 @@ def dc09(doc, R, V, ox, oy, codigo="DC-08"):
     for (let, D, cod, largo, ext, txt), (xm, ym) in zip(CORTES_D, pos):
         d = next(v for v in V["descargas"] if v["D"] == D)
         cam, sa, r = cola(R, cod, largo, ext, DS.DIR_SALIDA.get(D))
-        corte(lam, R, V, Camino(cam), xm, ym, "CORTE %s-%s: RAMAL %s Y DESCARGA %s (%s)" % (let, let, cod, D, "POZA DE SALIDA" if d["tipo"] == "poza" else "PASE EN EL CERCO"),
+        corte(lam, R, V, Camino(cam), xm, ym, "CORTE %s-%s: %s Y DESCARGA %s (%s)" % (let, let, cod, D, "POZA DE SALIDA" if d["tipo"] == "poza" else "PASE EN EL CERCO"),
               ejes=[(cod, sa, r["L"], 0.0)], desc={"D": D, "s": r["L"] - sa, "txt": txt}, txt_h=1.6)
     pas = [d for d in V["descargas"] if d["tipo"] == "pase"]; poz = [d for d in V["descargas"] if d["tipo"] == "poza"]
     lam.notas(30, 62, "NOTAS", ["1. Cortes a escala real 1/100 sin exageracion vertical. Terreno natural en linea discontinua (curvas C-TOPO); suelo terminado relleno.",

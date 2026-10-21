@@ -19,11 +19,15 @@ SIS = {k: "SISTEMA %d - %s (descarga %s)" % (k, v[0], v[1]) for k, v in DS.SISTE
 DESC_SIS = {k: v[1] for k, v in DS.SISTEMAS.items()}
 
 
-def ult_perfil():
-    """Ultima lamina de perfiles (segun laminas.json de planos_b.py)."""
-    f = os.path.join(RAIZ, "entregables_barranquita", "_calc", "laminas.json")
-    n = len(json.load(open(f))) - 8 if os.path.exists(f) else 3      # DC-00, DC-01, DC-02, perfiles y 5 laminas mas
-    return "DC-%02d" % (2 + n)
+def laminas_txt():
+    """Relacion de laminas segun el indice de planos_b.py (_calc/indice.json), agrupada por titulo."""
+    f = os.path.join(RAIZ, "entregables_barranquita", "_calc", "indice.json")
+    if not os.path.exists(f): return ""
+    grupos = []
+    for cod, tit, _, _ in json.load(open(f)):
+        if grupos and grupos[-1][2] == tit: grupos[-1][1] = cod
+        else: grupos.append([cod, cod, tit])
+    return "; ".join(("%s a %s" % (a, b) if a != b else a) + " " + t.lower() for a, b, t in grupos)
 
 
 def cab(ws, fila, textos, anchos=None):
@@ -40,6 +44,9 @@ def titulo(ws, t, ncol):
     ws["A1"].font = F(bold=True, size=12, color=AZUL); ws["A1"].alignment = Alignment(horizontal="center")
     ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=ncol); ws["A2"] = PROY
     ws["A2"].font = F(size=8); ws["A2"].alignment = Alignment(horizontal="center", wrap_text=True); ws.row_dimensions[2].height = 24
+
+
+DS_EM = 0.10      # espesor de muro (diseno_b.E_MURO)
 
 
 def main():
@@ -68,8 +75,8 @@ def main():
     # ---- tramos
     wt = wb.create_sheet("TRAMOS")
     titulo(wt, "CUADRO DE TRAMOS DE CUNETAS - COTAS DE FONDO, PROFUNDIDADES, PENDIENTES Y CAPACIDAD", 17)
-    cab(wt, 4, ["SISTEMA", "RAMAL", "DE", "A", "L (m)", "RASANTE DE", "RASANTE A", "COTA DE FONDO DE", "COTA DE FONDO A", "h DE (m)", "h A (m)",
-                "S (%)", "TAPADO (m)", "CON REJILLA (m)", "TIRANTE MAX. (m)", "Q CAPACIDAD (l/s)", "DESCRIPCION DEL RAMAL"],
+    cab(wt, 4, ["SISTEMA", "EJE", "DE", "A", "L (m)", "RASANTE DE", "RASANTE A", "COTA DE FONDO DE", "COTA DE FONDO A", "h DE (m)", "h A (m)",
+                "S (%)", "TAPADO (m)", "CON REJILLA (m)", "TIRANTE MAX. (m)", "Q CAPACIDAD (l/s)", "DESCRIPCION DEL EJE"],
         [9, 8, 7, 7, 9, 11, 11, 13, 13, 9, 9, 8, 10, 11, 11, 12, 60])
     f = 5
     for r in R["ramales"]:
@@ -97,7 +104,7 @@ def main():
     # ---- nudos
     wn = wb.create_sheet("NUDOS")
     titulo(wn, "NUDOS DE LA RED (COORDENADAS UTM WGS84 DEL PLANO DE ARQUITECTURA)", 5)
-    cab(wn, 4, ["NUDO", "ESTE (m)", "NORTE (m)", "RAMALES QUE PASAN", "DESCARGA / OBSERVACION"], [9, 14, 15, 28, 70])
+    cab(wn, 4, ["NUDO", "ESTE (m)", "NORTE (m)", "EJES QUE PASAN", "DESCARGA / OBSERVACION"], [9, 14, 15, 28, 70])
     pasa = {}
     for r in R["ramales"]:
         for n in r["nudos"]: pasa.setdefault(n, []).append(r["codigo"])
@@ -131,8 +138,7 @@ def main():
              "Interior del cerco nivelado: pisos y pasadizos NPT +184.65; borde de cuneta +184.60; areas verdes +184.55; patio de maniobra +184.50 (cuneta al ras, con rejilla). Fuera del cerco, el terreno natural.",
              "D1, D2, D3 y D4 salen por un pase en el cimiento del cerco. Fuera del cerco no hay obra.",
              "Tramos de fuerte pendiente con V > 3.0 m/s: gradas de concreto (hoja HIDRAULICA). Verificacion completa en la hoja VERIFICACION.",
-             "Ver planos PLANTEAMIENTO_CUNETAS_IE0590_BARRANQUITA.dxf: DC-01 planta, DC-02 cuadro y secciones, DC-03 a %s perfiles, %s y %s isometricos, %s y %s cortes, %s detalle de descargas." % (
-                 (ult_perfil(),) + tuple("DC-%02d" % (int(ult_perfil()[-2:]) + i) for i in range(1, 6)))]
+             "Ver planos PLANTEAMIENTO_CUNETAS_IE0590_BARRANQUITA.dxf: " + laminas_txt() + "."]
     wr.cell(11, 1, "NOTAS").font = F(bold=True, color=AZUL)
     for i, t in enumerate(notas, 12):
         wr.cell(i, 1, "%d. %s" % (i - 11, t)).font = F(size=8)
@@ -162,7 +168,7 @@ def main():
         wh.cell(i, 1, t).font = F(); cc = wh.cell(i, 2, v); cc.font = F(bold=True); cc.fill = PatternFill("solid", fgColor=AMA); cc.border = BOR
     wh.cell(8, 1, "I: tc = %.0f min, TR = 25 anos, P10 = %.2f mm (estacion usada en el Hogar de Refugio - Morales); reemplazar por la del proyecto. "
                   "Area tributaria: cada m2 dentro del cerco a la cuneta mas cercana." % (h["tc"], h["P10"])).font = F(italic=True, size=8)
-    cab(wh, 10, ["RAMAL", "DE", "A", "AREA (m2)", "Q (l/s)", "S (%)", "TIRANTE y (m)", "h (m)", "BORDE LIBRE (m)", "V (m/s)", "CAPACIDAD", "VELOCIDAD", "OBSERVACION"],
+    cab(wh, 10, ["EJE", "DE", "A", "AREA (m2)", "Q (l/s)", "S (%)", "TIRANTE y (m)", "h (m)", "BORDE LIBRE (m)", "V (m/s)", "CAPACIDAD", "VELOCIDAD", "OBSERVACION"],
         [9, 7, 7, 11, 10, 8, 12, 8, 13, 9, 12, 12, 46])
     for i, fh in enumerate(Vf["hidraulica"], 11):
         vals = [fh["ramal"], fh["de"], fh["a"], fh["A_m2"], "=1000*$B$4*$B$5*D%d/3600000*$B$6" % i, fh["S"], fh["y"], fh["h"], "=H%d-G%d" % (i, i),
@@ -177,6 +183,22 @@ def main():
     for ws in wb.worksheets:
         ws.sheet_view.showGridLines = False; ws.page_setup.orientation = "landscape"; ws.page_setup.fitToWidth = 1
         ws.sheet_properties.pageSetUpPr.fitToPage = True; ws.page_setup.fitToHeight = 0
+    # ---- secciones de los perfiles (las mismas de las laminas de perfiles y de secciones transversales)
+    fs = os.path.join(RAIZ, "entregables_barranquita", "_calc", "secciones.json")
+    if os.path.exists(fs):
+        ws = wb.create_sheet("SECCIONES")
+        titulo(ws, "SECCIONES DE LOS PERFILES LONGITUDINALES POR EJE", 10)
+        cab(ws, 4, ["SECCION", "EJE", "PROGRESIVA (m)", "NCT", "NCF", "H (m)", "EL (m)", "EM (m)", "TIPO", "OBSERVACION"],
+            [10, 10, 15, 11, 11, 9, 9, 9, 14, 40])
+        i = 5
+        for eje, lst in json.load(open(fs)).items():
+            for x in lst:
+                for j, v in enumerate(["S-%02d" % x["n"], eje, x["s"], x["nct"], x["ncf"], "=D%d-E%d" % (i, i), 0.10, DS_EM,
+                                       "TAPADA" if x["tap"] else "CON REJILLA", x["nota"]], 1):
+                    cc = ws.cell(i, j, v); cc.font = F(); cc.border = BOR
+                    if j in (3, 4, 5, 6, 7, 8): cc.number_format = "0.00"
+                    if j == 6: cc.fill = PatternFill("solid", fgColor=VER)
+                i += 1
     wb.save(SAL); print(SAL)
 
 
