@@ -470,3 +470,6 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   genera entregables_barranquita/CARATULAS_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.docx con las 6 caratulas, una por pagina (A4, 6 paginas).
 - Correccion del usuario: la caratula no debe decir "EXPEDIENTE TÉCNICO" sino "SERVICIO DE DISEÑO - DRENAJE PLUVIAL" (caratula_b.EXPEDIENTE).
   Regenerados el Word de caratulas y los 6 documentos; comparados con la version anterior: solo cambia esa linea (coteja 1696 / 0; planos sin cambios).
+- Pedido "pasame un indice de planos y caratula de planos en un solo Word": indice_planos_b.py -> CARATULA_E_INDICE_DE_PLANOS_IE0590_BARRANQUITA.docx
+  (pag. 1 caratula comun con titulo PLANOS; pag. 2 indice de las 19 laminas DC-01 a DC-19 por grupos, con formato A1 y escala de _calc/indice.json
+  y el contenido leido del DXF impreso: ejes y progresivas de cada perfil, secciones por lamina, eje de salida de cada descarga). Planos sin cambios.

@@ -62,6 +62,8 @@ Cadena hidráulica: Varones (0.60) → caja de llegada CL → Refugio (0.80) →
   `figuras_memoria/foto_caratula.jpg`); Word por `word_b.Doc.caratula(..., clave)`, especificaciones por `J.caratula` en `docx_espec.js`, Excel por
   hoja CARÁTULA (openpyxl en metrado y calculo; UNO en el analisis estadistico). Solo las 6 caratulas en un Word:
   `python3 herramientas/barranquita/caratula_b.py` -> `CARATULAS_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.docx`.
+  Caratula e indice de planos en un Word: `python3 herramientas/barranquita/indice_planos_b.py` (lee sin modificar el DXF impreso:
+  rotulos, ejes y progresivas de perfiles, secciones por lamina) -> `CARATULA_E_INDICE_DE_PLANOS_IE0590_BARRANQUITA.docx`.
   Ejes de cuneta (v3): lineas magenta del plano "PLANTA_GENERAL_590 ULTIMA VERSION" (lados de cada bloque, techos a dos aguas),
   copiadas en `insumos/barranquita/cunetas_magenta_usuario.json`; la base del sitio (`base_sitio.pkl`) es de esa version.
 - `gestion_riesgos/`: estudios de gestión de riesgos durante la ejecución de obra, separados de los colectores. `herramientas/` (generadores, con copia propia de `dxf_base.py`, `dxf_layouts.py`, `dxf_render.py`) y `proyectos/<proyecto>/insumos` y `proyectos/<proyecto>/entregables`. Ver `gestion_riesgos/README.md`.
