@@ -5,7 +5,7 @@ C. Prueba Kolmogorov-Smirnov, D. Resumen, A. Parametros, B. Int. maxima y C. P d
 Se abre con LibreOffice (UNO), se cargan los datos de la estacion Pongo de Caynarachi (SENAMHI 003317, 25 anios 1989-2013)
 y se eliminan las filas sobrantes del registro de 26 anios: LibreOffice ajusta solo las formulas y los rangos de los graficos.
 La columna "Diseno" del resumen toma la distribucion que selecciona la prueba de Kolmogorov-Smirnov de la misma hoja.
-Las hojas auxiliares de la plantilla (Hoja1, 210) no forman parte del analisis y se quitan.
+Las hojas auxiliares de la plantilla (Hoja1, 210) no forman parte del analisis y se quitan; se agrega la caratula (caratula_b).
 Salida: entregables_barranquita/ANALISIS_ESTADISTICO_IE0590_BARRANQUITA.xlsx (con los valores calculados).
 """
 import os, sys, time, shutil, subprocess, tempfile
@@ -39,7 +39,7 @@ def _conectar():
     else:
         proc.kill(); raise SystemExit("No se pudo iniciar LibreOffice")
     desk = ctx.ServiceManager.createInstanceWithContext("com.sun.star.frame.Desktop", ctx)
-    return proc, desk
+    return proc, desk, ctx
 
 
 def _prop(n, v):
@@ -51,7 +51,7 @@ def construir():
     import uno
     serie = list(H.SERIE.items()); n = len(serie)
     e = H.ESTACION
-    proc, desk = _conectar()
+    proc, desk, ctx = _conectar()
     try:
         url = uno.systemPathToFileUrl(os.path.abspath(PLANTILLA))
         doc = desk.loadComponentFromURL(url, "_blank", 0, (_prop("Hidden", True),))
@@ -109,6 +109,8 @@ def construir():
             A.Rows.removeByIndex(FILA0 + n - 1, sobran)     # anios sobrantes del registro
         for nombre in ("Hoja1", "210"):
             if sh.hasByName(nombre): sh.removeByName(nombre)
+        import caratula_b
+        caratula_b.uno(doc, ctx, "analisis")                     # caratula comun de los documentos (foto aerea del local)
         doc.calculateAll()
         sel = C.getCellRangeByName("G%d" % (55 - sobran)).getString()
         res = {"seleccion": sel}

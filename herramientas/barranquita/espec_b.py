@@ -222,6 +222,8 @@ def construir():
         doc = dict(proyecto=PROYECTO, cui=P["cui"], codigo="C.I. N.° %s" % P["cui"], corto=P["corto"],
                    entidad="GOBIERNO REGIONAL SAN MARTIN - GERENCIA TERRITORIAL BAJO MAYO - TARAPOTO", especialidad=E.ESPECIALIDAD,
                    ubicacion="SAN MARTIN - LAMAS - BARRANQUITA", fecha=MB.FECHA, generalidades=generalidades(q), partidas=[])
+        import caratula_b
+        doc["caratula"] = caratula_b.datos("especificaciones")          # caratula comun con la foto aerea del local
         base = min(len(x["codigo"].split(".")) for x in pts)
         for x in pts:
             it = dict(codigo=x["codigo"], desc=x["desc"], und=x["und"], nivel=len(x["codigo"].split(".")) - base)

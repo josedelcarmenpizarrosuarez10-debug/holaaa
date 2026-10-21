@@ -2,7 +2,7 @@
 const fs = require("fs");
 const D = require("docx");
 const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, BorderStyle,
-        ShadingType, Header, Footer, PageNumber, TableOfContents, LevelFormat, PageBreak, TabStopType } = D;
+        ShadingType, Header, Footer, PageNumber, TableOfContents, LevelFormat, PageBreak, TabStopType, ImageRun } = D;
 const [, , entrada, salida] = process.argv;
 const J = JSON.parse(fs.readFileSync(entrada, "utf8"));
 const FUENTE = "Arial";
@@ -52,6 +52,34 @@ const portada = [
   par(J.fecha, { align: AlignmentType.CENTER, bold: true, size: 20 }),
 ];
 
+// caratula con foto (J.caratula: textos y foto de la caratula comun del proyecto; sin ella, la portada anterior)
+let portadaFinal = portada;
+if (J.caratula) {
+  const C = J.caratula, CEN = AlignmentType.CENTER, wpx = 586;            // foto de 15.5 cm de ancho
+  const cpar = (s, o = {}) => par(s, Object.assign({ align: CEN }, o));
+  const sin = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
+  const banda = new Table({ width: { size: ANCHO, type: WidthType.DXA }, columnWidths: [ANCHO], alignment: CEN,
+    rows: [new TableRow({ children: [new TableCell({ width: { size: ANCHO, type: WidthType.DXA }, borders: { top: sin, bottom: sin, left: sin, right: sin },
+      shading: { fill: AZUL, type: ShadingType.CLEAR, color: "auto" }, margins: { top: 120, bottom: 120, left: 120, right: 120 },
+      children: [new Paragraph({ alignment: CEN, spacing: { after: 40 }, children: [txt(C.titulo, { bold: true, size: 40, color: "FFFFFF" })] }),
+                 new Paragraph({ alignment: CEN, children: [txt(C.subtitulo, { bold: true, size: 22, color: "FFFFFF" })] })] })] })] });
+  portadaFinal = [
+    cpar(C.entidad, { bold: true, size: 30, color: AZUL, after: 0 }),
+    new Paragraph({ alignment: CEN, border: { bottom: { style: BorderStyle.SINGLE, size: 12, color: AZUL, space: 4 } }, spacing: { after: 160 },
+                    children: [txt(C.gerencia, { bold: true, size: 22, color: "595959" })] }),
+    cpar(C.expediente, { bold: true, size: 24, color: AZUL, after: 80 }),
+    cpar(C.proyecto, { bold: true, size: 23, after: 40 }),
+    cpar(C.ci, { bold: true, size: 22, color: AZUL, after: 160 }),
+    new Paragraph({ alignment: CEN, children: [new ImageRun({ type: "jpg", data: fs.readFileSync(C.foto),
+                    transformation: { width: wpx, height: Math.round(wpx * C.proporcion) } })] }),
+    cpar(C.leyenda, { italics: true, size: 16, color: "595959", after: 160 }),
+    banda,
+    cpar(C.especialidad, { bold: true, size: 21, before: 200, after: 40 }),
+    cpar(C.ubicacion, { size: 20, after: 160 }),
+    cpar(C.fecha, { bold: true, size: 24, color: AZUL }),
+  ];
+}
+
 // ---------------------------------------------------------------- cuerpo
 const cuerpo = [];
 cuerpo.push(new Paragraph({ children: [txt("ÍNDICE", { bold: true, size: 26, color: AZUL })], alignment: AlignmentType.CENTER, spacing: { after: 200 } }));
@@ -89,7 +117,7 @@ const doc = new Document({
   },
   numbering: { config: [{ reference: "vinetas", levels: [{ level: 0, format: LevelFormat.BULLET, text: "•", alignment: AlignmentType.LEFT, style: { paragraph: { indent: { left: 567, hanging: 284 } } } }] }] },
   sections: [
-    { properties: { page: pagina }, children: portada },
+    { properties: { page: pagina }, children: portadaFinal },
     { properties: { page: pagina }, headers: { default: cab }, footers: { default: pie }, children: cuerpo },
   ],
 });

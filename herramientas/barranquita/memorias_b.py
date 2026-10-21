@@ -325,14 +325,14 @@ def descriptiva(D, c):
     D.tabla("Planos de drenaje pluvial", ["Lámina", "Contenido", "Escala"], [[a, b, e] for a, b, _, e in c["ind"]], [2, 11, 2.5], tam=8)
 
 
-def generar(nombre, titulo, sub, fn, corto):
+def generar(nombre, titulo, sub, fn, corto, clave=None):
     c = contexto()
     D0 = Doc(corto); fn(D0, c)                         # primera pasada: titulos para el contenido
-    D = Doc(corto); D.caratula(titulo, sub); D.contenido([t for t in D0.indice]); fn(D, c)
+    D = Doc(corto); D.caratula(titulo, sub, clave); D.contenido([t for t in D0.indice]); fn(D, c)
     D.guardar(os.path.join(ENT, nombre))
 
 
 if __name__ == "__main__":
     FG.todas(H.resultados())
-    generar("MEMORIA_HIDROLOGICA_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.docx", "ESTUDIO HIDROLÓGICO Y DE DRENAJE PLUVIAL", "Memoria hidrológica - red de cunetas", HD.memoria, "MEMORIA HIDROLÓGICA")
-    generar("MEMORIA_DESCRIPTIVA_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.docx", "MEMORIA DESCRIPTIVA", "Drenaje pluvial - red de cunetas", descriptiva, "MEMORIA DESCRIPTIVA")
+    generar("MEMORIA_HIDROLOGICA_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.docx", "ESTUDIO HIDROLÓGICO Y DE DRENAJE PLUVIAL", "Memoria hidrológica - red de cunetas", HD.memoria, "MEMORIA HIDROLÓGICA", "hidrologica")
+    generar("MEMORIA_DESCRIPTIVA_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.docx", "MEMORIA DESCRIPTIVA", "Drenaje pluvial - red de cunetas", descriptiva, "MEMORIA DESCRIPTIVA", "descriptiva")

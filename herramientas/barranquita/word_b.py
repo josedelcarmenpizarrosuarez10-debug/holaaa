@@ -49,7 +49,10 @@ class Doc:
         r = fp.add_run("Página "); r.font.size = Pt(8); r2 = fp.add_run(); r2.font.size = Pt(8); _campo(r2, "PAGE")
 
     # ------------------------------------------------------------------ caratula e indice
-    def caratula(self, titulo, subtitulo=None):
+    def caratula(self, titulo, subtitulo=None, clave=None):
+        if clave:                                    # caratula comun con la foto aerea del local (caratula_b)
+            import caratula_b
+            caratula_b.word(self.d, clave); return
         d = self.d
         for _ in range(4): d.add_paragraph()
         for txt, tam, neg in ((ENTIDAD, 11, True), ("", 10, False), (PROYECTO, 13, True), (CI, 11, True), ("", 10, False),

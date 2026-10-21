@@ -9,8 +9,9 @@ import openpyxl, re, sys
 from docx import Document
 X = openpyxl.load_workbook("entregables_barranquita/ANALISIS_ESTADISTICO_IE0590_BARRANQUITA.xlsx", data_only=True)
 d = Document("entregables_barranquita/MEMORIA_HIDROLOGICA_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.docx")
-T = [[[c.text.strip() for c in r.cells] for r in t.rows] for t in d.tables]
-A, B, C, R, P, I, PD = (X[n] for n in X.sheetnames)
+TABLAS = [t for t in d.tables if not (len(t.rows) == 1 and len(t.columns) == 1)]      # sin la franja del titulo de la caratula
+T = [[[c.text.strip() for c in r.cells] for r in t.rows] for t in TABLAS]
+A, B, C, R, P, I, PD = (X[n] for n in X.sheetnames if n != "CARÁTULA")
 tot = [0]; mal = []
 def num(s):
     s = s.replace(",", "").replace("%", "").replace("−", "-").strip()
@@ -103,7 +104,7 @@ def celdas(t):           # filas sin celdas repetidas por combinacion
             prev = c._tc; fila.append(c.text.strip())
         out.append(fila)
     return out
-TT = [celdas(t) for t in d.tables]
+TT = [celdas(t) for t in TABLAS]
 # Anexo 1: registro (tabla 38)
 an = TT[38]; k0 = next(i for i, r in enumerate(an) if r and r[0] == "Año")
 for i in range(25):

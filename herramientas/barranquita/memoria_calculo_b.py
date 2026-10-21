@@ -282,6 +282,7 @@ def construir():
     for ws in wb.worksheets:
         ws.sheet_view.showGridLines = False; ws.page_setup.orientation = "landscape"; ws.page_setup.fitToWidth = 1
         ws.sheet_properties.pageSetUpPr.fitToPage = True; ws.page_setup.fitToHeight = 0
+    import caratula_b; caratula_b.excel(wb, "calculo")                # caratula comun (foto aerea del local)
     wb.save(SAL); print(SAL)
 
 

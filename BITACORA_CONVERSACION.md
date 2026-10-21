@@ -457,3 +457,12 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Usuario pregunto si la memoria hidrologica coincide con el nuevo analisis estadistico. coteja_analisis_b.py: 1696 valores de la
   memoria (1002 del cuerpo y 694 del anexo N.° 01) comparados con ANALISIS_ESTADISTICO_IE0590_BARRANQUITA.xlsx a la precision impresa:
   0 diferencias. La memoria de calculo (FRECUENCIAS, KS, IDF) tambien coincide (P24 169.27, D K-S, K 211.66, I 293.18).
+
+## 21-10-2026 – Barranquita: caratula con la foto aerea en todos los documentos
+- Usuario envio la foto aerea del local (dron) y pidio la caratula para los 6 documentos (metrado, memoria hidrologica, memoria
+  descriptiva, memoria de calculo, especificaciones tecnicas, analisis estadistico).
+- caratula_b.py: mismo contenido en todos (Gobierno Regional San Martin / Gerencia Territorial Bajo Mayo - Tarapoto, expediente tecnico,
+  proyecto, C.I. N° 468901, foto recortada sin las esquinas oscuras del lente, franja azul con el titulo del documento, especialidad,
+  ubicacion y fecha); sin nombre ni CIP del proyectista. Word: primera pagina sin encabezado; Excel: hoja CARÁTULA al inicio, A4 vertical.
+- docx_espec.js: portada con foto solo si el JSON trae "caratula" (las especificaciones de los CAR siguen igual).
+- coteja_analisis_b.py ignora la franja de la caratula (1696 valores, 0 diferencias). Metrado identico; planos sin cambios.

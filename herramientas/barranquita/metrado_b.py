@@ -409,6 +409,7 @@ def construir():
         ws.sheet_view.showGridLines = False; ws.page_setup.orientation = "landscape"; ws.page_setup.paperSize = ws.PAPERSIZE_A4
         ws.sheet_properties.pageSetUpPr.fitToPage = True; ws.page_setup.fitToWidth = 1; ws.page_setup.fitToHeight = 0
     for ws in (wr, wj, wg, wt, wq, wl): ws.page_setup.orientation = "portrait"
+    import caratula_b; caratula_b.excel(wb, "metrado")                # caratula comun (foto aerea del local)
     wb.save(SAL); print(SAL)
     return resumen
 
