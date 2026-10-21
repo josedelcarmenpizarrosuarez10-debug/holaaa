@@ -169,12 +169,12 @@ def anexo(D, HID):
     D.salto()
     h = Hoja(11, [1.8, 1.7, 1.4, 0.25, 1.1, 1.25, 1.25, 1.5, 1.2, 1.2, 1.3], tam=6.5)
     h.cabecera("C. PRUEBA DE BONDAD DE AJUSTE Y RESUMEN DE RESULTADOS")
-    h.titulo("C.1 a C.3 Prueba de Kolmogorov-Smirnov (posición de Weibull m/(n+1); nivel de significancia 0.05)"); h.r += 0
-    h.fila(["Distribución", "Δ máx (|F − Fe|)", "", "", "Δ crítico", "", "Resultado", "", "", "", ""], neg=True, bg=CL)
+    h.titulo("C.1 a C.3 Prueba de Kolmogorov-Smirnov (P de excedencia observada m/(n+1); α = 0.05; Dα = [−ln(α/2)/(2n)]^0.5 − 1/(6n))")
+    h.fila(["Distribución", "Δ máx", "", "", "Δ crítico", "", "Resultado", "", "", "", ""], neg=True, bg=CL)
     r = h.r - 1
     h.m += [(r, 0, r, 0), (r, 1, r, 3), (r, 4, r, 5), (r, 6, r, 10)]
     for k in ("normal", "lognormal", "lp3", "gumbel"):
-        r = h.fila([DN[k], f(A["ks"][k], 4), "", "", f(A["ks_critico"], 2), "", ("SE ACEPTA" if A["ks"][k] < A["ks_critico"] else "NO SE ACEPTA")
+        r = h.fila([DN[k], f(A["ks"][k], 4), "", "", f(A["ks_critico"], 4), "", ("SE ACEPTA" if A["ks"][k] < A["ks_critico"] else "NO SE ACEPTA")
                     + (" - MENOR Δ (ADOPTADA)" if k == el else ""), "", "", "", ""], neg=(k == el), bg=AM if k == el else None)
         h.m += [(r, 1, r, 3), (r, 4, r, 5), (r, 6, r, 10)]
     h.r += 1
@@ -183,7 +183,7 @@ def anexo(D, HID):
     h.put(r0, 0, "Normales", neg=True, bg=CL, c1=1); h.put(r0, 2, "Valor", neg=True, bg=CL)
     for j, t in enumerate(["T (años)", "Normal", "Log Normal", "Log Pearson III", "Gumbel", "Diseño", ""]): h.put(r0, 4 + j, t, neg=True, bg=CL)
     h.m.append((r0, 9, r0, 10))
-    n = A["n"]; vcs = 6.0 * n * (n - 1) / ((n - 2) * (n + 1) * (n + 3))
+    n = A["n"]; vcs = 6.0 / n                       # como la hoja D. Resumen de los CAR
     norm = [("Media aritmética", f(A["media"], 3)), ("Desviación estándar", f(A["desv"], 3)), ("Coeficiente de asimetría", f(A["cs"], 3)),
             ("Número de datos", n), ("Variación del coef. de asimetría", f(vcs, 3)), ("Desv. est. coef. de asimetría", f(math.sqrt(vcs), 3))]
     loga = [("Media aritmética", f(A["media_log"], 3)), ("Desviación estándar", f(A["desv_log"], 3)), ("Varianza", f(A["desv_log"] ** 2, 4)),
@@ -206,24 +206,18 @@ def anexo(D, HID):
     h = Hoja(8, [1.5, 1.9, 1.9, 1.9, 1.9, 1.9, 1.9, 1.9], tam=7)
     h.cabecera("PARTE II: DETERMINACIÓN DE LA TORMENTA DE DISEÑO")
     h.titulo("A. PARÁMETROS DE INTENSIDADES MÁXIMAS")
-    for nc, tit, fn, fmt in (("04", "Lluvias máximas (mm)", lambda P, d: H.p_dur(P, d), "%.2f"),
-                             ("05", "Intensidades máximas (mm/hora)", lambda P, d: H.p_dur(P, d) * 60.0 / d, "%.2f")):
+    for nc, tit, fn, fmt in (("04", "Lluvias máximas (mm)", lambda T, d: HID["bell_p"][T][d], "%.2f"),
+                             ("05", "Intensidades máximas (mm/hora)", lambda T, d: HID["bell_i"][T][d], "%.1f")):
         h.r += 1; h.put(h.r, 0, "Cuadro N° %s: %s" % (nc, tit), neg=True, al="l", c1=7)
         r = h.r; h.put(r, 0, "T", neg=True, bg=CL); h.put(r, 1, "P. Máx", neg=True, bg=CL); h.put(r, 2, "Duración en minutos", neg=True, bg=CL, c1=7)
         pass
         h.fila(["años", "24 horas"] + DUR, neg=True, bg=CL)
         for T in Td:
-            P = HID["p24"][T]; h.fila([T, f(P)] + [fmt % fn(P, d) for d in DUR])
-        h.put(h.r, 0, "Fuente: distribución %s y relación de Dick y Peschke P = P24 (d/1440)^0.25." % DN[el], al="l", c1=7)
+            P = HID["p24"][T]; h.fila([T, f(P)] + [fmt % fn(T, d) for d in DUR])
+        h.put(h.r, 0, "Fuente: Modelo de Bell, P60(10) = 0.4602 · P24(10)^0.876 = %.2f mm (distribución %s)." % (HID["P60_10"], DN[el]), al="l", c1=7)
     h.volcar(D)
     # Cuadro 06: regresion lineal multiple log I = log K + m log T - n log t
-    X1, X2, Y = [], [], []
-    for T in T_:
-        for d in DUR:
-            X1.append(math.log10(T)); X2.append(math.log10(d)); Y.append(math.log10(H.p_dur(HID["p24"][T], d) * 60.0 / d))
-    X1, X2, Y = map(np.array, (X1, X2, Y)); N = len(Y)
-    M = np.array([[X1.sum(), X2.sum(), N], [(X1 ** 2).sum(), (X1 * X2).sum(), X1.sum()], [(X1 * X2).sum(), (X2 ** 2).sum(), X2.sum()]])
-    V = np.array([Y.sum(), (X1 * Y).sum(), (X2 * Y).sum()]); sol = np.linalg.solve(M, V); Mi = np.linalg.inv(M)
+    RG = HID["regresion"]; M, V, Mi, sol = np.array(RG["M"]), np.array(RG["V"]), np.array(RG["inv"]), RG["sol"]     # intensidades del Cuadro N° 05
     h = Hoja(8, [3.2, 1.8, 1.8, 1.8, 1.8, 1.6, 1.6, 1.8], tam=7)
     h.put(0, 0, "Cuadro N° 06: Ecuaciones de la regresión lineal múltiple (X1 = log T, X2 = log t, Y = log I)", neg=True, bg=CL, c1=7); h.r = 1
     for t1, t2 in (("Ecuación de la regresión lineal múltiple", "m(X1) − n(X2) + logK = Y"),
@@ -237,12 +231,12 @@ def anexo(D, HID):
     for i in range(3):
         h.fila(["Ecuación (%d)" % (i + 1), f(M[i, 0]), f(M[i, 1]), f(M[i, 2]), f(V[i]), f(Mi[i, 0], 4), f(Mi[i, 1], 4), f(Mi[i, 2], 4)])
     h.r += 1
-    h.fila(["Resultado", "m = %.4f" % sol[0], "n = %.4f" % (-sol[1]), "logK = %.4f" % sol[2], "K = %.2f" % 10 ** sol[2], "", "", ""], neg=True, bg=AM)
+    h.fila(["Resultado", "m = %.4f" % sol[0], "n = %.4f" % (-sol[1]), "logK = %.4f" % sol[2], "K = %.2f" % HID["K"], "", "", ""], neg=True, bg=AM)
     h.m.append((h.r - 1, 5, h.r - 1, 7))
     h.volcar(D)
     # ---------------------------------------------------------------------------------------------- PARTE II - B. intensidades
     D.salto()
-    K, m_, n_ = 10 ** sol[2], sol[0], -sol[1]
+    K, m_, n_ = HID["K"], HID["m"], HID["n"]
     TT = [2, 5, 10, 20, 25, 50, 100]
     h = Hoja(8, [2.4, 1.75, 1.75, 1.75, 1.75, 1.75, 1.75, 1.75], tam=7)
     h.cabecera("B. CÁLCULO DE INTENSIDADES MÁXIMAS (mm/h)")

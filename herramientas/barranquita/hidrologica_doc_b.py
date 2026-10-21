@@ -184,7 +184,7 @@ def memoria(D, c):
         ("c) Representatividad de la información. ", "Se usa la serie medida en la misma subcuenca, sin transposición, y se contrasta con la transposición de la estación CO Tarapoto por la relación de precipitaciones anuales."),
         ("d) Caracterización estadística y análisis de frecuencia. ", "Se calculan la media, la desviación estándar y la asimetría, y se ajustan las distribuciones Normal, Log-Normal, Log-Pearson tipo III y Gumbel (numeral 3.7.1 del Manual del MTC)."),
         ("e) Evaluación del ajuste y selección del modelo. ", "Se aplica la prueba de Kolmogorov-Smirnov y se comparan las precipitaciones estimadas; se selecciona la distribución de mejor ajuste."),
-        ("f) Precipitaciones e intensidades de diseño. ", "Con la distribución seleccionada se obtienen las precipitaciones para los períodos de retorno; las lluvias de corta duración se obtienen por Dick y Peschke y se construyen las curvas IDF."),
+        ("f) Precipitaciones e intensidades de diseño. ", "Con la distribución seleccionada se obtienen las precipitaciones para los períodos de retorno; los parámetros de intensidades y las curvas IDF se obtienen con el modelo de Bell, y las intensidades de diseño con Dick y Peschke."),
         ("g) Áreas tributarias y tiempos de concentración. ", "Se identifican las superficies que descargan a cada tramo de cuneta y se determinan los tiempos de concentración, con la duración mínima de 10 minutos de la Norma CE.040."),
         ("h) Coeficientes y caudales. ", "Se asignan coeficientes de escorrentía por superficie y se calculan los caudales por el método racional, acumulando los aportes de aguas arriba."),
         ("i) Integración con la evaluación hidráulica. ", "Los caudales se verifican en cada tramo de cuneta con Manning, y se evalúan las descargas por el cerco.")]:
@@ -235,10 +235,12 @@ def memoria(D, c):
     D.p("El período de retorno es un intervalo medio entre excedencias; no implica que el evento ocurra regularmente cada T años. Se evalúan "
         "las distribuciones Normal, Log-Normal de dos parámetros, Log-Pearson tipo III y Extrema tipo I de Gumbel:")
     D.p("Distribución Normal. ", neg=None); D.formula("f(x) = 1/(σ√(2π)) · exp[−(x − μ)² / (2σ²)]          xT = x̄ + zT · s")
+    D.p("La variable normal estándar zT se calcula con la aproximación de Abramowitz y Stegun, con P = 1/T:")
+    D.formula("w = [ln(1/P²)]^0.5          z = w − (2.515517 + 0.802853 w + 0.010328 w²) / (1 + 1.432788 w + 0.189269 w² + 0.001308 w³)")
     D.p("Distribución Log-Normal (dos parámetros). Los logaritmos de la precipitación siguen una distribución normal (en este estudio se usan logaritmos decimales):")
     D.formula("y = log x          yT = ȳ + zT · sy          xT = 10^yT")
-    D.p("Distribución Log-Pearson tipo III. Los logaritmos siguen una distribución Pearson III; el factor de frecuencia depende de la asimetría Cs de los logaritmos (Wilson-Hilferty):")
-    D.formula("KT = (2/Cs) · [ (1 + Cs·zT/6 − Cs²/36)³ − 1 ]          xT = 10^(ȳ + KT · sy)")
+    D.p("Distribución Log-Pearson tipo III. Los logaritmos siguen una distribución Pearson III; el factor de frecuencia depende de la asimetría Cs de los logaritmos (expresión de Kite, k = Cs/6):")
+    D.formula("KT = z + (z² − 1)k + (z³ − 6z)k²/3 − (z² − 1)k³ + z·k⁴ + k⁵/3          xT = 10^(ȳ + KT · sy)")
     D.p("Distribución Extrema tipo I de Gumbel (máximos):")
     D.formula("F(x) = exp[−exp(−(x − u)/α)]     α = √6·s/π     u = x̄ − 0.5772·α     KT = −(√6/π)·[0.5772 + ln(ln(T/(T−1)))]")
     D.tabla("Parámetros estadísticos de la serie de Pongo de Caynarachi", ["Parámetro", "Valor"],
@@ -252,34 +254,22 @@ def memoria(D, c):
         ("gumbel", "Distribución Extrema tipo I - Gumbel", ["T (años)", "KT", "P máx. (mm)"], lambda T, t: [T, "%.4f" % t["kt_gumbel"], f2(t["gumbel"])])):
         D.tabla(nom + " - serie de Pongo de Caynarachi", cab, [fil(T, A["tabla"][T]) for T in H.PERIODOS], None, tam=8.5)
     D.h(2, "Pruebas de bondad de ajuste")
-    D.p("La prueba de Kolmogorov-Smirnov compara la distribución empírica de la muestra con la distribución acumulada de cada modelo; el "
-        "estadístico es la mayor diferencia absoluta entre ambas:")
-    D.formula("D = máx | F(xi) − Fe(xi) |          Fe(xi) = i / (n + 1)")
-    D.p("Se adopta un nivel de significación α = 0.05. Para n = %d el valor crítico es %.2f (tabla de Smirnov); una distribución se acepta si "
-        "D < %.2f. La selección considera además la representación de los eventos de mayor magnitud y la coherencia de las estimaciones." % (A["n"], A["ks_critico"], A["ks_critico"]))
-    D.tabla("Valores críticos de Kolmogorov-Smirnov", ["n", "α = 0.20", "α = 0.10", "α = 0.05", "α = 0.01"],
-            [[5, 0.45, 0.51, 0.56, 0.67], [10, 0.32, 0.37, 0.41, 0.49], [15, 0.27, 0.30, 0.34, 0.40], [20, 0.23, 0.26, 0.29, 0.36], [25, 0.21, 0.24, 0.27, 0.32],
-             [30, 0.19, 0.22, 0.24, 0.29], [40, 0.17, 0.19, 0.21, 0.25], [50, 0.15, 0.17, 0.19, 0.23]], [2, 2.5, 2.5, 2.5, 2.5],
-            fuente="Yevjevich, V. (1972). Probability and Statistics in Hydrology. Water Resources Publications.")
+    D.p("La prueba de Kolmogorov-Smirnov compara la probabilidad de excedencia observada de cada dato, con la serie ordenada de mayor a menor "
+        "(posición de Weibull), con la probabilidad de excedencia teórica de cada modelo; el estadístico es la mayor diferencia absoluta:")
+    D.formula("D = máx | P(X ≥ xm)teórica − m / (n + 1) |")
+    D.p("Para la distribución Log-Pearson tipo III la probabilidad teórica se obtiene de la distribución gamma de ln P (parámetros β = (2/Cs)², "
+        "α = s/√β y δ = media − α·β, con la función chi-cuadrado de 2β grados de libertad); para Gumbel, con la media yn = %.4f y la desviación "
+        "sn = %.4f de la variable reducida para n = %d datos (Aparicio, pág. 264). Es el mismo procedimiento de la hoja de cálculo del análisis "
+        "estadístico de los proyectos de Morales." % (A["gumbel_yn"], A["gumbel_sn"], A["n"]))
+    D.p("Se adopta un nivel de significación α = 0.05. El valor crítico es Dα = [−ln(α/2) / (2n)]^0.5 − 1/(6n) = %.4f para n = %d; una "
+        "distribución se acepta si D < Dα, y se adopta la de menor D." % (A["ks_critico"], A["n"]))
     D.h(2, "Evaluación del ajuste de las distribuciones")
-    ml, sl, csl = A["media_log"], A["desv_log"], A["cs_log"]
-    def F_all(v):
-        def lp3(v):
-            lo, hi = -8.0, 8.0
-            for _ in range(100):
-                zz = (lo + hi) / 2; k = csl / 6; kt = (2 / csl) * ((1 + k * zz - k * k) ** 3 - 1)
-                if 10 ** (ml + kt * sl) < v: lo = zz
-                else: hi = zz
-            return H._phi((lo + hi) / 2)
-        return (H._phi((v - A["media"]) / A["desv"]), H._phi((math.log10(v) - ml) / sl), lp3(v), math.exp(-math.exp(-(v - A["gumbel_u"]) / A["gumbel_alfa"])))
-    filas = []
-    for i, (x, fe) in enumerate(A["orden"], 1):
-        Fs = F_all(x); filas.append([i, f2(x), "%.4f" % fe] + ["%.4f" % abs(fe - F) for F in Fs])
-    D.tabla("Prueba de Kolmogorov-Smirnov: diferencias |F − Fe| por dato", ["m", "P (mm)", "Fe", "Normal", "Log-Normal", "LP III", "Gumbel"], filas,
+    filas = [[t["m"], f2(t["P"]), "%.4f" % t["E"]] + ["%.4f" % abs(t[k] - t["E"]) for k in ("normal", "lognormal", "lp3", "gumbel")] for t in A["tabla_ks"]]
+    D.tabla("Prueba de Kolmogorov-Smirnov: diferencias |P teórica − P observada| por dato", ["m", "P (mm)", "m/(n+1)", "Normal", "Log-Normal", "LP III", "Gumbel"], filas,
             [1, 2, 2, 2.2, 2.2, 2.2, 2.2], tam=7.5)
     ks = A["ks"]
     D.tabla("Resumen de la prueba de Kolmogorov-Smirnov", ["Distribución", "D máx.", "D crítico", "Resultado"],
-            [[n, "%.4f" % ks[k], "%.2f" % A["ks_critico"], "Se acepta" + (" (adoptada)" if k == A["elegida"] else "")]
+            [[n, "%.4f" % ks[k], "%.4f" % A["ks_critico"], "Se acepta" + (" (adoptada)" if k == A["elegida"] else "")]
              for k, n in (("normal", "Normal"), ("lognormal", "Log-Normal"), ("lp3", "Log-Pearson III"), ("gumbel", "Gumbel"))], [5, 3, 3, 4])
     DN = {"normal": "Normal", "lognormal": "Log-Normal", "lp3": "Log-Pearson III", "gumbel": "Gumbel"}; el = A["elegida"]; acep = [k for k in DN if ks[k] < A["ks_critico"]]
     D.p("%s al nivel de significación de 0.05. La distribución %s presenta el menor estadístico (D = %.4f), por lo que se adopta para el "
@@ -290,19 +280,27 @@ def memoria(D, c):
     D.tabla("Resumen de precipitaciones máximas en 24 h por distribución (mm)", ["T (años)", "Normal", "Log-Normal", "Log-Pearson III", "Gumbel", "Diseño"], filas, [2, 2.6, 2.6, 2.8, 2.6, 2.6])
     D.figura(os.path.join(c["FIG"], "fig_frecuencias.png"), "Ajuste de las distribuciones a la serie de Pongo de Caynarachi.", 14.5)
     D.h(2, "Curvas intensidad - duración - frecuencia")
-    D.p("Las lluvias de corta duración se obtienen de la precipitación máxima en 24 horas mediante la expresión de Dick y Peschke, recomendada "
-        "por el Manual de Hidrología del MTC cuando no se dispone de registros pluviográficos:")
-    D.formula("Pd = P24 · (d / 1440)^0.25")
-    filas = [[d] + ["%.2f" % (H.p_dur(HID["p24"][T], d)) for T in (2, 5, 10, 25, 50, 100, 500)] for d in H.DURACIONES]
-    D.tabla("Lluvias máximas por duración (mm)", ["D (min)", "T = 2", "T = 5", "T = 10", "T = 25", "T = 50", "T = 100", "T = 500"], filas, [1.8] + [1.9] * 7, tam=8)
-    filas = [[d] + ["%.2f" % HID["idf"][T][d] for T in (2, 5, 10, 25, 50, 100, 500)] for d in H.DURACIONES]
-    D.tabla("Intensidades máximas por duración (mm/h)", ["D (min)", "T = 2", "T = 5", "T = 10", "T = 25", "T = 50", "T = 100", "T = 500"], filas, [1.8] + [1.9] * 7, tam=8)
-    D.p("Con las intensidades de 5 a 60 minutos y todos los períodos de retorno se ajustó, por regresión lineal múltiple de los logaritmos, la "
-        "ecuación de las curvas IDF:")
+    D.p("Los parámetros de intensidades máximas se obtienen, como en el estudio de los proyectos de Morales, con el modelo de Bell, que da la "
+        "lluvia de duración t (5 a 120 minutos) y período de retorno T a partir de la lluvia de 60 minutos y 10 años de retorno; esta se estima "
+        "con la precipitación máxima en 24 horas de 10 años (P24 = %.2f mm):" % HID["p24"][10])
+    D.formula("P(T, t) = (0.21 ln T + 0.52) · (0.54 t^0.25 − 0.50) · P60(10)          P60(10) = 0.4602 · P24(10)^0.876 = %.2f mm" % HID["P60_10"])
+    Ts = sorted(H.PERIODOS, reverse=True)
+    D.tabla("Cuadro N° 04: lluvias máximas por duración - modelo de Bell (mm)", ["T (años)", "P24 (mm)"] + ["%d min" % t for t in H.DUR_BELL],
+            [[T, f2(HID["p24"][T])] + ["%.2f" % HID["bell_p"][T][t] for t in H.DUR_BELL] for T in Ts], [1.8, 2.0] + [1.9] * 6, tam=8)
+    D.tabla("Cuadro N° 05: intensidades máximas por duración (mm/h)", ["T (años)", "P24 (mm)"] + ["%d min" % t for t in H.DUR_BELL],
+            [[T, f2(HID["p24"][T])] + ["%.1f" % HID["bell_i"][T][t] for t in H.DUR_BELL] for T in Ts], [1.8, 2.0] + [1.9] * 6, tam=8)
+    D.p("Con las 54 intensidades del Cuadro N° 05 se ajustó, por regresión lineal múltiple de los logaritmos, la ecuación de las curvas IDF:")
     D.formula("I = K · T^m / t^n          log I = log K + m · log T − n · log t")
     D.tabla("Parámetros de la ecuación IDF", ["Parámetro", "Valor"], [["K", "%.2f" % HID["K"]], ["m", "%.4f" % HID["m"]], ["n", "%.4f" % HID["n"]]], [6, 4])
     D.formula("I = %.2f · T^%.4f / t^%.4f     (I en mm/h, T en años, t en minutos)" % (HID["K"], HID["m"], HID["n"]))
-    D.figura(os.path.join(c["FIG"], "fig_idf.png"), "Curvas intensidad - duración - frecuencia de Barranquita.", 14.5)
+    D.p("Para las intensidades de diseño de las canaletas, montantes y cunetas se usa la expresión de Dick y Peschke, recomendada por el "
+        "Manual de Hidrología del MTC cuando no se dispone de registros pluviográficos, igual que en los proyectos de Morales:")
+    D.formula("Pd = P24 · (d / 1440)^0.25          I = Pd · 60 / d")
+    filas = [[d] + ["%.2f" % (H.p_dur(HID["p24"][T], d)) for T in (2, 5, 10, 25, 50, 100, 500)] for d in H.DURACIONES]
+    D.tabla("Lluvias máximas por duración - Dick y Peschke (mm)", ["D (min)", "T = 2", "T = 5", "T = 10", "T = 25", "T = 50", "T = 100", "T = 500"], filas, [1.8] + [1.9] * 7, tam=8)
+    filas = [[d] + ["%.2f" % HID["idf"][T][d] for T in (2, 5, 10, 25, 50, 100, 500)] for d in H.DURACIONES]
+    D.tabla("Intensidades máximas por duración - Dick y Peschke (mm/h)", ["D (min)", "T = 2", "T = 5", "T = 10", "T = 25", "T = 50", "T = 100", "T = 500"], filas, [1.8] + [1.9] * 7, tam=8)
+    D.figura(os.path.join(c["FIG"], "fig_idf.png"), "Curvas intensidad - duración - frecuencia de Barranquita (Dick y Peschke).", 14.5)
     D.h(2, "Tiempo de concentración")
     D.p("El tiempo de concentración es el tiempo que tarda el agua en llegar desde el punto hidráulicamente más alejado del área tributaria "
         "hasta la sección de control. Para cada sistema se evaluó el recorrido más largo: escurrimiento sobre el techo o el piso hasta la "
@@ -470,6 +468,8 @@ def memoria(D, c):
     D.tabla("Descargas de la red de cunetas", ["Descarga", "Cota de fondo", "Terreno al pie", "Receptor"], filas, [2, 2.3, 2.3, 9], tam=8)
     D.figura(os.path.join(c["FIG"], "fig_descarga_d1.png"), "Detalle de la descarga D1: planta, perfil longitudinal e isométrico (lámina DC-16).", 15.5)
     D.h(2, "Presentación de los cálculos")
+    D.p("El análisis estadístico se presenta en la hoja de cálculo ANALISIS_ESTADISTICO_IE0590_BARRANQUITA.xlsx (mismo formato y fórmulas de "
+        "los proyectos de Morales) y en el Anexo N° 01.")
     D.p("El cálculo completo se presenta en la memoria de cálculo (Excel con fórmulas): datos, serie, frecuencias, prueba de Kolmogorov-Smirnov, "
         "curvas IDF, superficies, caudales y verificación de Manning de los 91 tramos, y descargas. Los planos DC-01 a DC-19 presentan la planta, "
         "las secciones típicas, los perfiles longitudinales por eje, las secciones transversales, los cortes y el detalle de cada descarga.")
@@ -479,9 +479,9 @@ def memoria(D, c):
         "Se determinaron los parámetros hidrológicos e hidráulicos del sistema de drenaje pluvial del proyecto %s, C.I. N° 468901." % nom_p,
         "La lluvia de diseño se obtuvo de la serie de precipitación máxima en 24 horas de la estación Pongo de Caynarachi (SENAMHI, código 003317), "
         "en la misma subcuenca del río Caynarachi, con los 25 años completos más recientes del registro (%s), sin transposición." % H.ESTACION["periodo"],
-        "La distribución %s presenta el mejor ajuste (Kolmogorov-Smirnov D = %.4f < %.2f). La precipitación máxima en 24 horas para T = 25 años es %.2f mm." % (
+        "La distribución %s presenta el mejor ajuste (Kolmogorov-Smirnov D = %.4f < %.4f). La precipitación máxima en 24 horas para T = 25 años es %.2f mm." % (
             {"normal": "Normal", "lognormal": "Log-Normal", "lp3": "Log-Pearson III", "gumbel": "Gumbel"}[A["elegida"]], ks[A["elegida"]], A["ks_critico"], HID["P24"]),
-        "La intensidad de diseño para tc = 10 minutos (Dick y Peschke) es %.2f mm/h; la ecuación IDF es I = %.2f T^%.4f / t^%.4f." % (HID["I"], HID["K"], HID["m"], HID["n"]),
+        "La intensidad de diseño para tc = 10 minutos (Dick y Peschke) es %.2f mm/h; la ecuación IDF (modelo de Bell) es I = %.2f T^%.4f / t^%.4f." % (HID["I"], HID["K"], HID["m"], HID["n"]),
         "El área de intervención es de %s m², con coeficiente de escorrentía ponderado de %.3f, y los caudales se afectan por un factor de seguridad de %.2f." % (mil(hv["A_total"], 0), hv["C"], FS),
         "La red de cunetas tiene %s m en 19 ejes y 4 sistemas; las cunetas de 0.60 m de ancho total (0.40 m libres) cumplen en todos los tramos, con caudal máximo de %.1f l/s, borde libre mínimo de %.3f m y velocidad máxima de %.2f m/s." % (mil(c["L"]), c["Qmax"], c["BLmin"], c["Vmax"]),
         "Los montantes de PVC de 4\" atienden hasta %.1f m² de techo cada uno; el número mínimo por cobertura se presenta en este estudio." % Amon,
@@ -498,7 +498,8 @@ def memoria(D, c):
         "Toda ampliación futura de techos o pavimentos requiere una nueva evaluación hidrológica e hidráulica.",
         "Cuando el SENAMHI publique los registros diarios posteriores a 2013 de Pongo de Caynarachi, o series diarias de Navarro, Pelejo o Shanusi, actualizar el análisis de frecuencias con los años recientes."])
     D.h(1, "Anexos")
-    D.vinetas(["Anexo N° 01: análisis estadístico de la precipitación máxima en 24 horas y tormenta de diseño (hojas de cálculo siguientes).",
+    D.vinetas(["Anexo N° 01: análisis estadístico de la precipitación máxima en 24 horas y tormenta de diseño (hojas de cálculo siguientes; "
+               "archivo Excel ANALISIS_ESTADISTICO_IE0590_BARRANQUITA.xlsx).",
                "Memoria de cálculo hidrológico e hidráulico (Excel): MEMORIA_CALCULO_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.xlsx.",
                "Metrado de drenaje pluvial (Excel): METRADO_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.xlsx.",
                "Planos de drenaje pluvial DC-01 a DC-19 (PLANTEAMIENTO_CUNETAS_IE0590_BARRANQUITA.dxf)."])

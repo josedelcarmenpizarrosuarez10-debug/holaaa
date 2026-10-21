@@ -1,7 +1,7 @@
 """Memoria de calculo hidrologico e hidraulico (Excel con formulas) de la red de cunetas de la I.E. N.° 0590 Barranquita.
 
 Hojas: RESUMEN, DATOS, SERIE (Pmax 24 h de la estacion Pongo de Caynarachi, 1989-2013), FRECUENCIAS (Normal, Log-Normal, Log-Pearson III,
-Gumbel), KS (Kolmogorov-Smirnov), IDF (Dick y Peschke y regresion I = K T^m / t^n), SUPERFICIES (coeficiente de escorrentia),
+Gumbel), KS (Kolmogorov-Smirnov), IDF (modelo de Bell y regresion I = K T^m / t^n; Dick y Peschke para el diseno), SUPERFICIES (coeficiente de escorrentia),
 CAUDALES (metodo racional y Manning por tramo) y DESCARGAS. Los valores coinciden con hidrologia_b.py y verifica_b.py.
 """
 import os, sys, json, math
@@ -120,10 +120,11 @@ def construir():
     for i, T in enumerate(H.PERIODOS):
         r = 17 + i; filaT[T] = r
         cel(wf, r, 1, T, "0", bold=True)
-        cel(wf, r, 2, "=NORMSINV(1-1/A%d)" % r, "0.000")
+        w = "SQRT(LN(A%d^2))" % r
+        cel(wf, r, 2, "=%s-(2.515517+0.802853*%s+0.010328*%s^2)/(1+1.432788*%s+0.189269*%s^2+0.001308*%s^3)" % ((w,) * 6), "0.000")
         cel(wf, r, 3, "=$B$6+B%d*$B$7" % r, "0.00")
         cel(wf, r, 4, "=10^($B$9+B%d*$B$10)" % r, "0.00")
-        cel(wf, r, 5, "=(2/$B$11)*((1+$B$11/6*B%d-($B$11/6)^2)^3-1)" % r, "0.000")
+        cel(wf, r, 5, "=B{r}+(B{r}^2-1)*($B$11/6)+1/3*(B{r}^3-6*B{r})*($B$11/6)^2-(B{r}^2-1)*($B$11/6)^3+B{r}*($B$11/6)^4+1/3*($B$11/6)^5".format(r=r), "0.000")
         cel(wf, r, 6, "=10^($B$9+E%d*$B$10)" % r, "0.00")
         cel(wf, r, 7, "=-SQRT(6)/PI()*(0.5772+LN(LN(A%d/(A%d-1))))" % (r, r), "0.000")
         cel(wf, r, 8, "=$B$6+G%d*$B$7" % r, "0.00")
@@ -131,41 +132,59 @@ def construir():
     # P24 de diseno en DATOS (T = 25)
     wd.cell(15, 2).value = "=FRECUENCIAS!I%d" % filaT[H.T_DISENO]
     cel(wf, 27, 1, "Se adopta la distribucion %s: menor estadistico de Kolmogorov-Smirnov (hoja KS)." % DN[EL], borde=False)
-    # ------------------------------------------------------------------ KS
-    cabecera(wk, "PRUEBA DE BONDAD DE AJUSTE DE KOLMOGOROV-SMIRNOV (alfa = 0.05)", 11)
-    tabla_cab(wk, 8, ["m", "P ordenada (mm)", "F empirica m/(n+1)", "F Normal", "F Log-Normal", "F Log-Pearson III", "F Gumbel",
-                      "|D| Normal", "|D| Log-Normal", "|D| LP III", "|D| Gumbel"], [6, 12, 12, 10, 11, 12, 10, 10, 11, 10, 10])
-    n = A["n"]; ord_ = A["orden"]
-    # F Log-Pearson III: no tiene funcion directa en la hoja; se escribe el valor calculado (Wilson-Hilferty) y se verifica con la tabla
-    import hidrologia_b as HH
-    ml, sl, csl = A["media_log"], A["desv_log"], A["cs_log"]
-    def F_lp3(v):
-        lo, hi = -8.0, 8.0
-        for _ in range(100):
-            zz = (lo + hi) / 2; k = csl / 6; kt = (2 / csl) * ((1 + k * zz - k * k) ** 3 - 1)
-            if 10 ** (ml + kt * sl) < v: lo = zz
-            else: hi = zz
-        return HH._phi((lo + hi) / 2)
+    cel(wf, 28, 1, "z por la aproximacion de Abramowitz y Stegun; KT de Log Pearson III por la expresion de Kite (k = Cs/6); mismos calculos de la hoja "
+                   "ANALISIS_ESTADISTICO_IE0590_BARRANQUITA.xlsx.", borde=False)
+    # ------------------------------------------------------------------ KS (metodo de la hoja ANALISIS ESTADISTICO de los CAR)
+    cabecera(wk, "PRUEBA DE BONDAD DE AJUSTE DE KOLMOGOROV-SMIRNOV (alfa = 0.05)", 13)
+    tabla_cab(wk, 8, ["m", "P ordenada de mayor a menor (mm)", "P(X>=x) observada m/(n+1)", "P teorica Normal", "P teorica Log-Normal",
+                      "P teorica Log-Pearson III", "P teorica Gumbel", "|D| Normal", "|D| Log-Normal", "|D| LP III", "|D| Gumbel"],
+              [6, 14, 14, 11, 12, 13, 11, 10, 11, 10, 10])
+    n = A["n"]; L = A["ln"]
+    par = [("n", "=COUNT(%s)" % rngO, "0"), ("media ln P", "=AVERAGE(LN(%s))" % rngO, "0.0000"), ("desv. ln P", L["desv"], "0.0000"),
+           ("Cs ln P", L["cs"], "0.0000"), ("beta = (2/Cs)^2", "=(2/N12)^2", "0.0000"), ("alfa = s/raiz(beta)", "=N11/SQRT(N13)", "0.00000"),
+           ("delta = media - alfa beta", "=N10-N14*N13", "0.0000"), ("Gumbel: media yn (Aparicio, n = %d)" % n, A["gumbel_yn"], "0.0000"),
+           ("Gumbel: desviacion sn", A["gumbel_sn"], "0.0000"), ("D critico (alfa 0.05)", "=SQRT(-LN(0.05/2)/(2*N9))-1/(6*N9)", "0.0000")]
+    for i, (t, v, fmt) in enumerate(par):
+        cel(wk, 9 + i, 13, t, bold=True); cel(wk, 9 + i, 14, v, fmt, fill=AM)
+    wk.cell(10, 14).value = L["media"]; wk.column_dimensions["M"].width = 32; wk.column_dimensions["N"].width = 12
     for i in range(n):
         r = 9 + i
-        cel(wk, r, 1, i + 1, "0"); cel(wk, r, 2, "=SMALL(%s,A%d)" % (rngO, r), "0.00"); cel(wk, r, 3, "=A%d/(FRECUENCIAS!$B$5+1)" % r, "0.0000")
-        cel(wk, r, 4, "=NORMDIST(B%d,FRECUENCIAS!$B$6,FRECUENCIAS!$B$7,TRUE())" % r, "0.0000")
-        cel(wk, r, 5, "=NORMDIST(LOG10(B%d),FRECUENCIAS!$B$9,FRECUENCIAS!$B$10,TRUE())" % r, "0.0000")
-        cel(wk, r, 6, round(F_lp3(ord_[i][0]), 6), "0.0000")
-        cel(wk, r, 7, "=EXP(-EXP(-(B%d-FRECUENCIAS!$B$13)/FRECUENCIAS!$B$12))" % r, "0.0000")
+        cel(wk, r, 1, i + 1, "0"); cel(wk, r, 2, "=LARGE(%s,A%d)" % (rngO, r), "0.00"); cel(wk, r, 3, "=A%d/($N$9+1)" % r, "0.0000")
+        cel(wk, r, 4, "=1-NORMSDIST((B%d-FRECUENCIAS!$B$6)/FRECUENCIAS!$B$7)" % r, "0.0000")
+        cel(wk, r, 5, "=1-NORMSDIST((LOG10(B%d)-FRECUENCIAS!$B$9)/FRECUENCIAS!$B$10)" % r, "0.0000")
+        cel(wk, r, 6, "=CHIDIST(2*(LN(B%d)-$N$15)/$N$14,2*$N$13)" % r, "0.0000")
+        cel(wk, r, 7, "=1-EXP(-EXP(-((B%d-FRECUENCIAS!$B$6)/FRECUENCIAS!$B$7*$N$17+$N$16)))" % r, "0.0000")
         for j, col in enumerate("DEFG"):
-            cel(wk, r, 8 + j, "=ABS(C%d-%s%d)" % (r, col, r), "0.0000")
+            cel(wk, r, 8 + j, "=ABS(%s%d-C%d)" % (col, r, r), "0.0000")
     rm = 9 + n
     cel(wk, rm, 7, "D max", bold=True)
     for j in range(4): cel(wk, rm, 8 + j, "=MAX(%s9:%s%d)" % (CL(8 + j), CL(8 + j), rm - 1), "0.0000", bold=True, fill=VE)
     cel(wk, rm + 1, 7, "D critico", bold=True)
-    for j in range(4): cel(wk, rm + 1, 8 + j, A["ks_critico"], "0.00")
+    for j in range(4): cel(wk, rm + 1, 8 + j, "=$N$18", "0.0000")
     cel(wk, rm + 2, 7, "Ajuste", bold=True)
     for j in range(4): cel(wk, rm + 2, 8 + j, '=IF(%s%d<%s%d,"ACEPTA","RECHAZA")' % (CL(8 + j), rm, CL(8 + j), rm + 1))
-    cel(wk, rm + 4, 1, "F Log-Pearson III por Wilson-Hilferty (valor calculado). D critico para n = %d y alfa = 0.05: %.2f (tabla de Smirnov)." % (A["n"], A["ks_critico"]), borde=False)
+    cel(wk, rm + 4, 1, "Log-Pearson III: distribucion gamma de ln P (CHIDIST con 2 beta grados de libertad); Gumbel con la media yn y la desviacion sn de la "
+                       "variable reducida para n datos (Aparicio, pag. 264); D critico = raiz(-ln(alfa/2)/(2n)) - 1/(6n). Se adopta la de menor D: %s." % DN[EL], borde=False)
     # ------------------------------------------------------------------ IDF
-    cabecera(wi, "LLUVIAS E INTENSIDADES MAXIMAS (DICK Y PESCHKE) Y CURVAS IDF", 11)
-    cel(wi, 8, 1, "P (mm) para la duracion D: P = P24 (D / 1440)^0.25", borde=False, bold=True)
+    cabecera(wi, "LLUVIAS E INTENSIDADES MAXIMAS: MODELO DE BELL (CURVAS IDF) Y DICK Y PESCHKE (DISENO)", 11)
+    # A. parametros de intensidades maximas con el modelo de Bell, como la hoja A. Parametros de los CAR
+    rb = 10 + 2 * len(H.DURACIONES) + 4 + 8
+    cel(wi, rb, 1, "Modelo de Bell: P(T,t) = (0.21 ln T + 0.52)(0.54 t^0.25 - 0.50) P60(10);  P60(10) = 0.4602 P24(10)^0.876 =", borde=False, bold=True)
+    cel(wi, rb, 9, "=0.4602*FRECUENCIAS!$I$%d^0.876" % filaT[10], "0.00", bold=True, fill=AM)
+    tabla_cab(wi, rb + 1, ["T (anos)"] + ["P t = %d min" % t for t in H.DUR_BELL] + ["", ""] + ["I t = %d min" % t for t in H.DUR_BELL][:0])
+    for i, T in enumerate(sorted(H.PERIODOS, reverse=True)):
+        r = rb + 2 + i; cel(wi, r, 1, T, "0", bold=True)
+        for j, t in enumerate(H.DUR_BELL):
+            f_ = "=$I$%d" % rb if (T == 10 and t == 60) else "=(0.21*LN($A%d)+0.52)*(0.54*%d^0.25-0.5)*$I$%d" % (r, t, rb)
+            cel(wi, r, 2 + j, f_, "0.00")
+    rb2 = rb + 2 + len(H.PERIODOS) + 1
+    cel(wi, rb2, 1, "Intensidades maximas (mm/h) = 60 P / t, redondeadas a 0.1 (regresion de las curvas IDF)", borde=False, bold=True)
+    tabla_cab(wi, rb2 + 1, ["T (anos)"] + ["t = %d min" % t for t in H.DUR_BELL])
+    for i, T in enumerate(sorted(H.PERIODOS, reverse=True)):
+        r = rb2 + 2 + i; cel(wi, r, 1, T, "0", bold=True)
+        for j, t in enumerate(H.DUR_BELL):
+            cel(wi, r, 2 + j, "=ROUND(60*%s%d/%d,1)" % (CL(2 + j), rb + 2 + i, t), "0.0")
+    cel(wi, 8, 1, "Intensidades de diseno - Dick y Peschke: P (mm) para la duracion D: P = P24 (D / 1440)^0.25", borde=False, bold=True)
     tabla_cab(wi, 9, ["D (min)"] + ["T = %d" % T for T in H.PERIODOS], [10] + [10] * len(H.PERIODOS))
     for i, D in enumerate(H.DURACIONES):
         r = 10 + i; cel(wi, r, 1, D, "0", bold=True)
@@ -179,7 +198,7 @@ def construir():
         for j in range(len(H.PERIODOS)):
             cel(wi, r, 2 + j, "=%s%d*60/$A%d" % (CL(2 + j), 10 + i, r), "0.00", fill=VE if (D == H.TC and H.PERIODOS[j] == H.T_DISENO) else None)
     r3 = r2 + 2 + len(H.DURACIONES) + 2
-    cel(wi, r3, 1, "Regresion multiple I = K T^m / t^n (duraciones de 5 a 60 min):", borde=False, bold=True)
+    cel(wi, r3, 1, "Regresion multiple I = K T^m / t^n de las intensidades del modelo de Bell (filas inferiores; 5 a 60 min, todos los T):", borde=False, bold=True)
     for k, (t, v) in enumerate((("K", HID["K"]), ("m", HID["m"]), ("n", HID["n"]))):
         cel(wi, r3 + 1 + k, 1, t, bold=True); cel(wi, r3 + 1 + k, 2, round(v, 4), "0.0000", fill=AM)
     cel(wi, r3 + 5, 1, "Comprobacion: I (T = 25, t = 10 min) con la ecuacion IDF (mm/h)", borde=False)

@@ -437,3 +437,20 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Especificaciones: motor espec.py + docx_espec.js (docx_espec.js acepta J.codigo para "C.I. N.°"); 20 paginas.
 - Planos (DXF y PNG) sin cambios. Pendiente de decision del usuario: DC-16 a DC-19 rotulan "AGUA DE DISENO" con los caudales anteriores
   (207.7 / 264.7 / 174.2 / 48.4 l/s); con la lluvia y superficies vigentes son 225.7 / 225.3 / 163.6 / 44.8 l/s.
+
+## 21-10-2026 – Barranquita: analisis estadistico en el formato del usuario (Excel del CAR Varones)
+- Usuario envio ANALISIS_ESTADISTICO - CAR VARONES.xlsx: "asi quiero el analisis estadistico". Copia en insumos/barranquita/plantillas/.
+- analisis_estadistico_b.py: abre la plantilla con LibreOffice (UNO), pone proyecto, estacion Pongo de Caynarachi (003317) y la serie
+  1989-2013 (25 anios, S/D resaltados), borra las filas sobrantes del registro de 26 anios (LibreOffice ajusta formulas y graficos), quita
+  las hojas auxiliares Hoja1 y 210, cambia los titulos de graficos (CO TARAPOTO -> PONGO DE CAYNARACHI), corrige MAX(Z22:Z45) a todo el
+  rango y hace que la columna "Diseno" del resumen tome la distribucion que selecciona la prueba K-S. Salida
+  entregables_barranquita/ANALISIS_ESTADISTICO_IE0590_BARRANQUITA.xlsx; se compara con hidrologia_b (iguales).
+- hidrologia_b.analisis/resultados con los metodos de la hoja: z de Abramowitz-Stegun, KT de LP3 de Kite, K-S con P de excedencia
+  m/(n+1) y serie de mayor a menor, LP3 por gamma de ln P (CHIDIST con gl entero), Gumbel con yn/sn (Aparicio), D critico por formula;
+  IDF por el modelo de Bell (P60(10) = 0.4602 P24(10)^0.876, intensidades redondeadas a 0.1). Con los datos del CAR Varones reproduce la
+  hoja del usuario (D 0.0920 / 0.0894 / 0.0964 / 0.1270; K 161.94, m 0.1786, n 0.5271).
+- Barranquita: la prueba K-S del formato del usuario elige Log Pearson III (D 0.0683; Gumbel 0.0775; critico 0.2650): P24 T25 169.27 mm,
+  I = 293.18 mm/h (antes Gumbel 166.64 / 288.63); IDF K 211.66, m 0.1786, n 0.5269. Verificacion 11 de 11; Q max 229.2 l/s (EJE-02 a D1),
+  borde libre min 0.128 m, V max 1.98 m/s. Metrado identico. Memoria de calculo (FRECUENCIAS, KS, IDF), memoria hidrologica y anexo,
+  descriptiva y cuadro de tramos regenerados. Planos sin cambios; DC-16 a DC-19 siguen rotulando 207.7 / 264.7 / 174.2 / 48.4 l/s
+  (ahora 229.2 / 228.9 / 166.2 / 45.5 l/s).

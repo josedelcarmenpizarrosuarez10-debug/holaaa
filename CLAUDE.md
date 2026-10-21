@@ -46,7 +46,9 @@ Cadena hidráulica: Varones (0.60) → caja de llegada CL → Refugio (0.80) →
   (chaflanes de 0.60 m en cada esquina, `diseno_b.chaflanes`), no se muestran en perfiles. Area de intervencion = dentro del cerco perimetrico (`diseno_b.CERCO`, confirmado por
   el usuario): ninguna cuneta sale del cerco; el agua sale por pase en el cimiento (D1 a D4; sin pozas).
   Expediente de drenaje (Word/Excel): `hidrologia_b.py` (serie Pmax 24 h de la estacion Pongo de Caynarachi SENAMHI 003317, 25 anios 1989-2013, sin
-  transposicion; Gumbel T = 25: P24 166.64 mm, Dick-Peschke, I = 288.63 mm/h; Tarapoto transpuesta x 2.21 solo como contraste; `lluvia_datos_b.py` lee datos diarios SENAMHI / NASA POWER / CHIRPS de
+  transposicion; metodos de la hoja ANALISIS ESTADISTICO del usuario (CAR Varones): K-S con Weibull m/(n+1), LP3 por gamma de ln P y Kite, Gumbel con yn/sn
+  de Aparicio, IDF con el modelo de Bell; adoptada Log Pearson III, T = 25: P24 169.27 mm, Dick-Peschke, I = 293.18 mm/h; Excel del analisis:
+  `analisis_estadistico_b.py` (abre la plantilla `insumos/barranquita/plantillas/` con LibreOffice UNO, carga la serie y borra filas sobrantes); Tarapoto transpuesta x 2.21 solo como contraste; `lluvia_datos_b.py` lee datos diarios SENAMHI / NASA POWER / CHIRPS de
   `insumos/barranquita/lluvia/` y compara sin modificar el diseno), `metrado_b.py`, `memoria_calculo_b.py`, `memorias_b.py` (memoria hidrologica y
   descriptiva; anexo de analisis estadistico en cuadros como el CAR Mujeres: `anexo_estadistico_b.py`), `espec_b.py` (motor y formato de
   `herramientas/especificaciones/espec.py` + `docx_espec.js`, codigo C.I.). Metrado en el formato del CAR Mujeres (hojas CONCRETO, ENCOFRADO, ACERO, JUNTA,

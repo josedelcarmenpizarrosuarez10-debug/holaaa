@@ -108,7 +108,6 @@ NOM_SUP = {"techo": "Techos: edificaciones, corredores, patio civico techado y l
            "estacionamiento": "Patio de maniobra y estacionamiento (pavimento de concreto)",
            "verde": "Areas verdes y terreno natural (relleno nivelado)"}
 ORDEN_SUP = ("techo", "pavimento", "estacionamiento", "verde")
-KS_CRIT = {5: 0.56, 10: 0.41, 15: 0.34, 20: 0.29, 25: 0.27, 30: 0.24, 34: 0.23, 40: 0.21, 45: 0.20, 50: 0.19}   # alfa = 0.05
 
 
 def maximos(serie=None):
@@ -134,39 +133,67 @@ def estad(x):
     return n, m, s, cs
 
 
+# tabla de la media y desviacion de la variable reducida de Gumbel segun n (Aparicio, pag. 264), como en el analisis de los CAR
+GUMBEL_YN_SN = [(10, 0.4952, 0.9496), (15, 0.5128, 1.0206), (20, 0.5236, 1.0628), (25, 0.5309, 1.0914), (30, 0.5362, 1.1124),
+                (90, 0.5586, 1.2007), (95, 0.5593, 1.2037)]
+ALFA_KS = 0.05
+
+
+def z_aprox(T):
+    """Variable normal estandar para P = 1/T (aproximacion de Abramowitz y Stegun, la misma de la hoja de calculo)."""
+    p = 1.0 / T; w = math.sqrt(math.log(1.0 / p ** 2))
+    return w - (2.515517 + 0.802853 * w + 0.010328 * w * w) / (1 + 1.432788 * w + 0.189269 * w * w + 0.001308 * w ** 3)
+
+
+def kt_lp3(z, k):
+    """Factor de frecuencia de Log Pearson III (Kite) con k = Cs/6 de los logaritmos."""
+    return z + (z * z - 1) * k + (z ** 3 - 6 * z) * k * k / 3 - (z * z - 1) * k ** 3 + z * k ** 4 + k ** 5 / 3
+
+
+def kt_gumbel(T): return -(math.sqrt(6) / math.pi) * (0.5772 + math.log(math.log(T / (T - 1))))
+
+
+def _chi2_sf(x, gl):
+    """P(chi2 >= x) con gl grados de libertad, como CHIDIST de la hoja de calculo (gl truncado a entero)."""
+    from scipy.special import gammaincc
+    gl = int(gl)
+    return float(gammaincc(gl / 2.0, x / 2.0)) if x > 0 else 1.0
+
+
 def analisis(factor=FACTOR):
-    """Analisis de frecuencias de la serie de diseno (factor 1.0: serie medida de Pongo de Caynarachi)."""
+    """Analisis de frecuencias de la serie de diseno (factor 1.0: serie medida de Pongo de Caynarachi), con los mismos metodos de
+    la hoja ANALISIS ESTADISTICO de los CAR: Normal, Log Normal, Log Pearson III (Kite) y Gumbel; Kolmogorov-Smirnov con la
+    probabilidad de excedencia de Weibull m/(n+1) sobre la serie ordenada de mayor a menor."""
     serie = [(a, round(p * factor, 2)) for a, p in maximos()]
     x = [p for _, p in serie]; n, m, s, cs = estad(x)
     lx = [math.log10(p) for p in x]; _, ml, sl, csl = estad(lx)
     a_g = math.sqrt(6) * s / math.pi; u_g = m - 0.5772 * a_g
-    def kt_lp3(z, c):
-        if abs(c) < 1e-6: return z
-        k = c / 6; return (2 / c) * ((1 + k * z - k * k) ** 3 - 1)
-    def kt_gum(T): return -(math.sqrt(6) / math.pi) * (0.5772 + math.log(math.log(T / (T - 1))))
     tab = {}
     for T in PERIODOS:
-        z = _z(1 - 1 / T)
-        tab[T] = {"normal": m + z * s, "lognormal": 10 ** (ml + z * sl), "lp3": 10 ** (ml + kt_lp3(z, csl) * sl),
-                  "gumbel": m + kt_gum(T) * s, "z": z, "kt_gumbel": kt_gum(T), "kt_lp3": kt_lp3(z, csl)}
-    # Kolmogorov-Smirnov (posicion de Weibull m / (n + 1))
-    xs = sorted(x); fe = [(i + 1) / (n + 1) for i in range(n)]
-    def F(d, v):
-        if d == "normal": return _phi((v - m) / s)
-        if d == "lognormal": return _phi((math.log10(v) - ml) / sl)
-        if d == "lp3":                                  # Wilson-Hilferty inverso aproximado por biseccion en z
-            lo, hi = -8.0, 8.0
-            for _ in range(100):
-                zz = (lo + hi) / 2
-                if 10 ** (ml + kt_lp3(zz, csl) * sl) < v: lo = zz
-                else: hi = zz
-            return _phi((lo + hi) / 2)
-        return math.exp(-math.exp(-(v - u_g) / a_g))
-    ks = {d: max(abs(fe[i] - F(d, xs[i])) for i in range(n)) for d in ("normal", "lognormal", "lp3", "gumbel")}
-    crit = min(KS_CRIT.items(), key=lambda kv: abs(kv[0] - n))[1]
+        z = z_aprox(T); kp = kt_lp3(z, csl / 6)
+        tab[T] = {"normal": m + z * s, "lognormal": 10 ** (ml + z * sl), "lp3": 10 ** (ml + kp * sl),
+                  "gumbel": m + kt_gumbel(T) * s, "z": z, "kt_gumbel": kt_gumbel(T), "kt_lp3": kp}
+    # Kolmogorov-Smirnov (hoja C de los CAR)
+    xd = sorted(x, reverse=True); E = [(i + 1) / (n + 1) for i in range(n)]
+    lnx = [math.log(v) for v in x]; _, mL, sL, csL = estad(lnx)
+    b1 = (2 / csL) ** 2 if csL > 0 else None; a1 = sL / math.sqrt(b1) if b1 else None; d1 = mL - a1 * b1 if b1 else None
+    yn = float(np.interp(n, [t[0] for t in GUMBEL_YN_SN], [t[1] for t in GUMBEL_YN_SN]))
+    sn = float(np.interp(n, [t[0] for t in GUMBEL_YN_SN], [t[2] for t in GUMBEL_YN_SN]))
+    tabla_ks = []
+    for i, v in enumerate(xd):
+        fn = 1 - _phi((v - m) / s); fl = 1 - _phi((math.log10(v) - ml) / sl)
+        fp = _chi2_sf(2 * (math.log(v) - d1) / a1, 2 * b1) if b1 else None
+        fg = 1 - math.exp(-math.exp(-(((v - m) / s) * sn + yn)))
+        tabla_ks.append({"m": i + 1, "P": v, "E": E[i], "normal": fn, "lognormal": fl, "lp3": fp, "gumbel": fg})
+    ks = {d: max(abs(t[d] - t["E"]) for t in tabla_ks) if all(t[d] is not None for t in tabla_ks) else float("inf")
+          for d in ("normal", "lognormal", "lp3", "gumbel")}
+    crit = math.sqrt(-math.log(ALFA_KS / 2) / (2 * n)) - 1 / (6 * n)
     mejor = min(ks, key=ks.get)
+    xs = sorted(x); fe = [(i + 1) / (n + 1) for i in range(n)]
     return {"serie": serie, "n": n, "media": m, "desv": s, "cs": cs, "media_log": ml, "desv_log": sl, "cs_log": csl,
-            "gumbel_alfa": a_g, "gumbel_u": u_g, "tabla": tab, "ks": ks, "ks_critico": crit, "elegida": mejor,
+            "gumbel_alfa": a_g, "gumbel_u": u_g, "gumbel_yn": yn, "gumbel_sn": sn,
+            "ln": {"media": mL, "desv": sL, "cs": csL, "beta": b1, "alfa": a1, "delta": d1},
+            "tabla": tab, "ks": ks, "ks_critico": crit, "elegida": mejor, "tabla_ks": tabla_ks,
             "orden": [(xs[i], fe[i]) for i in range(n)]}
 
 
@@ -187,20 +214,38 @@ def p_dur(P24, D):
     return P24 * (D / 1440.0) ** 0.25
 
 
+DUR_BELL = [5, 10, 15, 20, 30, 60]
+
+
+def bell(P60_10, T, t):
+    """Modelo de Bell: P(T, t) = (0.21 ln T + 0.52)(0.54 t^0.25 - 0.50) P60^10 (t en minutos, de 5 a 120)."""
+    return (0.21 * math.log(T) + 0.52) * (0.54 * t ** 0.25 - 0.50) * P60_10
+
+
 def resultados():
     A = analisis(); d = A["elegida"]
     p24 = {T: A["tabla"][T][d] for T in PERIODOS}
-    idf = {T: {D: p_dur(p24[T], D) * 60.0 / D for D in DURACIONES} for T in PERIODOS}
-    # regresion I = K T^m / t^n (duraciones de 5 a 60 min, todos los periodos)
+    idf = {T: {D: p_dur(p24[T], D) * 60.0 / D for D in DURACIONES} for T in PERIODOS}       # Dick y Peschke (intensidades de diseno)
+    # parametros de intensidades maximas (hoja A. Parametros de los CAR): lluvias de 5 a 60 min con el modelo de Bell, con
+    # P60 de 10 anos = 0.4602 P24(10)^0.876, intensidades redondeadas a 0.1 mm/h y regresion I = K T^m / t^n
+    P60_10 = 0.4602 * p24[10] ** 0.876
+    bell_p = {T: {t: bell(P60_10, T, t) for t in DUR_BELL} for T in PERIODOS}
+    bell_p[10][60] = P60_10                         # en la hoja, la celda T = 10, t = 60 min es la propia P60 de 10 anos
+    bell_i = {T: {t: round(60.0 * bell_p[T][t] / t, 1) for t in DUR_BELL} for T in PERIODOS}
     X, Y = [], []
-    for T in PERIODOS:
-        for D in (5, 10, 15, 20, 30, 60):
-            X.append([1.0, math.log10(T), math.log10(D)]); Y.append(math.log10(idf[T][D]))
-    b = np.linalg.lstsq(np.array(X), np.array(Y), rcond=None)[0]
-    K, mm, nn = 10 ** b[0], b[1], -b[2]
+    for t in DUR_BELL:
+        for T in sorted(PERIODOS, reverse=True):
+            X.append([math.log10(T), math.log10(t), 1.0]); Y.append(math.log10(bell_i[T][t]))
+    X, Y = np.array(X), np.array(Y)
+    M = np.array([[X[:, 0].sum(), X[:, 1].sum(), len(Y)], [(X[:, 0] ** 2).sum(), (X[:, 0] * X[:, 1]).sum(), X[:, 0].sum()],
+                  [(X[:, 0] * X[:, 1]).sum(), (X[:, 1] ** 2).sum(), X[:, 1].sum()]])
+    V = np.array([Y.sum(), (X[:, 0] * Y).sum(), (X[:, 1] * Y).sum()])
+    mm, mn, lk = np.linalg.solve(M, V)
+    K, nn = round(10 ** lk, 2), abs(mn)
     P24d = p24[T_DISENO]; Pd = p_dur(P24d, TC); I = Pd * 60.0 / TC
     return {"analisis": A, "p24": p24, "idf": idf, "K": K, "m": mm, "n": nn, "P24": P24d, "P_tc": Pd, "I": I,
-            "T": T_DISENO, "tc": TC, "factor": FACTOR}
+            "T": T_DISENO, "tc": TC, "factor": FACTOR, "P60_10": P60_10, "bell_p": bell_p, "bell_i": bell_i,
+            "regresion": {"M": M.tolist(), "V": V.tolist(), "inv": np.linalg.inv(M).tolist(), "sol": [mm, mn, lk]}}
 
 
 def _caras(G, nombres):
