@@ -15,11 +15,13 @@ import dxf_base as B
 from ezdxf.enums import TextEntityAlignment as TA
 import diseno_b as DS
 import terreno_b as T
+import planta_cunetas_b as PC
 
-ESC = 25                     # planta y perfil
-ESC_ISO = 50
-ESC_PL = 50                  # planta de detalle
-LW, EXT = 6.0, 2.5           # metros de cuneta antes del cerco y de terreno exterior
+ESC = 25                     # toda la lamina a 1/25: planta, perfil e isometrico a escala real (1 unidad = 1 m)
+ESC_ISO = ESC_PL = ESC
+LW, EXT = 6.0, 2.5           # metros de cuneta antes del cerco y de terreno exterior (perfil)
+LPL, LISO = 4.0, 3.0         # metros de cuneta que se ven en la planta y en el isometrico
+EXT_ISO = 1.75               # metros de terreno exterior en el isometrico
 BI, BT = DS.B_INT / 2, DS.B_TOT / 2           # media luz (0.20) y medio ancho exterior (0.30)
 EL = 0.10
 CAPAS = [("DET-MURO", 250, "CONTINUOUS"), ("DET-LOSA", 8, "CONTINUOUS"), ("DET-REJILLA", 1, "CONTINUOUS"), ("DET-CERCO", 1, "CONTINUOUS"),
@@ -123,6 +125,39 @@ def datos(R, V, D):
             "nom": nom, "dsc": dsc, "y": y, "ext": ext, "z": z, "Q": hid[-1]["Q_ls"] if hid else 0.0}
 
 
+PL_VENT = (107, 345, 388, 560)        # ventana de la planta en la lamina (mm): x0, y0, x1, y1 (rotulos a los lados)
+MG_PL = 0.6                            # margen alrededor de la cuneta en la planta (m)
+
+
+def _caja_pl(d):
+    xs = [p[0] for p in d["cuneta"]] + [p[0] for ll in d["llegan"] for p in ll["poly"]]
+    ys = [p[1] for p in d["cuneta"]] + [p[1] for ll in d["llegan"] for p in ll["poly"]]
+    return min(xs) - MG_PL, max(xs) + MG_PL, min(ys) - MG_PL, max(ys) + MG_PL
+
+
+def _planta_que_entra(d):
+    """Recorte mas largo (4.0 m a 2.0 m) cuya planta a escala real entra en la ventana de la lamina."""
+    wmax, hmax = (PL_VENT[2] - PL_VENT[0]) * ESC / 1000, (PL_VENT[3] - PL_VENT[1] - 15) * ESC / 1000
+    for lc in (LPL, 3.5, 3.0, 2.5, 2.0):
+        dp = _recorte(d, lc, min(2.0, lc / 2 + 0.5))
+        x0, x1, y0, y1 = _caja_pl(dp)
+        if x1 - x0 <= wmax and y1 - y0 <= hmax: return dp
+    return dp
+
+
+def _recorte(d, lc, lleg):
+    """Misma descarga mostrando solo los ultimos lc m del eje y lleg m de cada eje que llega."""
+    poly = d["poly"]; sl = _acum(poly); L = d["L"]
+    s_a = max(0.0, L - lc)
+    llegan = []
+    for ll in d["llegan"]:
+        if ll["s"] < s_a - 1e-6: continue
+        pl = ll["poly"]; s2 = _acum(pl)
+        llegan.append({**ll, "poly": _sub(pl, s2, max(0.0, s2[-1] - lleg), s2[-1])})
+    return {**d, "s_a": s_a, "cuneta": _sub(poly, sl, s_a, L) + [d["cuneta"][-1]],
+            "nodos": [(s, n) for s, n in d["nodos"] if s >= s_a - 1e-6], "llegan": llegan}
+
+
 # ----------------------------------------------------------------------------- planta 1/25
 def _paredes(lam, poly, M, capa="DET-MURO"):
     for sg in (1, -1):
@@ -133,17 +168,14 @@ def _paredes(lam, poly, M, capa="DET-MURO"):
 
 def planta(lam, d, cx, cy):
     f = lam.f; poly = d["cuneta"]
-    xs = [p[0] for p in poly]; ys = [p[1] for p in poly]
-    c0 = ((min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2)
-    o = lam.P(cx, cy); kp = ESC / ESC_PL
+    bx0, bx1, by0, by1 = _caja_pl(d)
+    c0 = ((bx0 + bx1) / 2, (by0 + by1) / 2)
+    o = lam.P(cx, cy); kp = ESC / ESC_PL                 # kp = 1: escala real
     M = lambda p: (o[0] + kp * (p[0] - c0[0]), o[1] + kp * (p[1] - c0[1]))
-    for ll in d["llegan"]:
-        xs += [p[0] for p in ll["poly"]]; ys += [p[1] for p in ll["poly"]]
     xd, yd = d["poly"][-1]; u = d["u"]
     # curvas de nivel alrededor (afuera del cerco se ven; adentro el piso esta nivelado)
     from matplotlib.path import Path
     ce = Path(DS.CERCO)
-    bx0, bx1, by0, by1 = min(xs) - 1.5, max(xs) + 1.5, min(ys) - 1.5, max(ys) + 1.5
     dentro = lambda p: bx0 <= p[0] <= bx1 and by0 <= p[1] <= by1
     for zc, pts in T.curvas():
         tramo = []
@@ -164,41 +196,24 @@ def planta(lam, d, cx, cy):
         if len(pts) > 1:
             w = [M(p) for p in offset(pts, 0.075) + offset(pts, -0.075)[::-1]]
             lam.relleno(w, "DET-CERCO"); lam.poli(w, "DET-CERCO", cerrada=True)
-    # ejes que llegan (primero) y eje que sale
-    for ll in d["llegan"]:
-        _paredes(lam, ll["poly"][:-1] + [_en(ll["poly"], _acum(ll["poly"]), _acum(ll["poly"])[-1] - 0.35)[0]], M)
-    _paredes(lam, poly, M)
-    for ll in d["llegan"]:                               # abertura en el muro donde entra el eje que llega
-        pl = ll["poly"]; sl2 = _acum(pl)
-        hueco = _sub(pl, sl2, max(0, sl2[-1] - 0.7), sl2[-1])
-        h = [M(p) for p in offset(hueco, BI - 0.005) + offset(hueco, -BI + 0.005)[::-1]]
-        lam.relleno(h, "SEC-HUECO")
-        for sg in (1, -1): lam.poli([M(p) for p in offset(hueco, sg * BI)][:-1], "CONCRETO")
-    # tramo tapado (losa) y rejilla en lo abierto
+    # cunetas con el mismo dibujo de la planta general (escala real): rejilla en celeste, tapado en verde, flechas rojas
     r = d["r"]; sl = _acum(poly)
     s_off = d["s_a"]
     tap = [(max(a, s_off) - s_off, min(b, d["L"]) - s_off) for a, b in r["tapados"] if b > s_off]
     if tap and tap[-1][1] >= d["L"] - s_off - 0.01: tap[-1] = (tap[-1][0], sl[-1])
-    for a, b in tap:
-        sub = _sub(poly, sl, a, b)
-        q = [M(p) for p in offset(sub, BT) + offset(sub, -BT)[::-1]]
-        lam.relleno(q, "DET-LOSA"); lam.poli(q, "CONCRETO", cerrada=True)
     abiertos, s0 = [], 0.0
     for a, b in tap:
         if a > s0 + 0.05: abiertos.append((s0, a))
         s0 = b
     if s0 < sl[-1] - 0.05: abiertos.append((s0, sl[-1]))
-    for a, b in abiertos:
-        k = a + 0.05
-        while k < b - 0.02:
-            p, t = _en(poly, sl, k); n = _perp(t)
-            lam.linea(M((p[0] + n[0] * BI, p[1] + n[1] * BI)), M((p[0] - n[0] * BI, p[1] - n[1] * BI)), "DET-REJILLA")
-            k += 0.10
+    ejes = [{"cod": r["codigo"], "pts": [M(p) for p in poly], "tap": tap, "ini": s_off < 0.01, "recibe": []}]
     for ll in d["llegan"]:
-        pl = ll["poly"]; s2 = _acum(pl); k = 0.05
-        while k < s2[-1] - 0.75:
-            p, t = _en(pl, s2, k); n = _perp(t)
-            lam.linea(M((p[0] + n[0] * BI, p[1] + n[1] * BI)), M((p[0] - n[0] * BI, p[1] - n[1] * BI)), "DET-REJILLA"); k += 0.10
+        pl = ll["poly"]; s2 = _acum(pl); ini2 = ll["r"]["L"] - s2[-1]
+        ejes.append({"cod": ll["eje"], "pts": [M(p) for p in pl], "recibe": [r["codigo"]], "ini": ini2 < 0.01,
+                     "tap": [(max(a, ini2) - ini2, b - ini2) for a, b in ll["r"]["tapados"] if b > ini2]})
+    PC.dibujar_tramos(lam, ejes)
+    for cod, s_, x, y, ux, uy in PC.TAPAS:                  # las mismas tapas de inspeccion de la planta general
+        if bx0 <= x <= bx1 and by0 <= y <= by1 and cod in [e["cod"] for e in ejes]: PC.tapa(lam, M((x, y)), (ux, uy))
     # agua afuera
     pa = M((xd + u[0] * 0.2, yd + u[1] * 0.2)); pb = M((xd + u[0] * 1.3, yd + u[1] * 1.3))
     lam.flecha(pa, pb, "FLUJO", tam_mm=4.0)
@@ -220,14 +235,15 @@ def planta(lam, d, cx, cy):
     X0, Y0 = M((bx0, by0)); X1, Y1 = M((bx1, by1))
     xm = (X0 + X1) / 2
     izq = [i for i in it if i[0][0] < xm]; der = [i for i in it if i[0][0] >= xm]
-    lam.columna_llamadas(izq, max(X0 - 10 * f, lam.P(118, 0)[0]), Y1 - 8 * f, Y0 + 8 * f, hmm=1.8, al=TA.RIGHT)
-    lam.columna_llamadas(der, X1 + 10 * f, Y1 - 8 * f, Y0 + 8 * f, hmm=1.8)
+    yt, yb = min(Y1 - 8 * f, lam.P(0, PL_VENT[3] - 10)[1]), max(Y0 + 8 * f, lam.P(0, PL_VENT[1] + 5)[1])
+    lam.columna_llamadas(izq, X0 - 10 * f, yt, yb, hmm=1.8, al=TA.RIGHT)
+    lam.columna_llamadas(der, X1 + 10 * f, yt, yb, hmm=1.8)
     for s, n in d["nodos"]:
         if "~" in n or n in DS.DESCARGAS: continue
         p = M(dict(zip(d["r"]["nudos"], d["poly"]))[n]); lam.circulo(p, 0.12 * kp, "NUDOS")
         lam.texto((p[0] + 2 * f, p[1] + 2 * f), nom[n], 1.5, "TEXTOS", TA.LEFT)
     # norte
-    pn = (X1 + 60 * f, Y1)
+    pn = lam.P(40, PL_VENT[3] - 12)
     lam.flecha((pn[0], pn[1] - 8 * f), (pn[0], pn[1] + 4 * f), "TEXTOS", tam_mm=3.0)
     lam.texto((pn[0], pn[1] + 6 * f), "N", 2.4, "TITULOS", TA.BOTTOM_CENTER)
     return M
@@ -344,7 +360,7 @@ def perfil(lam, d, x0mm, y0mm):
 def prog(s): return "0+%06.2f" % s
 
 
-# ----------------------------------------------------------------------------- isometrico 1/50
+# ----------------------------------------------------------------------------- isometrico 1/25
 class Iso:
     """Proyeccion isometrica con el eje x local en el sentido de salida del agua (hacia el observador, abajo a la derecha)."""
     C30, S30 = math.cos(math.radians(30)), math.sin(math.radians(30))
@@ -380,7 +396,7 @@ def isometrico(lam, d, cx, cy):
         caras.append((g, iso.prof(pts), capa, pts))
     # piso interior nivelado y terreno exterior (fondo del dibujo)
     xs = [p[0] for p in loc]; ys = [p[1] for p in loc]
-    xmin, ymin, ymax = min(xs) - 1.0, min(ys) - 1.2, max(ys) + 1.2
+    xmin, ymin, ymax = min(xs) - 0.6, min(ys) - 0.9, max(ys) + 0.9
     cara(0, "ISOD-PISO", [(xmin, ymin, z0), (-0.075, ymin, z0), (-0.075, ymax, z0), (xmin, ymax, z0)])
     dsc = d["dsc"]; sale = dsc.get("sale_a_m") or 0.5; ncfL = _valor(P, L)[1]
     def zt(x, y):
@@ -390,7 +406,7 @@ def isometrico(lam, d, cx, cy):
             zp = ncfL + (min(zsal, ncfL - 0.05) - ncfL) * min(1.0, max(0.0, x) / max(sale, 0.1))
             z = min(z, zp)
         return z
-    gx = np.arange(0.075, EXT + 0.01, 0.25); gy = np.arange(ymin, ymax + 0.01, 0.30)
+    gx = np.arange(0.075, EXT_ISO + 0.01, 0.25); gy = np.arange(ymin, ymax + 0.01, 0.30)
     for i in range(len(gx) - 1):
         for j in range(len(gy) - 1):
             q = [(gx[i], gy[j]), (gx[i + 1], gy[j]), (gx[i + 1], gy[j + 1]), (gx[i], gy[j + 1])]
@@ -463,7 +479,7 @@ def isometrico(lam, d, cx, cy):
         pt = W((*iso.local(pl[0]), zz))
         lam.llamada(pt, (pt[0] - 22 * f, pt[1] + 14 * f), ["Llega " + ll["eje"]], hmm=1.8)
     # llamadas
-    pt = W((*loc[0], _valor(P, s_a)[0])); lam.llamada(pt, (pt[0] - 30 * f, pt[1] + 26 * f), [r["codigo"] + " (rejilla en tramo abierto)"], hmm=1.8)
+    pt = W((*loc[0], _valor(P, s_a)[0])); lam.llamada(pt, (pt[0] - 30 * f, min(pt[1] + 26 * f, lam.P(0, 556)[1])), [r["codigo"] + " (rejilla en tramo abierto)"], hmm=1.8)
     pt = W((0.075, (c0 + c1) / 2 + 0.3, z0 + hm)); lam.llamada(pt, (pt[0] + 20 * f, pt[1] + 30 * f), ["MURO DEL CERCO (CORTADO)", "pase de la cuneta bajo el cerco"], hmm=1.8)
     pt = W(((e1[0] + e2[0]) / 2, (e1[1] + e2[1]) / 2, zfL)); lam.llamada(pt, (pt[0] + 34 * f, pt[1] - 6 * f), ["SALIDA %s: C.F. %.3f" % (d["D"], dsc["cf"])], hmm=1.8)
     pt = W((1.6, 0.0, zt(1.6, 0.0))); lam.llamada(pt, (pt[0] + 18 * f, pt[1] - 26 * f), ["AGUA SOBRE EL TERRENO NATURAL", "(perfilado %.1f m, sin obra)" % sale], hmm=1.8)
@@ -494,12 +510,12 @@ def laminas(doc, R, V, ox, oy, sep, num0):
     for i, D in enumerate(sorted(DS.DESCARGAS)):
         d = datos(R, V, D)
         lam = B.Lamina(doc, ox + i * sep, oy, ESC, "DC-%02d" % (num0 + i), "DETALLE DE LA DESCARGA %s POR EL CERCO" % D,
-                       "PLANTA 1/%d - PERFIL LONGITUDINAL 1/%d - ISOMETRICO 1/%d" % (ESC_PL, ESC, ESC_ISO),
-                       escala_txt="INDICADA")
-        lam.titulo_vista(220, 578, "PLANTA DE LA DESCARGA %s" % D, "ESC. 1/%d - ultimos %.1f m del %s" % (ESC_PL, d["L"] - d["s_a"], d["r"]["codigo"]), 150)
-        planta(lam, d, 245, 450)
+                       "PLANTA, PERFIL LONGITUDINAL E ISOMETRICO - ESC. 1/%d (ESCALA REAL)" % ESC)
+        dp, di = _planta_que_entra(d), _recorte(d, LISO, 1.5)
+        lam.titulo_vista(220, 578, "PLANTA DE LA DESCARGA %s" % D, "ESC. 1/%d - ultimos %.1f m del %s" % (ESC_PL, dp["L"] - dp["s_a"], d["r"]["codigo"]), 150)
+        planta(lam, dp, (PL_VENT[0] + PL_VENT[2]) / 2, (PL_VENT[1] + PL_VENT[3] - 15) / 2)
         lam.titulo_vista(630, 578, "ISOMETRICO DE LA DESCARGA %s" % D, "ESC. 1/%d - vista desde afuera del cerco" % ESC_ISO, 150)
-        isometrico(lam, d, 640, 470)
+        isometrico(lam, di, 640, 455)
         yt = perfil(lam, d, 30, 128)
         lam.titulo_vista(330, yt + 12, "PERFIL LONGITUDINAL DE LA DESCARGA %s" % D, "ESC. H = V = 1/%d - por el eje del %s" % (ESC, d["r"]["codigo"]), 170)
         lam.notas(30, 100, "NOTAS", [

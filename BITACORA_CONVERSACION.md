@@ -324,3 +324,20 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   Reemplazan a la lamina de cortes por las descargas y al detalle isometrico anterior. Capas DET-* e ISOD-*.
 - Laminas: DC-03 a DC-11 perfiles, DC-12 a DC-14 secciones, DC-15/DC-16 isometricos de la red, DC-17 cortes generales,
   DC-18 a DC-21 detalle de descargas.
+
+## 21-10-2026 – Barranquita: todo a escala real, planta con el estilo del usuario y tapas de inspeccion
+- Usuario: "por que mide 0.30 si la cuneta es 0.60": la planta y el isometrico de las descargas se dibujaban a la mitad
+  (1/50 dentro de una lamina 1/25). Ahora toda la lamina de cada descarga es 1/25 a escala real (1 unidad = 1 m); la planta
+  muestra los ultimos 4.0 m (o menos si no entra) y el isometrico los ultimos 3.0 m con 1.75 m de terreno exterior.
+- Revisadas las demas laminas: DC-01 1/250 en coordenadas reales, DC-02 1/5, perfiles 1/50 H = V, secciones 1/20, cortes
+  generales 1/250 H = V: todas a escala real, sin exageracion vertical.
+- Se quitan los isometricos de toda la red con el terreno (antes DC-15 y DC-16). Laminas: DC-03 a DC-11 perfiles, DC-12 a
+  DC-14 secciones, DC-15 cortes generales, DC-16 a DC-19 detalle de las descargas D1 a D4.
+- Planta (herramientas/barranquita/planta_cunetas_b.py, usado en DC-01 y en la planta de cada descarga), como las capturas del
+  usuario: cuneta con rejilla = bordes exterior 0.60 e interior 0.40 en celeste y platinas cada 0.10 m; cuneta tapada = bordes en
+  verde; flechas rojas de flujo (cada 5 m y en cada quiebre a 45 grados); contornos unidos por sistema (shapely) para empalmes limpios.
+- Tapas de inspeccion 0.60 x 0.60 (concreto removible) en los tramos tapados: al inicio y al final, en cada empalme y a 10 m como
+  maximo (criterio propuesto; el usuario no fijo distancia). Lista en _calc/tapas.json y hoja "TAPAS INSPECCION" del Excel.
+- Perfiles: titulo = eje + nombre sin coordenadas (se quitaron "x=884.9", "y=815.97", etc. de las descripciones) + progresivas de la
+  pieza. Fila Longitud / Pendiente: siempre la medida completa de seccion a seccion (antes, si el tramo se partia entre dos piezas,
+  salia la parte, p. ej. 31.45 en vez de 35.59 de S-07 a S-08 del EJE-04).

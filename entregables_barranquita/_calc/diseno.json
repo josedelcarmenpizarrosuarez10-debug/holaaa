@@ -494,7 +494,7 @@
     "A1",
     "D1n~b"
    ],
-   "descripcion": "Pabellon oeste A: lado nor-oeste; entrega al EJE-02 junto al cerco (caida)",
+   "descripcion": "Pabellon oeste A: lado nor-oeste; entrega al EJE-02 junto al cerco",
    "L": 34.34,
    "tramos": [
     {
@@ -2210,7 +2210,7 @@
     "W34",
     "W13"
    ],
-   "descripcion": "Bloque x=884.9 (lado oeste), bloque D (lado norte) y pabellon C (lado nor-este)",
+   "descripcion": "Bloque D (lado norte) y pabellon C (lado nor-este)",
    "L": 94.34,
    "tramos": [
     {
@@ -4321,7 +4321,7 @@
     "X896d",
     "N885~b"
    ],
-   "descripcion": "Bloque del ingreso: lado norte (y=815.97) al oeste de x=896.8",
+   "descripcion": "Bloque del ingreso: lado norte, tramo oeste",
    "L": 12.3,
    "tramos": [
     {
@@ -4497,7 +4497,7 @@
     "D3n~b",
     "D3"
    ],
-   "descripcion": "Patio central (x=896.8), y=815.97, bajada x=919.6 y atrio de ingreso a D3",
+   "descripcion": "Patio central, bajada al atrio de ingreso y salida D3",
    "L": 94.69,
    "tramos": [
     {
@@ -5759,7 +5759,7 @@
     "X932a",
     "X896b"
    ],
-   "descripcion": "Bloque del centro: lado sur (y=839.94)",
+   "descripcion": "Bloque del centro: lado sur",
    "L": 39.68,
    "tramos": [
     {
@@ -6211,7 +6211,7 @@
     "X932b",
     "X896c"
    ],
-   "descripcion": "Patio central: y=822.09",
+   "descripcion": "Patio central",
    "L": 35.8,
    "tramos": [
     {
@@ -6611,7 +6611,7 @@
     "X919a~EJE-10",
     "X919a~b"
    ],
-   "descripcion": "x=932.6 y bloque del frente: lado norte (y=815.97)",
+   "descripcion": "Bloque del frente: lado norte",
    "L": 36.9,
    "tramos": [
     {
@@ -7091,7 +7091,7 @@
     "T28e",
     "X919c"
    ],
-   "descripcion": "Bloque del frente: lado sur (y=804.1)",
+   "descripcion": "Bloque del frente: lado sur",
    "L": 30.36,
    "tramos": [
     {
@@ -8880,7 +8880,7 @@
     "L4",
     "L3"
    ],
-   "descripcion": "Losa: lado norte (y=831.3)",
+   "descripcion": "Losa: lado norte",
    "L": 24.38,
    "tramos": [
     {
@@ -9167,7 +9167,7 @@
     "X971a",
     "Q0"
    ],
-   "descripcion": "y=815.97, x=952.3 y bloque nor-este: lado sur (y=839.9)",
+   "descripcion": "Bloque nor-este: lado sur",
    "L": 64.93,
    "tramos": [
     {
@@ -9967,7 +9967,7 @@
     "X971b",
     "Q1"
    ],
-   "descripcion": "Bloque nor-este: lado oeste (x=948.1) y lado norte (y=851.9)",
+   "descripcion": "Bloque nor-este: lados oeste y norte",
    "L": 41.47,
    "tramos": [
     {
@@ -10476,7 +10476,7 @@
     "D2n~EJE-16",
     "D2n~b"
    ],
-   "descripcion": "Bloque norte: lado norte (y=865.1) y union a D2 por el norte de la planta de tratamiento",
+   "descripcion": "Bloque norte: lado norte y union a D2 por el norte de la planta de tratamiento",
    "L": 49.55,
    "tramos": [
     {
@@ -11105,7 +11105,7 @@
     "D4n",
     "D4"
    ],
-   "descripcion": "Bloque norte: lado sur (y=853.5) y salida D4",
+   "descripcion": "Bloque norte: lado sur y salida D4",
    "L": 39.98,
    "tramos": [
     {
@@ -11612,7 +11612,7 @@
     "J11~b",
     "J4~b"
    ],
-   "descripcion": "Bloque del centro: lado este (x=936.5) y lado norte (y=851.7), tramo este",
+   "descripcion": "Bloque del centro: lados este y norte, tramo este",
    "L": 38.68,
    "tramos": [
     {
@@ -12113,7 +12113,7 @@
     "J11~EJE-19",
     "J11~b"
    ],
-   "descripcion": "Bloque del centro: lado norte (y=851.7), tramo oeste",
+   "descripcion": "Bloque del centro: lado norte, tramo oeste",
    "L": 14.09,
    "tramos": [
     {

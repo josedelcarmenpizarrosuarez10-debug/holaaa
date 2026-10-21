@@ -243,19 +243,23 @@ def perfil(lam, R, SEC, pz, xmm, ymm):
         # guitarra: progresiva y etiqueta (verticales, para que no se encimen)
         lam.texto((xs + 0.6 * f, lam.P(0, yg1 - ALTO_FILA / 2)[1]), "%.2f" % x["s"], 1.0, "TEXTOS", TA.MIDDLE_CENTER, rot=90)
         lam.texto((xs + 0.6 * f, lam.P(0, yg1 - 1.5 * ALTO_FILA)[1]), "S-%02d" % x["n"], 1.0, "TEXTOS", TA.MIDDLE_CENTER, rot=90)
-    # longitud y pendiente entre secciones
-    bordes = [s0] + [x["s"] for x in secs if s0 + 1e-6 < x["s"] < s1 - 1e-6] + [s1]
-    bordes = sorted(set(round(b, 4) for b in bordes))
-    for a, b in zip(bordes[:-1], bordes[1:]):
-        if (b - a) / f < 7: continue
+    # longitud y pendiente entre secciones: siempre la medida completa de seccion a seccion, aunque el tramo
+    # siga en la pieza anterior o en la siguiente (en ese caso se indica entre que secciones es)
+    todas = sorted(SEC[r["codigo"]], key=lambda x: x["s"])
+    for A, Bs in zip(todas[:-1], todas[1:]):
+        a, b = A["s"], Bs["s"]
+        va, vb = max(a, s0), min(b, s1)
+        if vb - va < 1e-6 or (vb - va) / f < 7: continue
         za, zb = _valor(r["perfil"], a)[1], _valor(r["perfil"], b)[1]
-        xm = (X(a) + X(b)) / 2
-        lam.texto((xm, lam.P(0, yg1 - 2.5 * ALTO_FILA)[1]), "%.2f" % (b - a), 1.2, "TEXTOS", TA.MIDDLE_CENTER)
+        xm = (X(va) + X(vb)) / 2
+        cortado = a < s0 - 1e-6 or b > s1 + 1e-6
+        lon = "%.2f" % (b - a)
+        if cortado and (vb - va) / f > 40: lon += "  (S-%02d a S-%02d)" % (A["n"], Bs["n"])
+        lam.texto((xm, lam.P(0, yg1 - 2.5 * ALTO_FILA)[1]), lon, 1.2, "TEXTOS", TA.MIDDLE_CENTER)
         lam.texto((xm, lam.P(0, yg1 - 3.5 * ALTO_FILA)[1]), "%.2f" % (100 * (za - zb) / (b - a)), 1.2, "TEXTOS", TA.MIDDLE_CENTER)
     # titulo del eje
     yt = lam.P(0, (ytop - lam.oy) / f + 12 + filas * CAJA_PASO + 4)[1]
-    tit = "PERFIL LONGITUDINAL %s - %s" % (r["codigo"], r["descripcion"].upper())
-    if n > 1: tit += "   (PROG. %s A %s)" % (prog(s0), prog(s1))
+    tit = "PERFIL LONGITUDINAL %s - %s - PROG. %s A %s" % (r["codigo"], r["descripcion"].upper(), prog(s0), prog(s1))
     lam.texto((lam.P(xg0, 0)[0], yt), tit, 2.0, "TITULOS", TA.LEFT)
     return CAB + (s1 - s0) / f
 

@@ -132,28 +132,28 @@ N["D4n"] = (N["D4"][0], N["D4"][1] - D_CERCO)
 # Todo dentro del cerco; el ultimo tramo de cada descarga (Dn -> D) es el paso por el cerco.
 RAMALES = [
     # Sistema 1 - Oeste: descarga D1 (cerco sur-oeste, talud hacia la quebrada del oeste)
-    ("EJE-01", 1, ["A0", "A1", "D1n"], "Pabellon oeste A: lado nor-oeste; entrega al EJE-02 junto al cerco (caida)"),
+    ("EJE-01", 1, ["A0", "A1", "D1n"], "Pabellon oeste A: lado nor-oeste; entrega al EJE-02 junto al cerco"),
     ("EJE-02", 1, ["B5a", "W1a", "W12", "W13", "W1b", "D1n", "D1"], "Pabellon oeste B: lado nor-este; pabellon A: lado sur-este; salida D1"),
     ("EJE-03", 1, ["W2a", "W12"], "Pabellon oeste B: lado sur-oeste (patio)"),
-    ("EJE-04", 1, ["X885a", "X885b", "N885", "W3d", "W3c", "W34", "W13"], "Bloque x=884.9 (lado oeste), bloque D (lado norte) y pabellon C (lado nor-este)"),
+    ("EJE-04", 1, ["X885a", "X885b", "N885", "W3d", "W3c", "W34", "W13"], "Bloque D (lado norte) y pabellon C (lado nor-este)"),
     ("EJE-05", 1, ["T29e", "T29w", "T7e", "T7w", "T4s", "W1b"], "Bloque del ingreso (lado sur), bloque D (lado sur) y pabellon C (lado sur-oeste)"),
-    ("EJE-06", 1, ["X896d", "N885"], "Bloque del ingreso: lado norte (y=815.97) al oeste de x=896.8"),
+    ("EJE-06", 1, ["X896d", "N885"], "Bloque del ingreso: lado norte, tramo oeste"),
     # Sistema 2 - Centro y frente sur: descarga D3 (cerco sur junto a C14, hacia el Jr. Alfonso Ugarte)
-    ("EJE-07", 2, ["X896a", "X896b", "X896c", "X896d", "X919a", "X919c", "X919b", "K1", "F1", "D3n", "D3"], "Patio central (x=896.8), y=815.97, bajada x=919.6 y atrio de ingreso a D3"),
-    ("EJE-08", 2, ["X936b", "X932a", "X896b"], "Bloque del centro: lado sur (y=839.94)"),
-    ("EJE-09", 2, ["X932b", "X896c"], "Patio central: y=822.09"),
-    ("EJE-10", 2, ["X932a", "X932b", "X932c", "X919a"], "x=932.6 y bloque del frente: lado norte (y=815.97)"),
-    ("EJE-11", 2, ["T28e", "X919c"], "Bloque del frente: lado sur (y=804.1)"),
+    ("EJE-07", 2, ["X896a", "X896b", "X896c", "X896d", "X919a", "X919c", "X919b", "K1", "F1", "D3n", "D3"], "Patio central, bajada al atrio de ingreso y salida D3"),
+    ("EJE-08", 2, ["X936b", "X932a", "X896b"], "Bloque del centro: lado sur"),
+    ("EJE-09", 2, ["X932b", "X896c"], "Patio central"),
+    ("EJE-10", 2, ["X932a", "X932b", "X932c", "X919a"], "Bloque del frente: lado norte"),
+    ("EJE-11", 2, ["T28e", "X919c"], "Bloque del frente: lado sur"),
     # Sistema 3 - Nor-este: descarga D2 (pase en el cerco norte, x = 965.5, hacia la hondonada natural exterior)
     ("EJE-12", 3, ["T25n", "T22w", "L2", "L3", "Q0", "Q1", "Q2", "Q3", "D2n", "D2"], "Losa: lados oeste, sur y este; union por dentro del cerco a D2"),
-    ("EJE-13", 3, ["L4", "L3"], "Losa: lado norte (y=831.3)"),
-    ("EJE-14", 3, ["Y815e", "X952a", "X952b", "X952c", "X971a", "Q0"], "y=815.97, x=952.3 y bloque nor-este: lado sur (y=839.9)"),
-    ("EJE-15", 3, ["X948a", "X948b", "X971b", "Q1"], "Bloque nor-este: lado oeste (x=948.1) y lado norte (y=851.9)"),
-    ("EJE-16", 3, ["T12w", "T12e", "T12k", "D2n"], "Bloque norte: lado norte (y=865.1) y union a D2 por el norte de la planta de tratamiento"),
+    ("EJE-13", 3, ["L4", "L3"], "Losa: lado norte"),
+    ("EJE-14", 3, ["Y815e", "X952a", "X952b", "X952c", "X971a", "Q0"], "Bloque nor-este: lado sur"),
+    ("EJE-15", 3, ["X948a", "X948b", "X971b", "Q1"], "Bloque nor-este: lados oeste y norte"),
+    ("EJE-16", 3, ["T12w", "T12e", "T12k", "D2n"], "Bloque norte: lado norte y union a D2 por el norte de la planta de tratamiento"),
     # Sistema 4 - Norte: descarga D4 (cerco norte, x = 911.0, talud de la quebrada del norte)
-    ("EJE-17", 4, ["Y853c", "J4", "D4n", "D4"], "Bloque norte: lado sur (y=853.5) y salida D4"),
-    ("EJE-18", 4, ["X936b", "T17n", "J11", "J4"], "Bloque del centro: lado este (x=936.5) y lado norte (y=851.7), tramo este"),
-    ("EJE-19", 4, ["T11w", "J11"], "Bloque del centro: lado norte (y=851.7), tramo oeste"),
+    ("EJE-17", 4, ["Y853c", "J4", "D4n", "D4"], "Bloque norte: lado sur y salida D4"),
+    ("EJE-18", 4, ["X936b", "T17n", "J11", "J4"], "Bloque del centro: lados este y norte, tramo este"),
+    ("EJE-19", 4, ["T11w", "J11"], "Bloque del centro: lado norte, tramo oeste"),
 ]
 # sistemas: nombre y descarga (los colores de cada sistema estan en planos_b.py e iso_b.py)
 SISTEMAS = {1: ("OESTE", "D1"), 2: ("CENTRO Y FRENTE SUR", "D3"), 3: ("NOR-ESTE Y LOSA", "D2"), 4: ("NORTE", "D4")}

@@ -199,6 +199,22 @@ def main():
                     if j in (3, 4, 5, 6, 7, 8): cc.number_format = "0.00"
                     if j == 6: cc.fill = PatternFill("solid", fgColor=VER)
                 i += 1
+    # ---- tapas de inspeccion de los tramos tapados (las mismas de la planta DC-01)
+    ft = os.path.join(RAIZ, "entregables_barranquita", "_calc", "tapas.json")
+    if os.path.exists(ft):
+        ws = wb.create_sheet("TAPAS INSPECCION")
+        titulo(ws, "TAPAS DE INSPECCION EN TRAMOS TAPADOS (0.60 x 0.60, CONCRETO REMOVIBLE)", 6)
+        cab(ws, 4, ["N.", "EJE", "PROGRESIVA (m)", "ESTE (m)", "NORTE (m)", "UBICACION"], [8, 10, 15, 15, 15, 46])
+        i = 5
+        for k, t in enumerate(json.load(open(ft)), 1):
+            for j, v in enumerate(["T-%02d" % k, t["eje"], t["progresiva"], t["x"], t["y"],
+                                   "Inicio / fin de tramo tapado, empalme o a 10 m como maximo"], 1):
+                cc = ws.cell(i, j, v); cc.font = F(); cc.border = BOR
+                if j == 3: cc.number_format = "0.00"
+                if j in (4, 5): cc.number_format = "0.000"
+            i += 1
+        c = ws.cell(i, 2, "TOTAL"); c.font = F(bold=True)
+        c = ws.cell(i, 3, "=COUNTA(B5:B%d)" % (i - 1)); c.font = F(bold=True); c.border = BOR
     wb.save(SAL); print(SAL)
 
 
