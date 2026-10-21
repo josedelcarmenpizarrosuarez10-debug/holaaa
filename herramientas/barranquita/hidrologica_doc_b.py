@@ -350,17 +350,31 @@ def memoria(D, c):
     D.tabla("Coeficientes de escorrentía por tipo de superficie (T = 25 años)", ["Superficie y condición", "C"],
             [["Concreto / techo", "0.88"], ["Asfalto", "0.86"], ["Zona verde, pendiente 0 a 2 %", "0.29"], ["Zona verde, pendiente 2 a 7 %", "0.34"], ["Zona verde, pendiente mayor de 7 %", "0.40"]],
             [10, 3], fuente="Norma Técnica CE.040, Anexo I, Tabla 1.a (mismos valores de los estudios de Morales).")
-    D.p("Se adopta C = 0.88 para techos y para veredas, pisos, losa y patio de maniobra, y C = 0.40 para áreas verdes y terreno nivelado. Aunque "
+    D.p("Se adopta C = 0.88 para techos y coberturas (incluidos el patio cívico y la losa multiusos techados), para las áreas libres de concreto "
+        "(veredas, patios, atrio y circulaciones) y para el patio de maniobra y estacionamiento, y C = 0.40 para áreas verdes y terreno nivelado. Aunque "
         "las áreas verdes del local son casi planas (que corresponderían a C = 0.29), se usa el valor mayor de la tabla por tratarse de rellenos "
         "compactados con menor infiltración. Además, los caudales se afectan por un factor de seguridad de %.2f, igual que en los proyectos de Morales." % FS)
     D.h(2, "Áreas de drenaje")
-    D.p("El área dentro del cerco se dividió en celdas de 1 m² y cada celda se clasificó según la planta del proyecto: proyección de coberturas "
-        "(techos), veredas, circulaciones, pisos y patio de maniobra (pavimentos) y el resto como áreas verdes o terreno nivelado. Cada celda se "
-        "asignó a la cuneta más cercana; en los techos a dos aguas, cada mitad descarga a la cuneta de su lado.")
-    filas = [[H.NOM_SUP[k], mil(sup[k]["A"], 0), f2(sup[k]["C"]), "%.1f %%" % (100 * sup[k]["A"] / Atot)] for k in ("techo", "pavimento", "verde")]
+    D.p("El área dentro del cerco se midió a escala real en la planta del proyecto y se dividió en cuatro tipos de superficie: techos y "
+        "coberturas (proyección horizontal de las coberturas de las edificaciones y corredores, del patio cívico techado y de la losa "
+        "multiusos techada), áreas libres de concreto (veredas, patios 01 a 04, atrio y circulaciones), patio de maniobra y estacionamiento, "
+        "y áreas verdes y terreno nivelado (el resto). Los nombres y áreas de cada zona se contrastaron con el cuadro de áreas de la memoria "
+        "de arquitectura.")
+    det = hv.get("detalle_superficies", [])
+    if det:
+        TIPO = {"techo": "Techo", "pavimento": "Área libre", "estacionamiento": "Estacionamiento", "verde": "Área verde"}
+        At = sum(d["A"] for d in det)
+        filas = [[d["zona"].replace("civico", "cívico").replace("circulacion", "circulación").replace("area", "área").replace("Areas", "Áreas"),
+                  TIPO[d["tipo"]], mil(d["A"]), f2(H.C_SUP[d["tipo"]])] for d in det]
+        filas.append(["Total dentro del cerco", "", mil(At), "%.3f" % (sum(d["A"] * H.C_SUP[d["tipo"]] for d in det) / At)])
+        D.tabla("Áreas por zona del local (planta del proyecto)", ["Zona", "Tipo", "Área (m²)", "C"], filas, [8, 3, 2.5, 1.5], total=True)
+    D.p("Para el cálculo de caudales, el área se dividió en celdas de 1 m², clasificadas con los mismos polígonos; cada celda se asignó a la "
+        "cuneta más cercana y, en los techos a dos aguas, cada mitad descarga a la cuneta de su lado.")
+    filas = [[H.NOM_SUP[k].replace("civico", "cívico").replace("Areas", "Áreas").replace("areas", "áreas"), mil(sup[k]["A"], 0), f2(sup[k]["C"]),
+              "%.1f %%" % (100 * sup[k]["A"] / Atot)] for k in H.ORDEN_SUP if k in sup]
     filas.append(["Total / C ponderado", mil(Atot, 0), "%.3f" % hv["C"], "100.0 %"])
     D.tabla("Superficies del área de intervención", ["Superficie", "Área (m²)", "C", "%"], filas, [8.5, 2.5, 2, 2], total=True)
-    D.figura(os.path.join(c["FIG"], "fig_superficies.png"), "Delimitación de techos, pavimentos y áreas verdes dentro del cerco.", 15.5)
+    D.figura(os.path.join(c["FIG"], "fig_superficies.png"), "Techos, áreas libres de concreto, patio de maniobra y estacionamiento, y áreas verdes dentro del cerco.", 15.5)
     D.h(2, "Áreas de drenaje de techo en edificaciones")
     cb = coberturas()
     D.p("Las coberturas de las edificaciones son de panel termoacústico o planchas TR4, a dos aguas con pendientes de 46 %% a 57 %%. Su proyección "
@@ -373,9 +387,10 @@ def memoria(D, c):
         filas = []
         for r in R["ramales"]:
             a = ae.get(r["codigo"], {}); tot = sum(a.values()) or 1
-            filas.append([r["codigo"], mil(a.get("techo", 0), 0), mil(a.get("pavimento", 0), 0), mil(a.get("verde", 0), 0), mil(tot, 0),
-                          "%.3f" % ((0.88 * (a.get("techo", 0) + a.get("pavimento", 0)) + 0.40 * a.get("verde", 0)) / tot)])
-        D.tabla("Áreas propias de cada eje por tipo de superficie (m²)", ["Eje", "Techos", "Pavimentos", "Áreas verdes", "Total", "C ponderado"], filas, [2.2, 2.4, 2.6, 2.6, 2.4, 2.6], tam=8)
+            filas.append([r["codigo"], mil(a.get("techo", 0), 0), mil(a.get("pavimento", 0), 0), mil(a.get("estacionamiento", 0), 0),
+                          mil(a.get("verde", 0), 0), mil(tot, 0), "%.3f" % (sum(H.C_SUP[k] * v for k, v in a.items()) / tot)])
+        D.tabla("Áreas propias de cada eje por tipo de superficie (m²)", ["Eje", "Techos", "Áreas libres", "Estacionam.", "Áreas verdes", "Total", "C ponderado"],
+                filas, [2.0, 2.2, 2.2, 2.2, 2.3, 2.1, 2.2], tam=8)
     D.h(2, "Intensidad de lluvia")
     D.p("La intensidad de diseño corresponde a T = 25 años y a la duración de 10 minutos: I = %.2f mm/h, equivalente a %.8f m/s." % (HID["I"], HID["I"] / 3.6e6))
     D.h(2, "Caudales de diseño")
@@ -483,7 +498,14 @@ def memoria(D, c):
         "Toda ampliación futura de techos o pavimentos requiere una nueva evaluación hidrológica e hidráulica.",
         "Cuando el SENAMHI publique los registros diarios posteriores a 2013 de Pongo de Caynarachi, o series diarias de Navarro, Pelejo o Shanusi, actualizar el análisis de frecuencias con los años recientes."])
     D.h(1, "Anexos")
-    D.vinetas(["Memoria de cálculo hidrológico e hidráulico (Excel): MEMORIA_CALCULO_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.xlsx.",
+    D.vinetas(["Anexo N° 01: análisis estadístico de la precipitación máxima en 24 horas y tormenta de diseño (hojas de cálculo siguientes).",
+               "Memoria de cálculo hidrológico e hidráulico (Excel): MEMORIA_CALCULO_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.xlsx.",
+               "Metrado de drenaje pluvial (Excel): METRADO_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.xlsx.",
                "Planos de drenaje pluvial DC-01 a DC-19 (PLANTEAMIENTO_CUNETAS_IE0590_BARRANQUITA.dxf)."])
+    D.h(2, "Anexo N° 01: Análisis estadístico y tormenta de diseño")
+    import anexo_estadistico_b as AE
+    AE.anexo(D, HID)
+    D.salto()
+    D.h(2, "Anexo N° 02: Planta y perfil típico de la red de cunetas")
     D.figura(os.path.join(c["FIG"], "fig_planta.png"), "Planta general de cunetas (lámina DC-01).", 15.5)
     D.figura(os.path.join(c["FIG"], "fig_perfil.png"), "Perfil longitudinal típico por eje (lámina DC-04).", 15.5)

@@ -53,22 +53,23 @@ def superficies():
     import terreno_b as T
     SUP = H.superficies(T.cargar(), DS.CERCO, DS.PATIO); R = json.load(open(os.path.join(RAIZ, "entregables_barranquita", "_calc", "diseno.json")))
     fig, ax = plt.subplots(figsize=(8.5, 5.6))
-    col = {"verde": "#cfe8c4", "pavimento": "#d0d0d0", "techo": "#f2c48d"}
-    for k in ("verde", "pavimento", "techo"):
-        g = SUP[k]
-        for p in getattr(g, "geoms", [g]):
-            if p.is_empty: continue
-            x, y = p.exterior.xy; ax.fill(x, y, color=col[k], lw=0)
-            for h in p.interiors:
-                x, y = h.xy; ax.fill(x, y, color="white", lw=0)
+    col = {"verde": "#cfe8c4", "pavimento": "#c8c8c8", "estacionamiento": "#9dbbe0", "techo": "#f2c48d"}
+    from shapely.plotting import plot_polygon
+    for k in H.ORDEN_SUP:
+        for p in getattr(SUP[k], "geoms", [SUP[k]]):
+            if p.geom_type == "Polygon" and not p.is_empty:
+                plot_polygon(p, ax=ax, add_points=False, facecolor=col[k], edgecolor="none", linewidth=0)
     cx, cy = zip(*(DS.CERCO + [DS.CERCO[0]])); ax.plot(cx, cy, "r-", lw=1.4)
     for r in R["ramales"]:
         p = [R["nudos"][n] for n in r["nudos"]]; ax.plot([a[0] for a in p], [a[1] for a in p], color="#0070c0", lw=1.6)
     for k, v in DS.DESCARGAS.items():
         x, y = R["nudos"][k]; ax.plot(x, y, "o", color="#0070c0"); ax.text(x + 2, y + 2, k, color="#0070c0", fontsize=9, weight="bold")
     from matplotlib.patches import Patch
-    ax.legend(handles=[Patch(color=col["techo"], label="Techos (C = 0.88)"), Patch(color=col["pavimento"], label="Pavimentos (C = 0.88)"),
-                       Patch(color=col["verde"], label="Áreas verdes y terreno (C = 0.40)"), plt.Line2D([], [], color="#0070c0", lw=2, label="Ejes de cuneta"),
+    A = {k: SUP[k].area for k in H.ORDEN_SUP}
+    ax.legend(handles=[Patch(color=col["techo"], label="Techos y coberturas: %s m² (C = 0.88)" % format(round(A["techo"]), ",")),
+                       Patch(color=col["pavimento"], label="Áreas libres de concreto: %s m² (C = 0.88)" % format(round(A["pavimento"]), ",")),
+                       Patch(color=col["estacionamiento"], label="Patio de maniobra y estacionamiento: %s m² (C = 0.88)" % format(round(A["estacionamiento"]), ",")),
+                       Patch(color=col["verde"], label="Áreas verdes y terreno: %s m² (C = 0.40)" % format(round(A["verde"]), ",")), plt.Line2D([], [], color="#0070c0", lw=2, label="Ejes de cuneta"),
                        plt.Line2D([], [], color="r", lw=1.4, label="Cerco perimétrico")], loc="lower left", fontsize=7.5)
     ax.set_aspect("equal"); ax.axis("off"); fig.tight_layout(); fig.savefig(_g("fig_superficies.png"), dpi=170); plt.close(fig)
 

@@ -79,9 +79,10 @@ def construir():
              ("Precipitacion maxima en 24 h de diseno, T = 25 anos (mm)", "=FRECUENCIAS!H%d" % 0, "0.00", "Hoja FRECUENCIAS (%s)" % DN[EL]),
              ("Precipitacion en tc - Dick y Peschke P = P24 (tc/1440)^0.25 (mm)", "=B15*(B9/1440)^0.25", "0.00", "Dick y Peschke"),
              ("Intensidad de diseno I = P x 60 / tc (mm/h)", "=B16*60/B9", "0.00", "Para el metodo racional"),
-             ("Coeficiente de escorrentia - techos", H.C_SUP["techo"], "0.00", "T = 25 anos (proyectos de Morales)"),
-             ("Coeficiente de escorrentia - veredas, pisos y patio", H.C_SUP["pavimento"], "0.00", "T = 25 anos"),
-             ("Coeficiente de escorrentia - areas verdes y terreno", H.C_SUP["verde"], "0.00", "T = 25 anos (pendiente moderada)"),
+             ("Coeficiente de escorrentia - techos y coberturas", H.C_SUP["techo"], "0.00", "CE.040 Anexo I, Tabla 1.a: concreto / techo, T = 25 anos"),
+             ("Coeficiente de escorrentia - areas libres de concreto (veredas y patios)", H.C_SUP["pavimento"], "0.00", "CE.040 Anexo I, Tabla 1.a: concreto, T = 25 anos"),
+             ("Coeficiente de escorrentia - patio de maniobra y estacionamiento", H.C_SUP["estacionamiento"], "0.00", "CE.040 Anexo I, Tabla 1.a: concreto, T = 25 anos"),
+             ("Coeficiente de escorrentia - areas verdes y terreno", H.C_SUP["verde"], "0.00", "CE.040 Anexo I, Tabla 1.a: zona verde, valor mayor de la tabla (rellenos compactados), T = 25 anos"),
              ("Factor de seguridad de los caudales FS", 1.15, "0.00", "Mismo criterio de los proyectos de Morales (Q = C I A FS)")]
     tabla_cab(wd, 4, ["PARAMETRO", "VALOR", "", "FUENTE / CRITERIO"], [70, 12, 2, 80])
     for i, (t, v, fmt, fte) in enumerate(datos):
@@ -187,15 +188,35 @@ def construir():
     cabecera(wsu, "COEFICIENTE DE ESCORRENTIA PONDERADO (AREA DENTRO DEL CERCO)", 5)
     tabla_cab(wsu, 8, ["TIPO DE SUPERFICIE", "AREA (m2)", "C", "C x A", "% DEL AREA"], [58, 12, 8, 12, 12])
     sup = hv.get("superficies", {})
-    filas_s = [("techo", "DATOS!$B$18"), ("pavimento", "DATOS!$B$19"), ("verde", "DATOS!$B$20")]
+    filas_s = [("techo", "DATOS!$B$18"), ("pavimento", "DATOS!$B$19"), ("estacionamiento", "DATOS!$B$20"), ("verde", "DATOS!$B$21")]
+    rt = 9 + len(filas_s)
     for i, (k, cref) in enumerate(filas_s):
         r = 9 + i
         cel(wsu, r, 1, H.NOM_SUP[k]); cel(wsu, r, 2, sup.get(k, {}).get("A", 0), "#,##0"); cel(wsu, r, 3, "=" + cref, "0.00")
-        cel(wsu, r, 4, "=B%d*C%d" % (r, r), "#,##0.0"); cel(wsu, r, 5, "=B%d/$B$12" % r, "0.0%")
-    cel(wsu, 12, 1, "TOTAL / C PONDERADO", bold=True); cel(wsu, 12, 2, "=SUM(B9:B11)", "#,##0", bold=True)
-    cel(wsu, 12, 3, "=D12/B12", "0.000", bold=True, fill=VE); cel(wsu, 12, 4, "=SUM(D9:D11)", "#,##0.0", bold=True)
-    cel(wsu, 14, 1, "Areas medidas en la planta del proyecto en celdas de 1 m2 dentro del cerco: techos = proyeccion de coberturas; "
-                    "pavimentos = veredas, circulaciones, pisos y patio de maniobra; el resto, area verde o terreno nivelado.", borde=False)
+        cel(wsu, r, 4, "=B%d*C%d" % (r, r), "#,##0.0"); cel(wsu, r, 5, "=B%d/$B$%d" % (r, rt), "0.0%")
+    cel(wsu, rt, 1, "TOTAL / C PONDERADO", bold=True); cel(wsu, rt, 2, "=SUM(B9:B%d)" % (rt - 1), "#,##0", bold=True)
+    cel(wsu, rt, 3, "=D%d/B%d" % (rt, rt), "0.000", bold=True, fill=VE); cel(wsu, rt, 4, "=SUM(D9:D%d)" % (rt - 1), "#,##0.0", bold=True)
+    cel(wsu, rt, 5, "=SUM(E9:E%d)" % (rt - 1), "0.0%", bold=True)
+    # detalle por zona (cuadro de areas de la memoria de arquitectura)
+    det = hv.get("detalle_superficies", []); r1 = rt + 3
+    cel(wsu, r1 - 1, 1, "DETALLE POR ZONA (NOMBRES DEL CUADRO DE AREAS DE ARQUITECTURA)", borde=False, bold=True)
+    tabla_cab(wsu, r1, ["ZONA", "AREA (m2)", "C", "C x A", "TIPO"], [58, 12, 8, 12, 12])
+    TIPO = {"techo": "TECHO", "pavimento": "AREA LIBRE", "estacionamiento": "ESTACIONAM.", "verde": "AREA VERDE"}
+    for i, d in enumerate(det):
+        r = r1 + 1 + i; cref = dict(filas_s)[d["tipo"]]
+        cel(wsu, r, 1, d["zona"]); cel(wsu, r, 2, d["A"], "#,##0.0"); cel(wsu, r, 3, "=" + cref, "0.00")
+        cel(wsu, r, 4, "=B%d*C%d" % (r, r), "#,##0.0"); cel(wsu, r, 5, TIPO[d["tipo"]])
+    if det:
+        r = r1 + 1 + len(det)
+        cel(wsu, r, 1, "TOTAL (AREA DENTRO DEL CERCO)", bold=True); cel(wsu, r, 2, "=SUM(B%d:B%d)" % (r1 + 1, r - 1), "#,##0.0", bold=True)
+        cel(wsu, r, 3, "=D%d/B%d" % (r, r), "0.000", bold=True, fill=VE); cel(wsu, r, 4, "=SUM(D%d:D%d)" % (r1 + 1, r - 1), "#,##0.0", bold=True)
+        rn = r + 2
+    else:
+        rn = rt + 2
+    cel(wsu, rn, 1, "Areas medidas a escala real en la planta del proyecto dentro del cerco. Tabla superior: celdas de 1 m2 asignadas a cada tramo "
+                    "(base del calculo de caudales). Detalle: poligonos de cada zona (techos = proyeccion de coberturas, incluye patio civico "
+                    "y losa multiusos techados; areas libres = veredas, patios, atrio y circulaciones; patio de maniobra y estacionamiento; "
+                    "el resto, areas verdes y terreno nivelado).", borde=False)
     # ------------------------------------------------------------------ CAUDALES
     cabecera(wc, "CAUDALES DE DISENO (METODO RACIONAL) Y VERIFICACION HIDRAULICA (MANNING) POR TRAMO", 20)
     hdr = ["EJE", "DE", "A", "AREA ACUM. (m2)", "C POND.", "I (mm/h)", "Q (m3/s)", "Q (l/s)", "S (%)", "h LIBRE (m)", "y (m) n=0.015",
@@ -205,7 +226,7 @@ def construir():
         r = 9 + i; Qm = f["Q_ls"] / 1000.0
         y = yn(Qm, f["S"] / 100.0, 0.015); yv = yn(Qm, f["S"] / 100.0, 0.013)
         vals = [(f["ramal"], None), (f["de"], None), (f["a"], None), (f["A_m2"], "#,##0"), (f.get("C", hv["C"]), "0.000"),
-                ("=DATOS!$B$17", "0.00"), ("=E{r}*F{r}*D{r}*DATOS!$B$21/3600000".format(r=r), "0.0000"), ("=G{r}*1000".format(r=r), "0.0"),
+                ("=DATOS!$B$17", "0.00"), ("=E{r}*F{r}*D{r}*DATOS!$B$22/3600000".format(r=r), "0.0000"), ("=G{r}*1000".format(r=r), "0.0"),
                 (f["S"], "0.00"), (f["h"], "0.00"), (round(y, 4), "0.000"), ("=DATOS!$B$12*K{r}".format(r=r), "0.0000"),
                 ("=DATOS!$B$12+2*K{r}".format(r=r), "0.000"), ("=L{r}/M{r}".format(r=r), "0.0000"),
                 ("=L{r}*N{r}^(2/3)*SQRT(I{r}/100)/DATOS!$B$10".format(r=r), "0.0000"), ("=J{r}-K{r}".format(r=r), "0.000"),
@@ -230,7 +251,7 @@ def construir():
            ("Distribucion adoptada", "%s (menor D de Kolmogorov-Smirnov)" % DN[EL], None),
            ("Periodo de retorno (anos)", "=DATOS!B8", "0"), ("Precipitacion maxima en 24 h de diseno (mm)", "=DATOS!B15", "0.00"),
            ("Tiempo de concentracion (min)", "=DATOS!B9", "0.0"), ("Intensidad de diseno (mm/h)", "=DATOS!B17", "0.00"),
-           ("Coeficiente de escorrentia ponderado", "=SUPERFICIES!C12", "0.000"), ("Area de aporte dentro del cerco (m2)", "=SUPERFICIES!B12", "#,##0"),
+           ("Coeficiente de escorrentia ponderado", "=SUPERFICIES!C13", "0.000"), ("Area de aporte dentro del cerco (m2)", "=SUPERFICIES!B13", "#,##0"),
            ("Caudal maximo en un tramo (l/s)", "=MAX(CAUDALES!H9:H%d)" % (rr - 1), "0.0"),
            ("Menor borde libre (m)", "=MIN(CAUDALES!P9:P%d)" % (rr - 1), "0.000"),
            ("Velocidad maxima (m/s)", "=MAX(CAUDALES!S9:S%d)" % (rr - 1), "0.00"),

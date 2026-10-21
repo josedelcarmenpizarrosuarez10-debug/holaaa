@@ -422,3 +422,18 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   Tarapoto, distribucion adoptada y conclusiones automaticas), MEMORIA_DESCRIPTIVA, METRADO y ESPECIFICACIONES (sin cambios).
 - Pendiente: laminas DC-16 a DC-19 (texto "AGUA DE DISENO: Q = ... l/s, tirante" y nivel de agua en perfil e isometrico) y la figura
   fig_descarga_d1.png siguen con el caudal anterior hasta regenerar planos_b.py con base_sitio.pkl.
+
+## 21-10-2026 – Barranquita: formatos de los CAR (calculo, metrado, analisis estadistico, especificaciones) y superficies
+- Usuario: "procede ya con esto" (envio la memoria de calculo generada con la serie de Pongo de Caynarachi como su formato), metrado,
+  analisis estadistico y especificaciones en los formatos que ya existen (CAR), mejorar areas verdes, techos, libres y estacionamiento,
+  "ya no alteres planos, ya imprimi el ultimo". Se trajeron los commits de la otra sesion (Pongo de Caynarachi 1989-2013, Gumbel, I 288.63).
+- Superficies: techos 5,477 m2 (proyeccion de coberturas por caras de lineas, incluye las aulas en diagonal, patio civico techado 518 m2 y
+  losa multiusos techada 829 m2), areas libres de concreto 861 m2 (patios 01 a 04, veredas, atrio), patio de maniobra y estacionamiento
+  647 m2, areas verdes 2,380 m2; contrastado con el cuadro de areas de la memoria de arquitectura (516 / 810 / 135 / 192 / 255 / 88 m2).
+  C ponderado 0.761 (antes 0.570). Verificacion: 11 de 11 cumplen; Q max 225.7 l/s (EJE-02 a D1), borde libre min 0.129 m, V max 1.97 m/s.
+- Memoria de calculo: mismo formato del usuario; DATOS con 4 coeficientes (FS pasa a B22) y SUPERFICIES con tabla de 4 tipos y detalle por zona.
+- Metrado: formato del CAR Mujeres con hojas de detalle por eje; los 16 totales del RESUMEN identicos a la version anterior (LibreOffice).
+- Memoria hidrologica: anexo N.° 01 con los cuadros del CAR (registro, B.1-B.4, K-S, C.4, cuadros N.° 04-06, intensidades, diseno).
+- Especificaciones: motor espec.py + docx_espec.js (docx_espec.js acepta J.codigo para "C.I. N.°"); 20 paginas.
+- Planos (DXF y PNG) sin cambios. Pendiente de decision del usuario: DC-16 a DC-19 rotulan "AGUA DE DISENO" con los caudales anteriores
+  (207.7 / 264.7 / 174.2 / 48.4 l/s); con la lluvia y superficies vigentes son 225.7 / 225.3 / 163.6 / 44.8 l/s.

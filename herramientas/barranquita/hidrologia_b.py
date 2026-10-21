@@ -101,9 +101,13 @@ TC = 10.0                         # min (cunetas: tiempo de concentracion minimo
 PERIODOS = [2, 5, 10, 20, 25, 50, 100, 200, 500]
 DURACIONES = [5, 10, 15, 20, 30, 60, 90, 120, 240, 360, 720, 1440]
 # coeficientes de escorrentia (T = 25 anos; mismos valores de los estudios de Morales)
-C_SUP = {"techo": 0.88, "pavimento": 0.88, "verde": 0.40}
-NOM_SUP = {"techo": "Techos y coberturas (TR4 / panel termoacustico)", "pavimento": "Veredas, pisos, losa y patio de maniobra (concreto)",
+# (CE.040 Anexo I, Tabla 1.a: concreto / techo T 25 = 0.88; areas verdes en condicion promedio, pendiente promedio = 0.40)
+C_SUP = {"techo": 0.88, "pavimento": 0.88, "estacionamiento": 0.88, "verde": 0.40}
+NOM_SUP = {"techo": "Techos: edificaciones, corredores, patio civico techado y losa multiusos techada",
+           "pavimento": "Areas libres de concreto: veredas, patios, atrio y circulaciones",
+           "estacionamiento": "Patio de maniobra y estacionamiento (pavimento de concreto)",
            "verde": "Areas verdes y terreno natural (relleno nivelado)"}
+ORDEN_SUP = ("techo", "pavimento", "estacionamiento", "verde")
 KS_CRIT = {5: 0.56, 10: 0.41, 15: 0.34, 20: 0.29, 25: 0.27, 30: 0.24, 34: 0.23, 40: 0.21, 45: 0.20, 50: 0.19}   # alfa = 0.05
 
 
@@ -199,25 +203,90 @@ def resultados():
             "T": T_DISENO, "tc": TC, "factor": FACTOR}
 
 
-def superficies(G, CERCO, PATIO):
-    """Poligonos de techos y pavimentos dentro del cerco (shapely) para el coeficiente de escorrentia por celda."""
+def _caras(G, nombres):
+    """Caras (poligonos) formadas por todas las lineas de las capas, sin unir."""
+    from shapely.geometry import LineString
+    from shapely.ops import polygonize, unary_union
+    ls = []
+    for k in nombres:
+        for e in G["geo"].get(k, []):
+            q = [(x, y) for x, y, *_ in e[0]]
+            if len(q) >= 2: ls.append(LineString(q + [q[0]] if e[1] else q))
+    return [f for f in polygonize(unary_union(ls)) if f.area > 2]
+
+
+def _poligonos(G, nombres, cerradas=True):
+    """Poligonos shapely de las capas: polilineas cerradas o, con cerradas=False, caras formadas por todas sus lineas."""
+    from shapely.geometry import Polygon, LineString
+    from shapely.ops import polygonize, unary_union
+    ps, ls = [], []
+    for k in nombres:
+        for e in G["geo"].get(k, []):
+            q = [(x, y) for x, y, *_ in e[0]]
+            if cerradas:
+                if e[1] and len(q) >= 3:
+                    try:
+                        p = Polygon(q).buffer(0)
+                        if p.area > 1: ps.append(p)
+                    except Exception: pass
+            elif len(q) >= 2:
+                ls.append(LineString(q + [q[0]] if e[1] else q))
+    if not cerradas:
+        ps = [f for f in polygonize(unary_union(ls)) if f.area > 2]
+    return unary_union(ps) if ps else Polygon()
+
+
+# zonas del plano de arquitectura (cuadro de areas de la memoria de arquitectura) leidas en la base del sitio (UTM)
+PATIO_CIVICO = (354902.2, 9249822.4, 354932.3, 9249839.6)    # patio civico techado (516 m2)
+PATIO_04 = (354897.1, 9249822.4, 354902.2, 9249839.6)        # patio 04 + asta de bandera (88.15 m2)
+LOSA = (354952.9, 9249796.2, 354976.7, 9249831.05)           # losa multiusos tipo I techada (810 m2), dentro del anillo de cunetas
+
+
+def pisos_metrado(G, CERCO, PATIO):
+    """Pisos (techos y pavimentos) del metrado de la junta cuneta-piso; se conserva tal cual para no alterar el metrado."""
     from shapely.geometry import Polygon
     from shapely.ops import unary_union
     ce = Polygon(CERCO)
-    def capa(nombres):
-        ps = []
-        for k in nombres:
-            for e in G["geo"].get(k, []):
-                if e[1] and len(e[0]) >= 3:
-                    try:
-                        p = Polygon([(x, y) for x, y, *_ in e[0]]).buffer(0)
-                        if p.area > 1: ps.append(p)
-                    except Exception: pass
-        return unary_union(ps).intersection(ce) if ps else Polygon()
-    techo = capa(["0_PROYECCIONES 1"])
-    pav = unary_union([capa(["0_VEREDAS", "0.000. CIRCULACION - PLANTA", "0_PISO NIVEL 01"]), Polygon(PATIO).intersection(ce)]).difference(techo)
-    verde = ce.difference(techo).difference(pav)
-    return {"techo": techo, "pavimento": pav, "verde": verde}
+    techo = _poligonos(G, ["0_PROYECCIONES 1"]).intersection(ce)
+    pav = unary_union([_poligonos(G, ["0_VEREDAS", "0.000. CIRCULACION - PLANTA", "0_PISO NIVEL 01"]).intersection(ce),
+                       Polygon(PATIO).intersection(ce)]).difference(techo)
+    return {"techo": techo, "pavimento": pav}
+
+
+def superficies(G, CERCO, PATIO):
+    """Superficies dentro del cerco (shapely) para el coeficiente de escorrentia por celda: techos, areas libres de concreto,
+    patio de maniobra y estacionamiento, y areas verdes (el resto)."""
+    from shapely.geometry import Polygon, Point, box
+    from shapely.ops import unary_union
+    ce = Polygon(CERCO)
+    # techos: caras de la proyeccion de coberturas (incluye las aulas en diagonal y los corredores) + patio civico y losa techados
+    cob = _poligonos(G, ["0_PROYECCIONES 1"], cerradas=False).buffer(0.05, join_style=2).buffer(-0.05, join_style=2)
+    cob = unary_union([Polygon(p.exterior) for p in getattr(cob, "geoms", [cob]) if not p.is_empty])
+    techo = unary_union([cob, _poligonos(G, ["0_PROYECCIONES 1"]), box(*PATIO_CIVICO), box(*LOSA)]).intersection(ce)
+    # areas libres de concreto: veredas, circulaciones, pisos exteriores, patios 01 a 04 y area de tratamiento
+    patios = [f for f in _caras(G, ["0_ CUNETAS"]) if 150 < f.area < 300 and (f.contains(Point(354850.1, 9249846.3))       # patio 03 (255 m2)
+              or f.contains(Point(354916.9, 9249819.0)))]                                                                  # patio 02 (192 m2)
+    pav = unary_union([_poligonos(G, ["0_VEREDAS", "0.000. CIRCULACION - PLANTA", "0_PISO NIVEL 01"]), box(*PATIO_04)] + patios)
+    pat = Polygon(PATIO).intersection(ce).difference(techo)
+    trat = _poligonos(G, ["0_VEREDAS"]).intersection(pat)                  # losa del area de tratamiento dentro del patio
+    est = pat.difference(trat)
+    pav = pav.intersection(ce).difference(techo).difference(est)
+    verde = ce.difference(techo).difference(pav).difference(est)
+    # detalle por zona (nombres del cuadro de areas de la memoria de arquitectura)
+    civ, los = box(*PATIO_CIVICO).intersection(techo), box(*LOSA).intersection(techo)
+    p01 = [f for f in _caras(G, ["0_VEREDAS"]) if f.contains(Point(354912.4, 9249810.3))]
+    zonas = {"Patio 01: ingreso principal": unary_union(p01).intersection(pav) if p01 else Polygon(),
+             "Patio 02: circulacion principal": unary_union([f for f in patios if f.contains(Point(354916.9, 9249819.0))]).intersection(pav),
+             "Patio 03: area privada de estudiantes": unary_union([f for f in patios if f.contains(Point(354850.1, 9249846.3))]).intersection(pav),
+             "Patio 04: asta de bandera": box(*PATIO_04).intersection(pav)}
+    resto = pav.difference(unary_union(list(zonas.values())))
+    detalle = [("techo", "Coberturas de las edificaciones y corredores techados", techo.difference(civ).difference(los).area),
+               ("techo", "Patio civico techado", civ.area), ("techo", "Losa multiusos tipo I techada", los.area)]
+    detalle += [("pavimento", k, v.area) for k, v in zonas.items()]
+    detalle += [("pavimento", "Veredas, circulaciones, atrio y losa del area de tratamiento", resto.area),
+                ("estacionamiento", "Patio de maniobra y estacionamiento", est.area),
+                ("verde", "Areas verdes, jardines y terreno natural nivelado", verde.area)]
+    return {"techo": techo, "pavimento": pav, "estacionamiento": est, "verde": verde, "detalle": detalle}
 
 
 if __name__ == "__main__":

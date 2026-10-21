@@ -48,7 +48,11 @@ Cadena hidráulica: Varones (0.60) → caja de llegada CL → Refugio (0.80) →
   Expediente de drenaje (Word/Excel): `hidrologia_b.py` (serie Pmax 24 h de la estacion Pongo de Caynarachi SENAMHI 003317, 25 anios 1989-2013, sin
   transposicion; Gumbel T = 25: P24 166.64 mm, Dick-Peschke, I = 288.63 mm/h; Tarapoto transpuesta x 2.21 solo como contraste; `lluvia_datos_b.py` lee datos diarios SENAMHI / NASA POWER / CHIRPS de
   `insumos/barranquita/lluvia/` y compara sin modificar el diseno), `metrado_b.py`, `memoria_calculo_b.py`, `memorias_b.py` (memoria hidrologica y
-  descriptiva), `espec_b.py`. Sin `base_sitio.pkl`: `verifica_b.py --solo-lluvia` (cambio de lluvia sobre la geometria vigente) y caches
+  descriptiva; anexo de analisis estadistico en cuadros como el CAR Mujeres: `anexo_estadistico_b.py`), `espec_b.py` (motor y formato de
+  `herramientas/especificaciones/espec.py` + `docx_espec.js`, codigo C.I.). Metrado en el formato del CAR Mujeres (hojas CONCRETO, ENCOFRADO, ACERO, JUNTA,
+  CURADO, REJILLAS, TAPAS, PARAMETROS, Listas) con las mismas cantidades. Superficies (`hidrologia_b.superficies`): techos (caras de 0_PROYECCIONES 1 +
+  patio civico y losa multiusos techados), areas libres de concreto, patio de maniobra y estacionamiento, areas verdes; C ponderado 0.761. La junta
+  cuneta-piso del metrado usa `hidrologia_b.pisos_metrado` (clasificacion anterior, metrado sin cambios). Planos impresos por el usuario: NO regenerar. Sin `base_sitio.pkl`: `verifica_b.py --solo-lluvia` (cambio de lluvia sobre la geometria vigente) y caches
   `_calc/coberturas.json` (areas de techo) y `_calc/junta_piso.json` (junta con el piso por eje); los planos (`planos_b.py`) si necesitan la base.
   Regenerar con `python3 herramientas/barranquita/metrado_b.py && ... memoria_calculo_b.py && memorias_b.py && espec_b.py`.
   Ejes de cuneta (v3): lineas magenta del plano "PLANTA_GENERAL_590 ULTIMA VERSION" (lados de cada bloque, techos a dos aguas),

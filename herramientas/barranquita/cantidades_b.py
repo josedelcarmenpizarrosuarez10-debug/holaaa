@@ -45,7 +45,7 @@ def por_eje():
     out = []
     try:
         import shapely, terreno_b as T, hidrologia_b as H
-        SUP = H.superficies(T.cargar(), DS.CERCO, DS.PATIO)
+        SUP = H.pisos_metrado(T.cargar(), DS.CERCO, DS.PATIO)
         from shapely.ops import unary_union
         PISO = unary_union([SUP["pavimento"], SUP["techo"]])
     except Exception:

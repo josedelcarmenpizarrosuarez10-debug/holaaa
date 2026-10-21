@@ -8,6 +8,7 @@ const J = JSON.parse(fs.readFileSync(entrada, "utf8"));
 const FUENTE = "Arial";
 const AZUL = "1F3864";
 const ANCHO = 9071;            // A4 (11906) menos margenes de 3.0 cm (1701) y 2.0 cm (1134)
+const COD = J.codigo || ("CUI N.° " + J.cui);   // codigo del proyecto (CUI; o C.I. si aun no tiene CUI)
 const txt = (s, o = {}) => new TextRun({ text: s, font: FUENTE, size: o.size || 20, bold: o.bold, italics: o.italics, color: o.color, allCaps: o.caps });
 const par = (s, o = {}) => new Paragraph({ children: [txt(s, o)], alignment: o.align || AlignmentType.JUSTIFIED, spacing: { after: o.after ?? 100, before: o.before || 0, line: 276 }, indent: o.indent });
 const borde = { style: BorderStyle.SINGLE, size: 4, color: "808080" };
@@ -46,7 +47,7 @@ const portada = [
   par("ESPECIALIDAD: " + J.especialidad, { align: AlignmentType.CENTER, bold: true, size: 24, after: 900 }),
   par("PROYECTO:", { align: AlignmentType.CENTER, bold: true, size: 20, after: 120 }),
   par(J.proyecto, { align: AlignmentType.CENTER, size: 22, after: 300 }),
-  par("CUI N.° " + J.cui, { align: AlignmentType.CENTER, bold: true, size: 24, after: 900 }),
+  par(COD, { align: AlignmentType.CENTER, bold: true, size: 24, after: 900 }),
   par("UBICACIÓN: " + J.ubicacion, { align: AlignmentType.CENTER, size: 20, after: 120 }),
   par(J.fecha, { align: AlignmentType.CENTER, bold: true, size: 20 }),
 ];
@@ -70,7 +71,7 @@ for (const it of J.partidas) {
 }
 
 const cab = new Header({ children: [new Paragraph({ border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: AZUL, space: 2 } }, tabStops: [{ type: TabStopType.RIGHT, position: ANCHO }],
-  children: [txt("ESPECIFICACIONES TÉCNICAS - DRENAJE PLUVIAL", { size: 15, bold: true, color: AZUL }), txt("\t" + J.corto + " - CUI N.° " + J.cui, { size: 15, color: AZUL })] })] });
+  children: [txt("ESPECIFICACIONES TÉCNICAS - DRENAJE PLUVIAL", { size: 15, bold: true, color: AZUL }), txt("\t" + J.corto + " - " + COD, { size: 15, color: AZUL })] })] });
 const pie = new Footer({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [txt("Página ", { size: 16 }), new TextRun({ children: [PageNumber.CURRENT], font: FUENTE, size: 16 }), txt(" de ", { size: 16 }), new TextRun({ children: [PageNumber.TOTAL_PAGES], font: FUENTE, size: 16 })] })] });
 const pagina = { size: { width: 11906, height: 16838 }, margin: { top: 1418, bottom: 1134, left: 1701, right: 1134, header: 567, footer: 567 } };
 

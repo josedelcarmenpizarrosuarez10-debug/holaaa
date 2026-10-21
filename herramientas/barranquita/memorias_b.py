@@ -181,13 +181,14 @@ def hidrologica(D, c):
         "celda se asignó a la cuneta más cercana; en los techos a dos aguas, cada mitad descarga a la cuneta de su lado. Los coeficientes "
         "para T = 25 años son los mismos de los estudios de Morales.")
     sup = hv["superficies"]; tot = sum(v["A"] for v in sup.values())
-    filas = [[H.NOM_SUP[k], mil(sup[k]["A"], 0), f2(sup[k]["C"]), "%.1f %%" % (100 * sup[k]["A"] / tot)] for k in ("techo", "pavimento", "verde")]
+    filas = [[H.NOM_SUP[k].replace("civico", "cívico").replace("Areas", "Áreas").replace("areas", "áreas"), mil(sup[k]["A"], 0), f2(sup[k]["C"]),
+              "%.1f %%" % (100 * sup[k]["A"] / tot)] for k in H.ORDEN_SUP if k in sup]
     filas.append(["Total / C ponderado", mil(tot, 0), "%.3f" % hv["C"], "100.0 %"])
     D.tabla("Superficies y coeficiente de escorrentía", ["Superficie", "Área (m²)", "C", "%"], filas, [8.5, 2.5, 2, 2], total=True)
     # ---------------------------------------------------------------- 9
     D.h(1, "Caudales de diseño")
     D.p("Los caudales se calculan con el método racional, válido para áreas pequeñas:")
-    D.formula("Q = C · I · A / 3 600 000     (Q en m³/s; I en mm/h; A en m²)")
+    D.formula("Q = C · I · A · FS / 3 600 000     (Q en m³/s; I en mm/h; A en m²; FS = 1.15)")
     D.p("El caudal de cada tramo considera el área acumulada aguas arriba, incluidas las cuencas de los ejes que le entregan. La tabla siguiente "
         "muestra el tramo más cargado de cada eje; el detalle de los 91 tramos está en la hoja CAUDALES de la memoria de cálculo (Excel).")
     filas = []

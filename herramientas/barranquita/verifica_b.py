@@ -194,11 +194,11 @@ def main():
         for j, t in enumerate(r["tramos"]):
             segs.append((c, j, N[t["de"]], N[t["a"]]))
     D2 = np.stack([seg_dist(P, a, b)[0] for c, j, a, b in segs], 1); asg = D2.argmin(1)
-    # coeficiente de escorrentia de cada celda de 1 m2 segun su superficie (techo, pavimento o area verde)
+    # coeficiente de escorrentia de cada celda de 1 m2 segun su superficie (techo, area libre de concreto, estacionamiento o area verde)
     import shapely
     SUP = H.superficies(G, DS.CERCO, DS.PATIO)
     Ccel = np.full(len(P), H.C_SUP["verde"]); tipo = np.array(["verde"] * len(P), dtype=object)
-    for k in ("pavimento", "techo"):
+    for k in ("estacionamiento", "pavimento", "techo"):
         m = shapely.contains_xy(SUP[k], P[:, 0], P[:, 1]); Ccel[m] = H.C_SUP[k]; tipo[m] = k
     area, areaC, area_eje = {}, {}, {}
     for k, (c, j, a, b) in enumerate(segs):
@@ -277,7 +277,8 @@ def main():
     out = {"comprobaciones": res, "descargas": desc, "hidraulica": filas, "empalmes": emp,
            "hidrologia": {"C": round(Cpond, 3), "I": round(I_MMH, 2), "tc": TC, "P10": round(P10, 2), "P24": round(HID["P24"], 2),
                           "T": HID["T"], "factor": round(HID["factor"], 4), "n_cap": N_CAP, "n_vel": N_VEL, "A_total": Atot,
-                          "superficies": {k: {"A": v, "C": H.C_SUP[k]} for k, v in sup_area.items()}, "FS": FS, "areas_eje": area_eje}}
+                          "superficies": {k: {"A": v, "C": H.C_SUP[k]} for k, v in sup_area.items()}, "FS": FS,
+                          "detalle_superficies": [{"tipo": t, "zona": z, "A": round(a, 1)} for t, z, a in SUP["detalle"]], "areas_eje": area_eje}}
     json.dump(out, open(os.path.join(CALC, "verificacion.json"), "w"), indent=1, ensure_ascii=False)
     for c in res: print("%2d %-75s %s\n     %s" % (c["n"], c["comprobacion"], c["estado"], c["detalle"]))
 

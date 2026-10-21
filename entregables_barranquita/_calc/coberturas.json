@@ -1,5 +1,5 @@
 {
- "fuente": "MEMORIA_HIDROLOGICA (version generada con base_sitio.pkl, 21-10-2026)",
+ "fuente": "terreno_b / base_sitio.pkl",
  "coberturas": [
   {
    "A": 379.99,
@@ -9,24 +9,45 @@
    ]
   },
   {
-   "A": 136.42,
+   "A": 377.16,
+   "ejes": [
+    "EJE-01",
+    "EJE-02"
+   ]
+  },
+  {
+   "A": 377.16,
+   "ejes": [
+    "EJE-02",
+    "EJE-03"
+   ]
+  },
+  {
+   "A": 273.07,
    "ejes": [
     "EJE-15",
     "EJE-14"
    ]
   },
   {
-   "A": 136.42,
+   "A": 460.32,
    "ejes": [
-    "EJE-15",
-    "EJE-14"
+    "EJE-18",
+    "EJE-19"
    ]
   },
   {
-   "A": 235.27,
+   "A": 329.05,
    "ejes": [
     "EJE-04",
     "EJE-07"
+   ]
+  },
+  {
+   "A": 460.32,
+   "ejes": [
+    "EJE-05",
+    "EJE-02"
    ]
   },
   {
@@ -34,6 +55,27 @@
    "ejes": [
     "EJE-14",
     "EJE-10"
+   ]
+  },
+  {
+   "A": 517.72,
+   "ejes": [
+    "EJE-09",
+    "EJE-08"
+   ]
+  },
+  {
+   "A": 214.17,
+   "ejes": [
+    "EJE-05",
+    "EJE-04"
+   ]
+  },
+  {
+   "A": 829.43,
+   "ejes": [
+    "EJE-12",
+    "EJE-13"
    ]
   },
   {
