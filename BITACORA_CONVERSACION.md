@@ -341,3 +341,19 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Perfiles: titulo = eje + nombre sin coordenadas (se quitaron "x=884.9", "y=815.97", etc. de las descripciones) + progresivas de la
   pieza. Fila Longitud / Pendiente: siempre la medida completa de seccion a seccion (antes, si el tramo se partia entre dos piezas,
   salia la parte, p. ej. 31.45 en vez de 35.59 de S-07 a S-08 del EJE-04).
+
+## 21-10-2026 – Barranquita: expediente de drenaje pluvial (memorias, calculo, especificaciones y metrado)
+- Insumo del usuario: memoria descriptiva de arquitectura (RAR con .doc de 38 MB, no versionado): CI 468901, GRSM / GTBM-T,
+  Mz Z Lote 23 (partida 11128704), terreno 61,413 m2, clima Af, 1,800 - 2,400 mm/ano, techos a dos aguas 46 - 57 %.
+- Lluvia: el usuario aprobo la opcion 2: serie Pmax24 de CO Tarapoto (la misma de Morales) transpuesta por la relacion de
+  precipitacion anual Yurimaguas / Tarapoto = 2,039.6 / 1,073.1 = 1.90 (llanura Caynarachi - Huallaga, 184 m s. n. m.).
+  Log-Normal (menor K-S) T = 25 anos: P24 = 231.49 mm; Dick y Peschke tc = 10 min: I = 400.96 mm/h; IDF K 1419.77, m 0.1315, n 0.750.
+- C por superficie medido en la planta (techos 0.88, pavimentos 0.88, areas verdes 0.40): C ponderado 0.57; se quito el FS 1.15.
+- Usuario: "manten la cuneta 0.40 interior 0.60 total": con la nueva lluvia cumplen los 91 tramos sin cambiar profundidades
+  (Q max 227.3 l/s, borde libre min 0.119 m, V max 1.73 m/s); las cotas de fondo y descargas no cambian.
+- Entregables nuevos en entregables_barranquita/: MEMORIA_HIDROLOGICA_..., MEMORIA_DESCRIPTIVA_..., ESPECIFICACIONES_TECNICAS_...
+  (Word), MEMORIA_CALCULO_... (Excel con formulas: DATOS, SERIE, FRECUENCIAS, KS, IDF, SUPERFICIES, CAUDALES, DESCARGAS) y
+  METRADO_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.xlsx (estructura Delphin del CAR Mujeres, 16 partidas con formulas; concreto
+  f'c 175 150.74 m3, acero 6,545 kg, rejilla 924.82 m, 10 tapas, juntas 547.80 m y junta con el piso 748.76 m). Figuras en figuras_memoria/.
+- Fuera del alcance (no metrado): canaletas y montantes de las coberturas (especialidad de techos) y la proteccion de la entrega D2
+  fuera del cerco (recomendacion).

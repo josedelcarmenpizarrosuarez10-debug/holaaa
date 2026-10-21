@@ -13,8 +13,9 @@
 10. Interferencias: el eje de la cuneta no corta muros de los bloques (distancia al muro >= 0.30 m).
 11. Limite de intervencion: toda la red queda dentro del cerco perimetrico; solo las descargas lo atraviesan.
 
-Caudal de diseno (referencial): metodo racional con el area tributaria de cada tramo dentro del cerco (cada punto de 1 m2
-va a la cuneta mas cercana; techos a dos aguas: cada mitad al alero de su lado), C = 0.80, I = 211 mm/h
+Caudal de diseno: metodo racional con el area tributaria de cada tramo dentro del cerco (cada punto de 1 m2
+va a la cuneta mas cercana; techos a dos aguas: cada mitad al alero de su lado), C por superficie (techos y pavimentos 0.88,
+areas verdes 0.40) e I de hidrologia_b (Tarapoto transpuesta, T = 25 anos, tc = 10 min).
 (tc = 10 min, TR = 25 anos, P10 = 35.16 mm de la estacion usada en el Hogar de Refugio - Morales; reemplazar por la del
 proyecto), factor de seguridad 1.15.
 Uso: python3 herramientas/barranquita/verifica_b.py -> entregables_barranquita/_calc/verificacion.json
