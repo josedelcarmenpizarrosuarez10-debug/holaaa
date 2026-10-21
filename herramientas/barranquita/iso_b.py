@@ -2,7 +2,7 @@
 
 Solo las cunetas, sobre todo el terreno y todas las veredas (sin edificaciones): vista desde el sur y vista desde el norte
 (escala 1/350) y detalle de las tres descargas por el cerco (escala 1/75); codigos de lamina correlativos (planos_b.py). Escala real, sin exageracion vertical.
-- Terreno: dentro del cerco el interior nivelado (borde de cuneta +184.60; pisos NPT +184.65; areas verdes +184.55);
+- Terreno: dentro del cerco el interior nivelado (pisos NPT y borde de cuneta +184.65; areas verdes +184.60);
   fuera del cerco el terreno natural del modelo de curvas C-TOPO. Curvas de nivel cada 0.50 m sobre el terreno.
 - Veredas del plano (capa 0_VEREDAS) 0.10 m sobre la rasante.
 - Cunetas: canal de 0.40 x h con muros de 0.10 (corona con el color de su sistema), fondo a la cota de fondo de diseno,
@@ -373,7 +373,7 @@ def leyenda(lam, xmm, ymm, detalle=False):
               ("relleno", "ISO-FONDO", "Fondo de cuneta (cota de fondo de diseno)")]
     if detalle: items += [("relleno", "ISO-REJ", "Rejilla de platinas (tramos abiertos)")] + [("relleno", "ISO-POZA", "Poza de salida (rebalse a nivel del terreno)")] * bool(DS.POZA)
     items += [("relleno", "ISO-AGUA-D", "Agua que sale por el cerco al terreno natural"), ("relleno", "ISO-CERCO", "Cerco perimetrico = limite de intervencion"),
-              ("relleno", "ISO-VER", "Veredas (+0.10 sobre la rasante)"), ("relleno", "ISO-PLAT", "Terreno terminado dentro del cerco (+184.60 en el borde de cuneta)"),
+              ("relleno", "ISO-VER", "Veredas (+0.10 sobre la rasante)"), ("relleno", "ISO-PLAT", "Terreno terminado dentro del cerco (+184.65 = borde de cuneta)"),
               ("relleno", "ISO-TERR", "Terreno natural fuera del cerco"), ("linea", "ISO-CURVAS", "Curvas de nivel cada 0.50 m (C-TOPO)")]
     lam.leyenda2(xmm, ymm, items, hmm=1.8)
 
@@ -413,7 +413,7 @@ def isometrico(doc, R, V, ox, oy, codigo, giro, titulo, sub):
         "1. Isometrico a escala real 1/350 (sin exageracion vertical): solo las cunetas sobre el terreno y las veredas; las edificaciones no se dibujan.",
         "2. Las cunetas quedan dentro del cerco perimetrico (limite de intervencion); fuera del cerco solo se indica el agua sobre el terreno natural.",
         "3. Cuneta: 0.40 m libre, muros de 0.10 m (0.60 m total); rejilla en los tramos abiertos (ver %s)" % COD_DET + "; cotas de fondo en DC-02 y perfiles.",
-        "4. Terreno: %s Fuera, el terreno natural de las curvas C-TOPO." % "Interior del cerco nivelado: pisos y pasadizos NPT +184.65; borde de cuneta +184.60; areas verdes +184.55; patio de maniobra +184.50 (cuneta al ras, con rejilla)."],
+        "4. Terreno: %s Fuera, el terreno natural de las curvas C-TOPO." % "Interior del cerco nivelado: pisos y pasadizos NPT +184.65; borde de cuneta +184.65 (al ras del piso); areas verdes +184.60; patio de maniobra +184.50 (cuneta al ras, con rejilla)."],
         hmm=1.6, ancho_mm=300)
     return lam
 

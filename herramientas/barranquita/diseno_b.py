@@ -12,7 +12,8 @@ Criterios del usuario:
 - Techos a dos aguas (cumbrera en el eje largo de cada bloque): cada alero descarga a la cuneta o al terreno de su lado.
 
 Niveles (indicacion del usuario, 20-10-2026): todo el interior del cerco queda nivelado, sin hondonadas. Pisos y pasadizos
-NPT +184.65; borde superior de las cunetas (rasante) +184.60; areas verdes +184.55. Fuera del cerco, el terreno natural de
+NPT +184.65; borde superior de las cunetas (rasante) +184.65, al ras del piso (junta asfaltica al mismo nivel); areas verdes
++184.60. Fuera del cerco, el terreno natural de
 las curvas C-TOPO. Con la rasante horizontal, la profundidad crece con la pendiente de fondo de 0.5 %.
 Excepcion: el PATIO DE MANIOBRA Y ESTACIONAMIENTO (nor-este, 470 m2) queda en su nivel del plano NTN +184.50; las cunetas que lo
 bordean van al ras del patio (+184.50), con rejilla en los tramos abiertos para que el agua del patio entre por ella.
@@ -27,7 +28,9 @@ import terreno_b as T
 
 B_INT, E_MURO, B_TOT = 0.40, 0.10, 0.60
 H0, HMIN, S0 = 0.30, 0.25, 0.005
-NPT, RASANTE, NIVEL_AV = 184.65, 184.60, 184.55   # pisos y pasadizos, borde de cuneta, areas verdes
+E_TAPA = 0.10                          # losa de los tramos tapados: la altura libre bajo la losa no baja de HMIN
+H_ACERO = 0.40                         # con h >= 0.40 m (rejilla - fondo) la cuneta lleva acero; menor, concreto simple (salvo tapadas)
+NPT, RASANTE, NIVEL_AV = 184.65, 184.65, 184.60   # pisos y pasadizos, borde de cuneta (al ras del piso), areas verdes
 NTN_PLAT = RASANTE                         # nivel del terreno terminado junto a la cuneta (dentro del cerco)
 NIVEL_PATIO, RAS_PATIO = 184.50, 184.50    # patio de maniobra (NTN del plano); cunetas al ras del patio
 # patio de maniobra y estacionamiento: entre la losa (y = 831.3), el cerco este, el cerco norte y x = 951.5; incluye los ejes de
@@ -129,8 +132,8 @@ N["D4n"] = (N["D4"][0], N["D4"][1] - D_CERCO)
 # Todo dentro del cerco; el ultimo tramo de cada descarga (Dn -> D) es el paso por el cerco.
 RAMALES = [
     # Sistema 1 - Oeste: descarga D1 (cerco sur-oeste, talud hacia la quebrada del oeste)
-    ("EJE-01", 1, ["A0", "A1", "D1n", "D1"], "Pabellon oeste A: lado nor-oeste y salida D1"),
-    ("EJE-02", 1, ["B5a", "W1a", "W12", "W13", "W1b", "D1n"], "Pabellon oeste B: lado nor-este; pabellon A: lado sur-este; union a D1"),
+    ("EJE-01", 1, ["A0", "A1", "D1n"], "Pabellon oeste A: lado nor-oeste; entrega al EJE-02 junto al cerco (caida)"),
+    ("EJE-02", 1, ["B5a", "W1a", "W12", "W13", "W1b", "D1n", "D1"], "Pabellon oeste B: lado nor-este; pabellon A: lado sur-este; salida D1"),
     ("EJE-03", 1, ["W2a", "W12"], "Pabellon oeste B: lado sur-oeste (patio)"),
     ("EJE-04", 1, ["X885a", "X885b", "N885", "W3d", "W3c", "W34", "W13"], "Bloque x=884.9 (lado oeste), bloque D (lado norte) y pabellon C (lado nor-este)"),
     ("EJE-05", 1, ["T29e", "T29w", "T7e", "T7w", "T4s", "W1b"], "Bloque del ingreso (lado sur), bloque D (lado sur) y pabellon C (lado sur-oeste)"),
@@ -165,7 +168,7 @@ DESCARGAS = {"D1": "Cerco sur-oeste (lado C22-C1, x = %.1f): al talud natural qu
 # tramos tapados que no salen de las veredas del plano: ingresos y pases por el cerco (codigo, nudo a, nudo b, motivo)
 TAPADOS_FIJOS = [("EJE-07", "X919b", "D3", "Atrio del ingreso principal y paso por el cerco"),
                  ("EJE-12", "Q2", "D2", "Patio pavimentado del nor-este y paso por el cerco"),
-                 ("EJE-01", "D1n", "D1", "Paso por el cerco"), ("EJE-17", "D4n", "D4", "Paso por el cerco")]
+                 ("EJE-02", "D1n", "D1", "Paso por el cerco"), ("EJE-17", "D4n", "D4", "Paso por el cerco")]
 # uniones nuevas (no son lados de edificacion): rasante en linea recta entre sus extremos (relleno compactado)
 CONEXIONES = [("EJE-04", "X885b", "N885"), ("EJE-05", "T29w", "T7e"), ("EJE-05", "T7w", "T4s"), ("EJE-02", "W1b", "D1n"),
               ("EJE-14", "X971a", "Q0"), ("EJE-15", "X971b", "Q1")]
@@ -223,24 +226,38 @@ def calcular():
             if c == cod:
                 ia = [i for i, p in enumerate(pts) if p[2] == a][0]; ib = [i for i, p in enumerate(pts) if p[2] == b][-1]
                 for i in range(ia + 1, ib): r[i] = r[ia] + (r[ib] - r[ia]) * (s[i] - s[ia]) / (s[ib] - s[ia])
-        geo[cod] = (pts, s, r)
+        if nudos[-1] in DESCARGAS:                       # pase por el cerco: la cuneta llega al cerco con su mismo borde (no baja al terreno exterior)
+            idn = [i for i, p in enumerate(pts) if p[2] == nudos[-2]][-1]
+            for i in range(idn + 1, len(pts)): r[i] = r[idn]
+        tap = [any(v.contains_point(p[:2]) for v in ver) for p in pts]    # tramos tapados: veredas del plano y tramos fijos
+        for c, a, b, mot in TAPADOS_FIJOS:
+            if c == cod:
+                ia = [i for i, p in enumerate(pts) if p[2] == a][0]; ib = [i for i, p in enumerate(pts) if p[2] == b][-1]
+                for i in range(ia, ib + 1): tap[i] = True
+        geo[cod] = (pts, s, r, tap)
     # cota de fondo: iteracion hasta que los empalmes queden por debajo de los ramales que llegan
     req = {}                                          # cota maxima admisible en cada nudo (por los ramales que llegan)
     for it in range(50):
         fondo, cambio = {}, False
         for cod, sis, nudos, desc in RAMALES:
-            pts, s, r = geo[cod]; f = []
+            pts, s, r, tap = geo[cod]; f = []
             hm = []; j = -1                                # profundidad minima de cada punto (0.25 o la del tramo)
             for i, p in enumerate(pts):
                 if p[2] and i < len(pts) - 1: j += 1
                 req_j = hq.get("%s|%s|%s" % (cod, nudos[j], nudos[j + 1]), HMIN)
                 if p[2] and i > 0: req_j = max(req_j, hq.get("%s|%s|%s" % (cod, nudos[j - 1], nudos[j]), HMIN) if j > 0 else HMIN)
-                hm.append(max(HMIN, req_j))
+                hm.append(max(HMIN, req_j) + (E_TAPA if tap[i] else 0.0))     # en tapado se suma la losa
             for i, p in enumerate(pts):
-                if i == 0: v = r[0] - H0
+                if i == 0: v = r[0] - H0 - (E_TAPA if tap[0] else 0.0)
                 else: v = min(f[-1] - S0 * (s[i] - s[i - 1]), r[i] - hm[i])
                 if p[2] and i > 0 and p[2] in req: v = min(v, req[p[2]])
                 f.append(v)
+            # donde un empalme obliga a bajar (llega un eje mas hondo), el fondo baja parejo desde el nudo anterior (sin escalon)
+            nod = [i for i, p in enumerate(pts) if p[2]]
+            for k0, k1 in zip(nod[:-1], nod[1:]):
+                if pts[k1][2] in req and f[k1] < f[k1 - 1] - S0 * (s[k1] - s[k1 - 1]) * 1.5:
+                    for i in range(k0 + 1, k1):
+                        f[i] = min(f[i], f[k0] + (f[k1] - f[k0]) * (s[i] - s[k0]) / (s[k1] - s[k0]))
             fondo[cod] = f
         for cod, sis, nudos, desc in RAMALES:          # el ramal llega a su nudo final por encima de la cota del que lo recibe
             fin = nudos[-1]; v = fondo[cod][-1]
@@ -259,13 +276,7 @@ def calcular():
                          "nivel_patio": NIVEL_PATIO, "rasante_patio": RAS_PATIO},
            "nudos": {k: [round(v[0], 3), round(v[1], 3)] for k, v in N.items() if k in nombre}, "nombre": nombre, "descargas": DESCARGAS, "ramales": []}
     for cod, sis, nudos, desc in RAMALES:
-        pts, s, r = geo[cod]; f = fondo[cod]
-        # tapados: puntos dentro de veredas o en los tramos fijos
-        tap = [any(v.contains_point(p[:2]) for v in ver) for p in pts]
-        for c, a, b, mot in TAPADOS_FIJOS:
-            if c == cod:
-                ia = [i for i, p in enumerate(pts) if p[2] == a][0]; ib = [i for i, p in enumerate(pts) if p[2] == b][-1]
-                for i in range(ia, ib + 1): tap[i] = True
+        pts, s, r, tap = geo[cod]; f = fondo[cod]
         tramos = []
         idx = [i for i, p in enumerate(pts) if p[2]]
         for j in range(len(idx) - 1):
@@ -276,7 +287,7 @@ def calcular():
             tramos.append({"de": pts[i0][2], "a": pts[i1][2], "L": round(L, 2), "ras_de": round(r[i0], 3), "ras_a": round(r[i1], 3),
                            "cf_de": round(f[i0], 3), "cf_a": round(f[i1], 3), "h_de": round(r[i0] - f[i0], 3), "h_a": round(r[i1] - f[i1], 3),
                            "S": round(S, 5), "h_max": round(hmax, 3), "L_tapado": round(ltap, 2), "L_rejilla": round(L - ltap, 2),
-                           "Q_cap": round(q_manning(min(r[i0] - f[i0], r[i1] - f[i1]), max(S, S0)), 4)})
+                           "Q_cap": round(q_manning(min(r[i0] - f[i0], r[i1] - f[i1]) - (E_TAPA if ltap > 0 else 0.0), max(S, S0)), 4)})
         # perfil (cada 0.5 m) para los planos
         tap_iv = []; i = 0
         while i < len(pts):

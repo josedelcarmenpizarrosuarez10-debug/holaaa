@@ -299,3 +299,13 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   cada una con su corte a 1/20 (rejilla movil de platinas o losa tapa, marco 3/8"@0.25, longitudinales 3/8"@0.20 / @0.22, junta
   asfaltica 1" con el piso). Laminas: DC-03 a DC-11 perfiles, DC-12 a DC-15 secciones; isometricos y cortes pasan a DC-16 a DC-20.
 - Excel: hoja SECCIONES (mismas 96 secciones) y nota de laminas leida de _calc/indice.json.
+
+## 21-10-2026 – Barranquita: cunetas al ras del piso, pases sin bajar, tapados con altura libre y acero solo desde h = 0.40
+- Niveles (usuario): NPT +184.65 = borde de cuneta +184.65 (junta asfaltica al mismo nivel del piso); area verde +184.60; patio de
+  maniobra +184.50 con cuneta al ras.
+- Pase por el cerco: la cuneta llega al cerco con su mismo borde (antes tomaba el terreno exterior y "se achicaba": seccion de 0.15 m).
+- Tramos tapados: la profundidad minima suma la losa de 0.10 m (altura libre >= 0.25 m); capacidad con la altura libre bajo la losa.
+- EJE-02 sigue hasta D1 por el pase y el EJE-01 le entrega con caida de 0.42 m (antes el EJE-01 bajaba 20 % en 2 m).
+- Donde un empalme obliga a bajar, el fondo baja parejo desde el nudo anterior (sin escalon). Pendiente maxima 2.93 %, V max 1.84 m/s,
+  sin gradas. 11 de 11 comprobaciones.
+- Acero solo con h >= 0.40 m (rejilla - fondo) o en tramo tapado; menor: concreto simple (36 de 96 secciones).

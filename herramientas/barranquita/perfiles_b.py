@@ -80,7 +80,15 @@ def secciones(R):
                 nota = "Llega " + ", ".join(c for c in llegan[n] if c != r["codigo"])
             if s == 0.0: nota = nota or "Inicio del eje"
             if n == r["nudos"][-1]:
-                nota = ("Descarga " + n) if n in DS.DESCARGAS else ("Entrega a " + recibe.get(r["codigo"], ""))
+                if n in DS.DESCARGAS: nota = "Descarga " + n
+                else:
+                    r2 = next(x for x in R["ramales"] if x["codigo"] == recibe.get(r["codigo"]))
+                    acc2 = 0.0; s2 = 0.0
+                    for t in r2["tramos"]:
+                        acc2 += t["L"]
+                        if t["a"] == n: s2 = acc2
+                    caida = r["perfil"][-1][2] - _valor(r2["perfil"], min(s2, r2["L"]))[1]
+                    nota = "Entrega a %s" % r2["codigo"] + ("; caida %.2f m" % caida if caida > 0.02 else "")
             cand.append([s, nota, 3])
         for a, b in r["tapados"]:
             for s in (a, b):
@@ -295,27 +303,29 @@ def corte(lam, x, x0, y0):
         for xa, sg in ((x0 + e, 1), (x0 + e + b, -1)):
             lam.poli([(xa, ytop - a), (xa, ytop), (xa + sg * a, ytop)], "SEC-REJILLA")
         lam.rect(x0 + e - 0.012, ytop, x0 + e + b + 0.012, ytop + t, "SEC-REJILLA")
-    # piso adyacente con junta asfaltica de 1"
-    dz = 0.0 if x["nct"] <= DS.NIVEL_PATIO + 0.005 else NPT - x["nct"]
-    yp = ytop + max(dz, 0.0); j = 0.0254
+    # piso adyacente con junta asfaltica de 1", al mismo nivel que el borde de la cuneta
+    yp = ytop; j = 0.0254
     piso = [(x0 - j, yp), (x0 - j - 0.34, yp), (x0 - j - 0.34, yp - 0.10), (x0 - j - 0.14, yp - 0.10), (x0 - j - 0.08, yp - 0.24), (x0 - j, yp - 0.24)]
     lam.relleno(piso, "CONCRETO-ACHURADO"); lam.poli(piso, "SEC-PISO", cerrada=True)
     jun = [(x0 - j, yp), (x0, yp), (x0, yp - 0.24), (x0 - j, yp - 0.24)]
     lam.relleno(jun, "SEC-JUNTA"); lam.poli(jun, "SEC-PISO", cerrada=True)
-    # acero: marco (transversal) y barras longitudinales
+    # acero solo con h >= 0.40 m (de la rejilla al fondo) o en tramo tapado; si no, concreto simple
     r = 0.045
-    if tap:
+    con_acero = tap or H >= DS.H_ACERO - 1e-6
+    sep = 0.22 if tap else 0.20
+    barras = []
+    if con_acero and tap:
         lam.poli([(x0 + r, y0 + r), (x0 + W - r, y0 + r), (x0 + W - r, ytop - r), (x0 + r, ytop - r)], "SEC-ACERO", cerrada=True)
-    else:
+    elif con_acero:
         lam.poli([(x0 + r + 0.03, ytop - 0.03), (x0 + r, ytop - 0.03), (x0 + r, y0 + r), (x0 + W - r, y0 + r), (x0 + W - r, ytop - 0.03),
                   (x0 + W - r - 0.03, ytop - 0.03)], "SEC-ACERO")
-    sep = 0.22 if tap else 0.20
-    barras = [(x0 + r, y0 + r), (x0 + W / 2, y0 + r), (x0 + W - r, y0 + r)]
-    ny = max(1, round((ytop - 0.03 - (y0 + r)) / sep))
-    for i in range(1, ny + 1):
-        yy = y0 + r + i * (ytop - (0.05 if tap else 0.03) - (y0 + r)) / ny
-        barras += [(x0 + r, yy), (x0 + W - r, yy)]
-    if tap: barras.append((x0 + W / 2, ytop - r))
+    if con_acero:
+        barras = [(x0 + r, y0 + r), (x0 + W / 2, y0 + r), (x0 + W - r, y0 + r)]
+        ny = max(1, round((ytop - 0.03 - (y0 + r)) / sep))
+        for i in range(1, ny + 1):
+            yy = y0 + r + i * (ytop - (0.05 if tap else 0.03) - (y0 + r)) / ny
+            barras += [(x0 + r, yy), (x0 + W - r, yy)]
+        if tap: barras.append((x0 + W / 2, ytop - r))
     for p in barras:
         hh = lam.msp.add_hatch(dxfattribs={"layer": "SEC-ACERO-LONG", "color": 5}); hh.set_solid_fill(color=5)
         hh.paths.add_edge_path().add_arc(p, 0.0085, 0, 360)
@@ -326,9 +336,11 @@ def corte(lam, x, x0, y0):
     lam.cota((x0 + W, y0 + EL), (x0 + W, ytop - (0.10 if tap else 0.0)), 13, False)
     if tap: lam.cota((x0 + W, ytop - 0.10), (x0 + W, ytop), 6, False)
     # llamadas
-    f = lam.f
-    lam.llamada((x0 + r, y0 + r + (ytop - y0) * 0.45), (x0 - 0.62, y0 + (ytop - y0) * 0.30), ['%%%%c3/8"@%.2f' % sep, "Longitudinal"], hmm=1.4)
-    lam.llamada((x0 + W - r, ytop - 0.12), (x0 + W + 0.42, ytop - 0.02), ['%%c3/8"@0.25', "Transversal"], hmm=1.4)
+    if con_acero:
+        lam.llamada((x0 + r, y0 + r + (ytop - y0) * 0.45), (x0 - 0.62, y0 + (ytop - y0) * 0.30), ['%%%%c3/8"@%.2f' % sep, "Longitudinal"], hmm=1.4)
+        lam.llamada((x0 + W - r, ytop - 0.12), (x0 + W + 0.42, ytop - 0.02), ['%%c3/8"@0.25', "Transversal"], hmm=1.4)
+    else:
+        lam.llamada((x0 + e / 2, y0 + (ytop - y0) * 0.5), (x0 - 0.62, y0 + (ytop - y0) * 0.30), ["CONCRETO SIMPLE", "SIN ACERO (h < %.2f)" % DS.H_ACERO], hmm=1.4)
     lam.llamada((x0 - j / 2, yp - 0.05), (x0 - 0.62, yp + 0.20), ["JUNTA", 'ASFALTICA E=1"'], hmm=1.4)
     if not tap:
         lam.llamada((x0 + e + b, ytop + 0.004), (x0 + W + 0.04, ytop + 0.24), ["REJILLA METALICA MOVIL", 'PLATINAS DE 1" X 3/16"'], hmm=1.4)
@@ -363,10 +375,10 @@ def cortes(doc, SEC, ox0, oy0, sep, num0):
             i += len(fila); ytop -= alto + 2
         lam.notas(30, 100, "NOTAS", [
             "1. Concreto f'c = 175 kg/cm2 en muros, losa de fondo y losa tapa; solado f'c = 100 kg/cm2 e = 0.05 m; recubrimiento 0.04 m.",
-            "2. Acero fy = 4200 kg/cm2: marco transversal 3/8\" @ 0.25 m; barras longitudinales 3/8\" @ 0.20 m (con rejilla) y @ 0.22 m (tapada).",
+            "2. Acero fy = 4200 kg/cm2 solo con h >= 0.40 m y en tramos tapados: marco 3/8\" @ 0.25 m; longitudinales 3/8\" @ 0.20 m (rejilla) y @ 0.22 m (tapada). h < 0.40 m: concreto simple.",
             "3. Rejilla metalica movil de platinas 1\" x 3/16\" sobre angulos 1\" x 1\" x 3/16\" anclados a los muros (tramos abiertos).",
-            "4. Junta asfaltica e = 1\" entre la cuneta y el piso adyacente. H = NCT - NCF (en la tapada incluye la losa tapa de 0.10 m).",
-            "5. Niveles: NPT +184.65; borde de cuneta +184.60; area verde +184.55; patio de maniobra +184.50 (cuneta al ras)."],
+            "4. Junta asfaltica e = 1\" entre la cuneta y el piso, al mismo nivel. H = NCT - NCF; en la tapada incluye la losa de 0.10 m (libre >= 0.25 m).",
+            "5. Niveles: NPT y borde de cuneta +184.65 (al ras); area verde +184.60; patio de maniobra +184.50 (cuneta al ras)."],
             hmm=1.6, ancho_mm=590)
         lams.append(lam); num += 1
     return lams

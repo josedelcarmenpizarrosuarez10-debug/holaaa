@@ -16,43 +16,43 @@
    "n": 3,
    "comprobacion": "Pendiente minima de la cota de fondo >= 0.5 %",
    "estado": "CUMPLE",
-   "detalle": "minima 0.50 % (EJE-01 P-01-P-02); maxima 20.16 %"
+   "detalle": "minima 0.50 % (EJE-01 P-01-P-02); maxima 2.93 %"
   },
   {
    "n": 4,
-   "comprobacion": "Profundidad: 0.30 m al inicio y >= 0.25 m en todo el recorrido",
+   "comprobacion": "Profundidad: 0.30 m al inicio y altura libre >= 0.25 m en todo el recorrido (bajo la losa en los tapados)",
    "estado": "CUMPLE",
-   "detalle": "inicio 0.30 a 0.30; minima 0.25 (EJE-01); maxima 0.92 (EJE-07, prog 96.2)"
+   "detalle": "inicio 0.30 a 0.30; altura libre minima 0.25 (EJE-17); profundidad maxima 0.92 (EJE-07, prog 96.5)"
   },
   {
    "n": 5,
    "comprobacion": "Empalmes: la cuneta que llega no queda por debajo de la que recibe",
    "estado": "CUMPLE",
-   "detalle": "15 empalmes; caida maxima 0.34 m (EJE-16 en P-44)"
+   "detalle": "15 empalmes; caida maxima 0.42 m (EJE-01 en P-03)"
   },
   {
    "n": 6,
    "comprobacion": "Descargas por el cerco: el agua sale por gravedad al terreno exterior sin obras fuera del cerco",
    "estado": "CUMPLE",
-   "detalle": "D1 C.F. 183.660: pase en el cimiento del cerco; el terreno exterior queda bajo la C.F. a 0.5 m del cerco; D2 C.F. 183.704: pase en el cimiento del cerco; el terreno exterior queda bajo la C.F. a 0.2 m del cerco; D3 C.F. 183.576: pase en el cimiento del cerco; el terreno exterior queda bajo la C.F. a 1.0 m del cerco; D4 C.F. 184.099: pase en el cimiento del cerco; el terreno exterior queda bajo la C.F. a 0.5 m del cerco"
+   "detalle": "D1 C.F. 183.755: pase en el cimiento del cerco; el terreno exterior queda bajo la C.F. a 0.5 m del cerco; D2 C.F. 183.754: pase en el cimiento del cerco; el terreno exterior queda bajo la C.F. a 0.2 m del cerco; D3 C.F. 183.726: pase en el cimiento del cerco; el terreno exterior queda bajo la C.F. a 0.5 m del cerco; D4 C.F. 184.144: pase en el cimiento del cerco; el terreno exterior queda bajo la C.F. a 0.5 m del cerco"
   },
   {
    "n": 7,
-   "comprobacion": "Borde de la cuneta 0.05 m bajo el NPT (+184.65) y 0.05 m sobre el area verde (+184.55)",
+   "comprobacion": "Borde de la cuneta al ras del NPT (+184.65) y 0.05 m sobre el area verde (+184.60)",
    "estado": "CUMPLE",
-   "detalle": "borde de cuneta +184.60 en la red dentro del cerco (NPT +184.65, area verde +184.55); junto al patio de maniobra (NTN +184.50) borde al ras +184.50 en 292 puntos"
+   "detalle": "borde de cuneta +184.65 en la red dentro del cerco (NPT +184.65, area verde +184.60); junto al patio de maniobra (NTN +184.50) borde al ras +184.50 en 292 puntos"
   },
   {
    "n": 8,
    "comprobacion": "Capacidad con el caudal de diseno (borde libre >= 0.05 m)",
    "estado": "CUMPLE",
-   "detalle": "I = 211 mm/h, C = 0.80, area total 9393 m2; menor borde libre 0.115 m en EJE-01 P-03-D1 (Q 190.8 l/s, y 0.135, h 0.25)"
+   "detalle": "I = 211 mm/h, C = 0.80, area total 9393 m2; menor borde libre 0.136 m en EJE-11 P-35-P-26 (Q 16.2 l/s, y 0.064, h 0.20)"
   },
   {
    "n": 9,
    "comprobacion": "Velocidad maxima 3.0 m/s (concreto)",
-   "estado": "CUMPLE CON GRADAS",
-   "detalle": "tramos de fuerte pendiente con V > 3.0 m/s: EJE-01 P-03-D1 (S 8.0 %, V 3.91), EJE-07 P-30-D3 (S 17.2 %, V 4.37) -> gradas (escalones) de concreto"
+   "estado": "CUMPLE",
+   "detalle": "V max 1.84 m/s"
   },
   {
    "n": 10,
@@ -70,10 +70,10 @@
  "descargas": [
   {
    "D": "D1",
-   "cf": 183.66,
+   "cf": 183.755,
    "terreno": 183.91,
    "sale_a_m": 0.5,
-   "corte_max": 0.11,
+   "corte_max": 0.01,
    "tipo": "pase",
    "estado": "SALE POR GRAVEDAD",
    "receptor": "Cerco sur-oeste (lado C22-C1, x = 820.1): al talud natural que baja a la quebrada del oeste",
@@ -130,7 +130,7 @@
   },
   {
    "D": "D2",
-   "cf": 183.704,
+   "cf": 183.754,
    "terreno": 180.55,
    "sale_a_m": 0.25,
    "corte_max": 0,
@@ -190,10 +190,10 @@
   },
   {
    "D": "D3",
-   "cf": 183.576,
+   "cf": 183.726,
    "terreno": 183.83,
-   "sale_a_m": 1.0,
-   "corte_max": 0.16,
+   "sale_a_m": 0.5,
+   "corte_max": 0.01,
    "tipo": "pase",
    "estado": "SALE POR GRAVEDAD",
    "receptor": "Cerco sur junto a C14 (x = 935.5): al terreno exterior que baja al Jr. Alfonso Ugarte (183.00)",
@@ -250,10 +250,10 @@
   },
   {
    "D": "D4",
-   "cf": 184.099,
+   "cf": 184.144,
    "terreno": 184.46,
    "sale_a_m": 0.5,
-   "corte_max": 0.15,
+   "corte_max": 0.1,
    "tipo": "pase",
    "estado": "SALE POR GRAVEDAD",
    "receptor": "Cerco norte (lado C3-C4, x = 911.0): al talud natural que baja a la quebrada del norte",
@@ -330,27 +330,13 @@
    "a": "P-03",
    "A_m2": 553.0,
    "Q_ls": 29.8,
-   "S": 20.16,
-   "y": 0.029,
+   "S": 0.5,
+   "y": 0.097,
    "h": 0.46,
-   "borde_libre": 0.43,
-   "V": 2.82,
+   "borde_libre": 0.362,
+   "V": 0.84,
    "cap": "CUMPLE",
    "vel": "CUMPLE"
-  },
-  {
-   "ramal": "EJE-01",
-   "de": "P-03",
-   "a": "D1",
-   "A_m2": 3539.0,
-   "Q_ls": 190.8,
-   "S": 8.03,
-   "y": 0.135,
-   "h": 0.25,
-   "borde_libre": 0.115,
-   "V": 3.91,
-   "cap": "CUMPLE",
-   "vel": "GRADAS"
   },
   {
    "ramal": "EJE-02",
@@ -419,6 +405,20 @@
    "h": 0.83,
    "borde_libre": 0.493,
    "V": 1.33,
+   "cap": "CUMPLE",
+   "vel": "CUMPLE"
+  },
+  {
+   "ramal": "EJE-02",
+   "de": "P-03",
+   "a": "D1",
+   "A_m2": 3539.0,
+   "Q_ls": 190.8,
+   "S": 0.5,
+   "y": 0.39,
+   "h": 0.79,
+   "borde_libre": 0.402,
+   "V": 1.37,
    "cap": "CUMPLE",
    "vel": "CUMPLE"
   },
@@ -696,8 +696,8 @@
    "Q_ls": 113.3,
    "S": 0.5,
    "y": 0.258,
-   "h": 0.81,
-   "borde_libre": 0.548,
+   "h": 0.71,
+   "borde_libre": 0.448,
    "V": 1.23,
    "cap": "CUMPLE",
    "vel": "CUMPLE"
@@ -710,8 +710,8 @@
    "Q_ls": 114.7,
    "S": 0.5,
    "y": 0.26,
-   "h": 0.85,
-   "borde_libre": 0.586,
+   "h": 0.75,
+   "borde_libre": 0.486,
    "V": 1.23,
    "cap": "CUMPLE",
    "vel": "CUMPLE"
@@ -724,8 +724,8 @@
    "Q_ls": 118.1,
    "S": 0.5,
    "y": 0.266,
-   "h": 0.88,
-   "borde_libre": 0.614,
+   "h": 0.78,
+   "borde_libre": 0.514,
    "V": 1.24,
    "cap": "CUMPLE",
    "vel": "CUMPLE"
@@ -736,13 +736,13 @@
    "a": "D3",
    "A_m2": 2193.0,
    "Q_ls": 118.2,
-   "S": 17.21,
-   "y": 0.075,
-   "h": 0.25,
-   "borde_libre": 0.175,
-   "V": 4.37,
+   "S": 0.5,
+   "y": 0.266,
+   "h": 0.82,
+   "borde_libre": 0.555,
+   "V": 1.24,
    "cap": "CUMPLE",
-   "vel": "GRADAS"
+   "vel": "CUMPLE"
   },
   {
    "ramal": "EJE-08",
@@ -836,8 +836,8 @@
    "Q_ls": 16.2,
    "S": 0.5,
    "y": 0.064,
-   "h": 0.3,
-   "borde_libre": 0.236,
+   "h": 0.2,
+   "borde_libre": 0.136,
    "V": 0.69,
    "cap": "CUMPLE",
    "vel": "CUMPLE"
@@ -892,8 +892,8 @@
    "Q_ls": 60.8,
    "S": 0.5,
    "y": 0.161,
-   "h": 0.57,
-   "borde_libre": 0.412,
+   "h": 0.52,
+   "borde_libre": 0.362,
    "V": 1.05,
    "cap": "CUMPLE",
    "vel": "CUMPLE"
@@ -906,8 +906,8 @@
    "Q_ls": 100.8,
    "S": 0.5,
    "y": 0.235,
-   "h": 0.62,
-   "borde_libre": 0.382,
+   "h": 0.57,
+   "borde_libre": 0.332,
    "V": 1.19,
    "cap": "CUMPLE",
    "vel": "CUMPLE"
@@ -920,8 +920,8 @@
    "Q_ls": 127.3,
    "S": 0.5,
    "y": 0.282,
-   "h": 0.68,
-   "borde_libre": 0.394,
+   "h": 0.63,
+   "borde_libre": 0.344,
    "V": 1.26,
    "cap": "CUMPLE",
    "vel": "CUMPLE"
@@ -934,8 +934,8 @@
    "Q_ls": 134.1,
    "S": 0.5,
    "y": 0.294,
-   "h": 0.72,
-   "borde_libre": 0.425,
+   "h": 0.57,
+   "borde_libre": 0.275,
    "V": 1.28,
    "cap": "CUMPLE",
    "vel": "CUMPLE"
@@ -948,8 +948,8 @@
    "Q_ls": 134.8,
    "S": 0.5,
    "y": 0.295,
-   "h": 0.78,
-   "borde_libre": 0.486,
+   "h": 0.63,
+   "borde_libre": 0.336,
    "V": 1.28,
    "cap": "CUMPLE",
    "vel": "CUMPLE"
@@ -962,8 +962,8 @@
    "Q_ls": 163.3,
    "S": 0.5,
    "y": 0.344,
-   "h": 0.79,
-   "borde_libre": 0.449,
+   "h": 0.64,
+   "borde_libre": 0.299,
    "V": 1.33,
    "cap": "CUMPLE",
    "vel": "CUMPLE"
@@ -1004,8 +1004,8 @@
    "Q_ls": 25.9,
    "S": 0.5,
    "y": 0.088,
-   "h": 0.39,
-   "borde_libre": 0.297,
+   "h": 0.35,
+   "borde_libre": 0.262,
    "V": 0.81,
    "cap": "CUMPLE",
    "vel": "CUMPLE"
@@ -1018,8 +1018,8 @@
    "Q_ls": 26.3,
    "S": 0.5,
    "y": 0.089,
-   "h": 0.4,
-   "borde_libre": 0.311,
+   "h": 0.35,
+   "borde_libre": 0.261,
    "V": 0.81,
    "cap": "CUMPLE",
    "vel": "CUMPLE"
@@ -1032,8 +1032,8 @@
    "Q_ls": 36.3,
    "S": 0.5,
    "y": 0.112,
-   "h": 0.41,
-   "borde_libre": 0.293,
+   "h": 0.35,
+   "borde_libre": 0.243,
    "V": 0.9,
    "cap": "CUMPLE",
    "vel": "CUMPLE"
@@ -1046,8 +1046,8 @@
    "Q_ls": 37.4,
    "S": 0.5,
    "y": 0.114,
-   "h": 0.5,
-   "borde_libre": 0.388,
+   "h": 0.45,
+   "borde_libre": 0.338,
    "V": 0.91,
    "cap": "CUMPLE",
    "vel": "CUMPLE"
@@ -1072,11 +1072,11 @@
    "a": "P-53",
    "A_m2": 430.0,
    "Q_ls": 23.2,
-   "S": 0.5,
-   "y": 0.082,
-   "h": 0.36,
-   "borde_libre": 0.283,
-   "V": 0.78,
+   "S": 0.57,
+   "y": 0.078,
+   "h": 0.35,
+   "borde_libre": 0.273,
+   "V": 0.82,
    "cap": "CUMPLE",
    "vel": "CUMPLE"
   },
@@ -1088,8 +1088,8 @@
    "Q_ls": 24.5,
    "S": 0.5,
    "y": 0.085,
-   "h": 0.38,
-   "borde_libre": 0.298,
+   "h": 0.35,
+   "borde_libre": 0.266,
    "V": 0.79,
    "cap": "CUMPLE",
    "vel": "CUMPLE"
@@ -1130,8 +1130,8 @@
    "Q_ls": 28.5,
    "S": 0.5,
    "y": 0.094,
-   "h": 0.45,
-   "borde_libre": 0.356,
+   "h": 0.4,
+   "borde_libre": 0.306,
    "V": 0.83,
    "cap": "CUMPLE",
    "vel": "CUMPLE"
@@ -1142,11 +1142,11 @@
    "a": "P-58",
    "A_m2": 263.0,
    "Q_ls": 14.2,
-   "S": 0.5,
-   "y": 0.059,
-   "h": 0.3,
-   "borde_libre": 0.241,
-   "V": 0.66,
+   "S": 0.51,
+   "y": 0.058,
+   "h": 0.2,
+   "borde_libre": 0.142,
+   "V": 0.67,
    "cap": "CUMPLE",
    "vel": "CUMPLE"
   },
@@ -1159,7 +1159,7 @@
    "S": 0.5,
    "y": 0.106,
    "h": 0.5,
-   "borde_libre": 0.39,
+   "borde_libre": 0.395,
    "V": 0.88,
    "cap": "CUMPLE",
    "vel": "CUMPLE"
@@ -1172,8 +1172,8 @@
    "Q_ls": 34.1,
    "S": 0.5,
    "y": 0.107,
-   "h": 0.5,
-   "borde_libre": 0.391,
+   "h": 0.4,
+   "borde_libre": 0.296,
    "V": 0.88,
    "cap": "CUMPLE",
    "vel": "CUMPLE"
@@ -1237,75 +1237,75 @@
  ],
  "empalmes": [
   [
-   "EJE-02",
    "EJE-01",
+   "EJE-02",
    "P-03",
-   183.708,
-   183.708,
-   0.0
+   184.18,
+   183.758,
+   0.42199999999999704
   ],
   [
    "EJE-03",
    "EJE-02",
    "P-06",
-   184.138,
-   184.08,
+   184.188,
+   184.13,
    0.057999999999992724
   ],
   [
    "EJE-04",
    "EJE-02",
    "P-07",
-   183.826,
-   183.826,
+   183.876,
+   183.876,
    0.0
   ],
   [
    "EJE-05",
    "EJE-02",
    "P-08",
-   183.85,
-   183.768,
+   183.9,
+   183.818,
    0.08199999999999363
   ],
   [
    "EJE-06",
    "EJE-04",
    "P-12",
-   184.241,
-   184.122,
+   184.291,
+   184.172,
    0.11899999999999977
   ],
   [
    "EJE-08",
    "EJE-07",
    "P-23",
-   184.102,
-   184.102,
+   184.152,
+   184.152,
    0.0
   ],
   [
    "EJE-09",
    "EJE-07",
    "P-24",
-   184.121,
-   184.012,
-   0.10900000000000887
+   184.171,
+   184.062,
+   0.10899999999998045
   ],
   [
    "EJE-10",
    "EJE-07",
    "P-25",
-   184.115,
-   183.868,
-   0.2470000000000141
+   184.165,
+   183.918,
+   0.24699999999998568
   ],
   [
    "EJE-11",
    "EJE-07",
    "P-26",
-   184.148,
-   183.809,
+   184.198,
+   183.859,
    0.33899999999999864
   ],
   [
@@ -1313,48 +1313,48 @@
    "EJE-12",
    "P-39",
    184.078,
-   183.927,
-   0.15100000000001046
+   183.977,
+   0.10099999999999909
   ],
   [
    "EJE-14",
    "EJE-12",
    "P-40",
-   183.972,
-   183.883,
+   184.022,
+   183.933,
    0.08899999999999864
   ],
   [
    "EJE-15",
    "EJE-12",
    "P-41",
-   184.091,
-   183.824,
-   0.2669999999999959
+   184.123,
+   183.874,
+   0.24899999999999523
   ],
   [
    "EJE-16",
    "EJE-12",
    "P-44",
-   184.05,
-   183.707,
-   0.34300000000001774
+   184.1,
+   183.757,
+   0.3429999999999893
   ],
   [
    "EJE-18",
    "EJE-17",
    "P-58",
-   184.104,
-   184.104,
-   0.0
+   184.154,
+   184.149,
+   0.0049999999999954525
   ],
   [
    "EJE-19",
    "EJE-18",
    "P-61",
-   184.231,
-   184.114,
-   0.11699999999999022
+   184.281,
+   184.164,
+   0.11700000000001864
   ]
  ],
  "hidrologia": {

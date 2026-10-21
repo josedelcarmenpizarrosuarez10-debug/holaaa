@@ -135,7 +135,7 @@ def main():
     notas = ["Planteamiento preliminar: ejes de cuneta en las lineas magenta del plano PLANTA_GENERAL_590 ULTIMA VERSION (lados de cada bloque, techos a dos aguas) y uniones hasta las descargas.",
              "Sentidos de flujo y descargas segun las curvas de nivel C-TOPO del mismo plano. Techos a dos aguas: cada alero descarga a su lado.",
              "Area de intervencion = interior del cerco perimetrico: todas las cunetas quedan dentro del cerco (las perimetrales a 0.60 m de su eje).",
-             "Interior del cerco nivelado: pisos y pasadizos NPT +184.65; borde de cuneta +184.60; areas verdes +184.55; patio de maniobra +184.50 (cuneta al ras, con rejilla). Fuera del cerco, el terreno natural.",
+             "Interior del cerco nivelado: pisos y pasadizos NPT +184.65; borde de cuneta +184.65 (al ras del piso); areas verdes +184.60; patio de maniobra +184.50 (cuneta al ras, con rejilla). Fuera del cerco, el terreno natural.",
              "D1, D2, D3 y D4 salen por un pase en el cimiento del cerco. Fuera del cerco no hay obra.",
              "Tramos de fuerte pendiente con V > 3.0 m/s: gradas de concreto (hoja HIDRAULICA). Verificacion completa en la hoja VERIFICACION.",
              "Ver planos PLANTEAMIENTO_CUNETAS_IE0590_BARRANQUITA.dxf: " + laminas_txt() + "."]

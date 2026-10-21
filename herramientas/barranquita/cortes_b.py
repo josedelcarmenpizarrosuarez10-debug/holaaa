@@ -3,7 +3,7 @@
 Cortes por las descargas (CORTES_D, 1/100, H = V): cuneta en su eje (losa de fondo, rasante,
 gradas) hasta el cerco perimetrico (limite de intervencion), pase en el cimiento del cerco o poza de salida, y el agua
 que sigue sobre el terreno natural exterior (fuera del cerco no se dibuja ninguna obra).
-Cortes generales: E-E (norte-sur) y F-F (oeste-este) a 1/250 (H = V): terreno natural, interior nivelado (borde de cuneta +184.60, NPT +184.65),
+Cortes generales: E-E (norte-sur) y F-F (oeste-este) a 1/250 (H = V): terreno natural, interior nivelado (borde de cuneta al ras del NPT +184.65),
 bloques con techo a dos aguas y cada cuneta cortada con su cota de fondo.
 Lo usa planos_b.py.
 """
@@ -317,7 +317,7 @@ def cola(R, cod, largo, ext, u_ext=None):
 
 
 CORTES_D = [  # (letra, descarga, ramal, m de cuneta antes del cerco, m de terreno exterior, descripcion del receptor)
-    ("A", "D1", "EJE-01", 26.0, 8.0, "el agua sigue por el talud natural a la quebrada del oeste"),
+    ("A", "D1", "EJE-02", 26.0, 8.0, "el agua sigue por el talud natural a la quebrada del oeste"),
     ("B", "D2", "EJE-12", 24.0, 12.0, "el agua sigue por el terreno natural que baja a la quebrada del norte"),
     ("C", "D3", "EJE-07", 25.0, 8.0, "el agua sigue por el terreno exterior que baja a la calle (183.00)"),
     ("D", "D4", "EJE-17", 25.0, 8.0, "el agua sigue por el talud natural a la quebrada del norte")]
@@ -353,7 +353,7 @@ def dc10(doc, R, V, ox, oy, codigo="DC-09"):
     corte(lam, R, V, camF, 40, 175, "CORTE F-F (y = 9249846): QUEBRADA OESTE - PABELLONES OESTE - PATIO CENTRAL - BLOQUE NOR-ESTE - CERCO ESTE",
           zmin=178.0, zmax=190.0, paso_z=1.0, txt_h=1.6, marcas=[(5.0, "QUEBRADA (OESTE)"), (168.0, "HONDONADA: CABECERA DE QUEBRADA")])
     lam.notas(30, 100, "NOTAS", ["1. Escala real 1/250 sin exageracion vertical. Terreno natural (curvas C-TOPO) en linea discontinua;",
-                                 "   suelo terminado relleno: interior nivelado (borde de cuneta +184.60, NPT +184.65, area verde +184.55, patio de maniobra +184.50); fuera, terreno natural.",
+                                 "   suelo terminado relleno: interior nivelado (NPT y borde de cuneta +184.65, area verde +184.60, patio de maniobra +184.50); fuera, terreno natural.",
                                  "2. Cada cuneta cortada se dibuja a escala con su cota de fondo (C.F.) y su profundidad h.",
                                  "3. Altura de bloques referencial: alero 3.00 m sobre el NPT, cumbrera 1.10 m mas arriba (techos a dos aguas).",
                                  "4. Cerco perimetrico = limite de intervencion: todas las cunetas quedan dentro del cerco."],

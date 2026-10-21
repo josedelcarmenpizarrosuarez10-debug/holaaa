@@ -41,7 +41,7 @@ CAPAS_EXTRA = [("CURVAS", 33, "CONTINUOUS"), ("CURVAS-TXT", 33, "CONTINUOUS"), (
 RGB_EXTRA = {"CURVAS": (176, 136, 96), "CURVAS-TXT": (150, 110, 70), "CUNETA-REJILLA": (232, 232, 232), "CUNETA-TAPADO": (160, 160, 160)}
 
 
-DS_NIV = "Interior del cerco nivelado: pisos y pasadizos NPT +184.65; borde de cuneta +184.60; areas verdes +184.55; patio de maniobra +184.50 (cuneta al ras, con rejilla)."
+DS_NIV = "Interior del cerco nivelado: pisos y pasadizos NPT +184.65; borde de cuneta +184.65 (al ras del piso); areas verdes +184.60; patio de maniobra +184.50 (cuneta al ras, con rejilla)."
 
 def preparar(doc):
     for n, c, lt in CAPAS_EXTRA:
@@ -320,13 +320,14 @@ def dc02(doc, R, ox, oy):
               hmm=1.8, alto_mm=5.6, titulo="RESUMEN POR SISTEMA")
     # secciones tipicas a 1/5 debajo de los cuadros
     seccion(lam, *lam.P(300, 172), 0.30, False, "SECCION TIPICA CON REJILLA")
-    seccion(lam, *lam.P(520, 172), 0.30, True, "SECCION EN TRAMO TAPADO")
+    seccion(lam, *lam.P(520, 172), 0.40, True, "SECCION EN TRAMO TAPADO")
     lam.notas(300, 128, "NOTAS DE LAS SECCIONES", [
         "1. Concreto f'c = 175 kg/cm2 en muros y losa de fondo; juntas de dilatacion cada 3.00 m con sellador asfaltico.",
         "2. Rejilla metalica: platinas 1\" x 3/16\" sobre marco de angulo 1\" x 1\" x 3/16\" anclado a los muros.",
         "3. Tramo tapado: losa de concreto armado e = 0.10 m (acero 3/8\") apoyada en el rebaje de los muros, al nivel de la vereda.",
         "4. h = profundidad libre desde la rasante hasta la cota de fondo: 0.30 m al inicio; variable segun el cuadro de tramos.",
-        "5. Secciones dibujadas con h = 0.30 m; los valores de cada tramo estan en el cuadro y en los perfiles."], hmm=1.6, ancho_mm=330)
+        "5. Secciones dibujadas con h = 0.30 m (rejilla) y h = 0.40 m (tapada: 0.30 libre bajo la losa; minimo 0.25 libre); valores de cada tramo en el cuadro y los perfiles.",
+        "6. Acero solo en cunetas con h >= 0.40 m (de la rejilla al fondo) y en tramos tapados; con h < 0.40 m, concreto simple. Corte de cada seccion en DC-12 en adelante."], hmm=1.6, ancho_mm=330)
     return lam
 
 

@@ -7,7 +7,7 @@
 5. Empalmes: la cuneta que llega lo hace a la misma cota o por encima de la que recibe (no remansa).
 6. Descargas por el cerco: el terreno exterior no queda sobre la cota de fondo de la descarga (no se excava fuera del
    cerco) y baja por debajo de ella a pocos metros (el agua se aleja sola por la pendiente natural).
-7. Niveles: borde de la cuneta +184.60, 0.05 m bajo el NPT +184.65 y 0.05 m sobre el area verde +184.55.
+7. Niveles: borde de la cuneta al ras del piso (NPT +184.65) y 0.05 m sobre el area verde (+184.60); al ras del patio de maniobra (+184.50).
 8. Capacidad: tirante normal con el caudal de diseno <= h - 0.05 m (borde libre) en cada tramo.
 9. Velocidad: V <= 3.0 m/s (concreto, CE.040); los tramos que pasan se resuelven con gradas o caidas.
 10. Interferencias: el eje de la cuneta no corta muros de los bloques (distancia al muro >= 0.30 m).
@@ -88,11 +88,13 @@ def main():
                                                      100 * max(t["S"] for r in ram.values() for t in r["tramos"])))
     # 4 profundidades
     h0 = [round(r["perfil"][0][1] - r["perfil"][0][2], 3) for r in ram.values()]
-    hmin = min(((p[1] - p[2], c, p[0]) for c, r in ram.items() for p in r["perfil"]), key=lambda e: e[0])
+    def libre(r, p):                                     # altura libre: en tramo tapado, bajo la losa de 0.10 m
+        return p[1] - p[2] - (DS.E_TAPA if any(a - 1e-6 <= p[0] <= b + 1e-6 for a, b in r["tapados"]) else 0.0)
+    hmin = min(((libre(r, p), c, p[0]) for c, r in ram.items() for p in r["perfil"]), key=lambda e: e[0])
     hmax = max(((p[1] - p[2], c, p[0]) for c, r in ram.items() for p in r["perfil"]), key=lambda e: e[0])
-    ok(4, "Profundidad: 0.30 m al inicio y >= 0.25 m en todo el recorrido",
+    ok(4, "Profundidad: 0.30 m al inicio y altura libre >= 0.25 m en todo el recorrido (bajo la losa en los tapados)",
        "CUMPLE" if min(h0) >= DS.H0 - 1e-3 and hmin[0] >= DS.HMIN - 1e-3 else "NO CUMPLE",
-       "inicio %.2f a %.2f; minima %.2f (%s); maxima %.2f (%s, prog %.1f)" % (min(h0), max(h0), hmin[0], hmin[1], hmax[0], hmax[1], hmax[2]))
+       "inicio %.2f a %.2f; altura libre minima %.2f (%s); profundidad maxima %.2f (%s, prog %.1f)" % (min(h0), max(h0), hmin[0], hmin[1], hmax[0], hmax[1], hmax[2]))
     # 5 empalmes
     emp = []
     for c, r in ram.items():
@@ -167,18 +169,18 @@ def main():
             if not Path(DS.CERCO).contains_point((x, y)): continue          # rotulos de areas exteriores al cerco
             dd = np.hypot(pts[:, 0] - x, pts[:, 1] - y); k = int(dd.argmin())
             if dd[k] < 5: npt.append((round(ntn + rel, 2), round(float(ras[k]), 2), round(float(dd[k]), 1)))
-    # niveles del usuario (20-10-2026): pisos y pasadizos +184.65, borde de cuneta +184.60, areas verdes +184.55 (interior nivelado)
-    altos = [float(r) for r in ras if r > DS.NPT - 0.05 + 0.005 and r < 900]
+    # niveles del usuario (21-10-2026): pisos y pasadizos +184.65, borde de cuneta +184.65 (al ras), areas verdes +184.60
+    altos = [float(r) for r in ras if r > DS.NPT + 0.005 and r < 900]
     pat = Path(DS.PATIO)
     altos += [float(r) for p, r in zip(pts, ras) if pat.contains_point(p) and r > DS.NIVEL_PATIO + 0.005]
     n_pat = sum(1 for p in pts if pat.contains_point(p))
     difer = sorted({n[0] for n in npt if abs(n[0] - DS.NPT) > 0.005 and abs(n[0] - DS.NIVEL_PATIO) > 0.005})
-    ok(7, "Borde de la cuneta 0.05 m bajo el NPT (+%.2f) y 0.05 m sobre el area verde (+%.2f)" % (DS.NPT, DS.NIVEL_AV),
+    ok(7, "Borde de la cuneta al ras del NPT (+%.2f) y 0.05 m sobre el area verde (+%.2f)" % (DS.NPT, DS.NIVEL_AV),
        "CUMPLE" if not altos else "NO CUMPLE",
        ("borde de cuneta +%.2f en la red dentro del cerco (NPT +%.2f, area verde +%.2f); junto al patio de maniobra (NTN +%.2f) "
         "borde al ras +%.2f en %d puntos" % (DS.RASANTE, DS.NPT, DS.NIVEL_AV, DS.NIVEL_PATIO, DS.RAS_PATIO, n_pat)
         + ("; rotulos del plano de arquitectura con otro nivel junto a cunetas: %s (se toma +%.2f segun el usuario)"
-           % (", ".join("%.2f" % v for v in difer), DS.NPT) if difer else "")) if not altos else "borde sobre NPT - 0.05: %d puntos" % len(altos))
+           % (", ".join("%.2f" % v for v in difer), DS.NPT) if difer else "")) if not altos else "borde sobre el NPT: %d puntos" % len(altos))
     # 8 y 9 capacidad y velocidad con el caudal de diseno
     cel = []; ce = Path(DS.CERCO)
     xs = np.arange(354805, 354985, 1.0) + 0.5; ys = np.arange(9249775, 9249890, 1.0) + 0.5
@@ -207,7 +209,7 @@ def main():
         for j, t in enumerate(r["tramos"]):
             Q = C_ESC * I_MMH * Ac[j] / 3.6e6 * FS
             S = max(t["S"], DS.S0); y = yn(Q, S, N_CAP); yv = yn(Q, S, N_VEL); V = Q / (DS.B_INT * yv)
-            hdisp = min(t["h_de"], t["h_a"]); llen = y / hdisp
+            hdisp = min(t["h_de"], t["h_a"]) - (DS.E_TAPA if t["L_tapado"] > 0 else 0.0); llen = y / hdisp   # en tapado, altura libre bajo la losa
             f = {"ramal": c, "de": nom[t["de"]], "a": nom[t["a"]], "A_m2": round(Ac[j], 0), "Q_ls": round(1000 * Q, 1), "S": round(100 * S, 2),
                  "y": round(y, 3), "h": round(hdisp, 2), "borde_libre": round(hdisp - y, 3), "V": round(V, 2),
                  "cap": "CUMPLE" if hdisp - y >= DS.BL - 1e-3 else "NO CUMPLE", "vel": "CUMPLE" if V <= VMAX or t["a"] in DS.POZA else "GRADAS"}     # en la poza el agua se remansa
