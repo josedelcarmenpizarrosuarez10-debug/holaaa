@@ -63,7 +63,7 @@ def construir():
     cabecera(wd, "DATOS GENERALES Y PARAMETROS DE DISENO", 4)
     datos = [("Precipitacion media anual - estacion CO Tarapoto (mm)", H.P_ANUAL_TARAPOTO, "0.0", "SENAMHI (dato de la estacion)"),
              ("Precipitacion media anual - llanura Caynarachi - Huallaga, Barranquita (mm)", H.P_ANUAL_BARRANQUITA, "0.0",
-              "Yurimaguas, 184 m s. n. m. (SENAMHI); dentro del rango 1,800 - 2,400 mm de la memoria de arquitectura"),
+              "Promedio de Navarro (2,349.79), Pelejo (2,332.92) y Shanusi (2,444.00), SENAMHI 2013-2017 (estudio hidrologico de Barranquita)"),
              ("Factor de transposicion Pa Barranquita / Pa Tarapoto", "=B6/B5", "0.0000", "MTC Manual de Hidrologia: transposicion de datos"),
              ("Periodo de retorno de diseno T (anos)", H.T_DISENO, "0", "Mismo criterio de los proyectos de Morales (T = 25 anos)"),
              ("Tiempo de concentracion de cunetas tc (min)", H.TC, "0.0", "Duracion minima (OS.060)"),

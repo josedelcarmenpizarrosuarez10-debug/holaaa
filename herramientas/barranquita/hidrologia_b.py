@@ -6,6 +6,9 @@
    transposicion de informacion pluviometrica): factor = P anual Barranquita / P anual Tarapoto. La llanura del Caynarachi -
    Huallaga (184 m s. n. m.) se representa con la precipitacion media anual de Yurimaguas (2,039.6 mm, misma altitud y misma
    fuente que Tarapoto, 1,073.1 mm); queda dentro del rango 1,800 - 2,400 mm/ano de la memoria de arquitectura del proyecto.
+   Actualizado (usuario, opcion A): la precipitacion anual de Barranquita es el promedio de las estaciones de llanura Navarro,
+   Pelejo y Shanusi (SENAMHI, 2013-2017) del estudio hidrologico del expediente de agua potable y alcantarillado de Barranquita:
+   2,375.6 mm; Pongo de Caynarachi (3,853.2 mm, al pie de los cerros, lluvia orografica) no se usa.
 3. Analisis de frecuencias (Normal, Log-Normal, Log-Pearson III, Gumbel), prueba de Kolmogorov-Smirnov y periodo de retorno
    T = 25 anos (mismo criterio de los proyectos de Morales).
 4. Lluvias de corta duracion por Dick y Peschke, intensidades, curvas IDF (I = K T^m / t^n) e intensidad de diseno con tc = 10 min.
@@ -49,10 +52,18 @@ SERIE = {
     2024: [57.8, 72.2, 30.8, 34.5, 16.4, 10.4, 6.0, None, None, None, None, None],
 }
 P_ANUAL_TARAPOTO = 1073.1         # mm/ano, estacion Tarapoto (SENAMHI)
-P_ANUAL_BARRANQUITA = 2039.6      # mm/ano, llanura Caynarachi - Huallaga (Yurimaguas, 184 m s. n. m.; SENAMHI)
-FUENTE_ANUAL = ("Precipitacion media anual de las estaciones Tarapoto (1,073.1 mm) y Yurimaguas (2,039.6 mm), datos SENAMHI "
-                "reportados en la Disertacion de Maestria USP (teses.usp.br, tde-20191218-125548); rango 1,800 - 2,400 mm/ano "
-                "de la memoria descriptiva de arquitectura del proyecto")
+# estaciones SENAMHI de la zona: precipitacion total anual promedio 2013-2017 (Cuadro N° 05 del estudio hidrologico del expediente
+# "Creacion del sistema de agua potable, alcantarillado sanitario y UBS en ... Barranquita ... distrito de Barranquita", Municipalidad
+# Distrital de Barranquita)
+ESTACIONES_ZONA = [("San Antonio", "153314", "San Martin / San Antonio", 430, 1834.84, False),
+                   ("Pongo de Caynarachi", "003317", "Lamas / Caynarachi", 230, 3853.16, False),
+                   ("Navarro", "000386", "San Martin / Chipurana", 130, 2349.79, True),
+                   ("Pelejo", "153322", "San Martin / El Porvenir", 100, 2332.92, True),
+                   ("Shanusi", "153315", "Alto Amazonas / Yurimaguas", 160, 2444.00, True)]
+P_ANUAL_BARRANQUITA = round(sum(e[4] for e in ESTACIONES_ZONA if e[5]) / sum(1 for e in ESTACIONES_ZONA if e[5]), 2)   # 2,375.57 mm
+FUENTE_ANUAL = ("Tarapoto: precipitacion media anual de 1,073.1 mm (SENAMHI). Barranquita: promedio de las estaciones de llanura Navarro, "
+                "Pelejo y Shanusi (SENAMHI, 2013-2017), Cuadro N° 05 del estudio hidrologico del expediente de agua potable y alcantarillado "
+                "sanitario del distrito de Barranquita (Municipalidad Distrital de Barranquita)")
 FACTOR = P_ANUAL_BARRANQUITA / P_ANUAL_TARAPOTO
 T_DISENO = 25                     # anos
 TC = 10.0                         # min (cunetas: tiempo de concentracion minimo)

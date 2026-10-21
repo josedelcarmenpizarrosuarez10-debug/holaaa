@@ -106,15 +106,26 @@ def hidrologica(D, c):
     # ---------------------------------------------------------------- 4
     D.h(1, "Transposición de la información a Barranquita")
     D.p("Barranquita (184 m s. n. m.) se encuentra en la llanura del Caynarachi - Huallaga, con un régimen de lluvias mayor que el de Tarapoto "
-        "(356 m s. n. m.). En la zona, la estación Pongo de Caynarachi del SENAMHI figura entre las más lluviosas del país (185.2 mm en un día "
-        "en noviembre de 2023 y 400.1 mm en una semana en enero de 2023). Para no subestimar las lluvias de diseño, la serie de Tarapoto se "
+        "(356 m s. n. m.): las estaciones del SENAMHI de la llanura registran de 2,333 a 2,444 mm al año, más del doble que Tarapoto. Para no "
+        "subestimar las lluvias de diseño, la serie de Tarapoto se "
         "transpone con la relación de precipitaciones medias anuales (Manual de Hidrología, Hidráulica y Drenaje del MTC, transposición de "
         "información pluviométrica):")
     D.formula("P (Barranquita) = P (Tarapoto) × Pa (Barranquita) / Pa (Tarapoto)")
+    D.p("La precipitación media anual de Barranquita se obtiene de las estaciones del SENAMHI de la zona, presentadas en el estudio "
+        "hidrológico del expediente de agua potable, alcantarillado sanitario y unidades básicas de saneamiento del distrito de Barranquita "
+        "(Municipalidad Distrital de Barranquita). Se adopta el promedio de las estaciones de llanura (Navarro, Pelejo y Shanusi, de 100 a "
+        "160 m s. n. m.), de altitud y relieve similares a los del local (184 m s. n. m.). La estación Pongo de Caynarachi se excluye porque "
+        "está al pie de los cerros, a la salida del pongo, y registra lluvias orográficas mayores que las de la llanura; San Antonio (430 m "
+        "s. n. m.) pertenece a la provincia de San Martín, fuera de la llanura.")
+    D.tabla("Precipitación total anual de las estaciones de la zona (promedio 2013-2017)", ["Estación SENAMHI", "Código", "Provincia / distrito", "Altitud (m s. n. m.)", "P anual (mm)", "Uso"],
+            [[e[0], e[1], e[2], e[3], mil(e[4]), "Se usa" if e[5] else "No se usa"] for e in H.ESTACIONES_ZONA] +
+            [["Promedio adoptado (Navarro, Pelejo y Shanusi)", "", "", "", mil(H.P_ANUAL_BARRANQUITA), ""]],
+            [4, 1.6, 3.8, 2, 2, 2], tam=8, total=True,
+            fuente="Estudio hidrológico, Cuadro N° 05, expediente de agua potable y alcantarillado sanitario del distrito de Barranquita (SENAMHI, 2013-2017).")
     D.tabla("Factor de transposición", ["Concepto", "Valor", "Fuente"],
             [["Precipitación media anual en Tarapoto (Pa)", "%s mm" % mil(H.P_ANUAL_TARAPOTO, 1), "SENAMHI"],
-             ["Precipitación media anual en la llanura del Caynarachi - Huallaga (Pa)", "%s mm" % mil(H.P_ANUAL_BARRANQUITA, 1),
-              "SENAMHI, estación Yurimaguas (184 m s. n. m.); dentro del rango 1,800 - 2,400 mm de la memoria de arquitectura"],
+             ["Precipitación media anual en la llanura de Barranquita (Pa)", "%s mm" % mil(H.P_ANUAL_BARRANQUITA, 1),
+              "Promedio de las estaciones de llanura Navarro, Pelejo y Shanusi (SENAMHI, 2013-2017)"],
              ["Factor de transposición", "%.4f" % HID["factor"], "Pa Barranquita / Pa Tarapoto"]], [6.5, 2.5, 6.5],
             fuente=H.FUENTE_ANUAL + ".")
     D.figura(fig("fig_serie.png"), "Precipitación máxima anual en 24 h: Tarapoto y serie transpuesta a Barranquita.", 15.5)
@@ -227,7 +238,7 @@ def hidrologica(D, c):
         "libre mínimo de %.3f m y velocidad máxima de %.2f m/s." % (c["Qmax"], c["BLmin"], c["Vmax"]),
         "Las cuatro descargas funcionan por gravedad. Se recomienda proteger contra la erosión la salida D2 y perfilar el terreno al pie del cerco en D1, D3 y D4.",
         "Las canaletas y montantes de las coberturas deben entregar a las cunetas en los tramos con rejilla, y las rejillas deben limpiarse antes y durante la temporada de lluvias.",
-        "Si el SENAMHI pone a disposición la serie de precipitación máxima en 24 horas de la estación Pongo de Caynarachi, conviene contrastarla con la serie transpuesta."])
+        "Si el SENAMHI pone a disposición la serie de precipitación máxima en 24 horas de las estaciones Navarro, Pelejo o Shanusi, conviene contrastarla con la serie transpuesta."])
     D.h(1, "Anexos")
     D.vinetas(["Memoria de cálculo hidrológico e hidráulico (Excel): MEMORIA_CALCULO_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.xlsx.",
                "Planos de drenaje pluvial DC-01 a DC-19 (PLANTEAMIENTO_CUNETAS_IE0590_BARRANQUITA.dxf)."])

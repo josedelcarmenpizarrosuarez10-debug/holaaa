@@ -357,3 +357,12 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   f'c 175 150.74 m3, acero 6,545 kg, rejilla 924.82 m, 10 tapas, juntas 547.80 m y junta con el piso 748.76 m). Figuras en figuras_memoria/.
 - Fuera del alcance (no metrado): canaletas y montantes de las coberturas (especialidad de techos) y la proteccion de la entrega D2
   fuera del cerco (recomendacion).
+
+## 21-10-2026 – Barranquita: lluvia anual con las estaciones de la llanura (opcion A del usuario)
+- Insumos del usuario: estudio hidrologico del expediente de agua potable y alcantarillado del distrito de Barranquita (Cuadro N° 05,
+  SENAMHI 2013-2017: San Antonio 1,834.84; Pongo de Caynarachi 3,853.16; Navarro 2,349.79; Pelejo 2,332.92; Shanusi 2,444.00 mm/ano)
+  y memoria descriptiva del drenaje de Santiago de Borja (estacion CO Juan Guerra, sin datos). Ninguno trae serie de Pmax 24 h.
+- Opcion A aprobada: Pa Barranquita = promedio de Navarro, Pelejo y Shanusi (llanura, 100-160 m) = 2,375.57 mm; Pongo de Caynarachi
+  (pie de cerros, lluvia orografica) y San Antonio no se usan. Factor 2.2137; P24 T25 = 269.62 mm; I (tc 10 min) = 467.00 mm/h.
+- Cunetas 0.40 / 0.60 siguen cumpliendo en los 91 tramos (Q max 264.7 l/s, borde libre min 0.110 m, V max 1.82 m/s); diseno.json,
+  planos, metrado y especificaciones sin cambios de cantidades. Actualizadas las memorias hidrologica, descriptiva y de calculo.
