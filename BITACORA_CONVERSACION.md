@@ -482,3 +482,11 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Salida: entregables_mujeres/INDICE_DE_PLANOS_DRENAJE_PLUVIAL_CAR_MUJERES.docx (encabezado con logo y proyecto de la plantilla IISS de
   Wilma, especialidad DRENAJE PLUVIAL; 46 laminas en el orden del juego: 3 A0, 15 A1, 21 A2, 7 A3; 2 paginas).
 - Observacion para el usuario: las laminas 45 y 46 tienen el mismo codigo DI-CBCB en el rotulo.
+
+## 21-10-2026 – Caratulas de los documentos del CAR Mujeres (Wilma, CUI 2717013) en un solo Word
+- Pedido: caratulas de los 6 documentos de la carpeta de entrega (metrados, memoria hidrologica, memoria descriptiva, memoria de calculo del
+  colector, memoria de calculo del drenaje interno, especificaciones tecnicas), con "servicio para elaboracion de expediente tecnico".
+- herramientas/mujeres/caratulas_m.py: copia 6 veces la caratula de la plantilla de Wilma (insumos/wilma/MEMORIA_IISS_CAR_MUJERES.docx, solo
+  lectura; la misma de la memoria descriptiva): recuadro con el titulo de cada documento, "SERVICIO DE DISEÑO DE DRENAJE PLUVIAL PARA
+  ELABORACIÓN DEL EXPEDIENTE TÉCNICO DE PI:", nombre del proyecto con CUI 2717013 y fecha SEPTIEMBRE- 2026; encabezado DRENAJE PLUVIAL.
+- Salida: entregables_mujeres/CARATULAS_DRENAJE_PLUVIAL_CAR_MUJERES.docx (6 paginas).
