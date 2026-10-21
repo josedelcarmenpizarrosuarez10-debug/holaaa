@@ -309,3 +309,18 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Donde un empalme obliga a bajar, el fondo baja parejo desde el nudo anterior (sin escalon). Pendiente maxima 2.93 %, V max 1.84 m/s,
   sin gradas. 11 de 11 comprobaciones.
 - Acero solo con h >= 0.40 m (rejilla - fondo) o en tramo tapado; menor: concreto simple (36 de 96 secciones).
+
+## 21-10-2026 – Barranquita: quiebres a 45 grados en planta y detalle de cada descarga
+- Usuario: "en la vista en planta si va a haber quiebres; donde hay de 90, quiebre de 45 (si no, resalto hidraulico); en el perfil
+  longitudinal no se muestran". diseno_b.chaflanes(): en cada esquina con giro > 50 grados se corta un chaflan de 0.60 m por lado
+  (maximo la mitad del tramo vecino); nudos X~a / X~b. Los ejes que llegan a una esquina entran en diagonal (union en Y).
+  22 esquinas. En los perfiles y en la numeracion de secciones los nudos "~" no aparecen (69 secciones).
+- Descargas (D1 a D4): las cuatro salen por gravedad por pase en el cimiento del cerco (ninguna poza).
+  D1 C.F. 183.759, D2 183.758 (afuera el terreno baja ~3.2 m en talud: proteger la entrega contra erosion),
+  D3 183.736, D4 184.145 (perfilar ~0.10 m en los primeros 0.5 m afuera).
+- herramientas/barranquita/descargas_b.py: una lamina A1 por descarga (DC-18 a DC-21): planta 1/50 (ultimos 6 m, ejes que llegan,
+  cerco, curvas exteriores, rotulos en columnas sin cruces), perfil longitudinal 1/25 por el eje que sale (muro del cerco cortado,
+  cimiento, losa del pase, agua de diseno, terreno y perfilado, recuadros NCT/NCF/H y guitarra) e isometrico 1/50 con el terreno.
+  Reemplazan a la lamina de cortes por las descargas y al detalle isometrico anterior. Capas DET-* e ISOD-*.
+- Laminas: DC-03 a DC-11 perfiles, DC-12 a DC-14 secciones, DC-15/DC-16 isometricos de la red, DC-17 cortes generales,
+  DC-18 a DC-21 detalle de descargas.

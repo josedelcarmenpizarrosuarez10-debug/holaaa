@@ -79,6 +79,11 @@ def secciones(R):
             if n in llegan and n != r["nudos"][-1]:
                 nota = "Llega " + ", ".join(c for c in llegan[n] if c != r["codigo"])
             if s == 0.0: nota = nota or "Inicio del eje"
+            if not nota and 0.0 < s < L:                   # quiebre en planta: solo lleva seccion si cambia la pendiente del fondo
+                k = [i for i, (s_, n_) in enumerate(nodos) if n_ == n][0]
+                sa = (_valor(P, nodos[k - 1][0])[1] - _valor(P, s)[1]) / max(s - nodos[k - 1][0], 1e-6)
+                sb = (_valor(P, s)[1] - _valor(P, nodos[k + 1][0])[1]) / max(nodos[k + 1][0] - s, 1e-6)
+                if abs(sa - sb) < 0.0005 or "~" in n: continue
             if n == r["nudos"][-1]:
                 if n in DS.DESCARGAS: nota = "Descarga " + n
                 else:

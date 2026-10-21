@@ -173,6 +173,58 @@ TAPADOS_FIJOS = [("EJE-07", "X919b", "D3", "Atrio del ingreso principal y paso p
 CONEXIONES = [("EJE-04", "X885b", "N885"), ("EJE-05", "T29w", "T7e"), ("EJE-05", "T7w", "T4s"), ("EJE-02", "W1b", "D1n"),
               ("EJE-14", "X971a", "Q0"), ("EJE-15", "X971b", "Q1")]
 
+# --- quiebres a 45 grados (indicacion del usuario): cada esquina de mas de 50 grados se ochava con un tramo en diagonal, de modo que
+# el cambio de direccion se hace en dos quiebres (dos de 45 grados en una esquina de 90) y el agua no choca de frente contra el muro.
+CHAFLAN = 0.60                       # corte en cada lado de la esquina (m), sin pasar de la mitad del tramo mas corto
+ANG_CHAFLAN = 50.0                   # esquinas con un giro mayor se ochavan
+
+
+def _giro(a, b, c):
+    u = (b[0] - a[0], b[1] - a[1]); v = (c[0] - b[0], c[1] - b[1])
+    cs = (u[0] * v[0] + u[1] * v[1]) / (math.hypot(*u) * math.hypot(*v))
+    return math.degrees(math.acos(max(-1.0, min(1.0, cs))))
+
+
+def _unit(a, b):
+    L = math.dist(a, b); return ((b[0] - a[0]) / L, (b[1] - a[1]) / L), L
+
+
+def chaflanes():
+    """Ochava las esquinas de los ejes. Los ejes que llegan a una esquina entran en diagonal al inicio del tramo de salida
+    (union en Y). Devuelve la lista de esquinas ochavadas."""
+    global RAMALES, TAPADOS_FIJOS, CONEXIONES
+    nuevos = {cod: list(nudos) for cod, sis, nudos, desc in RAMALES}
+    hechas, inicio_de, fin_de = [], {}, {}
+    for cod, sis, nudos, desc in RAMALES:
+        for i in range(1, len(nudos) - 1):
+            X = nudos[i]; a, x, c = N[nudos[i - 1]], N[X], N[nudos[i + 1]]
+            g = _giro(a, x, c)
+            if g < ANG_CHAFLAN: continue
+            (u, Lin), (v, Lout) = _unit(a, x), _unit(x, c)
+            ch = min(CHAFLAN, 0.5 * Lin, 0.5 * Lout)
+            xa, xb = X + "~a", X + "~b"
+            N[xa] = (x[0] - u[0] * ch, x[1] - u[1] * ch); N[xb] = (x[0] + v[0] * ch, x[1] + v[1] * ch)
+            k = nuevos[cod].index(X); nuevos[cod][k:k + 1] = [xa, xb]
+            inicio_de[X], fin_de[X] = xa, xb
+            hechas.append((cod, X, round(g), round(ch, 2)))
+            for c2, s2, n2, d2 in RAMALES:                 # ejes que terminan en la esquina: entran en diagonal al tramo de salida
+                if c2 != cod and n2[-1] == X:
+                    w, Lw = _unit(N[n2[-2]], x)
+                    if _giro(N[n2[-2]], x, c) >= ANG_CHAFLAN:
+                        chq = min(CHAFLAN, 0.5 * Lw, ch)
+                        xq = X + "~" + c2
+                        N[xq] = (x[0] - w[0] * chq, x[1] - w[1] * chq)
+                        nuevos[c2][-1:] = [xq, xb]
+                    else:
+                        nuevos[c2][-1:] = [xb]
+    RAMALES = [(cod, sis, nuevos[cod], desc) for cod, sis, nudos, desc in RAMALES]
+    TAPADOS_FIJOS = [(c, inicio_de.get(a, a), fin_de.get(b, b), m) for c, a, b, m in TAPADOS_FIJOS]
+    CONEXIONES = [(c, fin_de.get(a, a), inicio_de.get(b, b)) for c, a, b in CONEXIONES]
+    return hechas
+
+
+CHAFLANES = chaflanes()
+
 
 def plataforma():
     return Path(PLAT)

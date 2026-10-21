@@ -16,6 +16,7 @@ import diseno_b as DS
 import iso_b as ISO
 import cortes_b as CT
 import perfiles_b as PB
+import descargas_b as DB
 
 SAL = os.path.join(RAIZ, "entregables_barranquita", "PLANTEAMIENTO_CUNETAS_IE0590_BARRANQUITA.dxf")
 CALC = os.path.join(RAIZ, "entregables_barranquita", "_calc")
@@ -194,8 +195,10 @@ def dc01(doc, R, V):
     # nudos, rotulos y descargas (bloque ROTULOS_RED)
     with EnBloque(lam, "ROTULOS_RED", "NUDOS"):
         E = Etiquetas(lam)
+        empalmes = {r["nudos"][-1] for r in ram}
+        rotular = lambda n: n not in DS.DESCARGAS and ("~" not in n or n in empalmes)   # los quiebres a 45 no se rotulan
         for n, xy in R["nudos"].items():
-            if n in DS.DESCARGAS: continue
+            if not rotular(n): continue
             lam.circulo(tuple(xy), 0.30, "NUDOS")
         for r in ram:                                          # codigo del eje junto a su tramo mas largo
             pts = puntos_ramal(R, r["nudos"]); i = max(range(len(pts) - 1), key=lambda k: math.dist(pts[k], pts[k + 1]))
@@ -203,7 +206,7 @@ def dc01(doc, R, V):
             c = (pts[i][0] + ux * L * 0.62, pts[i][1] + uy * L * 0.62)
             E.poner((c[0] - uy * 0.8, c[1] + ux * 0.8), r["codigo"], 2.0, "TEXTOS", color=COL_SIS[r["sistema"]], d_mm=1.5)
         for n, xy in R["nudos"].items():
-            if n not in DS.DESCARGAS: E.poner(tuple(xy), nom[n], 1.45, "TEXTOS", d_mm=1.6)
+            if rotular(n): E.poner(tuple(xy), nom[n], 1.45, "TEXTOS", d_mm=1.6)
         hechas = set()
         for r in sorted(ram, key=lambda r: -r["L"]):
             fin = r["nudos"][-1]
@@ -361,23 +364,23 @@ def construir():
     ISO.capas_iso(doc)
     oyi = l1.oy + 594 * 0.25 + 60
     k0 = 3 + len(lp) + len(lsec); C = lambda i: "DC-%02d" % (k0 + i)    # laminas correlativas despues de perfiles y secciones
-    ISO.COD_DET = C(4)
+    ISO.COD_DET = C(3)
     l7 = ISO.isometrico(doc, R, V, l1.ox, oyi, C(0), 157.5, "ISOMETRICO DE LA RED DE CUNETAS - VISTA DESDE EL SUR",
                         "SOLO CUNETAS SOBRE EL TERRENO Y LAS VEREDAS, DENTRO DEL CERCO: DESCARGAS D1, D3 Y D4 - ESCALA REAL")
     l8 = ISO.isometrico(doc, R, V, l1.ox + 841 * 0.35 + 30, oyi, C(1), -22.5, "ISOMETRICO DE LA RED DE CUNETAS - VISTA DESDE EL NORTE",
                         "SOLO CUNETAS SOBRE EL TERRENO Y LAS VEREDAS, DENTRO DEL CERCO: DESCARGAS D2, D4 Y D1 - ESCALA REAL")
     lams[C(0)] = l7; lams[C(1)] = l8
     CT.capas(doc)
-    l9 = CT.dc09(doc, R, V, l8.ox + 841 * 0.35 + 30, oyi, C(2)); lams[C(2)] = l9
-    l10 = CT.dc10(doc, R, V, l9.ox + 841 * 0.1 + 30, oyi, C(3)); lams[C(3)] = l10
-    l11 = ISO.detalles(doc, R, V, l10.ox + 841 * 0.25 + 30, oyi, C(4)); lams[C(4)] = l11
+    l10 = CT.dc10(doc, R, V, l8.ox + 841 * 0.35 + 30, oyi, C(2)); lams[C(2)] = l10
+    ld = DB.laminas(doc, R, V, l10.ox + 841 * 0.25 + 30, oyi, 841 * DB.ESC / 1000 + 15, k0 + 3)
+    for l in ld: lams[l.codigo] = l
     ind = [("DC-01", "PLANTA GENERAL DE CUNETAS - PLANTEAMIENTO PRELIMINAR", "A1", "1/250"),
            ("DC-02", "CUADRO DE TRAMOS Y SECCIONES TIPICAS DE CUNETA", "A1", "1/5")] + \
           [(l.codigo, "PERFILES LONGITUDINALES DE CUNETAS POR EJE", "A1", "1/%d" % PB.ESC_P) for l in lp] + \
           [(l.codigo, "SECCIONES TRANSVERSALES DE CUNETAS", "A1", "1/%d" % PB.ESC_S) for l in lsec] + \
           [(C(0), "ISOMETRICO DE LA RED - VISTA DESDE EL SUR", "A1", "1/350"), (C(1), "ISOMETRICO DE LA RED - VISTA DESDE EL NORTE", "A1", "1/350"),
-           (C(2), "CORTES POR LAS DESCARGAS " + LISTA_D, "A1", "1/100"), (C(3), "CORTES GENERALES DEL TERRENO Y LA RED", "A1", "1/250"),
-           (C(4), "DETALLE ISOMETRICO DE LAS DESCARGAS POR EL CERCO", "A1", "1/75")]
+           (C(2), "CORTES GENERALES DEL TERRENO Y LA RED", "A1", "1/250")] + \
+          [(l.codigo, l.titulo, "A1", "INDICADA") for l in ld]
     l0 = indice(doc, l1.ox - 420 * 0.025 - 20, l1.oy, ind); lams = {"DC-00": l0, **lams}
     LY.presentaciones(doc, lams)
     doc.audit(); doc.saveas(SAL)

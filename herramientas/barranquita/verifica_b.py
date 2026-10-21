@@ -116,7 +116,7 @@ def main():
     # 6 descargas por el cerco: el terreno exterior no queda sobre la cota de fondo (no hay que excavar fuera del cerco)
     #   y baja por debajo de ella a pocos metros (el agua se aleja sola por la pendiente natural)
     desc = []
-    for D in sorted(k for k in N if k.startswith("D") and not k.endswith("n")):
+    for D in sorted(DS.DESCARGAS):
         rr = [r for r in ram.values() if r["nudos"][-1] == D]
         cf = min(r["perfil"][-1][2] for r in rr); x, y = N[D]
         a = N[rr[0]["nudos"][-2]]; Lg = math.dist(a, (x, y)); u = ((x - a[0]) / Lg, (y - a[1]) / Lg)
@@ -248,7 +248,7 @@ def main():
     for c, r in ram.items():
         xy = [tuple(N[n]) for n in r["nudos"]]
         for i in range(len(xy) - 1):
-            if r["nudos"][i + 1].startswith("D") and not r["nudos"][i + 1].endswith("n"): continue
+            if r["nudos"][i + 1] in DS.DESCARGAS: continue
             a, b = xy[i], xy[i + 1]; L = math.dist(a, b); u = ((b[0] - a[0]) / L, (b[1] - a[1]) / L)
             for k in range(int(L / 0.25) + 1):
                 t = min(L, k * 0.25); p = (a[0] + u[0] * t, a[1] + u[1] * t)
