@@ -4,7 +4,7 @@ Foto del usuario: insumos/barranquita/foto_aerea_ie0590.webp (recortada sin las 
 entregables_barranquita/figuras_memoria/foto_caratula.jpg).
 Se usa en: memoria hidrologica y memoria descriptiva (word_b), especificaciones tecnicas (docx_espec.js), metrado y memoria de
 calculo (openpyxl) y analisis estadistico (LibreOffice UNO). Mismo contenido y orden en todos:
-entidad, expediente tecnico, proyecto, C.I., foto, franja con el titulo del documento, especialidad, ubicacion y fecha.
+entidad, servicio de diseno - drenaje pluvial, proyecto, C.I., foto, franja con el titulo del documento, especialidad, ubicacion y fecha.
 """
 import os
 AQUI = os.path.dirname(os.path.abspath(__file__)); RAIZ = os.path.dirname(os.path.dirname(AQUI))
@@ -15,7 +15,7 @@ RECORTE = (45, 30, 1555, 1150)                 # sin las esquinas oscuras del le
 
 ENTIDAD = "GOBIERNO REGIONAL SAN MARTÍN"
 GERENCIA = "GERENCIA TERRITORIAL BAJO MAYO - TARAPOTO"
-EXPEDIENTE = "EXPEDIENTE TÉCNICO"
+EXPEDIENTE = "SERVICIO DE DISEÑO - DRENAJE PLUVIAL"
 PROYECTO = ("“MEJORAMIENTO Y AMPLIACIÓN DEL SERVICIO DE EDUCACIÓN PRIMARIA EN I.E. N° 0590 DISTRITO DE BARRANQUITA "
             "DE LA PROVINCIA DE LAMAS DEL DEPARTAMENTO DE SAN MARTÍN”")
 CI = "C.I. N° 468901"

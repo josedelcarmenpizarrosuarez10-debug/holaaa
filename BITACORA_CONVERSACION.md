@@ -468,3 +468,5 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - coteja_analisis_b.py ignora la franja de la caratula (1696 valores, 0 diferencias). Metrado identico; planos sin cambios.
 - Pedido "solo necesito el archivo en un solo Word, solo las caratulas": caratula_b.solo_caratulas() (python3 herramientas/barranquita/caratula_b.py)
   genera entregables_barranquita/CARATULAS_DRENAJE_PLUVIAL_IE0590_BARRANQUITA.docx con las 6 caratulas, una por pagina (A4, 6 paginas).
+- Correccion del usuario: la caratula no debe decir "EXPEDIENTE TÉCNICO" sino "SERVICIO DE DISEÑO - DRENAJE PLUVIAL" (caratula_b.EXPEDIENTE).
+  Regenerados el Word de caratulas y los 6 documentos; comparados con la version anterior: solo cambia esa linea (coteja 1696 / 0; planos sin cambios).
