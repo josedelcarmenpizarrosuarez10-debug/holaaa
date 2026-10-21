@@ -22,7 +22,7 @@ Leer completo antes de trabajar. Detalle técnico en los skills de `.claude/skil
 | CAR Varones | Katiuska | 2705619 | b 0.60, muros 0.15, 11 registros | `entregables_varones/` | `herramientas/varones/` (`planos_v.py`, `compat.py`, `diseno_v.py`) |
 | Hogar de Refugio Temporal "Mujeres Violentadas" | Solange | 2675514 | b 0.80, muros 0.15, 10 registros | `entregables/` y `entregables_solange/` | `herramientas/diseno.py`, `planos_dxf.py`, `memoria_*.py`, `metrado_*.py` |
 | CAR Mujeres | Wilma | 2717013 | b 1.50, muros 0.10, 15 registros | `entregables_mujeres/` | `herramientas/mujeres/` (`datos_m.py`, `planos_m.py`, `memoria_descriptiva_m.py`) – **metrado congelado** |
-| I.E. N.° 0590 Barranquita (Lamas) – planteamiento preliminar de cunetas | – | C.I. 468901 (confirmar CUI) | cunetas 0.60 (muros 0.10, libre 0.40), h inicial 0.30, S 0.5 %; borde de cuneta +184.65 al ras del NPT (área verde +184.60; al ras del patio de maniobra +184.50); acero solo con h ≥ 0.40 o tapada | `entregables_barranquita/` | `herramientas/barranquita/` (`diseno_b.py`, `verifica_b.py`, `calcula_b.py`, `planos_b.py`, `planta_cunetas_b.py`, `perfiles_b.py`, `descargas_b.py`, `excel_b.py`, `hidrologia_b.py`, `cantidades_b.py`, `metrado_b.py`, `memoria_calculo_b.py`, `memorias_b.py`, `espec_b.py`) – todo dentro del cerco, ejes = lineas magenta del usuario |
+| I.E. N.° 0590 Barranquita (Lamas) – planteamiento preliminar de cunetas | – | C.I. 468901 (confirmar CUI) | cunetas 0.60 (muros 0.10, libre 0.40), h inicial 0.30, S 0.5 %; borde de cuneta +184.65 al ras del NPT (área verde +184.60; al ras del patio de maniobra +184.50); acero solo con h ≥ 0.40 o tapada | `entregables_barranquita/` | `herramientas/barranquita/` (`diseno_b.py`, `verifica_b.py`, `calcula_b.py`, `planos_b.py`, `planta_cunetas_b.py`, `perfiles_b.py`, `descargas_b.py`, `excel_b.py`, `hidrologia_b.py`, `lluvia_datos_b.py`, `cantidades_b.py`, `metrado_b.py`, `memoria_calculo_b.py`, `memorias_b.py`, `espec_b.py`) – todo dentro del cerco, ejes = lineas magenta del usuario |
 | Vía SM-107 Tingo de Ponasa – Shamboyacu | – | 2673852 | (estudio de gestión de riesgos de obra) | `gestion_riesgos/proyectos/SM-107_TINGO_DE_PONASA_SHAMBOYACU/` | `gestion_riesgos/herramientas/` |
 
 Cadena hidráulica: Varones (0.60) → caja de llegada CL → Refugio (0.80) → caja de caída CC → R-01 del CAR Mujeres (1.50) → salida.
@@ -46,7 +46,8 @@ Cadena hidráulica: Varones (0.60) → caja de llegada CL → Refugio (0.80) →
   (chaflanes de 0.60 m en cada esquina, `diseno_b.chaflanes`), no se muestran en perfiles. Area de intervencion = dentro del cerco perimetrico (`diseno_b.CERCO`, confirmado por
   el usuario): ninguna cuneta sale del cerco; el agua sale por pase en el cimiento (D1 a D4; sin pozas).
   Expediente de drenaje (Word/Excel): `hidrologia_b.py` (estacion CO Tarapoto transpuesta x 2.21: Pa Navarro-Pelejo-Shanusi 2,375.6 / Tarapoto 1,073.1,
-  Log-Normal T = 25, Dick-Peschke, I = 467 mm/h), `metrado_b.py`, `memoria_calculo_b.py`, `memorias_b.py` (memoria hidrologica y
+  Log-Normal T = 25, Dick-Peschke, I = 467 mm/h; `lluvia_datos_b.py` lee datos diarios SENAMHI / NASA POWER / CHIRPS de
+  `insumos/barranquita/lluvia/` y compara sin modificar el diseno), `metrado_b.py`, `memoria_calculo_b.py`, `memorias_b.py` (memoria hidrologica y
   descriptiva), `espec_b.py`; regenerar con `python3 herramientas/barranquita/metrado_b.py && ... memoria_calculo_b.py && memorias_b.py && espec_b.py`.
   Ejes de cuneta (v3): lineas magenta del plano "PLANTA_GENERAL_590 ULTIMA VERSION" (lados de cada bloque, techos a dos aguas),
   copiadas en `insumos/barranquita/cunetas_magenta_usuario.json`; la base del sitio (`base_sitio.pkl`) es de esa version.

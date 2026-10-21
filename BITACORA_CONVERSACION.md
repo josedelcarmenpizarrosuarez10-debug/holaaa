@@ -378,3 +378,17 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Usuario pidio datos de 2024-2025: la serie Pmax24 de Tarapoto ya llega a 2024; los totales anuales de la llanura son 2013-2017. El
   internet del entorno sigue bloqueado para senamhi.gob.pe, power.larc.nasa.gov y data.chc.ucsb.edu (403): pendiente descargar series
   recientes de Navarro / Shanusi / Pelejo cuando el usuario habilite la red o envie los datos.
+
+## 21-10-2026 – Barranquita: intento de actualizar la lluvia con datos SENAMHI 2024-2025
+- Pedido del usuario: descargar datos diarios de Navarro (000386), Pelejo (153322), Shanusi (153315), Pongo de Caynarachi (003317)
+  y Tarapoto; si no, NASA POWER o CHIRPS para Barranquita (-6.25, -76.03) y Tarapoto.
+- Comprobacion de red: desde el entorno, senamhi.gob.pe, power.larc.nasa.gov, data.chc.ucsb.edu (y archive-api.open-meteo.com)
+  siguen rechazados por el proxy (403); por la herramienta web, SENAMHI y NASA POWER no permiten lectura automatica. No se
+  descargo ningun dato: hidrologia_b.py, diseno, planos, metrado, memorias y especificaciones quedan sin cambios (no se regenero).
+- Nuevo herramientas/barranquita/lluvia_datos_b.py: lee los archivos diarios que entregue el usuario (formato SENAMHI con o sin
+  encabezado, NASA POWER, CHIRPS), calcula totales anuales (meses con >= 25 dias), P anual de la llanura, serie de Pmax 24 h por
+  estacion con el mismo analisis de hidrologia_b (4 distribuciones, K-S, T 25, Dick-Peschke tc 10 min) y la relacion anual
+  Barranquita / Tarapoto; no modifica el diseno (salida en entregables_barranquita/_calc/lluvia_comparacion.json). Probado con
+  archivos de ensayo en los cuatro formatos.
+- Pendiente: datos reales (archivos del usuario o dominios habilitados en la configuracion de red).
+
