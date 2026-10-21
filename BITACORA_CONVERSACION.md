@@ -454,3 +454,6 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   borde libre min 0.128 m, V max 1.98 m/s. Metrado identico. Memoria de calculo (FRECUENCIAS, KS, IDF), memoria hidrologica y anexo,
   descriptiva y cuadro de tramos regenerados. Planos sin cambios; DC-16 a DC-19 siguen rotulando 207.7 / 264.7 / 174.2 / 48.4 l/s
   (ahora 229.2 / 228.9 / 166.2 / 45.5 l/s).
+- Usuario pregunto si la memoria hidrologica coincide con el nuevo analisis estadistico. coteja_analisis_b.py: 1696 valores de la
+  memoria (1002 del cuerpo y 694 del anexo N.° 01) comparados con ANALISIS_ESTADISTICO_IE0590_BARRANQUITA.xlsx a la precision impresa:
+  0 diferencias. La memoria de calculo (FRECUENCIAS, KS, IDF) tambien coincide (P24 169.27, D K-S, K 211.66, I 293.18).
