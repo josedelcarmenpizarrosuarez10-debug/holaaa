@@ -294,7 +294,7 @@ def perfil(lam, d, x0mm, y0mm):
     lam.flecha((X(L + 0.25), Yz(ncfL + 0.12)), (X(L + min(EXT, sale + 1.0)), Yz(min(zsal, ncfL) + 0.05)), "FLUJO", tam_mm=3.5)
     # cotas y rotulos
     lam.llamada((X(L + 0.075), Yz(nctL + 0.30)), (X(L) + 26 * f, Yz(nctL + 0.30)), ["MURO DEL CERCO e = 0.15 (CORTADO)"], hmm=1.6)
-    lam.llamada((X(L + 0.1), Yz(zc0 - 0.2)), (X(L) + 30 * f, Yz(zc1 - 0.15)), ["CIMIENTO DEL CERCO BAJO EL PASE", "(dimensiones segun estructuras)"], hmm=1.6)
+    lam.llamada((X(L + 0.1), Yz(zc0 - 0.2)), (X(L) + 30 * f, max(Yz(zc1 - 0.15), Yz(zmin) + 10 * f)), ["CIMIENTO DEL CERCO BAJO EL PASE", "(dimensiones segun estructuras)"], hmm=1.6)
     lam.llamada((X(L + sale / 2), Yz((ncfL + zsal) / 2)), (X(L + EXT) + 6 * f, Yz(ncfL - 0.15)),
                 ["PERFILADO DEL TERRENO NATURAL (sin obra)", "terreno bajo la C.F. a %.1f m del cerco" % sale], hmm=1.6)
     lam.llamada((X(L + EXT - 0.3), Yz(max(d["ext"][-2][1], zmin + 0.05))), (X(L + EXT) + 6 * f, Yz(ncfL + 0.35)), ["TERRENO NATURAL (curvas C-TOPO)"], hmm=1.6)
