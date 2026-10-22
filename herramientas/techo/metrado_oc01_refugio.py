@@ -1,5 +1,5 @@
 """Metrado de canaleta, tapas, sujetadores y boquillas de la OC-01 (jardinera + banca + pergola) - HOGAR DE REFUGIO TEMPORAL
-(CUI 2675514). Cantidades por techo de las laminas DO-01 y DO-02 (planos_oc01_refugio.py); el numero de estructuras OC-01 es un
+(CUI 2675514). Cantidades por techo de las laminas DPL-41 y DPL-42 (planos_oc01_refugio.py); el numero de estructuras OC-01 es un
 dato (celda amarilla). Solo los cuatro items pedidos por el usuario: no incluye tubo PVC, codos, colgador, abrazadera ni falsa columna.
 Uso: python3 herramientas/techo/metrado_oc01_refugio.py
 """
@@ -46,7 +46,7 @@ def main():
     c = ws.cell(8, 4, N_OC); c.fill = PatternFill("solid", fgColor=AMA); c.font = F(bold=True, size=11); c.border = BOR
     c.alignment = Alignment(horizontal="center")
     cab = ["ITEM", "DESCRIPCION", "UND.", "TECHO T-1 (3.79)", "TECHO T-2 (4.21)", "TECHO T-3 (3.79)", "POR OC-01", "N.° OC-01",
-           "TOTAL", "SUSTENTO (LAMINAS DO-01 Y DO-02)"]
+           "TOTAL", "SUSTENTO (LAMINAS DPL-41 Y DPL-42)"]
     for j, t in enumerate(cab, 1):
         c = ws.cell(10, j, t); c.font = F(bold=True, color="FFFFFF"); c.fill = PatternFill("solid", fgColor=AZUL)
         c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True); c.border = BOR

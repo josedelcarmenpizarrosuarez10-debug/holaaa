@@ -7,8 +7,8 @@ que el plano marca como "sumidero 4\" tipo cupula"; a pedido del usuario la cupu
 usuario), S = 0.5 % hacia la boquilla, con 2 soportes (sujetadores) por canaleta y tapas en los dos extremos.
 La bajada sigue el corte A-A: boquilla, niple, codo, tramo bajo la canaleta con colgador, codo, bajada adosada a la columna
 con abrazadera y falsa columna de drenaje pluvial CL-01 (+1.05 a -0.15).
-  DO-01  isometrico general de la OC-01 con las tres canaletas y sus bajadas (1/30) y planta de techos (1/50)
-  DO-02  isometrico de la salida de la canaleta (boquilla, codos, colgador, bajada) y corte de la canaleta (1/5)
+  DPL-41  isometrico general de la OC-01 con las tres canaletas y sus bajadas (1/30) y planta de techos (1/50)
+  DPL-42  isometrico de la salida de la canaleta (boquilla, codos, colgador, bajada) y corte de la canaleta (1/5)
 Escala real (1 unidad = 1 m). Uso: python3 herramientas/techo/planos_oc01_refugio.py
 """
 import os, sys
@@ -275,7 +275,7 @@ def planta_techos(lam, xmm, ymm, esc=50):
 
 
 def do01(doc, ox, oy):
-    lam = B.Lamina(doc, ox, oy, 30, "DO-01", "ISOMETRICO DEL DRENAJE PLUVIAL DE LA OC-01 (JARDINERA + BANCA + PERGOLA)",
+    lam = B.Lamina(doc, ox, oy, 30, "DPL-41", "ISOMETRICO DEL DRENAJE PLUVIAL DE LA OC-01 (JARDINERA + BANCA + PERGOLA)",
                    "TRES TECHOS: CANALETAS 0.18 x 0.21 DE PLANCHA GALVANIZADA, BOQUILLAS 4\" Y BAJADAS PVC 4\" - " + P["nombre"])
     E = escena_general()
     P2 = E.dibujar(lam, 270, 330)
@@ -300,13 +300,13 @@ def do01(doc, ox, oy):
         "1. Medidas del plano OC-01 (planta de techos, corte A-A y elevacion E1). Canaleta 0.18 de ancho x 0.21 de alto interiores.",
         "2. Canaleta, tapas y boquilla de plancha galvanizada e = 0.50 mm; un tramo por techo (3.79, 4.21 y 3.79 m), S = 0.5 % hacia la boquilla.",
         "3. 2 soportes (sujetadores) de platina por canaleta, a 0.80 m (T-1, T-3) y 0.85 m (T-2) de cada extremo.",
-        "4. El sumidero tipo cupula del plano se reemplaza por boquilla de plancha Ø 4\". Detalle de la salida en DO-02.",
+        "4. El sumidero tipo cupula del plano se reemplaza por boquilla de plancha Ø 4\". Detalle de la salida en DPL-42.",
         "5. Se construyen 3 juegos OC-01 iguales (9 bancas): 35.37 m de canaleta, 18 tapas, 18 soportes y 9 boquillas.",
     ], hmm=1.7, ancho_mm=165)
     return lam
 
 
-# ================================================================== DO-02 (1/5)
+# ================================================================== DPL-42 (1/5)
 def escena_salida():
     R = TECHOS[0]; x0, x1 = R["x0"], 0.95
     E = Escena()
@@ -349,7 +349,7 @@ def seccion_canaleta(lam, xmm, ymm):
 
 
 def do02(doc, ox, oy):
-    lam = B.Lamina(doc, ox, oy, 5, "DO-02", "DETALLE ISOMETRICO DE LA SALIDA DE LA CANALETA DE LA OC-01",
+    lam = B.Lamina(doc, ox, oy, 5, "DPL-42", "DETALLE ISOMETRICO DE LA SALIDA DE LA CANALETA DE LA OC-01",
                    "BOQUILLA 4\", NIPLE, CODOS, COLGADOR, ABRAZADERA Y BAJADA PVC 4\" (TIPICO DE LAS 3 SALIDAS) - " + P["nombre"])
     R = TECHOS[0]
     E = escena_salida()
@@ -379,7 +379,7 @@ def construir():
     for n, c, lt, lw in T.CAPAS_EXTRA + CAPAS_OC:
         if n not in doc.layers:
             ly = doc.layers.add(n, color=c, linetype=lt); ly.dxf.lineweight = lw
-    laminas = {"DO-01": do01(doc, 0.0, 0.0), "DO-02": do02(doc, 30.0, 0.0)}
+    laminas = {"DPL-41": do01(doc, 0.0, 0.0), "DPL-42": do02(doc, 30.0, 0.0)}
     msp = doc.modelspace()
     msp.set_redraw_order({e.dxf.handle: -1 for e in msp.query("HATCH SOLID")})
     L.presentaciones(doc, laminas)

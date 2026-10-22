@@ -1,7 +1,7 @@
 """Hogar de Refugio Temporal (CUI 2675514): agrega a la planilla de metrados del usuario la canaleta de los techos de las bancas
 con pergola OC-01 (solo canaleta, soporte, tapa lateral y boquilla), con su hoja de metrado.
 
-Las bancas son 9 = 3 juegos OC-01; cada juego tiene tres techos de 3.79, 4.21 y 3.79 m (planos DO-01 y DO-02,
+Las bancas son 9 = 3 juegos OC-01; cada juego tiene tres techos de 3.79, 4.21 y 3.79 m (planos DPL-41 y DPL-42,
 planos_oc01_refugio.py). Canaleta de plancha galvanizada e = 0.50 mm, 0.18 x 0.21; 2 soportes, 2 tapas y 1 boquilla por canaleta.
 - Hoja nueva METRADO CANALETA BANCAS (con los estilos de METRADO CANALETAS), despues de METRADO CANALETAS.
 - PLANILLA GENERAL DE METRADOS: subtitulo 01.04.03.05.04 despues de ACCESORIOS, con los 4 items; lo demas baja 6 filas.
@@ -72,8 +72,8 @@ def llenar_hoja(L):
     for c in "CEGIK":
         L.formula(NB, "%s15" % c, "SUM(%s11:%s14)" % (c, c))
     L.texto(NB, "B17", "PARÁMETROS DE CÁLCULO - CANALETA DE BANCAS OC-01")
-    par = [("Ancho interior de canaleta", 0.18, "m", "Indicación del proyectista (plano DO-02)"),
-           ("Altura interior de canaleta", 0.21, "m", "Indicación del proyectista (plano DO-02)"),
+    par = [("Ancho interior de canaleta", 0.18, "m", "Indicación del proyectista (plano DPL-42)"),
+           ("Altura interior de canaleta", 0.21, "m", "Indicación del proyectista (plano DPL-42)"),
            ("Espesor de plancha galvanizada", 0.5, "mm", "Canaleta, tapas y boquilla"),
            ("N° de juegos OC-01 (3 techos por juego)", N_JUEGOS, "und", "9 bancas en total; editable"),
            ("Boquillas por canaleta", 1, "und", "Una salida a la tubería PVC Ø4\" (sin sumidero tipo cúpula)"),
@@ -95,7 +95,13 @@ def valores(f):
     return out
 
 
+VIGENTE = os.path.join(RAIZ, "insumos", "metrados_vigentes", "METRADO_DRENAJE_MUJERES_VIOLENTADAS_CON_BANCAS_OC-01.xlsx")
+
+
 def main():
+    # 22/10/2026: el usuario reordeno la hoja METRADO CANALETA BANCAS (sin la fila 8); su archivo es el vigente y no se pisa
+    if os.path.exists(VIGENTE) and "--forzar" not in sys.argv:
+        raise SystemExit("Vigente del usuario: %s (no se regenera; usar --forzar solo si se pide)" % os.path.relpath(VIGENTE, RAIZ))
     os.makedirs(os.path.dirname(SAL), exist_ok=True)
     shutil.copy(ENT, SAL); L = Libro(SAL)
     assert L.leer(PG, "B160") == "ACCESORIOS" and L.leer(PG, "A165") == "01.04.04" and L.leer(RES, "A54") == "01.04.04", "la planilla no es la esperada"

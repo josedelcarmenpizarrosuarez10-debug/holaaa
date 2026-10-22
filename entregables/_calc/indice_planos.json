@@ -1,0 +1,527 @@
+[
+ {
+  "codigo": "DPL-01",
+  "titulo": "RED GENERAL DE DRENAJE PLUVIAL",
+  "contenido": "",
+  "formato": "A0",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/120"
+  ],
+  "pagina": 1,
+  "rotulo": "DPL-01"
+ },
+ {
+  "codigo": "DPL-02",
+  "titulo": "PERFILES LONGITUDINALES",
+  "contenido": "CUNETAS, CON LAS SECCIONES 01 A 53",
+  "formato": "A0",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/130"
+  ],
+  "pagina": 2,
+  "rotulo": "DPL-02"
+ },
+ {
+  "codigo": "DPL-03",
+  "titulo": "SECCIONES TRANSVERSALES 01",
+  "contenido": "SECCIONES 01 A 18",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/19"
+  ],
+  "pagina": 12,
+  "rotulo": "DPL-03"
+ },
+ {
+  "codigo": "DPL-04",
+  "titulo": "SECCIONES TRANSVERSALES 02",
+  "contenido": "SECCIONES 19 A 36",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/19"
+  ],
+  "pagina": 13,
+  "rotulo": "DPL-04"
+ },
+ {
+  "codigo": "DPL-05",
+  "titulo": "SECCIONES TRANSVERSALES 03",
+  "contenido": "SECCIONES 37 A 53",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/19"
+  ],
+  "pagina": 14,
+  "rotulo": "DPL-05"
+ },
+ {
+  "codigo": "DPL-06",
+  "titulo": "RED GENERAL COLECTOR PLUVIAL",
+  "contenido": "",
+  "formato": "A0",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/130"
+  ],
+  "pagina": 3,
+  "rotulo": "DPL-06"
+ },
+ {
+  "codigo": "DPL-07",
+  "titulo": "PERFIL LONGITUDINAL GENERAL DEL COLECTOR",
+  "contenido": "PROGRESIVAS 0+000.00 A 0+073.39",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/55"
+  ],
+  "pagina": 5,
+  "rotulo": "DPL-07"
+ },
+ {
+  "codigo": "DPL-08",
+  "titulo": "PERFIL LONGITUDINAL DETALLADO DEL COLECTOR",
+  "contenido": "PROGRESIVAS 0+000.00 A 0+040.00",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/55"
+  ],
+  "pagina": 15,
+  "rotulo": "DPL-08"
+ },
+ {
+  "codigo": "DPL-09",
+  "titulo": "PERFIL LONGITUDINAL DETALLADO DEL COLECTOR",
+  "contenido": "PROGRESIVAS 0+040.00 A 0+073.39",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/55"
+  ],
+  "pagina": 16,
+  "rotulo": "DPL-09"
+ },
+ {
+  "codigo": "DPL-10",
+  "titulo": "SECCIONES TRANSVERSALES DEL COLECTOR",
+  "contenido": "PROG. 0+000.50 (TRAMO NORMAL), 0+010.00 (TRAMO NORMAL), 0+020.00 (TRAMO NORMAL), 0+028.80 (CRUCE DE CAMIONES)",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/15",
+   "1/25"
+  ],
+  "pagina": 17,
+  "rotulo": "DPL-10"
+ },
+ {
+  "codigo": "DPL-11",
+  "titulo": "SECCIONES TRANSVERSALES DEL COLECTOR",
+  "contenido": "PROG. 0+040.00 (CRUCE DE MOTOS), 0+050.00 (TRAMO NORMAL), 0+060.00 (TRAMO NORMAL), 0+068.50 (TRAMO NORMAL)",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/15"
+  ],
+  "pagina": 18,
+  "rotulo": "DPL-11"
+ },
+ {
+  "codigo": "DPL-12",
+  "titulo": "ISOMÉTRICOS DE LAS SECCIONES TRANSVERSALES",
+  "contenido": "PROG. 0+000.50 (TRAMO NORMAL), 0+010.00 (TRAMO NORMAL), 0+020.00 (TRAMO NORMAL), 0+028.80 (CRUCE DE CAMIONES)",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/25"
+  ],
+  "pagina": 19,
+  "rotulo": "DPL-12"
+ },
+ {
+  "codigo": "DPL-13",
+  "titulo": "ISOMÉTRICOS DE LAS SECCIONES TRANSVERSALES",
+  "contenido": "PROG. 0+040.00 (CRUCE DE MOTOS), 0+050.00 (TRAMO NORMAL), 0+060.00 (TRAMO NORMAL), 0+068.50 (TRAMO NORMAL)",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/25"
+  ],
+  "pagina": 20,
+  "rotulo": "DPL-13"
+ },
+ {
+  "codigo": "DPL-14",
+  "titulo": "ISOMÉTRICOS DE LAS SECCIONES TRANSVERSALES",
+  "contenido": "SECCIONES TÍPICAS: TRAMO NORMAL (0+010.00), CRUCE DE MOTOS (0+040.00) Y CRUCE DE CAMIONES (0+028.80)",
+  "formato": "A3",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/10",
+   "1/20"
+  ],
+  "pagina": 35,
+  "rotulo": "DPL-14"
+ },
+ {
+  "codigo": "DPL-15",
+  "titulo": "DETALLE MONTANTE - EDIF01",
+  "contenido": "CORTE A-A",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/100"
+  ],
+  "pagina": 21,
+  "rotulo": "DPL-15"
+ },
+ {
+  "codigo": "DPL-16",
+  "titulo": "DETALLE MONTANTE - EDIF02",
+  "contenido": "CORTE B-B",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/50"
+  ],
+  "pagina": 22,
+  "rotulo": "DPL-16"
+ },
+ {
+  "codigo": "DPL-17",
+  "titulo": "DETALLE MONTANTE - EDIF03",
+  "contenido": "CORTE B-B",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/50"
+  ],
+  "pagina": 23,
+  "rotulo": "DPL-17"
+ },
+ {
+  "codigo": "DPL-18",
+  "titulo": "DETALLE MONTANTE - EDIF04",
+  "contenido": "CORTE A-A",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/70"
+  ],
+  "pagina": 6,
+  "rotulo": "DPL-18"
+ },
+ {
+  "codigo": "DPL-19",
+  "titulo": "DETALLE MONTANTE - EDIF05",
+  "contenido": "CORTE B-B",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/60"
+  ],
+  "pagina": 7,
+  "rotulo": "DPL-19"
+ },
+ {
+  "codigo": "DPL-20",
+  "titulo": "DETALLE MONTANTE - EDIF06",
+  "contenido": "CORTE A-A",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/70"
+  ],
+  "pagina": 24,
+  "rotulo": "DPL-20"
+ },
+ {
+  "codigo": "DPL-21",
+  "titulo": "DETALLE MONTANTE - EDIF07",
+  "contenido": "CORTE A-A",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/60"
+  ],
+  "pagina": 8,
+  "rotulo": "DPL-21"
+ },
+ {
+  "codigo": "DPL-22",
+  "titulo": "DETALLE MONTANTE - EDIF08",
+  "contenido": "CORTE A-A",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/65"
+  ],
+  "pagina": 25,
+  "rotulo": "DPL-22"
+ },
+ {
+  "codigo": "DPL-23",
+  "titulo": "DETALLE MONTANTE - EDIF09",
+  "contenido": "CORTE A-A",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/45"
+  ],
+  "pagina": 26,
+  "rotulo": "DPL-23"
+ },
+ {
+  "codigo": "DPL-24",
+  "titulo": "DETALLE DE REGISTRO DE LIMPIEZA - TAPA CIEGA DE CONCRETO ARMADO 0.68x0.68x0.08",
+  "contenido": "",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/5",
+   "1/10",
+   "1/11"
+  ],
+  "pagina": 9,
+  "rotulo": "DPL-24"
+ },
+ {
+  "codigo": "DPL-25",
+  "titulo": "EMPALME DE CUNETAS A COLECTOR",
+  "contenido": "",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/10",
+   "1/15"
+  ],
+  "pagina": 27,
+  "rotulo": "DPL-25"
+ },
+ {
+  "codigo": "DPL-26",
+  "titulo": "CAJA DE LLEGADA (0+000) Y CAJA DE CAÍDA CON POZA DE DISIPACIÓN (ENTREGA AL CAR MUJERES)",
+  "contenido": "",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/25",
+   "1/30"
+  ],
+  "pagina": 10,
+  "rotulo": "DPL-26"
+ },
+ {
+  "codigo": "DPL-27",
+  "titulo": "ISOMÉTRICOS CONSTRUCTIVOS",
+  "contenido": "",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/35"
+  ],
+  "pagina": 28,
+  "rotulo": "DPL-27"
+ },
+ {
+  "codigo": "DPL-28",
+  "titulo": "DETALLE CONSTRUCTIVO: JUNTAS E=1\" CON TECNOPOR Y SELLADOR ASFÁLTICO (COLECTOR Y CERCO)",
+  "contenido": "",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/2",
+   "1/10",
+   "1/15",
+   "1/25"
+  ],
+  "pagina": 29,
+  "rotulo": "DPL-28"
+ },
+ {
+  "codigo": "DPL-29",
+  "titulo": "REGISTRO DE LIMPIEZA CON TAPA CIEGA DE CONCRETO ARMADO 0.68x0.68x0.08 - COMPONENTES",
+  "contenido": "",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/5",
+   "1/10",
+   "1/15"
+  ],
+  "pagina": 30,
+  "rotulo": "DPL-29"
+ },
+ {
+  "codigo": "DPL-30",
+  "titulo": "DETALLES DE CANALETA DE TECHO, SOPORTE Y ACCESORIOS",
+  "contenido": "",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/5",
+   "1/7"
+  ],
+  "pagina": 31,
+  "rotulo": "DPL-30"
+ },
+ {
+  "codigo": "DPL-31",
+  "titulo": "ISOMÉTRICO DE CANALETA, SOPORTES, PERNOS, TAPA Y BOQUILLA",
+  "contenido": "",
+  "formato": "A3",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/5",
+   "1/11"
+  ],
+  "pagina": 36,
+  "rotulo": "DPL-31"
+ },
+ {
+  "codigo": "DPL-32",
+  "titulo": "DETALLES 3D DE LOS ELEMENTOS DEL MONTANTE",
+  "contenido": "",
+  "formato": "A3",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/5",
+   "1/11"
+  ],
+  "pagina": 37,
+  "rotulo": "DPL-32"
+ },
+ {
+  "codigo": "DPL-33",
+  "titulo": "ELEVACIÓN DE CANALETA Y CORTE DEL MONTANTE PLUVIAL",
+  "contenido": "",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/10",
+   "1/15"
+  ],
+  "pagina": 32,
+  "rotulo": "DPL-33"
+ },
+ {
+  "codigo": "DPL-34",
+  "titulo": "ISOMÉTRICO DEL MONTANTE PLUVIAL TÍPICO",
+  "contenido": "",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/15",
+   "1/17"
+  ],
+  "pagina": 33,
+  "rotulo": "DPL-34"
+ },
+ {
+  "codigo": "DPL-35",
+  "titulo": "ISOMÉTRICO DE LA CAJA SUMIDERO DE PISO",
+  "contenido": "",
+  "formato": "A3",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/5",
+   "1/11"
+  ],
+  "pagina": 38,
+  "rotulo": "DPL-35"
+ },
+ {
+  "codigo": "DPL-36",
+  "titulo": "DETALLE DE CAJA SUMIDERO DE PISO: CORTE, PLANTA Y DESAGREGADO",
+  "contenido": "",
+  "formato": "A3",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/5",
+   "1/11"
+  ],
+  "pagina": 39,
+  "rotulo": "DPL-36"
+ },
+ {
+  "codigo": "DPL-37",
+  "titulo": "DETALLE DE LLORADERO: CORTE, TUBO PERFORADO Y DESAGREGADO",
+  "contenido": "",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/5",
+   "1/8"
+  ],
+  "pagina": 34,
+  "rotulo": "DPL-37"
+ },
+ {
+  "codigo": "DPL-38",
+  "titulo": "DETALLE CONSTRUCTIVO FALSA COLUMNA PARA MONTANTE PLUVIAL EN EDIFICACIONES",
+  "contenido": "",
+  "formato": "A3",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/15"
+  ],
+  "pagina": 40,
+  "rotulo": "DPL-38"
+ },
+ {
+  "codigo": "DPL-39",
+  "titulo": "PLANTA DE UBICACIÓN DE LLORADEROS EN CUNETAS COLINDANTES CON ÁREA VERDE",
+  "contenido": "",
+  "formato": "A0",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/180"
+  ],
+  "pagina": 4,
+  "rotulo": "DPL-39"
+ },
+ {
+  "codigo": "DPL-40",
+  "titulo": "ISOMÉTRICO DE INSTALACIÓN DE LLORADEROS EN CUNETAS",
+  "contenido": "",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/10",
+   "1/11"
+  ],
+  "pagina": 11,
+  "rotulo": "DPL-36"
+ },
+ {
+  "codigo": "DPL-41",
+  "titulo": "ISOMÉTRICO DEL DRENAJE PLUVIAL DE LA OC-01 (JARDINERA + BANCA + PÉRGOLA)",
+  "contenido": "3 CANALETAS 0.18 x 0.21 (TECHOS 3.79, 4.21 Y 3.79 m) Y PLANTA DE TECHOS; 3 JUEGOS = 9 BANCAS",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/30",
+   "1/50"
+  ],
+  "pagina": null,
+  "rotulo": null
+ },
+ {
+  "codigo": "DPL-42",
+  "titulo": "DETALLE ISOMÉTRICO DE LA SALIDA DE LA CANALETA DE LA OC-01",
+  "contenido": "BOQUILLA Ø 4\", COLGADOR, ABRAZADERA, BAJADA PVC 4\" Y CORTE DE LA CANALETA",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/5"
+  ],
+  "pagina": null,
+  "rotulo": null
+ }
+]
