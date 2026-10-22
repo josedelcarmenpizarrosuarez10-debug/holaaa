@@ -495,3 +495,11 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   proyecto en entregables_mujeres/figuras_caratula/ (vista 3D del resumen ejecutivo, vista aerea de la caratula de la memoria hidrologica,
   escudo de la plantilla IISS). El usuario va a enviar la foto que quiere como imagen principal: el Word entregado queda como estaba hasta
   regenerarlo con esa foto.
+
+## 22-10-2026 – Detalle de lloraderos del Hogar de Refugio (CUI 2675514) legible en AutoCAD
+- El usuario mostro una captura de AutoCAD: los patrones EARTH, AR-CONC, AR-SAND y GRAVEL salian sin la escala del bloque (rayas
+  gigantes, concreto y grava casi vacios) y "m³" salia "m?".
+- espec_lloraderos.py: para "refugio" el detalle (detalle_cad) y la leyenda se dibujan sin patrones: rellenos solidos con color verdadero,
+  piedras de grava una por una (20 a 40 mm, escala real), punteado de concreto y solado, trazos de tierra; cotas y puntos en gris oscuro fijo
+  (se leen con fondo negro y blanco); "m3". Dos presentaciones A3 a escala 1:10 (ESPECIFICACIONES y DETALLE LLORADERO).
+  CAR Varones sin cambios (no se regenero).

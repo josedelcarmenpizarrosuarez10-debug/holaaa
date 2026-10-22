@@ -4,7 +4,7 @@ Solo CAR Varones (CUI 2705619) y Hogar de Refugio Temporal (CUI 2675514), los do
 Bloque "ESPEC_LLORADEROS" a escala real (1 unidad = 1 m), igual que leyenda_cunetas.py y espec_falsa_columna.py.
 Cantidades de la hoja METRADO LLORADEROS; materiales por unidad del criterio de esa hoja y del ACU de lloraderos.
 """
-import os, sys
+import os, sys, math
 import ezdxf
 from ezdxf.enums import TextEntityAlignment as TA
 import openpyxl
@@ -135,8 +135,215 @@ def detalle(doc, nombre):
     return blk
 
 
+
+# ------------------------------------------------------------------------------------------------------------------
+# Version "CAD" (Hogar de Refugio): sin patrones de achurado. AutoCAD redibuja los patrones (EARTH, AR-CONC, AR-SAND,
+# GRAVEL) a escala 1 y sin la escala real del bloque; aqui cada relleno es geometria propia con color verdadero:
+# relleno solido + piedras de grava a su tamano real (20 a 40 mm), punteado de concreto y trazos de tierra.
+import random as _rnd
+from matplotlib.path import Path as _Path
+
+C_TIERRA, C_TIERRA_T = (236, 222, 200), (165, 132, 92)
+C_CONC, C_CONC_T = (222, 222, 216), (120, 120, 116)
+C_SOLADO, C_SOLADO_T = (200, 200, 196), (110, 110, 106)
+C_PIEDRAS = [(176, 160, 132), (150, 138, 118), (196, 182, 156), (132, 124, 112), (186, 168, 140)]
+C_GEO, C_TUBO, C_LINEA = (0, 150, 200), (180, 214, 246), (70, 70, 70)
+C_TEXTO_OSC = (35, 35, 35)          # textos y puntos sobre rellenos claros: oscuros tambien con el fondo negro de AutoCAD
+
+
+def _solido(S, pts, rgb, capa="LEY-RELLENO"):
+    h = S.b.add_hatch(dxfattribs={"layer": capa})
+    h.set_solid_fill(color=7, rgb=rgb)
+    h.paths.add_polyline_path(pts, is_closed=True)
+    return h
+
+
+def _lin(S, a, b, rgb, capa="LEY-SIMBOLO"):
+    e = S.b.add_line(a, b, dxfattribs={"layer": capa}); e.rgb = rgb
+    return e
+
+
+def _pol(S, pts, rgb, cerrada=True, lw=None, capa="LEY-SIMBOLO"):
+    at = {"layer": capa}
+    if lw: at["lineweight"] = lw
+    e = S.b.add_lwpolyline(pts, close=cerrada, dxfattribs=at); e.rgb = rgb
+    return e
+
+
+def _dentro(pts):
+    return _Path(pts + [pts[0]])
+
+
+def tierra_cad(S, pts, semilla=3, paso=0.075):
+    """Relleno de terreno: solido claro + grupos de tres trazos inclinados (simbolo de tierra) en tresbolillo."""
+    _solido(S, pts, C_TIERRA)
+    P = _dentro(pts); r = _rnd.Random(semilla)
+    xs = [p[0] for p in pts]; ys = [p[1] for p in pts]
+    y = min(ys) + paso / 2; fila = 0
+    while y < max(ys):
+        x = min(xs) + paso / 2 + (paso / 2 if fila % 2 else 0)
+        while x < max(xs):
+            xx, yy = x + r.uniform(-0.01, 0.01), y + r.uniform(-0.01, 0.01)
+            if all(P.contains_point((xx + dx, yy + dy), radius=-0.004) for dx, dy in ((-0.02, -0.012), (0.02, 0.012))):
+                for k in (-1, 0, 1):
+                    _lin(S, (xx + k * 0.009 - 0.008, yy - 0.010), (xx + k * 0.009 + 0.008, yy + 0.010), C_TIERRA_T, "LEY-RELLENO")
+            x += paso
+        y += paso * 0.6; fila += 1
+
+
+def punteado_cad(S, pts, rgb_fondo, rgb_punto, dens=1800, semilla=5):
+    """Relleno de concreto o solado: solido + punteado (trazos de 3 mm en direccion aleatoria y triangulos de agregado)."""
+    _solido(S, pts, rgb_fondo)
+    P = _dentro(pts); r = _rnd.Random(semilla)
+    xs = [p[0] for p in pts]; ys = [p[1] for p in pts]
+    area = abs(sum(pts[i][0] * pts[i - 1][1] - pts[i - 1][0] * pts[i][1] for i in range(len(pts)))) / 2
+    for _ in range(int(area * dens)):
+        x, y = r.uniform(min(xs), max(xs)), r.uniform(min(ys), max(ys))
+        if not P.contains_point((x, y), radius=-0.006):
+            continue
+        if r.random() < 0.15:
+            a = r.uniform(0, 2 * math.pi); s = r.uniform(0.006, 0.010)
+            tri = [(x + s * math.cos(a + k * 2.1), y + s * math.sin(a + k * 2.1)) for k in range(3)]
+            _pol(S, tri, rgb_punto, capa="LEY-RELLENO")
+        else:
+            a = r.uniform(0, math.pi); s = 0.0015
+            _lin(S, (x - s * math.cos(a), y - s * math.sin(a)), (x + s * math.cos(a), y + s * math.sin(a)), rgb_punto, "LEY-RELLENO")
+
+
+def grava_cad(S, x0, y0, x1, y1, semilla=11):
+    """Grava 20 a 40 mm: piedras redondeadas una por una (poligonos irregulares con relleno), sin solaparse."""
+    r = _rnd.Random(semilla); piedras = []
+    for _ in range(4000):
+        rad = r.uniform(0.010, 0.019)
+        cx, cy = r.uniform(x0 + rad + 0.004, x1 - rad - 0.004), r.uniform(y0 + rad + 0.004, y1 - rad - 0.004)
+        if all(math.hypot(cx - px, cy - py) > rad + pr + 0.0025 for px, py, pr in piedras):
+            piedras.append((cx, cy, rad))
+    for cx, cy, rad in piedras:
+        n = r.randint(7, 10); a0 = r.uniform(0, 2 * math.pi); ex = r.uniform(0.75, 1.0)
+        pts = []
+        for k in range(n):
+            a = a0 + 2 * math.pi * k / n
+            rr = rad * r.uniform(0.82, 1.0)
+            pts.append((cx + rr * math.cos(a), cy + rr * ex * math.sin(a)))
+        _solido(S, pts, r.choice(C_PIEDRAS))
+        _pol(S, pts, C_LINEA, lw=13)
+    return len(piedras)
+
+
+def detalle_cad(doc, nombre):
+    """Igual geometria y textos que detalle(), dibujado sin patrones (se ve igual en AutoCAD que en la vista previa)."""
+    blk = doc.blocks.new("DETALLE_LLORADERO")
+    S = Hoja(blk)
+    H, e, b = 0.50, 0.10, 0.40
+    B = b + 2 * e; ytop = e + H; yc = e + H / 2
+    F, LT, DT = 0.30, 0.30, 0.076
+    XT0, XT1 = -0.55, B + 0.55
+    # ---- terreno alrededor de la cuneta (un solo poligono, sin islas)
+    tierra_cad(S, [(XT0, -0.31), (XT1, -0.31), (XT1, ytop), (B, ytop), (B, -0.10), (0, -0.10), (0, ytop), (XT0, ytop)])
+    _lin(S, (XT0, ytop), (0, ytop), C_TIERRA_T); _lin(S, (B, ytop), (XT1, ytop), C_TIERRA_T)
+    r = _rnd.Random(7); x = XT0 + 0.02
+    while x < XT1 - 0.02:                            # pasto (area verde)
+        if not (-0.01 < x < B + 0.01):
+            for dx, h in ((0, 0.035), (0.008, 0.05), (0.016, 0.03)):
+                _lin(S, (x + dx, ytop), (x + dx + r.uniform(-0.01, 0.01), ytop + h * r.uniform(0.7, 1.1)), (60, 150, 60))
+        x += 0.07
+    # ---- solado y cuneta de concreto
+    sol = [(0, -0.10), (B, -0.10), (B, 0), (0, 0)]
+    punteado_cad(S, sol, C_SOLADO, C_SOLADO_T, dens=2600, semilla=4); _pol(S, sol, C_LINEA, lw=35)
+    cun = [(0, 0), (B, 0), (B, ytop), (B - e + 0.05, ytop), (B - e + 0.05, ytop - 0.03), (B - e, ytop - 0.03), (B - e, e),
+           (e, e), (e, ytop - 0.03), (e - 0.05, ytop - 0.03), (e - 0.05, ytop), (0, ytop)]
+    punteado_cad(S, cun, C_CONC, C_CONC_T, dens=1800, semilla=5)
+    S.poli(cun, 5, cerrada=True, lw=50)
+    # ---- rejilla movil sobre el rebaje
+    rj = [(e - 0.05, ytop - 0.03), (B - e + 0.05, ytop - 0.03), (B - e + 0.05, ytop), (e - 0.05, ytop)]
+    _solido(S, rj, (214, 70, 70)); S.poli(rj, 1, cerrada=True, lw=35)
+    for x0, sg in ((e - 0.05, 1), (B - e + 0.05, -1)):
+        S.poli([(x0, ytop - 0.03), (x0, ytop - 0.03 - 0.025), (x0 + sg * 0.004, ytop - 0.03 - 0.025)], 5, lw=25)
+    # ---- filtros (grava piedra por piedra), geotextil y tubos
+    for lado in (-1, 1):
+        x0 = -F if lado < 0 else B
+        _solido(S, [(x0, yc - F / 2), (x0 + F, yc - F / 2), (x0 + F, yc + F / 2), (x0, yc + F / 2)], (232, 224, 208))
+        grava_cad(S, x0, yc - F / 2, x0 + F, yc + F / 2, semilla=11 if lado < 0 else 23)
+        _pol(S, [(x0 - 0.006, yc - F / 2 - 0.006), (x0 + F + 0.006, yc - F / 2 - 0.006), (x0 + F + 0.006, yc + F / 2 + 0.006),
+                 (x0 - 0.006, yc + F / 2 + 0.006)], C_GEO, lw=70)
+        xi = e if lado < 0 else B - e
+        xe = xi + lado * LT
+        dz = LT * 0.005
+        p = [(xe, yc + dz + DT / 2), (xi, yc + DT / 2), (xi, yc - DT / 2), (xe, yc + dz - DT / 2)]
+        _solido(S, p, C_TUBO); S.poli(p, 5, cerrada=True, lw=35)
+        xm = xi + lado * e
+        for k in range(4):
+            xx = xm + lado * (0.03 + k * 0.05)
+            for yy in (yc + 0.012, yc - 0.012):
+                _solido(S, [(xx + 0.004 * math.cos(k * math.pi / 4), yy + 0.004 * math.sin(k * math.pi / 4)) for k in range(8)], C_TEXTO_OSC)
+        xa = xi - lado * 0.03; xb = xi - lado * 0.15
+        S.ln((xa, yc - 0.09), (xb, yc - 0.09), 1)
+        S.poli([(xb, yc - 0.09), (xb + lado * 0.035, yc - 0.078), (xb + lado * 0.035, yc - 0.102)], 1, cerrada=True)
+        S.t((xa + xb) / 2, yc - 0.075, "S = 0.5 %", HB * 0.8, 160, al=TA.BOTTOM_CENTER)
+
+    def cota_h(xa, xb, y, txt=None, arriba=True):
+        S.ln((xa, y), (xb, y), 94, "LEY-COTA")
+        for x in (xa, xb):
+            S.ln((x - 0.01, y - 0.01), (x + 0.01, y + 0.01), 94, "LEY-COTA"); S.ln((x, y - 0.02), (x, y + 0.02), 94, "LEY-COTA")
+        S.t((xa + xb) / 2, y + (0.012 if arriba else -0.012), txt or "%.2f" % (xb - xa), HB * 0.85, 7,
+            al=TA.BOTTOM_CENTER if arriba else TA.TOP_CENTER).rgb = C_TEXTO_OSC
+
+    def cota_v(x, ya, yb, txt=None, izq=True, osc=True):
+        S.ln((x, ya), (x, yb), 94, "LEY-COTA")
+        for y in (ya, yb):
+            S.ln((x - 0.01, y - 0.01), (x + 0.01, y + 0.01), 94, "LEY-COTA"); S.ln((x - 0.02, y), (x + 0.02, y), 94, "LEY-COTA")
+        tx = S.t(x + (-0.015 if izq else 0.015), (ya + yb) / 2, txt or "%.2f" % (yb - ya), HB * 0.85, 7,
+            al=TA.MIDDLE_RIGHT if izq else TA.MIDDLE_LEFT)
+        if osc: tx.rgb = C_TEXTO_OSC                 # sobre la tierra; dentro de la cuneta queda en color 7
+
+    cota_h(0, e, -0.17, arriba=False); cota_h(e, B - e, -0.17, arriba=False); cota_h(B - e, B, -0.17, arriba=False)
+    cota_h(0, B, -0.24, arriba=False)
+    cota_h(-F, 0, yc + F / 2 + 0.05, "0.30")
+    cota_h(-LT + e, e, yc - F / 2 - 0.05, "L = 0.30", arriba=False)
+    cota_v(-F - 0.06, yc - F / 2, yc + F / 2, "0.30")
+    cota_v(B + F + 0.06, e, ytop, "H variable", izq=False)
+    cota_v(B / 2, e, yc - DT / 2, "H/2", izq=False, osc=False)
+    cota_v(-F - 0.06, -0.10, 0, "0.10")
+
+    xt = B + F + 0.42
+    items = [((B / 2, ytop - 0.015), "Rejilla metalica movil: platinas 1\" x 3/16\" sobre angulo 1\" x 1\" x 3/16\""),
+             ((B + 0.15, ytop + 0.03), "Area verde (terreno natural con cobertura vegetal)"),
+             ((B + F - 0.02, yc + F / 2 - 0.02), "Grava filtrante (ripio) de 20 a 40 mm"),
+             ((B + F + 0.006, yc + 0.06), "Filtro localizado 0.30 x 0.30 x 0.30 m (0.027 m3)"),
+             ((B - e + 0.05, yc + 0.02), "Lloradero: tubo PVC-U Ø 3\" (76 mm), L = 0.30 m @1.50 m, S = 0.5 %"),
+             ((B + 0.13, yc - 0.012), "Tramo perforado Ø 3/8\" dentro del filtro"),
+             ((B + F + 0.006, yc - 0.10), "Geotextil no tejido clase 2 envolviendo la grava"),
+             ((B - 0.05, 0.15), "Muro y losa de cuneta f'c = 175 kg/cm2, e = 0.10 m"),
+             ((B + 0.25, 0.02), "Relleno compactado con material propio"),
+             ((B - 0.10, -0.05), "Solado f'c = 100 kg/cm2, e = 4\"")]
+    ys = ytop + 0.10; dy = 0.085
+    for k, (pt, txt) in enumerate(items):
+        y = ys - k * dy
+        S.ln(pt, (xt - 0.03, y), 30, "LEY-COTA"); S.ln((xt - 0.03, y), (xt - 0.005, y), 30, "LEY-COTA")
+        S.punto(pt, 0.006, 30)
+        S.t(xt, y, txt, HB * 0.9, al=TA.MIDDLE_LEFT)
+    S.t(B / 2 + 0.55, ytop + 0.36, "DETALLE DE INSTALACION DE LLORADEROS EN CUNETAS", HT * 0.85, C_TIT, "LEY-TITULO", "ARIAL-N", TA.MIDDLE_CENTER)
+    S.t(B / 2 + 0.55, ytop + 0.29, "Seccion cuneta - area verde (H variable segun perfil; se dibuja H = 0.50 m) - " + nombre, HB * 0.9, al=TA.MIDDLE_CENTER)
+    S.t(B / 2 + 0.55, -0.36, "ESC. REAL (1 unidad = 1 m) - lloraderos solo en los muros colindantes con area verde", HB * 0.85, al=TA.MIDDLE_CENTER)
+    return blk
+
+
+def presentaciones(doc, caja_esp, caja_det, esc=10):
+    """Dos presentaciones A3 horizontales listas para imprimir a escala 1:10 (papel en mm, ventana bloqueada)."""
+    for nombre, (x0, y0, x1, y1) in (("ESPECIFICACIONES 1-10", caja_esp), ("DETALLE LLORADERO 1-10", caja_det)):
+        lay = doc.layouts.new(nombre)
+        lay.page_setup(size=(420, 297), margins=(0, 0, 0, 0), units="mm")
+        lay.add_lwpolyline([(10, 10), (410, 10), (410, 287), (10, 287)], close=True, dxfattribs={"layer": "LEY-MARCO", "lineweight": 50})
+        w, h = (x1 - x0) * 1000 / esc, (y1 - y0) * 1000 / esc
+        vp = lay.add_viewport(center=(210, 148.5), size=(min(w + 10, 396), min(h + 10, 273)),
+                              view_center_point=((x0 + x1) / 2, (y0 + y1) / 2), view_height=min(h + 10, 273) * esc / 1000)
+        vp.dxf.status = 1; vp.dxf.flags = vp.dxf.flags | 16384          # ventana bloqueada a su escala
+        lay.add_text("ESC. 1/%d" % esc, height=3.5, dxfattribs={"layer": "LEY-TEXTO", "style": "ARIAL"}).set_placement((405, 13), align=TA.BOTTOM_RIGHT)
+
+
 def construir(clave):
     archivo, nombre, carpeta, suf = PROY[clave]
+    CAD = clave == "refugio"                         # Hogar de Refugio: dibujo sin patrones de achurado (se ve igual en AutoCAD)
     D = datos(archivo); n, L = D["n"], D["L"]
 
     doc = ezdxf.new("R2013", setup=True); doc.header["$INSUNITS"] = 6
@@ -168,25 +375,35 @@ def construir(clave):
         return [(xs, yc - 0.03), (xs + 0.26, yc - 0.03), (xs + 0.26, yc + 0.03), (xs, yc + 0.03)]
 
     def terreno(yc):
-        p = caja(yc); S.relleno(p, None, "EARTH", 0.03, 33); S.poli(p, 7, cerrada=True)
+        p = caja(yc)
+        if CAD: tierra_cad(S, p, paso=0.06)
+        else: S.relleno(p, None, "EARTH", 0.03, 33)
+        S.poli(p, 7, cerrada=True)
     fila(terreno, "Terreno natural / area verde (relleno compactado)")
 
     def concreto(yc):
-        p = caja(yc); S.relleno(p, None, "AR-CONC", 0.012, 8); S.poli(p, 5, cerrada=True)
+        p = caja(yc)
+        if CAD: punteado_cad(S, p, C_CONC, C_CONC_T)
+        else: S.relleno(p, None, "AR-CONC", 0.012, 8)
+        S.poli(p, 5, cerrada=True)
     fila(concreto, "Muro y losa de la cuneta, concreto f'c = 175 kg/cm²")
 
     def grava(yc):
-        p = caja(yc); S.relleno(p, None, "GRAVEL", 0.05, 250); S.poli(p, 7, cerrada=True)
+        p = caja(yc)
+        if CAD: _solido(S, p, (232, 224, 208)); grava_cad(S, p[0][0], p[0][1], p[2][0], p[2][1])
+        else: S.relleno(p, None, "GRAVEL", 0.05, 250)
+        S.poli(p, 7, cerrada=True)
     fila(grava, "Grava filtrante (ripio) de 20 a 40 mm, limpia y lavada")
 
     def geo(yc):
-        S.poli(caja(yc), 150, cerrada=True, lw=70)
+        if CAD: _pol(S, caja(yc), C_GEO, lw=70)
+        else: S.poli(caja(yc), 150, cerrada=True, lw=70)
     fila(geo, "Geotextil no tejido clase 2 envolviendo la grava (linea celeste)")
 
     def tubo(yc):
         p = [(xs + 0.02, yc - 0.019), (xs + 0.24, yc - 0.019), (xs + 0.24, yc + 0.019), (xs + 0.02, yc + 0.019)]
         S.relleno(p, (180, 214, 246), color=151); S.poli(p, 5, cerrada=True)
-        for k in range(5): S.punto((xs + 0.14 + k * 0.022, yc), 0.004, 250)
+        for k in range(5): S.punto((xs + 0.14 + k * 0.022, yc), 0.004, 7 if CAD else 250)
     fila(tubo, "Tubo PVC-U; tramo perforado (puntos) dentro del filtro")
 
     def flecha(yc):
@@ -256,8 +473,13 @@ def construir(clave):
     sep.dxf.end = (X2 - 0.06, yb)
     blk.add_lwpolyline([(0, yb), (W, yb), (W, YT), (0, YT)], close=True, dxfattribs={"layer": "LEY-MARCO", "color": 250, "lineweight": 50})
     doc.modelspace().add_blockref("ESPEC_LLORADEROS", (0, 0), dxfattribs={"layer": "0"})
-    detalle(doc, nombre.split(" - ")[0])
+    (detalle_cad if CAD else detalle)(doc, nombre.split(" - ")[0])
     doc.modelspace().add_blockref("DETALLE_LLORADERO", (W + 0.85, 0.85), dxfattribs={"layer": "0"})
+    if CAD:
+        for blq in doc.blocks:                       # el "³" de la fuente no sale en AutoCAD: m3
+            for t in blq.query("TEXT"):
+                t.dxf.text = t.dxf.text.replace("³", "3")
+        presentaciones(doc, (0, yb, W, YT), (W + 0.85 - 0.75, 0.85 - 0.45, W + 0.85 + 2.65, 0.85 + 1.05))
     err = len(doc.audit().errors)
     sal = os.path.join(RAIZ, carpeta, "ESPECIFICACIONES_LLORADEROS_%s.dxf" % suf)
     doc.saveas(sal)
