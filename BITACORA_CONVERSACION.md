@@ -503,3 +503,15 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   piedras de grava una por una (20 a 40 mm, escala real), punteado de concreto y solado, trazos de tierra; cotas y puntos en gris oscuro fijo
   (se leen con fondo negro y blanco); "m3". Dos presentaciones A3 a escala 1:10 (ESPECIFICACIONES y DETALLE LLORADERO).
   CAR Varones sin cambios (no se regenero).
+
+## 22-10-2026 – Hogar de Refugio (CUI 2675514): drenaje pluvial de la OC-01 (jardinera + banca + pergola)
+- Insumo: `insumos/solange/oc01/OC-01_BANCA_CON_PERGOLA.dxf` (planta de techos, corte A-A, elevacion E1; proyecto confirmado por el usuario).
+- Tres techos a una agua de 2.40 de fondo: T-1 3.79 (canaleta al norte, salida en el extremo izquierdo), T-2 4.21 (central, canaleta
+  al sur, salida a la izquierda), T-3 3.79 (canaleta al norte, salida a la derecha). El "sumidero 4" tipo cupula" se reemplaza por
+  boquilla de plancha (pedido del usuario). Canaleta de plancha galvanizada e = 0.50 mm, 0.18 x 0.21 (indicacion del usuario), S = 0.5 %,
+  2 sujetadores por canaleta (0.80 / 0.85 m de cada extremo), tapas en los dos extremos.
+- `herramientas/techo/planos_oc01_refugio.py` -> `entregables/PLANOS_DRENAJE_OC-01_BANCA_PERGOLA_HOGAR_REFUGIO.dxf`: DO-01 isometrico
+  general 1/30 + planta de techos 1/50; DO-02 isometrico de la salida (boquilla, niple, codos, colgador, abrazadera, bajada) y corte de
+  la canaleta 1/5. PNG en `entregables/vistas_previas_oc01/`.
+- `herramientas/techo/metrado_oc01_refugio.py` -> `entregables/METRADO_CANALETA_OC-01_BANCA_PERGOLA_HOGAR_REFUGIO.xlsx`: solo canaleta
+  11.79 m, 6 tapas, 6 sujetadores, 3 boquillas (N.° de OC-01 = 1, dato editable).
