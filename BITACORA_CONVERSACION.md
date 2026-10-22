@@ -515,3 +515,10 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   la canaleta 1/5. PNG en `entregables/vistas_previas_oc01/`.
 - `herramientas/techo/metrado_oc01_refugio.py` -> `entregables/METRADO_CANALETA_OC-01_BANCA_PERGOLA_HOGAR_REFUGIO.xlsx`: solo canaleta
   11.79 m, 6 tapas, 6 sujetadores, 3 boquillas (N.° de OC-01 = 1, dato editable).
+- Bancas OC-01 en la planilla del Hogar de Refugio: son 9 bancas = 3 juegos OC-01 (cada juego: techos de 3.79, 4.21 y 3.79 m).
+  El usuario envio su metrado actualizado (copiado a `insumos/metrados_vigentes/METRADO_DRENAJE_MUJERES_VIOLENTADAS.xlsx`).
+  `herramientas/bancas_oc01_en_planilla_refugio.py` -> `entregables/METRADO_DRENAJE_MUJERES_VIOLENTADAS_CON_BANCAS_OC-01.xlsx`:
+  hoja nueva METRADO CANALETA BANCAS (estilos de METRADO CANALETAS; N.° de juegos en F22 editable), subtitulo
+  01.04.03.05.04 RED DE RECOLECCION TECHO DE BANCAS CON PERGOLA (OC-01) en PLANILLA (filas 165-169) y RESUMEN (filas 53-57):
+  canaleta 35.37 m, soportes 18, tapas 18, boquillas 9. Los 760 valores anteriores quedan iguales (comprobado).
+  El metrado suelto de la OC-01 y la nota 5 de DO-01 pasan a 3 juegos.

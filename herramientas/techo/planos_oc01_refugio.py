@@ -301,6 +301,7 @@ def do01(doc, ox, oy):
         "2. Canaleta, tapas y boquilla de plancha galvanizada e = 0.50 mm; un tramo por techo (3.79, 4.21 y 3.79 m), S = 0.5 % hacia la boquilla.",
         "3. 2 soportes (sujetadores) de platina por canaleta, a 0.80 m (T-1, T-3) y 0.85 m (T-2) de cada extremo.",
         "4. El sumidero tipo cupula del plano se reemplaza por boquilla de plancha Ø 4\". Detalle de la salida en DO-02.",
+        "5. Se construyen 3 juegos OC-01 iguales (9 bancas): 35.37 m de canaleta, 18 tapas, 18 soportes y 9 boquillas.",
     ], hmm=1.7, ancho_mm=165)
     return lam
 

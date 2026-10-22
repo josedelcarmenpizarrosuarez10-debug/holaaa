@@ -12,7 +12,7 @@ import planos_oc01_refugio as OC
 import dxf_base as B
 
 SAL = os.path.join(RAIZ, "entregables", "METRADO_CANALETA_OC-01_BANCA_PERGOLA_HOGAR_REFUGIO.xlsx")
-N_OC = 1
+N_OC = 3                    # 9 bancas = 3 juegos OC-01
 AZUL, AMA, VER, GRIS = "1F4E79", "FFF2CC", "E2EFDA", "F2F2F2"
 _b = Side(style="thin", color="808080"); BOR = Border(left=_b, right=_b, top=_b, bottom=_b)
 F = lambda **k: Font(name="Arial", size=k.pop("size", 9), **k)
@@ -42,7 +42,7 @@ def main():
         ws.cell(i, 1, a).font = F(bold=True); ws.merge_cells(start_row=i, start_column=2, end_row=i, end_column=10)
         c = ws.cell(i, 2, b); c.font = F(); c.alignment = Alignment(wrap_text=True, vertical="top")
     ws.row_dimensions[4].height = 26
-    ws.merge_cells("A8:C8"); ws.cell(8, 1, "N.° DE ESTRUCTURAS OC-01").font = F(bold=True)
+    ws.merge_cells("A8:C8"); ws.cell(8, 1, "N.° DE JUEGOS OC-01 (9 BANCAS)").font = F(bold=True)
     c = ws.cell(8, 4, N_OC); c.fill = PatternFill("solid", fgColor=AMA); c.font = F(bold=True, size=11); c.border = BOR
     c.alignment = Alignment(horizontal="center")
     cab = ["ITEM", "DESCRIPCION", "UND.", "TECHO T-1 (3.79)", "TECHO T-2 (4.21)", "TECHO T-3 (3.79)", "POR OC-01", "N.° OC-01",
