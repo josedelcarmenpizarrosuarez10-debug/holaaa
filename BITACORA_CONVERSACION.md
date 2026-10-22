@@ -522,3 +522,15 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   01.04.03.05.04 RED DE RECOLECCION TECHO DE BANCAS CON PERGOLA (OC-01) en PLANILLA (filas 165-169) y RESUMEN (filas 53-57):
   canaleta 35.37 m, soportes 18, tapas 18, boquillas 9. Los 760 valores anteriores quedan iguales (comprobado).
   El metrado suelto de la OC-01 y la nota 5 de DO-01 pasan a 3 juegos.
+
+
+## 22/10/2026 - Hogar de Refugio: índice de planos, memorias y especificaciones con el juego DPL
+- El usuario entregó el PDF de 40 láminas DPL (ordenado por tamaño) y su metrado con bancas editado (hoja METRADO CANALETA BANCAS
+  sin la fila 8). Ese metrado pasa a vigente (`insumos/metrados_vigentes/..._CON_BANCAS_OC-01.xlsx`) sin cambios.
+- `indice_planos_refugio.py`: índice en Word (42 láminas en 8 grupos) y PDF reordenado DPL-01 a DPL-40 con marcadores.
+  El isométrico de lloraderos tenía en el rótulo DPL-36 (repetido con la caja sumidero): en el índice es DPL-40 (corregir rótulo en CAD).
+  Las láminas OC-01 (DO-01/DO-02) pasan a DPL-41/DPL-42 en el DXF; la nota de parámetros del metrado del usuario aún dice "plano DO-02".
+- Memoria hidrológica: figuras = láminas del PDF del usuario, referencias DPL, metrado del colector desde el RESUMEN vigente y
+  capítulo 9 nuevo (canaletas de bancas OC-01: Q < 0.6 L/s por techo, y 0.012 m, D req. 1.59" -> 4"; lloraderos 157 und).
+- Especificaciones: lee el metrado vigente con bancas (4 partidas 01.04.03.05.04 con texto propio) y láminas DPL.
+- Memoria descriptiva nueva (`memoria_descriptiva_refugio.py`), estructura del CAR Mujeres, 19 páginas.

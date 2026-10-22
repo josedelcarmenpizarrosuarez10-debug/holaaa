@@ -78,6 +78,11 @@ python3 herramientas/memoria_xlsx.py      # memoria de cálculo
 python3 herramientas/planos_dxf.py        # juego de planos DP/DA/DD
 python3 herramientas/dxf_render.py <dxf> <png> x0 y0 x1 y1 110 color   # vista previa (caja de entregables/_calc/laminas.json)
 ```
+Refugio, juego de láminas DPL del usuario (`insumos/solange/PLANOS_DRENAJE_PLUVIAL_MUJERES_VIOLENTADAS_LAMINAS.pdf`, 40 láminas):
+`python3 herramientas/indice_planos_refugio.py` -> índice Word + PDF ordenado por código (lloraderos iso DPL-36 repetido -> DPL-40;
+OC-01 = DPL-41/42). Metrado vigente: `insumos/metrados_vigentes/METRADO_DRENAJE_MUJERES_VIOLENTADAS_CON_BANCAS_OC-01.xlsx` (del usuario;
+`bancas_oc01_en_planilla_refugio.py` ya no lo pisa). Documentos: `memoria_docx.py` (hidrológica, láminas DPL, OC-01 y lloraderos),
+`especificaciones/espec.py refugio` + `node docx_espec.js`, `memoria_descriptiva_refugio.py` (nueva).
 CAR Varones: `python3 herramientas/varones/planos_v.py`. CAR Mujeres: `python3 herramientas/mujeres/planos_m.py`.
 DP-06B suelta: `python3 herramientas/render_tapa/dxf_tapa_ciega.py <salida.dxf> <refugio|varones|mujeres>` (render: 0 0 841 594).
 
