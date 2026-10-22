@@ -617,7 +617,7 @@ def capitulo_complementario(doc):
     leyenda(doc, "%s: Tramos de cuneta con lloraderos de PVC Ø 3\" @ 1.50 m." % NUM.tabla())
     fuente(doc, "Fuente: Planilla general de metrados del proyecto (hoja METRADO LLORADEROS).")
     parrafo(doc, "La ubicación de los lloraderos está en la lámina DPL-39, el corte del lloradero con el tubo perforado y su "
-                 "desagregado en la lámina DPL-37 y el isométrico de instalación en la lámina DPL-40.")
+                 "desagregado en la lámina DPL-37 y el isométrico de instalación en la lámina DPL-36 (isométrico de instalación de lloraderos en cunetas).")
     figura(doc, "DPL-37", "Detalle de lloradero: corte, tubo perforado y desagregado")
 
 

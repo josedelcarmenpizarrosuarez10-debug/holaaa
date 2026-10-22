@@ -1,18 +1,13 @@
 # -*- coding: utf-8 -*-
-"""Índice de planos de drenaje pluvial - Hogar de Refugio Temporal "Mujeres Violentadas" (CUI 2675514), en Word,
-y el juego de láminas en PDF ordenado por código.
+"""Índice de planos de drenaje pluvial - Hogar de Refugio Temporal "Mujeres Violentadas" (CUI 2675514), en Word.
 
 Fuente: el PDF de láminas del usuario (insumos/solange/PLANOS_DRENAJE_PLUVIAL_MUJERES_VIOLENTADAS_LAMINAS.pdf, 40 láminas
-DPL, setiembre 2026), que viene ordenado por tamaño de papel. De cada página se lee, sin modificarla: código y título del
-rótulo, formato del papel y escalas de los dibujos.
-- La lámina "ISOMÉTRICO DE INSTALACIÓN DE LLORADEROS EN CUNETAS" trae en el rótulo DPL-36, código que ya usa el detalle de la
-  caja sumidero de piso (DPL-35/36 van juntas). En el índice pasa a DPL-40, después de la planta de lloraderos (DPL-39);
-  hay que corregir su rótulo en el CAD.
-- Las dos láminas de la OC-01 (bancas con pérgola) se agregan como DPL-41 y DPL-42 (DXF de techo/planos_oc01_refugio.py).
+DPL, setiembre 2026). El índice sigue el orden del PDF, que está organizado por formato de hoja (A0, A1, A2 y A3), y cada
+lámina lleva el código y el título de su rótulo, tal como están. De cada página se lee, sin modificarla: código y título
+del rótulo, formato del papel y escalas de los dibujos.
 
 Uso:  python3 herramientas/indice_planos_refugio.py
 Salida: entregables/INDICE_DE_PLANOS_DRENAJE_PLUVIAL_HOGAR_REFUGIO.docx
-        entregables/PLANOS_DRENAJE_PLUVIAL_HOGAR_REFUGIO_ORDENADOS.pdf
         entregables/_calc/indice_planos.json
 """
 import json
@@ -28,20 +23,18 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Cm, Pt, RGBColor
-from pypdf import PdfReader, PdfWriter
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PDF = os.path.join(RAIZ, 'insumos/solange/PLANOS_DRENAJE_PLUVIAL_MUJERES_VIOLENTADAS_LAMINAS.pdf')
 DATOS = os.path.join(RAIZ, 'entregables/_calc/indice_planos.json')
 SALIDA = os.path.join(RAIZ, 'entregables/INDICE_DE_PLANOS_DRENAJE_PLUVIAL_HOGAR_REFUGIO.docx')
-SALIDA_PDF = os.path.join(RAIZ, 'entregables/PLANOS_DRENAJE_PLUVIAL_HOGAR_REFUGIO_ORDENADOS.pdf')
 GRANATE, GRIS_CLARO, GRIS = '7B1E2B', 'F2E6E8', '595959'
 PROYECTO = ('“CREACIÓN DEL SERVICIO DE PROTECCIÓN A MUJERES VÍCTIMAS DE VIOLENCIA EN SITUACIÓN DE RIESGO DE FEMINICIDIO O '
             'PELIGRE SU INTEGRIDAD Y/O SALUD FÍSICA Y/O MENTAL EN HOGAR DE REFUGIO TEMPORAL DISTRITO DE MORALES DE LA '
             'PROVINCIA DE SAN MARTÍN DEL DEPARTAMENTO DE SAN MARTÍN”')
 CUI = '2675514'
 
-# Título de cada lámina como figura en su rótulo (con tildes). Se comprueba contra el texto del PDF.
+# Títulos de los rótulos (con tildes), por código; se comprueban contra el texto del PDF. DPL-36 figura en dos láminas.
 TITULOS = {
     'DPL-01': 'RED GENERAL DE DRENAJE PLUVIAL',
     'DPL-02': 'PERFILES LONGITUDINALES',
@@ -65,27 +58,11 @@ TITULOS = {
     'DPL-33': 'ELEVACIÓN DE CANALETA Y CORTE DEL MONTANTE PLUVIAL',
     'DPL-34': 'ISOMÉTRICO DEL MONTANTE PLUVIAL TÍPICO',
     'DPL-35': 'ISOMÉTRICO DE LA CAJA SUMIDERO DE PISO',
-    'DPL-36': 'DETALLE DE CAJA SUMIDERO DE PISO: CORTE, PLANTA Y DESAGREGADO',
+    'DPL-36': ('DETALLE DE CAJA SUMIDERO DE PISO: CORTE, PLANTA Y DESAGREGADO', 'ISOMÉTRICO DE INSTALACIÓN DE LLORADEROS EN CUNETAS'),
     'DPL-37': 'DETALLE DE LLORADERO: CORTE, TUBO PERFORADO Y DESAGREGADO',
     'DPL-38': 'DETALLE CONSTRUCTIVO FALSA COLUMNA PARA MONTANTE PLUVIAL EN EDIFICACIONES',
     'DPL-39': 'PLANTA DE UBICACIÓN DE LLORADEROS EN CUNETAS COLINDANTES CON ÁREA VERDE',
-    'DPL-40': 'ISOMÉTRICO DE INSTALACIÓN DE LLORADEROS EN CUNETAS',
 }
-# lámina con código repetido en el rótulo: título -> código del índice
-RECODIFICA = {'ISOMÉTRICO DE INSTALACIÓN DE LLORADEROS EN CUNETAS': 'DPL-40'}
-# láminas de la OC-01 (DXF propio, no están en el PDF del usuario)
-OC01 = [dict(codigo='DPL-41', titulo='ISOMÉTRICO DEL DRENAJE PLUVIAL DE LA OC-01 (JARDINERA + BANCA + PÉRGOLA)',
-             contenido='3 CANALETAS 0.18 x 0.21 (TECHOS 3.79, 4.21 Y 3.79 m) Y PLANTA DE TECHOS; 3 JUEGOS = 9 BANCAS',
-             formato='A1', escala='INDICADA', escalas_dibujo=['1/30', '1/50'], pagina=None, rotulo=None),
-        dict(codigo='DPL-42', titulo='DETALLE ISOMÉTRICO DE LA SALIDA DE LA CANALETA DE LA OC-01',
-             contenido='BOQUILLA Ø 4", COLGADOR, ABRAZADERA, BAJADA PVC 4" Y CORTE DE LA CANALETA',
-             formato='A1', escala='INDICADA', escalas_dibujo=['1/5'], pagina=None, rotulo=None)]
-GRUPOS = [(1, 5, 'RED DE CUNETAS'), (6, 14, 'COLECTOR PLUVIAL FRONTAL'), (15, 23, 'MONTANTES PLUVIALES POR EDIFICACIÓN'),
-          (24, 29, 'DETALLES DEL COLECTOR: REGISTROS, EMPALMES, CAJAS Y JUNTAS'), (30, 34, 'CANALETAS Y MONTANTES PLUVIALES'),
-          (35, 40, 'CAJA SUMIDERO DE PISO, LLORADEROS Y FALSA COLUMNA'),
-          (41, 42, 'OBRA COMPLEMENTARIA OC-01: BANCAS CON PÉRGOLA')]
-
-
 def _llano(t):
     """Mayúsculas sin tildes ni espacios (para comparar con el texto del PDF)."""
     t = unicodedata.normalize('NFD', t.upper())
@@ -131,36 +108,17 @@ def leer_pdf():
         escala, rotulo = lin[k + 1].strip(), lin[k + 2].strip()
         tit_pdf = ' '.join(lin[i + 1:j])
         cod = rotulo
-        for tit, nuevo in RECODIFICA.items():
-            if _llano(tit_pdf) == _llano(tit):
-                cod = nuevo
-        tit = TITULOS[cod]
-        if _llano(tit_pdf) != _llano(tit):
-            raise SystemExit('Título distinto en %s: rótulo "%s" / índice "%s"' % (cod, tit_pdf, tit))
+        opciones = TITULOS[cod] if isinstance(TITULOS[cod], tuple) else (TITULOS[cod],)
+        tit = next((x for x in opciones if _llano(x) == _llano(tit_pdf)), None)
+        if not tit:
+            raise SystemExit('Título distinto en %s: rótulo "%s" / índice "%s"' % (cod, tit_pdf, opciones))
         esc_dib = sorted(set(re.sub(r'\s', '', e) for e in re.findall(r'ESC(?:ALA)?\.?\s*:?\s*(1\s*/\s*\d+)', t)),
                          key=lambda e: int(e.split('/')[1]))
         planos.append(dict(codigo=cod, titulo=tit, contenido=contenido(cod, t), formato=formatos[pag], escala=escala,
                            escalas_dibujo=esc_dib, pagina=pag, rotulo=rotulo))
-    planos += OC01
-    planos.sort(key=lambda p: p['codigo'])
-    cods = [p['codigo'] for p in planos]
-    assert cods == ['DPL-%02d' % n for n in range(1, len(cods) + 1)], cods
     os.makedirs(os.path.dirname(DATOS), exist_ok=True)
     json.dump(planos, open(DATOS, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     return planos
-
-
-def pdf_ordenado(planos):
-    r = PdfReader(PDF); w = PdfWriter()
-    for p in planos:
-        if p['pagina']:
-            w.add_page(r.pages[p['pagina'] - 1])
-            w.add_outline_item('%s  %s' % (p['codigo'], p['titulo']), len(w.pages) - 1)
-    w.add_metadata({'/Title': 'Planos de drenaje pluvial - Hogar de Refugio Temporal - CUI %s' % CUI, '/Author': '', '/Producer': ''})
-    w.page_mode = '/UseOutlines'
-    with open(SALIDA_PDF, 'wb') as f:
-        w.write(f)
-    return SALIDA_PDF
 
 
 # ----------------------------------------------------------------------------------------------- Word
@@ -249,15 +207,17 @@ def generar(planos):
     for c, w, t in zip(tb.rows[0].cells, anchos, ('N.°', 'LÁMINA', 'DESCRIPCIÓN', 'FORMATO', 'ESCALA')):
         c.width = Cm(w); _celda(c, [(t, 7.5, True, 'FFFFFF')]); _sombra(c, GRANATE)
     trPr = tb.rows[0]._tr.get_or_add_trPr(); e = OxmlElement('w:tblHeader'); e.set(qn('w:val'), 'true'); trPr.append(e)
+    cuenta = {}
+    for p in planos:
+        cuenta[p['formato']] = cuenta.get(p['formato'], 0) + 1
+    previo = None
     for n, p in enumerate(planos, 1):
-        num = int(p['codigo'][4:])
-        for a, b, nombre in GRUPOS:
-            if num == a:
-                fila = tb.add_row(); fila._tr.get_or_add_trPr().append(OxmlElement('w:cantSplit'))
-                c = fila.cells[0].merge(fila.cells[4])
-                _celda(c, [('%s  (DPL-%02d A DPL-%02d)' % (nombre, a, b), 7.5, True, GRANATE)], centro=False)
-                _sombra(c, GRIS_CLARO)
-                fila._tr.get_or_add_trPr().append(OxmlElement('w:cantSplit'))
+        if p['formato'] != previo:                     # el PDF va por formato de hoja: A0, A1, A2 y A3
+            previo = p['formato']
+            fila = tb.add_row(); fila._tr.get_or_add_trPr().append(OxmlElement('w:cantSplit'))
+            c = fila.cells[0].merge(fila.cells[4])
+            _celda(c, [('LÁMINAS EN FORMATO %s  (%d)' % (previo, cuenta[previo]), 7.5, True, GRANATE)], centro=False)
+            _sombra(c, GRIS_CLARO)
         fila = tb.add_row(); fila._tr.get_or_add_trPr().append(OxmlElement('w:cantSplit'))
         cel = fila.cells
         for c, w in zip(cel, anchos):
@@ -267,28 +227,16 @@ def generar(planos):
         lineas = [(p['titulo'], 8, True, None)]
         if p['contenido']:
             lineas.append((p['contenido'], 6.5, False, GRIS))
-        if p['rotulo'] and p['rotulo'] != p['codigo']:
-            lineas.append(('Nota: en el rótulo figura %s (código repetido con el detalle de la caja sumidero); corregir a %s.'
-                           % (p['rotulo'], p['codigo']), 6.5, False, 'C00000'))
-        if not p['pagina']:
-            lineas.append(('Lámina en DXF (PLANOS_DRENAJE_OC-01_BANCA_PERGOLA_HOGAR_REFUGIO.dxf); por ploteo con el rótulo del juego.',
-                           6.5, False, 'C00000'))
         _celda(cel[2], lineas, centro=False)
         _celda(cel[3], [(p['formato'], 8, False, None)])
         esc = [(p['escala'], 8, False, None)]
         if p['escalas_dibujo']:
             esc.append((', '.join(p['escalas_dibujo']), 6.5, False, GRIS))
         _celda(cel[4], esc)
-    cuenta = {}
-    for p in planos:
-        cuenta[p['formato']] = cuenta.get(p['formato'], 0) + 1
     resumen = ', '.join('%d en %s' % (cuenta[f], f) for f in sorted(cuenta))
     par('Total: %d láminas (%s).' % (len(planos), resumen), 9, True, antes=8, despues=2, centro=False)
-    for t in ('Escala del rótulo: INDICADA; debajo, en gris, las escalas de los dibujos de cada lámina. Fecha de las láminas: '
-              'setiembre 2026 (DPL-01 a DPL-40) y octubre 2026 (DPL-41 y DPL-42).',
-              'El orden del índice es el del juego de láminas en PDF ordenado por código '
-              '(PLANOS_DRENAJE_PLUVIAL_HOGAR_REFUGIO_ORDENADOS.pdf, %d páginas, con marcadores por lámina).'
-              % sum(1 for p in planos if p['pagina'])):
+    for t in ('Escala del rótulo: INDICADA; debajo, en gris, las escalas de los dibujos de cada lámina. Fecha de las láminas: setiembre 2026.',
+              'El N.° es el orden de la lámina en el juego de planos, organizado por formato de hoja (A0, A1, A2 y A3).'):
         par(t, 8, False, GRIS, despues=2, centro=False)
     d.core_properties.author = ''
     d.core_properties.title = 'Índice de planos - Drenaje pluvial - Hogar de Refugio Temporal'
@@ -301,5 +249,4 @@ if __name__ == '__main__':
     for p in planos:
         print('%s p%-3s %-3s %-9s %-62s | %s | %s' % (p['codigo'], p['pagina'], p['formato'], p['escala'], p['titulo'][:62],
                                                   p['contenido'][:70], ','.join(p['escalas_dibujo'])))
-    print(pdf_ordenado(planos))
     print(generar(planos))

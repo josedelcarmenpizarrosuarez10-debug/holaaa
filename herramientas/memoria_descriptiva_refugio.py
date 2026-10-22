@@ -285,7 +285,7 @@ def generar():
           'registro R-01 del colector del CAR Mujeres (CUI 2717013), que lo conduce hasta la descarga final.' % CUI)
     M.par('El dimensionamiento hidráulico y estructural se sustenta en el Estudio Hidrológico y de Drenaje Pluvial del proyecto, con '
           'el capítulo del colector frontal, y en la memoria de cálculo del colector. Las cantidades citadas son las del metrado de la '
-          'especialidad y los planos son los del juego DPL-01 a DPL-42.')
+          'especialidad y los planos son los del juego de láminas DPL de drenaje pluvial (relación al final de esta memoria).')
     M.t2('Normas aplicables')
     for t in ('Reglamento Nacional de Edificaciones, Norma CE.040 Drenaje Pluvial (R.M. N.° 126-2021-VIVIENDA).',
               'Reglamento Nacional de Edificaciones, Norma IS.010 Instalaciones Sanitarias para Edificaciones.',
@@ -388,7 +388,7 @@ def generar():
     M.t2('Lloraderos en cunetas colindantes con área verde')
     M.par('En los tramos en que el muro de la cuneta colinda con un área verde se colocan lloraderos de tubería PVC de Ø 3" cada 1.50 m, '
           'con filtro de grava envuelto en geotextil en su boca interior, para aliviar el empuje del agua infiltrada en el jardín sin '
-          'arrastrar finos: %d lloraderos en %.2f m de muro (lámina DPL-39 de ubicación, DPL-37 de detalle y DPL-40 de instalación).'
+          'arrastrar finos: %d lloraderos en %.2f m de muro (lámina DPL-39 de ubicación, DPL-37 de detalle y DPL-36 de instalación).'
           % (tot_ll[2], tot_ll[1]))
     M.tabla('Tramos de cuneta con lloraderos', ['EJE', 'PROGRESIVAS', 'LADO', 'LONGITUD (m)', 'N.°'],
             [[r[1], r[2], r[3], f2(r[4]), '%d' % r[6]] for r in tramos_ll] + [['TOTAL', '', '', f2(tot_ll[1]), '%d' % tot_ll[2]]],
@@ -487,7 +487,7 @@ def generar():
     for t in ('El sistema de drenaje pluvial capta y conduce el agua de techos, bancas con pérgola y superficies exteriores del predio con canaletas, montantes de Ø 4", red de piso y cunetas de concreto armado de 0.40 m de ancho interior.',
               'El colector pluvial frontal de %.2f m de ancho conduce %.1f L/s en régimen subcrítico, con llenado máximo de %.0f %% y borde libre mínimo de %.2f m, y entrega al R-01 del CAR Mujeres en condiciones compatibles.' % (D['b'], DJ['Q'], llen * 100, bl),
               'Las canaletas de las nueve bancas con pérgola (0.18 x 0.21 m) tienen capacidad muy superior al caudal de sus techos.',
-              'Las cantidades de esta memoria son las del metrado de la especialidad y los planos son los del juego DPL-01 a DPL-42.'):
+              'Las cantidades de esta memoria son las del metrado de la especialidad y los planos son los del juego de láminas DPL de drenaje pluvial.'):
         M.vin(t)
     M.t1('RECOMENDACIONES')
     for t in ('Verificar en el replanteo la ubicación del colector respecto del cerco y del R-01 del CAR Mujeres, y las cotas de fondo de llegada del CAR Varones.',
@@ -500,7 +500,9 @@ def generar():
     M.t1('RELACIÓN DE PLANOS')
     M.tabla('Relación de planos de drenaje pluvial', ['N.°', 'LÁMINA', 'DESCRIPCIÓN', 'FORMATO'],
             [['%02d' % i, p['codigo'], p['titulo'], p['formato']] for i, p in enumerate(planos, 1)], [1.0, 1.8, M.ancho - 4.6, 1.8],
-            tam=8.5, izq=(2,), fuente_txt='Fuente: Índice de planos de drenaje pluvial.')
+            tam=8.5, izq=(2,), fuente_txt='Fuente: Índice de planos de drenaje pluvial (orden del juego de láminas, por formato de hoja).')
+    M.par('Las bancas con pérgola OC-01 se detallan además en las láminas DPL-41 (isométrico del drenaje pluvial y planta de techos) y '
+          'DPL-42 (detalle isométrico de la salida de la canaleta), entregadas en DXF.', 10)
     M.d.core_properties.author = ''
     M.d.core_properties.title = 'Memoria descriptiva - Drenaje pluvial - Hogar de Refugio Temporal'
     M.d.save(SALIDA)

@@ -534,3 +534,7 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   capítulo 9 nuevo (canaletas de bancas OC-01: Q < 0.6 L/s por techo, y 0.012 m, D req. 1.59" -> 4"; lloraderos 157 und).
 - Especificaciones: lee el metrado vigente con bancas (4 partidas 01.04.03.05.04 con texto propio) y láminas DPL.
 - Memoria descriptiva nueva (`memoria_descriptiva_refugio.py`), estructura del CAR Mujeres, 19 páginas.
+- Corrección pedida por el usuario: el PDF de láminas está organizado por formato de hoja (A0, A1, A2, A3), no por número.
+  El índice sigue ahora ese orden, con los códigos tal como están en cada rótulo, sin renumerar ni observaciones y solo con las
+  40 láminas del PDF. Se retiró el PDF reordenado. El isométrico de lloraderos se cita como DPL-36 (su rótulo) en las memorias;
+  la OC-01 queda como DPL-41/42 en DXF aparte.
