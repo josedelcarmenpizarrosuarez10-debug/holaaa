@@ -41,7 +41,7 @@ PROYECTOS = {
             cajas=None, salida=None, cerco=False, vereda=True, planos="DP-01 a DP-08, DA-01 a DA-03 y DD-01 a DD-04", contramarco="1.5x1.5x1/8", sello="asfaltico"),
     ),
     "refugio": dict(
-        clave="refugio", archivo="METRADO_DRENAJE_MUJERES_VIOLENTADAS.xlsx", corto="HOGAR DE REFUGIO TEMPORAL", cui="2675514",
+        clave="refugio", archivo="METRADO_DRENAJE_MUJERES_VIOLENTADAS_CON_BANCAS_OC-01.xlsx", corto="HOGAR DE REFUGIO TEMPORAL", cui="2675514",
         junta_cuneta_seccion=True,     # junta de cunetas en toda la seccion en U (2 muros + losa de fondo), EG-2013 MTC Seccion 510
         lamina_rejilla="DJ-03",        # rejilla de cunetas: modulo de 0.497 m en rebaje 0.05 x 1", 39 platinas @1"
         salida=os.path.join(RAIZ, "entregables", "ESPECIFICACIONES_TECNICAS_DRENAJE_PLUVIAL_HOGAR_REFUGIO"),
@@ -53,7 +53,10 @@ PROYECTOS = {
             recub="0.04 m en muros y losa de fondo; 0.025 m en la losa superior del tramo normal; 0.04 m en el cruce de camiones; 0.025 m en tapas",
             receptor="el registro R-01 del colector del CAR Mujeres (CUI 2717013), a traves de la caja de caida CC con poza de disipacion",
             cajas="caja de llegada CL (interior 1.50 x 1.00 m, poza de 0.30 m, recibe el colector del CAR Varones y su cuneta del Eje 01) y caja de caida CC (poza 3.50 x 1.50 m, profundidad 0.40 m bajo el fondo del receptor, umbral de 0.25 x 0.40 m)",
-            salida=None, cerco=True, planos="DP-01 a DP-10, DA-01 a DA-03 y DD-01 a DD-04", contramarco="1.5x1.5x1/8", sello="asfaltico"),
+            salida=None, cerco=True, planos="DPL-01 a DPL-42", contramarco="1.5x1.5x1/8", sello="asfaltico"),
+        # laminas del juego DPL del usuario (indice_planos_refugio.py) en lugar de los codigos de trabajo
+        laminas={"DP-06B, DP-06D, DD-01 y DD-02": "DPL-24 y DPL-29", "DP-06B y DP-06D": "DPL-24 y DPL-29", "DP-06B": "DPL-24",
+                 "DD-03": "DPL-28", "DD-04": "DPL-25"},
     ),
     "mujeres": dict(
         clave="mujeres", archivo="METRADO_DRENAJE_PLUVIAL_CAR_MUJERES.xlsx", corto="CAR MUJERES", cui="2717013",
@@ -81,7 +84,8 @@ def partidas(P):
     ws = wb["RESUMEN"]
     out = []; proyecto = None
     for r in ws.iter_rows(values_only=True):
-        if r[0] == "PROYECTO": proyecto = str(r[1]).strip().strip("“”\"")
+        if r[0] == "PROYECTO":
+            proyecto = re.sub(r"[,\s]*con CUI N\.?\s*°?\s*\d+\s*$", "", str(r[1]).strip()).strip().strip("“”\"")
         c = str(r[0]).strip() if r[0] is not None else ""
         if re.match(r"^\d+(\.\d+)+$", c):
             und = (str(r[2]).strip() if r[2] else "")
@@ -135,6 +139,50 @@ SEG_SOLD = l(EPP, "Careta de soldar con filtro adecuado, guantes y mandil de cue
              "Equipo de soldar con puesta a tierra; extintor de PQS a la mano; prohibido soldar cerca de materiales inflamables.")
 
 
+# ============================================================================== canaleta de los techos de las bancas OC-01 (Hogar de Refugio)
+SEG_ALTURA = l(EPP, "Trabajo a 2.80 m de altura sobre la banca: escalera de tijera o andamio estable, arnes cuando no se trabaje desde plataforma (Norma G.050).",
+               "Guantes de cuero para manipular la plancha; proteger los bordes cortados.")
+
+
+def espec_bancas(d, und):
+    """Partidas 01.04.03.05.04: tres juegos OC-01 (jardinera + banca + pergola) de tres techos de 3.79, 4.21 y 3.79 m (laminas DPL-41 y DPL-42)."""
+    if d.startswith("CANALETA"):
+        return bloque([p("Comprende la fabricacion y colocacion de la canaleta de plancha de acero galvanizado de e = 0.50 mm, de seccion interior 0.18 m de ancho "
+                         "x 0.21 m de alto, con ala posterior de 0.10 m apoyada sobre la viga metalica de la pergola bajo la cobertura de aluzinc, en el borde bajo de "
+                         "cada uno de los nueve techos de las bancas con pergola (tres juegos OC-01 de tres techos: 3.79, 4.21 y 3.79 m). Cada techo lleva un solo tramo "
+                         "de canaleta, sin uniones, con pendiente de 0.5 % hacia su boquilla, segun las laminas DPL-41 y DPL-42.")],
+                      mat=l("Plancha de acero galvanizado de 0.50 mm (ASTM A653, recubrimiento G90), desarrollo de 0.70 m por metro de canaleta (fondo 0.18 + lados 0.21 + 0.21 + ala 0.10); remaches pop de 1/8\"; sellador de poliuretano."),
+                      equ=l("Dobladora de plancha, tijera de hojalatero, remachadora, taladro, escalera o andamio, nivel de mano y cordel."),
+                      proc=l("Verificar en obra el largo de cada techo y el punto de salida de la lamina DPL-41.",
+                             "Cortar y doblar la plancha en una sola pieza por techo, con la seccion 0.18 x 0.21 m y el ala posterior de 0.10 m.",
+                             "Colocar la canaleta sobre sus dos soportes con pendiente de 0.5 % hacia la boquilla, con el ala bajo la cobertura y por encima de la viga.",
+                             "Sellar los remaches y uniones con las tapas y la boquilla; probar con agua."),
+                      ctrl=l("Seccion interior 0.18 x 0.21 m (tolerancia 5 mm); pendiente continua hacia la boquilla sin contrapendientes; sin filtraciones en la prueba con agua."),
+                      seg=SEG_ALTURA, und=und,
+                      medicion=[p("Se medira en metros lineales de canaleta instalada: largo de cada techo (3.79, 4.21 y 3.79 m) por el numero de juegos OC-01, como en la hoja METRADO CANALETA BANCAS.")])
+    if "SOPORTE" in d:
+        return bloque([p("Comprende la fabricacion y colocacion de los soportes (sujetadores) de platina de fierro galvanizado de 1\" x 1/8\" que abrazan la canaleta de las bancas "
+                         "(fondo y lados) y se fijan a la viga de la pergola: dos por canaleta, a 0.80 m de cada extremo en los techos de 3.79 m y a 0.85 m en el de 4.21 m (lamina DPL-41).")],
+                      mat=l("Platina de F°G° de 1\" x 1/8\" (desarrollo 0.70 m por soporte); pernos autorroscantes galvanizados con arandela de neopreno."),
+                      equ=l("Dobladora, taladro, amoladora, nivel."),
+                      proc=l("Cortar y doblar la platina con la forma de la canaleta y la oreja de fijacion.", "Fijar a la viga con la altura que da la pendiente de 0.5 % hacia la boquilla.",
+                             "Repintar con pintura rica en zinc los cortes y perforaciones."),
+                      ctrl=l("Dos soportes por canaleta, firmes y alineados; canaleta sin flecha entre soportes."), seg=SEG_ALTURA, und=und,
+                      medicion=[p("Se contara el numero de soportes instalados (2 por canaleta, 6 por juego OC-01).")])
+    if "TAPA" in d:
+        return bloque([p("Comprende la fabricacion y colocacion de las tapas laterales de plancha galvanizada de 0.50 mm que cierran los dos extremos de cada canaleta de las bancas.")],
+                      mat=l("Plancha galvanizada de 0.50 mm; remaches pop de 1/8\"; sellador de poliuretano."), equ=l("Tijera de hojalatero, remachadora."),
+                      proc=l("Cortar la tapa con la seccion 0.18 x 0.21 m mas pestanas de 0.02 m.", "Remacharla al extremo y sellar el contorno."),
+                      ctrl=l("Cierre estanco, sin filtraciones."), seg=SEG_ALTURA, und=und, medicion=[p("Se contara el numero de tapas colocadas (2 por canaleta).")])
+    return bloque([p("Comprende la fabricacion y colocacion de la boquilla de plancha galvanizada de 0.50 mm que conecta el fondo de cada canaleta de las bancas con la bajada "
+                     "de tuberia PVC de 4\": abertura de 0.10 m en el fondo, brida de 0.16 x 0.16 m remachada y sellada, y cuello de 0.10 x 0.15 m que entra en el niple de PVC. "
+                     "Reemplaza al sumidero tipo cupula del plano de la OC-01 (lamina DPL-42).")],
+                  mat=l("Plancha galvanizada de 0.50 mm; 8 remaches pop de 1/8\" por boquilla; sellador de poliuretano."), equ=l("Tijera de hojalatero, remachadora, taladro, sacabocado."),
+                  proc=l("Abrir el agujero de 0.10 m en el fondo de la canaleta en el punto de salida.", "Fabricar la boquilla con su brida y cuello.",
+                         "Remachar y sellar la brida a la canaleta e insertar el cuello en el niple de PVC de 4\"."),
+                  ctrl=l("Sin filtraciones; la canaleta descarga totalmente por la boquilla."), seg=SEG_ALTURA, und=und, medicion=[p("Se contara el numero de boquillas instaladas (1 por canaleta).")])
+
+
 # ============================================================================== capitulo de generalidades
 def generalidades(P, partidas_):
     C = P["colector"]
@@ -144,7 +192,9 @@ def generalidades(P, partidas_):
           "seguridad, la unidad de medida, el metodo de medicion y la forma de pago de cada partida de la especialidad de drenaje pluvial del "
           "proyecto %s, con CUI N.° %s." % (P["proyecto"], P["cui"])),
         p("Comprenden el sistema de drenaje pluvial del predio (cunetas de concreto armado con rejillas y tapas, montantes y canaletas de techo, "
-          "red de recoleccion de piso con sumideros) y el %s, que recorre el frente del predio y entrega a %s." % (C["nombre"], C["receptor"])),
+          "red de recoleccion de piso con sumideros%s) y el %s, que recorre el frente del predio y entrega a %s." % (
+              ", lloraderos en las cunetas colindantes con area verde y canaletas de los techos de las bancas con pergola OC-01" if P["clave"] == "refugio" else "",
+              C["nombre"], C["receptor"])),
         p("Su numeracion, la descripcion y la unidad de cada partida son las del metrado de la especialidad (hoja RESUMEN). Los planos de la especialidad, la "
           "memoria de calculo y el metrado forman parte de este documento."),
     ]])
@@ -645,6 +695,8 @@ def espec(pt, P, ctx):
                       ctrl=l("Juntas verticales, continuas y bien selladas, sin filtraciones."), seg=l(EPP, "Cuidado con quemaduras si el sellador se aplica en caliente."), und=und,
                       medicion=[p("Se medira la longitud de junta sellada: altura del muro por el numero de muros con junta por el numero de juntas de cada eje, como en el metrado.")])
     # ------------------------------------------------------------ red de techo
+    if P["clave"] == "refugio" and pt["codigo"].startswith("01.04.03.05.04."):
+        return espec_bancas(d, und)
     if "SOPORTE" in d:
         return bloque([p("Comprende la fabricacion y colocacion de los soportes de platina de fierro galvanizado de 1\" x 1/8\", que abrazan la canaleta (fondo y lados) y se fijan al alero o viga con dos orejas, colocados a cada %.2f m (separacion de soportes de la hoja METRADO CANALETAS: soportes por canaleta = L / %.2f + 1)." % (K["sep_sop"], K["sep_sop"]))],
                       mat=l("Platina de F°G° de 1\" x 1/8\" (desarrollo 0.85 m por soporte); pernos o tornillos autorroscantes galvanizados con arandela; tarugos."),
@@ -767,7 +819,7 @@ _FUT = ("amarraran anotara anotaran aplicara aprobara armaran cambiara cercaran 
         "efectuara eliminara enderezaran entregara estara excavaran hara haran humedecera limpiara limpiaran medira mediran ordenara pagaran picara "
         "presentara programaran quedara quedaran redondearan referiran registrara rellenara repintaran resanaran resolvera senalizaran sera seran "
         "traslapara ubicaran usara vaciara verificara volveran podra tendra").split()
-_MAP = {"liquido": "líquido", "compactandola": "compactándola", "albanileria": "albañilería", "analisis": "análisis", "angulo": "ángulo", "angulos": "ángulos", "area": "área", "areas": "áreas", "arnes": "arnés",
+_MAP = {"liquido": "líquido", "pergola": "pérgola", "compactandola": "compactándola", "albanileria": "albañilería", "analisis": "análisis", "angulo": "ángulo", "angulos": "ángulos", "area": "área", "areas": "áreas", "arnes": "arnés",
         "asfaltico": "asfáltico", "brunado": "bruñado", "brunadora": "bruñadora", "caida": "caída", "calculo": "cálculo", "calido": "cálido", "capitulo": "capítulo",
         "carguio": "carguío", "carpinteria": "carpintería", "ciclopeo": "ciclópeo", "codigo": "código", "cordon": "cordón", "cubico": "cúbico", "danar": "dañar",
         "danen": "dañen", "danos": "daños", "debiles": "débiles", "despues": "después", "diametro": "diámetro", "diametros": "diámetros", "dias": "días",
@@ -821,6 +873,11 @@ def construir(clave):
     doc["generalidades"] = _acentuar(doc["generalidades"])
     for it in doc["partidas"]:
         if "secciones" in it: it["secciones"] = _acentuar(it["secciones"])
+    lam = PROYECTOS[clave].get("laminas")
+    if lam:                                            # codigos de lamina del juego de planos del usuario
+        txt = json.dumps(doc, ensure_ascii=False)
+        for k in sorted(lam, key=len, reverse=True): txt = txt.replace(k, lam[k])
+        doc = json.loads(txt)
     json.dump(doc, open(fn, "w", encoding="utf8"), ensure_ascii=False, indent=1)
     return fn, out, pts
 
