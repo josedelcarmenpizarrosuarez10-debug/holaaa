@@ -566,3 +566,7 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   doblado) y DA-01..03 (cuadros de metrado) no existen en el juego final: se citan las secciones del colector DPLV-21 y DPLV-22.
 - Control: ningún valor numérico cambia (comparado tras recalcular con LibreOffice). Salida
   `entregables_varones/METRADO_DRENAJE_PLUVIAL_CAR_VARONES_23-10-2026.xlsx`, copiada como vigente.
+- Corrección de la usuaria: DP-08 y DA-01 a DA-03 los excluyó a propósito del juego final; en el metrado se BORRAN esas referencias
+  (no se reemplazan por DPLV-21/22). Ej.: "Criterio (lamina DA-02): ..." -> "Criterio: ...", "Lamina DA-01: zanja ..." -> "Zanja ...",
+  celdas cuyo único texto era la referencia (E18, E24 de COLECTOR PARAMETROS) quedan vacías. El generador parte ahora del original
+  de la usuaria (`insumos/katiuska/METRADO_DRENAJE_PLUVIAL_CAR_VARONES_23-10-2026_ORIGINAL.xlsx`). Valores sin cambio (recalculado).

@@ -7,8 +7,8 @@ celdas. Se edita el XML del libro (sharedStrings y valores de texto en caché de
 Equivalencias (por contenido de cada lámina):
   DP-01 planta del colector -> DPLV-17          DP-02 perfil -> DPLV-18           DP-04 secciones -> DPLV-21 y DPLV-22
   DP-06B tapa ciega -> DPLV-23                  DP-06C empalme de cuneta -> DPLV-24 DP-07 empalme con la caja CL -> DPLV-25
-  DP-08 cuadro de doblado y DA-01 a DA-03 (cuadros de metrado del colector): no están en el juego final; la geometría, la
-        armadura y la excavación están en las secciones del colector -> DPLV-21 y DPLV-22
+  DP-08 cuadro de doblado y DA-01 a DA-03 (cuadros de metrado del colector): la usuaria los excluyó del juego final;
+        se borra la referencia (sin cambiar el resto del texto ni el metrado)
   DD-01 rebaje -> DPLV-27   DD-02 tapa -> DPLV-28   DD-03 juntas colector/CL -> DPLV-29   DD-04 empalme -> DPLV-30
   DJ-01 junta de cunetas -> DPLV-31   DL-01 isométrico de instalación del lloradero -> DPLV-34   DL-02 detalle -> DPLV-35
 Uso: python3 herramientas/varones/codigos_laminas_metrado_v.py
@@ -23,29 +23,29 @@ import zipfile
 import openpyxl
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-ENT = os.path.join(RAIZ, 'insumos', 'metrados_vigentes', 'METRADO_DRENAJE_PLUVIAL_CAR_VARONES.xlsx')
+ENT = os.path.join(RAIZ, 'insumos', 'katiuska', 'METRADO_DRENAJE_PLUVIAL_CAR_VARONES_23-10-2026_ORIGINAL.xlsx')   # tal como lo entrego
 SAL = os.path.join(RAIZ, 'entregables_varones', 'METRADO_DRENAJE_PLUVIAL_CAR_VARONES_23-10-2026.xlsx')
 S = 'DPLV-21 y DPLV-22'
-# primero las frases compuestas (para no repetir láminas), luego cada código suelto
+# DP-08 (cuadro de doblado) y DA-01 a DA-03 (cuadros de metrado) no forman parte del juego final (la usuaria los excluyo):
+# se borra su referencia, sin tocar el texto del metrado. Primero las frases compuestas, luego cada codigo suelto.
 FRASES = [
     ('los planos DP-01 a DP-08, DA-01 a DA-03 y DD-01 a DD-04', 'las laminas DPLV-17 a DPLV-30'),
-    ('planos DP-01 a DP-08, DA-01 a DA-03 y DD-01 a DD-04', 'laminas DPLV-17 a DPLV-30'),
     ('DP-06B rev. 02', 'DPLV-23'),
-    ('DP-04 (seccion S-01), DP-08 (cuadro de doblado), DA-03', 'DPLV-21 (seccion S-01; armadura)'),
-    ('DP-04 (seccion S-02 a S-08), DP-08 (cuadro de doblado), DA-03', S + ' (secciones S-02 a S-08; armadura)'),
-    ('DP-04 (secciones), DP-02 (h por tramo), DA-02 (areas por metro)', S + ' (secciones y areas por metro), DPLV-18 (h por tramo)'),
-    ('DP-04 (secciones), DA-02 (areas por metro)', S + ' (secciones y areas por metro)'),
-    ('DP-04 (seccion), DA-01 (criterio)', S + ' (seccion y criterio)'),
+    ('DP-04 (seccion S-01), DP-08 (cuadro de doblado), DA-03', 'DPLV-21 (seccion S-01)'),
+    ('DP-04 (seccion S-02 a S-08), DP-08 (cuadro de doblado), DA-03', S + ' (seccion S-02 a S-08)'),
+    ('DP-04 (secciones), DP-02 (h por tramo), DA-02 (areas por metro)', S + ' (secciones), DPLV-18 (h por tramo)'),
+    ('DP-04 (secciones), DA-02 (areas por metro)', S + ' (secciones)'),
+    ('DP-04 (seccion), DA-01 (criterio)', S + ' (seccion)'),
     ('DP-04 (seccion S-01) y DP-08', 'DPLV-21 (seccion S-01)'),
     ('DP-04 (seccion S-01)', 'DPLV-21 (seccion S-01)'),
     ('DP-04 y DP-08', S), ('DP-04 y DA-02', S),
     ('DP-04 y DD-03', 'DPLV-21, DPLV-22 y DPLV-29'),
-    ('DP-08, cuadro de doblado', S + ', armadura'), ('DP-08 (cuadro de doblado)', S + ' (armadura)'),
-    ('DA-01, nota 2', S),
+    ('Criterio (lamina DA-01): ', 'Criterio: '), ('Criterio (lamina DA-02): ', 'Criterio: '),
+    ('Lamina DA-01: zanja', 'Zanja'),
+    ('Lamina DA-01, nota 2', ''), ('Lamina DP-08, cuadro de doblado', ''),
 ]
 CODIGOS = [('DP-01', 'DPLV-17'), ('DP-02', 'DPLV-18'), ('DP-04', S), ('DP-06B', 'DPLV-23'), ('DP-06C', 'DPLV-24'),
-           ('DP-07', 'DPLV-25'), ('DP-08', S), ('DA-01', S), ('DA-02', S), ('DA-03', S),
-           ('DD-01', 'DPLV-27'), ('DD-02', 'DPLV-28'), ('DD-03', 'DPLV-29'), ('DD-04', 'DPLV-30'),
+           ('DP-07', 'DPLV-25'), ('DD-01', 'DPLV-27'), ('DD-02', 'DPLV-28'), ('DD-03', 'DPLV-29'), ('DD-04', 'DPLV-30'),
            ('DJ-01', 'DPLV-31'), ('DJ-02', 'DPLV-32'), ('DJ-03', 'DPLV-33'), ('DL-01', 'DPLV-34'), ('DL-02', 'DPLV-35')]
 VIEJO = re.compile(r'\b(?:DP|DA|DD|DJ|DL)-\d')
 
@@ -86,13 +86,14 @@ def main():
     shutil.rmtree(tmp)
     # control: solo cambian textos con código de lámina; todo lo demás igual
     a, b = textos(ENT), textos(SAL)
+    b = {k: v for k, v in b.items() if v not in ('', None)}       # celdas cuyo unico texto era la referencia: quedan vacias
     dif = [(k, a[k], b.get(k)) for k in a if a[k] != b.get(k)]
     otros = [d for d in dif if not (isinstance(d[1], str) and VIEJO.search(d[1]))]
     quedan = [(k, v) for k, v in b.items() if isinstance(v, str) and VIEJO.search(v)]
-    assert set(a) == set(b) and not otros and not quedan, (otros[:5], quedan[:5])
+    assert set(b) <= set(a) and not otros and not quedan, (otros[:5], quedan[:5])
     print('%d celdas con código de lámina cambiadas (%d archivos XML); ningún otro valor cambia' % (len(dif), n))
     for (h, c), x, y in dif:
-        print('  %-28s %-5s %s\n  %-34s -> %s' % (h, c, x[:110], '', y[:110]))
+        print('  %-28s %-5s %s\n  %-34s -> %s' % (h, c, x[:110], '', (y or '(vacia)')[:110]))
     print(SAL)
 
 
