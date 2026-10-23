@@ -589,10 +589,10 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   se regeneró: solo cambia el área de Varones 6752.03 m² (la de su memoria hidrológica, ya en el Excel vigente).
 
 ## 23/10/2026 - CAR Varones: carátulas de cada documento (Word por separado)
-- Pedido de la usuaria: una carátula por documento de su carpeta de entrega, cada una en un Word aparte, con la foto del proyecto
+- Pedido de la usuaria: una carátula por documento de su carpeta de entrega (luego pidió todas en un solo Word, una por página), con la foto del proyecto
   que envió (guardada en `insumos/katiuska/FOTO_PROYECTO_CAR_VARONES.jpg`), y además la carátula de planos.
 - `herramientas/varones/caratulas_v.py` (mismo diseño que las carátulas del CAR Mujeres, `mujeres/caratulas_m.py`): Gobierno Regional
   San Martín - Gerencia Territorial Bajo Mayo, servicio, proyecto con CUI 2705619, foto, franja granate con el título, ubicación y
-  fecha OCTUBRE - 2026; sin proyectista. 7 Word en `entregables_varones/caratulas/`: especificaciones técnicas, memoria de cálculo
+  fecha OCTUBRE - 2026; sin proyectista. 7 carátulas en `entregables_varones/CARATULAS_DRENAJE_PLUVIAL_CAR_VARONES.docx`: especificaciones técnicas, memoria de cálculo
   (canaletas, montantes y cunetas), memoria de cálculo (colector pluvial frontal), memoria descriptiva, memoria hidrológica,
   metrados y planos (láminas DPLV-01 a DPLV-44). Cada una cabe en una sola página A4 (verificado).

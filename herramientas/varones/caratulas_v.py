@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Carátulas de los documentos de drenaje pluvial - CAR Varones (CUI 2705619): una carátula por documento, cada una en su Word.
+"""Carátulas de los documentos de drenaje pluvial - CAR Varones (CUI 2705619): todas en un solo Word, una por página.
 
 Mismo diseño que las carátulas del CAR Mujeres (mujeres/caratulas_m.py): entidad con el escudo del Gobierno Regional San Martín,
 servicio, proyecto con CUI, foto del proyecto, franja granate con el título del documento y bloque de ubicación con la fecha.
@@ -7,7 +7,7 @@ Foto del proyecto: la que entregó la usuaria (insumos/katiuska/FOTO_PROYECTO_CA
 Sin nombre ni CIP del proyectista. Documentos = los de la carpeta de entrega de la usuaria, más la de planos.
 
 Uso: python3 herramientas/varones/caratulas_v.py
-Salida: entregables_varones/caratulas/CARATULA_*.docx
+Salida: entregables_varones/CARATULAS_DRENAJE_PLUVIAL_CAR_VARONES.docx
 """
 import os
 import shutil
@@ -26,21 +26,21 @@ import caratulas_m as C  # noqa: E402  (mismas piezas: tablas sin bordes, franja
 FOTO = os.path.join(RAIZ, 'insumos/katiuska/FOTO_PROYECTO_CAR_VARONES.jpg')
 FIG = os.path.join(RAIZ, 'entregables_varones/figuras_caratula')
 ESCUDO = os.path.join(FIG, 'escudo_gore_san_martin.png')        # copia del escudo de las carátulas del CAR Mujeres
-SALIDA = os.path.join(RAIZ, 'entregables_varones/caratulas')
+SALIDA = os.path.join(RAIZ, 'entregables_varones/CARATULAS_DRENAJE_PLUVIAL_CAR_VARONES.docx')
 PROYECTO = ('“CREACIÓN DEL SERVICIO DE PROTECCIÓN INTEGRAL A NIÑAS, NIÑOS Y ADOLESCENTES SIN CUIDADOS PARENTALES O EN RIESGO '
             'DE PERDERLOS EN CENTRO DE ACOGIDA RESIDENCIAL - VARONES DISTRITO DE MORALES DE LA PROVINCIA DE SAN MARTÍN DEL '
             'DEPARTAMENTO DE SAN MARTÍN”')
 CUI = 'CUI N° 2705619'
 FECHA = 'OCTUBRE - 2026'
 ESP = C.ESPECIALIDAD
-DOCUMENTOS = [   # (archivo, título, subtítulo) en el orden de la carpeta de entrega de la usuaria
-    ('CARATULA_ESPECIFICACIONES_TECNICAS', 'ESPECIFICACIONES TÉCNICAS', ESP),
-    ('CARATULA_MEMORIA_DE_CALCULO_DRENAJE_PLUVIAL', 'MEMORIA DE CÁLCULO', 'DRENAJE PLUVIAL: CANALETAS, MONTANTES Y CUNETAS - ' + ESP),
-    ('CARATULA_MEMORIA_DE_CALCULO_COLECTOR', 'MEMORIA DE CÁLCULO', 'COLECTOR PLUVIAL FRONTAL - ' + ESP),
-    ('CARATULA_MEMORIA_DESCRIPTIVA', 'MEMORIA DESCRIPTIVA', ESP),
-    ('CARATULA_MEMORIA_HIDROLOGICA', 'MEMORIA HIDROLÓGICA', 'HIDROLOGÍA Y DRENAJE PLUVIAL CON COLECTOR FRONTAL - ' + ESP),
-    ('CARATULA_METRADOS', 'METRADOS', ESP),
-    ('CARATULA_PLANOS', 'PLANOS', 'LÁMINAS DPLV-01 A DPLV-44 - ' + ESP),
+DOCUMENTOS = [   # (título, subtítulo) en el orden de la carpeta de entrega de la usuaria
+    ('ESPECIFICACIONES TÉCNICAS', ESP),
+    ('MEMORIA DE CÁLCULO', 'DRENAJE PLUVIAL: CANALETAS, MONTANTES Y CUNETAS - ' + ESP),
+    ('MEMORIA DE CÁLCULO', 'COLECTOR PLUVIAL FRONTAL - ' + ESP),
+    ('MEMORIA DESCRIPTIVA', ESP),
+    ('MEMORIA HIDROLÓGICA', 'HIDROLOGÍA Y DRENAJE PLUVIAL CON COLECTOR FRONTAL - ' + ESP),
+    ('METRADOS', ESP),
+    ('PLANOS', 'LÁMINAS DPLV-01 A DPLV-44 - ' + ESP),
 ]
 ANCHO = C.ANCHO
 
@@ -106,24 +106,29 @@ def documento():
     return d
 
 
+def _minimo(d, salto=False):
+    """Párrafo de 1 pt (no empuja la carátula); con salto=True abre la página siguiente."""
+    p = d.add_paragraph(); p.paragraph_format.page_break_before = salto
+    rpr = OxmlElement('w:rPr'); sz = OxmlElement('w:sz'); sz.set(qn('w:val'), '2'); rpr.append(sz)
+    p._p.get_or_add_pPr().append(rpr)
+
+
 def generar():
     img = foto()
-    if os.path.isdir(SALIDA):
-        shutil.rmtree(SALIDA)
-    os.makedirs(SALIDA)
-    salidas = []
-    for archivo, titulo, sub in DOCUMENTOS:
-        d = documento()
+    vieja = os.path.join(RAIZ, 'entregables_varones/caratulas')      # versión anterior: un Word por carátula
+    if os.path.isdir(vieja):
+        shutil.rmtree(vieja)
+    d = documento()
+    for k, (titulo, sub) in enumerate(DOCUMENTOS):
+        if k:
+            _minimo(d, salto=True)                                   # cada carátula en su página
         caratula(d, img, titulo, sub)
-        # el último párrafo del cuerpo queda mínimo para que la carátula no pase a una segunda página
-        p = d.add_paragraph(); rpr = OxmlElement('w:rPr'); sz = OxmlElement('w:sz'); sz.set(qn('w:val'), '2'); rpr.append(sz)
-        p._p.get_or_add_pPr().append(rpr)
-        d.core_properties.author = ''
-        d.core_properties.title = 'Carátula - %s - Drenaje pluvial CAR Varones' % titulo.capitalize()
-        ruta = os.path.join(SALIDA, archivo + '_CAR_VARONES.docx'); d.save(ruta); salidas.append(ruta)
-    return salidas
+    _minimo(d)                                                       # cierre mínimo: no crea una página en blanco
+    d.core_properties.author = ''
+    d.core_properties.title = 'Carátulas - Drenaje pluvial CAR Varones'
+    d.save(SALIDA)
+    return SALIDA
 
 
 if __name__ == '__main__':
-    for r in generar():
-        print(os.path.relpath(r, RAIZ))
+    print(os.path.relpath(generar(), RAIZ))
