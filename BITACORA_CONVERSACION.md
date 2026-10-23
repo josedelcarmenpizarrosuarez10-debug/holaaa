@@ -596,3 +596,6 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   fecha OCTUBRE - 2026; sin proyectista. 7 carátulas en `entregables_varones/CARATULAS_DRENAJE_PLUVIAL_CAR_VARONES.docx`: especificaciones técnicas, memoria de cálculo
   (canaletas, montantes y cunetas), memoria de cálculo (colector pluvial frontal), memoria descriptiva, memoria hidrológica,
   metrados y planos (láminas DPLV-01 a DPLV-44). Cada una cabe en una sola página A4 (verificado).
+- Logo: la usuaria entregó el logo oficial del Gobierno Regional San Martín (`insumos/katiuska/LOGO_GOBIERNO_REGIONAL_SAN_MARTIN.png`);
+  el escudo anterior (recorte de un Word del CAR Mujeres) salía cortado. `caratulas_v.escudo()` toma el escudo completo del logo
+  (sin el texto, que ya va al lado) y lo coloca a 2.8 cm de alto en las 7 carátulas.

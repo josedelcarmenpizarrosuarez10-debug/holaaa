@@ -25,7 +25,8 @@ import caratulas_m as C  # noqa: E402  (mismas piezas: tablas sin bordes, franja
 
 FOTO = os.path.join(RAIZ, 'insumos/katiuska/FOTO_PROYECTO_CAR_VARONES.jpg')
 FIG = os.path.join(RAIZ, 'entregables_varones/figuras_caratula')
-ESCUDO = os.path.join(FIG, 'escudo_gore_san_martin.png')        # copia del escudo de las carátulas del CAR Mujeres
+LOGO = os.path.join(RAIZ, 'insumos/katiuska/LOGO_GOBIERNO_REGIONAL_SAN_MARTIN.png')   # logo completo entregado por la usuaria
+ESCUDO = os.path.join(FIG, 'escudo_gore_san_martin.png')        # escudo del logo, sin el texto (el texto va al lado)
 SALIDA = os.path.join(RAIZ, 'entregables_varones/CARATULAS_DRENAJE_PLUVIAL_CAR_VARONES.docx')
 PROYECTO = ('“CREACIÓN DEL SERVICIO DE PROTECCIÓN INTEGRAL A NIÑAS, NIÑOS Y ADOLESCENTES SIN CUIDADOS PARENTALES O EN RIESGO '
             'DE PERDERLOS EN CENTRO DE ACOGIDA RESIDENCIAL - VARONES DISTRITO DE MORALES DE LA PROVINCIA DE SAN MARTÍN DEL '
@@ -55,14 +56,25 @@ def foto():
     return ruta
 
 
+def escudo():
+    """Escudo completo del logo de la usuaria (filas con dibujo hasta el espacio sobre el texto "GOBIERNO REGIONAL SAN MARTÍN")."""
+    from PIL import Image
+    im = Image.open(LOGO).convert('RGBA')
+    px = im.load(); w, h = im.size
+    filas = [any(px[x, y][3] > 0 and sum(px[x, y][:3]) < 720 for x in range(0, w, 2)) for y in range(h)]
+    fin = next(y for y in range(1, h) if filas[y - 1] and not filas[y])        # primera franja en blanco = fin del escudo
+    im.crop(im.crop((0, 0, w, fin)).getbbox()).save(ESCUDO)
+    return ESCUDO
+
+
 def caratula(d, img, titulo, subtitulo):
     par = C._par
     # ---- entidad con escudo
     tb = d.add_table(rows=1, cols=2); C._sin_bordes(tb); tb.alignment = WD_TABLE_ALIGNMENT.CENTER
-    C._anchos(tb, (2.6, ANCHO - 2.6))
+    C._anchos(tb, (3.2, ANCHO - 3.2))
     c0, c1 = tb.rows[0].cells
     c0.vertical_alignment = c1.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
-    par(c0.paragraphs[0]).add_run().add_picture(ESCUDO, width=Cm(2.2))
+    par(c0.paragraphs[0]).add_run().add_picture(ESCUDO, height=Cm(2.8))
     par(c1.paragraphs[0], C.ENTIDAD, 17, True, C.GRANATE, centro=False, sep=10)
     C._linea(par(c1, C.GERENCIA, 10.5, True, C.GRIS, centro=False, despues=2, sep=6))
     # ---- servicio y proyecto
@@ -114,7 +126,7 @@ def _minimo(d, salto=False):
 
 
 def generar():
-    img = foto()
+    img = foto(); escudo()
     vieja = os.path.join(RAIZ, 'entregables_varones/caratulas')      # versión anterior: un Word por carátula
     if os.path.isdir(vieja):
         shutil.rmtree(vieja)
