@@ -570,3 +570,6 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   (no se reemplazan por DPLV-21/22). Ej.: "Criterio (lamina DA-02): ..." -> "Criterio: ...", "Lamina DA-01: zanja ..." -> "Zanja ...",
   celdas cuyo único texto era la referencia (E18, E24 de COLECTOR PARAMETROS) quedan vacías. El generador parte ahora del original
   de la usuaria (`insumos/katiuska/METRADO_DRENAJE_PLUVIAL_CAR_VARONES_23-10-2026_ORIGINAL.xlsx`). Valores sin cambio (recalculado).
+- Índice de planos de Varones: a pedido de la usuaria, ordenado por número de lámina (DPLV-01 a DPLV-44, sin grupos por formato;
+  `I.ORDEN = 'numero'` en varones/indice_planos_v.py). El del Refugio sigue en el orden de su PDF. La relación de planos de la
+  memoria descriptiva de Varones sigue el mismo orden.

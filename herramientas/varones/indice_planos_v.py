@@ -2,8 +2,8 @@
 """Índice de planos de drenaje pluvial - CAR Varones (CUI 2705619), en Word.
 
 Fuente: el juego de láminas en PDF de la usuaria Katiuska (insumos/katiuska/PLANOS_DRENAJE_PLUVIAL_CAR_VARONES_LAMINAS.pdf,
-44 láminas DPLV, setiembre 2026). Igual que el índice del Hogar de Refugio (indice_planos_refugio.py, mismo motor): orden del
-PDF (por formato de hoja A0, A1, A2 y A3) y código y título de cada rótulo tal como están, sin renumerar.
+44 láminas DPLV, setiembre 2026). Mismo motor que el índice del Hogar de Refugio (indice_planos_refugio.py): código y título de cada
+rótulo tal como están; a pedido de la usuaria, ordenado por número de lámina, de la DPLV-01 a la DPLV-44.
 
 Uso: python3 herramientas/varones/indice_planos_v.py
 Salida: entregables_varones/INDICE_DE_PLANOS_DRENAJE_PLUVIAL_CAR_VARONES.docx y entregables_varones/_calc/indice_planos.json
@@ -25,6 +25,7 @@ I.PROYECTO = ('“CREACIÓN DEL SERVICIO DE PROTECCIÓN INTEGRAL A NIÑAS, NIÑO
               'DEPARTAMENTO DE SAN MARTÍN”')
 I.CORTO = 'CAR VARONES - MORALES, SAN MARTÍN'
 I.UBIC = 'Distrito de Morales, provincia y departamento de San Martín'
+I.ORDEN = 'numero'                         # pedido de la usuaria: de la lámina 1 a la última, sucesivamente
 
 # Título de cada rótulo (código tal cual el rótulo, incluso DPVL-09, DPVL-10 y DVPL-11); se comprueba contra el PDF.
 I.TITULOS = {

@@ -10,6 +10,36 @@
   "rotulo": "DPLV-01"
  },
  {
+  "codigo": "DPLV-02",
+  "titulo": "SECCIONES TRANSVERSALES 01",
+  "contenido": "SECCIONES 01 A 15",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [],
+  "pagina": 18,
+  "rotulo": "DPLV-02"
+ },
+ {
+  "codigo": "DPLV-03",
+  "titulo": "SECCIONES TRANSVERSALES 02",
+  "contenido": "SECCIONES 16 A 30",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [],
+  "pagina": 19,
+  "rotulo": "DPLV-03"
+ },
+ {
+  "codigo": "DPLV-04",
+  "titulo": "SECCIONES TRANSVERSALES 03",
+  "contenido": "SECCIONES 31 A 43",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [],
+  "pagina": 20,
+  "rotulo": "DPLV-04"
+ },
+ {
   "codigo": "DPLV-05",
   "titulo": "PERFILES LONGITUDINALES 01",
   "contenido": "EJES 01 A 06, CON LAS SECCIONES 01 A 30",
@@ -20,24 +50,14 @@
   "rotulo": "DPLV-05"
  },
  {
-  "codigo": "DPLV-17",
-  "titulo": "PLANTA DEL COLECTOR PLUVIAL",
-  "contenido": "",
-  "formato": "A0",
+  "codigo": "DPLV-06",
+  "titulo": "PERFILES LONGITUDINALES 02",
+  "contenido": "EJES 07 A 09, CON LAS SECCIONES 31 A 42",
+  "formato": "A2",
   "escala": "INDICADA",
   "escalas_dibujo": [],
-  "pagina": 3,
-  "rotulo": "DPLV-17"
- },
- {
-  "codigo": "DPLV-43",
-  "titulo": "PLANTA DE UBICACIÓN DE LLORADEROS EN CUNETAS COLINDANTES CON ÁREA VERDE",
-  "contenido": "",
-  "formato": "A0",
-  "escala": "INDICADA",
-  "escalas_dibujo": [],
-  "pagina": 4,
-  "rotulo": "DPLV-43"
+  "pagina": 21,
+  "rotulo": "DPLV-06"
  },
  {
   "codigo": "DPLV-07",
@@ -158,6 +178,16 @@
   "rotulo": "DPLV-16"
  },
  {
+  "codigo": "DPLV-17",
+  "titulo": "PLANTA DEL COLECTOR PLUVIAL",
+  "contenido": "",
+  "formato": "A0",
+  "escala": "INDICADA",
+  "escalas_dibujo": [],
+  "pagina": 3,
+  "rotulo": "DPLV-17"
+ },
+ {
   "codigo": "DPLV-18",
   "titulo": "PERFIL LONGITUDINAL GENERAL DEL COLECTOR",
   "contenido": "PERFILES 1 A 3: PROG. 0+000.00 A 0+105.29",
@@ -166,70 +196,6 @@
   "escalas_dibujo": [],
   "pagina": 15,
   "rotulo": "DPLV-18"
- },
- {
-  "codigo": "DPLV-23",
-  "titulo": "DETALLE DE REGISTRO DE LIMPIEZA - TAPA CIEGA DE CONCRETO ARMADO 0.68x0.68x0.08",
-  "contenido": "",
-  "formato": "A1",
-  "escala": "INDICADA",
-  "escalas_dibujo": [
-   "1/2",
-   "1/5",
-   "1/10"
-  ],
-  "pagina": 16,
-  "rotulo": "DPLV-23"
- },
- {
-  "codigo": "DPLV-25",
-  "titulo": "EMPALME DEL COLECTOR CON LA CAJA DE LLEGADA CL DEL HOGAR DE REFUGIO",
-  "contenido": "",
-  "formato": "A1",
-  "escala": "INDICADA",
-  "escalas_dibujo": [],
-  "pagina": 17,
-  "rotulo": "DPLV-25"
- },
- {
-  "codigo": "DPLV-02",
-  "titulo": "SECCIONES TRANSVERSALES 01",
-  "contenido": "SECCIONES 01 A 15",
-  "formato": "A2",
-  "escala": "INDICADA",
-  "escalas_dibujo": [],
-  "pagina": 18,
-  "rotulo": "DPLV-02"
- },
- {
-  "codigo": "DPLV-03",
-  "titulo": "SECCIONES TRANSVERSALES 02",
-  "contenido": "SECCIONES 16 A 30",
-  "formato": "A2",
-  "escala": "INDICADA",
-  "escalas_dibujo": [],
-  "pagina": 19,
-  "rotulo": "DPLV-03"
- },
- {
-  "codigo": "DPLV-04",
-  "titulo": "SECCIONES TRANSVERSALES 03",
-  "contenido": "SECCIONES 31 A 43",
-  "formato": "A2",
-  "escala": "INDICADA",
-  "escalas_dibujo": [],
-  "pagina": 20,
-  "rotulo": "DPLV-04"
- },
- {
-  "codigo": "DPLV-06",
-  "titulo": "PERFILES LONGITUDINALES 02",
-  "contenido": "EJES 07 A 09, CON LAS SECCIONES 31 A 42",
-  "formato": "A2",
-  "escala": "INDICADA",
-  "escalas_dibujo": [],
-  "pagina": 21,
-  "rotulo": "DPLV-06"
  },
  {
   "codigo": "DPLV-19",
@@ -272,6 +238,20 @@
   "rotulo": "DPLV-22"
  },
  {
+  "codigo": "DPLV-23",
+  "titulo": "DETALLE DE REGISTRO DE LIMPIEZA - TAPA CIEGA DE CONCRETO ARMADO 0.68x0.68x0.08",
+  "contenido": "",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [
+   "1/2",
+   "1/5",
+   "1/10"
+  ],
+  "pagina": 16,
+  "rotulo": "DPLV-23"
+ },
+ {
   "codigo": "DPLV-24",
   "titulo": "DETALLE DEL EMPALME DE CUNETA AL COLECTOR",
   "contenido": "",
@@ -280,6 +260,16 @@
   "escalas_dibujo": [],
   "pagina": 26,
   "rotulo": "DPLV-24"
+ },
+ {
+  "codigo": "DPLV-25",
+  "titulo": "EMPALME DEL COLECTOR CON LA CAJA DE LLEGADA CL DEL HOGAR DE REFUGIO",
+  "contenido": "",
+  "formato": "A1",
+  "escala": "INDICADA",
+  "escalas_dibujo": [],
+  "pagina": 17,
+  "rotulo": "DPLV-25"
  },
  {
   "codigo": "DPLV-26",
@@ -372,16 +362,6 @@
   "rotulo": "DPLV-34"
  },
  {
-  "codigo": "DPLV-36",
-  "titulo": "DETALLES DE CANALETA DE TECHO, SOPORTE Y ACCESORIOS",
-  "contenido": "",
-  "formato": "A2",
-  "escala": "INDICADA",
-  "escalas_dibujo": [],
-  "pagina": 36,
-  "rotulo": "DPLV-36"
- },
- {
   "codigo": "DPLV-35",
   "titulo": "DETALLE DE LLORADERO: CORTE, TUBO PERFORADO Y DESAGREGADO",
   "contenido": "",
@@ -390,6 +370,16 @@
   "escalas_dibujo": [],
   "pagina": 37,
   "rotulo": "DPLV-35"
+ },
+ {
+  "codigo": "DPLV-36",
+  "titulo": "DETALLES DE CANALETA DE TECHO, SOPORTE Y ACCESORIOS",
+  "contenido": "",
+  "formato": "A2",
+  "escala": "INDICADA",
+  "escalas_dibujo": [],
+  "pagina": 36,
+  "rotulo": "DPLV-36"
  },
  {
   "codigo": "DPLV-37",
@@ -450,6 +440,16 @@
   "escalas_dibujo": [],
   "pagina": 43,
   "rotulo": "DPLV-42"
+ },
+ {
+  "codigo": "DPLV-43",
+  "titulo": "PLANTA DE UBICACIÓN DE LLORADEROS EN CUNETAS COLINDANTES CON ÁREA VERDE",
+  "contenido": "",
+  "formato": "A0",
+  "escala": "INDICADA",
+  "escalas_dibujo": [],
+  "pagina": 4,
+  "rotulo": "DPLV-43"
  },
  {
   "codigo": "DPLV-44",

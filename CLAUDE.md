@@ -86,7 +86,7 @@ cual el rótulo, sin renumerar ni observaciones; DPL-36 figura en dos láminas).
 CAR Varones: `python3 herramientas/varones/planos_v.py`; plano DL-00 de ubicación de lloraderos (34 tramos, 226 und):
 `python3 herramientas/planos_ubicacion_lloraderos.py varones` (ejes en `insumos/katiuska/EJES_CUNETAS_VARONES.json`; sin `varones` = Refugio).
 Varones, juego de 44 láminas DPLV de la usuaria (`insumos/katiuska/PLANOS_DRENAJE_PLUVIAL_CAR_VARONES_LAMINAS.pdf`): índice
-`varones/indice_planos_v.py` (mismo motor que el del Refugio; códigos tal cual el rótulo, incluso DPVL-09, DPVL-10, DVPL-11), memoria
+`varones/indice_planos_v.py` (mismo motor que el del Refugio; ordenado de la DPLV-01 a la DPLV-44; códigos tal cual el rótulo, incluso DPVL-09, DPVL-10, DVPL-11), memoria
 hidrológica `varones/memoria_docx_v.py` (láminas DPLV, capítulo de lloraderos con su desagregado), especificaciones `espec.py varones`,
 memoria descriptiva `varones/memoria_descriptiva_v.py` (reusa `memoria_descriptiva_refugio.py`). Metrado vigente = el del 23-10-2026. CAR Mujeres: `python3 herramientas/mujeres/planos_m.py`.
 DP-06B suelta: `python3 herramientas/render_tapa/dxf_tapa_ciega.py <salida.dxf> <refugio|varones|mujeres>` (render: 0 0 841 594).

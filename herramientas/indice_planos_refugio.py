@@ -34,6 +34,7 @@ PROYECTO = ('“CREACIÓN DEL SERVICIO DE PROTECCIÓN A MUJERES VÍCTIMAS DE VIO
             'PROVINCIA DE SAN MARTÍN DEL DEPARTAMENTO DE SAN MARTÍN”')
 CUI = '2675514'
 CORTO = 'HOGAR DE REFUGIO TEMPORAL - MORALES, SAN MARTÍN'
+ORDEN = 'pdf'          # 'pdf': orden del juego en PDF (por formato de hoja); 'numero': de la primera a la última lámina
 UBIC = 'Predio rural Los Mangos, distrito de Morales, provincia y departamento de San Martín'
 
 # Títulos de los rótulos (con tildes), por código; se comprueban contra el texto del PDF. DPL-36 figura en dos láminas.
@@ -120,6 +121,8 @@ def leer_pdf():
         planos.append(dict(codigo=cod, titulo=tit, contenido=contenido(cod, t), formato=formatos[pag], escala=escala,
                            escalas_dibujo=esc_dib, pagina=pag, rotulo=rotulo))
     os.makedirs(os.path.dirname(DATOS), exist_ok=True)
+    if ORDEN == 'numero':                              # por el número final del código (DPLV-09, DPVL-09 y DVPL-11 cuentan igual)
+        planos.sort(key=lambda p: int(re.search(r'(\d+)$', p['codigo']).group(1)))
     json.dump(planos, open(DATOS, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     return planos
 
@@ -215,7 +218,7 @@ def generar(planos):
         cuenta[p['formato']] = cuenta.get(p['formato'], 0) + 1
     previo = None
     for n, p in enumerate(planos, 1):
-        if p['formato'] != previo:                     # el PDF va por formato de hoja: A0, A1, A2 y A3
+        if ORDEN == 'pdf' and p['formato'] != previo:  # el PDF va por formato de hoja: A0, A1, A2 y A3
             previo = p['formato']
             fila = tb.add_row(); fila._tr.get_or_add_trPr().append(OxmlElement('w:cantSplit'))
             c = fila.cells[0].merge(fila.cells[4])
@@ -239,7 +242,8 @@ def generar(planos):
     resumen = ', '.join('%d en %s' % (cuenta[f], f) for f in sorted(cuenta))
     par('Total: %d láminas (%s).' % (len(planos), resumen), 9, True, antes=8, despues=2, centro=False)
     for t in ('Escala del rótulo: INDICADA; debajo, en gris, las escalas de los dibujos de cada lámina. Fecha de las láminas: setiembre 2026.',
-              'El N.° es el orden de la lámina en el juego de planos, organizado por formato de hoja (A0, A1, A2 y A3).'):
+              'El N.° es el orden de la lámina en el juego de planos, organizado por formato de hoja (A0, A1, A2 y A3).'
+              if ORDEN == 'pdf' else 'Láminas ordenadas por su número, de la primera a la última.'):
         par(t, 8, False, GRIS, despues=2, centro=False)
     d.core_properties.author = ''
     d.core_properties.title = 'Índice de planos - Drenaje pluvial - Hogar de Refugio Temporal'
