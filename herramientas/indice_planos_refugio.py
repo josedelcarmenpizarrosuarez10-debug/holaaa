@@ -33,6 +33,8 @@ PROYECTO = ('“CREACIÓN DEL SERVICIO DE PROTECCIÓN A MUJERES VÍCTIMAS DE VIO
             'PELIGRE SU INTEGRIDAD Y/O SALUD FÍSICA Y/O MENTAL EN HOGAR DE REFUGIO TEMPORAL DISTRITO DE MORALES DE LA '
             'PROVINCIA DE SAN MARTÍN DEL DEPARTAMENTO DE SAN MARTÍN”')
 CUI = '2675514'
+CORTO = 'HOGAR DE REFUGIO TEMPORAL - MORALES, SAN MARTÍN'
+UBIC = 'Predio rural Los Mangos, distrito de Morales, provincia y departamento de San Martín'
 
 # Títulos de los rótulos (con tildes), por código; se comprueban contra el texto del PDF. DPL-36 figura en dos láminas.
 TITULOS = {
@@ -102,13 +104,14 @@ def leer_pdf():
         t = subprocess.run(['pdftotext', '-raw', '-f', str(pag), '-l', str(pag), PDF, '-'],
                            capture_output=True, text=True, check=True).stdout
         lin = t.splitlines()
-        i = max(k for k, l in enumerate(lin) if CUI in l)
-        j = next(k for k, l in enumerate(lin) if k > i and l.startswith('COORDINADOR'))
+        # linea del proyecto (con el CUI) seguida del titulo y de COORDINADOR: la del rotulo
+        i, j = max((k, m) for k, l in enumerate(lin) if CUI in l
+                   for m in range(k + 1, min(k + 6, len(lin))) if lin[m].startswith('COORDINADOR'))
         k = next(k for k, l in enumerate(lin) if k > j and re.search(r'20\d\d$', l.strip()))
         escala, rotulo = lin[k + 1].strip(), lin[k + 2].strip()
         tit_pdf = ' '.join(lin[i + 1:j])
         cod = rotulo
-        opciones = TITULOS[cod] if isinstance(TITULOS[cod], tuple) else (TITULOS[cod],)
+        opciones = TITULOS[cod] if isinstance(TITULOS[cod], tuple) else (TITULOS[cod],)   # noqa
         tit = next((x for x in opciones if _llano(x) == _llano(tit_pdf)), None)
         if not tit:
             raise SystemExit('Título distinto en %s: rótulo "%s" / índice "%s"' % (cod, tit_pdf, opciones))
@@ -180,7 +183,7 @@ def generar(planos):
     ancho = (s.page_width - s.left_margin - s.right_margin) / 360000.0
     # encabezado y pie
     h = s.header.paragraphs[0]; h.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    _run(h, 'HOGAR DE REFUGIO TEMPORAL - MORALES, SAN MARTÍN', 7.5, True, GRANATE)
+    _run(h, CORTO, 7.5, True, GRANATE)
     _run(h, '   |   CUI N.° %s   |   DRENAJE PLUVIAL' % CUI, 7.5, False, GRANATE)
     _borde_inferior(h, GRANATE, 8)
     f = s.footer.paragraphs[0]; f.alignment = WD_ALIGN_PARAGRAPH.RIGHT
@@ -198,7 +201,7 @@ def generar(planos):
     par('PROYECTO: ' + PROYECTO + ', CON CUI N.° ' + CUI, 7.5, False, None, despues=6)
     p = par('ÍNDICE DE PLANOS', 15, True, GRANATE, despues=2); _borde_inferior(p, GRANATE)
     par('ESPECIALIDAD: INSTALACIONES SANITARIAS - DRENAJE PLUVIAL', 9.5, True, despues=2, antes=4)
-    par('Predio rural Los Mangos, distrito de Morales, provincia y departamento de San Martín', 8, False, GRIS, despues=8)
+    par(UBIC, 8, False, GRIS, despues=8)
 
     anchos = (0.8, 1.6, ancho - 0.8 - 1.6 - 1.8 - 1.9, 1.8, 1.9)
     tb = d.add_table(rows=1, cols=5); tb.style = 'Table Grid'; tb.alignment = WD_TABLE_ALIGNMENT.CENTER; tb.autofit = False
