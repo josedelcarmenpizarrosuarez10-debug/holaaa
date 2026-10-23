@@ -615,3 +615,9 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   metrados y planos (láminas DPL-01 a DPL-40) -> `entregables/CARATULAS_DRENAJE_PLUVIAL_HOGAR_REFUGIO.docx` (7 páginas, verificado).
 - Color: a pedido de la usuaria, las carátulas del Hogar de Refugio van en verde (1E5E3B; subtítulo D6EEDD) para distinguirlas del
   granate del CAR Varones (`caratulas_v.COLOR`/`COLOR_SUB`; Varones sin cambio, XML idéntico).
+
+## 23/10/2026 - Hogar de Refugio: especificaciones técnicas vigentes
+- La usuaria pregunta por las últimas especificaciones del Hogar de Refugio (CUI 2675514): son las del 23/10 (metrado vigente con
+  bancas OC-01, láminas DPL, 50 páginas). Se quitaron dos citas a láminas que no existen en el juego DPL de la usuaria (DJ-01/DJ-02
+  en la junta de cunetas y DJ-03 en la rejilla; son láminas del CAR Varones), con el mapeo `laminas` de `espec.py` (refugio).
+  Solo cambian esos 2 párrafos; el resto del Word es idéntico.

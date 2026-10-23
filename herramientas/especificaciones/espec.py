@@ -61,7 +61,9 @@ PROYECTOS = {
         # laminas del juego DPL del usuario (indice_planos_refugio.py) en lugar de los codigos de trabajo
         lam_llor="DPL-39 (planta de ubicacion), DPL-37 (detalle del lloradero: corte, tubo perforado y desagregado) y DPL-36 (isometrico de instalacion)",
         laminas={"DP-06B, DP-06D, DD-01 y DD-02": "DPL-24 y DPL-29", "DP-06B y DP-06D": "DPL-24 y DPL-29", "DP-06B": "DPL-24",
-                 "DD-03": "DPL-28", "DD-04": "DPL-25"},
+                 "DD-03": "DPL-28", "DD-04": "DPL-25",
+                 # junta y rejilla de cunetas: sin lamina propia en el juego DPL (DJ-01 a DJ-03 son del CAR Varones): se quita la cita
+                 "Según la lámina DJ-03: cada": "Cada", ", según las láminas DJ-01 y DJ-02.": "."},
     ),
     "mujeres": dict(
         clave="mujeres", archivo="METRADO_DRENAJE_PLUVIAL_CAR_MUJERES.xlsx", corto="CAR MUJERES", cui="2717013",
