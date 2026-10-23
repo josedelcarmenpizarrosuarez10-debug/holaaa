@@ -545,3 +545,15 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   sólido, 34 tramos de la hoja METRADO LLORADEROS con sus 226 lloraderos @1.50 m, cuadro de tramos, leyenda, notas y detalle típico
   sin patrones de achurado (se ve igual en AutoCAD). Lado del muro por el rumbo de la hoja (ESTE/OESTE/NORTE/SUR).
 - Salida: `entregables_varones/PLANO_DL-00_UBICACION_LLORADEROS_CAR_VARONES.dxf` + vista previa PNG. Metrado sin cambios.
+
+## 23/10/2026 - CAR Varones (CUI 2705619): índice, memorias y especificaciones con el juego final DPLV
+- La usuaria entregó el PDF final de 44 láminas DPLV (orden por formato A0-A3) y el metrado del 23-10-2026 (igual al vigente salvo
+  la celda de fecha C5 de las hojas ACU/DESAGREGADO); pasa a vigente.
+- Índice de planos en Word en el orden del PDF, códigos tal cual el rótulo (DPVL-09, DPVL-10 y DVPL-11 están así en los rótulos).
+- Memoria hidrológica: figuras y referencias DPLV (DPLV-17, 18, 21, 23, 25-30), metrado del RESUMEN vigente y capítulo nuevo de
+  lloraderos (34 tramos, 226 und) con el cuadro de materiales de la hoja DESAGREGADO LLORADEROS.
+- Especificaciones: láminas DPLV; la partida de lloraderos lleva el cuadro de materiales del desagregado (tubo PVC 3" 67.80 m,
+  1808 perforaciones, grava 6.71 m3, geotextil 134.24 m2, mortero 0.11 m3) y las láminas DPLV-43/35/34 (Refugio: DPL-39/37/36).
+- Memoria descriptiva nueva de Varones (17 páginas), con la misma estructura que la del Refugio.
+- Pregunta de la usuaria: el desagregado de materiales del lloradero sí existe, en la hoja DESAGREGADO LLORADEROS (no en METRADO
+  LLORADEROS, que solo cuenta las unidades por tramo) y valorizado en ACU LLORADEROS (S/ 20.56 por und).

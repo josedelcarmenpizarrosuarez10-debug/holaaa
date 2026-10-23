@@ -38,6 +38,9 @@ PREV_OC = os.path.join(RAIZ, 'entregables/vistas_previas_oc01')
 SALIDA = os.path.join(RAIZ, 'entregables/MEMORIA_DESCRIPTIVA_DRENAJE_PLUVIAL_HOGAR_REFUGIO.docx')
 FUENTE, GRANATE, GRIS = 'Arial Narrow', '7B1E2B', '595959'
 CUI = '2675514'
+CORTO = 'HOGAR DE REFUGIO TEMPORAL'                                   # encabezado
+UBIC = 'Predio rural Los Mangos, distrito de Morales, provincia y departamento de San Martín'
+LAM_CAR = ('DPL-01', 'Red general de drenaje pluvial del Hogar de Refugio Temporal')   # imagen de la caratula
 D = DJ['datos']
 I10, I15, P24 = 210.98, 155.66, 121.81           # memoria hidrológica (intensidades de cunetas/canaletas y del colector)
 
@@ -191,8 +194,8 @@ def caratula(M, proyecto):
     M.par('PROYECTO:', 10, True, centro=True, despues=2)
     M.par('“' + proyecto + '”', 11, True, centro=True, despues=4)
     M.par('CUI N.° ' + CUI, 12, True, color=GRANATE, centro=True, despues=14)
-    p = M.par(centro=True, despues=2); p.add_run().add_picture(figura_lamina('DPL-01'), height=Cm(10.5))
-    M.par('Red general de drenaje pluvial del Hogar de Refugio Temporal (lámina DPL-01)', 9, cur=True, color=GRIS, centro=True, despues=14)
+    p = M.par(centro=True, despues=2); p.add_run().add_picture(figura_lamina(LAM_CAR[0]), height=Cm(10.5))
+    M.par('%s (lámina %s)' % (LAM_CAR[1], LAM_CAR[0]), 9, cur=True, color=GRIS, centro=True, despues=14)
     t = d.add_table(rows=1, cols=1); t.alignment = WD_TABLE_ALIGNMENT.CENTER
     c = t.rows[0].cells[0]; c.width = Cm(M.ancho)
     sh = OxmlElement('w:shd'); sh.set(qn('w:val'), 'clear'); sh.set(qn('w:color'), 'auto'); sh.set(qn('w:fill'), GRANATE)
@@ -201,7 +204,7 @@ def caratula(M, proyecto):
     M.run(q, 'MEMORIA DESCRIPTIVA', 22, True, color='FFFFFF')
     q = c.add_paragraph(); q.alignment = WD_ALIGN_PARAGRAPH.CENTER; q.paragraph_format.space_after = Pt(6)
     M.run(q, 'ESPECIALIDAD: INSTALACIONES SANITARIAS - DRENAJE PLUVIAL', 12, True, color='FFFFFF')
-    M.par('Predio rural Los Mangos, distrito de Morales, provincia y departamento de San Martín', 10.5, centro=True, antes=14, despues=4)
+    M.par(UBIC, 10.5, centro=True, antes=14, despues=4)
     M.par('OCTUBRE 2026', 13, True, color=GRANATE, centro=True)
 
 
@@ -211,7 +214,7 @@ def encabezado(M):
     pg = OxmlElement('w:pgNumType'); pg.set(qn('w:start'), '1'); sec._sectPr.append(pg)
     h = sec.header.paragraphs[0]; h.alignment = WD_ALIGN_PARAGRAPH.CENTER
     M.run(h, 'MEMORIA DESCRIPTIVA - DRENAJE PLUVIAL', 8.5, True, color=GRANATE)
-    M.run(h, '   |   HOGAR DE REFUGIO TEMPORAL - CUI N.° ' + CUI, 8.5, color=GRANATE)
+    M.run(h, '   |   %s - CUI N.° %s' % (CORTO, CUI), 8.5, color=GRANATE)
     b = OxmlElement('w:pBdr'); e = OxmlElement('w:bottom')
     for k, v in (('val', 'single'), ('sz', '8'), ('space', '2'), ('color', GRANATE)):
         e.set(qn('w:' + k), v)
