@@ -557,3 +557,12 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Memoria descriptiva nueva de Varones (17 páginas), con la misma estructura que la del Refugio.
 - Pregunta de la usuaria: el desagregado de materiales del lloradero sí existe, en la hoja DESAGREGADO LLORADEROS (no en METRADO
   LLORADEROS, que solo cuenta las unidades por tramo) y valorizado en ACU LLORADEROS (S/ 20.56 por und).
+
+## 23/10/2026 - CAR Varones: códigos de lámina del metrado = juego final DPLV
+- Pedido de la usuaria: en el metrado, solo donde va código de lámina, poner los códigos nuevos de sus planos.
+- `herramientas/varones/codigos_laminas_metrado_v.py` edita el XML del libro (sharedStrings y texto en caché de fórmulas):
+  140 celdas de sustento/criterio/notas. DP-01->DPLV-17, DP-02->DPLV-18, DP-04->DPLV-21 y DPLV-22, DP-06B (rev. 02)->DPLV-23,
+  DP-06C->DPLV-24, DP-07->DPLV-25, DD-01..04->DPLV-27..30, DJ-01->DPLV-31, DL-01->DPLV-34, DL-02->DPLV-35. DP-08 (cuadro de
+  doblado) y DA-01..03 (cuadros de metrado) no existen en el juego final: se citan las secciones del colector DPLV-21 y DPLV-22.
+- Control: ningún valor numérico cambia (comparado tras recalcular con LibreOffice). Salida
+  `entregables_varones/METRADO_DRENAJE_PLUVIAL_CAR_VARONES_23-10-2026.xlsx`, copiada como vigente.
