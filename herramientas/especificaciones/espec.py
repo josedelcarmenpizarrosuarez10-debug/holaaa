@@ -38,7 +38,11 @@ PROYECTOS = {
             acero="tramo normal: un marco cerrado de 3/8\" @0.20 m en el eje de muros y losas; cruce de camiones: doble marco de 1/2\" @0.15 m (marco exterior e interior); barras longitudinales de 3/8\" @0.25 m (@0.20 m en el cruce de camiones)",
             recub="0.04 m en muros y losa de fondo; 0.025 m en la losa superior del tramo normal; 0.04 m en el cruce de camiones; 0.025 m en tapas",
             receptor="la caja de llegada CL del colector del Hogar de Refugio Temporal (CUI 2675514), por la ventana de 0.60 x 1.17 m de su muro este",
-            cajas=None, salida=None, cerco=False, vereda=True, planos="DP-01 a DP-08, DA-01 a DA-03 y DD-01 a DD-04", contramarco="1.5x1.5x1/8", sello="asfaltico"),
+            cajas=None, salida=None, cerco=False, vereda=True, planos="DPLV-01 a DPLV-44", contramarco="1.5x1.5x1/8", sello="asfaltico"),
+        # laminas del juego DPLV de la usuaria (varones/indice_planos_v.py) en lugar de los codigos de trabajo
+        lam_llor="DPLV-43 (planta de ubicacion), DPLV-35 (detalle del lloradero: corte, tubo perforado y desagregado) y DPLV-34 (isometrico de instalacion)",
+        laminas={"DP-06B, DP-06D, DD-01 y DD-02": "DPLV-23, DPLV-26, DPLV-27 y DPLV-28", "DD-03 (vista C)": "DPLV-29",
+                 "DD-03": "DPLV-29", "DJ-01 y DJ-02": "DPLV-31 y DPLV-32", "DJ-03": "DPLV-33"},
     ),
     "refugio": dict(
         clave="refugio", archivo="METRADO_DRENAJE_MUJERES_VIOLENTADAS_CON_BANCAS_OC-01.xlsx", corto="HOGAR DE REFUGIO TEMPORAL", cui="2675514",
@@ -55,6 +59,7 @@ PROYECTOS = {
             cajas="caja de llegada CL (interior 1.50 x 1.00 m, poza de 0.30 m, recibe el colector del CAR Varones y su cuneta del Eje 01) y caja de caida CC (poza 3.50 x 1.50 m, profundidad 0.40 m bajo el fondo del receptor, umbral de 0.25 x 0.40 m)",
             salida=None, cerco=True, planos="DPL-01 a DPL-39 (juego de láminas) y DPL-41, DPL-42 (bancas OC-01)", contramarco="1.5x1.5x1/8", sello="asfaltico"),
         # laminas del juego DPL del usuario (indice_planos_refugio.py) en lugar de los codigos de trabajo
+        lam_llor="DPL-39 (planta de ubicacion), DPL-37 (detalle del lloradero: corte, tubo perforado y desagregado) y DPL-36 (isometrico de instalacion)",
         laminas={"DP-06B, DP-06D, DD-01 y DD-02": "DPL-24 y DPL-29", "DP-06B y DP-06D": "DPL-24 y DPL-29", "DP-06B": "DPL-24",
                  "DD-03": "DPL-28", "DD-04": "DPL-25"},
     ),
@@ -93,6 +98,21 @@ def partidas(P):
             out.append(dict(codigo=c, desc=str(r[1]).strip(), und=und, cant=r[3]))
     P["proyecto"] = proyecto
     return out
+
+
+def desagregado_llor(P):
+    """Cuadro de materiales de la partida de lloraderos, de la hoja DESAGREGADO LLORADEROS del metrado (si la tiene)."""
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        wb = openpyxl.load_workbook(os.path.join(MET, P["archivo"]), data_only=True)
+    if "DESAGREGADO LLORADEROS" not in wb.sheetnames: return []
+    de = [list(r) for r in wb["DESAGREGADO LLORADEROS"].iter_rows(values_only=True)]
+    i0 = next((k for k, r in enumerate(de) if isinstance(r[0], str) and r[0].startswith("C. COMPONENTES")), None)
+    if i0 is None: return []
+    fmt = lambda v: ("%.4f" % v).rstrip("0").rstrip(".") if isinstance(v, float) else str(v)
+    filas = [[str(r[1]), str(r[2]), fmt(r[3]), fmt(r[4]), fmt(round(r[5], 2) if isinstance(r[5], float) else r[5])] for r in de[i0 + 2:] if isinstance(r[0], (int, float))]
+    return [p("Materiales de la partida, por lloradero y en total (hoja DESAGREGADO LLORADEROS del metrado; costo en la hoja ACU LLORADEROS):"),
+            t(["COMPONENTE", "UND", "POR LLORADERO", "N° LLORADEROS", "TOTAL"], filas)]
 
 
 # ============================================================================== texto comun
@@ -577,7 +597,8 @@ def espec(pt, P, ctx):
                        p("Cada unidad comprende: pase de tuberia PVC-U de 3\" (76 mm) de 0.30 m de longitud a traves del muro, a media altura entre el fondo y el borde, con pendiente S = 0.5 % hacia el interior de la cuneta; "
                          "filtro localizado de 0.30 x 0.30 x 0.30 m de grava filtrante (ripio de 20 a 40 mm) en el lado del terreno, envuelto integramente en geotextil no tejido, que retiene los finos del suelo y deja pasar el agua; "
                          "y la excavacion local y el relleno compactado alrededor del filtro."),
-                       p("Ubicacion: solo en los tramos de muro de cuneta colindantes con area verde de la hoja METRADO LLORADEROS (eje, lado del muro y progresivas); los tramos junto a veredas, pisos o edificaciones no llevan lloraderos.")],
+                       p("Ubicacion: solo en los tramos de muro de cuneta colindantes con area verde de la hoja METRADO LLORADEROS (eje, lado del muro y progresivas); los tramos junto a veredas, pisos o edificaciones no llevan lloraderos." +
+                         (" Planos: %s." % P["lam_llor"] if P.get("lam_llor") else ""))] + desagregado_llor(P),
                       mat=l("Tuberia PVC-U para desague de 3\" (NTP 399.003), cortada en tramos de 0.30 m.", "Grava filtrante (ripio) de 20 a 40 mm, limpia, lavada, sin finos ni materia organica: 0.027 m³ por lloradero.",
                             "Geotextil no tejido (NTP / ASTM D4491 y D4751, clase 2 para filtro): 0.60 m² por lloradero, con traslapes de 0.10 m.", "Mortero 1:3 cemento-arena para sellar el contorno del tubo en el muro."),
                       equ=l("Herramientas manuales, sierra de arco, nivel, wincha, pison de mano."),
@@ -819,7 +840,7 @@ _FUT = ("amarraran anotara anotaran aplicara aprobara armaran cambiara cercaran 
         "efectuara eliminara enderezaran entregara estara excavaran hara haran humedecera limpiara limpiaran medira mediran ordenara pagaran picara "
         "presentara programaran quedara quedaran redondearan referiran registrara rellenara repintaran resanaran resolvera senalizaran sera seran "
         "traslapara ubicaran usara vaciara verificara volveran podra tendra").split()
-_MAP = {"liquido": "líquido", "pergola": "pérgola", "compactandola": "compactándola", "albanileria": "albañilería", "analisis": "análisis", "angulo": "ángulo", "angulos": "ángulos", "area": "área", "areas": "áreas", "arnes": "arnés",
+_MAP = {"liquido": "líquido", "pergola": "pérgola", "isometrico": "isométrico", "isometricos": "isométricos", "compactandola": "compactándola", "albanileria": "albañilería", "analisis": "análisis", "angulo": "ángulo", "angulos": "ángulos", "area": "área", "areas": "áreas", "arnes": "arnés",
         "asfaltico": "asfáltico", "brunado": "bruñado", "brunadora": "bruñadora", "caida": "caída", "calculo": "cálculo", "calido": "cálido", "capitulo": "capítulo",
         "carguio": "carguío", "carpinteria": "carpintería", "ciclopeo": "ciclópeo", "codigo": "código", "cordon": "cordón", "cubico": "cúbico", "danar": "dañar",
         "danen": "dañen", "danos": "daños", "debiles": "débiles", "despues": "después", "diametro": "diámetro", "diametros": "diámetros", "dias": "días",

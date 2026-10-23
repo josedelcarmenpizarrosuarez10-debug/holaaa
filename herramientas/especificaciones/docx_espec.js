@@ -16,7 +16,7 @@ const bordes = { top: borde, bottom: borde, left: borde, right: borde };
 
 function tabla(cab, filas) {
   const n = cab.length;
-  const pesos = n === 3 ? [26, 50, 24] : Array(n).fill(100 / n);
+  const pesos = n === 3 ? [26, 50, 24] : n === 5 ? [44, 8, 17, 15, 16] : Array(n).fill(100 / n);
   const cols = pesos.map(p => Math.round(ANCHO * p / 100)); cols[n - 1] = ANCHO - cols.slice(0, n - 1).reduce((a, b) => a + b, 0);
   const celda = (s, i, head) => new TableCell({ borders: bordes, width: { size: cols[i], type: WidthType.DXA },
     shading: head ? { fill: "D9E2F3", type: ShadingType.CLEAR, color: "auto" } : undefined, margins: { top: 60, bottom: 60, left: 90, right: 90 },
