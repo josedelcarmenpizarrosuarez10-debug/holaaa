@@ -44,6 +44,7 @@ DOCUMENTOS = [   # (título, subtítulo) en el orden de la carpeta de entrega de
     ('PLANOS', 'LÁMINAS DPLV-01 A DPLV-44 - ' + ESP),
 ]
 ANCHO = C.ANCHO
+COLOR, COLOR_SUB = C.GRANATE, 'F2D7DB'                         # color de la carátula y del subtítulo en la franja
 LEYENDA = 'Vista del Centro de Acogida Residencial - Varones'       # leyenda de la foto
 TITULO = 'Carátulas - Drenaje pluvial CAR Varones'                # propiedades del Word
 
@@ -77,36 +78,36 @@ def caratula(d, img, titulo, subtitulo):
     c0, c1 = tb.rows[0].cells
     c0.vertical_alignment = c1.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
     par(c0.paragraphs[0]).add_run().add_picture(ESCUDO, height=Cm(2.8))
-    par(c1.paragraphs[0], C.ENTIDAD, 17, True, C.GRANATE, centro=False, sep=10)
-    C._linea(par(c1, C.GERENCIA, 10.5, True, C.GRIS, centro=False, despues=2, sep=6))
+    par(c1.paragraphs[0], C.ENTIDAD, 17, True, COLOR, centro=False, sep=10)
+    C._linea(par(c1, C.GERENCIA, 10.5, True, C.GRIS, centro=False, despues=2, sep=6), color=COLOR)
     # ---- servicio y proyecto
-    par(d, C.SERVICIO, 11, True, C.GRANATE, antes=26, despues=8)
+    par(d, C.SERVICIO, 11, True, COLOR, antes=26, despues=8)
     par(d, PROYECTO, 10, True, despues=3, esp=1.05)
-    par(d, CUI, 11.5, True, C.GRANATE, despues=22)
+    par(d, CUI, 11.5, True, COLOR, despues=22)
     # ---- foto del proyecto
     tb = d.add_table(rows=1, cols=1); C._sin_bordes(tb); tb.alignment = WD_TABLE_ALIGNMENT.CENTER; C._anchos(tb, (ANCHO,))
     par(tb.rows[0].cells[0].paragraphs[0]).add_run().add_picture(img, width=Cm(ANCHO))
     par(d, LEYENDA, 8, False, C.GRIS, cursiva=True, antes=3, despues=22)
     # ---- franja con el título del documento
     tb = d.add_table(rows=1, cols=1); tb.alignment = WD_TABLE_ALIGNMENT.CENTER; C._anchos(tb, (ANCHO,))
-    c = tb.rows[0].cells[0]; C._sombra(c, C.GRANATE); C._bordes(c)
+    c = tb.rows[0].cells[0]; C._sombra(c, COLOR); C._bordes(c)
     par(c.paragraphs[0], titulo, 26, True, 'FFFFFF', antes=16, despues=4, sep=8)
     lineas = subtitulo.split(' - ')                                  # cada parte del subtítulo en su línea
     for k, t in enumerate(lineas):
-        par(c, t, 11, True, 'F2D7DB', despues=16 if k == len(lineas) - 1 else 2, sep=4)
+        par(c, t, 11, True, COLOR_SUB, despues=16 if k == len(lineas) - 1 else 2, sep=4)
     # ---- ubicación y fecha
     tb = d.add_table(rows=1, cols=2); C._sin_bordes(tb); tb.alignment = WD_TABLE_ALIGNMENT.CENTER
     C._anchos(tb, (ANCHO / 2, ANCHO / 2))
     c0, c1 = tb.rows[0].cells
     c0.vertical_alignment = c1.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
-    C._bordes(c0, left=(24, C.GRANATE))
-    par(c0.paragraphs[0], '   UBICACIÓN DEL PROYECTO', 10, True, C.GRANATE, centro=False, antes=34, despues=4, sep=6)
+    C._bordes(c0, left=(24, COLOR))
+    par(c0.paragraphs[0], '   UBICACIÓN DEL PROYECTO', 10, True, COLOR, centro=False, antes=34, despues=4, sep=6)
     for etq, val in (('Distrito', 'Morales'), ('Provincia', 'San Martín'), ('Departamento', 'San Martín')):
         p = par(c0, '   %s:  ' % etq, 10, False, C.GRIS, centro=False, despues=2)
         r = p.add_run(val); r.font.size = Pt(10); r.bold = True; r.font.name = 'Arial'
-    C._bordes(c1, left=(24, C.GRANATE))
-    par(c1.paragraphs[0], '   FECHA', 10, True, C.GRANATE, centro=False, antes=34, despues=4, sep=6)
-    par(c1, '   ' + FECHA, 15, True, C.GRANATE, centro=False, despues=2, sep=6)
+    C._bordes(c1, left=(24, COLOR))
+    par(c1.paragraphs[0], '   FECHA', 10, True, COLOR, centro=False, antes=34, despues=4, sep=6)
+    par(c1, '   ' + FECHA, 15, True, COLOR, centro=False, despues=2, sep=6)
 
 
 def documento():

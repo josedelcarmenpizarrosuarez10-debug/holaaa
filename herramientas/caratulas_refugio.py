@@ -27,6 +27,7 @@ V.PROYECTO = ('“CREACIÓN DEL SERVICIO DE PROTECCIÓN A MUJERES VÍCTIMAS DE V
 V.CUI = 'CUI N° 2675514'
 V.FECHA = 'SETIEMBRE - 2026'                                    # la de los rótulos de las láminas DPL
 V.LEYENDA = 'Vista del Hogar de Refugio Temporal'
+V.COLOR, V.COLOR_SUB = '1E5E3B', 'D6EEDD'                       # verde (pedido de la usuaria), distinto del granate de Varones
 V.TITULO = 'Carátulas - Drenaje pluvial Hogar de Refugio Temporal'
 ESP = V.ESP
 V.DOCUMENTOS = [   # (título, subtítulo) en el orden de la carpeta de entrega de la usuaria; sin el índice de planos

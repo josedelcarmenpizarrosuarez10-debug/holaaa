@@ -613,3 +613,5 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   nombre del proyecto tal como el rótulo de las láminas DPL, fecha SETIEMBRE - 2026 (rótulos), 7 carátulas: especificaciones,
   memoria de cálculo (canaletas, montantes y cunetas), memoria de cálculo (colector), memoria descriptiva, memoria hidrológica,
   metrados y planos (láminas DPL-01 a DPL-40) -> `entregables/CARATULAS_DRENAJE_PLUVIAL_HOGAR_REFUGIO.docx` (7 páginas, verificado).
+- Color: a pedido de la usuaria, las carátulas del Hogar de Refugio van en verde (1E5E3B; subtítulo D6EEDD) para distinguirlas del
+  granate del CAR Varones (`caratulas_v.COLOR`/`COLOR_SUB`; Varones sin cambio, XML idéntico).
