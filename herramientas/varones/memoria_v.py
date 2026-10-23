@@ -123,7 +123,7 @@ def hoja_cunetas(wb, R):
              fonts=[NEGRO, AZUL, AZUL, AZUL, AZUL, NEGRO, AZUL, NEGRO, NEGRO, VERDE, NEGRO, NEGRO], fmts=[None, "0.00", "0.00", "0.00", "0.00", "0.00", "0.00", "0.000", None, "0.000", "0.000"])
         r += 1
     ROW["cu_r0"] = r0; ROW["cu_r1"] = r - 1
-    celda(ws, f"A{r+1}", "NCF en el muro = NCF del extremo dibujado + 0.5 % x acortamiento (la cuneta termina antes, con su misma pendiente). Ventana 0.40 x H en el muro lado predio, con caida al fondo y registro encima (DP-06C, DD-04); la del Eje 01 entra a la CL por su muro norte (DP-07).", SUB)
+    celda(ws, f"A{r+1}", "NCF en el muro = NCF del extremo dibujado + 0.5 % x acortamiento (la cuneta termina antes, con su misma pendiente). Ventana 0.40 x H en el muro lado predio, con caida al fondo y registro encima (DPLV-24, DPLV-30); la del Eje 01 entra a la CL por su muro norte (DPLV-25).", SUB)
     return ws
 
 
@@ -438,7 +438,7 @@ def hoja_cumplimiento(wb, R, rlast):
               "2. Caudal: el colector conduce 221.7 L/s y la cuneta del Eje 01 entrega 37.0 L/s directamente a la CL; el total (258.7 L/s) es el dato de la memoria de hidrologia del CAR Varones y el aporte considerado por el Hogar de Refugio (560.6 L/s) y, aguas abajo, por el CAR Mujeres.",
               "3. Nivel de agua en la CL (259.606): resultado del perfil de flujo del tramo del Hogar de Refugio; el colector de Varones descarga en caida libre, por lo que un cambio moderado de ese nivel no altera este tramo.",
               "4. Capacidad portante: la presion transmitida es menor que 0.50 kg/cm2; el EMS del proyecto, exigido por la norma E.050, la confirma (no hay EMS disponible al elaborar esta memoria).",
-              "5. Coordenadas UTM: mismo sistema del tramo del Hogar de Refugio (R-01 del CAR Mujeres y azimut 49.54 del lindero); el trazo se replantea en obra desde la caja CL, el porton de camiones y las cunetas que llegan (cuadro de coordenadas de DP-01).",
+              "5. Coordenadas UTM: mismo sistema del tramo del Hogar de Refugio (R-01 del CAR Mujeres y azimut 49.54 del lindero); el trazo se replantea en obra desde la caja CL, el porton de camiones y las cunetas que llegan (planta del colector, lamina DPLV-17).",
               "6. Cotas de fondo de las cunetas: tomadas del plano PERFIL CAR VARONES (Ejes 01 a 09); todas caen libremente al colector o a la CL."]:
         celda(ws, f"A{r}", t, NEGRO); r += 1
     ws.freeze_panes = "A5"
@@ -456,7 +456,7 @@ def hoja_memoria(wb, R, rlast):
         ("4. HIDRAULICA", "Colector cubierto de concreto armado b = 0.60 m, S = 0.30 %%, n = 0.015, fondo de 260.20 (0+000) a %.3f (CL). Altura interior 0.70 m en el cruce de camiones (losa e = 0.25) y hasta 1.17 m en la llegada; losa superior al ras del piso terminado +261.15 en todo el frente. Perfil de flujo gradualmente variado con caudal creciente en cada empalme; control: tirante critico en la caida libre a la CL (caida %.2f m sobre su nivel de agua). Flujo subcritico, llenado <= 35 %%, capacidad con llenado del 85 %% de 445 L/s." % (dz.fondo(dz.P_FIN), cl["caida_libre"])),
         ("5. ESTRUCTURAS", "Marco cerrado monolitico igual al del tramo del Hogar de Refugio: losa superior e = 0.10, muros e = 0.15 y losa de fondo e = 0.15 con un solo marco 3/8\" @0.20 en el eje de la seccion y longitudinales 3/8\" @0.25 (una capa; E.060 14.3.4); cruce de camiones cisterna con losas e = 0.25 y doble marco 1/2\" @0.15. Tapas de registro 0.68 x 0.68 x 0.08."),
         ("6. EMPALME", "La CL (expediente del Hogar de Refugio) queda del lado de Varones: su tapa se fija en +261.15 y recibe el colector por una ventana 0.60 x 1.17 en su muro este (sin dintel: techo de la CL = techo del colector = 261.05) y la cuneta del Eje 01 por una ventana 0.40 x 0.66 en su muro norte. Juntas de tecnopor 1\" en todo contacto entre estructuras de distinto expediente."),
-        ("7. RESULTADOS", "Ver cuadro resumen y la hoja CUMPLIMIENTO (requisito, norma, criterio, valor y resultado). Planta, perfil, secciones y detalles en las laminas DP-01, DP-02, DP-04A/B, DP-06B, DP-06C, DP-07, DP-08, DA-01 a DA-03 y DD-01 a DD-04."),
+        ("7. RESULTADOS", "Ver cuadro resumen y la hoja CUMPLIMIENTO (requisito, norma, criterio, valor y resultado). Planta, perfil, secciones y detalles en las laminas DPLV-17 a DPLV-30 (planta, perfiles, secciones, registro, empalmes y juntas)."),
     ]
     r = 4
     for a, b in txt:

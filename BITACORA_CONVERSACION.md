@@ -573,3 +573,17 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Índice de planos de Varones: a pedido de la usuaria, ordenado por número de lámina (DPLV-01 a DPLV-44, sin grupos por formato;
   `I.ORDEN = 'numero'` en varones/indice_planos_v.py). El del Refugio sigue en el orden de su PDF. La relación de planos de la
   memoria descriptiva de Varones sigue el mismo orden.
+
+## 23/10/2026 - CAR Varones: memoria de cálculo del colector en PDF
+- Pedido de la usuaria: el Excel de cálculo del colector de Varones en PDF con el mismo estilo de la memoria de cálculo
+  HIDRO-CE040 de Varones (título serif, recuadro de fórmulas, tablas con encabezado celeste, bloques finales).
+- `herramientas/varones/memoria_pdf_v.py` (mismo motor que `memoria_pdf_refugio.py` / `mujeres/memoria_pdf_m.py`): lee
+  `entregables_varones/MEMORIA_CALCULO_COLECTOR_CAR_VARONES.xlsx` recalculado con LibreOffice en copia temporal (sin las
+  correcciones propias del CAR Mujeres) y copia sus valores sin cambiarlos -> `MEMORIA_CALCULO_COLECTOR_CAR_VARONES.pdf` (17 pág.):
+  datos y metodología, 1 datos, 2 caudales por cuneta, 3 cunetas (acortamiento y caída libre), 4 empalme con la CL, 5 perfil de
+  flujo (gráfico, 110 estaciones, velocidades y autolimpieza), 6 estructural, 7 cumplimiento y diseño adoptado; firma en blanco.
+- `varones/memoria_v.py`: referencias de lámina del Excel pasadas al juego final (DPLV-17, DPLV-24, DPLV-25, DPLV-30; láminas
+  DPLV-17 a DPLV-30). Solo 3 celdas de texto cambian; valores iguales.
+- El Excel que envió la usuaria era una versión anterior (mismos números, 5 textos distintos); se usó el vigente del repositorio.
+- `memoria_pdf_refugio.perfil_svg`: marcas del eje de progresivas según el rango de datos (Refugio sin cambio). El PDF del Refugio
+  se regeneró: solo cambia el área de Varones 6752.03 m² (la de su memoria hidrológica, ya en el Excel vigente).
