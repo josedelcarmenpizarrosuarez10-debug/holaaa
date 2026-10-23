@@ -621,3 +621,14 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   bancas OC-01, láminas DPL, 50 páginas). Se quitaron dos citas a láminas que no existen en el juego DPL de la usuaria (DJ-01/DJ-02
   en la junta de cunetas y DJ-03 en la rejilla; son láminas del CAR Varones), con el mapeo `laminas` de `espec.py` (refugio).
   Solo cambian esos 2 párrafos; el resto del Word es idéntico.
+
+## 23/10/2026 - Hogar de Refugio: índice con las láminas que imprime la usuaria (42 láminas)
+- La usuaria envió su índice en PDF (versión del 22/10) para comprobarlo y luego el PDF de las láminas que imprime
+  (PLANTA_GENERAL_-_MUJERES_VIOLENTADAS_LAMINAS.pdf, 42 láminas), que reemplaza al juego de 40 en
+  `insumos/solange/PLANOS_DRENAJE_PLUVIAL_MUJERES_VIOLENTADAS_LAMINAS.pdf`. Numeración nueva sin duplicados: DPL-37 isométrico de
+  instalación de lloraderos (A1), DPL-38 detalle de lloradero (A2), DPL-39 falsa columna (A3), DPL-40 planta de ubicación de lloraderos
+  (A0), DPL-41 y DPL-42 bancas OC-01 (A2). DPL-01 a DPL-36 sin cambio.
+- Índice: de la DPL-01 a la DPL-42 con los grupos temáticos (como el índice que tenía la usuaria); el de Varones sigue sin grupos.
+- Coherencia: memoria hidrológica (lloraderos DPL-40/38/37), memoria descriptiva (falsa columna DPL-39, lloraderos DPL-40/38/37, relación
+  de planos de 42 láminas, figuras de la OC-01 tomadas del PDF), especificaciones (planos DPL-01 a DPL-42, lloraderos DPL-40/38/37) y
+  carátulas (LÁMINAS DPL-01 A DPL-42). Solo cambian esas citas (comparado el texto antes y después).

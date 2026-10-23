@@ -25,6 +25,7 @@ I.PROYECTO = ('“CREACIÓN DEL SERVICIO DE PROTECCIÓN INTEGRAL A NIÑAS, NIÑO
               'DEPARTAMENTO DE SAN MARTÍN”')
 I.CORTO = 'CAR VARONES - MORALES, SAN MARTÍN'
 I.UBIC = 'Distrito de Morales, provincia y departamento de San Martín'
+I.GRUPOS = []                              # sin grupos temáticos (lista corrida)
 I.ORDEN = 'numero'                         # pedido de la usuaria: de la lámina 1 a la última, sucesivamente
 
 # Título de cada rótulo (código tal cual el rótulo, incluso DPVL-09, DPVL-10 y DVPL-11); se comprueba contra el PDF.

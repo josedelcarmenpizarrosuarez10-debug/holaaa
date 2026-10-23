@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """Índice de planos de drenaje pluvial - Hogar de Refugio Temporal "Mujeres Violentadas" (CUI 2675514), en Word.
 
-Fuente: el PDF de láminas del usuario (insumos/solange/PLANOS_DRENAJE_PLUVIAL_MUJERES_VIOLENTADAS_LAMINAS.pdf, 40 láminas
-DPL, setiembre 2026). El índice sigue el orden del PDF, que está organizado por formato de hoja (A0, A1, A2 y A3), y cada
-lámina lleva el código y el título de su rótulo, tal como están. De cada página se lee, sin modificarla: código y título
+Fuente: el PDF de las láminas que imprime la usuaria (insumos/solange/PLANOS_DRENAJE_PLUVIAL_MUJERES_VIOLENTADAS_LAMINAS.pdf,
+42 láminas DPL-01 a DPL-42, setiembre 2026; incluye las dos de las bancas OC-01). El índice va de la DPL-01 a la DPL-42 con
+los grupos temáticos del juego, y cada lámina lleva el código y el título de su rótulo, tal como están. De cada página se lee, sin modificarla: código y título
 del rótulo, formato del papel y escalas de los dibujos.
 
 Uso:  python3 herramientas/indice_planos_refugio.py
@@ -34,10 +34,10 @@ PROYECTO = ('“CREACIÓN DEL SERVICIO DE PROTECCIÓN A MUJERES VÍCTIMAS DE VIO
             'PROVINCIA DE SAN MARTÍN DEL DEPARTAMENTO DE SAN MARTÍN”')
 CUI = '2675514'
 CORTO = 'HOGAR DE REFUGIO TEMPORAL - MORALES, SAN MARTÍN'
-ORDEN = 'pdf'          # 'pdf': orden del juego en PDF (por formato de hoja); 'numero': de la primera a la última lámina
+ORDEN = 'numero'       # 'pdf': orden del juego en PDF (por formato de hoja); 'numero': de la primera a la última lámina
 UBIC = 'Predio rural Los Mangos, distrito de Morales, provincia y departamento de San Martín'
 
-# Títulos de los rótulos (con tildes), por código; se comprueban contra el texto del PDF. DPL-36 figura en dos láminas.
+# Títulos de los rótulos (con tildes), por código; se comprueban contra el texto del PDF.
 TITULOS = {
     'DPL-01': 'RED GENERAL DE DRENAJE PLUVIAL',
     'DPL-02': 'PERFILES LONGITUDINALES',
@@ -61,11 +61,18 @@ TITULOS = {
     'DPL-33': 'ELEVACIÓN DE CANALETA Y CORTE DEL MONTANTE PLUVIAL',
     'DPL-34': 'ISOMÉTRICO DEL MONTANTE PLUVIAL TÍPICO',
     'DPL-35': 'ISOMÉTRICO DE LA CAJA SUMIDERO DE PISO',
-    'DPL-36': ('DETALLE DE CAJA SUMIDERO DE PISO: CORTE, PLANTA Y DESAGREGADO', 'ISOMÉTRICO DE INSTALACIÓN DE LLORADEROS EN CUNETAS'),
-    'DPL-37': 'DETALLE DE LLORADERO: CORTE, TUBO PERFORADO Y DESAGREGADO',
-    'DPL-38': 'DETALLE CONSTRUCTIVO FALSA COLUMNA PARA MONTANTE PLUVIAL EN EDIFICACIONES',
-    'DPL-39': 'PLANTA DE UBICACIÓN DE LLORADEROS EN CUNETAS COLINDANTES CON ÁREA VERDE',
+    'DPL-36': 'DETALLE DE CAJA SUMIDERO DE PISO: CORTE, PLANTA Y DESAGREGADO',
+    'DPL-37': 'ISOMÉTRICO DE INSTALACIÓN DE LLORADEROS EN CUNETAS',
+    'DPL-38': 'DETALLE DE LLORADERO: CORTE, TUBO PERFORADO Y DESAGREGADO',
+    'DPL-39': 'DETALLE CONSTRUCTIVO FALSA COLUMNA PARA MONTANTE PLUVIAL EN EDIFICACIONES',
+    'DPL-40': 'PLANTA DE UBICACIÓN DE LLORADEROS EN CUNETAS COLINDANTES CON ÁREA VERDE',
+    'DPL-41': 'ISOMÉTRICO DEL DRENAJE PLUVIAL DE LA OC-01 (JARDINERA + BANCA + PÉRGOLA)',
+    'DPL-42': 'DETALLE ISOMÉTRICO DE LA SALIDA DE LA CANALETA DE LA OC-01',
 }
+# grupos temáticos del juego (solo con ORDEN = 'numero'; el CAR Varones no los usa)
+GRUPOS = [(1, 5, 'RED DE CUNETAS'), (6, 14, 'COLECTOR PLUVIAL FRONTAL'), (15, 23, 'MONTANTES PLUVIALES POR EDIFICACIÓN'),
+          (24, 29, 'DETALLES DEL COLECTOR: REGISTROS, EMPALMES, CAJAS Y JUNTAS'), (30, 34, 'CANALETAS Y MONTANTES PLUVIALES'),
+          (35, 40, 'CAJA SUMIDERO DE PISO, LLORADEROS Y FALSA COLUMNA'), (41, 42, 'OBRA COMPLEMENTARIA OC-01: BANCAS CON PÉRGOLA')]
 def _llano(t):
     """Mayúsculas sin tildes ni espacios (para comparar con el texto del PDF)."""
     t = unicodedata.normalize('NFD', t.upper())
@@ -91,6 +98,10 @@ def contenido(cod, t):
         return 'PROG. ' + ', '.join('%s (%s)' % (a, b.strip()) for a, b in m)
     if n == 14:
         return 'SECCIONES TÍPICAS: TRAMO NORMAL (0+010.00), CRUCE DE MOTOS (0+040.00) Y CRUCE DE CAMIONES (0+028.80)'
+    if n == 41:
+        return '3 CANALETAS 0.18 x 0.21 (TECHOS 3.79, 4.21 Y 3.79 m) Y PLANTA DE TECHOS; 3 JUEGOS = 9 BANCAS'
+    if n == 42:
+        return 'BOQUILLA Ø 4", COLGADOR, ABRAZADERA, BAJADA PVC 4" Y CORTE DE LA CANALETA'
     if 15 <= n <= 23:
         c = sorted(set(re.findall(r'CORTE ([A-Z])-\1', t)))
         return ('CORTE %s-%s' % (c[0], c[0]) if len(c) == 1 else 'CORTES ' + ' Y '.join('%s-%s' % (x, x) for x in c)) if c else ''
@@ -224,6 +235,13 @@ def generar(planos):
             c = fila.cells[0].merge(fila.cells[4])
             _celda(c, [('LÁMINAS EN FORMATO %s  (%d)' % (previo, cuenta[previo]), 7.5, True, GRANATE)], centro=False)
             _sombra(c, GRIS_CLARO)
+        num = int(re.search(r'(\d+)$', p['codigo']).group(1))
+        for a, b, nombre in (GRUPOS if ORDEN == 'numero' else []):    # grupos temáticos del juego
+            if num == a:
+                fila = tb.add_row(); fila._tr.get_or_add_trPr().append(OxmlElement('w:cantSplit'))
+                c = fila.cells[0].merge(fila.cells[4])
+                _celda(c, [('%s  (%s A %s)' % (nombre, p['codigo'], re.sub(r'\d+$', '%02d' % b, p['codigo'])), 7.5, True, GRANATE)], centro=False)
+                _sombra(c, GRIS_CLARO)
         fila = tb.add_row(); fila._tr.get_or_add_trPr().append(OxmlElement('w:cantSplit'))
         cel = fila.cells
         for c, w in zip(cel, anchos):

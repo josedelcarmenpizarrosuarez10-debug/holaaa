@@ -37,7 +37,7 @@ V.DOCUMENTOS = [   # (título, subtítulo) en el orden de la carpeta de entrega 
     ('MEMORIA DESCRIPTIVA', ESP),
     ('MEMORIA HIDROLÓGICA', 'HIDROLOGÍA Y DRENAJE PLUVIAL CON COLECTOR FRONTAL - ' + ESP),
     ('METRADOS', ESP),
-    ('PLANOS', 'LÁMINAS DPL-01 A DPL-40 - ' + ESP),
+    ('PLANOS', 'LÁMINAS DPL-01 A DPL-42 - ' + ESP),
 ]
 
 if __name__ == '__main__':

@@ -57,9 +57,9 @@ PROYECTOS = {
             recub="0.04 m en muros y losa de fondo; 0.025 m en la losa superior del tramo normal; 0.04 m en el cruce de camiones; 0.025 m en tapas",
             receptor="el registro R-01 del colector del CAR Mujeres (CUI 2717013), a traves de la caja de caida CC con poza de disipacion",
             cajas="caja de llegada CL (interior 1.50 x 1.00 m, poza de 0.30 m, recibe el colector del CAR Varones y su cuneta del Eje 01) y caja de caida CC (poza 3.50 x 1.50 m, profundidad 0.40 m bajo el fondo del receptor, umbral de 0.25 x 0.40 m)",
-            salida=None, cerco=True, planos="DPL-01 a DPL-39 (juego de láminas) y DPL-41, DPL-42 (bancas OC-01)", contramarco="1.5x1.5x1/8", sello="asfaltico"),
+            salida=None, cerco=True, planos="DPL-01 a DPL-42 (incluye DPL-41 y DPL-42 de las bancas OC-01)", contramarco="1.5x1.5x1/8", sello="asfaltico"),
         # laminas del juego DPL del usuario (indice_planos_refugio.py) en lugar de los codigos de trabajo
-        lam_llor="DPL-39 (planta de ubicacion), DPL-37 (detalle del lloradero: corte, tubo perforado y desagregado) y DPL-36 (isometrico de instalacion)",
+        lam_llor="DPL-40 (planta de ubicacion), DPL-38 (detalle del lloradero: corte, tubo perforado y desagregado) y DPL-37 (isometrico de instalacion)",
         laminas={"DP-06B, DP-06D, DD-01 y DD-02": "DPL-24 y DPL-29", "DP-06B y DP-06D": "DPL-24 y DPL-29", "DP-06B": "DPL-24",
                  "DD-03": "DPL-28", "DD-04": "DPL-25",
                  # junta y rejilla de cunetas: sin lamina propia en el juego DPL (DJ-01 a DJ-03 son del CAR Varones): se quita la cita

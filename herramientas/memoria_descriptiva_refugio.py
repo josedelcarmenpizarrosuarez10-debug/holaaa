@@ -6,7 +6,7 @@ Documento nuevo (el proyecto no tenía memoria descriptiva de la especialidad), 
   - el metrado vigente del usuario con las bancas OC-01 (insumos/metrados_vigentes/..._CON_BANCAS_OC-01.xlsx; solo lectura),
   - la memoria hidrológica con el capítulo del colector (diseno.json y los parámetros del estudio),
   - el juego de láminas DPL (entregables/_calc/indice_planos.json, de indice_planos_refugio.py).
-Las figuras son las láminas del PDF del usuario (y las vistas previas de DPL-41/42).
+Las figuras son las láminas del PDF del usuario (42 láminas DPL, con las de la OC-01).
 
 Uso: python3 herramientas/memoria_descriptiva_refugio.py
 Salida: entregables/MEMORIA_DESCRIPTIVA_DRENAJE_PLUVIAL_HOGAR_REFUGIO.docx
@@ -82,10 +82,10 @@ def lloraderos(wb):
 
 # ----------------------------------------------------------------------------------------------- figuras
 def figura_lamina(cod):
-    """JPG de la lámina (página del PDF del usuario) o PNG de la vista previa de las láminas OC-01."""
-    if os.path.exists(os.path.join(PREV_OC, cod + '.png')):
+    """JPG de la lámina (página del PDF del usuario) o PNG de su vista previa si no está en el PDF."""
+    pag = {p['codigo']: p['pagina'] for p in json.load(open(INDICE, encoding='utf-8'))}.get(cod)
+    if not pag:
         return os.path.join(PREV_OC, cod + '.png')
-    pag = {p['codigo']: p['pagina'] for p in json.load(open(INDICE, encoding='utf-8'))}[cod]
     os.makedirs(FIG, exist_ok=True); base = os.path.join(FIG, cod)
     if not os.path.exists(base + '.jpg'):
         subprocess.run(['pdftoppm', '-f', str(pag), '-l', str(pag), '-singlefile', '-jpeg', '-jpegopt', 'quality=85',
@@ -363,7 +363,7 @@ def generar():
     M.t2('Montantes pluviales y falsas columnas')
     M.par('Las montantes son de tubería PVC de Ø 4" (%s), fijadas con abrazaderas de F°G° (%s) y colgadores en los desvíos bajo el alero '
           '(%s); su tramo inferior se aloja en una falsa columna de concreto armado de 0.20 x 0.15 x 1.30 m (%s), que la protege de golpes. '
-          'Los detalles por edificación están en las láminas DPL-15 a DPL-23, el montante típico en DPL-32 y DPL-34 y la falsa columna en DPL-38.'
+          'Los detalles por edificación están en las láminas DPL-15 a DPL-23, el montante típico en DPL-32 y DPL-34 y la falsa columna en DPL-39.'
           % (q('01.04.03.05.01.01'), q('01.04.03.05.03.05'), q('01.04.03.05.03.04'), q('01.04.03.05.01.02')))
     M.t2('Techos de las bancas con pérgola (OC-01)')
     T = OC.TECHOS
@@ -392,12 +392,12 @@ def generar():
     M.t2('Lloraderos en cunetas colindantes con área verde')
     M.par('En los tramos en que el muro de la cuneta colinda con un área verde se colocan lloraderos de tubería PVC de Ø 3" cada 1.50 m, '
           'con filtro de grava envuelto en geotextil en su boca interior, para aliviar el empuje del agua infiltrada en el jardín sin '
-          'arrastrar finos: %d lloraderos en %.2f m de muro (lámina DPL-39 de ubicación, DPL-37 de detalle y DPL-36 de instalación).'
+          'arrastrar finos: %d lloraderos en %.2f m de muro (lámina DPL-40 de ubicación, DPL-38 de detalle y DPL-37 de instalación).'
           % (tot_ll[2], tot_ll[1]))
     M.tabla('Tramos de cuneta con lloraderos', ['EJE', 'PROGRESIVAS', 'LADO', 'LONGITUD (m)', 'N.°'],
             [[r[1], r[2], r[3], f2(r[4]), '%d' % r[6]] for r in tramos_ll] + [['TOTAL', '', '', f2(tot_ll[1]), '%d' % tot_ll[2]]],
             [2.4, 4.4, 3.2, 2.8, 1.8], izq=(), total=True, fuente_txt='Fuente: Metrado de la especialidad, hoja METRADO LLORADEROS.')
-    M.figura('DPL-39', 'Planta de ubicación de lloraderos en cunetas colindantes con área verde')
+    M.figura('DPL-40', 'Planta de ubicación de lloraderos en cunetas colindantes con área verde')
 
     # ---------------------------------------------------------------- 7
     M.t1('COLECTOR PLUVIAL FRONTAL')
@@ -504,9 +504,7 @@ def generar():
     M.t1('RELACIÓN DE PLANOS')
     M.tabla('Relación de planos de drenaje pluvial', ['N.°', 'LÁMINA', 'DESCRIPCIÓN', 'FORMATO'],
             [['%02d' % i, p['codigo'], p['titulo'], p['formato']] for i, p in enumerate(planos, 1)], [1.0, 1.8, M.ancho - 4.6, 1.8],
-            tam=8.5, izq=(2,), fuente_txt='Fuente: Índice de planos de drenaje pluvial (orden del juego de láminas, por formato de hoja).')
-    M.par('Las bancas con pérgola OC-01 se detallan además en las láminas DPL-41 (isométrico del drenaje pluvial y planta de techos) y '
-          'DPL-42 (detalle isométrico de la salida de la canaleta), entregadas en DXF.', 10)
+            tam=8.5, izq=(2,), fuente_txt='Fuente: Índice de planos de drenaje pluvial (láminas DPL-01 a DPL-42).')
     M.d.core_properties.author = ''
     M.d.core_properties.title = 'Memoria descriptiva - Drenaje pluvial - Hogar de Refugio Temporal'
     M.d.save(SALIDA)

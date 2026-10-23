@@ -135,11 +135,10 @@ def imagen(doc, archivo, ancho_cm, titulo, fuente_txt="Fuente: Elaboración prop
 
 
 def lamina(cod):
-    """Imagen JPG de la lamina DPL del juego en PDF del usuario (o vista previa PNG de las laminas OC-01)."""
-    if os.path.exists(os.path.join(PREV_OC, cod + ".png")):
-        return os.path.join(PREV_OC, cod + ".png")
+    """Imagen JPG de la lamina del juego en PDF del usuario (o vista previa PNG si la lamina no esta en el PDF)."""
     pag = {p["codigo"]: p["pagina"] for p in json.load(open(INDICE, encoding="utf-8"))}.get(cod)
-    if not pag: return None
+    if not pag:
+        return os.path.join(PREV_OC, cod + ".png") if os.path.exists(os.path.join(PREV_OC, cod + ".png")) else None
     os.makedirs(FIG, exist_ok=True); base = os.path.join(FIG, cod)
     if not os.path.exists(base + ".jpg"):
         subprocess.run(["pdftoppm", "-f", str(pag), "-l", str(pag), "-singlefile", "-jpeg", "-jpegopt", "quality=85",
@@ -616,9 +615,9 @@ def capitulo_complementario(doc):
           + [["TOTAL", "", "", f2(tot[1]), "%d" % tot[2]]], anchos=[2.2, 4.4, 3.0, 2.6, 1.6], tam=9)
     leyenda(doc, "%s: Tramos de cuneta con lloraderos de PVC Ø 3\" @ 1.50 m." % NUM.tabla())
     fuente(doc, "Fuente: Planilla general de metrados del proyecto (hoja METRADO LLORADEROS).")
-    parrafo(doc, "La ubicación de los lloraderos está en la lámina DPL-39, el corte del lloradero con el tubo perforado y su "
-                 "desagregado en la lámina DPL-37 y el isométrico de instalación en la lámina DPL-36 (isométrico de instalación de lloraderos en cunetas).")
-    figura(doc, "DPL-37", "Detalle de lloradero: corte, tubo perforado y desagregado")
+    parrafo(doc, "La ubicación de los lloraderos está en la lámina DPL-40, el corte del lloradero con el tubo perforado y su "
+                 "desagregado en la lámina DPL-38 y el isométrico de instalación en la lámina DPL-37 (isométrico de instalación de lloraderos en cunetas).")
+    figura(doc, "DPL-38", "Detalle de lloradero: corte, tubo perforado y desagregado")
 
 
 def verificar(n_par, n_tab):
