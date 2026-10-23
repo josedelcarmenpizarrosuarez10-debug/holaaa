@@ -604,3 +604,12 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Fecha: la usuaria confirma SETIEMBRE 2026 (la de los rótulos). Carátulas, memoria descriptiva y memoria de cálculo del colector
   (PDF) de Varones pasan de octubre a setiembre 2026 (`memoria_descriptiva_refugio.FECHA`, por defecto OCTUBRE 2026 para el Refugio,
   sin cambio en su Word).
+
+## 23/10/2026 - Hogar de Refugio: carátulas de los documentos en un solo Word
+- Pedido de la usuaria: carátulas de los documentos de su carpeta de entrega del Hogar de Refugio Temporal (CUI 2675514), sin el
+  índice de planos, más una de planos; todo en un Word. Foto entregada: `insumos/solange/FOTO_PROYECTO_HOGAR_REFUGIO.jpg` (es la
+  misma imagen que la del CAR Varones).
+- `herramientas/caratulas_refugio.py` reutiliza `varones/caratulas_v.py` (parametrizado con LEYENDA y TITULO; Varones sin cambio):
+  nombre del proyecto tal como el rótulo de las láminas DPL, fecha SETIEMBRE - 2026 (rótulos), 7 carátulas: especificaciones,
+  memoria de cálculo (canaletas, montantes y cunetas), memoria de cálculo (colector), memoria descriptiva, memoria hidrológica,
+  metrados y planos (láminas DPL-01 a DPL-40) -> `entregables/CARATULAS_DRENAJE_PLUVIAL_HOGAR_REFUGIO.docx` (7 páginas, verificado).

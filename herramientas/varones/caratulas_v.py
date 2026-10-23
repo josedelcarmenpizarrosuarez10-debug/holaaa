@@ -44,13 +44,15 @@ DOCUMENTOS = [   # (título, subtítulo) en el orden de la carpeta de entrega de
     ('PLANOS', 'LÁMINAS DPLV-01 A DPLV-44 - ' + ESP),
 ]
 ANCHO = C.ANCHO
+LEYENDA = 'Vista del Centro de Acogida Residencial - Varones'       # leyenda de la foto
+TITULO = 'Carátulas - Drenaje pluvial CAR Varones'                # propiedades del Word
 
 
 def foto():
     """Foto del proyecto a 16:9, reducida para el Word (el original de la usuaria no se toca)."""
     from PIL import Image
     os.makedirs(FIG, exist_ok=True)
-    ruta = os.path.join(FIG, 'foto_proyecto_car_varones.jpg')
+    ruta = os.path.join(FIG, os.path.basename(FOTO).lower())
     im = Image.open(FOTO).convert('RGB')
     im.thumbnail((1600, 1600)); im.save(ruta, quality=90, optimize=True)
     return ruta
@@ -84,7 +86,7 @@ def caratula(d, img, titulo, subtitulo):
     # ---- foto del proyecto
     tb = d.add_table(rows=1, cols=1); C._sin_bordes(tb); tb.alignment = WD_TABLE_ALIGNMENT.CENTER; C._anchos(tb, (ANCHO,))
     par(tb.rows[0].cells[0].paragraphs[0]).add_run().add_picture(img, width=Cm(ANCHO))
-    par(d, 'Vista del Centro de Acogida Residencial - Varones', 8, False, C.GRIS, cursiva=True, antes=3, despues=22)
+    par(d, LEYENDA, 8, False, C.GRIS, cursiva=True, antes=3, despues=22)
     # ---- franja con el título del documento
     tb = d.add_table(rows=1, cols=1); tb.alignment = WD_TABLE_ALIGNMENT.CENTER; C._anchos(tb, (ANCHO,))
     c = tb.rows[0].cells[0]; C._sombra(c, C.GRANATE); C._bordes(c)
@@ -137,7 +139,7 @@ def generar():
         caratula(d, img, titulo, sub)
     _minimo(d)                                                       # cierre mínimo: no crea una página en blanco
     d.core_properties.author = ''
-    d.core_properties.title = 'Carátulas - Drenaje pluvial CAR Varones'
+    d.core_properties.title = TITULO
     d.save(SALIDA)
     return SALIDA
 
