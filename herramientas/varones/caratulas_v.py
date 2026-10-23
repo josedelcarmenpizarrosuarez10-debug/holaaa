@@ -32,7 +32,7 @@ PROYECTO = ('“CREACIÓN DEL SERVICIO DE PROTECCIÓN INTEGRAL A NIÑAS, NIÑOS 
             'DE PERDERLOS EN CENTRO DE ACOGIDA RESIDENCIAL - VARONES DISTRITO DE MORALES DE LA PROVINCIA DE SAN MARTÍN DEL '
             'DEPARTAMENTO DE SAN MARTÍN”')
 CUI = 'CUI N° 2705619'
-FECHA = 'OCTUBRE - 2026'
+FECHA = 'SETIEMBRE - 2026'                                      # la de los rotulos de los planos DPLV
 ESP = C.ESPECIALIDAD
 DOCUMENTOS = [   # (título, subtítulo) en el orden de la carpeta de entrega de la usuaria
     ('ESPECIFICACIONES TÉCNICAS', ESP),

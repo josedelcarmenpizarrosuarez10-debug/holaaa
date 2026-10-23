@@ -599,3 +599,8 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Logo: la usuaria entregó el logo oficial del Gobierno Regional San Martín (`insumos/katiuska/LOGO_GOBIERNO_REGIONAL_SAN_MARTIN.png`);
   el escudo anterior (recorte de un Word del CAR Mujeres) salía cortado. `caratulas_v.escudo()` toma el escudo completo del logo
   (sin el texto, que ya va al lado) y lo coloca a 2.8 cm de alto en las 7 carátulas.
+- Revisión del RAR "PLANTA GENERAL- CAR VARONES PRUENA_LAMINAS": es el mismo PDF de 44 láminas DPLV ya usado (idéntico byte a byte).
+  Observaciones de texto (tildes, DPVL-09/10, DVPL-11, CONTRUCTIVO, ALAMACEN): la usuaria las deja como están.
+- Fecha: la usuaria confirma SETIEMBRE 2026 (la de los rótulos). Carátulas, memoria descriptiva y memoria de cálculo del colector
+  (PDF) de Varones pasan de octubre a setiembre 2026 (`memoria_descriptiva_refugio.FECHA`, por defecto OCTUBRE 2026 para el Refugio,
+  sin cambio en su Word).

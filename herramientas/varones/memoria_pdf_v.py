@@ -18,7 +18,7 @@ XLSX = os.path.join(RAIZ, "entregables_varones", "MEMORIA_CALCULO_COLECTOR_CAR_V
 SALIDA = os.path.join(RAIZ, "entregables_varones", "MEMORIA_CALCULO_COLECTOR_CAR_VARONES.pdf")
 PROYECTO = ("“CREACIÓN DEL SERVICIO DE PROTECCIÓN INTEGRAL A NIÑAS, NIÑOS Y ADOLESCENTES SIN CUIDADOS PARENTALES O EN RIESGO "
             "DE PERDERLOS EN CENTRO DE ACOGIDA RESIDENCIAL - VARONES DISTRITO DE MORALES DE LA PROVINCIA DE SAN MARTÍN DEL "
-            "DEPARTAMENTO DE SAN MARTÍN”, con CUI N.° 2705619 · SAN MARTÍN - SAN MARTÍN - MORALES · octubre 2026")
+            "DEPARTAMENTO DE SAN MARTÍN”, con CUI N.° 2705619 · SAN MARTÍN - SAN MARTÍN - MORALES · setiembre 2026")
 
 MM.TILDES.update({
     "perimetrico": "perimétrico", "alli": "allí", "caia": "caía", "mecanica": "mecánica", "proporcion": "proporción",

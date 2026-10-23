@@ -40,6 +40,7 @@ FUENTE, GRANATE, GRIS = 'Arial Narrow', '7B1E2B', '595959'
 CUI = '2675514'
 CORTO = 'HOGAR DE REFUGIO TEMPORAL'                                   # encabezado
 UBIC = 'Predio rural Los Mangos, distrito de Morales, provincia y departamento de San Martín'
+FECHA = 'OCTUBRE 2026'                                              # fecha de la caratula
 LAM_CAR = ('DPL-01', 'Red general de drenaje pluvial del Hogar de Refugio Temporal')   # imagen de la caratula
 D = DJ['datos']
 I10, I15, P24 = 210.98, 155.66, 121.81           # memoria hidrológica (intensidades de cunetas/canaletas y del colector)
@@ -205,7 +206,7 @@ def caratula(M, proyecto):
     q = c.add_paragraph(); q.alignment = WD_ALIGN_PARAGRAPH.CENTER; q.paragraph_format.space_after = Pt(6)
     M.run(q, 'ESPECIALIDAD: INSTALACIONES SANITARIAS - DRENAJE PLUVIAL', 12, True, color='FFFFFF')
     M.par(UBIC, 10.5, centro=True, antes=14, despues=4)
-    M.par('OCTUBRE 2026', 13, True, color=GRANATE, centro=True)
+    M.par(FECHA, 13, True, color=GRANATE, centro=True)
 
 
 def encabezado(M):

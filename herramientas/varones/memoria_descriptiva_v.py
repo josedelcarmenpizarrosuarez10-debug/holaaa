@@ -30,6 +30,7 @@ R.SALIDA = os.path.join(SAL, 'MEMORIA_DESCRIPTIVA_DRENAJE_PLUVIAL_CAR_VARONES.do
 R.CUI = CUI = '2705619'
 R.CORTO = 'CAR VARONES'
 R.UBIC = 'Distrito de Morales, provincia y departamento de San Martín'
+R.FECHA = 'SETIEMBRE 2026'                                            # fecha de los rotulos de los planos DPLV
 R.LAM_CAR = ('DPLV-01', 'Red general de drenaje pluvial del CAR Varones')
 DJ = json.load(open(os.path.join(SAL, '_calc/diseno.json')))
 D = DJ['datos']
