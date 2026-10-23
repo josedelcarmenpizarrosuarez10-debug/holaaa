@@ -83,7 +83,8 @@ Refugio, juego de láminas DPL del usuario (`insumos/solange/PLANOS_DRENAJE_PLUV
 cual el rótulo, sin renumerar ni observaciones; DPL-36 figura en dos láminas). OC-01 = DPL-41/42 (DXF aparte, fuera del índice). Metrado vigente: `insumos/metrados_vigentes/METRADO_DRENAJE_MUJERES_VIOLENTADAS_CON_BANCAS_OC-01.xlsx` (del usuario;
 `bancas_oc01_en_planilla_refugio.py` ya no lo pisa). Documentos: `memoria_docx.py` (hidrológica, láminas DPL, OC-01 y lloraderos),
 `especificaciones/espec.py refugio` + `node docx_espec.js`, `memoria_descriptiva_refugio.py` (nueva).
-CAR Varones: `python3 herramientas/varones/planos_v.py`. CAR Mujeres: `python3 herramientas/mujeres/planos_m.py`.
+CAR Varones: `python3 herramientas/varones/planos_v.py`; plano DL-00 de ubicación de lloraderos (34 tramos, 226 und):
+`python3 herramientas/planos_ubicacion_lloraderos.py varones` (ejes en `insumos/katiuska/EJES_CUNETAS_VARONES.json`; sin `varones` = Refugio). CAR Mujeres: `python3 herramientas/mujeres/planos_m.py`.
 DP-06B suelta: `python3 herramientas/render_tapa/dxf_tapa_ciega.py <salida.dxf> <refugio|varones|mujeres>` (render: 0 0 841 594).
 
 ## Git

@@ -538,3 +538,10 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   El índice sigue ahora ese orden, con los códigos tal como están en cada rótulo, sin renumerar ni observaciones y solo con las
   40 láminas del PDF. Se retiró el PDF reordenado. El isométrico de lloraderos se cita como DPL-36 (su rótulo) en las memorias;
   la OC-01 queda como DPL-41/42 en DXF aparte.
+
+## 23/10/2026 - CAR Varones (CUI 2705619): plano DL-00 de ubicación de lloraderos en DXF
+- `planos_ubicacion_lloraderos.py` ahora sirve a los dos proyectos (`refugio` por defecto, `varones`). Varones: planta general de
+  Katiuska en gris, cunetas (capa CUNETAS y bloques de drenaje) en azul, áreas verdes (HIERVA, Area Verde, Hatch Jardin) en verde
+  sólido, 34 tramos de la hoja METRADO LLORADEROS con sus 226 lloraderos @1.50 m, cuadro de tramos, leyenda, notas y detalle típico
+  sin patrones de achurado (se ve igual en AutoCAD). Lado del muro por el rumbo de la hoja (ESTE/OESTE/NORTE/SUR).
+- Salida: `entregables_varones/PLANO_DL-00_UBICACION_LLORADEROS_CAR_VARONES.dxf` + vista previa PNG. Metrado sin cambios.
