@@ -211,7 +211,7 @@ def verificar(R, red, sitio, terreno, P, lluvia, hq_prev=None):
     def pide(t, Q, S, hd):
         hmax_t = max(t["h_de"], t["h_a"])
         def basta(bb):
-            if hmax_t > P.get("h_b_max", 2.0) * bb + 1e-9: return False          # muy honda para ese ancho: no se puede encofrar
+            if hmax_t > P.get("h_b_max", 2.0) * bb + 1e-9: return False          # muy honda para ese ancho (si cabe en b_max)
             if Q <= 0: return True
             y_ = yn(Q, S, P["n_cap"], bb)
             return y_ + P["BL"] <= hd + 1e-9 and y_ <= P.get("y_b_max", 1.0) * bb + 1e-9
@@ -257,13 +257,17 @@ def verificar(R, red, sitio, terreno, P, lluvia, hq_prev=None):
     ok(9, "Velocidad maxima %.1f m/s (concreto)" % P["Vmax"], "CUMPLE" if not nvel else "CUMPLE CON GRADAS",
        ("V max %.2f m/s" % pv["V"]) if not nvel else "con gradas: " + ", ".join("%s %s-%s (V %.2f)" % (f["eje"], f["de"], f["a"], f["V"]) for f in nvel))
     # 13 secciones constructivas (minimo 0.30 x 0.30, medidas de 5 en 5 cm)
-    raras = [f for f in filas if f["b"] < bmin - 1e-6 or abs(f["b"] / paso - round(f["b"] / paso)) > 1e-6
-             or max(f["h_de"], f["h_a"]) > P.get("h_b_max", 2.0) * f["b"] + 1e-6]
+    raras = [f for f in filas if f["b"] < bmin - 1e-6 or abs(f["b"] / paso - round(f["b"] / paso)) > 1e-6]
+    anchas = [f for f in filas if f["b"] > bmax + 1e-6]
+    hondas = [f for f in filas if max(f["h_de"], f["h_a"]) > P.get("h_b_max", 2.0) * f["b"] + 1e-6]
     bs = sorted({f["b"] for f in filas})
-    ok(13, "Secciones constructivas: ancho libre >= %.2f m, altura libre >= %.2f m, medidas de %.0f en %.0f cm, profundidad <= %.1f veces el ancho" % (
-        bmin, P["hmin"], 100 * paso, 100 * paso, P.get("h_b_max", 2.0)),
-       "CUMPLE" if not raras and hmn[0] >= P["hmin"] - 1e-3 else "NO CUMPLE",
-       ("anchos libres usados: " + ", ".join("%.2f" % x for x in bs)) if not raras else "fuera de medida o muy hondas para su ancho: " + ", ".join("%s %s-%s b %.2f h %.2f" % (f["eje"], f["de"], f["a"], f["b"], max(f["h_de"], f["h_a"])) for f in raras))
+    estado = "NO CUMPLE" if raras or hmn[0] < P["hmin"] - 1e-3 else ("REVISAR" if anchas or hondas else "CUMPLE")
+    det = "anchos libres usados: %s (total %s)" % (", ".join("%.2f" % x for x in bs), ", ".join("%.2f" % (x + 2 * P["e_muro"]) for x in bs))
+    if raras: det += "; fuera de medida: " + ", ".join("%s %s-%s b %.3f" % (f["eje"], f["de"], f["a"], f["b"]) for f in raras)
+    if anchas: det += "; mas anchas que %.2f libre (adoptadas): %s" % (bmax, ", ".join(sorted({f["eje"] for f in anchas})))
+    if hondas: det += "; profundidad mayor que %.1f veces el ancho (revisar encofrado): %s" % (P.get("h_b_max", 2.0), ", ".join(sorted({f["eje"] for f in hondas})))
+    ok(13, "Secciones constructivas: ancho libre de %.2f a %.2f m (total %.2f a %.2f), altura libre >= %.2f m, medidas de %.0f en %.0f cm" % (
+        bmin, bmax, bmin + 2 * P["e_muro"], bmax + 2 * P["e_muro"], P["hmin"], 100 * paso, 100 * paso), estado, det)
     # 10 uniones nuevas lejos de muros, edificaciones y losas (sin contar los 0.60 m donde se conectan a una cuneta)
     obst = red.obst
     if obst.is_empty:

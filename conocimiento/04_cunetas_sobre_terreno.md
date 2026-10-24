@@ -861,7 +861,10 @@ N.° de lloraderos del tramo = REDONDEAR.MAS(L / 1.50)       # hoja METRADO LLOR
   o un sector (ejes que se unen y salen por la misma descarga) lleva una sola medida: la mayor que pida cualquiera de sus tramos;
   no se mezclan 0.30 y 0.40 en tramos seguidos. El dimensionamiento final adoptado es manual (hoja DIMENSIONAMIENTO, columna B
   ADOPTADO) y el programa lo verifica. Propuesta del programa (pendiente de confirmar): tirante <= ancho y profundidad <= 2 veces
-  el ancho.
+  el ancho (solo aviso REVISAR).
+- **Ancho máximo** (usuario, 24-10-2026): "0.50 libre y 0.70 total es exagerado"; proponer medidas reales constructivas: máximo
+  0.40 libre interior (0.60 total). Si el caudal pide más, se profundiza en vez de ensanchar. Barranquita: sectores D1 y D2 0.40
+  libre (0.60 total), D3 0.30 libre (0.50 total).
 
 ---
 
