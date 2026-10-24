@@ -22,7 +22,8 @@
 html, body { height: 100%; }
 body { background: var(--bg); color: var(--fg); font: 13px/1.35 var(--font-ui); overflow: hidden; }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--panel); }
-.app { height: 100%; display: grid; grid-template-rows: auto 1fr auto; }
+.app { height: 100%; display: grid; grid-template-rows: auto 1fr auto; grid-template-columns: minmax(0, 1fr); }
+.app > * { min-width: 0; }
 .barra { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; background: var(--panel); border-bottom: 1px solid var(--line);
   padding-block: 5px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .marca { font-weight: 600; letter-spacing: .02em; display: flex; align-items: baseline; gap: 8px; margin-right: 4px; }
@@ -96,7 +97,17 @@ textarea { width: 100%; min-height: 110px; background: var(--bg); color: var(--f
 .estado button { padding: 2px 6px; font: 11px var(--font-mono); }
 #coord { min-width: 250px; }
 .mostrar-lado { display: none; }
+.tactil { display: none; }
+@media (pointer: coarse) { .tactil { display: inline-flex; } .estado button { padding: 6px 10px; font-size: 12px; } }
 @media (max-width: 760px) {
+  .barra { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .barra::-webkit-scrollbar { display: none; }
+  .grupo, .marca { flex: none; }
+  button.ico { width: 36px; height: 34px; }
+  .historial { height: 18px; }
+  .estado { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .estado > * { flex: none; }
+  #coord, #modoSnap, #btnTxt, #btnAyuda { display: none; }
   .cuerpo { grid-template-columns: 1fr; position: relative; }
   .lado { position: absolute; z-index: 6; top: 0; bottom: 0; left: 0; width: min(290px, 86vw); box-shadow: 4px 0 18px rgba(0,0,0,.4); }
   .lado[data-cerrado] { display: none; }
@@ -142,6 +153,9 @@ textarea { width: 100%; min-height: 110px; background: var(--bg); color: var(--f
       <button id="btnTxt" class="on" title="Textos del plano">TEXTOS</button>
       <button id="btnSup" class="on" title="Mapa de superficies">SUPERFICIES</button>
       <button id="btnAyuda" title="Lista de comandos (F1)">?</button>
+      <button id="btnEnter" class="tactil" title="Enter">↵ Enter</button>
+      <button id="btnEsc" class="tactil" title="Cancelar">Esc</button>
+      <button id="btnU" class="tactil" title="Deshacer">Deshacer</button>
       <span id="modoSnap"></span>
     </div>
   </footer>
@@ -175,6 +189,10 @@ const COMANDOS = [
   ["escala", "Escala", ["ES", "SC", "ESCALA", "SCALE"], "Modificar", "M2 14V9M2 14h5M2 14L14 2M14 2H9M14 2v5"],
   ["simetria", "Simetría", ["SI", "MI", "SIMETRIA", "MIRROR"], "Modificar", "M8 1v14M6 4L2 8l4 4zM10 4l4 4-4 4z"],
   ["desfase", "Desfase (equidistancia)", ["O", "EQ", "DESFASE", "EQUIDIST", "OFFSET"], "Modificar", "M2 10L7 4h7M2 14l5-6h7"],
+  ["recortar", "Recortar", ["TR", "RECORTA", "RECORTAR", "TRIM"], "Modificar", "M4 2.5a1.8 1.8 0 1 0 .01 0M4 13.5a1.8 1.8 0 1 0 .01 0M5.5 5L14 12M5.5 11L14 4"],
+  ["alargar", "Alargar", ["EX", "AL", "ALARGA", "ALARGAR", "EXTEND"], "Modificar", "M14 2v12M2 8h9M8 5l3 3-3 3"],
+  ["empalme", "Empalme (esquina)", ["F", "EMPALME", "FILLET"], "Modificar", "M3 14V7a4 4 0 0 1 4-4h7"],
+  ["chaflan", "Chaflán", ["CHA", "CHAFLAN", "CHAMFER"], "Modificar", "M3 14V8l5-5h6"],
   ["estirar", "Estirar vértice (pinzamiento)", ["EST", "ESTIRAR", "STRETCH"], "Modificar", "M2 14l5-5h7M7 9l4-6M10 2h2v2"],
   ["descomponer", "Descomponer", ["X", "DESCOMP", "DESCOMPONER", "EXPLODE"], "Modificar", "M3 13l4-4M9 7l4-4M3 3l3 3M10 10l3 3"],
   ["borrar", "Borrar", ["E", "B", "BORRA", "BORRAR", "ERASE"], "Modificar", "M3 4h10M6 4V2h4v2M4 4l1 10h6l1-10"],
@@ -195,6 +213,7 @@ const COMANDOS = [
 ];
 const ALIAS = {}, TXT_CMD = {};
 for (const [n, t, al] of COMANDOS) { TXT_CMD[n] = t; ALIAS[n.toUpperCase()] = n; for (const a of al) ALIAS[a] = n; }
+const POR_OBJETO = ["recortar", "alargar", "empalme", "chaflan"];
 const CON_SELECCION = ["mover", "copiar", "rotar", "escala", "simetria", "descomponer", "borrar"];
 
 /* ====================================================================================== escena */
@@ -512,7 +531,7 @@ function candidatos(x, y, r, sin) {
 }
 function buscarSnap(x, y, ultimo, sin) {
   if (!osnapOn) return null;
-  const r = 12 / V.s, cand = candidatos(x, y, r, sin).filter(s => distSeg(x, y, s) <= r);
+  const r = radioSnap / V.s, cand = candidatos(x, y, r, sin).filter(s => distSeg(x, y, s) <= r);
   let mejor = null;
   const prop = (tipo, px, py, pri) => { const d = Math.hypot(px - x, py - y); if (d <= r && (!mejor || pri < mejor.pri || (pri === mejor.pri && d < mejor.d))) mejor = { tipo, x: px, y: py, d, pri }; };
   for (const s of cand) {
@@ -539,7 +558,7 @@ function marcaSnap(g, sn) {
 /* ====================================================================================== comandos */
 let C = null, ultimoCmd = null, cursor = null, snap = null, raton = [-100, -100], polarAng = null;
 let SEL = { ents: [], caras: [], seg: -1 }, MED = null, hoverCara = null, hoverEnt = null, hoverPinza = null;
-let ultimoDesfase = 1.0, alturaTexto = 0.25;
+let ultimoDesfase = 1.0, alturaTexto = 0.25, distChaflan = 0.60, radioSnap = 12;
 const preg = document.getElementById("pregunta"), entrada = document.getElementById("cmd"), hist = document.getElementById("historial");
 function msg(t) { hist.textContent += (hist.textContent ? "\n" : "") + t; const l = hist.textContent.split("\n"); if (l.length > 60) hist.textContent = l.slice(-60).join("\n"); hist.scrollTop = hist.scrollHeight; }
 const pedir = t => { preg.textContent = t; };
@@ -592,6 +611,10 @@ function pedirPaso() {
   if (n === "rotar") return pedir(C.base ? "GIRAR  Ángulo (clic o escriba grados):" : "GIRAR  Punto base:");
   if (n === "escala") return pedir(C.base ? "ESCALA  Factor (escriba el valor o clic):" : "ESCALA  Punto base:");
   if (n === "simetria") return pedir(k ? "SIMETRÍA  Segundo punto del eje:" : "SIMETRÍA  Primer punto del eje:");
+  if (n === "recortar") return pedir("RECORTAR  Clic en la parte a quitar (corta en los cruces con lo visible); Enter para terminar:");
+  if (n === "alargar") return pedir("ALARGAR  Clic cerca del extremo a alargar; Enter para terminar:");
+  if (n === "empalme") return pedir(C.primero ? "EMPALME  Segunda línea:" : "EMPALME  Primera línea (se unen en esquina):");
+  if (n === "chaflan") return pedir(C.primero ? "CHAFLÁN  Segunda línea:" : "CHAFLÁN  Primera línea o escriba la distancia <" + distChaflan.toFixed(2) + ">:");
   if (n === "desfase") return pedir(C.espera === "numero" ? "DESFASE  Distancia <" + ultimoDesfase.toFixed(3) + ">:" : C.obj ? "DESFASE  Clic del lado a desfasar:" : "DESFASE  Designe el objeto (línea, polilínea, cuneta o círculo):");
   if (n === "pinza") return pedir("ESTIRAR  Nueva posición del pinzamiento:");
   pedir(T[n] || TXT_CMD[n]);
@@ -626,6 +649,7 @@ function punto(p) {           // un punto (clic o escrito) para el comando activ
   }
   if (n === "descarga") { guardarPaso(); nuevaEnt("descarga", [p]); msg("Descarga fijada."); refrescar(); return cancelar(true); }
   if (n === "id") { MED = { k: "punto", p }; msg("X = " + (p[0] + ORX).toFixed(3) + "   Y = " + (p[1] + ORY).toFixed(3)); cancelar(true); return refrescar(); }
+  if (POR_OBJETO.includes(n)) return porObjeto(p);
   if (n === "desfase") {
     if (C.espera === "numero") return;
     if (!C.obj) { const e = entEn(p); if (!e || !["linea", "pl", "cuneta"].includes(e.k)) return msg("Designe una línea, polilínea, cuneta o círculo dibujado en el visor."); C.obj = e.id; return pedirPaso(); }
@@ -660,6 +684,7 @@ function punto(p) {           // un punto (clic o escrito) para el comando activ
 function numero(v) {        // valor escrito para el paso actual; true si lo uso
   if (!C) return false;
   const n = C.nombre;
+  if (n === "chaflan" && !C.primero) { if (v >= 0) distChaflan = v; pedirPaso(); return true; }
   if (n === "desfase" && C.espera === "numero") { if (v > 0) ultimoDesfase = v; C.espera = null; pedirPaso(); return true; }
   if (n === "circulo" && C.pts.length === 1) { crearCirculo(C.pts[0], v); return true; }
   if (n === "rotar" && C.base) { rotarSel(v); return true; }
@@ -814,6 +839,97 @@ function pinzaEn(X, Y) {
   for (const id of SEL.ents) { const e = entPorId(id); if (!e) continue;
     const P = pinzasDe(e); for (let i = 0; i < P.length; i++) { const [px, py] = aPant(...P[i]); if (Math.abs(px - X) <= 6 && Math.abs(py - Y) <= 6) return { id, i, p: P[i] }; } }
   return null;
+}
+
+/* recortar, alargar, empalme y chaflan: sobre lo dibujado en el visor; corta o llega a todo lo visible */
+function segsEnCaja(x0, y0, x1, y1, sinId) {
+  const vistos = new Set(), res = [], a = segs.a;
+  const i0 = Math.floor(x0 / CELDA), i1 = Math.floor(x1 / CELDA), j0 = Math.floor(y0 / CELDA), j1 = Math.floor(y1 / CELDA);
+  if ((i1 - i0 + 1) * (j1 - j0 + 1) < 40000)
+    for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) {
+      const l = rejilla.get(claveCelda(i, j)); if (!l) continue;
+      for (const k of l) if (!vistos.has(k)) { vistos.add(k); if (capaVisible(segs.c[k / 4])) res.push([a[k], a[k + 1], a[k + 2], a[k + 3]]); }
+    }
+  return res.concat(segsUsuario([sinId]));
+}
+const lerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+function paramEn(a, b, p) { const dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy || 1; return ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L2; }
+function tramoMasCercano(e, p) {
+  const P = e.pts, n = P.length, nt = e.cerr ? n : n - 1; let k = 0, dm = 1e18;
+  for (let i = 0; i < nt; i++) { const a = P[i], b = P[(i + 1) % n], d = distSeg(p[0], p[1], [a[0], a[1], b[0], b[1]]); if (d < dm) { dm = d; k = i; } }
+  return k;
+}
+function recortarEn(e, p) {
+  const P = e.pts, n = P.length, i = tramoMasCercano(e, p), a = P[i], b = P[(i + 1) % n];
+  const corte = segsEnCaja(Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[0], b[0]), Math.max(a[1], b[1]), e.id);
+  const nt = e.cerr ? n : n - 1;
+  for (let j = 0; j < nt; j++) if (j !== i && j !== (i + 1) % nt && (i !== (j + 1) % nt)) { const q = P[j], r = P[(j + 1) % n]; corte.push([q[0], q[1], r[0], r[1]]); }
+  const s = [a[0], a[1], b[0], b[1]], ts = [];
+  for (const q of corte) { const x = cruce(s, q); if (x) { const t = paramEn(a, b, x); if (t > 1e-6 && t < 1 - 1e-6) ts.push(t); } }
+  const tc = paramEn(a, b, p);
+  const lo = Math.max(0, ...ts.filter(t => t < tc)), hi = Math.min(1, ...ts.filter(t => t > tc));
+  guardarPaso();
+  const nuevas = [];
+  if (e.cerr) {
+    const abierta = [hi < 1 ? lerp(a, b, hi) : b];
+    for (let k = 1; k < n; k++) abierta.push(P[(i + k) % n]);
+    if (lo > 0) abierta.push(lerp(a, b, lo)); else abierta.push(a);
+    nuevas.push(abierta);
+  } else {
+    const A = P.slice(0, i + 1).concat(lo > 0 ? [lerp(a, b, lo)] : []), B = (hi < 1 ? [lerp(a, b, hi)] : []).concat(P.slice(i + 1));
+    if (lo > 0 || i > 0) nuevas.push(A);
+    if (hi < 1 || i + 1 < n - 1) nuevas.push(B);
+  }
+  ED.ents = ED.ents.filter(q => q !== e);
+  for (const pts of nuevas) if (pts.length >= 2 && perimetro(pts, false) > 1e-4) nuevaEnt(pts.length === 2 && e.k === "pl" ? "linea" : e.k, pts);
+  msg(ts.length ? "Recortado." : "Sin cruces en ese tramo: se quitó el tramo completo.");
+  refrescar();
+}
+function alargarEn(e, p) {
+  const P = e.pts, n = P.length;
+  if (e.cerr) return msg("Un polígono cerrado no se alarga.");
+  const fin = dist(p, P[n - 1]) < dist(p, P[0]), q = fin ? P[n - 1] : P[0], o = fin ? P[n - 2] : P[1];
+  const L = dist(o, q) || 1, u = [(q[0] - o[0]) / L, (q[1] - o[1]) / L], z = [q[0] + u[0] * 300, q[1] + u[1] * 300];
+  const s = [q[0], q[1], z[0], z[1]]; let mejor = null;
+  for (const c of segsEnCaja(Math.min(q[0], z[0]), Math.min(q[1], z[1]), Math.max(q[0], z[0]), Math.max(q[1], z[1]), e.id)) {
+    const x = cruce(s, c); if (!x) continue; const d = dist(q, x); if (d > 1e-4 && (!mejor || d < mejor[0])) mejor = [d, x];
+  }
+  if (!mejor) return msg("No hay ningún borde visible en esa dirección (300 m).");
+  guardarPaso(); if (fin) P[n - 1] = mejor[1]; else P[0] = mejor[1];
+  msg("Alargado " + mejor[0].toFixed(3) + " m."); refrescar();
+}
+function lineaPara(e, p) {      // la linea (o el tramo extremo de una polilinea abierta) designada para empalme o chaflan
+  if (!e || !["linea", "pl", "cuneta"].includes(e.k) || e.cerr) return null;
+  const n = e.pts.length, i = tramoMasCercano(e, p);
+  if (n > 2 && i !== 0 && i !== n - 2) return null;
+  return { e, i, a: e.pts[i], b: e.pts[i + 1], p };
+}
+function esquina(l1, l2, d) {
+  const x = cruce([l1.a[0], l1.a[1], l1.b[0], l1.b[1]], [l2.a[0], l2.a[1], l2.b[0], l2.b[1]], true);
+  if (!x) return msg("Las líneas son paralelas.");
+  guardarPaso();
+  const nuevos = [];
+  for (const l of [l1, l2]) {
+    const P = l.e.pts, n = P.length, u = [(l.b[0] - l.a[0]), (l.b[1] - l.a[1])], L = Math.hypot(...u) || 1;
+    const lado = Math.sign((l.p[0] - x[0]) * u[0] + (l.p[1] - x[1]) * u[1]) || 1, fin = [x[0] + u[0] / L * lado * d, x[1] + u[1] / L * lado * d];
+    // se conserva el extremo que esta del lado donde se hizo clic; el otro llega a la esquina (o al inicio del chaflan)
+    const mueveFin = ((l.b[0] - x[0]) * u[0] + (l.b[1] - x[1]) * u[1]) * lado <= ((l.a[0] - x[0]) * u[0] + (l.a[1] - x[1]) * u[1]) * lado;
+    if (n === 2) { if (mueveFin) P[1] = fin; else P[0] = fin; }
+    else if (l.i === 0) P[0] = fin; else P[n - 1] = fin;
+    nuevos.push(fin);
+  }
+  if (d > 0) nuevaEnt("linea", nuevos);
+  msg(d > 0 ? "Chaflán de " + d.toFixed(2) + " m." : "Empalme en esquina."); refrescar();
+}
+function porObjeto(p) {
+  const e = entEn(p), n = C.nombre;
+  if (!e) return msg("Designe un objeto dibujado en el visor (línea, polilínea o cuneta).");
+  if (n === "recortar") { if (!["linea", "pl", "cuneta"].includes(e.k) || e.circ) return msg("Solo líneas, polilíneas y cunetas."); return recortarEn(e, p); }
+  if (n === "alargar") { if (!["linea", "pl", "cuneta"].includes(e.k)) return msg("Solo líneas, polilíneas y cunetas."); return alargarEn(e, p); }
+  const l = lineaPara(e, p); if (!l) return msg("Designe una línea, o el tramo extremo de una polilínea abierta.");
+  if (!C.primero) { C.primero = l; C.sel = [e.id]; pedirPaso(); return dibujarSup(); }
+  if (l.e === C.primero.e && l.i === C.primero.i) return msg("Designe otra línea.");
+  const l1 = C.primero; cancelar(true); esquina(l1, l, n === "chaflan" ? distChaflan : 0);
 }
 
 /* paleta de tipos de superficie */
@@ -1088,21 +1204,27 @@ cs.addEventListener("pointermove", ev => {
     else if (arrastre.boton === 0) caja = [[arrastre.x, arrastre.y], [ev.offsetX, ev.offsetY]];
   }
   if (arrastre && arrastre.pinza && arrastre.mov && !C) { const pz = arrastre.pinza; C = { nombre: "pinza", ent: pz.id, idx: pz.i, base: pz.p, pts: [pz.p] }; pedirPaso(); }
-  cursor = aMundo(ev.offsetX, ev.offsetY);
-  const u = C ? ultimoPunto() : null, puntos = C && !(seleccionando() && C.nombre !== "estirar") && C.nombre !== "pan" && C.nombre !== "asignar";
+  if (ev.pointerType === "touch" && !arrastre) return;
+  rastrear(ev.offsetX, ev.offsetY, ev.pointerType === "touch");
+});
+let tipReloj = null;
+function rastrear(X, Y, tactil) {        // OSNAP, area u objeto bajo el cursor, coordenadas y rotulo
+  radioSnap = tactil ? 24 : 12;
+  cursor = aMundo(X, Y);
+  const u = C ? ultimoPunto() : null, puntos = C && !(seleccionando() && C.nombre !== "estirar") && !["pan", "asignar"].concat(POR_OBJETO).includes(C.nombre) && !(C.nombre === "desfase" && !C.obj);
   snap = puntos && !caja ? buscarSnap(cursor[0], cursor[1], u, C && C.nombre === "pinza" ? [C.ent] : null) : null;
   const p = puntoActual();
   hoverEnt = null; hoverCara = null; hoverPinza = null;
   if (!puntos && !caja && !(arrastre && arrastre.mov)) {
-    hoverPinza = !C ? pinzaEn(ev.offsetX, ev.offsetY) : null;
+    hoverPinza = !C ? pinzaEn(X, Y) : null;
     hoverEnt = entEn(cursor);
     if (!hoverEnt && (!C || C.nombre === "asignar")) hoverCara = caraEn(cursor);
   }
   document.getElementById("coord").textContent = "X " + (p[0] + ORX).toFixed(3) + "   Y " + (p[1] + ORY).toFixed(3);
   document.getElementById("modoSnap").textContent = snap ? NOM_SNAP[snap.tipo] : "";
-  actualizarTip(ev.offsetX, ev.offsetY);
+  actualizarTip(X, Y);
   dibujarSup();
-});
+}
 cs.addEventListener("pointerup", ev => {
   toques.delete(ev.pointerId);
   const a = arrastre; arrastre = toques.size ? arrastre : null;
@@ -1114,11 +1236,13 @@ cs.addEventListener("pointerup", ev => {
   if (!C && a.pinza) { C = { nombre: "pinza", ent: a.pinza.id, idx: a.pinza.i, base: a.pinza.p, pts: [a.pinza.p] }; pedirPaso(); return dibujarSup(); }
   if (C && C.nombre === "tipoPol") return;
   if (C && C.nombre === "estirar") { const pz = pinzaEn(ev.offsetX, ev.offsetY); if (pz) { C = { nombre: "pinza", ent: pz.id, idx: pz.i, base: pz.p, pts: [pz.p] }; pedirPaso(); return; } }
+  if (a.tactil) { raton = [ev.offsetX, ev.offsetY]; rastrear(ev.offsetX, ev.offsetY, true); }
   if (C) return punto(puntoActual());
   ocultarPaleta(); seleccionarEn(aMundo(ev.offsetX, ev.offsetY), ev.shiftKey);
+  if (a.tactil) { hoverEnt = entEn(cursor); hoverCara = hoverEnt ? null : caraEn(cursor); actualizarTip(ev.offsetX, ev.offsetY); clearTimeout(tipReloj); tipReloj = setTimeout(() => { tip.hidden = true; }, 4000); }
 });
 cs.addEventListener("contextmenu", ev => ev.preventDefault());
-cs.addEventListener("pointerleave", () => { raton = [-100, -100]; hoverCara = hoverEnt = null; tip.hidden = true; dibujarSup(); });
+cs.addEventListener("pointerleave", ev => { if (ev.pointerType === "touch") return; raton = [-100, -100]; hoverCara = hoverEnt = null; tip.hidden = true; dibujarSup(); });
 cs.addEventListener("wheel", ev => {
   ev.preventDefault(); const w = aMundo(ev.offsetX, ev.offsetY), f = Math.exp(-ev.deltaY * 0.0015);
   V.s = Math.max(0.05, Math.min(5000, V.s * f)); const w2 = aMundo(ev.offsetX, ev.offsetY); V.cx += w[0] - w2[0]; V.cy += w[1] - w2[1];
@@ -1211,6 +1335,9 @@ document.getElementById("btnPolar").onclick = () => { polarOn = !polarOn; if (po
 document.getElementById("btnTxt").onclick = () => { verTxt = !verTxt; estadoBotones(); dibujarBase(); };
 document.getElementById("btnSup").onclick = () => { verSup = !verSup; estadoBotones(); dibujarBase(); };
 document.getElementById("btnAyuda").onclick = mostrarAyuda;
+document.getElementById("btnEnter").onclick = () => procesar(entrada.value.trim() ? (v => (entrada.value = "", v))(entrada.value.trim()) : "");
+document.getElementById("btnEsc").onclick = () => document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+document.getElementById("btnU").onclick = deshacer;
 
 /* cinta de iconos */
 (function () {
