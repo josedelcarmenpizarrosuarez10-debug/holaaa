@@ -208,14 +208,31 @@ def verificar(R, red, sitio, terreno, P, lluvia, hq_prev=None):
     sube = lambda v: math.ceil(v / paso - 1e-6) * paso
     filas = []; hq = dict(hq_prev or {})
     # 1) ancho que pide cada tramo; 2) una sola medida por sector (o eje): la mayor que pida cualquiera de sus tramos
-    def pide(t, Q, S, hd):
+    def pide(t, muestras, S):
+        """muestras: [(Q, h libre)] a lo largo del tramo (el caudal crece con el largo; bajo la losa solo donde esta tapado)."""
         hmax_t = max(t["h_de"], t["h_a"])
         def basta(bb):
             if P.get("h_b_max") and hmax_t > P["h_b_max"] * bb + 1e-9: return False   # limite opcional de profundidad / ancho
-            if Q <= 0: return True
-            y_ = yn(Q, S, P["n_cap"], bb)
-            return y_ + P["BL"] <= hd + 1e-9 and y_ <= P.get("y_b_max", 1.0) * bb + 1e-9
+            for Q, hd in muestras:
+                if Q <= 0: continue
+                y_ = yn(Q, S, P["n_cap"], bb)
+                if not (y_ + P["BL"] <= hd + 1e-9 and y_ <= P.get("y_b_max", 1.0) * bb + 1e-9): return False
+            return True
         return next((bb for bb in anchos if basta(bb)), anchos[-1])
+
+    def muestras_de(c, r, j, t, Q, Ac):
+        """Caudal y altura libre en cada punto del perfil del tramo (cada 0.50 m): el caudal va del que entra al tramo al de su
+        final en proporcion al largo; la altura libre es la del perfil, menos la losa tapa solo donde el tramo esta tapado."""
+        s0 = sum(x["L"] for x in r["tramos"][:j]); s1 = s0 + t["L"]
+        Qin = I * (Ac[j - 1][1] if j > 0 else Ac[0][1] - areaC[(c, 0)]) / 3.6e6 * P["FS"]
+        tap = lambda s_: any(a - 1e-6 <= s_ <= b + 1e-6 for a, b in r.get("tapados", []))
+        out = []
+        for s_, nct, ncf in r.get("perfil", []):
+            if s0 - 1e-6 <= s_ <= s1 + 1e-6:
+                fr = (s_ - s0) / t["L"] if t["L"] > 0 else 1.0
+                out.append((Qin + (Q - Qin) * fr, nct - ncf - (P["e_tapa"] if tap(s_) else 0.0)))
+        if not out: out = [(Q, min(t["h_de"], t["h_a"]) - (P["e_tapa"] if t["L_tapado"] > 0 else 0.0))]
+        return out
     uni = P.get("uniforme", "sector")
     grupo_de = lambda c: (fines.get(c, c) if uni == "sector" else c)
     datos, pedido = [], {}
@@ -223,16 +240,19 @@ def verificar(R, red, sitio, terreno, P, lluvia, hq_prev=None):
         Ac = total(c)
         for j, t in enumerate(r["tramos"]):
             v = Ac[j]; Q = I * v[1] / 3.6e6 * P["FS"]; S = max(t["S"], P["S0"])
-            hd = min(t["h_de"], t["h_a"]) - (P["e_tapa"] if t["L_tapado"] > 0 else 0.0)
-            bp = pide(t, Q, S, hd); datos.append((c, t, v, Q, S, hd, bp))
+            mu = muestras_de(c, r, j, t, Q, Ac)
+            bp = pide(t, mu, S); datos.append((c, t, v, Q, S, mu, bp))
             k = grupo_de(c) if uni != "tramo" else (c, t["de"])
             pedido[k] = max(pedido.get(k, 0.0), bp)
-    for c, t, v, Q, S, hd, bp in datos:
+    for c, t, v, Q, S, mu, bp in datos:
         if c in fijas: b = float(fijas[c]); origen_b = "adoptado por el proyectista"
         else:
             b = pedido[grupo_de(c) if uni != "tramo" else (c, t["de"])]
             origen_b = "caudal del tramo" if abs(b - bp) < 1e-9 else ("mayor del sector (%s)" % grupo_de(c) if uni == "sector" else "mayor del eje")
-        y = yn(Q, S, P["n_cap"], b) if Q > 0 else 0.0; yv = yn(Q, S, P["n_vel"], b) if Q > 0 else 1.0
+        # punto critico del tramo: el de menor borde libre con su caudal
+        crit = min(((hh - (yn(qq, S, P["n_cap"], b) if qq > 0 else 0.0), qq, hh) for qq, hh in mu), key=lambda e: e[0])
+        hd = crit[2]; y = yn(crit[1], S, P["n_cap"], b) if crit[1] > 0 else 0.0
+        yv = yn(Q, S, P["n_vel"], b) if Q > 0 else 1.0
         V = Q / (b * yv) if Q > 0 else 0.0
         q = lambda AC: round(1000 * I * AC / 3.6e6 * P["FS"], 2)
         hmax_t = max(t["h_de"], t["h_a"])
@@ -242,7 +262,7 @@ def verificar(R, red, sitio, terreno, P, lluvia, hq_prev=None):
              "Q_techo_ls": q(v[3]), "Q_pisos_ls": q(v[5]), "Q_verde_ls": q(v[7]),
              "Q_ls": round(1000 * Q, 2), "S_pct": round(100 * S, 2), "b_pide": round(bp, 3), "b": round(b, 3), "ancho_por": origen_b,
              "ancho_total": round(b + 2 * P["e_muro"], 3), "excavacion_max": round(hmax_t + P["e_fondo"] + P["e_solado"], 3),
-             "h_de": round(t["h_de"], 3), "h_a": round(t["h_a"], 3), "y": round(y, 3), "h": round(hd, 3), "borde_libre": round(hd - y, 3),
+             "h_de": round(t["h_de"], 3), "h_a": round(t["h_a"], 3), "y": round(y, 3), "h": round(hd, 3), "Q_critico_ls": round(1000 * crit[1], 2), "borde_libre": round(hd - y, 3),
              "V": round(V, 2), "cap": "CUMPLE" if hd - y >= P["BL"] - 1e-3 else "NO CUMPLE", "vel": "CUMPLE" if V <= P["Vmax"] else "GRADAS"}
         filas.append(f)
         need = sube(y + P["BL"]); clave = "%s|%s|%s" % (c, t["de"], t["a"])

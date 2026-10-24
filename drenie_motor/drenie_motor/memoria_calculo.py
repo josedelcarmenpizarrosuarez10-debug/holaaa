@@ -218,24 +218,27 @@ def libro(ruta, proyecto, P, Rh, LL, V, secciones, TT, SM):
     # ------------------------------------------------------------------ CAUDALES
     wc = wb.create_sheet("CAUDALES")
     cabecera(wc, "CAUDALES DE DISEÑO (METODO RACIONAL) Y VERIFICACION HIDRAULICA (MANNING) POR TRAMO")
-    hdr = ["EJE", "SECTOR", "DE", "A", "AREA ACUM. (m2)", "C POND.", "I (mm/h)", "Q (m3/s)", "Q (l/s)", "S (%)", "b LIBRE (m)", "h LIBRE (m)",
-           "y (m) n cap.", "A = b y (m2)", "P = b + 2y (m)", "R (m)", "Q MANNING (m3/s)", "BORDE LIBRE (m)", "CAPACIDAD", "y (m) n vel.", "V (m/s)", "VELOCIDAD"]
-    tabla_cab(wc, 6, hdr, [8, 7, 7, 7, 10, 7, 9, 9, 8, 7, 8, 8, 9, 9, 8, 8, 10, 9, 10, 9, 8, 10])
+    hdr = ["EJE", "SECTOR", "DE", "A", "AREA ACUM. (m2)", "C POND.", "I (mm/h)", "Q (m3/s)", "Q (l/s)", "S (%)", "b LIBRE (m)",
+           "Q EN EL PUNTO CRITICO (l/s)", "h LIBRE EN ESE PUNTO (m)", "y (m) n cap.", "A = b y (m2)", "P = b + 2y (m)", "R (m)", "Q MANNING (l/s)",
+           "BORDE LIBRE (m)", "CAPACIDAD", "y (m) n vel.", "V (m/s)", "VELOCIDAD"]
+    tabla_cab(wc, 6, hdr, [8, 7, 7, 7, 10, 7, 9, 9, 8, 7, 8, 10, 9, 9, 9, 8, 8, 10, 9, 10, 9, 8, 10])
     Hh = V["hidraulica"]
     for i, f in enumerate(Hh):
         r = 7 + i; Qm = f["Q_ls"] / 1000.0; S_ = f["S_pct"] / 100.0; b = f["b"]
-        y = yn(Qm, S_, P["n_cap"], b); yv = yn(Qm, S_, P["n_vel"], b)
+        Qc = f.get("Q_critico_ls", f["Q_ls"]) / 1000.0
+        y = yn(Qc, S_, P["n_cap"], b) if Qc > 0 else 0.0; yv = yn(Qm, S_, P["n_vel"], b) if Qm > 0 else 0.0
         vals = [(f["eje"], None), (f["sector"], None), (f["de"], None), (f["a"], None), (f["A_m2"], "#,##0"), (f["C"], "0.000"),
                 ("=" + D["I"], "0.00"), ("=F{r}*G{r}*E{r}*{fs}/3600000".format(r=r, fs=D["FS"]), "0.0000"), ("=H{r}*1000".format(r=r), "0.0"),
-                (f["S_pct"], "0.00"), (b, "0.00"), (f["h"], "0.00"), (round(y, 4), "0.000"), ("=K{r}*M{r}".format(r=r), "0.0000"),
-                ("=K{r}+2*M{r}".format(r=r), "0.000"), ("=N{r}/O{r}".format(r=r), "0.0000"),
-                ("=N{r}*P{r}^(2/3)*SQRT(J{r}/100)/{n}".format(r=r, n=D["n_cap"]), "0.0000"), ("=L{r}-M{r}".format(r=r), "0.000"),
-                ('=IF(R{r}>={bl}-0.001,"CUMPLE","NO CUMPLE")'.format(r=r, bl=D["BL"]), None), (round(yv, 4), "0.000"),
-                ("=IF(T{r}>0,H{r}/(K{r}*T{r}),0)".format(r=r), "0.00"), ('=IF(U{r}<={v},"CUMPLE","NO CUMPLE")'.format(r=r, v=D["Vmax"]), None)]
+                (f["S_pct"], "0.00"), (b, "0.00"), (round(1000 * Qc, 2), "0.0"), (f["h"], "0.00"), (round(y, 4), "0.000"),
+                ("=K{r}*N{r}".format(r=r), "0.0000"), ("=K{r}+2*N{r}".format(r=r), "0.000"), ("=IF(P{r}>0,O{r}/P{r},0)".format(r=r), "0.0000"),
+                ("=1000*O{r}*Q{r}^(2/3)*SQRT(J{r}/100)/{n}".format(r=r, n=D["n_cap"]), "0.0"), ("=M{r}-N{r}".format(r=r), "0.000"),
+                ('=IF(S{r}>={bl}-0.001,"CUMPLE","NO CUMPLE")'.format(r=r, bl=D["BL"]), None), (round(yv, 4), "0.000"),
+                ("=IF(U{r}>0,H{r}/(K{r}*U{r}),0)".format(r=r), "0.00"), ('=IF(V{r}<={v},"CUMPLE","NO CUMPLE")'.format(r=r, v=D["Vmax"]), None)]
         for j, (v, fmt) in enumerate(vals, 1): cel(wc, r, j, v, fmt)
     rr = 7 + len(Hh)
-    cel(wc, rr + 1, 1, "y: tirante normal por Manning resuelto por iteracion (la columna Q MANNING lo comprueba). b: ancho libre del sector (una medida por "
-                       "sector de descarga). En tramos tapados, h libre = altura bajo la losa tapa.", borde=False)
+    cel(wc, rr + 1, 1, "Punto critico: el de menor borde libre a lo largo del tramo (perfil cada 0.50 m); el caudal crece del que entra al tramo al de su "
+                       "final en proporcion al largo y la altura libre es la del perfil (bajo la losa tapa donde esta tapado). y: tirante normal por "
+                       "Manning (la columna Q MANNING lo comprueba). b: ancho libre del sector.", borde=False)
     # ------------------------------------------------------------------ CANALETAS Y MONTANTES
     if TT and TT["lados"]:
         wt = wb.create_sheet("CANALETAS Y MONTANTES")
@@ -298,10 +301,10 @@ def libro(ruta, proyecto, P, Rh, LL, V, secciones, TT, SM):
     res += [("Intensidad de diseño (mm/h)", "=" + D["I"], "0.00"), ("Coeficiente de escorrentia ponderado", "=SUPERFICIES!C%d" % rt, "0.000"),
             ("Area de aporte dentro del cerco (m2)", "=SUPERFICIES!B%d" % rt, "#,##0"),
             ("Caudal maximo en un tramo (l/s)", "=MAX(CAUDALES!I7:I%d)" % (rr - 1), "0.0"),
-            ("Menor borde libre (m)", "=MIN(CAUDALES!R7:R%d)" % (rr - 1), "0.000"),
-            ("Velocidad maxima (m/s)", "=MAX(CAUDALES!U7:U%d)" % (rr - 1), "0.00"),
-            ("Tramos que no cumplen capacidad", '=COUNTIF(CAUDALES!S7:S%d,"NO CUMPLE")' % (rr - 1), "0"),
-            ("Tramos que no cumplen velocidad", '=COUNTIF(CAUDALES!V7:V%d,"NO CUMPLE")' % (rr - 1), "0"),
+            ("Menor borde libre (m)", "=MIN(CAUDALES!S7:S%d)" % (rr - 1), "0.000"),
+            ("Velocidad maxima (m/s)", "=MAX(CAUDALES!V7:V%d)" % (rr - 1), "0.00"),
+            ("Tramos que no cumplen capacidad", '=COUNTIF(CAUDALES!T7:T%d,"NO CUMPLE")' % (rr - 1), "0"),
+            ("Tramos que no cumplen velocidad", '=COUNTIF(CAUDALES!W7:W%d,"NO CUMPLE")' % (rr - 1), "0"),
             ("Secciones adoptadas (ancho libre por sector)", ", ".join("%s: %.2f m" % (k, v) for k, v in sorted({s["sector"]: s["b_adoptado"] for s in secciones}.items())), None)]
     if TT and TT["lados"]:
         res.append(("Montantes PVC 4\" que no cumplen", '=COUNTIF(\'CANALETAS Y MONTANTES\'!K7:K%d,"NO CUMPLE")' % (6 + len(TT["lados"])), "0"))

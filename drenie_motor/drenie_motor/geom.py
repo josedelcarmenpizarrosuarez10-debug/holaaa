@@ -15,11 +15,19 @@ def _coincide(sel, capa, color):
 
 
 def seleccionar(B, sel):
-    """Polilineas de la base que cumplen la seleccion: "CAPA", {"capa": "CAPA", "color": 6} o una lista de ellas."""
+    """Polilineas de la base que cumplen la seleccion: "CAPA", {"capa": "CAPA", "color": 6} o una lista de ellas. En una
+    seleccion con llaves se puede pedir "cerrada": true (solo polilineas cerradas) y "area_min" (m2 del contorno cerrado), p. ej.
+    los techos dibujados dentro de los bloques de cada edificacion en la capa 0 (CAR Varones, CUI 2705619)."""
+    sels = sel if isinstance(sel, (list, tuple)) else [sel]
     out = []
     for capa, ents in B["geo"].items():
         for pts, cl, col, z in ents:
-            if _coincide(sel, capa, col): out.append((pts, cl, col, z))
+            for s in sels:
+                if not _coincide(s, capa, col): continue
+                if isinstance(s, dict) and (s.get("cerrada") or s.get("area_min")):
+                    if not cl or len(pts) < 3: continue
+                    if Polygon(pts).buffer(0).area < s.get("area_min", 0.0): continue
+                out.append((pts, cl, col, z)); break
     return out
 
 

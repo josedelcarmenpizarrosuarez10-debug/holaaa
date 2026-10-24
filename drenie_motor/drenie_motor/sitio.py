@@ -26,9 +26,25 @@ class Sitio:
                 self.avisos.append("La superficie '%s' no se encontro dentro del cerco." % s.get("nombre", k + 1)); continue
             self.extra.append({"nombre": s.get("nombre", "Superficie %d" % (k + 1)), "tipo": s.get("tipo", "pavimento"), "geom": g,
                                "obstaculo": s.get("obstaculo", s.get("tipo") == "techo")})
-        techos = [p.intersection(self.cerco) for p in geom.poligonos_tolerantes(geom.seleccionar(B, cfg["techos"]))] if cfg.get("techos") else []
-        self.techos_plano = geom.union(techos)
-        self.techos = geom.union(techos + [e["geom"] for e in self.extra if e["tipo"] == "techo"])
+        sel_t = cfg.get("techos") or []
+        sel_t = sel_t if isinstance(sel_t, list) else [sel_t]
+        sep = [x for x in sel_t if isinstance(x, dict) and x.get("separados")]
+        otros = [x for x in sel_t if x not in sep]
+        techos = [p.intersection(self.cerco) for p in geom.poligonos_tolerantes(geom.seleccionar(B, otros))] if otros else []
+        # "separados": cada contorno cerrado es un techo aunque toque al vecino (CAR Varones: la losa deportiva y la edificacion 03
+        # se tocan); los contornos repetidos o dentro de otro se descartan y la parte comun queda en el techo mas grande
+        indiv = []
+        for p in sorted((Polygon(pts).buffer(0).intersection(self.cerco) for pts, cl, col, z in geom.seleccionar(B, sep) if cl and len(pts) >= 3),
+                        key=lambda q: -q.area):
+            if p.area < 4.0 or any(p.intersection(q).area > 0.8 * p.area for q in indiv): continue
+            indiv.append(p)
+        indiv = [p.difference(geom.union(indiv[:k])) if k else p for k, p in enumerate(indiv)]
+        indiv = [max(p.geoms, key=lambda q: q.area) if hasattr(p, "geoms") else p for p in indiv if p.area >= 4.0]
+        self.techos_plano = geom.union(techos + indiv)
+        resto = geom.union(techos + [e["geom"] for e in self.extra if e["tipo"] == "techo"])
+        if indiv: resto = resto.difference(geom.union(indiv))
+        self.techos_lista = indiv + [q for q in (resto.geoms if hasattr(resto, "geoms") else [resto]) if q.area > 4.0] if indiv else None
+        self.techos = geom.union(techos + indiv + [e["geom"] for e in self.extra if e["tipo"] == "techo"])
         self.veredas_plano = geom.union([p for p in geom.poligonos(geom.seleccionar(B, cfg["veredas"]))]) if cfg.get("veredas") else Polygon()
         self.veredas = geom.union([self.veredas_plano] + [e["geom"] for e in self.extra if e["tipo"] == "pavimento"])
         self.muros = geom.union([p for p in geom.poligonos(geom.seleccionar(B, cfg["muros"]))]) if cfg.get("muros") else Polygon()

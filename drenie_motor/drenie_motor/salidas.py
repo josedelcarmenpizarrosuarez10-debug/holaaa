@@ -232,6 +232,7 @@ def png_planta(ruta, R, red, sitio, curvas, ejes_usuario, titulo, candidatos=Non
             ax.text((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, r["codigo"].replace("EJE-", "E"), fontsize=5, ha="center", va="bottom",
                     color="#222", zorder=7)
         for d in red.descargas:
+            if d not in Nn: continue                     # descarga indicada que la red no usa
             x, y = Nn[d]; ax.plot(x, y, "o", ms=7, mfc="#d32f2f", mec="white", zorder=8)
             ax.text(x, y + 1.2, d, fontsize=8, fontweight="bold", color="#d32f2f", ha="center", zorder=8)
     ax.set_aspect("equal"); ax.set_xlim(x0, x1); ax.set_ylim(y0, y1)

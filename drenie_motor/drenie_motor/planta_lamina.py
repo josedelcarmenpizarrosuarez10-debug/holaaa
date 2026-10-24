@@ -251,6 +251,7 @@ def dc01(doc, codigo, R, red, sitio, curvas, P, anchos, V, lloraderos, proyecto,
         for g, capa in ((sitio.veredas_plano, "ARQ-VEREDA"), (sitio.techos_plano, "ARQ-TECHO"), (sitio.muros, "ARQ-MURO")):
             for an in _anillos(g) if g is not None and not g.is_empty else []:
                 if dentro(an): lam.poli(an, capa, cerrada=True)
+    rot_curvas = []                       # rotulos de curvas: se ponen al final, solo donde no pisan otros textos
     with EnBloque(lam, "CURVAS_DE_NIVEL", "CURVAS"):
         for z, L in curvas:
             pts = [p for p in L.coords if vx0 <= p[0] <= vx1 and vy0 <= p[1] <= vy1]
@@ -266,7 +267,7 @@ def dc01(doc, codigo, R, red, sitio, curvas, P, anchos, V, lloraderos, proyecto,
                     cand = sorted(range(max(0, k0 - len(pts) // 6), min(len(pts) - 1, k0 + len(pts) // 6)), key=lambda k: abs(k - k0))
                     k = next((k for k in cand if abs(ang_en(k)) <= 60), k0)
                     ang = ang_en(k) if abs(ang_en(k)) <= 60 else 0.0
-                    lam.texto(pts[k], "%.0f" % z, 1.5, "CURVAS-TXT", TA.MIDDLE_CENTER, rot=ang)
+                    rot_curvas.append((pts[k], "%.0f" % z, ang))
     with EnBloque(lam, "LIMITE_DE_INTERVENCION", "LIMITE-INTERV"):
         lam.poli(list(ce.exterior.coords), "LIMITE-INTERV", cerrada=True, ancho=0.35 * f / 0.25)
     with EnBloque(lam, "CUNETAS", "CUN-REJ-BORDE"):
@@ -316,6 +317,13 @@ def dc01(doc, codigo, R, red, sitio, curvas, P, anchos, V, lloraderos, proyecto,
             q = (b[0] + ux * 4.0, b[1] + uy * 4.0)
             lam.poli([b, q], "DESCARGA", ancho=0.25); lam.flecha(b, (q[0] + ux * 0.8, q[1] + uy * 0.8), "DESCARGA", tam_mm=4.0)
             E.poner(q, fin, 3.0, "TITULOS", color=1, d_mm=1.5)
+        hc = 1.5 * B.K_TXT.get("CURVAS-TXT", 1.0) * f
+        for p_, t_, a_ in rot_curvas:
+            w = len(t_) * 0.75 * hc; ca, sa = abs(math.cos(math.radians(a_))), abs(math.sin(math.radians(a_)))
+            dx, dy = (w * ca + hc * sa) / 2 + 0.3 * f, (w * sa + hc * ca) / 2 + 0.3 * f
+            caja = (p_[0] - dx, p_[1] - dy, p_[0] + dx, p_[1] + dy)
+            if E.libre(caja):
+                E.cajas.append(caja); lam.texto(p_, t_, 1.5, "CURVAS-TXT", TA.MIDDLE_CENTER, rot=a_)
     lam.bloque("SIMB-NORTE", lam.P(800, 555))
     bs = sorted(set(anchos.values()))
     items = [("linea", "CUN-REJ-BORDE", "Cuneta con rejilla (%s)" % ", ".join("%.2f libre / %.2f total" % (b, b + 2 * P["e_muro"]) for b in bs)),

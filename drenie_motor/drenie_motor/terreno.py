@@ -93,3 +93,93 @@ class Terreno:
     def zv(self, P):
         P = np.asarray(P)
         return self.f(P[:, 0], P[:, 1])
+
+    @classmethod
+    def desde_puntos(cls, P):
+        """Terreno a partir de puntos (x, y, z) ya en coordenadas del plano (por ejemplo, de una superficie LandXML)."""
+        t = cls.__new__(cls)
+        if len(P) < 3: raise ValueError("La superficie del terreno no tiene puntos dentro del area del proyecto")
+        t.f = LinearNDInterpolator(np.asarray(P)[:, :2], np.asarray(P)[:, 2])
+        return t
+
+
+# ---------------------------------------------------------------------------------------------- superficie LandXML
+def transformar(P, tr):
+    """Coordenadas de la topografia -> plano: plano = origen_plano + giro(g) (topo - origen_topo). tr None: sin cambio."""
+    P = np.asarray(P, dtype=float)
+    if not tr: return P
+    g = math.radians(tr.get("giro_grados", 0.0)); c, s = math.cos(g), math.sin(g)
+    E0, N0 = tr.get("origen_topo", (0.0, 0.0)); x0, y0 = tr.get("origen_plano", (0.0, 0.0))
+    dE, dN = P[:, 0] - E0, P[:, 1] - N0
+    return np.c_[x0 + c * dE - s * dN, y0 + s * dE + c * dN, P[:, 2]]
+
+
+def puntos_landxml(ruta, ventana, tr=None, cache=None):
+    """Puntos de la superficie LandXML (zip o xml) dentro de la ventana del plano (x0, y0, x1, y1), en coordenadas del plano."""
+    import os
+    import pickle
+    import xml.etree.ElementTree as ET
+    import zipfile
+    if cache and os.path.exists(cache):
+        P = pickle.load(open(cache, "rb"))
+    else:
+        f = zipfile.ZipFile(ruta).open(zipfile.ZipFile(ruta).namelist()[0]) if ruta.lower().endswith(".zip") else open(ruta, "rb")
+        pts = []
+        for ev, el in ET.iterparse(f, events=("end",)):
+            tag = el.tag.split("}")[-1]
+            if tag == "P" and el.text:
+                n, e, z = map(float, el.text.split()[:3]); pts.append((e, n, z)); el.clear()      # LandXML: norte, este, cota
+            elif tag in ("F", "CgPoint"): el.clear()
+        P = np.array(pts)
+        if cache: pickle.dump(P, open(cache, "wb"))
+    Q = transformar(P, tr)
+    x0, y0, x1, y1 = ventana
+    m = (Q[:, 0] >= x0) & (Q[:, 0] <= x1) & (Q[:, 1] >= y0) & (Q[:, 1] <= y1)
+    return Q[m]
+
+
+def curvas_de_puntos(T, ventana, eq=0.25, paso=0.5):
+    """Curvas de nivel (z, LineString) a partir del terreno, para dibujar y para las mismas reglas que usan las curvas del plano."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    x0, y0, x1, y1 = ventana
+    xs = np.arange(x0, x1 + paso, paso); ys = np.arange(y0, y1 + paso, paso)
+    X, Y = np.meshgrid(xs, ys); Z = T.f(X, Y)
+    if not np.isfinite(Z).any(): return []
+    zmin, zmax = np.nanmin(Z), np.nanmax(Z)
+    niveles = np.arange(math.ceil(zmin / eq) * eq, zmax + 1e-9, eq)
+    if len(niveles) == 0: return []
+    fig = plt.figure(); cs = plt.contour(X, Y, np.ma.masked_invalid(Z), levels=niveles)
+    out = []
+    for z, segs in zip(cs.levels, cs.allsegs):
+        for s in segs:
+            if len(s) >= 2: out.append((round(float(z), 3), LineString(s)))
+    plt.close(fig)
+    return out
+
+
+class ConReceptor:
+    """Terreno con un receptor (colector o canal existente) junto al limite: fuera del limite, a menos de 'ancho' m de la linea
+    del receptor, la 'cota del terreno' es el nivel que debe superar la cuneta al entregar (nivel de agua o fondo del receptor).
+    Asi las descargas se eligen y se verifican contra el receptor con las mismas reglas que con el terreno natural."""
+
+    def __init__(self, T, linea, perfil, ancho=2.5, interior=None, solo=True):
+        self.T, self.f, self.solo = T, getattr(T, "f", None), solo           # solo: las descargas solo van al receptor
+        self.ln = LineString(linea); self.perfil = sorted((float(s), float(z)) for s, z in perfil)
+        self.ancho, self.interior = ancho, interior
+
+    def nivel(self, x, y):
+        s = self.ln.project(Point(x, y)); P = self.perfil
+        if s <= P[0][0]: return P[0][1]
+        for (s0, z0), (s1, z1) in zip(P[:-1], P[1:]):
+            if s <= s1: return z0 + (z1 - z0) * (s - s0) / (s1 - s0) if s1 > s0 else z1
+        return P[-1][1]
+
+    def z(self, x, y):
+        p = Point(x, y)
+        if self.ln.distance(p) <= self.ancho and (self.interior is None or not self.interior.contains(p)): return self.nivel(x, y)
+        return self.T.z(x, y)
+
+    def zv(self, P):
+        return np.array([self.z(x, y) for x, y in np.asarray(P)[:, :2]])

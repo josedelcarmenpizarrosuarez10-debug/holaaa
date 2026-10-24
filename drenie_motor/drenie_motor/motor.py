@@ -50,13 +50,30 @@ def _preparar(cfg, base, salida):
     cv = capas.get("ventana_por_capa")
     if cv is None and isinstance(capas.get("curvas"), dict) and os.path.getsize(dxf) > 50e6: cv = capas["curvas"].get("capa")
     B = lector_dxf.base(dxf, cache=os.path.join(salida, "_base_sitio.pkl"), ventana=capas.get("ventana"), capa_ventana=cv)
-    cur, rep_t = terreno.curvas(B, {"curvas": capas["curvas"], "curvas_texto": capas.get("curvas_texto"),
-                                    "equidistancia": capas.get("equidistancia"), "z_min": capas.get("z_min", -500),
-                                    "z_max": capas.get("z_max", 9000)})
-    T = terreno.Terreno(cur)
+    tcfg = cfg.get("terreno") or {}
+    if tcfg.get("landxml"):
+        # superficie topografica LandXML (con su transformacion al plano) en lugar de las curvas del plano
+        pc = (capas.get("cerco") or {}).get("poligono")
+        if not capas.get("ventana") and not pc: raise ValueError("Con terreno LandXML hace falta capas.ventana o el poligono del cerco")
+        cb = capas.get("ventana") or (min(p[0] for p in pc) - 30, min(p[1] for p in pc) - 30, max(p[0] for p in pc) + 30, max(p[1] for p in pc) + 30)
+        Pt = terreno.puntos_landxml(_ruta(base, tcfg["landxml"]), cb, tcfg.get("transformacion"), os.path.join(salida, "_topo.pkl"))
+        T = terreno.Terreno.desde_puntos(Pt)
+        cur = terreno.curvas_de_puntos(T, cb, tcfg.get("equidistancia", 0.25))
+        rep_t = {"fuente": "superficie LandXML", "puntos": int(len(Pt)), "curvas_generadas": len(cur),
+                 "z_min": round(float(Pt[:, 2].min()), 2), "z_max": round(float(Pt[:, 2].max()), 2)}
+    else:
+        cur, rep_t = terreno.curvas(B, {"curvas": capas["curvas"], "curvas_texto": capas.get("curvas_texto"),
+                                        "equidistancia": capas.get("equidistancia"), "z_min": capas.get("z_min", -500),
+                                        "z_max": capas.get("z_max", 9000)})
+        T = terreno.Terreno(cur)
     S = sitio_mod.Sitio(B, {"cerco": capas["cerco"], "techos": capas.get("techos"), "veredas": capas.get("veredas"),
                             "muros": capas.get("muros"), "niveles": cfg.get("niveles", {}),
                             "superficies": cfg.get("superficies", [])}, T, P)
+    if cfg.get("receptor"):
+        # las cunetas entregan a un colector o canal existente: su nivel reemplaza al terreno exterior en las descargas
+        rc = cfg["receptor"]
+        T = terreno.ConReceptor(T, rc["linea"], rc["perfil"], rc.get("ancho", 2.5), S.cerco, rc.get("solo_receptor", True))
+        rep_t["receptor"] = rc.get("nombre", "receptor")
     ejes = [e[0] for e in geom.seleccionar(B, capas["ejes"])] if capas.get("ejes") else []
     ejes += [[tuple(p) for p in l] for l in cfg.get("ejes_lineas", [])]        # lineas trazadas en el visor
     S.revisar_superficies(ejes)
@@ -150,11 +167,11 @@ def disenar(cfg_ruta):
             info = R.descargas[d["D"]]
             falta = info["z_req"] + P["desc_margen"] - d["cf"]
             recorte[info["k"]] = recorte.get(info["k"], 0.0) + max(falta, 0.01) / P["S0"] + 2.0
-    TT = techo.calcular(S, C, P, V["hidrologia"]["I"], cfg)
+    TT = techo.calcular(S, C, P, V["hidrologia"]["I"], cfg, set(R.descargas))
     SM = sumideros.calcular(M, S, C, P, V["hidrologia"]["I"], cfg, set(R.descargas))
-    # ninguna tuberia de sumidero llega bajo el fondo: se profundiza el tramo que la recibe y se recalcula
+    # ninguna tuberia (de sumidero o de montante) llega bajo el fondo: se profundiza el tramo que la recibe y se recalcula
     for _ in range(3):
-        bajo = [x for x in SM["sumideros"] if x["llega"] != "SOBRE EL FONDO"]
+        bajo = [x for x in SM["sumideros"] + [m for m in TT["montantes"] if m.get("llega")] if x["llega"] != "SOBRE EL FONDO" and x.get("tramo")]
         if not bajo: break
         for x in bajo: hq[x["tramo"]] = round(max(hq.get(x["tramo"], P["hmin"]), x["h_req_cuneta"]), 3)
         for _v in range(P["vueltas_max"]):
@@ -162,10 +179,10 @@ def disenar(cfg_ruta):
             V, hq2 = verificacion.verificar(C, R, S, T, P, LL, hq)
             if hq2 == hq: break
             hq = hq2
-        TT = techo.calcular(S, C, P, V["hidrologia"]["I"], cfg)
+        TT = techo.calcular(S, C, P, V["hidrologia"]["I"], cfg, set(R.descargas))
         SM = sumideros.calcular(M, S, C, P, V["hidrologia"]["I"], cfg, set(R.descargas))
-        SM["avisos"].append("Se profundizaron los tramos %s para recibir la tuberia de los sumideros %s sobre su cota de fondo." % (
-            ", ".join(sorted({x["tramo"].replace("|", " ") for x in bajo})), ", ".join(x["sumidero"] for x in bajo)))
+        SM["avisos"].append("Se profundizaron los tramos %s para recibir la tuberia de %s sobre su cota de fondo." % (
+            ", ".join(sorted({x["tramo"].replace("|", " ") for x in bajo})), ", ".join(x.get("sumidero") or x.get("montante") for x in bajo)))
     anchos = {(f["eje"], f["de"], f["a"]): f["b"] for f in V["hidraulica"]}
     xls_t = techo.excel(TT, os.path.join(salida, "CANALETAS_MONTANTES_Y_SUMIDEROS.xlsx"), SM)
     verde = M.por_tipo().get("verde")
@@ -283,7 +300,7 @@ def _revisar(salida, P, V, C, sec, TT, SM, LLt, M, xls_rc, tot, partidas, q, tap
         ("Tapas laterales", ("TAPA LATERAL",), "und", m.get("tapas_und", 0), 0),
         ("Boquillas", ("BOQUILLA",), "und", m.get("boquillas_und", 0), 0),
         ("Sumideros", ("SUMIDERO",), "und", sm.get("sumideros_und", 0), 0),
-        ("Tubería de sumideros", ("TUBERIA DESAG",), "m", sm.get("tuberia_4_m", 0), 0.05)])
+        ("Tubería de sumideros y salidas enterradas", ("TUBERIA DESAG",), "m", sm.get("tuberia_4_m", 0) + m.get("tuberia_enterrada_m", 0), 0.05)])
     revision.memoria_calculo(I, xls_mc_rc, V, Rh, TT, SM)
     if dxf_doc is None: dxf_doc = ezdxf.readfile(next(a for a in archivos if a and a.endswith("PLANOS_CUNETAS.dxf")))
     revision.documentos(I, archivos, proyecto, lams, dxf_doc)

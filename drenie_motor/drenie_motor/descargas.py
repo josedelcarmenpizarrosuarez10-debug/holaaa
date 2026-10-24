@@ -253,10 +253,12 @@ def planta(lam, d, cx, cy):
     yt, yb = min(Y1 - 8 * f, lam.P(0, PL_VENT[3] - 10)[1]), max(Y0 + 8 * f, lam.P(0, PL_VENT[1] + 5)[1])
     lam.columna_llamadas(izq, X0 - 10 * f, yt, yb, hmm=1.8, al=TA.RIGHT)
     lam.columna_llamadas(der, X1 + 10 * f, yt, yb, hmm=1.8)
+    puestos = []
     for s, n in d["nodos"]:
         if "~" in n or n in DS.DESCARGAS: continue
         p = M(dict(zip(d["r"]["nudos"], d["poly"]))[n]); lam.circulo(p, 0.12 * kp, "NUDOS")
-        lam.texto((p[0] + 2 * f, p[1] + 2 * f), nom[n], 1.5, "TEXTOS", TA.LEFT)
+        if any(math.dist(p, q) < 9 * f for q in puestos): continue          # nudos muy juntos: un solo rotulo
+        puestos.append(p); lam.texto((p[0] + 2 * f, p[1] + 2 * f), nom[n], 1.5, "TEXTOS", TA.LEFT)
     # norte
     pn = lam.P(40, PL_VENT[3] - 12)
     lam.flecha((pn[0], pn[1] - 8 * f), (pn[0], pn[1] + 4 * f), "TEXTOS", tam_mm=3.0)

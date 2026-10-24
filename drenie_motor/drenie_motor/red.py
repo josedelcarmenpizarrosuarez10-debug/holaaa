@@ -122,6 +122,7 @@ class Red:
                 zt = self.T.z(q.x - nin[0] * d, q.y - nin[1] * d)
                 if np.isfinite(zt): zs.append(zt)
             if not zs: continue
+            if getattr(self.T, "solo", False) and self.T.ln.distance(q) > self.T.ancho: continue     # solo al receptor (colector o canal)
             b = (q.x + nin[0] * self.P["d_cerco"], q.y + nin[1] * self.P["d_cerco"])
             if not self.S.interior.buffer(0.05).contains(Point(b)): continue
             ras = self.S.rasante(*b)
@@ -261,6 +262,11 @@ class Red:
             s = anillo.project(Point(c["b"])); bk = estacion(s, "b%d" % k)
             if bk != "b%d" % k: N["b%d" % k] = N[bk]; ar.append(("b%d" % k, bk, 0.0, 0.0, "union"))
             N["q%d" % k] = c["q"]; ar.append(("b%d" % k, "q%d" % k, 0.0, P["d_cerco"], "pase"))
+            # extremo de una linea del usuario junto al punto de descarga: se une directo (el filtro de "ya hay cuneta" del
+            # camino perimetral descartaria ese tramito y la descarga quedaria aislada)
+            for n in self.N:
+                dn = math.dist(self.N[n], N["b%d" % k])
+                if 0.05 <= dn <= 1.0: ar.append(("b%d" % k, n, 0.5 * dn, dn, "union"))
         orden = sorted(est.items())
         for (s1, n1), (s2, n2) in zip(orden, orden[1:] + [(orden[0][0] + La, orden[0][1])]):
             seg = LineString([N[n1], N[n2]]); L = seg.length

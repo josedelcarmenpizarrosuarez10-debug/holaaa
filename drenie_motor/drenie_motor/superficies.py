@@ -265,7 +265,7 @@ def aguas_de_techos(sitio, cfg, flechas=None):
     g = sitio.techos
     if g.is_empty: return [], []
     avisos = []
-    pols = [p for p in (g.geoms if hasattr(g, "geoms") else [g]) if p.area > 4.0]
+    pols = getattr(sitio, "techos_lista", None) or [p for p in (g.geoms if hasattr(g, "geoms") else [g]) if p.area > 4.0]
     out = []
     sin_dato = 0
     for k, p in enumerate(pols):

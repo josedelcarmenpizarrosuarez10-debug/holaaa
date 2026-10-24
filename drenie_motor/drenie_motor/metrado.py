@@ -360,7 +360,13 @@ def libro(ruta, C, red, M, P, anchos, V, LLt, TT, SM, proyecto, cfg, tapas):
         for j, (v, fmt) in enumerate([(s["sumidero"], None), (s["A_m2"], "0.0"), (s["cuneta"], None), (s["L_tubo_m"], "0.00"), (1, "0"),
                                        (s["codos90"], "0"), (0, "0"), (s.get("S_tubo_pct", 1.0), "0.00")], 1):
             cel(wsu, r, j, v, fmt)
-    rs1 = 8 + len(sms)
+    ment = [m for m in (TT or {}).get("montantes", []) if m.get("tubo_enterrado_m")]       # salidas de montante enterradas
+    for i, m in enumerate(ment):
+        r = 8 + len(sms) + i
+        for j, (v, fmt) in enumerate([(m["montante"] + " (salida)", None), (None, "0.0"), (m["cuneta"], None), (m["tubo_enterrado_m"], "0.00"), (0, "0"),
+                                       (0, "0"), (0, "0"), (m.get("S_tubo_pct", 1.0), "0.00")], 1):
+            cel(wsu, r, j, v, fmt)
+    rs1 = 8 + len(sms) + len(ment)
     cel(wsu, rs1, 1, "TOTAL", bold=True); wsu.merge_cells(start_row=rs1, start_column=1, end_row=rs1, end_column=3)
     for j, col in ((4, "D"), (5, "E"), (6, "F"), (7, "G")):
         cel(wsu, rs1, j, "=SUM(%s8:%s%d)" % (col, col, max(8, rs1 - 1)), "0.00" if col == "D" else "0", bold=True, bg=PAR_)
@@ -443,7 +449,7 @@ def libro(ruta, C, red, M, P, anchos, V, LLt, TT, SM, proyecto, cfg, tapas):
             [("Lloraderos (hoja METRADO LLORADEROS)", None, None, None, None, None, "=+'METRADO LLORADEROS'!H%d" % rl1)])
     partida(p(".04.03.05"), "JUNTA E=1\" CON SELLADOR ASFALTICO ENTRE CUNETA Y PISO ADYACENTE", "m",
             [(x["eje"] + " (hoja METRADO JUNTA DE DILATACION)", None, None, None, None, None, "=+'METRADO JUNTA DE DILATACION'!J%d" % (rp0 + i)) for i, x in enumerate(ok_p)])
-    if mts or sms:
+    if mts or sms or ment:
         titulo(p(".05"), "RED DE COLECCIÓN")
     if mts:
         titulo(p(".05.01"), "RED DE RECOLECCION TECHO")
@@ -459,9 +465,10 @@ def libro(ruta, C, red, M, P, anchos, V, LLt, TT, SM, proyecto, cfg, tapas):
         partida(p(".05.01.05"), "TAPA LATERAL DE PLANCHA GALVANIZADA P/CANALETA", "und", [("Tapas laterales (hoja METRADO CANALETAS)", None, None, None, None, None, "=+'METRADO CANALETAS'!G%d" % rc1)])
         partida(p(".05.01.06"), "BOQUILLA DE PLANCHA GALVANIZADA P/CONEXIÓN DE CANALETA A MONTANTE Ø4\"", "und",
                 [("Boquillas (hoja METRADO CANALETAS)", None, None, None, None, None, "=+'METRADO CANALETAS'!H%d" % rc1)])
-    if sms:
+    if sms or ment:
         titulo(p(".05.02"), "RED DE RECOLECCION PISO")
-        partida(p(".05.02.01"), "TUBERIA DESAGÜE PVC-CP Ø4\"", "m", [("Sumideros a cuneta (hoja METRADO  EN PISO (SUMIDERO))", None, None, None, None, None, "=+'METRADO  EN PISO (SUMIDERO)'!D%d" % rs1)])
+        partida(p(".05.02.01"), "TUBERIA DESAGÜE PVC-CP Ø4\"", "m", [("Sumideros y salidas de montante enterradas a la cuneta (hoja METRADO  EN PISO (SUMIDERO))", None, None, None, None, None, "=+'METRADO  EN PISO (SUMIDERO)'!D%d" % rs1)])
+    if sms:
         partida(p(".05.02.02"), "SUMIDERO METALICO C/PLATINA 1\" X 3/16\"", "und", [("Sumideros", None, None, None, None, None, "=+'METRADO  EN PISO (SUMIDERO)'!E%d" % rs1)])
         partida(p(".05.02.03"), "CODO DESAGÜE PVC Ø4\" x 90°", "und", [("Codos de salida del sumidero", None, None, None, None, None, "=+'METRADO  EN PISO (SUMIDERO)'!F%d" % rs1)])
         partida(p(".05.02.04"), "TEE SANITARIA DESAGÜE PVC Ø4\"", "und", [("Tees", None, None, None, None, None, "=+'METRADO  EN PISO (SUMIDERO)'!G%d" % rs1)])

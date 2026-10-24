@@ -36,7 +36,7 @@ SENAMHI, análisis estadístico, Dick y Peschke → I) → 5. `disenar`: áreas 
 | `capas.curvas`, `capas.curvas_texto`, `capas.equidistancia` | curvas de nivel (con elevación o rotuladas a cota 0) |
 | `capas.cerco` | capa del cerco o `{"poligono": [...]}` confirmado |
 | `capas.ejes` | líneas de cuneta del usuario: `{"capa": "0", "color": 6}` |
-| `capas.techos`, `capas.veredas`, `capas.muros` | capas de arquitectura |
+| `capas.techos`, `capas.veredas`, `capas.muros` | capas de arquitectura; en una selección con llaves también `"cerrada": true` (solo polilíneas cerradas), `"area_min"` (m²) y, en techos, `"separados": true` (cada contorno cerrado es un techo aunque toque al vecino). CAR Varones: `{"capa": "0", "color": 1, "cerrada": true, "area_min": 40, "separados": true}` (techos dentro de los bloques de cada edificación) |
 | `niveles` | `modo` (`nivelado` o `terreno`), `npt`, `borde_cuneta`, `area_verde`, `zonas` (polígono, nivel, superficie) |
 | `superficies` | superficies con nombre (losas, patios techados...): `nombre`, `tipo`, `poligono` o `capa` |
 | `superficies_cfg.leyenda` | colores o capas de sombreados → tipo: `[{"sel": {"capa": "AREAS", "color": 3}, "tipo": "verde"}]` |
@@ -69,6 +69,11 @@ SENAMHI, análisis estadístico, Dick y Peschke → I) → 5. `disenar`: áreas 
 
 `python3 ejemplos/barranquita/armar_dxf_prueba.py` arma el plano de prueba de la I.E. N.° 0590 Barranquita (C.I. N.° 468901)
 con los datos de entrada del usuario (curvas, techos, veredas, cerco y líneas magenta); luego `leer` y `disenar`.
+
+`ejemplos/car_varones/proyecto.json`: CAR Varones (CUI 2705619) con el plano general real de la usuaria
+(`insumos/katiuska/planta/`), la topografía LandXML transformada al plano y el colector frontal como receptor (su cota de
+fondo reemplaza al terreno exterior en las descargas D1 a D5). Comparado con el metrado de la usuaria del 23-10-2026:
+canaletas 523.90 m (523.16), soportes 906 (906), tapas laterales 44 (44); cunetas 538.22 m en 9 ejes (545.2 m).
 
 ## Sección de cada tramo y lloraderos
 

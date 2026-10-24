@@ -94,9 +94,14 @@ def componentes(I, P, TT, SM, LLt, mapa_tipos):
               "; ".join("%s %s: %d (%.0f m²)" % (l["techo"], l["lado"], l["montantes"], l["A_m2"]) for l in mas))
         I.add(g, "Al menos 2 montantes por lado (esquinas)", all(l["montantes"] >= 2 for l in TT["lados"]))
         I.add(g, "Canaletas con borde libre", all(l["canaleta"] == "CUMPLE" for l in TT["lados"]))
-        lejos = [m["montante"] for m in TT["montantes"] if m.get("salida_m", 0) > 3.0 + 1e-6]
         av = [a for a in TT["avisos"] if "no tiene cuneta" in a]
-        I.add(g, "Montantes con cuneta a 3.0 m o menos", not av, "%d montantes lejos de una cuneta: revisar si falta cuneta" % len(av) if av else "", aviso=True)
+        ent = [m for m in TT["montantes"] if m.get("tubo_enterrado_m")]
+        I.add(g, "Montantes con cuneta cercana (salida directa hasta 3 m o tubería enterrada hasta 25 m)", not av,
+              "%d montantes sin cuneta a menos de 25 m: revisar si falta cuneta" % len(av) if av else "%d con tubería enterrada" % len(ent), aviso=True)
+        for m in ent:
+            I.add(g, "Salida enterrada de %s: tubo 4\" al 1 %% (o 0.5 %%) sobre la cota de fondo" % m["montante"],
+                  m["S_tubo_pct"] in (1.0, 0.5) and m["z_llegada"] >= m["cf_cuneta"] - 1e-6,
+                  "%.2f m a %s, S = %.2f %%, llega a %.3f, cota de fondo %.3f" % (m["tubo_enterrado_m"], m["cuneta"], m["S_tubo_pct"], m["z_llegada"], m["cf_cuneta"]))
         ale = [a for a in TT["avisos"] if "Altura de alero" in a]
         I.add(g, "Altura de alero por edificación", not ale, ale[0] if ale else "", aviso=True)
     for s in SM["sumideros"]:

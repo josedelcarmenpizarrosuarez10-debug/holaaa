@@ -65,7 +65,7 @@ def _altura(techo_pol, cfg_alt):
 
 PARAM = {"canaleta_b": 0.25, "canaleta_h": 0.20, "BL": 0.05, "S": 0.01, "n": 0.013, "rs": 0.25, "rs_max": 7 / 24, "max_por_lado": 4,
          "desvio": 0.50, "entrada_cuneta": 0.30, "sep_soporte": 0.60, "abrazadera_cada": 4.0, "colgadores": 2, "codos90": 3,
-         "salida_max": 3.0, "d_montante": 4, "fc_largo": 0.20, "fc_ancho": 0.15, "esquina_max": 3.0, "alero_vuelo": 0.60}
+         "salida_max": 3.0, "tubo_max": 25.0, "S_tubo": 0.01, "S_tubo_min": 0.005, "prof_tubo": 0.40, "h_cuneta_max": 0.80, "d_montante": 4, "fc_largo": 0.20, "fc_ancho": 0.15, "esquina_max": 3.0, "alero_vuelo": 0.60}
 
 
 def _normal_alero(ag, al):
@@ -145,14 +145,25 @@ def ubicar(sitio, P, I, cfg):
     return lados, avisos, {"q_m2": q_m2, "Q4": Q4, "A4": A4, "Qcan": Qcan, "hu": hu, "tc": tc}
 
 
-def calcular(sitio, R, P, I, cfg):
-    """R: red con cotas. Devuelve dict con lados, montantes, metrado y avisos."""
+def _adentro(sitio, p, d=0.30):
+    """Punto del lado de adentro del cerco mas cercano a p (a d del cerco)."""
+    b = sitio.cerco.buffer(-d).exterior
+    return b.interpolate(b.project(p))
+
+
+def calcular(sitio, R, P, I, cfg, descargas=()):
+    """R: red con cotas. Devuelve dict con lados, montantes, metrado y avisos.
+    Montante a mas de salida_max (3 m) de una cuneta: su salida es tuberia PVC 4" enterrada hasta la cuneta mas cercana (hasta
+    tubo_max, 25 m), al 1 % (minimo 0.5 %), que debe llegar sobre la cota de fondo; se mide en la red de piso, no en el montante."""
+    from .sumideros import _cf_en
     lados0, avisos, K = ubicar(sitio, P, I, cfg)
     tc, hu = K["tc"], K["hu"]
     alturas = cfg.get("altura_alero", {"defecto": 3.50})
     Nn = R["nudos"]
     segs = [(r["codigo"], LineString([Nn[t["de"]], Nn[t["a"]]])) for r in R["ramales"] for t in r["tramos"] if t["origen"] != "pase"]
     red = unary_union([s for _, s in segs])
+    segs_e = [(r["codigo"], LineString([Nn[t["de"]], Nn[t["a"]]]), "%s|%s|%s" % (r["codigo"], t["de"], t["a"])) for r in R["ramales"]
+              for t in r["tramos"] if t["origen"] != "pase" and t["a"] not in descargas and math.dist(Nn[t["de"]], Nn[t["a"]]) > 1.0]
     techo_pol = {}
     for l in lados0: techo_pol[l["techo"]] = unary_union([techo_pol.get(l["techo"], l["ag"]["poligono"]), l["ag"]["poligono"]])
     lados, montantes = [], []
@@ -182,9 +193,34 @@ def calcular(sitio, R, P, I, cfg):
                  "hacia": [round(q.x, 3), round(q.y, 3)] if q is not None and d <= tc["salida_max"] else None,
                  "altura_alero": h, "L_m": round(Lm, 2), "Q_ls": round(Qm, 2), "D_req_pulg": round(D, 2), "D_pulg": Dad, "llenado": round(rs, 3),
                  "codos90": tc["codos90"], "colgadores": tc["colgadores"], "abrazaderas": max(1, math.floor(Lm / tc["abrazadera_cada"]))}
-            if d > tc["salida_max"]:
-                avisos.append("%s (%s %s) no tiene cuneta a menos de %.1f m (la mas cercana a %.1f m): revisar si falta cuneta o "
-                              "si descarga a otro lugar." % (m["montante"], l["techo"], l["lado"], tc["salida_max"], d))
+            if d > tc["salida_max"] and segs_e:
+                # la tuberia va dentro del cerco: si la esquina del techo cae fuera, se toma el piso del lado de adentro
+                pin = p if sitio.dentro(p.x, p.y) else _adentro(sitio, p)
+                z_sal = sitio.rasante(pin.x, pin.y) - tc["prof_tubo"]
+
+                def opcion(e):
+                    q_ = e[1].interpolate(e[1].project(p)); L_ = p.distance(q_); cf_ = _cf_en(R, e[0], (q_.x, q_.y))[1]
+                    h_ = sitio.rasante(q_.x, q_.y) - (z_sal - tc["S_tubo_min"] * L_) + 0.01
+                    return (z_sal - tc["S_tubo_min"] * L_ < cf_ - 1e-6, L_), e, q_, L_, cf_, h_
+                ops = sorted((opcion(e) for e in segs_e if e[1].distance(p) <= tc["tubo_max"]), key=lambda o: o[0])
+                if ops:
+                    _, (eje, ln, clave), qe, Le, cf, hreq = ops[0]
+                    St = next((S_ for S_ in (tc["S_tubo"], tc["S_tubo_min"]) if z_sal - S_ * Le >= cf - 1e-6), tc["S_tubo"])
+                    z_ll = z_sal - St * Le
+                    m.update({"cuneta": eje, "hacia": [round(qe.x, 3), round(qe.y, 3)], "salida_m": round(Le, 2), "tubo_enterrado_m": round(Le, 2),
+                              "S_tubo_pct": round(100 * St, 2), "z_salida": round(z_sal, 3), "z_llegada": round(z_ll, 3), "cf_cuneta": round(cf, 3),
+                              "llega": "SOBRE EL FONDO" if z_ll >= cf - 1e-6 else "BAJO EL FONDO", "tramo": clave,
+                              "h_req_cuneta": round(hreq, 3)})
+                    if z_ll < cf - 1e-6 and hreq > tc["h_cuneta_max"]:
+                        # no se entierra la cuneta para recibirla: el terreno en el montante es mas bajo que todas las cunetas cercanas
+                        m.update({"llega": "BAJO EL FONDO (TERRENO BAJO)", "tramo": None})
+                        avisos.append("%s (%s %s): el piso junto al montante (%.2f) es mas bajo que la cuneta mas cercana (%s, C.F. %.3f); "
+                                      "la tuberia no llega por gravedad sin profundizar la cuneta a %.2f m: llevar ese montante a otra cuneta, "
+                                      "a un sumidero o a un lado mas bajo del techo." % (m["montante"], l["techo"], l["lado"], z_sal + tc["prof_tubo"],
+                                                                                        eje, cf, hreq))
+                else:
+                    avisos.append("%s (%s %s) no tiene cuneta a menos de %.1f m (la mas cercana a %.1f m): revisar si falta cuneta o "
+                                  "si descarga a otro lugar." % (m["montante"], l["techo"], l["lado"], tc["tubo_max"], d))
             montantes.append(m); ms.append(m["montante"])
         lados.append({"techo": l["techo"], "lado": l["lado"], "A_m2": round(A, 2), "L_canaleta_m": round(L, 2), "Q_ls": round(Q, 2),
                       "montantes": n, "Q_por_montante_ls": round(Qm, 2), "tirante_m": round(y, 3), "borde_libre_m": round(tc["canaleta_h"] - y, 3),
@@ -194,7 +230,9 @@ def calcular(sitio, R, P, I, cfg):
            "tapas_und": sum(l["tapas"] for l in lados), "boquillas_und": sum(l["boquillas"] for l in lados),
            "montante_m": round(sum(m["L_m"] for m in montantes), 2), "montantes_und": len(montantes), "falsas_columnas_und": len(montantes),
            "codo90_und": sum(m["codos90"] for m in montantes), "colgador_und": sum(m["colgadores"] for m in montantes),
-           "abrazadera_und": sum(m["abrazaderas"] for m in montantes)}
+           "abrazadera_und": sum(m["abrazaderas"] for m in montantes),
+           "tuberia_enterrada_m": round(sum(m.get("tubo_enterrado_m", 0.0) for m in montantes), 2),
+           "montantes_con_tuberia_und": sum(1 for m in montantes if m.get("tubo_enterrado_m"))}
     criterios = {"q_l_s_m2": round(K["q_m2"], 5), "Q_montante_4_ls": round(K["Q4"], 2), "A_por_montante_4_m2": round(K["A4"], 1),
                  "Q_canaleta_ls": round(K["Qcan"], 2), "parametros": tc, "altura_alero": alturas,
                  "ubicacion": "visor (proyectista)" if cfg.get("montantes") else "esquinas de la edificacion (2 por lado; mas si el area lo pide)"}
