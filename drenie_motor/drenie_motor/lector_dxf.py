@@ -83,11 +83,16 @@ def leer(ruta, capas=None, ventana=None, capa_ventana=None):
     capa cuyas entidades la definen, p. ej. las curvas) se salta todo lo del espacio modelo que cae fuera, sin explotarlo."""
     doc = _abrir(ruta)
     if ventana is None and capa_ventana: ventana = ventana_de_capa(doc, capa_ventana)
-    geo, txt, cuenta = {}, [], {}
+    geo, txt, cuenta, patrones = {}, [], {}, {}
+
+    def en_ventana(x, y):
+        return ventana is None or (ventana[0] <= x <= ventana[2] and ventana[1] <= y <= ventana[3])
 
     def guardar_pl(capa, pts, cerrada, color, z):
         if capas and capa not in capas: return
         if len(pts) < 2: return
+        if ventana is not None and not any(en_ventana(*p) for p in pts[:: max(1, len(pts) // 20)]):
+            cuenta["_fuera"] = cuenta.get("_fuera", 0) + 1; return
         geo.setdefault(capa, []).append((pts, cerrada, color, z))
         cuenta[capa] = cuenta.get(capa, 0) + 1
 
@@ -102,7 +107,8 @@ def leer(ruta, capas=None, ventana=None, capa_ventana=None):
                     if prof < PROF_MAX:
                         recorrer(list(e.virtual_entities()), prof + 1, capa, color)
                     for a in e.attribs:
-                        p = a.dxf.insert; txt.append((capa, a.dxf.text, p.x, p.y, a.dxf.height, color))
+                        p = a.dxf.insert
+                        if en_ventana(p.x, p.y): txt.append((capa, a.dxf.text, p.x, p.y, a.dxf.height, color))
                 elif t == "LWPOLYLINE":
                     guardar_pl(capa, [(p[0], p[1]) for p in e.get_points("xy")], bool(e.closed), color, float(e.dxf.elevation))
                 elif t == "POLYLINE":
@@ -112,37 +118,41 @@ def leer(ruta, capas=None, ventana=None, capa_ventana=None):
                     a, b = e.dxf.start, e.dxf.end
                     guardar_pl(capa, [(a.x, a.y), (b.x, b.y)], False, color, float(a.z) if abs(a.z - b.z) < 1e-6 else None)
                 elif t in ("ARC", "CIRCLE", "ELLIPSE", "SPLINE"):
-                    pts = [(p.x, p.y) for p in e.flattening(0.05)]
+                    if t in ("ARC", "CIRCLE"): tam = e.dxf.radius
+                    else:
+                        cv = [(p.x, p.y) for p in (e.control_points if t == "SPLINE" else [e.dxf.center])]
+                        tam = max(1.0, max(abs(a[0] - b[0]) + abs(a[1] - b[1]) for a in cv for b in cv) if len(cv) > 1 else
+                                  (e.dxf.major_axis.magnitude if t == "ELLIPSE" else 1.0))
+                    pts = [(p.x, p.y) for p in e.flattening(max(0.05, tam / 200.0))]
                     guardar_pl(capa, pts, t == "CIRCLE", color, None)
                 elif t == "HATCH":
                     # cada contorno del sombreado como polilinea cerrada (sirve para la leyenda de colores)
+                    from ezdxf.path import from_hatch_boundary_path
                     for camino in e.paths.rendering_paths(e.dxf.hatch_style):
-                        pts = [(p.x, p.y) for p in camino.flattening(0.05)] if hasattr(camino, "flattening") else []
-                        if not pts:
-                            from ezdxf.path import from_hatch_boundary_path
-                            pts = [(p.x, p.y) for p in from_hatch_boundary_path(camino).flattening(0.05)]
+                        pa = from_hatch_boundary_path(camino)
+                        cv = list(pa.control_vertices())
+                        if not cv: continue
+                        xs = [p.x for p in cv]; ys = [p.y for p in cv]
+                        tam = max(max(xs) - min(xs), max(ys) - min(ys), 0.1)
+                        pts = [(p.x, p.y) for p in pa.flattening(max(0.02, tam / 500.0))]
                         guardar_pl(capa, pts, True, color, None)
                         cuenta["_hatch"] = cuenta.get("_hatch", 0) + 1
+                        patrones.setdefault(capa, set()).add(e.dxf.pattern_name)
                 elif t == "TEXT":
-                    p = e.dxf.insert; txt.append((capa, e.dxf.text, p.x, p.y, e.dxf.height, color))
+                    p = e.dxf.insert
+                    if en_ventana(p.x, p.y): txt.append((capa, e.dxf.text, p.x, p.y, e.dxf.height, color))
                 elif t == "MTEXT":
-                    p = e.dxf.insert; txt.append((capa, e.plain_text(), p.x, p.y, e.dxf.char_height, color))
+                    p = e.dxf.insert
+                    if en_ventana(p.x, p.y): txt.append((capa, e.plain_text(), p.x, p.y, e.dxf.char_height, color))
             except Exception:
                 cuenta["_no_leidas"] = cuenta.get("_no_leidas", 0) + 1
 
     fuera = 0
-    if ventana:
-        x0, y0, x1, y1 = ventana
-        ents = []
-        for e in doc.modelspace():
-            r = _ref(e)
-            if r is None or (x0 <= r[0] <= x1 and y0 <= r[1] <= y1): ents.append(e)
-            else: fuera += 1
-    else:
-        ents = list(doc.modelspace())
+    ents = list(doc.modelspace())
     recorrer(ents, 0, "", 7)
     return {"geo": geo, "txt": txt, "resumen": {"archivo": os.path.basename(ruta), "capas": cuenta, "textos": len(txt),
-                                                "ventana": ventana, "fuera_de_ventana": fuera}}
+                                                "ventana": ventana, "fuera_de_ventana": cuenta.get("_fuera", 0)},
+            "patrones": {k: sorted(v) for k, v in patrones.items()}}
 
 
 def base(ruta, cache=None, capas=None, ventana=None, capa_ventana=None):
