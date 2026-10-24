@@ -10,7 +10,7 @@ import json
 import os
 import time
 
-from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento
+from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos
 from .parametros import combinar
 
 VERSION = "0.1.0"
@@ -169,6 +169,9 @@ def disenar(cfg_ruta):
                "anchos_libres_m": sorted({f["b"] for f in V["hidraulica"]}), "lloraderos": lloraderos.resumen(LLt)}
     proyecto = cfg.get("proyecto", {})
     dxf = salidas.dxf_planta(os.path.join(salida, "PLANTA_RED_CUNETAS.dxf"), C, R, S, cur, P, proyecto, anchos, LLp)
+    pl = cfg.get("planos", {})
+    dxf_pf, laminas, n_sec = planos.dxf_perfiles(os.path.join(salida, "PERFILES_Y_SECCIONES_CUNETAS.dxf"), C, R, S, P, anchos, proyecto,
+                                                 pl.get("prefijo", "DC"), pl.get("inicio", 1))
     png = salidas.png_planta(os.path.join(salida, "PLANTA_RED_CUNETAS.png"), C, R, S, cur, ejes,
                              "%s - red de cunetas: %d ejes, %d descargas, %.1f m (%.1f m de uniones nuevas)" % (
                                  proyecto.get("nombre_corto", ""), resumen["ejes"], resumen["descargas"], Ltot, nuevas))
@@ -182,7 +185,8 @@ def disenar(cfg_ruta):
                                      "terreno_exterior_min": round(v["z_req"], 2)} for k, v in R.descargas.items()],
            "sin_salida": [[list(a), list(b)] for a, b in R.sin_cubrir], "verificacion": V,
            "secciones_por_eje": list(secciones.values()), "lloraderos": {"resumen": lloraderos.resumen(LLt), "tramos": LLt},
-           "profundidad_minima_por_capacidad": hq, "archivos": {"dxf": dxf, "png": png, "dimensionamiento": xls}, "segundos": round(time.time() - t0, 1),
+           "profundidad_minima_por_capacidad": hq, "archivos": {"dxf": dxf, "png": png, "dimensionamiento": xls, "perfiles_y_secciones": dxf_pf},
+           "laminas": [{"codigo": c, "titulo": t} for c, t in laminas], "secciones_dibujadas": n_sec, "segundos": round(time.time() - t0, 1),
            "requiere_confirmacion": ["descargas"] if not cfg.get("descargas") else []}
     json.dump(out, open(os.path.join(salida, "resultado.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
     return out

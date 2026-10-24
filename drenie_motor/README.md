@@ -84,3 +84,11 @@ con los datos de entrada del usuario (curvas, techos, veredas, cerco y líneas m
 - Lloraderos solo en el muro que da a área verde: PVC 3" @ 1.50 m con caja filtrante de 0.30 × 0.30 de grava y geotextil
   (capa `DRN-LLORADEROS` del DXF; el ancho de cada tramo en `DRN-SECCION-TXT`).
 - Comprobación 13: secciones constructivas.
+
+## Planos de perfiles y secciones (`PERFILES_Y_SECCIONES_CUNETAS.dxf`)
+
+Mismo estilo de las láminas de Barranquita, con presentaciones (layouts) por lámina y rótulo con los datos del proyecto (sin
+nombre ni CIP del proyectista): perfiles longitudinales por eje a 1/50 (NCT, NCF, secciones con su recuadro, guitarra) y el corte
+de cada sección a 1/20 (ancho libre del tramo, muros, losa de fondo, solado, rejilla o losa tapa, acero si h >= 0.40 o tapada,
+junta, cotas de ancho libre, total, altura libre y excavación). Prefijo y número inicial en `planos` (`{"prefijo": "DC", "inicio": 1}`).
+Librería de dibujo propia en `dxf_base.py` y `dxf_layouts.py` (copias de las de `herramientas/`).
