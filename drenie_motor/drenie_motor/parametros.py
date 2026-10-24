@@ -11,7 +11,7 @@ PARAMETROS = {
     # cuneta minima 0.30 x 0.30, medidas de 5 en 5 cm, pendiente inicial 0.5 % (baja 0.5 cm por metro)
     "b_int": 0.30,            # ancho libre minimo (m); cada tramo toma el menor ancho que le basta
     "b_max": 0.40,            # ancho libre maximo recomendado: 0.40 (0.60 total); si no alcanza, se profundiza (usuario, 24-10-2026)
-    "h_b_max": 2.0,           # aviso: profundidad mayor que 2 veces el ancho libre (revisar encofrado y acabado)
+    "h_b_max": None,          # sin limite de profundidad respecto al ancho (usuario 24-10-2026: la regla es que no quede enterrada)
     "y_b_max": 1.0,           # el tirante no pasa del ancho libre (seccion hidraulicamente razonable)
     "paso_seccion": 0.05,     # ancho y profundidad requerida redondeados de 5 en 5 cm
     "e_muro": 0.10,           # espesor de muro (m)

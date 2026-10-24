@@ -860,8 +860,8 @@ N.° de lloraderos del tramo = REDONDEAR.MAS(L / 1.50)       # hoja METRADO LLOR
   0.30 × 0.30 es lo libre: ancho total 0.30 + 2 × 0.10 = 0.50; excavación 0.30 + 0.10 losa de fondo + 0.10 solado = 0.50. Un eje
   o un sector (ejes que se unen y salen por la misma descarga) lleva una sola medida: la mayor que pida cualquiera de sus tramos;
   no se mezclan 0.30 y 0.40 en tramos seguidos. El dimensionamiento final adoptado es manual (hoja DIMENSIONAMIENTO, columna B
-  ADOPTADO) y el programa lo verifica. Propuesta del programa (pendiente de confirmar): tirante <= ancho y profundidad <= 2 veces
-  el ancho (solo aviso REVISAR).
+  ADOPTADO) y el programa lo verifica. Tirante <= ancho. Sin límite de profundidad respecto al ancho (usuario: "no hay
+  problema; la regla es que no quede enterrada la cuneta, que todo salga bien siempre").
 - **Ancho máximo** (usuario, 24-10-2026): "0.50 libre y 0.70 total es exagerado"; proponer medidas reales constructivas: máximo
   0.40 libre interior (0.60 total). Si el caudal pide más, se profundiza en vez de ensanchar. Barranquita: sectores D1 y D2 0.40
   libre (0.60 total), D3 0.30 libre (0.50 total).
