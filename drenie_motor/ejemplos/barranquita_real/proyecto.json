@@ -550,6 +550,7 @@
     "sel": "0",
     "area_min": 20
    }
-  ]
+  ],
+  "por_defecto": "pavimento"
  }
 }

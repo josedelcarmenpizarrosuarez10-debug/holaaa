@@ -14,7 +14,7 @@ CAPAS = {
     "DRN-LIMITE-INTERVENCION": (6, 50), "DRN-CURVAS": (8, 13), "DRN-CURVAS-TXT": (8, 13), "DRN-ARQ-TECHOS": (9, 13),
     "DRN-ARQ-VEREDAS": (9, 13), "DRN-EJES-USUARIO": (6, 18), "DRN-EJE-CUNETA": (5, 18), "DRN-UNION-NUEVA": (30, 35),
     "DRN-CUNETA-REJILLA": (140, 35), "DRN-CUNETA-TAPADA": (84, 35), "DRN-FLECHAS": (1, 25), "DRN-TAPAS": (84, 25),
-    "DRN-DESCARGAS": (1, 35), "DRN-TEXTOS": (7, 18), "DRN-NUDOS": (250, 13),
+    "DRN-DESCARGAS": (1, 35), "DRN-TEXTOS": (7, 18), "DRN-NUDOS": (250, 13), "DRN-LLORADEROS": (3, 25), "DRN-SECCION-TXT": (4, 13),
 }
 H_TXT = 0.45          # 2.25 mm en papel a 1/200
 
@@ -62,7 +62,7 @@ def _tapas(R, P):
     return out
 
 
-def dxf_planta(ruta, R, red, sitio, curvas, P, proyecto):
+def dxf_planta(ruta, R, red, sitio, curvas, P, proyecto, anchos=None, lloraderos=None):
     doc = ezdxf.new("R2010", setup=True)
     doc.units = ezdxf.units.M
     for n, (c, lw) in CAPAS.items(): doc.layers.add(n, color=c, lineweight=lw)
@@ -78,18 +78,32 @@ def dxf_planta(ruta, R, red, sitio, curvas, P, proyecto):
     if not sitio.veredas.is_empty: _contorno(msp, sitio.veredas.intersection(sitio.cerco.buffer(5)), "DRN-ARQ-VEREDAS")
     Nn = R["nudos"]
     rej, tap = [], []
+    anchos = anchos or {}
+    from shapely.ops import substring
     for r in R["ramales"]:
         xy = [tuple(Nn[n]) for n in r["nudos"]]
-        acum = [0.0]
-        for a, b in zip(xy[:-1], xy[1:]): acum.append(acum[-1] + math.dist(a, b))
         ls = LineString(xy)
-        cortes = sorted({0.0, ls.length} | {v for iv in r["tapados"] for v in iv})
-        from shapely.ops import substring
-        for a, b in zip(cortes[:-1], cortes[1:]):
-            if b - a < 0.01: continue
-            pz = substring(ls, a, b); m = (a + b) / 2
-            es_tap = any(x - 1e-6 <= m <= y + 1e-6 for x, y in r["tapados"])
-            (tap if es_tap else rej).append(pz.buffer(P["b_int"] / 2 + P["e_muro"], cap_style=2, join_style=2))
+        # franja de la cuneta con el ancho de cada tramo: tramos seguidos del mismo ancho van juntos (esquinas a inglete); al
+        # cambiar de ancho el tramo anterior se prolonga medio ancho dentro del siguiente (que es igual o mas ancho)
+        bt = [anchos.get((r["codigo"], t["de"], t["a"]), P["b_int"]) for t in r["tramos"]]
+        grupos = []
+        for t, b in zip(r["tramos"], bt):
+            if grupos and abs(grupos[-1][0] - b) < 1e-6: grupos[-1][1].append(t)
+            else: grupos.append([b, [t]])
+        piezas = []
+        for k, (b, ts) in enumerate(grupos):
+            pts = [tuple(Nn[ts[0]["de"]])] + [tuple(Nn[t["a"]]) for t in ts]
+            w = b / 2 + P["e_muro"]
+            if k < len(grupos) - 1 and len(pts) > 1:
+                (x0, y0), (x1, y1) = pts[-2], pts[-1]; L = math.dist(pts[-2], pts[-1]) or 1
+                pts[-1] = (x1 + (x1 - x0) / L * w, y1 + (y1 - y0) / L * w)
+            piezas.append(LineString(pts).buffer(w, cap_style=2, join_style=2))
+        franja = unary_union(piezas)
+        wmax = max(bt) / 2 + P["e_muro"] + 0.02
+        zt = [substring(ls, a, b).buffer(wmax, cap_style=2, join_style=2) for a, b in r["tapados"] if b - a > 0.01]
+        if zt:
+            Z = unary_union(zt); tap.append(franja.intersection(Z)); rej.append(franja.difference(Z))
+        else: rej.append(franja)
         for t in r["tramos"]:
             capa = "DRN-UNION-NUEVA" if t["origen"] in ("union", "pase") else "DRN-EJE-CUNETA"
             msp.add_line(Nn[t["de"]], Nn[t["a"]], dxfattribs={"layer": capa, "linetype": "CENTER", "ltscale": 0.2})
@@ -103,6 +117,24 @@ def dxf_planta(ruta, R, red, sitio, curvas, P, proyecto):
         for g in (U_tap.geoms if hasattr(U_tap, "geoms") else [U_tap]):
             h.paths.add_polyline_path(list(g.exterior.coords), is_closed=True)
         h.set_solid_fill(color=84, rgb=(198, 230, 198))
+    # lloraderos: tubo a traves del muro y caja filtrante de 0.30 x 0.30 detras, del lado del area verde
+    for q in lloraderos or []:
+        x, y, nx, ny, ux, uy = q["x"], q["y"], q["nx"], q["ny"], q["ux"], q["uy"]
+        msp.add_line((x - nx * P["e_muro"], y - ny * P["e_muro"]), (x + nx * 0.05, y + ny * 0.05), dxfattribs={"layer": "DRN-LLORADEROS"})
+        c = [(x + nx * dn + ux * du, y + ny * dn + uy * du) for dn, du in ((0.0, -0.15), (0.30, -0.15), (0.30, 0.15), (0.0, 0.15))]
+        msp.add_lwpolyline(c, close=True, dxfattribs={"layer": "DRN-LLORADEROS"})
+    # seccion de cada tramo (ancho libre) junto al eje
+    for r in R["ramales"]:
+        for t in r["tramos"]:
+            b = anchos.get((r["codigo"], t["de"], t["a"]))
+            a_, b_ = Nn[t["de"]], Nn[t["a"]]; L = math.dist(a_, b_)
+            if b is None or L < 3: continue
+            ang = math.degrees(math.atan2(b_[1] - a_[1], b_[0] - a_[0]))
+            if ang > 90: ang -= 180
+            if ang < -90: ang += 180
+            m = ((a_[0] + b_[0]) / 2, (a_[1] + b_[1]) / 2); nx, ny = -math.sin(math.radians(ang)), math.cos(math.radians(ang)); off = b / 2 + P["e_muro"] + 0.15
+            msp.add_text("b = %.2f" % b, height=0.20, rotation=ang, dxfattribs={"layer": "DRN-SECCION-TXT"}).set_placement(
+                (m[0] - nx * off, m[1] - ny * off), align=TextEntityAlignment.TOP_CENTER)
     for tp in _tapas(R, P):
         (a, b) = tp["dir"]; L = math.dist(a, b); ux, uy = (b[0] - a[0]) / L, (b[1] - a[1]) / L; s = P["tapa_lado"] / 2
         c = [(tp["x"] + ux * dx * s - uy * dy * s, tp["y"] + uy * dx * s + ux * dy * s) for dx, dy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]

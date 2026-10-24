@@ -44,6 +44,8 @@ SENAMHI, análisis estadístico, Dick y Peschke → I) → 5. `disenar`: áreas 
 | `superficies_cfg.asignaciones` | clics del visor: `{"x", "y", "tipo"}` (punto dentro del área) |
 | `superficies_cfg.por_defecto` | tipo para lo no identificado; si falta, el diseño no corre hasta asignarlo |
 | `techos_caida`, `caida_por_defecto` | caída por techo: `{"punto", "tipo": "dos_aguas", "cumbrera": [[x, y], [x, y]]}` o `{"punto", "tipo": "una_agua", "lado_bajo": [...]}` |
+| `secciones` | ancho libre propuesto por el proyectista por eje: `{"EJE-01": 0.45}` (el programa lo verifica) |
+| `parametros` | cambia cualquier valor de `parametros.py`: `b_int` 0.30 (ancho libre mínimo), `b_max` 1.00, `paso_seccion` 0.05, `hmin` 0.30, `h0` 0.30, `S0` 0.005, `e_muro` y `e_tapa` 0.10, `h_b_max` 2.0, `y_b_max` 1.0, `llor_sep` 1.50 |
 | `lluvia` | Datos de la estación: `{"estacion": {...}, "archivo": "datos diarios SENAMHI / NASA POWER / CHIRPS", "desde", "hasta", "T": 25, "tc_min": 10, "factor": 1.0, "distribucion": opcional}` o `"serie": {anio: [12 máximas mensuales]}` o `"maximos": {anio: P24}`. Sin datos de estación: `{"I_mmh": ...}` o `{"P24": ..., "tc_min": 10}`. Barranquita: P24 = 169.27 mm, I = 293.18 mm/h (igual al expediente) |
 | `descargas` | descargas fijadas por el usuario `[{"nombre": "D1", "x", "y"}]` (sin esto, el motor las propone) |
 | `parametros` | cambios a los valores por defecto |
@@ -66,3 +68,14 @@ SENAMHI, análisis estadístico, Dick y Peschke → I) → 5. `disenar`: áreas 
 
 `python3 ejemplos/barranquita/armar_dxf_prueba.py` arma el plano de prueba de la I.E. N.° 0590 Barranquita (C.I. N.° 468901)
 con los datos de entrada del usuario (curvas, techos, veredas, cerco y líneas magenta); luego `leer` y `disenar`.
+
+## Sección de cada tramo y lloraderos
+
+- Muros y losa de 0.10. Cada tramo toma el menor ancho libre (desde 0.30, de 5 en 5 cm) con el que el tirante más el borde libre
+  cabe en la profundidad que da el perfil, con el tirante no mayor que el ancho y la profundidad no mayor que 2 veces el ancho
+  (que se pueda encofrar y acabar). Aguas abajo no se angosta. Si con `b_max` no alcanza, se profundiza (redondeado a 5 cm).
+- `resultado.json`: `verificacion.hidraulica` (por tramo: área y caudal de techos, pisos y áreas verdes, b, h, tirante, borde libre,
+  velocidad), `secciones_por_eje`, `lloraderos` (tramos por lado junto a área verde, N.° = REDONDEAR.MAS(L / 1.50)).
+- Lloraderos solo en el muro que da a área verde: PVC 3" @ 1.50 m con caja filtrante de 0.30 × 0.30 de grava y geotextil
+  (capa `DRN-LLORADEROS` del DXF; el ancho de cada tramo en `DRN-SECCION-TXT`).
+- Comprobación 13: secciones constructivas.

@@ -7,11 +7,17 @@ import copy
 
 PARAMETROS = {
     # seccion de la cuneta
-    "b_int": 0.40,            # ancho libre interior (m)
-    "e_muro": 0.10,           # espesor de muro (m): ancho total 0.60
+    # muros y losa de 0.10 siempre; ancho libre y profundidad salen del caudal, en medidas constructivas (usuario, 24-10-2026):
+    # cuneta minima 0.30 x 0.30, medidas de 5 en 5 cm, pendiente inicial 0.5 % (baja 0.5 cm por metro)
+    "b_int": 0.30,            # ancho libre minimo (m); cada tramo toma el menor ancho que le basta
+    "b_max": 1.00,            # se ensancha hasta este ancho antes de profundizar
+    "h_b_max": 2.0,           # constructivo: la profundidad no pasa de 2 veces el ancho libre (se pueda encofrar y acabar)
+    "y_b_max": 1.0,           # el tirante no pasa del ancho libre (seccion hidraulicamente razonable)
+    "paso_seccion": 0.05,     # ancho y profundidad requerida redondeados de 5 en 5 cm
+    "e_muro": 0.10,           # espesor de muro (m)
     "e_tapa": 0.10,           # losa de los tramos tapados (m)
     "h0": 0.30,               # profundidad al inicio de cada eje (m)
-    "hmin": 0.25,             # altura libre minima (bajo la losa en los tapados)
+    "hmin": 0.30,             # altura libre minima (bajo la losa en los tapados)
     "S0": 0.005,              # pendiente minima de la cota de fondo (0.5 %)
     "h_acero": 0.40,          # con h >= 0.40 m lleva acero (o si es tapada); menor, concreto simple
     # hidraulica (CE.040)
@@ -36,6 +42,10 @@ PARAMETROS = {
     # tapas de inspeccion en tramos tapados
     "tapa_lado": 0.60,
     "tapa_sep_max": 10.0,
+    # lloraderos: solo en el muro que da a area verde; PVC 3" @ 1.50 m con caja filtrante de 0.30 x 0.30 (grava y geotextil)
+    "llor_sep": 1.50,
+    "llor_franja": 0.30,      # franja exterior del muro que se revisa contra el area verde
+    "llor_min": 1.50,         # largo minimo junto a area verde para poner lloraderos (un espaciamiento)
     # coeficientes de escorrentia por superficie
     # (juegos: piso de caucho, C 0.88, indicacion del usuario 24-10-2026 para la OE-04 de Barranquita)
     "C": {"techo": 0.88, "vereda": 0.88, "patio": 0.88, "pavimento": 0.88, "estacionamiento": 0.88, "juegos": 0.88,

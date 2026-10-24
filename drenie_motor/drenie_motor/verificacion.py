@@ -178,32 +178,63 @@ def verificar(R, red, sitio, terreno, P, lluvia, hq_prev=None):
         proy = np.array([[al.interpolate(al.project(_Pt(x, y))).x, al.interpolate(al.project(_Pt(x, y))).y] for x, y in Pc[idx]])
         Dc = np.stack([_seg_dist(proy, segs[k][2], segs[k][3]) for k in cand], 1)
         asg[idx] = np.array(cand)[Dc.argmin(1)]; techos_ok += len(idx)
-    area, areaC = {}, {}
+    # area de aporte de cada tramo por grupo de superficie: techos, pisos (veredas, patios, estacionamiento, juegos, la propia
+    # cuneta) y areas verdes; con su C, para mostrar cuanto caudal llega de cada uno
+    GR = {"techo": "techo", "verde": "verde"}
+    area, areaC, grupo = {}, {}, {}
     for k, (c, j, a, b) in enumerate(segs):
         sel = asg == k; area[(c, j)] = float(sel.sum()); areaC[(c, j)] = float(Ccel[sel].sum())
+        g = {"techo": [0.0, 0.0], "pisos": [0.0, 0.0], "verde": [0.0, 0.0]}
+        for tp in P["C"]:
+            m = sel & (tipo == tp); n = float(m.sum())
+            if n: gg = g[GR.get(tp, "pisos")]; gg[0] += n; gg[1] += float(Ccel[m].sum())
+        grupo[(c, j)] = g
     acum = {}
     def total(c, prof=0):
         if c in acum: return acum[c]
-        r = ram[c]; out = []; A = AC = 0.0
+        r = ram[c]; out = []; v = np.zeros(8)          # A, AC, A techo, AC techo, A pisos, AC pisos, A verde, AC verde
         for j, t in enumerate(r["tramos"]):
             for c2, r2 in ram.items():
-                if c2 != c and r2["nudos"][-1] == t["de"] and prof < 200:
-                    A += total(c2, prof + 1)[-1][0]; AC += total(c2, prof + 1)[-1][1]
-            A += area[(c, j)]; AC += areaC[(c, j)]; out.append((A, AC))
+                if c2 != c and r2["nudos"][-1] == t["de"] and prof < 200: v = v + total(c2, prof + 1)[-1]
+            g = grupo[(c, j)]
+            v = v + np.array([area[(c, j)], areaC[(c, j)], *g["techo"], *g["pisos"], *g["verde"]]); out.append(v.copy())
         acum[c] = out; return out
-    filas = []; hq = dict(hq_prev or {}); b = P["b_int"]
+    # seccion de cada tramo: el menor ancho libre (de b_int a b_max, de 5 en 5 cm) con el que el tirante mas el borde libre cabe
+    # en la profundidad que da el perfil; sin angostarse aguas abajo. Si ni con b_max cabe, se pide profundizar (redondeado a 5 cm).
+    # El proyectista puede fijar el ancho de un eje (secciones: {"EJE-01": 0.45}) y el programa lo verifica.
+    paso = P.get("paso_seccion", 0.05); bmin = P["b_int"]; bmax = max(P.get("b_max", bmin), bmin)
+    anchos = [round(bmin + paso * i, 3) for i in range(int(round((bmax - bmin) / paso)) + 1)]
+    fijas = P.get("secciones") or {}
+    sube = lambda v: math.ceil(v / paso - 1e-6) * paso
+    filas = []; hq = dict(hq_prev or {})
     for c, r in ram.items():
-        Ac = total(c)
+        Ac = total(c); bprev = 0.0
         for j, t in enumerate(r["tramos"]):
-            Q = I * Ac[j][1] / 3.6e6 * P["FS"]
-            S = max(t["S"], P["S0"]); y = yn(Q, S, P["n_cap"], b) if Q > 0 else 0.0; yv = yn(Q, S, P["n_vel"], b) if Q > 0 else 1.0
-            V = Q / (b * yv) if Q > 0 else 0.0
+            v = Ac[j]; Q = I * v[1] / 3.6e6 * P["FS"]
+            S = max(t["S"], P["S0"])
             hd = min(t["h_de"], t["h_a"]) - (P["e_tapa"] if t["L_tapado"] > 0 else 0.0)
-            f = {"eje": c, "de": t["de"], "a": t["a"], "A_m2": round(Ac[j][0], 0), "C": round(Ac[j][1] / Ac[j][0], 3) if Ac[j][0] else 0,
-                 "Q_ls": round(1000 * Q, 2), "S_pct": round(100 * S, 2), "y": round(y, 3), "h": round(hd, 3), "borde_libre": round(hd - y, 3),
+            if c in fijas: b = float(fijas[c]); origen_b = "proyectista"
+            else:
+                hmax_t = max(t["h_de"], t["h_a"])
+                def basta(bb):
+                    if hmax_t > P.get("h_b_max", 2.0) * bb + 1e-9: return False          # muy honda para ese ancho: no se puede encofrar
+                    if Q <= 0: return True
+                    y_ = yn(Q, S, P["n_cap"], bb)
+                    return y_ + P["BL"] <= hd + 1e-9 and y_ <= P.get("y_b_max", 1.0) * bb + 1e-9
+                b = next((bb for bb in anchos if basta(bb)), anchos[-1]); origen_b = "caudal y proporcion constructiva"
+            if b < bprev: b = bprev; origen_b = "no se angosta aguas abajo"
+            bprev = b
+            y = yn(Q, S, P["n_cap"], b) if Q > 0 else 0.0; yv = yn(Q, S, P["n_vel"], b) if Q > 0 else 1.0
+            V = Q / (b * yv) if Q > 0 else 0.0
+            q = lambda AC: round(1000 * I * AC / 3.6e6 * P["FS"], 2)
+            f = {"eje": c, "de": t["de"], "a": t["a"], "L": round(t["L"], 2), "A_m2": round(v[0], 0), "C": round(v[1] / v[0], 3) if v[0] else 0,
+                 "A_techo_m2": round(v[2], 0), "A_pisos_m2": round(v[4], 0), "A_verde_m2": round(v[6], 0),
+                 "Q_techo_ls": q(v[3]), "Q_pisos_ls": q(v[5]), "Q_verde_ls": q(v[7]),
+                 "Q_ls": round(1000 * Q, 2), "S_pct": round(100 * S, 2), "b": round(b, 3), "ancho_por": origen_b,
+                 "h_de": round(t["h_de"], 3), "h_a": round(t["h_a"], 3), "y": round(y, 3), "h": round(hd, 3), "borde_libre": round(hd - y, 3),
                  "V": round(V, 2), "cap": "CUMPLE" if hd - y >= P["BL"] - 1e-3 else "NO CUMPLE", "vel": "CUMPLE" if V <= P["Vmax"] else "GRADAS"}
             filas.append(f)
-            need = y + P["BL"] + 0.005; clave = "%s|%s|%s" % (c, t["de"], t["a"])
+            need = sube(y + P["BL"]); clave = "%s|%s|%s" % (c, t["de"], t["a"])
             if need > P["hmin"] and hd - y < P["BL"]: hq[clave] = round(max(need, hq.get(clave, 0)), 3)
     ncap = [f for f in filas if f["cap"] != "CUMPLE"]; nvel = [f for f in filas if f["vel"] != "CUMPLE"]
     pc = min(filas, key=lambda f: f["borde_libre"]); pv = max(filas, key=lambda f: f["V"])
@@ -214,6 +245,14 @@ def verificar(R, red, sitio, terreno, P, lluvia, hq_prev=None):
        ("" if not ncap else "; no cumplen: " + ", ".join("%s %s-%s" % (f["eje"], f["de"], f["a"]) for f in ncap)))
     ok(9, "Velocidad maxima %.1f m/s (concreto)" % P["Vmax"], "CUMPLE" if not nvel else "CUMPLE CON GRADAS",
        ("V max %.2f m/s" % pv["V"]) if not nvel else "con gradas: " + ", ".join("%s %s-%s (V %.2f)" % (f["eje"], f["de"], f["a"], f["V"]) for f in nvel))
+    # 13 secciones constructivas (minimo 0.30 x 0.30, medidas de 5 en 5 cm)
+    raras = [f for f in filas if f["b"] < bmin - 1e-6 or abs(f["b"] / paso - round(f["b"] / paso)) > 1e-6
+             or max(f["h_de"], f["h_a"]) > P.get("h_b_max", 2.0) * f["b"] + 1e-6]
+    bs = sorted({f["b"] for f in filas})
+    ok(13, "Secciones constructivas: ancho libre >= %.2f m, altura libre >= %.2f m, medidas de %.0f en %.0f cm, profundidad <= %.1f veces el ancho" % (
+        bmin, P["hmin"], 100 * paso, 100 * paso, P.get("h_b_max", 2.0)),
+       "CUMPLE" if not raras and hmn[0] >= P["hmin"] - 1e-3 else "NO CUMPLE",
+       ("anchos libres usados: " + ", ".join("%.2f" % x for x in bs)) if not raras else "fuera de medida o muy hondas para su ancho: " + ", ".join("%s %s-%s b %.2f h %.2f" % (f["eje"], f["de"], f["a"], f["b"], max(f["h_de"], f["h_a"])) for f in raras))
     # 10 uniones nuevas lejos de muros, edificaciones y losas (sin contar los 0.60 m donde se conectan a una cuneta)
     obst = red.obst
     if obst.is_empty:

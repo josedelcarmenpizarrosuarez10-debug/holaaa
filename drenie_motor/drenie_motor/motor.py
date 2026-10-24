@@ -10,7 +10,7 @@ import json
 import os
 import time
 
-from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia
+from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos
 from .parametros import combinar
 
 VERSION = "0.1.0"
@@ -116,6 +116,7 @@ def disenar(cfg_ruta):
     P, B, cur, rep_t, T, S, ejes = _preparar(cfg, base, salida)
     if not ejes: raise ValueError("No hay lineas de cuneta del usuario (capas.ejes o ejes_lineas)")
     LL, _ = _lluvia_diseno(cfg, base)
+    if cfg.get("secciones"): P["secciones"] = cfg["secciones"]       # ancho libre fijado por el proyectista: {"EJE-01": 0.45}
     M0 = _mapa(B, S, cfg, P, [(a, b) for p in ejes for a, b in zip(p[:-1], p[1:])])
     if M0.sin_asignar:
         raise ValueError("Hay %d areas sin asignar (%.1f m2) en el mapa de superficies: asignar su tipo antes de disenar "
@@ -139,6 +140,15 @@ def disenar(cfg_ruta):
             info = R.descargas[d["D"]]
             falta = info["z_req"] + P["desc_margen"] - d["cf"]
             recorte[info["k"]] = recorte.get(info["k"], 0.0) + max(falta, 0.01) / P["S0"] + 2.0
+    anchos = {(f["eje"], f["de"], f["a"]): f["b"] for f in V["hidraulica"]}
+    verde = M.por_tipo().get("verde")
+    LLt, LLp = lloraderos.calcular(C, verde, P, anchos)
+    secciones = {}
+    for f in V["hidraulica"]:
+        e = secciones.setdefault(f["eje"], {"eje": f["eje"], "L_m": 0.0, "b_min": 9, "b_max": 0, "h_min": 9, "h_max": 0, "Q_max_ls": 0})
+        e["L_m"] = round(e["L_m"] + f["L"], 2); e["b_min"] = min(e["b_min"], f["b"]); e["b_max"] = max(e["b_max"], f["b"])
+        e["h_min"] = round(min(e["h_min"], f["h_de"], f["h_a"]), 3); e["h_max"] = round(max(e["h_max"], f["h_de"], f["h_a"]), 3)
+        e["Q_max_ls"] = max(e["Q_max_ls"], f["Q_ls"])
     nuevas = sum(t["L"] for r in C["ramales"] for t in r["tramos"] if t["origen"] in ("union", "pase"))
     Ltot = sum(r["L"] for r in C["ramales"]); Ltap = sum(t["L_tapado"] for r in C["ramales"] for t in r["tramos"])
     resumen = {"ejes": len(C["ramales"]), "descargas": len(R.descargas), "longitud_m": round(Ltot, 2), "tapado_m": round(Ltap, 2),
@@ -147,9 +157,10 @@ def disenar(cfg_ruta):
                "profundidad_max_m": max(t["h_max"] for r in C["ramales"] for t in r["tramos"]),
                "cumple": sum(1 for c in V["comprobaciones"] if c["estado"] in ("CUMPLE", "CUMPLE CON GRADAS")),
                "comprobaciones": len(V["comprobaciones"]), "vueltas_ciclo": vueltas, "intentos_descargas": intento,
-               "sin_salida_m": round(sum(geom.dist(a, b) for a, b in R.sin_cubrir), 1)}
+               "sin_salida_m": round(sum(geom.dist(a, b) for a, b in R.sin_cubrir), 1),
+               "anchos_libres_m": sorted({f["b"] for f in V["hidraulica"]}), "lloraderos": lloraderos.resumen(LLt)}
     proyecto = cfg.get("proyecto", {})
-    dxf = salidas.dxf_planta(os.path.join(salida, "PLANTA_RED_CUNETAS.dxf"), C, R, S, cur, P, proyecto)
+    dxf = salidas.dxf_planta(os.path.join(salida, "PLANTA_RED_CUNETAS.dxf"), C, R, S, cur, P, proyecto, anchos, LLp)
     png = salidas.png_planta(os.path.join(salida, "PLANTA_RED_CUNETAS.png"), C, R, S, cur, ejes,
                              "%s - red de cunetas: %d ejes, %d descargas, %.1f m (%.1f m de uniones nuevas)" % (
                                  proyecto.get("nombre_corto", ""), resumen["ejes"], resumen["descargas"], Ltot, nuevas))
@@ -162,6 +173,7 @@ def disenar(cfg_ruta):
            "descargas_propuestas": [{"D": k, "x": round(v["q"][0], 3), "y": round(v["q"][1], 3), "L_max_m": v["L_max"],
                                      "terreno_exterior_min": round(v["z_req"], 2)} for k, v in R.descargas.items()],
            "sin_salida": [[list(a), list(b)] for a, b in R.sin_cubrir], "verificacion": V,
+           "secciones_por_eje": list(secciones.values()), "lloraderos": {"resumen": lloraderos.resumen(LLt), "tramos": LLt},
            "profundidad_minima_por_capacidad": hq, "archivos": {"dxf": dxf, "png": png}, "segundos": round(time.time() - t0, 1),
            "requiere_confirmacion": ["descargas"] if not cfg.get("descargas") else []}
     json.dump(out, open(os.path.join(salida, "resultado.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
