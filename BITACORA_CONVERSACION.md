@@ -632,3 +632,8 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Coherencia: memoria hidrológica (lloraderos DPL-40/38/37), memoria descriptiva (falsa columna DPL-39, lloraderos DPL-40/38/37, relación
   de planos de 42 láminas, figuras de la OC-01 tomadas del PDF), especificaciones (planos DPL-01 a DPL-42, lloraderos DPL-40/38/37) y
   carátulas (LÁMINAS DPL-01 A DPL-42). Solo cambian esas citas (comparado el texto antes y después).
+
+## 24/10/2026 - Criterios del planteamiento de cunetas sobre terreno guardados como skill
+- Pregunta del usuario: si los criterios (cargar terreno, leer cotas y curvas, no salir del límite del terreno, cuneta a cada lado
+  en techos a dos aguas, etc.) quedaron guardados. Se reunieron en `.claude/skills/planteamiento-cunetas-terreno/SKILL.md`
+  (antes estaban repartidos en la bitácora, el código de herramientas/barranquita y CLAUDE.md) y se citan en CLAUDE.md.

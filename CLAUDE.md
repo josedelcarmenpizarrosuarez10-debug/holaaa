@@ -35,7 +35,7 @@ Cadena hidráulica: Varones (0.60) → caja de llegada CL → Refugio (0.80) →
   - Tapa de registro: `render_tapa/` (`dxf_tapa_ciega.py` DP-06B, `dxf_tapa_3d.py` DP-06D, `modelo.py`, `iso.py`, `foto.py`), `tapa_ciega.py` (parche de planillas).
   - Especificaciones: `especificaciones/espec.py` → `_json/` → `node docx_espec.js <json> <docx>`.
   - Edición de planillas sin romper formato: `angulo_contramarco_refugio.Libro` (XML) + `recalcular()` con LibreOffice.
-- `.claude/skills/`: `diseno-colector-pluvial` (criterios y decisiones de diseño), `planos-ordenados` (dibujo sin cruces), `metrado-cunetas`, `psst-iperc` (plan de seguridad y salud en el trabajo).
+- `.claude/skills/`: `diseno-colector-pluvial` (criterios y decisiones de diseño), `planos-ordenados` (dibujo sin cruces), `metrado-cunetas`, `planteamiento-cunetas-terreno` (cargar DXF y curvas, cerco = límite, cuneta bajo cada caída de techo, descargas por gravedad, verificación), `psst-iperc` (plan de seguridad y salud en el trabajo).
 - `MetraP/`: programa de metrados (ejecutable Windows con `build_exe.bat`).
 - `herramientas/barranquita/`: I.E. 0590 Barranquita. Base del sitio en `insumos/barranquita/base_sitio.pkl` (extraída del DXF
   PLANTA_GENERAL_590_2 de 332 MB, que no se versiona; la copia real del sitio es la que está sobre las curvas C-TOPO, en UTM).
