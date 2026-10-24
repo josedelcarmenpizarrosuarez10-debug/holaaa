@@ -32,6 +32,7 @@ def yn(Q, S, n, b):
 
 def _seg_dist(P, a, b):
     a = np.array(a); b = np.array(b); d = b - a; L2 = (d ** 2).sum()
+    if L2 < 1e-12: return np.full(len(P), np.inf)          # tramo de largo cero: no recibe area
     t = np.clip(((P - a) @ d) / L2, 0, 1); Q = a + t[:, None] * d
     return np.sqrt(((P - Q) ** 2).sum(1))
 
@@ -183,6 +184,15 @@ def verificar(R, red, sitio, terreno, P, lluvia, hq_prev=None):
                 if d < P["dist_muro"]: cerca += 1
         ok(10, "Uniones nuevas lejos de las edificaciones (>= %.2f m)" % P["dist_muro"], "CUMPLE" if cerca == 0 else "REVISAR",
            ("distancia minima %.2f m" % dmin) if dmin < 9e8 else "sin uniones nuevas")
+    # 12 todas las lineas del usuario con cuneta (las lineas del usuario mandan)
+    from shapely.ops import unary_union
+    red_buf = unary_union([LineString([Nn[t["de"]], Nn[t["a"]]]) for r in ram.values() for t in r["tramos"]]).buffer(P["b_int"] / 2 + P["e_muro"] + 0.2)
+    faltan = []
+    for k, e in enumerate(red.E):
+        ls = LineString([red.N[e["u"]], red.N[e["v"]]]); f = ls.difference(red_buf).length
+        if f > 0.5: faltan.append(f)
+    ok(12, "Todas las lineas de cuneta del usuario quedan con cuneta", "CUMPLE" if not faltan else "NO CUMPLE",
+       "%d tramos del usuario revisados" % len(red.E) if not faltan else "%d tramos sin cuneta (%.1f m)" % (len(faltan), sum(faltan)))
     # 11 dentro del cerco
     fuera = []
     for c, r in ram.items():
@@ -195,6 +205,7 @@ def verificar(R, red, sitio, terreno, P, lluvia, hq_prev=None):
     ok(11, "Toda la red dentro del cerco (limite de intervencion)", "CUMPLE" if not fuera else "NO CUMPLE",
        "solo las %d descargas atraviesan el cerco" % len(D) if not fuera else "%d tramos con borde fuera: %s" % (len(fuera), ", ".join(fuera[:6])))
     sup = {k: float((tipo == k).sum()) for k in P["C"]}
+    res.sort(key=lambda c: c["n"])
     out = {"comprobaciones": res, "descargas": desc, "hidraulica": filas, "empalmes": emp,
            "hidrologia": {"I": round(I, 2), "fuente_I": fuente_I, "C": round(Cp, 3), "A_total": Atot, "FS": P["FS"],
                           "superficies": {k: {"A": v, "C": P["C"][k]} for k, v in sup.items()}}}

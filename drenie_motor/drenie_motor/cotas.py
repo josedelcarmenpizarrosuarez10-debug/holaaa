@@ -58,10 +58,13 @@ def calcular(red, sitio, P, hq=None):
             for i, p in enumerate(pts):
                 if i == 0: v = rr[0] - P["h0"] - (P["e_tapa"] if tap[0] else 0.0)
                 else: v = min(f[-1] - P["S0"] * (s[i] - s[i - 1]), rr[i] - hm[i])
-                if p[2] and i > 0 and p[2] in req: v = min(v, req[p[2]])
+                if p[2] and 0 < i < len(pts) - 1 and p[2] in req: v = min(v, req[p[2]])   # solo el eje que recibe; el que llega cae libre
                 f.append(v)
             nod = [i for i, p in enumerate(pts) if p[2]]
-            for k0, k1 in zip(nod[:-1], nod[1:]):
+            for m in range(1, len(nod)):
+                k1 = nod[m]
+                # la bajada pareja empieza en el quiebre real anterior (no en un punto de chaflan)
+                k0 = next((nod[q] for q in range(m - 1, -1, -1) if "~" not in pts[nod[q]][2] or q == 0), nod[m - 1])
                 if pts[k1][2] in req and f[k1] < f[k1 - 1] - P["S0"] * (s[k1] - s[k1 - 1]) * 1.5:
                     for i in range(k0 + 1, k1):
                         f[i] = min(f[i], f[k0] + (f[k1] - f[k0]) * (s[i] - s[k0]) / (s[k1] - s[k0]))

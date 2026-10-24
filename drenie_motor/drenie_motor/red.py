@@ -163,25 +163,49 @@ class Red:
         return mejor
 
     # --------------------------------------------------------------------------------------------- eleccion de uniones y descargas
-    def resolver(self):
+    def _candidatos_union(self, comp):
+        """Uniones posibles entre lineas que no se tocan, como las traza un proyectista: perpendicular a la cuneta que recibe
+        (llega a su tramo, no a una esquina), o prolongando en linea recta el tramo final; diagonales solo si miden < 3 m.
+        Siempre dentro del cerco, sin cruzar edificaciones, losas ni otras cunetas."""
         P = self.P
-        comp = self.componentes()
-        cid = {n: k for k, ns in enumerate(comp) for n in ns}
-        grados = defaultdict(int)
-        for e in self.E: grados[e["u"]] += 1; grados[e["v"]] += 1
-        # uniones entre componentes: desde un extremo (grado 1) de una a la arista mas cercana de la otra
-        uniones = []
+        grados = defaultdict(list)
+        for e in self.E: grados[e["u"]].append(e["v"]); grados[e["v"]].append(e["u"])
+        out = []
+        aristas = [(e["u"], e["v"], LineString([self.N[e["u"]], self.N[e["v"]]])) for e in self.E]
         for i, ns in enumerate(comp):
-            ext = [n for n in ns if grados[n] <= 1] or ns
+            ext = [n for n in ns if len(grados[n]) <= 1] or ns
             for j, ms in enumerate(comp):
                 if i == j: continue
-                mset = set(ms); best = None
+                mset = set(ms); op = []
                 for n in ext:
-                    r = self._punto_en_arista(self.N[n], mset)
-                    if r and r[0] <= P["union_max"] and (best is None or r[0] < best[0]) and self._valida(self.N[n], r[2], ignorar=(n,)):
-                        best = (r[0], n, r[1], r[2])
-                if best: uniones.append({"costo": best[0], "i": i, "j": j, "n": best[1], "arista": best[2], "p": best[3]})
-        # descargas: desde cualquier nodo hasta el cerco (pase perpendicular al cerco)
+                    p0 = self.N[n]
+                    for a, b, ls in aristas:
+                        if a not in mset: continue
+                        s = ls.project(Point(p0)); q = ls.interpolate(s); d = q.distance(Point(p0))
+                        if d > P["union_max"]: continue
+                        interior = 0.3 < s < ls.length - 0.3
+                        if interior or d < 3.0: op.append((d, n, a, b, (q.x, q.y)))
+                    if len(grados[n]) == 1:                     # prolongacion del tramo final
+                        o = self.N[grados[n][0]]; (ux, uy), Lu = geom.unit(o, p0)
+                        rayo = LineString([p0, (p0[0] + ux * P["union_max"], p0[1] + uy * P["union_max"])])
+                        for a, b, ls in aristas:
+                            if a not in mset: continue
+                            x = rayo.intersection(ls)
+                            if isinstance(x, Point) and not x.is_empty:
+                                op.append((x.distance(Point(p0)), n, a, b, (x.x, x.y)))
+                for d, n, a, b, p in sorted(op, key=lambda o: o[0])[:4]:
+                    if self._valida(self.N[n], p, ignorar=(n,)):
+                        out.append({"L": d, "n": n, "arista": (a, b), "p": p}); break
+        return out
+
+    def resolver(self, recorte=None):
+        """Descargas y uniones. Cada descarga posible q del cerco admite un largo maximo de red Lcap(q): con el interior
+        nivelado la cota de fondo baja S0 por metro desde h0, y en q debe quedar sobre el terreno exterior (cuneta nunca
+        enterrada) y bajo la profundidad objetivo. Se eligen las menos descargas que cubren todas las lineas del usuario
+        (cobertura voraz) y luego el arbol de caminos mas cortos define las uniones y el sentido de flujo."""
+        P = self.P; recorte = recorte or {}
+        comp = self.componentes()
+        uniones = self._candidatos_union(comp)
         cand = self.candidatos_descarga()
         if self.descargas_fijas:
             fijos = []
@@ -190,112 +214,196 @@ class Red:
                 if c is None or math.dist(c["q"], (d["x"], d["y"])) > 3.0:
                     self.avisos.append("La descarga %s indicada no esta sobre el cerco o fuera del terreno con curvas." % d.get("nombre", k + 1))
                     continue
-                c = dict(c); c["nombre"] = d.get("nombre"); fijos.append(c)
+                c = dict(c); c["nombre"] = d.get("nombre"); c["fija"] = True; fijos.append(c)
             cand = fijos
-        self.candidatos = cand
-        zloc = []
-        for c in cand:
-            vec = [o["z_req"] for o in cand if abs(o["s"] - c["s"]) <= 30 or abs(abs(o["s"] - c["s"]) - self.S.cerco.exterior.length) <= 30]
-            zloc.append(min(vec))
-        # salidas: para cada nudo, la mejor descarga a su alcance (union recta y valida hasta el cerco)
-        salidas = []
-        for i, ns in enumerate(comp):
-            for n in ns:
-                x = self.N[n]; op = []
-                for k, c in enumerate(cand):
-                    dl = math.dist(x, c["b"])
-                    if dl > P["union_max"] or c["holgura"] <= 0: continue
-                    op.append((dl + 10.0 * (c["z_req"] - zloc[k]), k, dl))
-                op.sort()
-                for costo, k, dl in op[:6]:
-                    if self._valida(x, cand[k]["b"], ignorar=(n,)):
-                        salidas.append({"costo": costo, "i": i, "k": k, "n": n, "L": dl}); break
-        self.comp, self.uniones, self.salidas = comp, uniones, salidas
-        ban_q, ban_u, forzadas = set(), set(), []
-        for vuelta in range(60):
-            elegidas = self._kruskal(len(comp), uniones, salidas, ban_q, ban_u, forzadas)
-            if elegidas is None:
-                self.avisos.append("Hay lineas que no pueden llegar a ninguna descarga por gravedad sin salir del cerco o cruzar una "
-                                   "edificacion: trace la union o indique la descarga.")
-                elegidas = self._kruskal(len(comp), uniones, salidas, ban_q, ban_u, forzadas, parcial=True)
-                self._armar(elegidas, cand); break
-            self._armar(elegidas, cand)
-            prob = self._revisar(cand, elegidas)
-            if not prob: break
-            tipo, dato = prob
-            if tipo == "prohibir": ban_q.update(dato)
-            elif tipo == "forzar": forzadas.append(dato)
-            elif tipo == "cortar": ban_u.add(dato)
         else:
-            self.avisos.append("No se logro dejar todos los sistemas bajo la profundidad objetivo de %.2f m; revisar descargas." % P["prof_max_objetivo"])
+            cand = [c for i, c in enumerate(cand) if c["holgura"] > 0 and i % 2 == 0]       # cada 2 m de cerco
+        self.candidatos = cand
+        Lprof = (P["prof_max_objetivo"] - P["h0"]) / P["S0"]
+        N = dict(self.N); ar = []              # aristas: (x, y, costo, largo, tipo)
+        # 1) lineas del usuario, partidas donde llega una union
+        cortes = defaultdict(list)
+        for iu, u in enumerate(uniones):
+            a, b = u["arista"]
+            if math.dist(u["p"], N[a]) < 0.3: u["m"] = a
+            elif math.dist(u["p"], N[b]) < 0.3: u["m"] = b
+            else:
+                u["m"] = "t%d" % iu; N[u["m"]] = u["p"]; cortes[(a, b)].append(u["m"])
+        usuario = []
+        for e in self.E:
+            a, b = e["u"], e["v"]
+            cad = [a] + sorted(cortes.get((a, b), []), key=lambda m: math.dist(N[a], N[m])) + [b]
+            for x, y in zip(cad[:-1], cad[1:]):
+                L = math.dist(N[x], N[y]); usuario.append((x, y, L)); ar.append((x, y, L, L, "usuario"))
+        # 2) uniones rectas entre lineas que no se tocan
+        for u in uniones: ar.append((u["n"], u["m"], 3.0 + 1.5 * u["L"], u["L"], "union"))
+        # 3) camino perimetral: cuneta a d_cerco del cerco, por donde van las uniones hasta las descargas (sin diagonales
+        #    largas cruzando patios). Estaciones: vertices del anillo, pies de los nudos y puntos de descarga.
+        off = self.S.cerco.buffer(-P["d_cerco"], join_style=2)
+        off = max(off.geoms, key=lambda g: g.area) if hasattr(off, "geoms") else off
+        anillo = off.exterior; La = anillo.length
+        est = {}                                   # posicion en el anillo -> nudo
+        def estacion(s, nombre=None):
+            s = s % La
+            for s0, n0 in est.items():
+                if min(abs(s0 - s), La - abs(s0 - s)) < 0.05: return n0
+            n = nombre or "r%d" % len(est); p = anillo.interpolate(s); N[n] = (p.x, p.y); est[s] = n; return n
+        for x, y in list(anillo.coords)[:-1]: estacion(anillo.project(Point(x, y)))
+        lineas_u = [LineString([N[x], N[y]]) for x, y, L in usuario]
+        arbol_u = STRtree(lineas_u) if lineas_u else None
+        for n in self.N:
+            p = Point(self.N[n]); s = anillo.project(p); f = anillo.interpolate(s); d = p.distance(f)
+            if d > P["union_max"]: continue
+            if d < 0.05: est_n = estacion(s); ar.append((n, est_n, 0.0, 0.0, "union")); continue
+            if self._valida(self.N[n], (f.x, f.y), ignorar=(n,)):
+                ar.append((n, estacion(s), 3.0 + 1.5 * d, d, "union"))
+        for k, c in enumerate(cand):
+            s = anillo.project(Point(c["b"])); bk = estacion(s, "b%d" % k)
+            if bk != "b%d" % k: N["b%d" % k] = N[bk]; ar.append(("b%d" % k, bk, 0.0, 0.0, "union"))
+            N["q%d" % k] = c["q"]; ar.append(("b%d" % k, "q%d" % k, 0.0, P["d_cerco"], "pase"))
+        orden = sorted(est.items())
+        for (s1, n1), (s2, n2) in zip(orden, orden[1:] + [(orden[0][0] + La, orden[0][1])]):
+            seg = LineString([N[n1], N[n2]]); L = seg.length
+            if L < 0.01: ar.append((n1, n2, 0.0, 0.0, "union")); continue
+            if not self.obst.is_empty and seg.intersection(self.obst).length > 0.05: continue
+            if arbol_u is not None:
+                cerca = [lineas_u[int(i)] for i in arbol_u.query(seg.buffer(0.45))]
+                if cerca and seg.intersection(unary_union([l.buffer(0.45) for l in cerca])).length > 0.2 * L: continue   # ya hay cuneta
+                if any(seg.crosses(l) for l in cerca): continue
+            ar.append((n1, n2, 1.5 * L, L, "union"))
+        # dos tramos nuevos posibles que se cruzan (sin compartir extremo): se queda el mas corto
+        nuevos = sorted([ie for ie, a in enumerate(ar) if a[4] == "union" and a[3] > 0.05], key=lambda ie: ar[ie][3])
+        geo_n = {ie: LineString([N[ar[ie][0]], N[ar[ie][1]]]) for ie in nuevos}
+        fuera = set(); puestos = []
+        for ie in nuevos:
+            g = geo_n[ie]; x, y = ar[ie][0], ar[ie][1]
+            choca = False
+            for je in puestos:
+                x2, y2 = ar[je][0], ar[je][1]
+                if {x, y} & {x2, y2}: continue
+                if g.crosses(geo_n[je]): choca = True; break
+            if choca: fuera.add(ie)
+            else: puestos.append(ie)
+        ar = [a if ie not in fuera else (a[0], a[1], math.inf, a[3], "descartada") for ie, a in enumerate(ar)]
+        ady = defaultdict(list)
+        for ie, (x, y, c, L, t) in enumerate(ar):
+            if t == "descartada": continue
+            ady[x].append((y, c, L, ie)); ady[y].append((x, c, L, ie))
+
+        def es_desc(n): return n[0] in "bq" and n[1:].isdigit()
+
+        def dijkstra(fuentes):
+            permit = {"q%d" % k for k in fuentes} | {"b%d" % k for k in fuentes}
+            dist, fis, pred = {}, {}, {}
+            pq = []
+            for k in fuentes:
+                q = "q%d" % k; dist[q] = 0.0; fis[q] = 0.0; heapq.heappush(pq, (0.0, q))
+            while pq:
+                dd, x = heapq.heappop(pq)
+                if dd > dist[x] + 1e-12: continue
+                for y, c, L, ie in ady[x]:
+                    if es_desc(y) and y not in permit: continue
+                    if dd + c < dist.get(y, math.inf) - 1e-9:
+                        dist[y] = dd + c; fis[y] = fis[x] + L; pred[y] = (x, ie); heapq.heappush(pq, (dist[y], y))
+            return dist, fis, pred
+
+        def cap(k):
+            return min(cand[k]["holgura"] / P["S0"], Lprof) - recorte.get(k, 0.0)
+
+        cubre = {}
+        for k in range(len(cand)):
+            dist, fis, pred = dijkstra([k]); Lc = cap(k)
+            cubre[k] = {i for i, (x, y, L) in enumerate(usuario) if x in fis and y in fis and (fis[x] + fis[y] + L) / 2 <= Lc}
+        falta = set(range(len(usuario))); elegidas = []
+        Lc_cerco = self.S.cerco.exterior.length
+        if self.descargas_fijas:
+            elegidas = list(range(len(cand)))
+            for k in elegidas: falta -= cubre[k]
+        else:
+            while falta:
+                mejor = None
+                for k, cs in cubre.items():
+                    if any(min(abs(cand[k]["s"] - cand[j]["s"]), Lc_cerco - abs(cand[k]["s"] - cand[j]["s"])) < P["desc_sep_min"] for j in elegidas):
+                        continue
+                    nuevo = sum(usuario[i][2] for i in cs & falta)
+                    if nuevo <= 0: continue
+                    clave = (round(nuevo, 0), -cand[k]["z_req"])
+                    if mejor is None or clave > mejor[0]: mejor = (clave, k)
+                if mejor is None: break
+                elegidas.append(mejor[1]); falta -= cubre[mejor[1]]
+        if falta:
+            self.avisos.append("NO HAY SALIDA POR GRAVEDAD para %.1f m de cuneta (quedaria enterrada): ninguna descarga del cerco la "
+                               "recibe con el terreno exterior bajo su cota de fondo. Opciones: indicar otra descarga, partir el "
+                               "sistema o subir el nivel de esa zona." % sum(usuario[i][2] for i in falta))
+        self.sin_cubrir = [(N[usuario[i][0]], N[usuario[i][1]]) for i in falta]
+        dist, fis, pred = dijkstra(elegidas)
+        usadas = set()
+        for n in {x for x, y, L in usuario} | {y for x, y, L in usuario}:
+            while n in pred:
+                x, ie = pred[n]
+                if ie in usadas: break
+                usadas.add(ie); n = x
+        # grafo final: todas las lineas del usuario (partidas solo donde llega una union usada) y lo usado de lo demas
+        usados_n = set()
+        for ie in usadas:
+            x, y, c, L, t = ar[ie]
+            if t != "usuario": usados_n.update((x, y))
+        Ef = []
+        for e in self.E:
+            a, b = e["u"], e["v"]
+            ms = [m for m in cortes.get((a, b), []) if m in usados_n]
+            cad = [a] + sorted(ms, key=lambda m: math.dist(N[a], N[m])) + [b]
+            for x, y in zip(cad[:-1], cad[1:]): Ef.append({"u": x, "v": y, "origen": e["origen"]})
+        ren = {}
+        self.descargas = {}
+        for cont, k in enumerate(sorted(elegidas, key=lambda k: cand[k]["s"])):
+            c = cand[k]; dd = c.get("nombre") or "D%d" % (cont + 1)
+            ren["q%d" % k], ren["b%d" % k] = dd, dd + "n"
+            self.descargas[dd] = {"nombre": dd, "q": c["q"], "b": N["b%d" % k], "z_req": c["z_req"], "nin": c["nin"], "s": c["s"],
+                                  "k": k, "L_max": round(cap(k), 1)}
+        for ie in usadas:
+            x, y, c, L, t = ar[ie]
+            if t == "usuario": continue
+            Ef.append({"u": ren.get(x, x), "v": ren.get(y, y), "origen": t, "L0": L})
+        Nf = {ren.get(k, k): v for k, v in N.items()}
+        # nudos a menos de 5 cm se funden (se conserva el del usuario o la descarga)
+        def prioridad(n):
+            if n in self.descargas or (n.endswith("n") and n[:-1] in self.descargas): return 0
+            if n in self.N: return 1
+            return 2
+        nodos = sorted({e["u"] for e in Ef} | {e["v"] for e in Ef}, key=prioridad)
+        alias = {}
+        for i, a in enumerate(nodos):
+            if a in alias: continue
+            for b in nodos[i + 1:]:
+                if b not in alias and math.dist(Nf[a], Nf[b]) < 0.05: alias[b] = a
+        E2, vistos = [], set()
+        for e in Ef:
+            a, b = alias.get(e["u"], e["u"]), alias.get(e["v"], e["v"])
+            if a == b or (min(a, b), max(a, b)) in vistos: continue
+            vistos.add((min(a, b), max(a, b))); E2.append({"u": a, "v": b, "origen": e["origen"]})
+        E2 = self._simplificar(E2, Nf)
+        usados = {e["u"] for e in E2} | {e["v"] for e in E2}
+        self.Nf = {k: v for k, v in Nf.items() if k in usados}
+        self.Ef = E2
+        self._flujo()
         return self
 
-    def _kruskal(self, nc, uniones, salidas, ban_q, ban_u, forzadas, parcial=False):
-        """Arbol de menor longitud: uniones y salidas al cerco (sumidero). Las salidas forzadas entran siempre (una red puede
-        tener varias descargas)."""
-        SUM = nc; Lc = self.S.cerco.exterior.length
-        uf = UF(); out = []
-        for k in range(nc + 1): uf.f(k)
-        usadas_q = []
-        def cerca(k):
-            qd = self.candidatos[k]["s"]
-            return any(min(abs(qd - q2), Lc - abs(qd - q2)) < self.P["desc_sep_min"] and k != k2 for q2, k2 in usadas_q)
-        for si in forzadas:
-            s = salidas[si]
-            if s["k"] in ban_q: continue
-            uf.u(s["i"], SUM); out.append(("s", s)); usadas_q.append((self.candidatos[s["k"]]["s"], s["k"]))
-        ar = [("u", u["costo"], iu, u) for iu, u in enumerate(uniones) if iu not in ban_u] + \
-             [("s", s["costo"], si, s) for si, s in enumerate(salidas) if s["k"] not in ban_q and si not in forzadas]
-        ar.sort(key=lambda e: e[1])
-        for t, c, idx, d in ar:
-            if t == "u":
-                if uf.u(d["i"], d["j"]): out.append((t, dict(d, idx=idx)))
-            else:
-                if uf.f(d["i"]) == uf.f(SUM) or cerca(d["k"]): continue
-                uf.u(d["i"], SUM); out.append((t, d)); usadas_q.append((self.candidatos[d["k"]]["s"], d["k"]))
-        raiz = uf.f(SUM)
-        if not parcial and any(uf.f(k) != raiz for k in range(nc)): return None
-        return out
-
-    def _armar(self, elegidas, cand):
-        """Grafo final: lineas del usuario + uniones + tramos a las descargas."""
-        N = {k: v for k, v in self.N.items()}
-        E = [dict(e) for e in self.E]
-        self.descargas = {}
-        cont = 0
-        for t, d in sorted(elegidas, key=lambda e: 0 if e[0] == "u" else 1):
-            if t == "u":
-                # la union llega en T a una arista de otra componente: se parte esa arista
-                e0 = next(e for e in E if {e["u"], e["v"]} == {d["arista"]["u"], d["arista"]["v"]})
-                pa, pb = N[e0["u"]], N[e0["v"]]
-                if math.dist(d["p"], pa) < 0.3: m = e0["u"]
-                elif math.dist(d["p"], pb) < 0.3: m = e0["v"]
-                else:
-                    m = "t%d" % len(N); N[m] = d["p"]
-                    E.remove(e0)
-                    E.append({"u": e0["u"], "v": m, "origen": e0["origen"]}); E.append({"u": m, "v": e0["v"], "origen": e0["origen"]})
-                E.append({"u": d["n"], "v": m, "origen": "union"})
-        # descargas ordenadas por su posicion a lo largo del cerco
-        sal = [d for t, d in elegidas if t == "s"]
-        porq = defaultdict(list)
-        for d in sal: porq[d["k"]].append(d)
-        for k in sorted(porq, key=lambda k: cand[k]["s"]):
-            cont += 1; c = cand[k]
-            nombre = c.get("nombre") or "D%d" % cont
-            dn, dd = nombre + "n", nombre
-            N[dn] = c["b"]; N[dd] = c["q"]
-            for d in porq[k]:
-                if math.dist(N[d["n"]], c["b"]) < 0.3:
-                    N[dn] = N[d["n"]]
-                else:
-                    E.append({"u": d["n"], "v": dn, "origen": "union"})
-            E.append({"u": dn, "v": dd, "origen": "pase"})
-            self.descargas[dd] = {"nombre": dd, "q": c["q"], "b": c["b"], "z_req": c["z_req"], "nin": c["nin"], "s": c["s"]}
-        # nodos sin uso (union que llego a un extremo)
-        usados = {e["u"] for e in E} | {e["v"] for e in E}
-        self.Nf = {k: v for k, v in N.items() if k in usados}
-        self.Ef = [e for e in E if e["u"] != e["v"]]
-        self._flujo()
+    def _simplificar(self, E, N):
+        """Une tramos nuevos seguidos y alineados (estaciones intermedias del camino perimetral)."""
+        while True:
+            grado = defaultdict(list)
+            for i, e in enumerate(E): grado[e["u"]].append(i); grado[e["v"]].append(i)
+            hecho = False
+            for n, ies in grado.items():
+                if len(ies) != 2 or n in self.N or n in self.descargas or (n.endswith("n") and n[:-1] in self.descargas): continue
+                e1, e2 = E[ies[0]], E[ies[1]]
+                if e1["origen"] != "union" or e2["origen"] != "union": continue
+                a = e1["v"] if e1["u"] == n else e1["u"]; b = e2["v"] if e2["u"] == n else e2["u"]
+                if geom.giro(N[a], N[n], N[b]) > 1.0: continue
+                E = [e for k, e in enumerate(E) if k not in ies] + [{"u": a, "v": b, "origen": "union"}]
+                hecho = True; break
+            if not hecho: return E
 
     # --------------------------------------------------------------------------------------------- sentido de flujo
     def _flujo(self):
@@ -323,6 +431,8 @@ class Red:
             elif abs(dist[v] + L - dist[u]) < 1e-6: dirigidas.append((u, v, e["origen"]))
             else:
                 t = (dist[v] - dist[u] + L) / 2.0                     # punto alto: igual distancia a la descarga por ambos lados
+                if t < 0.10: dirigidas.append((u, v, e["origen"])); continue       # el punto alto cae en u: todo va a v
+                if t > L - 0.10: dirigidas.append((v, u, e["origen"])); continue
                 pu, pv = N[u], N[v]
                 m = "h%d" % len(N); N[m] = (pu[0] + (pv[0] - pu[0]) * t / L, pu[1] + (pv[1] - pu[1]) * t / L)
                 dist[m] = dist[u] + t; sis[m] = sis[u]
@@ -347,7 +457,7 @@ class Red:
             """Recorrido mas largo aguas arriba que termina en x, por aristas no usadas."""
             mejor = (0.0, [x])
             for y in arriba[x]:
-                if (y, x) in usadas or y in vis or not libre(y): continue
+                if (y, x) in usadas or y in vis: continue
                 L, c = mas_largo(y, vis | {y}) if not (y in asignados) else (0.0, [y])
                 L += math.dist(N[y], N[x])
                 if L > mejor[0]: mejor = (L, c + [x])
@@ -371,7 +481,7 @@ class Red:
                 r = cola.pop(0)
                 for n in r["nudos"][1:]:
                     while True:
-                        ent = [y for y in arriba[n] if (y, n) not in usadas and libre(y)]
+                        ent = [y for y in arriba[n] if (y, n) not in usadas]
                         if not ent: break
                         mejor = None
                         for y in ent:
@@ -381,45 +491,6 @@ class Red:
                         cola.append(agregar(mejor[1], d))
         self.origen_arista = origen
         self.ramales = ramales
-
-    # --------------------------------------------------------------------------------------------- revision rapida
-    def _revisar(self, cand, elegidas):
-        """Profundidad y salida de cada descarga (interior nivelado: la cota de fondo baja S0 por metro desde h0)."""
-        P = self.P; Lc = self.S.cerco.exterior.length
-        peor = None
-        for d, info in self.descargas.items():
-            nodos = [n for n in self.Nf if self.sistema_de.get(n) == d and math.isfinite(self.dist[n])]
-            if not nodos: continue
-            Lmax = max(self.dist[n] for n in nodos)
-            ras0 = min(self.S.rasante(*self.Nf[n]) for n in nodos)
-            cf = ras0 - P["h0"] - P["S0"] * Lmax
-            prof = self.S.rasante(*info["b"]) - cf
-            if cf < info["z_req"] + P["desc_margen"] and not self.descargas_fijas:
-                # se descarta todo el tramo de cerco alrededor que no es mas bajo
-                return ("prohibir", {k for k, c in enumerate(cand)
-                                     if min(abs(c["s"] - info["s"]), Lc - abs(c["s"] - info["s"])) < P["desc_sep_min"]
-                                     and c["z_req"] >= info["z_req"] - 0.02})
-            if prof > P["prof_max_objetivo"] and (peor is None or prof > peor[0]): peor = (prof, d, Lmax)
-        if not peor or self.descargas_fijas: return None
-        prof, d, Lmax = peor
-        usadas = [info["s"] for info in self.descargas.values()]
-        forz = {id(s) for t, s in elegidas if t == "s"}
-        # 1) otra descarga para la parte mas lejana del sistema
-        mejor = None
-        for si, s in enumerate(self.salidas):
-            n = s["n"]
-            if self.sistema_de.get(n) != d or id(s) in forz: continue
-            c = cand[s["k"]]
-            if any(min(abs(c["s"] - u), Lc - abs(c["s"] - u)) < P["desc_sep_min"] for u in usadas): continue
-            if self.dist[n] < 0.35 * Lmax: continue
-            v = (Lmax - self.dist[n]) + s["L"]
-            if mejor is None or v < mejor[0]: mejor = (v, si)
-        if mejor: return ("forzar", mejor[1])
-        # 2) cortar una union del sistema para que la parte de aguas arriba busque su propia descarga
-        for t, u in sorted(elegidas, key=lambda e: -self.dist.get(e[1].get("n", ""), 0) if e[0] == "u" else 0):
-            if t == "u" and self.sistema_de.get(u["n"]) == d and any(s["i"] == u["i"] for s in self.salidas):
-                return ("cortar", u["idx"])
-        return None
 
     # --------------------------------------------------------------------------------------------- quiebres a 45 grados
     def chaflanes(self):
@@ -434,6 +505,7 @@ class Red:
                 if g < P["ang_chaflan"] or X in self.descargas or X.endswith("n") and X[:-1] in self.descargas: continue
                 (u, Lin), (v, Lout) = geom.unit(a, x), geom.unit(x, c)
                 ch = min(P["chaflan"], 0.5 * Lin, 0.5 * Lout)
+                if ch < 0.10: continue
                 xa, xb = X + "~a", X + "~b"
                 N[xa] = (x[0] - u[0] * ch, x[1] - u[1] * ch); N[xb] = (x[0] + v[0] * ch, x[1] + v[1] * ch)
                 k = nuevos[ir].index(X); nuevos[ir][k:k + 1] = [xa, xb]
@@ -446,7 +518,17 @@ class Red:
                             N[xq] = (x[0] - w[0] * chq, x[1] - w[1] * chq); nuevos[jr][-1:] = [xq, xb]
                         else:
                             nuevos[jr][-1:] = [xb]
-        for r, nn in zip(self.ramales, nuevos): r["nudos"] = nn
+        # chaflanes de dos esquinas seguidas que se encuentran en el mismo punto: un solo nudo
+        alias = {}
+        for nn in nuevos:
+            for a, b in zip(nn[:-1], nn[1:]):
+                if a != b and math.dist(N[a], N[b]) < 0.05 and b not in alias: alias[b] = alias.get(a, a)
+        for r, nn in zip(self.ramales, nuevos):
+            limpio = []
+            for n in nn:
+                n = alias.get(n, n)
+                if not limpio or limpio[-1] != n: limpio.append(n)
+            r["nudos"] = limpio
         self.chaflanes_hechos = hechas
         return hechas
 
