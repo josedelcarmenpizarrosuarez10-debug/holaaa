@@ -31,8 +31,10 @@ def _cargar(cfg_ruta):
 def _preparar(cfg, base, salida):
     P = combinar(cfg.get("parametros"))
     dxf = _ruta(base, cfg["dxf"])
-    B = lector_dxf.base(dxf, cache=os.path.join(salida, "_base_sitio.pkl"))
     capas = cfg["capas"]
+    cv = capas.get("ventana_por_capa")
+    if cv is None and isinstance(capas.get("curvas"), dict) and os.path.getsize(dxf) > 50e6: cv = capas["curvas"].get("capa")
+    B = lector_dxf.base(dxf, cache=os.path.join(salida, "_base_sitio.pkl"), ventana=capas.get("ventana"), capa_ventana=cv)
     cur, rep_t = terreno.curvas(B, {"curvas": capas["curvas"], "curvas_texto": capas.get("curvas_texto"),
                                     "equidistancia": capas.get("equidistancia"), "z_min": capas.get("z_min", -500),
                                     "z_max": capas.get("z_max", 9000)})

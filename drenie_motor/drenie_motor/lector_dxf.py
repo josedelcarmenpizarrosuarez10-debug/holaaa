@@ -41,10 +41,48 @@ def _color(e, doc, color_padre):
     return c
 
 
-def leer(ruta, capas=None):
+def _ref(e):
+    """Punto de referencia de una entidad (para filtrar por ventana sin explotarla)."""
+    t = e.dxftype()
+    try:
+        if t in ("INSERT", "TEXT", "MTEXT"): p = e.dxf.insert; return p.x, p.y
+        if t == "LINE": p = e.dxf.start; return p.x, p.y
+        if t == "LWPOLYLINE": x, y = e[0][:2]; return x, y
+        if t in ("CIRCLE", "ARC"): p = e.dxf.center; return p.x, p.y
+        if t == "POLYLINE":
+            v = next(iter(e.vertices)); return v.dxf.location.x, v.dxf.location.y
+        if t == "HATCH":
+            for camino in e.paths:
+                if hasattr(camino, "vertices") and len(camino.vertices): return camino.vertices[0][0], camino.vertices[0][1]
+                if hasattr(camino, "edges") and camino.edges:
+                    ed = camino.edges[0]; p = getattr(ed, "start", None) or getattr(ed, "center", None)
+                    if p is not None: return p[0], p[1]
+    except Exception:
+        return None
+    return None
+
+
+def ventana_de_capa(doc, capa, margen=60.0):
+    """Ventana (x0, y0, x1, y1) que cubren las entidades de una capa del espacio modelo (p. ej. las curvas de nivel): ahi esta
+    la copia real del conjunto cuando el plano trae varias copias."""
+    xs, ys = [], []
+    for e in doc.modelspace().query("LWPOLYLINE POLYLINE LINE"):
+        if e.dxf.layer != capa: continue
+        if e.dxftype() == "LWPOLYLINE":
+            for p in e.get_points("xy"): xs.append(p[0]); ys.append(p[1])
+        else:
+            r = _ref(e)
+            if r: xs.append(r[0]); ys.append(r[1])
+    if not xs: return None
+    return (min(xs) - margen, min(ys) - margen, max(xs) + margen, max(ys) + margen)
+
+
+def leer(ruta, capas=None, ventana=None, capa_ventana=None):
     """Base del sitio: {"geo": {capa: [(pts[(x, y)], cerrada, color, z)]}, "txt": [(capa, texto, x, y, altura, color)],
-    "resumen": {...}}. Si se da `capas`, solo se guardan esas capas (y todos los textos)."""
+    "resumen": {...}}. Si se da `capas`, solo se guardan esas capas (y todos los textos). Con `ventana` (o `capa_ventana`, la
+    capa cuyas entidades la definen, p. ej. las curvas) se salta todo lo del espacio modelo que cae fuera, sin explotarlo."""
     doc = _abrir(ruta)
+    if ventana is None and capa_ventana: ventana = ventana_de_capa(doc, capa_ventana)
     geo, txt, cuenta = {}, [], {}
 
     def guardar_pl(capa, pts, cerrada, color, z):
@@ -92,11 +130,22 @@ def leer(ruta, capas=None):
             except Exception:
                 cuenta["_no_leidas"] = cuenta.get("_no_leidas", 0) + 1
 
-    recorrer(list(doc.modelspace()), 0, "", 7)
-    return {"geo": geo, "txt": txt, "resumen": {"archivo": os.path.basename(ruta), "capas": cuenta, "textos": len(txt)}}
+    fuera = 0
+    if ventana:
+        x0, y0, x1, y1 = ventana
+        ents = []
+        for e in doc.modelspace():
+            r = _ref(e)
+            if r is None or (x0 <= r[0] <= x1 and y0 <= r[1] <= y1): ents.append(e)
+            else: fuera += 1
+    else:
+        ents = list(doc.modelspace())
+    recorrer(ents, 0, "", 7)
+    return {"geo": geo, "txt": txt, "resumen": {"archivo": os.path.basename(ruta), "capas": cuenta, "textos": len(txt),
+                                                "ventana": ventana, "fuera_de_ventana": fuera}}
 
 
-def base(ruta, cache=None, capas=None):
+def base(ruta, cache=None, capas=None, ventana=None, capa_ventana=None):
     """Lee el DXF o la base guardada (si el DXF no cambio)."""
     huella = hashlib.sha1(("%s|%s|%s" % (os.path.abspath(ruta), os.path.getsize(ruta) if os.path.isfile(ruta) else 0,
                                           os.path.getmtime(ruta))).encode()).hexdigest()
@@ -106,7 +155,7 @@ def base(ruta, cache=None, capas=None):
             if B.get("huella") == huella: return B
         except Exception:
             pass
-    B = leer(ruta, capas)
+    B = leer(ruta, capas, ventana, capa_ventana)
     B["huella"] = huella
     if cache:
         os.makedirs(os.path.dirname(os.path.abspath(cache)), exist_ok=True)
