@@ -107,3 +107,11 @@ zona queda a más de 8 m de una cuneta; tubo PVC 4" recto a la cuneta (S 1 %, ll
 visor (SU); hoja SUMIDEROS en `CANALETAS_MONTANTES_Y_SUMIDEROS.xlsx`, dibujo en la DC-01 y cuadro en la DC-02.
 Prefijo y número inicial en `planos` (`{"prefijo": "DC", "inicio": 1}`). `PLANTA_RED_CUNETAS.dxf` queda como dibujo de trabajo.
 Librería de dibujo propia en `dxf_base.py` y `dxf_layouts.py` (copias de las de `herramientas/`).
+
+## Metrado general (`metrado.py` → `METRADO_DRENAJE_PLUVIAL.xlsx`)
+
+Formato del metrado del CAR Mujeres y de Barranquita, con fórmulas: RESUMEN, PLANILLA GENERAL DE METRADOS, CONCRETO EN CUNETAS,
+ENCOFRADO Y DESENCOFRADO, METRADO ACERO, METRADO JUNTA DE DILATACION, METRADO DE CURADO, METRADO DE REJILLAS, PLANILLA TAPAS
+INSPECCION, METRADO LLORADEROS, METRADO MONTANTES, METRADO CANALETAS, METRADO  EN PISO (SUMIDERO), PARAMETROS y Listas. Partidas con
+los nombres y la estructura Delphin del Hogar de Refugio (prefijo en `metrado.prefijo`, por defecto `01`); cantidades del diseño
+(cada eje con su ancho libre). Datos del rótulo: `proyecto.entidad`, `proyecto.ubicacion`, `proyecto.fecha`.

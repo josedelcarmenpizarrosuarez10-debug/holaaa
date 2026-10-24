@@ -120,6 +120,50 @@ def montante(lam, m, largo=0.20, ancho=0.15):
     lam.circulo(c, r + 0.012, "MONTANTE")
 
 
+def posiciones_tapas(ejes, lineas, EM):
+    """Tapas de inspeccion 0.60 x 0.60 en los tramos tapados: al inicio y al final de cada tapado, en cada empalme y a 10 m como
+    maximo entre tapas (las mismas para el plano y el metrado)."""
+    out = []
+    for e in ejes:
+        ln = lineas[e["cod"]]; L = ln.length; BT = e["b"] / 2 + EM; pos = []
+        for a, b in e["tap"]:
+            a2 = a + (0.0 if a > 0.01 else EM)
+            b2 = (L - (0.075 + 0.15 + TAPA / 2 if e["descarga"] else BT + TAPA / 2)) if b >= L - 0.08 else b
+            i0, i1 = a2 + TAPA / 2 + 0.10, b2 - TAPA / 2 - 0.10
+            if i1 < i0:
+                if b2 - a2 >= TAPA + 0.10: pos.append((a2 + b2) / 2)
+                continue
+            n = max(1, math.ceil((i1 - i0) / MAX_TAPAS))
+            pos += [i0 + (i1 - i0) * k / n for k in range(n + 1)] if i1 - i0 > 0.5 else [(i0 + i1) / 2]
+        for pe in e["empalmes"]:
+            sN = ln.project(Point(pe))
+            if _tap(e["tap"], sN) and all(abs(sN - p) > 2.0 for p in pos): pos.append(sN)
+        for s in sorted(pos):
+            p = ln.interpolate(s); q = ln.interpolate(min(L, s + 0.01)); o = ln.interpolate(max(0.0, s - 0.01))
+            out.append({"eje": e["cod"], "progresiva": round(s, 2), "x": p.x, "y": p.y, "u": _u((o.x, o.y), (q.x, q.y))})
+    return out
+
+
+def ejes_dibujo(R, descargas, anchos, P):
+    """Ejes con su ancho, tapados, empalmes y descarga (para el dibujo de la planta, las tapas y el metrado)."""
+    Nn = R["nudos"]; nudo_eje = {}
+    for r in R["ramales"]:
+        for n in r["nudos"]: nudo_eje.setdefault(n, set()).add(r["codigo"])
+    ejes = []
+    for r in R["ramales"]:
+        t0 = r["tramos"][0]; b = anchos.get((r["codigo"], t0["de"], t0["a"]), P["b_int"])
+        ejes.append({"cod": r["codigo"], "pts": [tuple(Nn[n]) for n in r["nudos"]], "tap": r["tapados"], "b": b,
+                     "ini": len(nudo_eje.get(r["nudos"][0], ())) == 1, "descarga": r["nudos"][-1] in descargas,
+                     "recibe": [c for c in nudo_eje.get(r["nudos"][-1], ()) if c != r["codigo"]],
+                     "empalmes": [tuple(Nn[n]) for n in r["nudos"][1:-1] if len(nudo_eje.get(n, ())) > 1]})
+    return ejes, {e["cod"]: LineString(e["pts"]) for e in ejes}
+
+
+def tapas_de(R, descargas, anchos, P):
+    ejes, lineas = ejes_dibujo(R, descargas, anchos, P)
+    return posiciones_tapas(ejes, lineas, P["e_muro"])
+
+
 def cunetas(lam, R, descargas, anchos, P):
     """Cunetas a escala real con el ancho de cada eje. Devuelve el numero de tapas de inspeccion."""
     Nn = R["nudos"]; EM = P["e_muro"]
@@ -176,25 +220,9 @@ def cunetas(lam, R, descargas, anchos, P):
             if L < 0.4: continue
             u = _u(a, b); n = max(1, int(L // PASO_FLECHA)) if L >= 2.0 else 1
             for j in range(n): flecha(lam, (a[0] + u[0] * (j + 0.5) * L / n, a[1] + u[1] * (j + 0.5) * L / n), u)
-    ntapas = 0
-    for e in ejes:                                                   # tapas de inspeccion en los tapados
-        ln = lineas[e["cod"]]; L = ln.length; BT = e["b"] / 2 + EM; pos = []
-        for a, b in e["tap"]:
-            a2 = a + (0.0 if a > 0.01 else EM)
-            b2 = (L - (0.075 + 0.15 + TAPA / 2 if e["descarga"] else BT + TAPA / 2)) if b >= L - 0.08 else b
-            i0, i1 = a2 + TAPA / 2 + 0.10, b2 - TAPA / 2 - 0.10
-            if i1 < i0:
-                if b2 - a2 >= TAPA + 0.10: pos.append((a2 + b2) / 2)
-                continue
-            n = max(1, math.ceil((i1 - i0) / MAX_TAPAS))
-            pos += [i0 + (i1 - i0) * k / n for k in range(n + 1)] if i1 - i0 > 0.5 else [(i0 + i1) / 2]
-        for pe in e["empalmes"]:
-            sN = ln.project(Point(pe))
-            if _tap(e["tap"], sN) and all(abs(sN - p) > 2.0 for p in pos): pos.append(sN)
-        for s in sorted(pos):
-            p = ln.interpolate(s); q = ln.interpolate(min(L, s + 0.01)); o = ln.interpolate(max(0.0, s - 0.01))
-            tapa(lam, (p.x, p.y), _u((o.x, o.y), (q.x, q.y))); ntapas += 1
-    return ntapas
+    lista = posiciones_tapas(ejes, lineas, EM)
+    for t in lista: tapa(lam, (t["x"], t["y"]), t["u"])
+    return len(lista)
 
 
 def escala_para(caja, ancho_mm=790.0, alto_mm=448.0):

@@ -236,6 +236,15 @@ acero 6,545 kg, rejilla 924.82 m, 10 tapas, juntas 547.80 m, junta con el piso 7
 
 ---
 
+### 3.8 Programa DRENIE (24-10-2026)
+`drenie_motor/drenie_motor/metrado.py`: metrado general con fórmulas para cualquier proyecto, estructura Delphin del Refugio
+(01 SISTEMA DE DRENAJE PLUVIAL; .01 preliminares; .02 movimiento de tierras con dados y perfilado en descargas; .03 solado y dados;
+.04.02 cunetas; .04.03 varios con rejilla, tapas, juntas, lloraderos y junta cuneta-piso; .05 red de colección: techo con montante,
+falsa columna y sus 3 subpartidas, canaleta, soporte, tapa lateral y boquilla; piso con tubería, sumidero, codo y tee; accesorios
+con codo, colgador y abrazadera). Cada eje con su ancho libre b (una medida por sector). Barranquita (red del programa): concreto
+151.43 m³, acero 6,932 kg, rejilla 936.22 m, 30 tapas, juntas 544.25 m, 344 lloraderos, 124 montantes (635.18 m), canaleta
+925.76 m, 2 sumideros (22.15 m de tubo). Junta cuneta-piso 1,416.50 m (ambos lados contra cualquier piso): pendiente de revisar.
+
 ## 4. Hojas de la planilla y su función
 
 ### 4.1 Orden de hojas (planilla completa del Refugio / Varones)

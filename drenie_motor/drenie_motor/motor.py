@@ -10,7 +10,7 @@ import json
 import os
 import time
 
-from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos, techo, sumideros
+from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos, techo, sumideros, metrado, planta_lamina
 from .parametros import combinar
 
 VERSION = "0.1.0"
@@ -156,6 +156,8 @@ def disenar(cfg_ruta):
     xls_t = techo.excel(TT, os.path.join(salida, "CANALETAS_MONTANTES_Y_SUMIDEROS.xlsx"), SM)
     verde = M.por_tipo().get("verde")
     LLt, LLp = lloraderos.calcular(C, verde, P, anchos)
+    tapas_i = planta_lamina.tapas_de(C, set(R.descargas), anchos, P)
+    xls_m, _ = metrado.libro(os.path.join(salida, "METRADO_DRENAJE_PLUVIAL.xlsx"), C, R, M, P, anchos, V, LLt, TT, SM, cfg.get("proyecto", {}), cfg, tapas_i)
     secciones = {}
     for f in V["hidraulica"]:
         e = secciones.setdefault(f["eje"], {"sector": f["sector"], "eje": f["eje"], "L_m": 0.0, "b_pide": 0, "b": f["b"],
@@ -195,7 +197,7 @@ def disenar(cfg_ruta):
                                      "terreno_exterior_min": round(v["z_req"], 2)} for k, v in R.descargas.items()],
            "sin_salida": [[list(a), list(b)] for a, b in R.sin_cubrir], "verificacion": V,
            "secciones_por_eje": list(secciones.values()), "techos": TT, "sumideros": SM, "lloraderos": {"resumen": lloraderos.resumen(LLt), "tramos": LLt},
-           "profundidad_minima_por_capacidad": hq, "archivos": {"dxf": dxf, "png": png, "dimensionamiento": xls, "canaletas_montantes_y_sumideros": xls_t, "planos": dxf_pf},
+           "profundidad_minima_por_capacidad": hq, "archivos": {"dxf": dxf, "png": png, "dimensionamiento": xls, "canaletas_montantes_y_sumideros": xls_t, "metrado": xls_m, "planos": dxf_pf},
            "laminas": [{"codigo": c, "titulo": t} for c, t in laminas], "secciones_dibujadas": n_sec, "segundos": round(time.time() - t0, 1),
            "requiere_confirmacion": ["descargas"] if not cfg.get("descargas") else []}
     json.dump(out, open(os.path.join(salida, "resultado.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
