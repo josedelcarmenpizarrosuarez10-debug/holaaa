@@ -375,15 +375,15 @@ class Planos:
         return lams
 
 
-def dxf_planos(ruta, R, red, sitio, P, anchos, proyecto, curvas, V, LLt, LLp, secciones_eje, pref="DC", num0=1, techos=None):
+def dxf_planos(ruta, R, red, sitio, P, anchos, proyecto, curvas, V, LLt, LLp, secciones_eje, pref="DC", num0=1, techos=None, sums=None):
     """PLANOS_CUNETAS.dxf: planta general (num0), cuadros (num0 + 1), perfiles y secciones, con una presentacion por lamina.
     Devuelve (ruta, [(codigo, titulo)], numero de secciones)."""
     from . import planta_lamina as PLT
     doc = B.nuevo_documento(); capas(doc); PLT.capas(doc)
     PL = Planos(R, red, sitio, P, anchos, proyecto)
-    l1 = PLT.dc01(doc, "%s-%02d" % (pref, num0), R, red, sitio, curvas, P, anchos, V, LLp, proyecto, techos)
+    l1 = PLT.dc01(doc, "%s-%02d" % (pref, num0), R, red, sitio, curvas, P, anchos, V, LLp, proyecto, techos, sums)
     sep_p = 841 * ESC_P / 1000 + 15
-    l2 = PLT.dc02(doc, "%s-%02d" % (pref, num0 + 1), -sep_p, 0.0, secciones_eje, V, LLt, P, techos)
+    l2 = PLT.dc02(doc, "%s-%02d" % (pref, num0 + 1), -sep_p, 0.0, secciones_eje, V, LLt, P, techos, sums)
     lp = PL.perfiles(doc, 0.0, 0.0, sep_p, num0 + 2, pref)
     xs = len(lp) * sep_p + 20
     ls = PL.cortes(doc, xs, 0.0, 841 * ESC_S / 1000 + 15, num0 + 2 + len(lp), pref)

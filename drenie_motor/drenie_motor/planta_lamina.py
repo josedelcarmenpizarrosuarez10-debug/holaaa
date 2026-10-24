@@ -26,11 +26,12 @@ CAPAS = [("CURVAS", 33, "CONTINUOUS"), ("CURVAS-TXT", 33, "CONTINUOUS"), ("ARQ-T
          ("CUN-REJ-BORDE", 4, "CONTINUOUS"), ("CUN-REJ-PLATINA", 4, "CONTINUOUS"), ("CUN-TAP-BORDE", 3, "CONTINUOUS"),
          ("CUN-FLUJO", 1, "CONTINUOUS"), ("CUN-TAPA-INSP", 5, "CONTINUOUS"), ("LLORADERO", 3, "CONTINUOUS"), ("EJE-ROTULO", 5, "CONTINUOUS"),
          ("CANALETA", 30, "CONTINUOUS"), ("MONTANTE", 6, "CONTINUOUS"), ("MONTANTE-SALIDA", 6, "DASHED"),
-         ("MONTANTE-TUBO", 4, "CONTINUOUS"), ("FALSA-COLUMNA", 5, "CONTINUOUS")]
+         ("MONTANTE-TUBO", 4, "CONTINUOUS"), ("FALSA-COLUMNA", 5, "CONTINUOUS"), ("SUMIDERO", 1, "CONTINUOUS"),
+         ("SUMIDERO-TUBO", 1, "DASHED")]
 RGB = {"CURVAS": (176, 136, 96), "CURVAS-TXT": (150, 110, 70), "CUN-REJ-BORDE": (0, 170, 230), "CUN-REJ-PLATINA": (120, 205, 240),
        "CUN-TAP-BORDE": (0, 150, 0), "CUN-FLUJO": (230, 0, 0), "CUN-TAPA-INSP": (0, 0, 230), "LLORADERO": (0, 140, 60),
        "CANALETA": (230, 130, 0), "MONTANTE": (255, 0, 255), "MONTANTE-SALIDA": (190, 0, 190), "MONTANTE-TUBO": (0, 230, 230),
-       "FALSA-COLUMNA": (0, 120, 255)}
+       "FALSA-COLUMNA": (0, 120, 255), "SUMIDERO": (200, 0, 0), "SUMIDERO-TUBO": (200, 0, 0)}
 GROSOR = {"LIMITE-INTERV": 70, "CURVAS": 13, "ARQ-TECHO": 13, "ARQ-VEREDA": 9, "ARQ-MURO": 13, "DESCARGA": 35, "CUN-REJ-BORDE": 30,
           "CUN-TAP-BORDE": 30}
 
@@ -201,7 +202,7 @@ def escala_para(caja, ancho_mm=790.0, alto_mm=448.0):
     return next((e for e in ESCALAS if w / (e / 1000.0) <= ancho_mm and h / (e / 1000.0) <= alto_mm), ESCALAS[-1])
 
 
-def dc01(doc, codigo, R, red, sitio, curvas, P, anchos, V, lloraderos, proyecto, techos=None):
+def dc01(doc, codigo, R, red, sitio, curvas, P, anchos, V, lloraderos, proyecto, techos=None, sums=None):
     ce = sitio.cerco; x0, y0, x1, y1 = ce.bounds
     caja = (x0 - 6, y0 - 6, x1 + 6, y1 + 6)
     esc = escala_para(caja); f = esc / 1000.0
@@ -245,6 +246,10 @@ def dc01(doc, codigo, R, red, sitio, curvas, P, anchos, V, lloraderos, proyecto,
             for m in techos["montantes"]:
                 montante(lam, m, tcp["fc_largo"], tcp["fc_ancho"])
                 if m["hacia"]: lam.linea((m["x"], m["y"]), tuple(m["hacia"]), "MONTANTE-SALIDA")
+    if sums and sums["sumideros"]:
+        from . import sumideros as SMD
+        with EnBloque(lam, "SUMIDEROS", "SUMIDERO"):
+            SMD.dibujar(lam, sums)
     Nn = R["nudos"]; D = set(red.descargas)
     with EnBloque(lam, "ROTULOS_RED", "NUDOS"):
         E = Etiquetas(lam)
@@ -262,6 +267,7 @@ def dc01(doc, codigo, R, red, sitio, curvas, P, anchos, V, lloraderos, proyecto,
         for n, xy in Nn.items():
             if rotular(n): E.poner(tuple(xy), n, 1.45, "TEXTOS", d_mm=1.6)
         for m in (techos or {}).get("montantes", []): E.poner((m["x"], m["y"]), m["montante"], 1.3, "TEXTOS", color=6, d_mm=1.4)
+        for m in (sums or {}).get("sumideros", []): E.poner((m["x"], m["y"]), m["sumidero"], 1.4, "TEXTOS", color=1, d_mm=1.4)
         hechas = set()
         for r in sorted(R["ramales"], key=lambda r: -r["L"]):
             fin = r["nudos"][-1]
@@ -280,10 +286,12 @@ def dc01(doc, codigo, R, red, sitio, curvas, P, anchos, V, lloraderos, proyecto,
              ("rect", "LLORADERO", "Lloradero PVC 3\" @ %.2f m con caja filtrante 0.30 x 0.30 (%d und)" % (P["llor_sep"], len(lloraderos))),
              ("linea2", "DESCARGA", "Descarga por el cerco (salida por gravedad)")] + ([
              ("linea2", "CANALETA", "Canaleta galvanizada %.2f x %.2f, S = 1 %% (%.1f m)" % (techos["criterios"]["parametros"]["canaleta_b"], techos["criterios"]["parametros"]["canaleta_h"], techos["metrado"]["canaleta_m"])),
-             ("rect", "FALSA-COLUMNA", "Montante PVC 4\" en falsa columna 0.20 x 0.15 en la esquina, y su salida a la cuneta (%d und)" % techos["metrado"]["montantes_und"])] if techos else []) + [
+             ("rect", "FALSA-COLUMNA", "Montante PVC 4\" en falsa columna 0.20 x 0.15 en la esquina, y su salida a la cuneta (%d und)" % techos["metrado"]["montantes_und"])] if techos else []) + ([
+             ("rect", "SUMIDERO", "Sumidero 0.25 x 0.25 (caja 0.45) y tuberia PVC 4\" a la cuneta, solo en areas libres sin cobertura (%d und)" % sums["metrado"]["sumideros_und"])]
+             if sums and sums["sumideros"] else []) + [
              ("linea", "CURVAS", "Curva de nivel"), ("linea", "ARQ-TECHO", "Proyeccion de techos"),
              ("linea", "ARQ-VEREDA", "Veredas y pisos (arquitectura)"), ("linea2", "LIMITE-INTERV", "Limite de intervencion = cerco perimetrico")]
-    lam.leyenda2(30, 126, items, hmm=1.6, ancho_col=150, filas_col=6 if techos else 5)
+    lam.leyenda2(30, 126, items, hmm=1.6, ancho_col=150, filas_col=7 if (sums and sums["sumideros"]) else (6 if techos else 5))
     est = {d["D"]: d for d in V["descargas"]}
     qd = {}
     for fl in V["hidraulica"]:
@@ -292,7 +300,7 @@ def dc01(doc, codigo, R, red, sitio, curvas, P, anchos, V, lloraderos, proyecto,
               if est[k]["sale_a_m"] is not None else "REVISAR"] for k in sorted(est)]
     lam.tabla(345, 126, ["DESC.", "C.F.", "Q (l/s)", "SALIDA POR GRAVEDAD"], filas, [14, 18, 16, 90], hmm=1.5, alto_mm=4.6, titulo="DESCARGAS")
     niv = ("borde de cuneta %+.2f al ras del piso" % sitio.borde) if sitio.borde is not None else "borde de cuneta al nivel del terreno"
-    lam.notas(30, 74 if techos else 78, "CRITERIOS", [
+    lam.notas(30, 68 if (sums and sums["sumideros"]) else (74 if techos else 78), "CRITERIOS", [
         "1. Cuneta rectangular de concreto: muros y losa de fondo de %.2f m; ancho libre de %.2f a %.2f m de 5 en 5 cm segun el caudal; una sola medida por sector (descarga)." % (P["e_muro"], P["b_int"], P.get("b_max", P["b_int"])),
         "2. Profundidad libre al inicio de cada eje %.2f m; cota de fondo con pendiente minima de %.1f %%; %s." % (P["h0"], 100 * P["S0"], niv),
         "3. Rejilla metalica en tramos abiertos; losa tapa de %.2f m en cruces de vereda e ingresos, con tapas de inspeccion 0.60 x 0.60 a %.0f m como maximo." % (P["e_tapa"], MAX_TAPAS),
@@ -311,7 +319,7 @@ def _tabla_partida(lam, x, ytop, ybot, cab, filas, anchos, titulo, hmm=1.9, alto
     return x
 
 
-def dc02(doc, codigo, ox, oy, secciones, V, LLt, P, techos=None):
+def dc02(doc, codigo, ox, oy, secciones, V, LLt, P, techos=None, sums=None):
     lam = B.Lamina(doc, ox, oy, 50, codigo, "CUADROS DE EJES, DESCARGAS Y LLORADEROS",
                    "SECCION ADOPTADA, CAUDAL, PROFUNDIDADES Y EXCAVACION POR EJE; TRAMOS CON LLORADEROS", escala_txt="S/E")
     filas = [[s["sector"], s["eje"], "%.2f" % s["L_m"], "%.1f" % s["Q_max_ls"], "%.2f" % s["b"], "%.2f" % (s["b"] + 2 * P["e_muro"]),
@@ -340,8 +348,14 @@ def dc02(doc, codigo, ox, oy, secciones, V, LLt, P, techos=None):
               for l in techos["lados"]]
         m = techos["metrado"]
         ft.append(["TOTAL", "", "", "%.2f" % m["canaleta_m"], "", m["montantes_und"], "", ""])
-        _tabla_partida(lam, xt, 575, 135, ["TECHO", "LADO", "AREA (m2)", "CANALETA (m)", "Q (l/s)", "MONT.", "TIRANTE", "DESCARGA A"],
+        xt = _tabla_partida(lam, xt, 575, 135, ["TECHO", "LADO", "AREA (m2)", "CANALETA (m)", "Q (l/s)", "MONT.", "TIRANTE", "DESCARGA A"],
                        ft, [16, 11, 18, 20, 16, 12, 16, 34], "CANALETAS Y MONTANTES PVC 4\" POR TECHO")
+    if sums and sums["sumideros"]:
+        fs = [[x["sumidero"], "%.1f" % x["A_m2"], "%.2f" % x["Q_ls"], x["cuneta"], "%.2f" % x["L_tubo_m"], "%.3f" % x["z_llegada"], "%.3f" % x["cf_cuneta"]]
+              for x in sums["sumideros"]]
+        fs.append(["TOTAL", "", "", "", "%.2f" % sums["metrado"]["tuberia_4_m"], "", ""])
+        _tabla_partida(lam, xt, 575, 135, ["SUMIDERO", "AREA (m2)", "Q (l/s)", "CUNETA", "TUBO 4\" (m)", "LLEGADA", "C.F."],
+                       fs, [18, 16, 14, 16, 18, 18, 18], "SUMIDEROS (areas libres)")
     lam.notas(30, 120, "NOTAS", [
         "1. b LIBRE = ancho libre interior; TOTAL = b + 2 muros de %.2f m; h = altura libre (de la cota de fondo al borde); EXCAV. = h + losa de fondo %.2f + solado %.2f." % (P["e_muro"], P["e_fondo"], P["e_solado"]),
         "2. Una sola medida por sector (ejes que salen por la misma descarga): la mayor que pide cualquiera de sus tramos.",

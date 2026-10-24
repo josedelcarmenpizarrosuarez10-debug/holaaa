@@ -198,7 +198,7 @@ def calcular(sitio, R, P, I, cfg):
     return {"lados": lados, "montantes": montantes, "metrado": met, "criterios": criterios, "avisos": avisos}
 
 
-def excel(T, ruta):
+def excel(T, ruta, SM=None):
     import openpyxl
     from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
     wb = openpyxl.Workbook(); neg = Font(bold=True); cab = PatternFill("solid", fgColor="D9E2F3")
@@ -245,4 +245,7 @@ def excel(T, ruta):
     for i, (a, b) in enumerate(filas):
         k.cell(2 + i, 1, a).border = borde; k.cell(2 + i, 2, b).border = borde
     k.column_dimensions["A"].width = 52; k.column_dimensions["B"].width = 60
+    if SM is not None:
+        from . import sumideros as _s
+        _s.hoja(wb, SM)
     wb.save(ruta); return ruta

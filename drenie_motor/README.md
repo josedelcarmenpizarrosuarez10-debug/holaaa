@@ -100,6 +100,10 @@ Canaletas y montantes (`techo.py`, hoja `CANALETAS_Y_MONTANTES.xlsx`): por cada 
 alero con su salida a la cuneta más cercana (aviso si no hay a menos de 3 m) y metrado con las reglas de la planilla del usuario
 (soportes @0.60 + 1, 2 tapas, 1 boquilla por montante, 3 codos de 90, 2 colgadores, abrazaderas cada 4 m). Altura del alero por
 techo en `altura_alero` (`{"defecto": 3.50, "techos": [{"punto": [x, y], "altura": 7.00}]}`); parámetros en `techo_parametros`.
-Se dibujan en la DC-01 (bloque CANALETAS_Y_MONTANTES) y su cuadro va en la DC-02.
+Se dibujan en la DC-01 (bloque CANALETAS_Y_MONTANTES) y su cuadro va en la DC-02. Montantes: en las esquinas de la
+edificación (2 por lado), siempre 4", editables en el visor (MT).
+Sumideros (`sumideros.py`): solo en áreas libres sin cobertura (`sumidero_tipos`, por defecto patio y estacionamiento), donde la
+zona queda a más de 8 m de una cuneta; tubo PVC 4" recto a la cuneta (S 1 %, llega sobre la cota de fondo); editables en el
+visor (SU); hoja SUMIDEROS en `CANALETAS_MONTANTES_Y_SUMIDEROS.xlsx`, dibujo en la DC-01 y cuadro en la DC-02.
 Prefijo y número inicial en `planos` (`{"prefijo": "DC", "inicio": 1}`). `PLANTA_RED_CUNETAS.dxf` queda como dibujo de trabajo.
 Librería de dibujo propia en `dxf_base.py` y `dxf_layouts.py` (copias de las de `herramientas/`).

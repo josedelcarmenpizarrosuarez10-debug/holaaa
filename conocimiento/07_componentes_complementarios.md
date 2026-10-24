@@ -279,6 +279,13 @@ La tubería de 4" y los codos se pagan en sus propias partidas, no dentro del su
 
 Ubicación: en el punto bajo del piso; el piso tiene pendiente hacia el sumidero.
 
+### 5.1b Reglas para el programa DRENIE (24-10-2026)
+- Sumideros solo en áreas libres pavimentadas sin cobertura (patios; patio de maniobra y estacionamiento); nunca en áreas verdes,
+  veredas ni bajo techo (usuario). El área de juegos (caucho) queda fuera hasta que el usuario lo decida.
+- Solo donde la zona queda lejos de una cuneta (> 8 m); lo cercano escurre a la cuneta. Zonas < 20 m² o con < 10 m² lejos: sin
+  sumidero. Tubo PVC 4" recto a la cuneta (no al tramo de la descarga), S 1 %, que llegue sobre la cota de fondo; editable en el visor (SU).
+- Barranquita: 2 sumideros en el patio de maniobra (22.15 m de tubo 4" al EJE-01).
+
 ### 5.2 Hoja METRADO EN PISO (SUMIDERO) y cantidades
 Por sector: tubería 4" PVC-U clase pesada (m), sumidero 4" (und), codo 90° x 4", codo 45° x 4", tee x 4".
 

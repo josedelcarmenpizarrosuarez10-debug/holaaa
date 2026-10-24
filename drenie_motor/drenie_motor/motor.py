@@ -10,7 +10,7 @@ import json
 import os
 import time
 
-from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos, techo
+from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos, techo, sumideros
 from .parametros import combinar
 
 VERSION = "0.1.0"
@@ -39,7 +39,8 @@ def _sumar_ediciones(cfg, ed):
     cfg["flechas_techo"] = list(cfg.get("flechas_techo", [])) + list(ed.get("flechas_techo", []))
     cfg["ejes_lineas"] = list(cfg.get("ejes_lineas", [])) + list(ed.get("ejes_lineas", []))
     if ed.get("descargas"): cfg["descargas"] = ed["descargas"]
-    if ed.get("montantes"): cfg["montantes"] = ed["montantes"]          # todos los montantes que dejo el proyectista en el visor
+    if ed.get("montantes"): cfg["montantes"] = ed["montantes"]
+    if ed.get("sumideros") is not None and ed.get("sumideros_visor"): cfg["sumideros"] = ed["sumideros"]          # todos los montantes que dejo el proyectista en el visor
 
 
 def _preparar(cfg, base, salida):
@@ -81,7 +82,8 @@ def leer(cfg_ruta):
     LL, _ = _lluvia_diseno(cfg, base)
     lados_t, _, _ = techo.ubicar(S, P, float(LL.get("I_mmh") or 0) or verificacion.intensidad(LL)[0], cfg)
     mont = [{"x": c[0], "y": c[1], "V": V, "u": h, "n": l["nrm"]} for l in lados_t for (c, V, h) in l["pos"]]
-    esc = escena.escribir(os.path.join(salida, "escena.json"), B, S, M, ejes, cur, cfg.get("proyecto", {}), getattr(S, "aguas", []), mont)
+    sums, _ = sumideros.proponer(M, ejes, P, float(LL.get("I_mmh") or 0) or verificacion.intensidad(LL)[0], cfg)
+    esc = escena.escribir(os.path.join(salida, "escena.json"), B, S, M, ejes, cur, cfg.get("proyecto", {}), getattr(S, "aguas", []), mont, sums)
     out = {"accion": "leer", "version": VERSION, "escena": esc, "dxf": B["resumen"], "capas": lector_dxf.capas_disponibles(B), "terreno": rep_t,
            "cerco": {"area_m2": round(S.cerco.area, 1), "perimetro_m": round(S.cerco.length, 1),
                      "vertices": [[round(x, 3), round(y, 3)] for x, y in list(S.cerco.exterior.coords)[:-1]]},
@@ -150,7 +152,8 @@ def disenar(cfg_ruta):
             recorte[info["k"]] = recorte.get(info["k"], 0.0) + max(falta, 0.01) / P["S0"] + 2.0
     anchos = {(f["eje"], f["de"], f["a"]): f["b"] for f in V["hidraulica"]}
     TT = techo.calcular(S, C, P, V["hidrologia"]["I"], cfg)
-    xls_t = techo.excel(TT, os.path.join(salida, "CANALETAS_Y_MONTANTES.xlsx"))
+    SM = sumideros.calcular(M, S, C, P, V["hidrologia"]["I"], cfg, set(R.descargas))
+    xls_t = techo.excel(TT, os.path.join(salida, "CANALETAS_MONTANTES_Y_SUMIDEROS.xlsx"), SM)
     verde = M.por_tipo().get("verde")
     LLt, LLp = lloraderos.calcular(C, verde, P, anchos)
     secciones = {}
@@ -173,26 +176,26 @@ def disenar(cfg_ruta):
                "comprobaciones": len(V["comprobaciones"]), "vueltas_ciclo": vueltas, "intentos_descargas": intento,
                "sin_salida_m": round(sum(geom.dist(a, b) for a, b in R.sin_cubrir), 1),
                "anchos_libres_m": sorted({f["b"] for f in V["hidraulica"]}), "lloraderos": lloraderos.resumen(LLt),
-               "techos": TT["metrado"]}
+               "techos": TT["metrado"], "sumideros": SM["metrado"]}
     proyecto = cfg.get("proyecto", {})
     dxf = salidas.dxf_planta(os.path.join(salida, "PLANTA_RED_CUNETAS.dxf"), C, R, S, cur, P, proyecto, anchos, LLp)
     pl = cfg.get("planos", {})
     dxf_pf, laminas, n_sec = planos.dxf_planos(os.path.join(salida, "PLANOS_CUNETAS.dxf"), C, R, S, P, anchos, proyecto, cur, V, LLt, LLp,
-                                               list(secciones.values()), pl.get("prefijo", "DC"), pl.get("inicio", 1), TT)
+                                               list(secciones.values()), pl.get("prefijo", "DC"), pl.get("inicio", 1), TT, SM)
     png = salidas.png_planta(os.path.join(salida, "PLANTA_RED_CUNETAS.png"), C, R, S, cur, ejes,
                              "%s - red de cunetas: %d ejes, %d descargas, %.1f m (%.1f m de uniones nuevas)" % (
                                  proyecto.get("nombre_corto", ""), resumen["ejes"], resumen["descargas"], Ltot, nuevas))
     out = {"accion": "disenar", "version": VERSION, "proyecto": proyecto, "resumen": resumen, "parametros": P,
            "mapa_superficies": M.cuadro(),
-           "terreno": rep_t, "avisos": S.avisos + M.avisos + R.avisos + TT["avisos"] + ([
+           "terreno": rep_t, "avisos": S.avisos + M.avisos + R.avisos + TT["avisos"] + SM["avisos"] + ([
                "%d mitades de techo (%d m2) no tienen cuneta bajo su alero: esa agua se mando a la cuneta mas cercana. Revisar si "
                "falta cuneta o si cae al terreno." % (len(V["hidrologia"]["aleros_sin_cuneta"]), sum(a["area_m2"] for a in V["hidrologia"]["aleros_sin_cuneta"]))]
                if V["hidrologia"]["aleros_sin_cuneta"] else []), "chaflanes": R.chaflanes_hechos, "red": C,
            "descargas_propuestas": [{"D": k, "x": round(v["q"][0], 3), "y": round(v["q"][1], 3), "L_max_m": v["L_max"],
                                      "terreno_exterior_min": round(v["z_req"], 2)} for k, v in R.descargas.items()],
            "sin_salida": [[list(a), list(b)] for a, b in R.sin_cubrir], "verificacion": V,
-           "secciones_por_eje": list(secciones.values()), "techos": TT, "lloraderos": {"resumen": lloraderos.resumen(LLt), "tramos": LLt},
-           "profundidad_minima_por_capacidad": hq, "archivos": {"dxf": dxf, "png": png, "dimensionamiento": xls, "canaletas_y_montantes": xls_t, "planos": dxf_pf},
+           "secciones_por_eje": list(secciones.values()), "techos": TT, "sumideros": SM, "lloraderos": {"resumen": lloraderos.resumen(LLt), "tramos": LLt},
+           "profundidad_minima_por_capacidad": hq, "archivos": {"dxf": dxf, "png": png, "dimensionamiento": xls, "canaletas_montantes_y_sumideros": xls_t, "planos": dxf_pf},
            "laminas": [{"codigo": c, "titulo": t} for c, t in laminas], "secciones_dibujadas": n_sec, "segundos": round(time.time() - t0, 1),
            "requiere_confirmacion": ["descargas"] if not cfg.get("descargas") else []}
     json.dump(out, open(os.path.join(salida, "resultado.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
