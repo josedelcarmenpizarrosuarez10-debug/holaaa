@@ -13,6 +13,8 @@ import math
 import numpy as np
 from shapely.geometry import LineString, Point
 
+from . import geom
+
 
 def intensidad(lluvia):
     """I (mm/h). Directa, o por Dick y Peschke: P_D = P24 (D/1440)^0.25, I = 60 P_D / D (D = tc, minimo 10 min)."""
@@ -135,6 +137,29 @@ def verificar(R, red, sitio, terreno, P, lluvia, hq_prev=None):
     segs = [(c, j, Nn[t["de"]], Nn[t["a"]]) for c, r in ram.items() for j, t in enumerate(r["tramos"])]
     Dm = np.stack([_seg_dist(Pc, a, b) for c, j, a, b in segs], 1); asg = Dm.argmin(1)
     Ccel, tipo = sitio.c_celdas(Pc[:, 0], Pc[:, 1])
+    # techos: cada mitad descarga por su alero (canaleta y montante) a la cuneta que esta debajo, no a la mas cercana
+    techos_ok = 0; sin_cuneta = []
+    from shapely.geometry import Point as _Pt
+    for ag in getattr(sitio, "aguas", []):
+        m = shapely.contains_xy(ag["poligono"], Pc[:, 0], Pc[:, 1]) & (tipo == "techo")
+        if not m.any(): continue
+        al = ag["alero"]
+        def bajo_alero(a, b):
+            """Cuneta paralela al alero (< 20 grados), a <= 1.5 m y que corre a lo largo de el (se solapan al proyectar)."""
+            sg = LineString([a, b])
+            if sg.length < 0.05 or sg.distance(al) > 1.5: return False
+            (ux, uy), _ = geom.unit(a, b); (vx, vy), _ = geom.unit(*al.coords)
+            if abs(ux * vx + uy * vy) < math.cos(math.radians(20)): return False
+            s1, s2 = sorted((al.project(_Pt(*a)), al.project(_Pt(*b))))
+            return s2 - s1 > 0.3 and s1 < al.length - 0.3 and s2 > 0.3
+        cand = [k for k, (c, j, a, b) in enumerate(segs) if bajo_alero(a, b)]
+        if not cand:
+            c0 = ag["poligono"].representative_point()
+            sin_cuneta.append({"techo": ag["techo"], "area_m2": int(m.sum()), "punto": [round(c0.x, 2), round(c0.y, 2)]}); continue
+        idx = np.nonzero(m)[0]
+        proy = np.array([[al.interpolate(al.project(_Pt(x, y))).x, al.interpolate(al.project(_Pt(x, y))).y] for x, y in Pc[idx]])
+        Dc = np.stack([_seg_dist(proy, segs[k][2], segs[k][3]) for k in cand], 1)
+        asg[idx] = np.array(cand)[Dc.argmin(1)]; techos_ok += len(idx)
     area, areaC = {}, {}
     for k, (c, j, a, b) in enumerate(segs):
         sel = asg == k; area[(c, j)] = float(sel.sum()); areaC[(c, j)] = float(Ccel[sel].sum())
@@ -214,5 +239,10 @@ def verificar(R, red, sitio, terreno, P, lluvia, hq_prev=None):
     res.sort(key=lambda c: c["n"])
     out = {"comprobaciones": res, "descargas": desc, "hidraulica": filas, "empalmes": emp,
            "hidrologia": {"I": round(I, 2), "fuente_I": fuente_I, "C": round(Cp, 3), "A_total": Atot, "FS": P["FS"],
-                          "superficies": {k: {"A": v, "C": P["C"][k]} for k, v in sup.items()}}}
+                          "superficies": {k: {"A": v, "C": P["C"][k]} for k, v in sup.items()},
+                          "techo_por_caida_m2": techos_ok,
+                          "aleros_sin_cuneta": sin_cuneta,
+                          "aporte_por_tramo": [{"eje": c, "tramo": j, "de": ram[c]["tramos"][j]["de"], "a": ram[c]["tramos"][j]["a"],
+                                                **{t: float((tipo[asg == k] == t).sum()) for t in P["C"]}}
+                                               for k, (c, j, a, b) in enumerate(segs)]}}
     return out, hq

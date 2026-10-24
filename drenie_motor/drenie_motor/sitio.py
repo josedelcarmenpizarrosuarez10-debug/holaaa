@@ -79,6 +79,8 @@ class Sitio:
 
     def superficies(self):
         """Poligonos por tipo dentro del cerco, para el C ponderado (el resto es area verde)."""
+        if getattr(self, "mapa", None) is not None:
+            pt = self.mapa.por_tipo(); return {k: pt[k] for k in ("techo", "estacionamiento", "pavimento", "cuneta", "verde")}
         if getattr(self, "_sup", None): return self._sup
         dentro = self.cerco
         techo = self.techos.intersection(dentro) if not self.techos.is_empty else Polygon()
@@ -86,7 +88,7 @@ class Sitio:
                          [e["geom"] for e in self.extra if e["tipo"] == "estacionamiento"]).intersection(dentro).difference(techo)
         pav = self.veredas.intersection(dentro).difference(techo).difference(est) if not self.veredas.is_empty else Polygon()
         verde = dentro.difference(techo).difference(est).difference(pav)
-        self._sup = {"techo": techo, "estacionamiento": est, "pavimento": pav, "verde": verde}
+        self._sup = {"techo": techo, "estacionamiento": est, "pavimento": pav, "cuneta": Polygon(), "verde": verde}
         return self._sup
 
     def cuadro_superficies(self):
@@ -104,7 +106,7 @@ class Sitio:
         """C de cada celda (puntos X, Y) segun su superficie; el resto es area verde."""
         import numpy as np
         C = np.full(len(X), self.P["C"]["verde"]); tipo = np.array(["verde"] * len(X), dtype=object)
-        for k in ("pavimento", "estacionamiento", "techo"):
+        for k in ("pavimento", "cuneta", "estacionamiento", "techo"):
             pol = self.superficies()[k]
             if pol.is_empty: continue
             m = shapely.contains_xy(pol, X, Y); C[m] = self.P["C"][k]; tipo[m] = k

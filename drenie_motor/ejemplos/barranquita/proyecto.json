@@ -105,5 +105,39 @@
    ],
    "nota": "Bordes ajustados a la cara exterior de las cunetas del usuario que rodean la losa"
   }
- ]
+ ],
+ "superficies_cfg": {
+  "asignaciones": [
+   {
+    "x": 354877.617,
+    "y": 9249837.249,
+    "tipo": "verde",
+    "nota": "area de 2554.9 m2 asignada como area verde (equivale al clic en el visor)"
+   },
+   {
+    "x": 354949.991,
+    "y": 9249839.117,
+    "tipo": "verde",
+    "nota": "area de 3.8 m2 asignada como area verde (equivale al clic en el visor)"
+   },
+   {
+    "x": 354936.605,
+    "y": 9249839.953,
+    "tipo": "verde",
+    "nota": "area de 0.1 m2 asignada como area verde (equivale al clic en el visor)"
+   },
+   {
+    "x": 354937.263,
+    "y": 9249810.067,
+    "tipo": "verde",
+    "nota": "area de 1.1 m2 asignada como area verde (equivale al clic en el visor)"
+   },
+   {
+    "x": 354977.475,
+    "y": 9249813.541,
+    "tipo": "verde",
+    "nota": "area de 168.9 m2 asignada como area verde (equivale al clic en el visor)"
+   }
+  ]
+ }
 }

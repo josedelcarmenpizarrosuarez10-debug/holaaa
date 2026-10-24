@@ -76,6 +76,15 @@ def leer(ruta, capas=None):
                 elif t in ("ARC", "CIRCLE", "ELLIPSE", "SPLINE"):
                     pts = [(p.x, p.y) for p in e.flattening(0.05)]
                     guardar_pl(capa, pts, t == "CIRCLE", color, None)
+                elif t == "HATCH":
+                    # cada contorno del sombreado como polilinea cerrada (sirve para la leyenda de colores)
+                    for camino in e.paths.rendering_paths(e.dxf.hatch_style):
+                        pts = [(p.x, p.y) for p in camino.flattening(0.05)] if hasattr(camino, "flattening") else []
+                        if not pts:
+                            from ezdxf.path import from_hatch_boundary_path
+                            pts = [(p.x, p.y) for p in from_hatch_boundary_path(camino).flattening(0.05)]
+                        guardar_pl(capa, pts, True, color, None)
+                        cuenta["_hatch"] = cuenta.get("_hatch", 0) + 1
                 elif t == "TEXT":
                     p = e.dxf.insert; txt.append((capa, e.dxf.text, p.x, p.y, e.dxf.height, color))
                 elif t == "MTEXT":
