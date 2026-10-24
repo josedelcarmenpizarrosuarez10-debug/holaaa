@@ -10,7 +10,7 @@ import json
 import os
 import time
 
-from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos
+from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos, techo
 from .parametros import combinar
 
 VERSION = "0.1.0"
@@ -145,6 +145,8 @@ def disenar(cfg_ruta):
             falta = info["z_req"] + P["desc_margen"] - d["cf"]
             recorte[info["k"]] = recorte.get(info["k"], 0.0) + max(falta, 0.01) / P["S0"] + 2.0
     anchos = {(f["eje"], f["de"], f["a"]): f["b"] for f in V["hidraulica"]}
+    TT = techo.calcular(S, C, P, V["hidrologia"]["I"], cfg)
+    xls_t = techo.excel(TT, os.path.join(salida, "CANALETAS_Y_MONTANTES.xlsx"))
     verde = M.por_tipo().get("verde")
     LLt, LLp = lloraderos.calcular(C, verde, P, anchos)
     secciones = {}
@@ -166,26 +168,27 @@ def disenar(cfg_ruta):
                "cumple": sum(1 for c in V["comprobaciones"] if c["estado"] in ("CUMPLE", "CUMPLE CON GRADAS")),
                "comprobaciones": len(V["comprobaciones"]), "vueltas_ciclo": vueltas, "intentos_descargas": intento,
                "sin_salida_m": round(sum(geom.dist(a, b) for a, b in R.sin_cubrir), 1),
-               "anchos_libres_m": sorted({f["b"] for f in V["hidraulica"]}), "lloraderos": lloraderos.resumen(LLt)}
+               "anchos_libres_m": sorted({f["b"] for f in V["hidraulica"]}), "lloraderos": lloraderos.resumen(LLt),
+               "techos": TT["metrado"]}
     proyecto = cfg.get("proyecto", {})
     dxf = salidas.dxf_planta(os.path.join(salida, "PLANTA_RED_CUNETAS.dxf"), C, R, S, cur, P, proyecto, anchos, LLp)
     pl = cfg.get("planos", {})
     dxf_pf, laminas, n_sec = planos.dxf_planos(os.path.join(salida, "PLANOS_CUNETAS.dxf"), C, R, S, P, anchos, proyecto, cur, V, LLt, LLp,
-                                               list(secciones.values()), pl.get("prefijo", "DC"), pl.get("inicio", 1))
+                                               list(secciones.values()), pl.get("prefijo", "DC"), pl.get("inicio", 1), TT)
     png = salidas.png_planta(os.path.join(salida, "PLANTA_RED_CUNETAS.png"), C, R, S, cur, ejes,
                              "%s - red de cunetas: %d ejes, %d descargas, %.1f m (%.1f m de uniones nuevas)" % (
                                  proyecto.get("nombre_corto", ""), resumen["ejes"], resumen["descargas"], Ltot, nuevas))
     out = {"accion": "disenar", "version": VERSION, "proyecto": proyecto, "resumen": resumen, "parametros": P,
            "mapa_superficies": M.cuadro(),
-           "terreno": rep_t, "avisos": S.avisos + M.avisos + R.avisos + ([
+           "terreno": rep_t, "avisos": S.avisos + M.avisos + R.avisos + TT["avisos"] + ([
                "%d mitades de techo (%d m2) no tienen cuneta bajo su alero: esa agua se mando a la cuneta mas cercana. Revisar si "
                "falta cuneta o si cae al terreno." % (len(V["hidrologia"]["aleros_sin_cuneta"]), sum(a["area_m2"] for a in V["hidrologia"]["aleros_sin_cuneta"]))]
                if V["hidrologia"]["aleros_sin_cuneta"] else []), "chaflanes": R.chaflanes_hechos, "red": C,
            "descargas_propuestas": [{"D": k, "x": round(v["q"][0], 3), "y": round(v["q"][1], 3), "L_max_m": v["L_max"],
                                      "terreno_exterior_min": round(v["z_req"], 2)} for k, v in R.descargas.items()],
            "sin_salida": [[list(a), list(b)] for a, b in R.sin_cubrir], "verificacion": V,
-           "secciones_por_eje": list(secciones.values()), "lloraderos": {"resumen": lloraderos.resumen(LLt), "tramos": LLt},
-           "profundidad_minima_por_capacidad": hq, "archivos": {"dxf": dxf, "png": png, "dimensionamiento": xls, "planos": dxf_pf},
+           "secciones_por_eje": list(secciones.values()), "techos": TT, "lloraderos": {"resumen": lloraderos.resumen(LLt), "tramos": LLt},
+           "profundidad_minima_por_capacidad": hq, "archivos": {"dxf": dxf, "png": png, "dimensionamiento": xls, "canaletas_y_montantes": xls_t, "planos": dxf_pf},
            "laminas": [{"codigo": c, "titulo": t} for c, t in laminas], "secciones_dibujadas": n_sec, "segundos": round(time.time() - t0, 1),
            "requiere_confirmacion": ["descargas"] if not cfg.get("descargas") else []}
     json.dump(out, open(os.path.join(salida, "resultado.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)

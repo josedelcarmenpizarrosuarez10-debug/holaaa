@@ -24,9 +24,11 @@ MAX_TAPAS = 10.0
 CAPAS = [("CURVAS", 33, "CONTINUOUS"), ("CURVAS-TXT", 33, "CONTINUOUS"), ("ARQ-TECHO", 8, "CONTINUOUS"), ("ARQ-VEREDA", 9, "CONTINUOUS"),
          ("ARQ-MURO", 8, "CONTINUOUS"), ("LIMITE-INTERV", 1, "DASHED"), ("NUDOS", 7, "CONTINUOUS"), ("DESCARGA", 1, "CONTINUOUS"),
          ("CUN-REJ-BORDE", 4, "CONTINUOUS"), ("CUN-REJ-PLATINA", 4, "CONTINUOUS"), ("CUN-TAP-BORDE", 3, "CONTINUOUS"),
-         ("CUN-FLUJO", 1, "CONTINUOUS"), ("CUN-TAPA-INSP", 5, "CONTINUOUS"), ("LLORADERO", 3, "CONTINUOUS"), ("EJE-ROTULO", 5, "CONTINUOUS")]
+         ("CUN-FLUJO", 1, "CONTINUOUS"), ("CUN-TAPA-INSP", 5, "CONTINUOUS"), ("LLORADERO", 3, "CONTINUOUS"), ("EJE-ROTULO", 5, "CONTINUOUS"),
+         ("CANALETA", 30, "CONTINUOUS"), ("MONTANTE", 6, "CONTINUOUS"), ("MONTANTE-SALIDA", 6, "DASHED")]
 RGB = {"CURVAS": (176, 136, 96), "CURVAS-TXT": (150, 110, 70), "CUN-REJ-BORDE": (0, 170, 230), "CUN-REJ-PLATINA": (120, 205, 240),
-       "CUN-TAP-BORDE": (0, 150, 0), "CUN-FLUJO": (230, 0, 0), "CUN-TAPA-INSP": (0, 0, 230), "LLORADERO": (0, 140, 60)}
+       "CUN-TAP-BORDE": (0, 150, 0), "CUN-FLUJO": (230, 0, 0), "CUN-TAPA-INSP": (0, 0, 230), "LLORADERO": (0, 140, 60),
+       "CANALETA": (230, 130, 0), "MONTANTE": (190, 0, 190), "MONTANTE-SALIDA": (190, 0, 190)}
 GROSOR = {"LIMITE-INTERV": 70, "CURVAS": 13, "ARQ-TECHO": 13, "ARQ-VEREDA": 9, "ARQ-MURO": 13, "DESCARGA": 35, "CUN-REJ-BORDE": 30,
           "CUN-TAP-BORDE": 30}
 
@@ -186,7 +188,7 @@ def escala_para(caja, ancho_mm=790.0, alto_mm=448.0):
     return next((e for e in ESCALAS if w / (e / 1000.0) <= ancho_mm and h / (e / 1000.0) <= alto_mm), ESCALAS[-1])
 
 
-def dc01(doc, codigo, R, red, sitio, curvas, P, anchos, V, lloraderos, proyecto):
+def dc01(doc, codigo, R, red, sitio, curvas, P, anchos, V, lloraderos, proyecto, techos=None):
     ce = sitio.cerco; x0, y0, x1, y1 = ce.bounds
     caja = (x0 - 6, y0 - 6, x1 + 6, y1 + 6)
     esc = escala_para(caja); f = esc / 1000.0
@@ -222,6 +224,15 @@ def dc01(doc, codigo, R, red, sitio, curvas, P, anchos, V, lloraderos, proyecto)
             lam.linea((x - nx * P["e_muro"], y - ny * P["e_muro"]), (x + nx * 0.05, y + ny * 0.05), "LLORADERO")
             c = [(x + nx * dn + ux * du, y + ny * dn + uy * du) for dn, du in ((0.0, -0.15), (0.30, -0.15), (0.30, 0.15), (0.0, 0.15))]
             lam.poli(c, "LLORADERO", cerrada=True)
+    if techos:
+        with EnBloque(lam, "CANALETAS_Y_MONTANTES", "CANALETA"):
+            for l in techos["lados"]:
+                lam.poli([tuple(c) for c in l["alero"]], "CANALETA", ancho=techos["criterios"]["parametros"]["canaleta_b"])
+            for m in techos["montantes"]:
+                lam.circulo((m["x"], m["y"]), 0.22, "MONTANTE")
+                h = lam.msp.add_hatch(dxfattribs={"layer": "MONTANTE"}); h.set_solid_fill(color=6, rgb=(190, 0, 190))
+                h.paths.add_edge_path().add_arc((m["x"], m["y"]), 0.22, 0, 360)
+                if m["hacia"]: lam.linea((m["x"], m["y"]), tuple(m["hacia"]), "MONTANTE-SALIDA")
     Nn = R["nudos"]; D = set(red.descargas)
     with EnBloque(lam, "ROTULOS_RED", "NUDOS"):
         E = Etiquetas(lam)
@@ -238,6 +249,7 @@ def dc01(doc, codigo, R, red, sitio, curvas, P, anchos, V, lloraderos, proyecto)
             E.poner((c[0] - uy * 0.8, c[1] + ux * 0.8), "%s (b %.2f)" % (r["codigo"], b), 2.0, "TEXTOS", color=5, d_mm=1.5)
         for n, xy in Nn.items():
             if rotular(n): E.poner(tuple(xy), n, 1.45, "TEXTOS", d_mm=1.6)
+        for m in (techos or {}).get("montantes", []): E.poner((m["x"], m["y"]), m["montante"], 1.3, "TEXTOS", color=6, d_mm=1.4)
         hechas = set()
         for r in sorted(R["ramales"], key=lambda r: -r["L"]):
             fin = r["nudos"][-1]
@@ -254,10 +266,12 @@ def dc01(doc, codigo, R, red, sitio, curvas, P, anchos, V, lloraderos, proyecto)
              ("rect", "CUN-TAPA-INSP", "Tapa de inspeccion 0.60 x 0.60 (%d und)" % ntapas),
              ("linea2", "CUN-FLUJO", "Sentido del flujo"),
              ("rect", "LLORADERO", "Lloradero PVC 3\" @ %.2f m con caja filtrante 0.30 x 0.30 (%d und)" % (P["llor_sep"], len(lloraderos))),
-             ("linea2", "DESCARGA", "Descarga por el cerco (salida por gravedad)"),
+             ("linea2", "DESCARGA", "Descarga por el cerco (salida por gravedad)")] + ([
+             ("linea2", "CANALETA", "Canaleta galvanizada %.2f x %.2f, S = 1 %% (%.1f m)" % (techos["criterios"]["parametros"]["canaleta_b"], techos["criterios"]["parametros"]["canaleta_h"], techos["metrado"]["canaleta_m"])),
+             ("punto", "MONTANTE", "Montante PVC 4\" y su salida a la cuneta (%d und)" % techos["metrado"]["montantes_und"], 6)] if techos else []) + [
              ("linea", "CURVAS", "Curva de nivel"), ("linea", "ARQ-TECHO", "Proyeccion de techos"),
              ("linea", "ARQ-VEREDA", "Veredas y pisos (arquitectura)"), ("linea2", "LIMITE-INTERV", "Limite de intervencion = cerco perimetrico")]
-    lam.leyenda2(30, 126, items, hmm=1.6, ancho_col=150, filas_col=5)
+    lam.leyenda2(30, 126, items, hmm=1.6, ancho_col=150, filas_col=6 if techos else 5)
     est = {d["D"]: d for d in V["descargas"]}
     qd = {}
     for fl in V["hidraulica"]:
@@ -266,7 +280,7 @@ def dc01(doc, codigo, R, red, sitio, curvas, P, anchos, V, lloraderos, proyecto)
               if est[k]["sale_a_m"] is not None else "REVISAR"] for k in sorted(est)]
     lam.tabla(345, 126, ["DESC.", "C.F.", "Q (l/s)", "SALIDA POR GRAVEDAD"], filas, [14, 18, 16, 90], hmm=1.5, alto_mm=4.6, titulo="DESCARGAS")
     niv = ("borde de cuneta %+.2f al ras del piso" % sitio.borde) if sitio.borde is not None else "borde de cuneta al nivel del terreno"
-    lam.notas(30, 78, "CRITERIOS", [
+    lam.notas(30, 74 if techos else 78, "CRITERIOS", [
         "1. Cuneta rectangular de concreto: muros y losa de fondo de %.2f m; ancho libre de %.2f a %.2f m de 5 en 5 cm segun el caudal; una sola medida por sector (descarga)." % (P["e_muro"], P["b_int"], P.get("b_max", P["b_int"])),
         "2. Profundidad libre al inicio de cada eje %.2f m; cota de fondo con pendiente minima de %.1f %%; %s." % (P["h0"], 100 * P["S0"], niv),
         "3. Rejilla metalica en tramos abiertos; losa tapa de %.2f m en cruces de vereda e ingresos, con tapas de inspeccion 0.60 x 0.60 a %.0f m como maximo." % (P["e_tapa"], MAX_TAPAS),
@@ -285,7 +299,7 @@ def _tabla_partida(lam, x, ytop, ybot, cab, filas, anchos, titulo, hmm=1.9, alto
     return x
 
 
-def dc02(doc, codigo, ox, oy, secciones, V, LLt, P):
+def dc02(doc, codigo, ox, oy, secciones, V, LLt, P, techos=None):
     lam = B.Lamina(doc, ox, oy, 50, codigo, "CUADROS DE EJES, DESCARGAS Y LLORADEROS",
                    "SECCION ADOPTADA, CAUDAL, PROFUNDIDADES Y EXCAVACION POR EJE; TRAMOS CON LLORADEROS", escala_txt="S/E")
     filas = [[s["sector"], s["eje"], "%.2f" % s["L_m"], "%.1f" % s["Q_max_ls"], "%.2f" % s["b"], "%.2f" % (s["b"] + 2 * P["e_muro"]),
@@ -306,11 +320,20 @@ def dc02(doc, codigo, ox, oy, secciones, V, LLt, P):
     fl = [[i + 1, t["eje"], "%s-%s" % (t["de"], t["a"]), t["lado"].upper(), "%.2f" % t["prog_desde"], "%.2f" % t["prog_hasta"], "%.2f" % t["L_m"], t["n"]]
           for i, t in enumerate(LLt)]
     if fl: fl.append(["", "TOTAL", "", "", "", "", "%.2f" % sum(t["L_m"] for t in LLt), sum(t["n"] for t in LLt)])
-    _tabla_partida(lam, x + 2, y - 14, 135, ["N.", "EJE", "TRAMO", "LADO", "DESDE", "HASTA", "L (m)", "N. LLOR."],
+    xt = _tabla_partida(lam, x + 2, y - 14, 135, ["N.", "EJE", "TRAMO", "LADO", "DESDE", "HASTA", "L (m)", "N. LLOR."],
                    fl, [11, 20, 32, 25, 20, 20, 18, 18], "LLORADEROS (muro junto a area verde, @ %.2f m)" % P["llor_sep"])
+    if techos:
+        ft = [[l["techo"], l["lado"].replace("Lado ", ""), "%.1f" % l["A_m2"], "%.2f" % l["L_canaleta_m"], "%.2f" % l["Q_ls"], l["montantes"],
+               "%.3f" % l["tirante_m"], ", ".join(dict.fromkeys(x["cuneta"].replace("SIN CUNETA CERCANA", "SIN CUNETA") for x in techos["montantes"] if x["montante"] in l["ids"]))[:24]]
+              for l in techos["lados"]]
+        m = techos["metrado"]
+        ft.append(["TOTAL", "", "", "%.2f" % m["canaleta_m"], "", m["montantes_und"], "", ""])
+        _tabla_partida(lam, xt, 575, 135, ["TECHO", "LADO", "AREA (m2)", "CANALETA (m)", "Q (l/s)", "MONT.", "TIRANTE", "DESCARGA A"],
+                       ft, [16, 11, 18, 20, 16, 12, 16, 34], "CANALETAS Y MONTANTES PVC 4\" POR TECHO")
     lam.notas(30, 120, "NOTAS", [
         "1. b LIBRE = ancho libre interior; TOTAL = b + 2 muros de %.2f m; h = altura libre (de la cota de fondo al borde); EXCAV. = h + losa de fondo %.2f + solado %.2f." % (P["e_muro"], P["e_fondo"], P["e_solado"]),
         "2. Una sola medida por sector (ejes que salen por la misma descarga): la mayor que pide cualquiera de sus tramos.",
-        "3. Lloraderos: tubo PVC 3\" a media altura del muro, con caja filtrante de 0.30 x 0.30 de grava envuelta en geotextil; N. = REDONDEAR.MAS(L / %.2f)." % P["llor_sep"]],
+        "3. Lloraderos: tubo PVC 3\" a media altura del muro, con caja filtrante de 0.30 x 0.30 de grava envuelta en geotextil; N. = REDONDEAR.MAS(L / %.2f)." % P["llor_sep"]] + ([
+        "4. Canaletas galvanizadas S = 1 %%, Manning n = 0.013, borde libre 0.05 m; montantes PVC 4\" por Wyly-Eaton (rs = 0.25): un montante atiende %.1f m2 de techo; salida PVC a la cuneta mas cercana." % techos["criterios"]["A_por_montante_4_m2"]] if techos else []),
         hmm=1.5, ancho_mm=600)
     return lam

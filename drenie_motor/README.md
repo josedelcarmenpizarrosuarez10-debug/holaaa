@@ -95,5 +95,11 @@ nombre ni CIP del proyectista):
   criterios; todo en bloques de AutoCAD por tema.
 - DC-02 cuadros: ejes (sector, L, Q máx, b libre, total, h mín/máx, excavación), descargas (ejes, L, Q, C.F.) y tramos de lloraderos.
 - DC-03 en adelante: perfiles longitudinales por eje (1/50) y el corte de cada sección (1/20).
+Canaletas y montantes (`techo.py`, hoja `CANALETAS_Y_MONTANTES.xlsx`): por cada lado de techo, canaleta galvanizada
+0.25 × 0.20 a lo largo del alero (S 1 %, n 0.013, borde libre 0.05), montantes PVC 4" por Wyly-Eaton (rs 0.25) repartidos en el
+alero con su salida a la cuneta más cercana (aviso si no hay a menos de 3 m) y metrado con las reglas de la planilla del usuario
+(soportes @0.60 + 1, 2 tapas, 1 boquilla por montante, 3 codos de 90, 2 colgadores, abrazaderas cada 4 m). Altura del alero por
+techo en `altura_alero` (`{"defecto": 3.50, "techos": [{"punto": [x, y], "altura": 7.00}]}`); parámetros en `techo_parametros`.
+Se dibujan en la DC-01 (bloque CANALETAS_Y_MONTANTES) y su cuadro va en la DC-02.
 Prefijo y número inicial en `planos` (`{"prefijo": "DC", "inicio": 1}`). `PLANTA_RED_CUNETAS.dxf` queda como dibujo de trabajo.
 Librería de dibujo propia en `dxf_base.py` y `dxf_layouts.py` (copias de las de `herramientas/`).
