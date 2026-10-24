@@ -285,6 +285,9 @@ Ubicación: en el punto bajo del piso; el piso tiene pendiente hacia el sumidero
 - Solo donde la zona queda lejos de una cuneta (> 8 m); lo cercano escurre a la cuneta. Zonas < 20 m² o con < 10 m² lejos: sin
   sumidero. Tubo PVC 4" recto a la cuneta (no al tramo de la descarga), S 1 %, que llegue sobre la cota de fondo; editable en el visor (SU).
 - Barranquita: 2 sumideros en el patio de maniobra (22.15 m de tubo 4" al EJE-01).
+- Tubería del sumidero: 1 % de pendiente; mínimo 0.5 % si con 1 % no llega sobre el fondo de la cuneta (usuario: "siempre las
+  tuberías van con 1 % de pendiente o 0.5 %"); norma: CE.040 (drenaje pluvial) e IS.010 (desagüe 4", S >= 1 %), valores editables.
+- Al mover un sumidero en el visor, su tubería se vuelve a trazar sola a la cuneta más cercana (longitud y caída al 1 %).
 
 ### 5.2 Hoja METRADO EN PISO (SUMIDERO) y cantidades
 Por sector: tubería 4" PVC-U clase pesada (m), sumidero 4" (und), codo 90° x 4", codo 45° x 4", tee x 4".

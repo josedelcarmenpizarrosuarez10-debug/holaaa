@@ -18,7 +18,7 @@ import shapely
 from shapely.geometry import LineString, Point
 from shapely.ops import unary_union
 
-PARAM = {"dist_cuneta": 8.0, "radio": 6.0, "S_tubo": 0.01, "n_tubo": 0.010, "D_tubo": 0.1016, "prof_caja": 0.23,
+PARAM = {"dist_cuneta": 8.0, "radio": 6.0, "S_tubo": 0.01, "S_min": 0.005, "n_tubo": 0.010, "D_tubo": 0.1016, "prof_caja": 0.23,
          "caja": 0.45, "rejilla": 0.25, "codos90": 1}
 
 
@@ -100,22 +100,35 @@ def calcular(mapa, sitio, R, P, I, cfg, descargas=()):
         if not libres.is_empty and not libres.buffer(0.5).contains(p):
             avisos.append("El sumidero en (%.2f, %.2f) no esta en un area libre pavimentada sin cobertura: revisar (no van en areas verdes, "
                           "veredas ni bajo techo)." % (s["x"], s["y"]))
-        eje, ln = min(segs, key=lambda e: e[1].distance(p))
-        q = ln.interpolate(ln.project(p)); L = p.distance(q)
-        nct, cf = _cf_en(R, eje, (q.x, q.y))
-        z_piso = sitio.rasante(p.x, p.y)
-        z_sal = z_piso - tp["prof_caja"] - tp["D_tubo"]                  # fondo del tubo a la salida de la caja
-        z_lleg = z_sal - tp["S_tubo"] * L
+        manual = bool(cfg.get("sumideros"))
+
+        def tubo(p):
+            eje, ln = min(segs, key=lambda e: e[1].distance(p))
+            q = ln.interpolate(ln.project(p)); L = p.distance(q)
+            nct, cf = _cf_en(R, eje, (q.x, q.y))
+            z_piso = sitio.rasante(p.x, p.y); z_sal = z_piso - tp["prof_caja"] - tp["D_tubo"]
+            for S_ in (tp["S_tubo"], tp["S_min"]):                       # 1 %; si no llega sobre el fondo, el minimo (0.5 %)
+                if z_sal - S_ * L >= cf - 1e-6: return eje, q, L, cf, z_piso, z_sal, S_, True
+            return eje, q, L, cf, z_piso, z_sal, tp["S_tubo"], False
+        eje, q, L, cf, z_piso, z_sal, S_t, ok = tubo(p)
+        if not ok and not manual:                                       # propuesta del programa: se acerca a la cuneta hasta que llegue
+            for k in range(1, 40):
+                p2 = Point(p.x + (q.x - p.x) * k / 40, p.y + (q.y - p.y) * k / 40)
+                if libres.buffer(0.3).contains(p2):
+                    r = tubo(p2)
+                    if r[-1]: p = p2; eje, q, L, cf, z_piso, z_sal, S_t, ok = r; break
+        z_lleg = z_sal - S_t * L
         A = s.get("A_m2") or (math.pi * tp["radio"] ** 2)
         Qs = K["q_m2"] * A
-        ok = z_lleg >= cf - 1e-6
+        if ok and S_t < tp["S_tubo"] - 1e-9:
+            avisos.append("S-%02d: con %.1f %% el tubo llegaria bajo el fondo de %s; se uso la pendiente minima de %.1f %%." % (i + 1, 100 * tp["S_tubo"], eje, 100 * S_t))
         if not ok:
             avisos.append("S-%02d: la tuberia llega a %.3f, bajo la cota de fondo de %s (%.3f): acercar el sumidero a la cuneta o "
                           "revisar niveles (no se deja tuberia enterrada bajo la cuneta)." % (i + 1, z_lleg, eje, cf))
         if Qs > Qt:
             avisos.append("S-%02d recibe %.2f l/s, mas que su tubo de 4\" (%.2f l/s): agregar otro sumidero en esa zona." % (i + 1, Qs, Qt))
         sums.append({"sumidero": "S-%02d" % (i + 1), "x": round(p.x, 3), "y": round(p.y, 3), "zona": s.get("zona"), "A_m2": round(A, 1),
-                     "Q_ls": round(Qs, 2), "cuneta": eje, "hacia": [round(q.x, 3), round(q.y, 3)], "L_tubo_m": round(L, 2),
+                     "Q_ls": round(Qs, 2), "cuneta": eje, "hacia": [round(q.x, 3), round(q.y, 3)], "L_tubo_m": round(L, 2), "S_tubo_pct": round(100 * S_t, 2),
                      "z_piso": round(z_piso, 3), "z_salida": round(z_sal, 3), "z_llegada": round(z_lleg, 3), "cf_cuneta": round(cf, 3),
                      "llega": "SOBRE EL FONDO" if ok else "BAJO EL FONDO", "codos90": tp["codos90"]})
     met = {"sumideros_und": len(sums), "tuberia_4_m": round(sum(x["L_tubo_m"] for x in sums), 2), "codo90_und": sum(x["codos90"] for x in sums), "tee_und": 0}

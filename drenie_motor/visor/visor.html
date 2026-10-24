@@ -294,6 +294,13 @@ function deshacer() { if (!pilaU.length) return msg("Nada que deshacer."); pilaR
 function rehacer() { if (!pilaR.length) return msg("Nada que rehacer."); pilaU.push(JSON.stringify(ED)); ED = JSON.parse(pilaR.pop()); limpiarSel(); msg("Rehecho."); refrescar(); }
 const claveLS = () => "drenie-ediciones-" + (E && E.proyecto && E.proyecto.codigo || "x");
 function autoguardar() { try { localStorage.setItem(claveLS(), JSON.stringify(ED)); } catch (e) {} }
+function tuboSumidero(p) {          // punto mas cercano de las cunetas (lineas del plano y cunetas dibujadas en el visor)
+  let mejor = null;
+  const prueba = (a, b) => { const s = [a[0], a[1], b[0], b[1]], q = pie(p[0], p[1], s, true), d = Math.hypot(q[0] - p[0], q[1] - p[1]); if (!mejor || d < mejor.L) mejor = { q, L: d }; };
+  for (const v of ejes) for (let i = 0; i < v.length - 2; i += 2) prueba([v[i], v[i + 1]], [v[i + 2], v[i + 3]]);
+  for (const e of ED.ents) if (e.k === "cuneta") for (let i = 0; i < e.pts.length - 1; i++) prueba(e.pts[i], e.pts[i + 1]);
+  return mejor;
+}
 function montantesIniciales() {     // los montantes que propone el programa (esquinas) pasan a ser objetos editables del visor
   if (ED.montIni || !E || !E.montantes || !E.montantes.length) return;
   for (const m of E.montantes) nuevaEnt("montante", [[m.x, m.y]], { u: m.u, n: m.n, auto: true });
@@ -519,8 +526,14 @@ function dibujarEnt(g, e, lw, resaltar) {
   }
   if (e.k === "flecha") return flecha(g, e.pts[0][0], e.pts[0][1], e.pts[1][0], e.pts[1][1], col, lw * 1.2);
   if (e.k === "descarga") { const [x, y] = e.pts[0]; g.beginPath(); g.arc(x, y, 7 * lw, 0, 2 * Math.PI); g.fillStyle = col; g.fill(); return; }
-  if (e.k === "sumidero") {           // caja 0.45 x 0.45 y rejilla 0.25 x 0.25
+  if (e.k === "sumidero") {           // caja 0.45 x 0.45 y rejilla 0.25 x 0.25; tuberia PVC 4" a la cuneta mas cercana (se corrige sola al mover)
     const [x, y] = e.pts[0]; g.lineWidth = 1.4 * lw; g.strokeStyle = col;
+    const tb = tuboSumidero(e.pts[0]);
+    if (tb) {
+      g.save(); g.setLineDash([6 * lw, 4 * lw]); g.lineWidth = 1.6 * lw; g.beginPath(); g.moveTo(x, y); g.lineTo(tb.q[0], tb.q[1]); g.stroke(); g.restore();
+      if (V.s > 6) { g.save(); g.setTransform(DPR, 0, 0, DPR, 0, 0); const [X, Y] = aPant((x + tb.q[0]) / 2, (y + tb.q[1]) / 2);
+        g.font = "11px " + FUENTE_MONO; g.fillStyle = col; g.fillText("4\" " + tb.L.toFixed(2) + " m · 1 % · baja " + (0.01 * tb.L).toFixed(2), X + 6, Y - 4); g.restore(); }
+    }
     g.strokeRect(x - 0.225, y - 0.225, 0.45, 0.45); g.strokeRect(x - 0.125, y - 0.125, 0.25, 0.25);
     g.beginPath(); for (let k = 1; k < 10; k++) { const xx = x - 0.125 + k * 0.025; g.moveTo(xx, y - 0.125); g.lineTo(xx, y + 0.125); } g.stroke();
     if (V.s < 40) { g.beginPath(); g.rect(x - 4 * lw, y - 4 * lw, 8 * lw, 8 * lw); g.fillStyle = col; g.fill(); }
@@ -1075,6 +1088,11 @@ function actualizarTip(X, Y) {
     else h = "<b>" + dist(u, p).toFixed(3) + "</b> m  ∠ " + angulo(u, p).toFixed(1) + "°" + (polarAng !== null ? "  · polar" : "");
     if (snap) h += "<small>" + NOM_SNAP[snap.tipo] + "</small>";
   } else if (snap && C) h = NOM_SNAP[snap.tipo];
+  else if (hoverEnt && hoverEnt.k === "sumidero") {
+    const tb = tuboSumidero(hoverEnt.pts[0]);
+    h = "<b>Sumidero 0.25 x 0.25</b>" + (tb ? "  tubo 4\" " + tb.L.toFixed(2) + " m · 1 % · baja " + (0.01 * tb.L).toFixed(2) + " m" : "") +
+      "<small>El programa verifica que llegue sobre el fondo de la cuneta (si no, prueba 0.5 %)</small>";
+  }
   else if (hoverEnt) {
     const e = hoverEnt;
     h = "<b>" + (e.k === "pl" && e.tipo ? TIPOS[e.tipo][0] : NOM_ENT[e.k]) + "</b>" + (e.k === "cota" ? "  " + medidaCota(e).v.toFixed(3) + " m" : e.cerr ? "  " + Math.abs(areaPol(e.pts)).toFixed(2) + " m²" : e.pts.length > 1 ? "  " + perimetro(e.pts, false).toFixed(2) + " m" : "");
