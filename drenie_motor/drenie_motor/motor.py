@@ -10,7 +10,7 @@ import json
 import os
 import time
 
-from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies
+from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena
 from .parametros import combinar
 
 VERSION = "0.1.0"
@@ -25,7 +25,20 @@ def _cargar(cfg_ruta):
     base = os.path.dirname(os.path.abspath(cfg_ruta))
     salida = _ruta(base, cfg.get("salida", "salida_drenie"))
     os.makedirs(salida, exist_ok=True)
+    ed = _ruta(base, cfg.get("ediciones", "ediciones.json"))
+    if os.path.exists(ed): _sumar_ediciones(cfg, json.load(open(ed, encoding="utf-8")))
     return cfg, base, salida
+
+
+def _sumar_ediciones(cfg, ed):
+    """Lo dibujado o marcado en el visor manda sobre lo leido del plano: asignaciones por clic, poligonos de superficie,
+    flechas de caida, lineas de cuneta y descargas fijadas."""
+    sc = cfg.setdefault("superficies_cfg", {})
+    sc["asignaciones"] = list(sc.get("asignaciones", [])) + list(ed.get("asignaciones", []))
+    cfg["superficies"] = list(cfg.get("superficies", [])) + list(ed.get("superficies", []))
+    cfg["flechas_techo"] = list(cfg.get("flechas_techo", [])) + list(ed.get("flechas_techo", []))
+    cfg["ejes_lineas"] = list(cfg.get("ejes_lineas", [])) + list(ed.get("ejes_lineas", []))
+    if ed.get("descargas"): cfg["descargas"] = ed["descargas"]
 
 
 def _preparar(cfg, base, salida):
@@ -64,7 +77,8 @@ def leer(cfg_ruta):
     M = _mapa(B, S, cfg, P, [(a, b) for p in ejes for a, b in zip(p[:-1], p[1:])])
     png = salidas.png_planta(os.path.join(salida, "CONTROL_LECTURA.png"), None, None, S, cur, ejes,
                              "Lectura del plano: curvas, cerco (limite de intervencion) y lineas de cuneta del usuario - confirmar")
-    out = {"accion": "leer", "version": VERSION, "dxf": B["resumen"], "capas": lector_dxf.capas_disponibles(B), "terreno": rep_t,
+    esc = escena.escribir(os.path.join(salida, "escena.json"), B, S, M, ejes, cur, cfg.get("proyecto", {}), getattr(S, "aguas", []))
+    out = {"accion": "leer", "version": VERSION, "escena": esc, "dxf": B["resumen"], "capas": lector_dxf.capas_disponibles(B), "terreno": rep_t,
            "cerco": {"area_m2": round(S.cerco.area, 1), "perimetro_m": round(S.cerco.length, 1),
                      "vertices": [[round(x, 3), round(y, 3)] for x, y in list(S.cerco.exterior.coords)[:-1]]},
            "mapa_superficies": M.cuadro(),
