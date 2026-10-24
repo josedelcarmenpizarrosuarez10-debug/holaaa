@@ -10,7 +10,7 @@ import json
 import os
 import time
 
-from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos, techo, sumideros, metrado, planta_lamina
+from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos, techo, sumideros, metrado, planta_lamina, memorias, especificaciones
 from .parametros import combinar
 
 VERSION = "0.1.0"
@@ -121,7 +121,7 @@ def disenar(cfg_ruta):
     t0 = time.time()
     P, B, cur, rep_t, T, S, ejes = _preparar(cfg, base, salida)
     if not ejes: raise ValueError("No hay lineas de cuneta del usuario (capas.ejes o ejes_lineas)")
-    LL, _ = _lluvia_diseno(cfg, base)
+    LL, Rh = _lluvia_diseno(cfg, base)
     # ancho libre adoptado por el proyectista: hoja DIMENSIONAMIENTO llenada, o {"EJE-01": 0.45} en el proyecto
     adop = {}
     if cfg.get("dimensionamiento_adoptado"): adop.update(dimensionamiento.leer_adoptado(_ruta(base, cfg["dimensionamiento_adoptado"])))
@@ -157,7 +157,7 @@ def disenar(cfg_ruta):
     verde = M.por_tipo().get("verde")
     LLt, LLp = lloraderos.calcular(C, verde, P, anchos)
     tapas_i = planta_lamina.tapas_de(C, set(R.descargas), anchos, P)
-    xls_m, _ = metrado.libro(os.path.join(salida, "METRADO_DRENAJE_PLUVIAL.xlsx"), C, R, M, P, anchos, V, LLt, TT, SM, cfg.get("proyecto", {}), cfg, tapas_i)
+    xls_m, q_m, partidas = metrado.libro(os.path.join(salida, "METRADO_DRENAJE_PLUVIAL.xlsx"), C, R, M, P, anchos, V, LLt, TT, SM, cfg.get("proyecto", {}), cfg, tapas_i)
     secciones = {}
     for f in V["hidraulica"]:
         e = secciones.setdefault(f["eje"], {"sector": f["sector"], "eje": f["eje"], "L_m": 0.0, "b_pide": 0, "b": f["b"],
@@ -187,6 +187,16 @@ def disenar(cfg_ruta):
     png = salidas.png_planta(os.path.join(salida, "PLANTA_RED_CUNETAS.png"), C, R, S, cur, ejes,
                              "%s - red de cunetas: %d ejes, %d descargas, %.1f m (%.1f m de uniones nuevas)" % (
                                  proyecto.get("nombre_corto", ""), resumen["ejes"], resumen["descargas"], Ltot, nuevas))
+    # documentos: memoria hidrologica, memoria descriptiva y especificaciones tecnicas (Word)
+    lams = [{"codigo": c_, "titulo": t_} for c_, t_ in laminas]
+    fig = {"planta": png}
+    if Rh:
+        hidrologia.excel(Rh, os.path.join(salida, "HIDROLOGIA.xlsx")); fig["idf"] = hidrologia.png_idf(Rh, os.path.join(salida, "CURVAS_IDF.png"))
+    tot = metrado.totales(xls_m)
+    metas = [dict(x, total=tot.get(x["codigo"])) for x in partidas]
+    ctx = memorias.Contexto(cfg, P, Rh, LL, V, C, R, list(secciones.values()), TT, SM, LLt, lams, metas, rep_t, M.cuadro(), fig)
+    doc_h, doc_d = memorias.escribir(salida, ctx)
+    doc_e = especificaciones.construir(os.path.join(salida, "ESPECIFICACIONES_TECNICAS_DRENAJE_PLUVIAL.docx"), partidas, P, cfg, q_m, V, lams, TT, SM, LLt)
     out = {"accion": "disenar", "version": VERSION, "proyecto": proyecto, "resumen": resumen, "parametros": P,
            "mapa_superficies": M.cuadro(),
            "terreno": rep_t, "avisos": S.avisos + M.avisos + R.avisos + TT["avisos"] + SM["avisos"] + ([
@@ -197,7 +207,9 @@ def disenar(cfg_ruta):
                                      "terreno_exterior_min": round(v["z_req"], 2)} for k, v in R.descargas.items()],
            "sin_salida": [[list(a), list(b)] for a, b in R.sin_cubrir], "verificacion": V,
            "secciones_por_eje": list(secciones.values()), "techos": TT, "sumideros": SM, "lloraderos": {"resumen": lloraderos.resumen(LLt), "tramos": LLt},
-           "profundidad_minima_por_capacidad": hq, "archivos": {"dxf": dxf, "png": png, "dimensionamiento": xls, "canaletas_montantes_y_sumideros": xls_t, "metrado": xls_m, "planos": dxf_pf},
+           "profundidad_minima_por_capacidad": hq, "archivos": {"dxf": dxf, "png": png, "dimensionamiento": xls, "canaletas_montantes_y_sumideros": xls_t, "metrado": xls_m, "planos": dxf_pf,
+                                                 "memoria_hidrologica": doc_h, "memoria_descriptiva": doc_d, "especificaciones": doc_e},
+           "metrado_resumen": metas,
            "laminas": [{"codigo": c, "titulo": t} for c, t in laminas], "secciones_dibujadas": n_sec, "segundos": round(time.time() - t0, 1),
            "requiere_confirmacion": ["descargas"] if not cfg.get("descargas") else []}
     json.dump(out, open(os.path.join(salida, "resultado.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)

@@ -115,3 +115,19 @@ ENCOFRADO Y DESENCOFRADO, METRADO ACERO, METRADO JUNTA DE DILATACION, METRADO DE
 INSPECCION, METRADO LLORADEROS, METRADO MONTANTES, METRADO CANALETAS, METRADO  EN PISO (SUMIDERO), PARAMETROS y Listas. Partidas con
 los nombres y la estructura Delphin del Hogar de Refugio (prefijo en `metrado.prefijo`, por defecto `01`); cantidades del diseño
 (cada eje con su ancho libre). Datos del rótulo: `proyecto.entidad`, `proyecto.ubicacion`, `proyecto.fecha`.
+
+## Memorias y especificaciones técnicas (Word)
+`disenar` entrega también, en la carpeta de salida:
+- `MEMORIA_HIDROLOGICA_DRENAJE_PLUVIAL.docx` (`memorias.py`): estación y serie de máximos en 24 h, análisis de frecuencias
+  (Normal, Log Normal, Log Pearson III, Gumbel), Kolmogorov-Smirnov, Dick y Peschke, IDF de Bell, superficies y C ponderado,
+  caudales por eje (techos, pisos y áreas verdes), sección adoptada por sector, verificación hidráulica, comprobaciones,
+  canaletas y montantes, sumideros, descargas y conclusiones. Sin estación (solo `I_mmh`) se cita la intensidad dada.
+- `MEMORIA_DESCRIPTIVA_DRENAJE_PLUVIAL.docx`: ubicación, terreno y niveles, criterios de diseño, sectores y ejes, descargas,
+  lloraderos, techos, sumideros, metas físicas (totales del metrado recalculado con LibreOffice si está instalado), normas y
+  relación de planos.
+- `ESPECIFICACIONES_TECNICAS_DRENAJE_PLUVIAL.docx` (`especificaciones.py` + `espec_textos.py`): capítulo de generalidades y una
+  ficha por partida del metrado (mismos códigos, nombres y unidades), con los datos de este diseño.
+Formato común (`word.py`): A4, Arial, títulos azules numerados, tablas y figuras numeradas, carátula con el proyecto y su código.
+Sin nombre ni CIP del proyectista. Datos opcionales del proyecto para los textos: `proyecto.entidad`, `gerencia`, `ubicacion`,
+`fecha`, `foto` (carátula) y `memoria` (`departamento`, `provincia`, `distrito`, `localidad`, `predio`, `colindancias`, `acceso`,
+`clima`, `antecedentes`, `modalidad`, `normas`): lo que no se da no se escribe.

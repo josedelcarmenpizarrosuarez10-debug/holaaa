@@ -486,4 +486,25 @@ def libro(ruta, C, red, M, P, anchos, V, LLt, TT, SM, proyecto, cfg, tapas):
         ws.sheet_view.showGridLines = False; ws.page_setup.orientation = "landscape"; ws.page_setup.paperSize = ws.PAPERSIZE_A4
         ws.sheet_properties.pageSetUpPr.fitToPage = True; ws.page_setup.fitToWidth = 1; ws.page_setup.fitToHeight = 0
     wb.save(ruta)
-    return ruta, q
+    return ruta, q, [{"codigo": it, "desc": d, "und": u or ""} for it, d, u, _ in resumen]
+
+
+def totales(ruta):
+    """Total de cada partida (hoja RESUMEN) recalculado con LibreOffice, si esta instalado; {} si no se puede."""
+    import glob, os, shutil, subprocess, tempfile, warnings
+    from openpyxl import load_workbook
+    exe = shutil.which("soffice") or shutil.which("libreoffice") or next(iter(
+        glob.glob(r"C:\Program Files*\LibreOffice\program\soffice.exe")), None)
+    if not exe: return {}
+    tmp = tempfile.mkdtemp(prefix="drenie_")
+    try:
+        subprocess.run([exe, "--headless", "--calc", "--convert-to", "xlsx", "--outdir", tmp, ruta], check=True,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=300)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            ws = load_workbook(os.path.join(tmp, os.path.basename(ruta)), data_only=True)["RESUMEN"]
+        return {str(r[0]): r[3] for r in ws.iter_rows(min_row=9, values_only=True) if r[0] and isinstance(r[3], (int, float))}
+    except Exception:
+        return {}
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
