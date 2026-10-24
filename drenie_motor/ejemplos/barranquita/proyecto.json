@@ -1,0 +1,108 @@
+{
+ "proyecto": {
+  "nombre": "MEJORAMIENTO Y AMPLIACIÓN DEL SERVICIO DE EDUCACIÓN PRIMARIA EN I.E. N° 0590 DISTRITO DE BARRANQUITA DE LA PROVINCIA DE LAMAS DEL DEPARTAMENTO DE SAN MARTÍN",
+  "nombre_corto": "I.E. N.° 0590 Barranquita",
+  "codigo": "C.I. N.° 468901"
+ },
+ "dxf": "PLANO_PRUEBA_BARRANQUITA.dxf",
+ "salida": "salida",
+ "capas": {
+  "curvas": {
+   "capa": "CURVAS"
+  },
+  "curvas_texto": {
+   "capa": "CURVAS-TXT"
+  },
+  "equidistancia": 0.5,
+  "cerco": {
+   "capa": "LIMITE-INTERV"
+  },
+  "ejes": {
+   "capa": "0",
+   "color": 6
+  },
+  "techos": "ARQ-TECHO",
+  "veredas": "ARQ-VEREDA"
+ },
+ "niveles": {
+  "modo": "nivelado",
+  "npt": 184.65,
+  "borde_cuneta": 184.65,
+  "area_verde": 184.6,
+  "zonas": [
+   {
+    "nombre": "Patio de maniobra y estacionamiento",
+    "nivel": 184.5,
+    "superficie": "estacionamiento",
+    "poligono": [
+     [
+      354951.5,
+      9249830.8
+     ],
+     [
+      354977.5,
+      9249830.8
+     ],
+     [
+      354977.5,
+      9249869.6
+     ],
+     [
+      354951.5,
+      9249869.6
+     ]
+    ]
+   }
+  ]
+ },
+ "lluvia": {
+  "I_mmh": 293.18,
+  "fuente": "Pongo de Caynarachi (SENAMHI 003317) 1989-2013, Log Pearson III, T = 25 años, tc = 10 min"
+ },
+ "superficies": [
+  {
+   "nombre": "OE-07 Patio civico techado",
+   "tipo": "techo",
+   "poligono": [
+    [
+     354902.2,
+     9249822.4
+    ],
+    [
+     354932.3,
+     9249822.4
+    ],
+    [
+     354932.3,
+     9249839.6
+    ],
+    [
+     354902.2,
+     9249839.6
+    ]
+   ]
+  },
+  {
+   "nombre": "OE-11 Losa multiusos tipo I techada",
+   "tipo": "techo",
+   "poligono": [
+    [
+     354952.9,
+     9249796.2
+    ],
+    [
+     354976.7,
+     9249796.2
+    ],
+    [
+     354976.7,
+     9249831.05
+    ],
+    [
+     354952.9,
+     9249831.05
+    ]
+   ]
+  }
+ ]
+}

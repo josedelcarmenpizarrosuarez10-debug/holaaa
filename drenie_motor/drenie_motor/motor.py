@@ -1,0 +1,96 @@
+"""Orquestador del modulo Terreno y red de cunetas en planta.
+
+Dos acciones, pensadas para que DrenIE las llame en orden:
+- leer: abre el DXF, lista las capas, arma el terreno, toma el cerco y genera la imagen de control (para que el usuario
+  confirme el cerco y las capas antes de disenar).
+- disenar: arma la red (uniones y descargas), calcula cotas de fondo, verifica (11 comprobaciones) en ciclo con la capacidad
+  y entrega resultado.json, la planta en DXF y la vista previa PNG.
+"""
+import json
+import os
+import time
+
+from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom
+from .parametros import combinar
+
+VERSION = "0.1.0"
+
+
+def _ruta(base, r):
+    return r if os.path.isabs(r) else os.path.normpath(os.path.join(base, r))
+
+
+def _cargar(cfg_ruta):
+    cfg = json.load(open(cfg_ruta, encoding="utf-8"))
+    base = os.path.dirname(os.path.abspath(cfg_ruta))
+    salida = _ruta(base, cfg.get("salida", "salida_drenie"))
+    os.makedirs(salida, exist_ok=True)
+    return cfg, base, salida
+
+
+def _preparar(cfg, base, salida):
+    P = combinar(cfg.get("parametros"))
+    dxf = _ruta(base, cfg["dxf"])
+    B = lector_dxf.base(dxf, cache=os.path.join(salida, "_base_sitio.pkl"))
+    capas = cfg["capas"]
+    cur, rep_t = terreno.curvas(B, {"curvas": capas["curvas"], "curvas_texto": capas.get("curvas_texto"),
+                                    "equidistancia": capas.get("equidistancia"), "z_min": capas.get("z_min", -500),
+                                    "z_max": capas.get("z_max", 9000)})
+    T = terreno.Terreno(cur)
+    S = sitio_mod.Sitio(B, {"cerco": capas["cerco"], "techos": capas.get("techos"), "veredas": capas.get("veredas"),
+                            "muros": capas.get("muros"), "niveles": cfg.get("niveles", {}),
+                            "superficies": cfg.get("superficies", [])}, T, P)
+    ejes = [e[0] for e in geom.seleccionar(B, capas["ejes"])] if capas.get("ejes") else []
+    return P, B, cur, rep_t, T, S, ejes
+
+
+def leer(cfg_ruta):
+    cfg, base, salida = _cargar(cfg_ruta)
+    t0 = time.time()
+    P, B, cur, rep_t, T, S, ejes = _preparar(cfg, base, salida)
+    png = salidas.png_planta(os.path.join(salida, "CONTROL_LECTURA.png"), None, None, S, cur, ejes,
+                             "Lectura del plano: curvas, cerco (limite de intervencion) y lineas de cuneta del usuario - confirmar")
+    out = {"accion": "leer", "version": VERSION, "dxf": B["resumen"], "capas": lector_dxf.capas_disponibles(B), "terreno": rep_t,
+           "cerco": {"area_m2": round(S.cerco.area, 1), "perimetro_m": round(S.cerco.length, 1),
+                     "vertices": [[round(x, 3), round(y, 3)] for x, y in list(S.cerco.exterior.coords)[:-1]]},
+           "superficies": S.cuadro_superficies(),
+           "ejes_usuario": {"lineas": len(ejes), "longitud_m": round(sum(geom.dist(a, b) for p in ejes for a, b in zip(p[:-1], p[1:])), 1)},
+           "avisos": S.avisos, "imagen_control": png, "segundos": round(time.time() - t0, 1),
+           "requiere_confirmacion": ["cerco", "niveles", "capas"]}
+    json.dump(out, open(os.path.join(salida, "lectura.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+    return out
+
+
+def disenar(cfg_ruta):
+    cfg, base, salida = _cargar(cfg_ruta)
+    t0 = time.time()
+    P, B, cur, rep_t, T, S, ejes = _preparar(cfg, base, salida)
+    if not ejes: raise ValueError("No hay lineas de cuneta del usuario en la capa indicada (capas.ejes)")
+    R = red_mod.Red(S, T, P, ejes, cfg.get("descargas")).resolver()
+    R.chaflanes(); R.nombrar()
+    hq, vueltas = {}, 0
+    for vueltas in range(1, P["vueltas_max"] + 1):
+        C = cotas.calcular(R, S, P, hq)
+        V, hq2 = verificacion.verificar(C, R, S, T, P, cfg.get("lluvia", {"I_mmh": 0}), hq)
+        if hq2 == hq: break
+        hq = hq2
+    nuevas = sum(t["L"] for r in C["ramales"] for t in r["tramos"] if t["origen"] in ("union", "pase"))
+    Ltot = sum(r["L"] for r in C["ramales"]); Ltap = sum(t["L_tapado"] for r in C["ramales"] for t in r["tramos"])
+    resumen = {"ejes": len(C["ramales"]), "descargas": len(R.descargas), "longitud_m": round(Ltot, 2), "tapado_m": round(Ltap, 2),
+               "rejilla_m": round(Ltot - Ltap, 2), "uniones_nuevas_m": round(nuevas, 2),
+               "lineas_usuario_m": round(Ltot - nuevas, 2), "chaflanes": len(R.chaflanes_hechos),
+               "profundidad_max_m": max(t["h_max"] for r in C["ramales"] for t in r["tramos"]),
+               "cumple": sum(1 for c in V["comprobaciones"] if c["estado"] in ("CUMPLE", "CUMPLE CON GRADAS")),
+               "comprobaciones": len(V["comprobaciones"]), "vueltas_ciclo": vueltas}
+    proyecto = cfg.get("proyecto", {})
+    dxf = salidas.dxf_planta(os.path.join(salida, "PLANTA_RED_CUNETAS.dxf"), C, R, S, cur, P, proyecto)
+    png = salidas.png_planta(os.path.join(salida, "PLANTA_RED_CUNETAS.png"), C, R, S, cur, ejes,
+                             "%s - red de cunetas: %d ejes, %d descargas, %.1f m (%.1f m de uniones nuevas)" % (
+                                 proyecto.get("nombre_corto", ""), resumen["ejes"], resumen["descargas"], Ltot, nuevas))
+    out = {"accion": "disenar", "version": VERSION, "proyecto": proyecto, "resumen": resumen, "parametros": P,
+           "superficies": S.cuadro_superficies(),
+           "terreno": rep_t, "avisos": S.avisos + R.avisos, "chaflanes": R.chaflanes_hechos, "red": C, "verificacion": V,
+           "profundidad_minima_por_capacidad": hq, "archivos": {"dxf": dxf, "png": png}, "segundos": round(time.time() - t0, 1),
+           "requiere_confirmacion": ["descargas"] if not cfg.get("descargas") else []}
+    json.dump(out, open(os.path.join(salida, "resultado.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+    return out
