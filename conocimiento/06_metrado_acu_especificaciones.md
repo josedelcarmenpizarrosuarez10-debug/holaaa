@@ -244,6 +244,8 @@ falsa columna y sus 3 subpartidas, canaleta, soporte, tapa lateral y boquilla; p
 con codo, colgador y abrazadera). Cada eje con su ancho libre b (una medida por sector). Barranquita (red del programa): concreto
 151.43 m³, acero 6,932 kg, rejilla 936.22 m, 30 tapas, juntas 544.25 m, 344 lloraderos, 124 montantes (635.18 m), canaleta
 925.76 m, 2 sumideros (22.15 m de tubo). Junta cuneta-piso 1,416.50 m (ambos lados contra cualquier piso): pendiente de revisar.
+DRENIE no hace ACU, precios ni presupuesto (regla del usuario, 24-10-2026): eso lo ve quien elabora el presupuesto.
+El programa entrega metrado, memorias (hidrológica y descriptiva), especificaciones técnicas y planos.
 
 ## 4. Hojas de la planilla y su función
 
