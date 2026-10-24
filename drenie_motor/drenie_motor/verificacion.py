@@ -171,19 +171,25 @@ def verificar(R, red, sitio, terreno, P, lluvia, hq_prev=None):
        ("" if not ncap else "; no cumplen: " + ", ".join("%s %s-%s" % (f["eje"], f["de"], f["a"]) for f in ncap)))
     ok(9, "Velocidad maxima %.1f m/s (concreto)" % P["Vmax"], "CUMPLE" if not nvel else "CUMPLE CON GRADAS",
        ("V max %.2f m/s" % pv["V"]) if not nvel else "con gradas: " + ", ".join("%s %s-%s (V %.2f)" % (f["eje"], f["de"], f["a"], f["V"]) for f in nvel))
-    # 10 muros (o cuerpo de las edificaciones)
+    # 10 uniones nuevas lejos de muros, edificaciones y losas (sin contar los 0.60 m donde se conectan a una cuneta)
     obst = red.obst
     if obst.is_empty:
-        ok(10, "El eje no corta muros de las edificaciones (>= %.2f m)" % P["dist_muro"], "SIN DATO", "no se indico capa de muros ni techos")
+        ok(10, "Uniones nuevas lejos de las edificaciones (>= %.2f m)" % P["dist_muro"], "SIN DATO", "no se indico capa de muros ni techos")
     else:
-        dmin, cerca = 9e9, 0
+        from shapely.ops import substring
+        dmin, cerca = 9e9, []
         for c, r in ram.items():
             for t in r["tramos"]:
                 if t["origen"] == "usuario": continue      # las lineas del usuario mandan
-                ls = LineString([Nn[t["de"]], Nn[t["a"]]]); d = ls.distance(obst); dmin = min(dmin, d)
-                if d < P["dist_muro"]: cerca += 1
-        ok(10, "Uniones nuevas lejos de las edificaciones (>= %.2f m)" % P["dist_muro"], "CUMPLE" if cerca == 0 else "REVISAR",
-           ("distancia minima %.2f m" % dmin) if dmin < 9e8 else "sin uniones nuevas")
+                ls = LineString([Nn[t["de"]], Nn[t["a"]]])
+                cuerpo = substring(ls, 0.6, ls.length - 0.6) if ls.length > 1.3 else None
+                if cuerpo is None: continue
+                d = cuerpo.distance(obst); dmin = min(dmin, d)
+                if d < P["dist_muro"]: cerca.append("%s %s-%s a %.2f m" % (c, t["de"], t["a"], d))
+        base_o = "muros" if not sitio.muros.is_empty else "techos reducidos 1.00 m (no hay capa de muros)"
+        ok(10, "Uniones nuevas lejos de las edificaciones y losas (>= %.2f m)" % P["dist_muro"], "CUMPLE" if not cerca else "REVISAR",
+           (("distancia minima %.2f m" % dmin) if dmin < 9e8 else "sin uniones nuevas") + " (referencia: %s)" % base_o
+           if not cerca else "; ".join(cerca) + " (referencia: %s)" % base_o)
     # 12 todas las lineas del usuario con cuneta (las lineas del usuario mandan)
     from shapely.ops import unary_union
     red_buf = unary_union([LineString([Nn[t["de"]], Nn[t["a"]]]) for r in ram.values() for t in r["tramos"]]).buffer(P["b_int"] / 2 + P["e_muro"] + 0.2)

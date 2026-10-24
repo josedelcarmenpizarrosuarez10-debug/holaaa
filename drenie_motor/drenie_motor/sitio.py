@@ -53,6 +53,16 @@ class Sitio:
             self.avisos.append("El cerco se tomo como el mayor de %d poligonos de la capa (%.0f m2); confirmar." % (len(pols), pol.area))
         return pol
 
+    def revisar_superficies(self, lineas):
+        """Aviso si un poligono de superficie (losa, patio...) se monta sobre una linea de cuneta del usuario."""
+        from shapely.geometry import LineString
+        for e in self.extra:
+            for k, pts in enumerate(lineas):
+                L = LineString(pts).intersection(e["geom"]).length
+                if L > 0.5:
+                    self.avisos.append("La superficie '%s' se monta %.1f m sobre la linea de cuneta N.%d del usuario: ajustar su borde "
+                                       "a la cara exterior de la cuneta." % (e["nombre"], L, k + 1))
+
     def dentro(self, x, y):
         return self.cerco_p.contains(Point(x, y))
 

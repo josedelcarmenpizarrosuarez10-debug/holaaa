@@ -41,6 +41,7 @@ def _preparar(cfg, base, salida):
                             "muros": capas.get("muros"), "niveles": cfg.get("niveles", {}),
                             "superficies": cfg.get("superficies", [])}, T, P)
     ejes = [e[0] for e in geom.seleccionar(B, capas["ejes"])] if capas.get("ejes") else []
+    S.revisar_superficies(ejes)
     return P, B, cur, rep_t, T, S, ejes
 
 
