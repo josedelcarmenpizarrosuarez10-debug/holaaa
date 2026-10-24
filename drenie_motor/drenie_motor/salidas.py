@@ -150,6 +150,7 @@ def dxf_planta(ruta, R, red, sitio, curvas, P, proyecto, anchos=None, lloraderos
         a, b = Nn[tl["de"]], Nn[tl["a"]]; ang = math.degrees(math.atan2(b[1] - a[1], b[0] - a[0]))
         if ang > 90: ang -= 180
         if ang < -90: ang += 180
+        if abs(ang) > 45: ang = 0.0                     # nunca texto vertical: en ejes empinados el rotulo va horizontal
         m = ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2); off = 0.75
         nx, ny = -math.sin(math.radians(ang)), math.cos(math.radians(ang))
         msp.add_text(r["codigo"], height=H_TXT, rotation=ang, dxfattribs={"layer": "DRN-TEXTOS"}).set_placement(
@@ -157,8 +158,8 @@ def dxf_planta(ruta, R, red, sitio, curvas, P, proyecto, anchos=None, lloraderos
     doc.header["$EXTMIN"] = sitio.cerco.bounds[:2] + (0,)
     doc.header["$EXTMAX"] = sitio.cerco.bounds[2:] + (0,)
     doc.audit()
-    doc.saveas(ruta)
-    return ruta
+    from .dxf_base import guardar
+    return guardar(doc, ruta)
 
 
 COLOR_SUP = {"techo": "#d6d6d6", "vereda": "#f3d9a4", "patio": "#e8c98f", "pavimento": "#efe2c2", "estacionamiento": "#c9d6e6",

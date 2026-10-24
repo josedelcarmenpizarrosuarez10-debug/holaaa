@@ -237,11 +237,11 @@ def libro(ruta, C, red, M, P, anchos, V, LLt, TT, SM, proyecto, cfg, tapas):
     cab_hoja(wj, "PLANILLA DE METRADOS - JUNTAS DE CUNETAS", 10)
     cel(wj, 7, 1, "Espaciamiento entre juntas (m)", al="left"); cel(wj, 7, 2, "=%s" % Pk["jc"], "0.00", bg=PAR_)
     encabezado(wj, 9, ["ITEM", "EJE / DESCRIPCIÓN", "UND.", "LONGITUD EJE (m)", "h PROM. (m)", "ESPACIAMIENTO (m)", "N° DE JUNTAS",
-                       "DESARROLLO DE LA U (m)", "b + 2e (m)", "PARCIAL (ml)"], [14, 40, 7, 12, 10, 14, 10, 14, 10, 12], alto=45)
+                       "DESARROLLO DE LA U (m)", "b + 2e (m)", "PARCIAL (m)"], [14, 40, 7, 12, 10, 14, 10, 14, 10, 12], alto=45)
     rj0 = 10
     for i, x in enumerate(q):
         r = rj0 + i
-        for j, (v, fmt) in enumerate([(i + 1, "0"), (x["eje"], None), ("ml", None), (x["L"], "0.00"), (x["h_prom"], "0.000"), ("=$B$7", "0.00"),
+        for j, (v, fmt) in enumerate([(i + 1, "0"), (x["eje"], None), ("m", None), (x["L"], "0.00"), (x["h_prom"], "0.000"), ("=$B$7", "0.00"),
                                        ("=INT(ROUND(D%d/F%d,6))" % (r, r), "0"), ("=2*(E%d+%s)+I%d" % (r, Pk["ef"], r), "0.000"),
                                        ("=%.2f+2*%s" % (x["b"], Pk["em"]), "0.00"), ("=G%d*H%d" % (r, r), "0.00")], 1):
             cel(wj, r, j, v, fmt)
@@ -249,11 +249,11 @@ def libro(ruta, C, red, M, P, anchos, V, LLt, TT, SM, proyecto, cfg, tapas):
     cel(wj, rj1, 1, "TOTAL JUNTA DE DILATACION", bold=True); wj.merge_cells(start_row=rj1, start_column=1, end_row=rj1, end_column=9)
     cel(wj, rj1, 10, "=SUM(J%d:J%d)" % (rj0, rj1 - 1), "0.00", bold=True, bg=PAR_)
     r = rj1 + 2
-    encabezado(wj, r, ["ITEM", "EJE (junta cuneta - piso adyacente)", "UND.", "LONGITUD EJE (m)", "BORDE JUNTO A PISO (m)", "", "", "", "", "PARCIAL (ml)"], alto=32)
+    encabezado(wj, r, ["ITEM", "EJE (junta cuneta - piso adyacente)", "UND.", "LONGITUD EJE (m)", "BORDE JUNTO A PISO (m)", "", "", "", "", "PARCIAL (m)"], alto=32)
     ok_p = [x for x in q if x["junta_piso"] > 0]; rp0 = r + 1
     for i, x in enumerate(ok_p):
         rr = rp0 + i
-        for j, (v, fmt) in enumerate([(i + 1, "0"), (x["eje"], None), ("ml", None), (x["L"], "0.00"), (x["junta_piso"], "0.00"),
+        for j, (v, fmt) in enumerate([(i + 1, "0"), (x["eje"], None), ("m", None), (x["L"], "0.00"), (x["junta_piso"], "0.00"),
                                        (None, None), (None, None), (None, None), (None, None), ("=E%d" % rr, "0.00")], 1):
             cel(wj, rr, j, v, fmt)
     rp1 = rp0 + len(ok_p)
@@ -485,26 +485,33 @@ def libro(ruta, C, red, M, P, anchos, V, LLt, TT, SM, proyecto, cfg, tapas):
     for ws in wb.worksheets:
         ws.sheet_view.showGridLines = False; ws.page_setup.orientation = "landscape"; ws.page_setup.paperSize = ws.PAPERSIZE_A4
         ws.sheet_properties.pageSetUpPr.fitToPage = True; ws.page_setup.fitToWidth = 1; ws.page_setup.fitToHeight = 0
+    wb.properties.creator = ""; wb.properties.lastModifiedBy = ""
     wb.save(ruta)
     return ruta, q, [{"codigo": it, "desc": d, "und": u or ""} for it, d, u, _ in resumen]
 
 
-def totales(ruta):
-    """Total de cada partida (hoja RESUMEN) recalculado con LibreOffice, si esta instalado; {} si no se puede."""
-    import glob, os, shutil, subprocess, tempfile, warnings
-    from openpyxl import load_workbook
+def recalcular(ruta, destino):
+    """Copia recalculada del libro con LibreOffice (destino = carpeta); devuelve su ruta o None si no hay LibreOffice."""
+    import glob, os, shutil, subprocess
     exe = shutil.which("soffice") or shutil.which("libreoffice") or next(iter(
         glob.glob(r"C:\Program Files*\LibreOffice\program\soffice.exe")), None)
-    if not exe: return {}
-    tmp = tempfile.mkdtemp(prefix="drenie_")
+    if not exe: return None
+    os.makedirs(destino, exist_ok=True)
     try:
-        subprocess.run([exe, "--headless", "--calc", "--convert-to", "xlsx", "--outdir", tmp, ruta], check=True,
+        subprocess.run([exe, "--headless", "--calc", "--convert-to", "xlsx", "--outdir", destino, ruta], check=True,
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=300)
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            ws = load_workbook(os.path.join(tmp, os.path.basename(ruta)), data_only=True)["RESUMEN"]
-        return {str(r[0]): r[3] for r in ws.iter_rows(min_row=9, values_only=True) if r[0] and isinstance(r[3], (int, float))}
     except Exception:
-        return {}
-    finally:
-        shutil.rmtree(tmp, ignore_errors=True)
+        return None
+    r = os.path.join(destino, os.path.basename(ruta))
+    return r if os.path.exists(r) else None
+
+
+def totales(recalculado):
+    """Total de cada partida (hoja RESUMEN) del libro recalculado; {} si no hay copia recalculada."""
+    import warnings
+    from openpyxl import load_workbook
+    if not recalculado: return {}
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        ws = load_workbook(recalculado, data_only=True)["RESUMEN"]
+    return {str(r[0]): r[3] for r in ws.iter_rows(min_row=9, values_only=True) if r[0] and isinstance(r[3], (int, float))}

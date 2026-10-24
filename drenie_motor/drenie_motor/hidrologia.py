@@ -323,5 +323,6 @@ def excel(R, ruta):
               [[t, R["p24"][t]] + [R["idf"][t][d] for d in DURACIONES] for t in sorted(R["idf"])], [None, "0.00"] + ["0.00"] * len(DURACIONES))
     w.cell(f, 1, "Modelo de Bell (5 a 60 min), P60 de 10 años = 0.4602 P24(10)^0.876 = %.2f mm" % R["P60_10"]).font = neg
     tabla(w, f + 1, 1, ["T (años)"] + ["%d min" % d for d in DUR_BELL], [[t] + [R["bell_i"][t][d] for d in DUR_BELL] for t in PERIODOS], [None] + ["0.0"] * 6)
+    wb.properties.creator = ""; wb.properties.lastModifiedBy = ""
     wb.save(ruta)
     return ruta

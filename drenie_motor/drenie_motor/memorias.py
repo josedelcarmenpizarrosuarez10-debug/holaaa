@@ -223,7 +223,8 @@ def hidrologica(D, c):
         D.p("Las canaletas de plancha galvanizada de 0.25 x 0.20 m van en los aleros con pendiente de 1 %% hacia las montantes. Las montantes son todas de "
             "tubería PVC de 4\" y van en las esquinas de las edificaciones, en una falsa columna adosada al muro; cuando el área de techo de un lado lo pide "
             "se colocan 3 o 4 montantes de 4\" en ese lado en lugar de un diámetro mayor. La capacidad de cada montante se verifica con la fórmula de "
-            "Wyly-Eaton (relación de llenado 0.25) y la de la canaleta con Manning (n = 0.013, borde libre 0.05 m).")
+            "Wyly-Eaton (relación de llenado 1/4; hasta 7/24 cuando el lado lleva 4 montantes, como máximo por lado) y la de la canaleta con "
+            "Manning (n = 0.013, borde libre 0.05 m).")
         filas = [[x["techo"], x["lado"], mil(x["A_m2"]), mil(x["L_canaleta_m"]), "%.1f" % x["Q_ls"], x["montantes"], "%.2f" % x["Q_por_montante_ls"],
                   "%.3f" % x["tirante_m"], x["canaleta"]] for x in T["lados"]]
         D.tabla("Canaletas y montantes por lado de techo", ["Techo", "Lado", "Área (m²)", "Canaleta (m)", "Q (l/s)", "Montantes 4\"", "Q / montante (l/s)", "Tirante (m)", "Estado"],

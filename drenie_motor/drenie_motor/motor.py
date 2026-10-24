@@ -10,7 +10,7 @@ import json
 import os
 import time
 
-from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos, techo, sumideros, metrado, planta_lamina, memorias, especificaciones
+from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos, techo, sumideros, metrado, planta_lamina, memorias, especificaciones, revision
 from .parametros import combinar
 
 VERSION = "0.1.0"
@@ -150,9 +150,23 @@ def disenar(cfg_ruta):
             info = R.descargas[d["D"]]
             falta = info["z_req"] + P["desc_margen"] - d["cf"]
             recorte[info["k"]] = recorte.get(info["k"], 0.0) + max(falta, 0.01) / P["S0"] + 2.0
-    anchos = {(f["eje"], f["de"], f["a"]): f["b"] for f in V["hidraulica"]}
     TT = techo.calcular(S, C, P, V["hidrologia"]["I"], cfg)
     SM = sumideros.calcular(M, S, C, P, V["hidrologia"]["I"], cfg, set(R.descargas))
+    # ninguna tuberia de sumidero llega bajo el fondo: se profundiza el tramo que la recibe y se recalcula
+    for _ in range(3):
+        bajo = [x for x in SM["sumideros"] if x["llega"] != "SOBRE EL FONDO"]
+        if not bajo: break
+        for x in bajo: hq[x["tramo"]] = round(max(hq.get(x["tramo"], P["hmin"]), x["h_req_cuneta"]), 3)
+        for _v in range(P["vueltas_max"]):
+            C = cotas.calcular(R, S, P, hq)
+            V, hq2 = verificacion.verificar(C, R, S, T, P, LL, hq)
+            if hq2 == hq: break
+            hq = hq2
+        TT = techo.calcular(S, C, P, V["hidrologia"]["I"], cfg)
+        SM = sumideros.calcular(M, S, C, P, V["hidrologia"]["I"], cfg, set(R.descargas))
+        SM["avisos"].append("Se profundizaron los tramos %s para recibir la tuberia de los sumideros %s sobre su cota de fondo." % (
+            ", ".join(sorted({x["tramo"].replace("|", " ") for x in bajo})), ", ".join(x["sumidero"] for x in bajo)))
+    anchos = {(f["eje"], f["de"], f["a"]): f["b"] for f in V["hidraulica"]}
     xls_t = techo.excel(TT, os.path.join(salida, "CANALETAS_MONTANTES_Y_SUMIDEROS.xlsx"), SM)
     verde = M.por_tipo().get("verde")
     LLt, LLp = lloraderos.calcular(C, verde, P, anchos)
@@ -182,7 +196,7 @@ def disenar(cfg_ruta):
     proyecto = cfg.get("proyecto", {})
     dxf = salidas.dxf_planta(os.path.join(salida, "PLANTA_RED_CUNETAS.dxf"), C, R, S, cur, P, proyecto, anchos, LLp)
     pl = cfg.get("planos", {})
-    dxf_pf, laminas, n_sec = planos.dxf_planos(os.path.join(salida, "PLANOS_CUNETAS.dxf"), C, R, S, P, anchos, proyecto, cur, V, LLt, LLp,
+    dxf_pf, laminas, n_sec, marcos = planos.dxf_planos(os.path.join(salida, "PLANOS_CUNETAS.dxf"), C, R, S, P, anchos, proyecto, cur, V, LLt, LLp,
                                                list(secciones.values()), pl.get("prefijo", "DC"), pl.get("inicio", 1), TT, SM)
     png = salidas.png_planta(os.path.join(salida, "PLANTA_RED_CUNETAS.png"), C, R, S, cur, ejes,
                              "%s - red de cunetas: %d ejes, %d descargas, %.1f m (%.1f m de uniones nuevas)" % (
@@ -192,11 +206,17 @@ def disenar(cfg_ruta):
     fig = {"planta": png}
     if Rh:
         hidrologia.excel(Rh, os.path.join(salida, "HIDROLOGIA.xlsx")); fig["idf"] = hidrologia.png_idf(Rh, os.path.join(salida, "CURVAS_IDF.png"))
-    tot = metrado.totales(xls_m)
+    xls_rc = metrado.recalcular(xls_m, os.path.join(salida, "_recalculado"))
+    tot = metrado.totales(xls_rc)
     metas = [dict(x, total=tot.get(x["codigo"])) for x in partidas]
     ctx = memorias.Contexto(cfg, P, Rh, LL, V, C, R, list(secciones.values()), TT, SM, LLt, lams, metas, rep_t, M.cuadro(), fig)
     doc_h, doc_d = memorias.escribir(salida, ctx)
     doc_e = especificaciones.construir(os.path.join(salida, "ESPECIFICACIONES_TECNICAS_DRENAJE_PLUVIAL.docx"), partidas, P, cfg, q_m, V, lams, TT, SM, LLt)
+    # revision general de todo lo entregado (conocimiento/01, seccion 8.2)
+    rev = _revisar(salida, P, V, C, list(secciones.values()), TT, SM, LLt, M, xls_rc, tot, partidas, q_m, tapas_i, lams, marcos, Rh, proyecto,
+                   [doc_h, doc_d, doc_e, xls_m, xls, xls_t, dxf_pf, dxf] + ([os.path.join(salida, "HIDROLOGIA.xlsx")] if Rh else []),
+                   {"memoria hidrológica": doc_h, "memoria descriptiva": doc_d, "especificaciones": doc_e}, hq,
+                   [a for a in S.avisos + M.avisos + R.avisos + SM["avisos"] if "no tiene cuneta" not in a])
     out = {"accion": "disenar", "version": VERSION, "proyecto": proyecto, "resumen": resumen, "parametros": P,
            "mapa_superficies": M.cuadro(),
            "terreno": rep_t, "avisos": S.avisos + M.avisos + R.avisos + TT["avisos"] + SM["avisos"] + ([
@@ -208,9 +228,54 @@ def disenar(cfg_ruta):
            "sin_salida": [[list(a), list(b)] for a, b in R.sin_cubrir], "verificacion": V,
            "secciones_por_eje": list(secciones.values()), "techos": TT, "sumideros": SM, "lloraderos": {"resumen": lloraderos.resumen(LLt), "tramos": LLt},
            "profundidad_minima_por_capacidad": hq, "archivos": {"dxf": dxf, "png": png, "dimensionamiento": xls, "canaletas_montantes_y_sumideros": xls_t, "metrado": xls_m, "planos": dxf_pf,
-                                                 "memoria_hidrologica": doc_h, "memoria_descriptiva": doc_d, "especificaciones": doc_e},
+                                                 "memoria_hidrologica": doc_h, "memoria_descriptiva": doc_d, "especificaciones": doc_e,
+                                                 "revision": rev[0]},
+           "revision": rev[1],
            "metrado_resumen": metas,
-           "laminas": [{"codigo": c, "titulo": t} for c, t in laminas], "secciones_dibujadas": n_sec, "segundos": round(time.time() - t0, 1),
+           "laminas": [dict(codigo=c, titulo=t, marco=[round(m["x0"], 3), round(m["y0"], 3), round(m["x1"], 3), round(m["y1"], 3)], escala="1/%d" % m["esc"])
+                       for (c, t), m in zip(laminas, marcos)], "secciones_dibujadas": n_sec, "segundos": round(time.time() - t0, 1),
            "requiere_confirmacion": ["descargas"] if not cfg.get("descargas") else []}
     json.dump(out, open(os.path.join(salida, "resultado.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
     return out
+
+
+def _revisar(salida, P, V, C, sec, TT, SM, LLt, M, xls_rc, tot, partidas, q, tapas, lams, marcos, Rh, proyecto, archivos, docs, hq=None, avisos=()):
+    import ezdxf
+    from shapely.geometry import Point
+    I = revision.Informe()
+    revision.diseno(I, P, V, C, sec, hq)
+    tipo = lambda x, y: next((c["tipo"] for c in M.caras if c["geom"].contains(Point(x, y))), None)
+    revision.componentes(I, P, TT, SM, LLt, tipo)
+    Lt = sum(r["L"] for r in C["ramales"]); Lta = sum(t["L_tapado"] for r in C["ramales"] for t in r["tramos"])
+    m, sm = TT["metrado"], SM["metrado"]
+    revision.metrado(I, xls_rc, tot, partidas, [
+        ("Limpieza (L x franja)", ("LIMPIEZA",), "m²", sum(x["L"] * x["bexc"] for x in q), 0.05),
+        ("Excavación de zanjas", ("EXCAVACI", "CUNETAS"), "m³", sum(x["excavacion"] for x in q), 0.05),
+        ("Rejilla (L - tapado)", ("REJILLA",), "m", Lt - Lta, 0.1),
+        ("Tapas de inspección", ("TAPA DE INSPECCION",), "und", len(tapas), 0),
+        ("Lloraderos", ("LLORADERO",), "und", sum(x["n"] for x in LLt), 0),
+        ("Montantes (m)", ("MONTANTE", "TUBER"), "m", m.get("montante_m", 0), 0.05),
+        ("Falsas columnas", ("FALSA COLUMNA",), "und", m.get("falsas_columnas_und", 0), 0),
+        ("Canaletas", ("CANALETA DE PLANCHA",), "m", m.get("canaleta_m", 0), 0.05),
+        ("Soportes de canaleta", ("SOPORTE",), "und", m.get("soportes_und", 0), 0),
+        ("Tapas laterales", ("TAPA LATERAL",), "und", m.get("tapas_und", 0), 0),
+        ("Boquillas", ("BOQUILLA",), "und", m.get("boquillas_und", 0), 0),
+        ("Sumideros", ("SUMIDERO",), "und", sm.get("sumideros_und", 0), 0),
+        ("Tubería de sumideros", ("TUBERIA DESAG",), "m", sm.get("tuberia_4_m", 0), 0.05)])
+    dxf_doc = ezdxf.readfile(next(a for a in archivos if a and a.endswith("PLANOS_CUNETAS.dxf")))
+    revision.documentos(I, archivos, proyecto, lams, dxf_doc)
+    f2 = lambda v: "%.2f" % v
+    todos = ("memoria hidrológica", "memoria descriptiva", "especificaciones")
+    cif = [("Longitud total de cuneta %s m" % f2(Lt), "{:,.2f}".format(Lt), ("memoria descriptiva", "especificaciones")),
+           ("Profundidad máxima %s m" % f2(max(x["h_max"] for x in q)), f2(max(x["h_max"] for x in q)), ("memoria descriptiva", "especificaciones"))]
+    if LLt: cif.append(("%d lloraderos" % sum(x["n"] for x in LLt), "%d lloraderos" % sum(x["n"] for x in LLt), ("memoria descriptiva", "especificaciones")))
+    if TT["montantes"]:
+        cif += [("%d montantes" % m["montantes_und"], "%d montantes" % m["montantes_und"], ("memoria descriptiva",)),
+                ("Canaleta %s m" % f2(m["canaleta_m"]), "{:,.2f}".format(m["canaleta_m"]), todos)]
+    if Rh: cif += [("Intensidad %.2f mm/h" % Rh["I"], "%.2f mm/h" % Rh["I"], ("memoria hidrológica", "memoria descriptiva")),
+                   ("P24 %.2f mm" % Rh["P24"], "%.2f mm" % Rh["P24"], ("memoria hidrológica", "memoria descriptiva"))]
+    revision.cifras(I, docs, cif)
+    revision.planos(I, dxf_doc, marcos)
+    revision.entregables(I, salida, archivos, lams)
+    revision.avisos_diseno(I, avisos)
+    return revision.escribir(os.path.join(salida, "REVISION_GENERAL.xlsx"), I), I.resumen()

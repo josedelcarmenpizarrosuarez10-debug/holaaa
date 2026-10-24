@@ -491,3 +491,28 @@ def caja_iso(lam, x0, y0, z0, dx, dy, dz, capas=("ISO-CONCRETO-SUP", "ISO-CONCRE
         if solido: lam.solido([pts[0], pts[1], pts[3], pts[2]], capa)
         if aristas: lam.poli(pts, capa_aristas, cerrada=True)
     return T
+
+
+def guardar(doc, ruta):
+    """Guarda el DXF sin marcas de la herramienta (metadatos vacios: regla del usuario)."""
+    doc._update_ezdxf_metadata = lambda: None
+    doc._create_appids = lambda: doc._create_appid_if_not_exist("HATCHBACKGROUNDCOLOR", 0)
+    for k in list(doc.rootdict.keys()):
+        if "EZDXF" in k.upper():
+            d = doc.rootdict.get(k); doc.rootdict.discard(k)
+            if d is not None and hasattr(d, "dxf"):
+                for v in list(getattr(d, "values", lambda: [])()):
+                    if hasattr(v, "dxf"): doc.objects.delete_entity(v)
+                doc.objects.delete_entity(d)
+    if "EZDXF" in doc.dimstyles:
+        usado = any(e.dxf.get("dimstyle", "") == "EZDXF" for e in doc.modelspace().query("DIMENSION"))
+        if not usado:
+            if doc.header.get("$DIMSTYLE", "") == "EZDXF": doc.header["$DIMSTYLE"] = "Standard"
+            try: doc.dimstyles.remove("EZDXF")
+            except Exception: pass
+    if "EZDXF" in doc.appids:
+        try: doc.appids.remove("EZDXF")
+        except Exception: pass
+    doc.header["$LASTSAVEDBY"] = ""
+    doc.saveas(ruta)
+    return ruta

@@ -245,6 +245,11 @@ con codo, colgador y abrazadera). Cada eje con su ancho libre b (una medida por 
 151.43 m³, acero 6,932 kg, rejilla 936.22 m, 30 tapas, juntas 544.25 m, 344 lloraderos, 124 montantes (635.18 m), canaleta
 925.76 m, 2 sumideros (22.15 m de tubo). Junta cuneta-piso 1,416.50 m (ambos lados contra cualquier piso): pendiente de revisar.
 DRENIE no hace ACU, precios ni presupuesto (regla del usuario, 24-10-2026): eso lo ve quien elabora el presupuesto.
+Revisión general automática (24-10-2026): `drenie_motor/drenie_motor/revision.py` corre las validaciones de la sección 8.2 de
+`01_reglas_y_metodo.md` al final de cada diseño y entrega REVISION_GENERAL.xlsx. Montantes: a lo más 4 de 4" por lado (si con
+llenado 1/4 harían falta más, 4 con llenado hasta 7/24). Sumidero cuyo tubo no llega sobre la cota de fondo: se profundiza el
+tramo de cuneta que lo recibe (también al inicio del eje) y se recalcula. Guitarra de perfiles: textos horizontales y la
+pendiente de diseño del tramo (no la de cotas redondeadas al mm).
 El programa entrega metrado, memorias (hidrológica y descriptiva), especificaciones técnicas y planos.
 
 ## 4. Hojas de la planilla y su función

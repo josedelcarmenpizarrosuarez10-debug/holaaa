@@ -27,7 +27,7 @@ CAJA_W, CAJA_PASO = 25.0, 34.0
 CAPAS = [("PERF-NCT", 5, "CONTINUOUS"), ("PERF-TAPA", 3, "CONTINUOUS"), ("PERF-FONDO", 6, "CONTINUOUS"), ("PERF-SECCION", 1, "CONTINUOUS"),
          ("PERF-REF", 9, "CONTINUOUS"), ("PERF-CAJA", 7, "CONTINUOUS"), ("SEC-ABIERTA", 5, "CONTINUOUS"), ("SEC-TAPADA", 3, "CONTINUOUS"),
          ("SEC-ACERO", 6, "CONTINUOUS"), ("SEC-ACERO-LONG", 5, "CONTINUOUS"), ("SEC-REJILLA", 1, "CONTINUOUS"), ("SEC-PISO", 8, "CONTINUOUS"),
-         ("SEC-JUNTA", 8, "CONTINUOUS"), ("SEC-SOLADO", 8, "CONTINUOUS"), ("SEC-HUECO", 7, "CONTINUOUS")]
+         ("SEC-JUNTA", 8, "CONTINUOUS"), ("SEC-SOLADO", 8, "CONTINUOUS")]
 GROSOR = {"PERF-NCT": 35, "PERF-TAPA": 35, "PERF-FONDO": 35, "PERF-SECCION": 25, "PERF-REF": 9, "SEC-ABIERTA": 35, "SEC-TAPADA": 35,
           "SEC-ACERO": 50, "SEC-REJILLA": 35, "SEC-PISO": 25}
 
@@ -51,7 +51,7 @@ def capas(doc):
     for n, c, lt in CAPAS:
         if n not in doc.layers: doc.layers.add(n, color=c, linetype=lt)
         if n in GROSOR: doc.layers.get(n).dxf.lineweight = GROSOR[n]
-    B.COLOR_RGB["SEC-JUNTA"] = (70, 70, 70); B.COLOR_RGB["SEC-HUECO"] = (255, 255, 255); B.COLOR_RGB["SEC-SOLADO"] = (200, 200, 200)
+    B.COLOR_RGB["SEC-JUNTA"] = (70, 70, 70); B.COLOR_RGB["SEC-SOLADO"] = (200, 200, 200)
 
 
 def prog(s): return "0+%06.2f" % s
@@ -63,6 +63,20 @@ def _valor(Pf, s):
             a, b = Pf[i - 1], Pf[i]; t = 0 if b[0] == a[0] else (s - a[0]) / (b[0] - a[0])
             return a[1] + t * (b[1] - a[1]), a[2] + t * (b[2] - a[2])
     return Pf[-1][1], Pf[-1][2]
+
+
+def _pendiente(r, a, b, za, zb):
+    """Pendiente (%) de la cota de fondo entre las progresivas a y b: la de diseno del tramo cuando el trecho esta dentro de tramos
+    de igual pendiente y sin gradas (las cotas redondeadas al mm darian 0.47 % en trechos cortos); si no, la de las cotas."""
+    s0, S, ok, prev = 0.0, set(), True, None
+    for t in r["tramos"]:
+        s1 = s0 + t["L"]
+        if s1 > a + 1e-6 and s0 < b - 1e-6:
+            S.add(round(t["S"], 6))
+            if prev is not None and s0 > a + 1e-6 and abs(prev - t["cf_de"]) > 0.0015: ok = False
+        prev = t["cf_a"]; s0 = s1
+    if ok and len(S) == 1: return 100 * S.pop()
+    return 100 * (za - zb) / (b - a)
 
 
 def _tapado(r, s): return any(a - 1e-6 <= s <= b + 1e-6 for a, b in r["tapados"])
@@ -133,13 +147,20 @@ def secciones(R, descargas, anchos, P):
     return out
 
 
+def _titulo_perfil(r, s0, s1):
+    return "PERFIL LONGITUDINAL %s - DE %s A %s - PROG. %s A %s" % (r["codigo"], r["nudos"][0], r["nudos"][-1], prog(s0), prog(s1))
+
+
+def _ancho_titulo(r, s0, s1): return 1.95 * len(_titulo_perfil(r, s0, s1))      # mm de papel (titulo de 2.0 mm, Arial)
+
+
 def _franjas(R):
     f = ESC_P / 1000.0; largo = (ANCHO_LAM - CAB - 14) * f
     franjas, cur, usado = [], [], 0.0
     for r in R["ramales"]:
         n = max(1, math.ceil(r["L"] / largo - 1e-9)); paso = r["L"] / n
         for k in range(n):
-            w = CAB + paso / f + 14
+            w = max(CAB + paso / f, _ancho_titulo(r, k * paso, (k + 1) * paso)) + 14      # el titulo tampoco sale del marco
             if cur and usado + w > ANCHO_LAM: franjas.append(cur); cur, usado = [], 0.0
             cur.append((r, k * paso, (k + 1) * paso, n)); usado += w
     if cur: franjas.append(cur)
@@ -226,6 +247,7 @@ class Planos:
         lam.poli([(X(p[0]), Yz(p[2] - EL)) for p in Pf], "PERF-FONDO")
         pos, filas = _filas_cajas(secs, [(x["s"] - s0) / f for x in secs], -6, (s1 - s0) / f + 6, CAJA_W)
         ytop = Yz(max(p[1] for p in Pf))
+        xprev, nivel = None, 0
         for x, (fila, xc) in zip(secs, pos):
             xs = X(x["s"])
             lam.linea((xs, Yz(x["nct"])), (xs, Yz(x["ncf"] - EL)), "PERF-SECCION")
@@ -240,8 +262,12 @@ class Planos:
             lam.texto((cx, yc0 + (alto + 2.4) * f), "SECCION %02d" % x["n"], 1.8, "TITULOS", TA.BOTTOM_CENTER)
             lam.linea((cx - 11 * f, yc0 + (alto + 1.8) * f), (cx + 11 * f, yc0 + (alto + 1.8) * f), "TITULOS")
             lam.flecha((cx, yc0), (xs, Yz(x["nct"])), "PERF-CAJA", tam_mm=2.0)
-            lam.texto((xs + 0.6 * f, lam.P(0, yg1 - ALTO_FILA / 2)[1]), "%.2f" % x["s"], 1.0, "TEXTOS", TA.MIDDLE_CENTER, rot=90)
-            lam.texto((xs + 0.6 * f, lam.P(0, yg1 - 1.5 * ALTO_FILA)[1]), "S-%02d" % x["n"], 1.0, "TEXTOS", TA.MIDDLE_CENTER, rot=90)
+            # guitarra: textos horizontales; si la seccion anterior queda a menos de 7 mm, se escalonan arriba y abajo en la fila
+            if xprev is not None and (xs - xprev) / f < 7.0: nivel = -nivel if nivel else 1
+            else: nivel = 0
+            xprev = xs; dy = 1.55 * nivel
+            lam.texto((xs + 0.6 * f, lam.P(0, yg1 - ALTO_FILA / 2 + dy)[1]), "%.2f" % x["s"], 1.0, "TEXTOS", TA.MIDDLE_LEFT)
+            lam.texto((xs + 0.6 * f, lam.P(0, yg1 - 1.5 * ALTO_FILA + dy)[1]), "S-%02d" % x["n"], 1.0, "TEXTOS", TA.MIDDLE_LEFT)
         todas = sorted(self.SEC[r["codigo"]], key=lambda x: x["s"])
         for A, Bs in zip(todas[:-1], todas[1:]):
             a, b = A["s"], Bs["s"]; va, vb = max(a, s0), min(b, s1)
@@ -251,11 +277,10 @@ class Planos:
             lon = "%.2f" % (b - a)
             if (a < s0 - 1e-6 or b > s1 + 1e-6) and (vb - va) / f > 40: lon += "  (S-%02d a S-%02d)" % (A["n"], Bs["n"])
             lam.texto((xm, lam.P(0, yg1 - 2.5 * ALTO_FILA)[1]), lon, 1.2, "TEXTOS", TA.MIDDLE_CENTER)
-            lam.texto((xm, lam.P(0, yg1 - 3.5 * ALTO_FILA)[1]), "%.2f" % (100 * (za - zb) / (b - a)), 1.2, "TEXTOS", TA.MIDDLE_CENTER)
+            lam.texto((xm, lam.P(0, yg1 - 3.5 * ALTO_FILA)[1]), "%.2f" % _pendiente(r, a, b, za, zb), 1.2, "TEXTOS", TA.MIDDLE_CENTER)
         yt = lam.P(0, (ytop - lam.oy) / f + 12 + filas * CAJA_PASO + 4)[1]
-        desc = "DE %s A %s" % (r["nudos"][0], r["nudos"][-1])
-        lam.texto((lam.P(xg0, 0)[0], yt), "PERFIL LONGITUDINAL %s - %s - PROG. %s A %s" % (r["codigo"], desc, prog(s0), prog(s1)), 2.0, "TITULOS", TA.LEFT)
-        return CAB + (s1 - s0) / f
+        lam.texto((lam.P(xg0, 0)[0], yt), _titulo_perfil(r, s0, s1), 2.0, "TITULOS", TA.LEFT)
+        return max(CAB + (s1 - s0) / f, _ancho_titulo(r, s0, s1))
 
     def leyenda_perfil(self, lam, xmm, ymm):
         lam.leyenda2(xmm, ymm, [("linea", "PERF-NCT", "Borde superior de cuneta (NCT) - tramo abierto con rejilla"),
@@ -292,7 +317,7 @@ class Planos:
         if tap:
             ext = [(x0, y0), (x0 + W, y0), (x0 + W, ytop), (x0, ytop)]
             hueco = [(x0 + e, y0 + EL), (x0 + e + b, y0 + EL), (x0 + e + b, ytop - et), (x0 + e, ytop - et)]
-            lam.relleno(ext, "CONCRETO-ACHURADO"); lam.relleno(hueco, "SEC-HUECO")
+            lam.relleno(ext, "CONCRETO-ACHURADO").paths.add_polyline_path(hueco, is_closed=True)   # concreto con el hueco libre (sin relleno blanco)
             lam.poli(ext, capa, cerrada=True); lam.poli(hueco, capa, cerrada=True)
         else:
             u = [(x0, y0), (x0 + W, y0), (x0 + W, ytop), (x0 + e + b, ytop), (x0 + e + b, y0 + EL), (x0 + e, y0 + EL), (x0 + e, ytop), (x0, ytop)]
@@ -377,7 +402,7 @@ class Planos:
 
 def dxf_planos(ruta, R, red, sitio, P, anchos, proyecto, curvas, V, LLt, LLp, secciones_eje, pref="DC", num0=1, techos=None, sums=None):
     """PLANOS_CUNETAS.dxf: planta general (num0), cuadros (num0 + 1), perfiles y secciones, con una presentacion por lamina.
-    Devuelve (ruta, [(codigo, titulo)], numero de secciones)."""
+    Devuelve (ruta, [(codigo, titulo)], numero de secciones, marcos de las laminas en el modelo)."""
     from . import planta_lamina as PLT
     doc = B.nuevo_documento(); capas(doc); PLT.capas(doc)
     PL = Planos(R, red, sitio, P, anchos, proyecto)
@@ -389,5 +414,6 @@ def dxf_planos(ruta, R, red, sitio, P, anchos, proyecto, curvas, V, LLt, LLp, se
     ls = PL.cortes(doc, xs, 0.0, 841 * ESC_S / 1000 + 15, num0 + 2 + len(lp), pref)
     todas = [l1, l2] + lp + ls
     LY.presentaciones(doc, {l.codigo: l for l in todas})
-    doc.saveas(ruta)
-    return ruta, [(l.codigo, l.titulo) for l in todas], sum(len(v) for v in PL.SEC.values())
+    B.guardar(doc, ruta)
+    cajas = [{"codigo": l.codigo, "x0": l.ox, "y0": l.oy, "x1": l.ox + l.W * l.f, "y1": l.oy + l.H * l.f, "esc": l.esc} for l in todas]
+    return ruta, [(l.codigo, l.titulo) for l in todas], sum(len(v) for v in PL.SEC.values()), cajas

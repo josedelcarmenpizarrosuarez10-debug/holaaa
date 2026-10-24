@@ -65,8 +65,8 @@ class Etiquetas:
     def libre(self, c): return all(c[2] < o[0] or c[0] > o[2] or c[3] < o[1] or c[1] > o[3] for o in self.cajas)
 
     def poner(self, p, txt, hmm=1.8, capa="TEXTOS", color=None, d_mm=2.2):
-        f = self.lam.f; h = hmm * B.K_TXT.get(capa, 1.0) * f; w = len(txt) * 0.62 * h
-        for k in range(1, 4):
+        f = self.lam.f; h = hmm * B.K_TXT.get(capa, 1.0) * f; w = len(txt) * 0.70 * h
+        for k in range(1, 7):
             for sx, sy in [(1, 1), (1, -1), (-1, 1), (-1, -1), (1, 0), (-1, 0), (0, 1), (0, -1)]:
                 d = d_mm * f * k
                 x = p[0] + sx * d - (w if sx < 0 else (w / 2 if sx == 0 else 0)); y = p[1] + sy * d - (h if sy < 0 else (h / 2 if sy == 0 else 0))
@@ -250,12 +250,16 @@ def dc01(doc, codigo, R, red, sitio, curvas, P, anchos, V, lloraderos, proyecto,
             if len(pts) < 2: continue
             lam.poli(pts, "CURVAS")
             if abs(z - round(z)) < 1e-6 and len(pts) > 20:
-                for k in (len(pts) // 3, 2 * len(pts) // 3):
+                def ang_en(k):
                     p, q = pts[k], pts[min(k + 2, len(pts) - 1)]
-                    ang = math.degrees(math.atan2(q[1] - p[1], q[0] - p[0]))
-                    if ang > 90: ang -= 180
-                    if ang < -90: ang += 180
-                    lam.texto(p, "%.0f" % z, 1.5, "CURVAS-TXT", TA.MIDDLE_CENTER, rot=ang)
+                    a = math.degrees(math.atan2(q[1] - p[1], q[0] - p[0]))
+                    return a - 180 if a > 90 else (a + 180 if a < -90 else a)
+                for k0 in (len(pts) // 3, 2 * len(pts) // 3):
+                    # nunca texto vertical: se busca cerca un punto donde la curva no pase de 60 grados; si no hay, horizontal
+                    cand = sorted(range(max(0, k0 - len(pts) // 6), min(len(pts) - 1, k0 + len(pts) // 6)), key=lambda k: abs(k - k0))
+                    k = next((k for k in cand if abs(ang_en(k)) <= 60), k0)
+                    ang = ang_en(k) if abs(ang_en(k)) <= 60 else 0.0
+                    lam.texto(pts[k], "%.0f" % z, 1.5, "CURVAS-TXT", TA.MIDDLE_CENTER, rot=ang)
     with EnBloque(lam, "LIMITE_DE_INTERVENCION", "LIMITE-INTERV"):
         lam.poli(list(ce.exterior.coords), "LIMITE-INTERV", cerrada=True, ancho=0.35 * f / 0.25)
     with EnBloque(lam, "CUNETAS", "CUN-REJ-BORDE"):
@@ -348,8 +352,11 @@ def _tabla_partida(lam, x, ytop, ybot, cab, filas, anchos, titulo, hmm=1.9, alto
 
 
 def dc02(doc, codigo, ox, oy, secciones, V, LLt, P, techos=None, sums=None):
-    lam = B.Lamina(doc, ox, oy, 50, codigo, "CUADROS DE EJES, DESCARGAS Y LLORADEROS",
-                   "SECCION ADOPTADA, CAUDAL, PROFUNDIDADES Y EXCAVACION POR EJE; TRAMOS CON LLORADEROS", escala_txt="S/E")
+    temas = ["EJES", "DESCARGAS", "LLORADEROS"] + (["CANALETAS", "MONTANTES"] if techos and techos.get("montantes") else []) + \
+            (["SUMIDEROS"] if sums and sums.get("sumideros") else [])
+    lam = B.Lamina(doc, ox, oy, 50, codigo, "CUADROS DE " + ", ".join(temas[:-1]) + " Y " + temas[-1],
+                   "SECCION ADOPTADA, CAUDAL, PROFUNDIDADES Y EXCAVACION POR EJE; LLORADEROS" + ("; MONTANTES POR LADO DE TECHO" if len(temas) > 4 else ""),
+                   escala_txt="S/E")
     filas = [[s["sector"], s["eje"], "%.2f" % s["L_m"], "%.1f" % s["Q_max_ls"], "%.2f" % s["b"], "%.2f" % (s["b"] + 2 * P["e_muro"]),
               "%.2f" % s["h_min"], "%.2f" % s["h_max"], "%.2f" % s["excavacion_max"]] for s in secciones]
     x = _tabla_partida(lam, 30, 575, 135, ["SECTOR", "EJE", "L (m)", "Q MAX (l/s)", "b LIBRE", "TOTAL", "h MIN", "h MAX", "EXCAV."],

@@ -91,7 +91,7 @@ def calcular(mapa, sitio, R, P, I, cfg, descargas=()):
     pts = cfg.get("sumideros") or prop
     Nn = R["nudos"]
     # el tubo no llega al tramo que sale por el cerco (descarga) ni a pedazos cortos (chaflanes)
-    segs = [(r["codigo"], LineString([Nn[t["de"]], Nn[t["a"]]])) for r in R["ramales"] for t in r["tramos"]
+    segs = [(r["codigo"], LineString([Nn[t["de"]], Nn[t["a"]]]), "%s|%s|%s" % (r["codigo"], t["de"], t["a"])) for r in R["ramales"] for t in r["tramos"]
             if t["origen"] != "pase" and t["a"] not in descargas and math.dist(Nn[t["de"]], Nn[t["a"]]) > 1.0]
     libres = unary_union(zonas(mapa, K["tipos"]))
     sums, avisos = [], []
@@ -103,7 +103,7 @@ def calcular(mapa, sitio, R, P, I, cfg, descargas=()):
         manual = bool(cfg.get("sumideros"))
 
         def tubo(p):
-            eje, ln = min(segs, key=lambda e: e[1].distance(p))
+            eje, ln, _ = min(segs, key=lambda e: e[1].distance(p))
             q = ln.interpolate(ln.project(p)); L = p.distance(q)
             nct, cf = _cf_en(R, eje, (q.x, q.y))
             z_piso = sitio.rasante(p.x, p.y); z_sal = z_piso - tp["prof_caja"] - tp["D_tubo"]
@@ -114,10 +114,13 @@ def calcular(mapa, sitio, R, P, I, cfg, descargas=()):
         if not ok and not manual:                                       # propuesta del programa: se acerca a la cuneta hasta que llegue
             for k in range(1, 40):
                 p2 = Point(p.x + (q.x - p.x) * k / 40, p.y + (q.y - p.y) * k / 40)
-                if libres.buffer(0.3).contains(p2):
+                if libres.buffer(-0.40).contains(p2):                  # sin salir del area libre (nunca a area verde ni vereda)
                     r = tubo(p2)
                     if r[-1]: p = p2; eje, q, L, cf, z_piso, z_sal, S_t, ok = r; break
         z_lleg = z_sal - S_t * L
+        tramo = min(segs, key=lambda e: e[1].distance(p))[2]
+        # profundidad que necesita la cuneta en la llegada para recibir el tubo al 0.5 % sobre su fondo (la usa el motor para profundizar)
+        h_req = round(sitio.rasante(q.x, q.y) - (z_sal - tp["S_min"] * L) + 0.01, 3)
         A = s.get("A_m2") or (math.pi * tp["radio"] ** 2)
         Qs = K["q_m2"] * A
         if ok and S_t < tp["S_tubo"] - 1e-9:
@@ -130,7 +133,8 @@ def calcular(mapa, sitio, R, P, I, cfg, descargas=()):
         sums.append({"sumidero": "S-%02d" % (i + 1), "x": round(p.x, 3), "y": round(p.y, 3), "zona": s.get("zona"), "A_m2": round(A, 1),
                      "Q_ls": round(Qs, 2), "cuneta": eje, "hacia": [round(q.x, 3), round(q.y, 3)], "L_tubo_m": round(L, 2), "S_tubo_pct": round(100 * S_t, 2),
                      "z_piso": round(z_piso, 3), "z_salida": round(z_sal, 3), "z_llegada": round(z_lleg, 3), "cf_cuneta": round(cf, 3),
-                     "llega": "SOBRE EL FONDO" if ok else "BAJO EL FONDO", "codos90": tp["codos90"]})
+                     "llega": "SOBRE EL FONDO" if ok else "BAJO EL FONDO", "codos90": tp["codos90"],
+                     "tramo": tramo, "h_req_cuneta": h_req})
     met = {"sumideros_und": len(sums), "tuberia_4_m": round(sum(x["L_tubo_m"] for x in sums), 2), "codo90_und": sum(x["codos90"] for x in sums), "tee_und": 0}
     return {"sumideros": sums, "metrado": met, "avisos": avisos,
             "criterios": {"tipos": K["tipos"], "Q_tubo_4_ls": round(Qt, 2), "A_por_sumidero_m2": round(K["A_cap"], 1), "parametros": tp,

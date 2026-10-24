@@ -56,7 +56,7 @@ def calcular(red, sitio, P, hq=None):
                 if p[2] and 0 < i and j > 0: rq = max(rq, hq.get("%s|%s|%s" % (cod, nom[nudos[j - 1]], nom[nudos[j]]), P["hmin"]))
                 hm.append(max(P["hmin"], rq) + (P["e_tapa"] if tap[i] else 0.0))
             for i, p in enumerate(pts):
-                if i == 0: v = rr[0] - P["h0"] - (P["e_tapa"] if tap[0] else 0.0)
+                if i == 0: v = rr[0] - max(P["h0"] + (P["e_tapa"] if tap[0] else 0.0), hm[0])   # 0.30 al inicio (mas si un tubo llega ahi)
                 else: v = min(f[-1] - P["S0"] * (s[i] - s[i - 1]), rr[i] - hm[i])
                 if p[2] and 0 < i < len(pts) - 1 and p[2] in req: v = min(v, req[p[2]])   # solo el eje que recibe; el que llega cae libre
                 f.append(v)

@@ -4,7 +4,8 @@ Por cada lado de techo (cada mitad a dos aguas, o cada parte que sigue una flech
 - Canaleta a lo largo del alero: plancha galvanizada, seccion b x h (0.25 x 0.20 por defecto), S = 1 %, Manning n = 0.013, borde
   libre 0.05 m. Caudal del lado Q = C I A FS (C = 0.88 del techo, A en proyeccion horizontal).
 - Montantes PVC (Wyly-Eaton, llenado rs = 0.25): Q (l/s) = 1.754 rs^(5/3) D^(8/3); siempre 4" (CE.040, art. 12.5; el usuario no
-  usa 6": en techos grandes se ponen mas montantes de 4" por lado, 3 o 4; 4 por lado sobre todo en losas deportivas).
+  usa 6": en techos grandes se ponen mas montantes de 4" por lado, 3 o 4; 4 por lado sobre todo en losas deportivas). A lo mas
+  4 por lado: si con 1/4 harian falta mas, se quedan 4 y se admite el llenado hasta 7/24; si aun no alcanza, se avisa.
   N.° de montantes del lado = el mayor de: area / area que atiende un montante de 4", y lo que pida la canaleta (cada montante
   recibe Q / n por la canaleta). Se reparten a lo largo del alero, en el centro de su parte.
 - Cada montante baja por el muro y sale a la cuneta mas cercana (salida PVC horizontal); si no hay cuneta a menos de 3 m se avisa.
@@ -62,7 +63,7 @@ def _altura(techo_pol, cfg_alt):
     return float(cfg_alt.get("defecto", 3.50))
 
 
-PARAM = {"canaleta_b": 0.25, "canaleta_h": 0.20, "BL": 0.05, "S": 0.01, "n": 0.013, "rs": 0.25,
+PARAM = {"canaleta_b": 0.25, "canaleta_h": 0.20, "BL": 0.05, "S": 0.01, "n": 0.013, "rs": 0.25, "rs_max": 7 / 24, "max_por_lado": 4,
          "desvio": 0.50, "entrada_cuneta": 0.30, "sep_soporte": 0.60, "abrazadera_cada": 4.0, "colgadores": 2, "codos90": 3,
          "salida_max": 3.0, "d_montante": 4, "fc_largo": 0.20, "fc_ancho": 0.15, "esquina_max": 3.0, "alero_vuelo": 0.60}
 
@@ -113,6 +114,9 @@ def ubicar(sitio, P, I, cfg):
         u, nrm = _normal_alero(ag, al)
         A = ag["poligono"].area; Q = q_m2 * A; L = al.length
         n = max(1 if L < 3.0 else 2, math.ceil(A / A4 - 1e-9), math.ceil(Q / Qcan - 1e-9))
+        if n > tc["max_por_lado"]:
+            # usuario: a lo mas 4 montantes de 4" por lado; con 4 se admite el llenado de Wyly-Eaton hasta 7/24
+            n = max(tc["max_por_lado"], math.ceil(Q / q_wyly(4, tc["rs_max"]) - 1e-9), math.ceil(Q / Qcan - 1e-9))
         E0, E1 = al.coords[0], al.coords[-1]
         c0, V0 = _esquina(E0, u, nrm, muros, tc)
         pos = [(c0, V0, u)]
@@ -155,9 +159,11 @@ def calcular(sitio, R, P, I, cfg):
     for l in lados0:
         n = len(l["pos"]); A, Q, L = l["A"], l["Q"], l["L"]
         # siempre montantes de 4" (usuario 24-10-2026: no usar 6"; si el lado es grande se ponen mas montantes de 4" por lado)
-        Qm = Q / n if n else 0.0; D = d_req(Qm, tc["rs"]); Dad = tc["d_montante"]
+        Qm = Q / n if n else 0.0; Dad = tc["d_montante"]
+        rs = tc["rs"] if Qm <= q_wyly(Dad, tc["rs"]) + 1e-9 else tc["rs_max"]          # llenado 1/4; hasta 7/24 con 4 por lado
+        D = d_req(Qm, rs)
         if n and D > Dad + 1e-6:
-            falta = math.ceil(Q / q_wyly(Dad, tc["rs"]) - 1e-9)
+            falta = math.ceil(Q / q_wyly(Dad, tc["rs_max"]) - 1e-9)
             avisos.append("%s %s: con %d montantes de %d\" cada uno lleva %.2f l/s (pide %.2f\"); poner %d montantes de %d\" en ese lado." % (
                 l["techo"], l["lado"], n, Dad, Qm, D, falta, Dad))
         y = tirante(Qm / 1000.0, tc["S"], tc["n"], tc["canaleta_b"]) if n else 0.0
@@ -174,7 +180,7 @@ def calcular(sitio, R, P, I, cfg):
                  "hacia_alero": [round(l["nrm"][0], 4), round(l["nrm"][1], 4)],
                  "cuneta": seg[0] if seg and d <= tc["salida_max"] else "SIN CUNETA CERCANA", "salida_m": round(d, 2),
                  "hacia": [round(q.x, 3), round(q.y, 3)] if q is not None and d <= tc["salida_max"] else None,
-                 "altura_alero": h, "L_m": round(Lm, 2), "Q_ls": round(Qm, 2), "D_req_pulg": round(D, 2), "D_pulg": Dad,
+                 "altura_alero": h, "L_m": round(Lm, 2), "Q_ls": round(Qm, 2), "D_req_pulg": round(D, 2), "D_pulg": Dad, "llenado": round(rs, 3),
                  "codos90": tc["codos90"], "colgadores": tc["colgadores"], "abrazaderas": max(1, math.floor(Lm / tc["abrazadera_cada"]))}
             if d > tc["salida_max"]:
                 avisos.append("%s (%s %s) no tiene cuneta a menos de %.1f m (la mas cercana a %.1f m): revisar si falta cuneta o "
@@ -226,7 +232,7 @@ def excel(T, ruta, SM=None):
     for j, v in ((4, m["canaleta_m"]), (5, m["soportes_und"]), (6, m["tapas_und"]), (7, m["boquillas_und"])):
         ws.cell(f, 1, "TOTAL").font = neg; c = ws.cell(f, 1 + j, v); c.font = neg; c.border = borde
     w = wb.create_sheet("MONTANTES")
-    w["A1"] = "MONTANTES PVC (Wyly-Eaton, rs = %.2f) Y ACCESORIOS" % tc["rs"]; w["A1"].font = Font(bold=True, size=12)
+    w["A1"] = "MONTANTES PVC (Wyly-Eaton, rs = %.2f; hasta 7/24 con 4 por lado) Y ACCESORIOS" % tc["rs"]; w["A1"].font = Font(bold=True, size=12)
     f = tabla(w, 3, ["MONTANTE", "TECHO", "LADO", "Q (l/s)", "D REQ. (pulg)", "D (pulg)", "ALTURA ALERO (m)", "SALIDA (m)", "LONGITUD (m)",
                      "CODO 90", "COLGADOR", "ABRAZADERA", "DESCARGA A"],
               [[x["montante"], x["techo"], x["lado"], x["Q_ls"], x["D_req_pulg"], x["D_pulg"], x["altura_alero"], x["salida_m"], x["L_m"],
@@ -248,4 +254,5 @@ def excel(T, ruta, SM=None):
     if SM is not None:
         from . import sumideros as _s
         _s.hoja(wb, SM)
+    wb.properties.creator = ""; wb.properties.lastModifiedBy = ""
     wb.save(ruta); return ruta

@@ -207,7 +207,8 @@ class Doc:
             r = par.add_run("\nFuente: " + fuente); r.italic = True; r.font.size = Pt(8)
 
     def guardar(self, ruta):
-        self.d.core_properties.author = ""; self.d.core_properties.last_modified_by = ""
+        cp = self.d.core_properties
+        for k in ("author", "last_modified_by", "comments", "title", "subject", "keywords", "category"): setattr(cp, k, "")
         self.d.save(ruta); return ruta
 
 

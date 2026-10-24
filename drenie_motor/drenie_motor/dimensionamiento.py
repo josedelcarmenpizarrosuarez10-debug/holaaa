@@ -51,6 +51,7 @@ def escribir(ruta, filas, secciones, P):
               ("borde_libre", "Borde libre (m)", "0.000"), ("V", "V (m/s)", "0.00"), ("ancho_total", "Ancho total (m)", "0.00"),
               ("excavacion_max", "Excavación máx (m)", "0.00"), ("cap", "Capacidad", None), ("vel", "Velocidad", None)]
     tabla(w, 3, [k[1] for k in claves], [[f[k[0]] for k in claves] for f in filas], [k[2] for k in claves])
+    wb.properties.creator = ""; wb.properties.lastModifiedBy = ""
     wb.save(ruta)
     return ruta
 

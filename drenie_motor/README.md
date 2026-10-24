@@ -131,3 +131,18 @@ Formato común (`word.py`): A4, Arial, títulos azules numerados, tablas y figur
 Sin nombre ni CIP del proyectista. Datos opcionales del proyecto para los textos: `proyecto.entidad`, `gerencia`, `ubicacion`,
 `fecha`, `foto` (carátula) y `memoria` (`departamento`, `provincia`, `distrito`, `localidad`, `predio`, `colindancias`, `acceso`,
 `clima`, `antecedentes`, `modalidad`, `normas`): lo que no se da no se escribe.
+
+## Revisión general (`revision.py` → `REVISION_GENERAL.xlsx`)
+Al terminar `disenar` el programa revisa solo todo lo que entregó (validaciones de `conocimiento/01`, sección 8.2) y lo deja en
+`REVISION_GENERAL.xlsx` y en `resultado.json` (`revision`): CUMPLE, NO CUMPLE (regla incumplida) o AVISO (dato a confirmar o
+entregable pendiente).
+- Diseño: ancho libre 0.30 a 0.40, de 5 en 5 cm, una medida por sector; espesores de 0.10; pendiente; profundidad inicial;
+  borde libre; velocidad; descargas por gravedad; las 13 comprobaciones del ciclo.
+- Componentes: montantes de 4", a lo más 4 por lado (hasta 7/24 de llenado), canaletas, sumideros solo en áreas libres sin
+  cobertura y con su tubo sobre la cota de fondo (si no llega, el programa profundiza el tramo que lo recibe), lloraderos @1.50 m.
+- Metrado: sin errores de fórmula (recalculado con LibreOffice) y cantidades iguales a las del diseño.
+- Documentos: español y términos del usuario, sin personas ni CIP, metadatos vacíos (sin marcas de la herramienta en Word,
+  Excel ni DXF), sin citas a otros proyectos, láminas citadas existentes, cifras de memorias y especificaciones = diseño.
+- Planos: cotas con texto igual a su medida, unidades en metros, textos dentro del marco, sin encimarse, sin textos verticales,
+  sin amarillo ni blanco puro.
+- Entregables pendientes y datos tomados por defecto, como avisos.
