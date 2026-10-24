@@ -37,7 +37,9 @@ PARAMETROS = {
     "tapa_lado": 0.60,
     "tapa_sep_max": 10.0,
     # coeficientes de escorrentia por superficie
-    "C": {"techo": 0.88, "pavimento": 0.88, "estacionamiento": 0.88, "cuneta": 0.88, "verde": 0.40},
+    # (juegos: piso de caucho, C 0.88, indicacion del usuario 24-10-2026 para la OE-04 de Barranquita)
+    "C": {"techo": 0.88, "vereda": 0.88, "patio": 0.88, "pavimento": 0.88, "estacionamiento": 0.88, "juegos": 0.88,
+          "cuneta": 0.88, "verde": 0.40},
     # ciclo diseno <-> verificacion
     "vueltas_max": 8,
 }

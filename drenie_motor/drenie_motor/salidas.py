@@ -129,7 +129,8 @@ def dxf_planta(ruta, R, red, sitio, curvas, P, proyecto):
     return ruta
 
 
-COLOR_SUP = {"techo": "#d6d6d6", "pavimento": "#efe2c2", "estacionamiento": "#c9d6e6", "cuneta": "#9fc5e8", "verde": "#e2f0d9"}
+COLOR_SUP = {"techo": "#d6d6d6", "vereda": "#f3d9a4", "patio": "#e8c98f", "pavimento": "#efe2c2", "estacionamiento": "#c9d6e6",
+             "juegos": "#f4b183", "cuneta": "#9fc5e8", "verde": "#cfe8bf"}
 COLORES_SIS = ["#1f6fb4", "#2a9d3c", "#c2571a", "#7b3fa0", "#b8860b", "#0f8a8a", "#a33a5a", "#4a5a8a"]
 
 
@@ -167,9 +168,15 @@ def png_planta(ruta, R, red, sitio, curvas, ejes_usuario, titulo, candidatos=Non
         ax.text(c.x, c.y, "%s\n(%s, %.0f m2)" % (e["nombre"], e["tipo"], e["geom"].area), fontsize=5.5, ha="center", va="center",
                 color="#333", zorder=7, bbox=dict(fc="white", ec="#999", lw=0.3, alpha=0.8, pad=1.0))
     xs, ys = sitio.cerco.exterior.xy; ax.plot(xs, ys, color="#8a1c7c", lw=1.4, zorder=3, label="Cerco = limite de intervencion")
-    for ag in getattr(sitio, "aguas", []):            # caida de cada mitad de techo hacia su alero
-        c = ag["poligono"].representative_point(); al = ag["alero"]; q = al.interpolate(al.project(c))
-        ax.annotate("", xy=(q.x, q.y), xytext=(c.x, c.y), arrowprops=dict(arrowstyle="-|>", color="#1565c0", lw=0.9), zorder=6)
+    for ag in getattr(sitio, "aguas", []):            # caida de cada parte de techo
+        c = ag["poligono"].representative_point()
+        if ag["tipo"] == "flecha":                    # flecha puesta por el usuario (manda)
+            ux, uy = ag["flecha"]
+            ax.annotate("", xy=(c.x + ux * 2.5, c.y + uy * 2.5), xytext=(c.x - ux * 0.5, c.y - uy * 0.5),
+                        arrowprops=dict(arrowstyle="-|>", color="#e65100", lw=1.4), zorder=6)
+        else:                                          # caida supuesta por el programa (confirmar)
+            al = ag["alero"]; q = al.interpolate(al.project(c))
+            ax.annotate("", xy=(q.x, q.y), xytext=(c.x, c.y), arrowprops=dict(arrowstyle="-|>", color="#1565c0", lw=0.9), zorder=6)
     for pts in ejes_usuario:
         ax.plot([p[0] for p in pts], [p[1] for p in pts], color="#e040fb", lw=2.4, alpha=0.35, zorder=4)
     if candidatos:
@@ -200,9 +207,9 @@ def png_planta(ruta, R, red, sitio, curvas, ejes_usuario, titulo, candidatos=Non
     ax.ticklabel_format(useOffset=False, style="plain")
     from matplotlib.lines import Line2D
     from matplotlib.patches import Patch
+    from .superficies import NOMBRE_TIPO
     ley = [Patch(fc=COLOR_SUP[k], label="%s (C = %.2f): %.0f m2" % (n, sitio.P["C"][k], sup[k].area))
-           for k, n in (("techo", "Techos"), ("pavimento", "Pavimentos y veredas"), ("estacionamiento", "Estacionamiento"),
-                        ("cuneta", "Cunetas (franja de 0.60 m)"), ("verde", "Area verde")) if not sup[k].is_empty]
+           for k, n in NOMBRE_TIPO.items() if k in sup and not sup[k].is_empty]
     if mapa is not None and mapa.sin_asignar:
         ley.append(Patch(fc="#ff4fd8", ec="#c2008f", hatch="////", label="SIN ASIGNAR: %.0f m2 (asignar tipo)" % sum(c["geom"].area for c in mapa.sin_asignar)))
     ley += [Line2D([], [], color="#8a1c7c", lw=1.4, label="Cerco (limite de intervencion)"),
@@ -211,7 +218,10 @@ def png_planta(ruta, R, red, sitio, curvas, ejes_usuario, titulo, candidatos=Non
                  Line2D([], [], color="#444", lw=1.6, ls="--", label="Union nueva (agregada por el programa)"),
                  Line2D([], [], marker="o", ls="", mfc="#d32f2f", mec="white", ms=7, label="Descarga (pase en el cimiento del cerco)")] if R else [])
     if getattr(sitio, "aguas", None):
-        ley.append(Line2D([], [], color="#1565c0", lw=0.9, marker=">", label="Caida del techo hacia su alero (canaleta y cuneta)"))
+        if any(a["tipo"] == "flecha" for a in sitio.aguas):
+            ley.append(Line2D([], [], color="#e65100", lw=1.4, marker=">", label="Caida del techo indicada por el usuario"))
+        if any(a["tipo"] != "flecha" for a in sitio.aguas):
+            ley.append(Line2D([], [], color="#1565c0", lw=0.9, marker=">", label="Caida supuesta por el programa (confirmar)"))
     ax.legend(handles=ley, loc="lower left", fontsize=6, framealpha=0.9)
     fig.tight_layout(); fig.savefig(ruta); plt.close(fig)
     return ruta

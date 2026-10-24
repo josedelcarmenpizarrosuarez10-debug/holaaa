@@ -143,6 +143,24 @@ def verificar(R, red, sitio, terreno, P, lluvia, hq_prev=None):
     for ag in getattr(sitio, "aguas", []):
         m = shapely.contains_xy(ag["poligono"], Pc[:, 0], Pc[:, 1]) & (tipo == "techo")
         if not m.any(): continue
+        if ag["tipo"] == "flecha":
+            # cada m2 sigue la flecha hasta el borde del techo; de ahi a la cuneta que esta debajo (<= 1.5 m del punto de salida)
+            ux, uy = ag["flecha"]; borde = ag["techo_poligono"].exterior
+            idx = np.nonzero(m)[0]; sale = []
+            for x, y in Pc[idx]:
+                rayo = LineString([(x, y), (x + ux * 300, y + uy * 300)]).intersection(borde)
+                pts = [q for q in (rayo.geoms if hasattr(rayo, "geoms") else [rayo]) if not q.is_empty]
+                q = min(pts, key=lambda q: q.distance(_Pt(x, y))) if pts else _Pt(x, y)
+                sale.append((q.x, q.y))
+            sale = np.array(sale)
+            Dc = np.stack([_seg_dist(sale, a, b) for c, j, a, b in segs], 1)
+            k_min = Dc.argmin(1); d_min = Dc.min(1)
+            bien = d_min <= 1.5
+            asg[idx[bien]] = k_min[bien]; techos_ok += int(bien.sum())
+            if (~bien).sum() > 0:
+                c0 = ag["poligono"].representative_point()
+                sin_cuneta.append({"techo": ag["techo"], "area_m2": int((~bien).sum()), "punto": [round(c0.x, 2), round(c0.y, 2)]})
+            continue
         al = ag["alero"]
         def bajo_alero(a, b):
             """Cuneta paralela al alero (< 20 grados), a <= 1.5 m y que corre a lo largo de el (se solapan al proyectar)."""

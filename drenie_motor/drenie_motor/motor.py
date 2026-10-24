@@ -42,7 +42,8 @@ def _preparar(cfg, base, salida):
                             "superficies": cfg.get("superficies", [])}, T, P)
     ejes = [e[0] for e in geom.seleccionar(B, capas["ejes"])] if capas.get("ejes") else []
     S.revisar_superficies(ejes)
-    S.aguas, av = superficies.aguas_de_techos(S, cfg); S.avisos += av
+    S.flechas = superficies.flechas_de(B, cfg)
+    S.aguas, av = superficies.aguas_de_techos(S, cfg, S.flechas); S.avisos += av
     return P, B, cur, rep_t, T, S, ejes
 
 

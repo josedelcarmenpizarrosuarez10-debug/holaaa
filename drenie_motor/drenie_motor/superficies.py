@@ -22,10 +22,13 @@ from shapely.ops import polygonize, unary_union
 
 from . import geom
 
-TIPOS = ("techo", "estacionamiento", "pavimento", "cuneta", "verde")
-PRIORIDAD = {"techo": 0, "estacionamiento": 1, "pavimento": 2, "cuneta": 3, "verde": 4}
+TIPOS = ("techo", "vereda", "patio", "pavimento", "estacionamiento", "juegos", "cuneta", "verde")
+PRIORIDAD = {"techo": 0, "estacionamiento": 1, "vereda": 2, "patio": 3, "pavimento": 4, "juegos": 5, "cuneta": 6, "verde": 7}
+NOMBRE_TIPO = {"techo": "Techos", "vereda": "Veredas y circulaciones", "patio": "Patios libres pavimentados",
+               "pavimento": "Otros pisos de concreto", "estacionamiento": "Estacionamiento y patio de maniobra",
+               "juegos": "Area de juegos (piso de caucho)", "cuneta": "Cunetas (franja de 0.60 m)", "verde": "Area verde"}
 ROTULOS = {"AREA VERDE": "verde", "AREAS VERDES": "verde", "JARDIN": "verde", "JARDINERA": "verde", "GRASS": "verde",
-           "VEREDA": "pavimento", "PATIO": "pavimento", "CIRCULACION": "pavimento", "LOSA": "pavimento", "ATRIO": "pavimento",
+           "VEREDA": "vereda", "PATIO": "patio", "CIRCULACION": "vereda", "LOSA": "patio", "ATRIO": "patio", "JUEGO": "juegos",
            "ESTACIONAMIENTO": "estacionamiento", "PATIO DE MANIOBRA": "estacionamiento", "TECHO": "techo", "COBERTURA": "techo",
            "EDIFICACION": "techo"}
 
@@ -190,10 +193,23 @@ class Mapa:
 
 
 # ------------------------------------------------------------------------------------------------ caida de los techos
-def aguas_de_techos(sitio, cfg):
-    """Mitades de cada techo con su alero (la linea por donde cae el agua a la canaleta y luego a la cuneta de abajo).
-    Por techo: "dos_aguas" (cumbrera en el eje largo, o la indicada) o "una_agua" (lado bajo indicado). Sin dato, el valor
-    por defecto del proyecto (techos.caida_por_defecto: "dos_aguas_eje_largo")."""
+def flechas_de(B, cfg):
+    """Flechas de caida dibujadas por el usuario: del proyecto ("flechas_techo": [{"desde": [x, y], "hacia": [x, y]}]) o de una
+    capa del DXF (capas.flechas_techo: cada linea o polilinea va del primer punto al ultimo, en el sentido en que cae el agua)."""
+    out = [(tuple(f["desde"]), tuple(f["hacia"])) for f in cfg.get("flechas_techo", [])]
+    sel = cfg.get("capas", {}).get("flechas_techo")
+    if sel:
+        for pts, cl, col, z in geom.seleccionar(B, sel):
+            if len(pts) >= 2 and math.dist(pts[0], pts[-1]) > 0.1: out.append((tuple(pts[0]), tuple(pts[-1])))
+    return out
+
+
+def aguas_de_techos(sitio, cfg, flechas=None):
+    """Partes de cada techo con hacia donde cae el agua.
+    - Con flechas del usuario dentro del techo (mandan): cada parte del techo sigue la flecha mas cercana (1 flecha: una agua;
+      2 opuestas: dos aguas; 4: cuatro aguas; techos en L: cada ala con su flecha). Cada m2 sigue su flecha hasta el borde.
+    - Sin flechas: dos aguas con la cumbrera en el eje largo (criterio del usuario en Barranquita) y se avisa para confirmar."""
+    flechas = flechas or []
     t_cfg = cfg.get("techos_caida", [])
     defecto = cfg.get("caida_por_defecto", "dos_aguas_eje_largo")
     g = sitio.techos
@@ -201,8 +217,23 @@ def aguas_de_techos(sitio, cfg):
     avisos = []
     pols = [p for p in (g.geoms if hasattr(g, "geoms") else [g]) if p.area > 4.0]
     out = []
-    usados = 0
+    sin_dato = 0
     for k, p in enumerate(pols):
+        propias = [(a, b) for a, b in flechas if p.buffer(0.3).contains(Point(a))]
+        if propias:
+            if len(propias) == 1:
+                partes = [(p, propias[0])]
+            else:
+                vor = shapely.voronoi_polygons(shapely.MultiPoint([a for a, b in propias]), extend_to=p.buffer(50))
+                partes = []
+                for celda in vor.geoms:
+                    f = next(fl for fl in propias if celda.contains(Point(fl[0])) or celda.distance(Point(fl[0])) < 1e-6)
+                    parte = celda.intersection(p)
+                    if not parte.is_empty: partes.append((parte, f))
+            for parte, (a, b) in partes:
+                (ux, uy), L = geom.unit(a, b)
+                out.append({"techo": k, "poligono": parte, "techo_poligono": p, "flecha": (ux, uy), "tipo": "flecha"})
+            continue
         dato = next((d for d in t_cfg if p.contains(Point(d["punto"]))), None)
         rect = p.minimum_rotated_rectangle; cs = list(rect.exterior.coords)[:4]
         lados = [(cs[i], cs[(i + 1) % 4]) for i in range(4)]
@@ -210,23 +241,20 @@ def aguas_de_techos(sitio, cfg):
         (ux, uy), Lr = geom.unit(*largo)
         c = rect.centroid
         if dato and dato.get("tipo") == "una_agua":
-            bajo = LineString(dato["lado_bajo"])
-            out.append({"techo": k, "poligono": p, "alero": bajo, "tipo": "una_agua"}); usados += 1; continue
+            out.append({"techo": k, "poligono": p, "alero": LineString(dato["lado_bajo"]), "tipo": "una_agua"}); continue
         if dato and dato.get("cumbrera"):
-            a, b = dato["cumbrera"]; (ux, uy), _ = geom.unit(a, b); c = Point((a[0] + b[0]) / 2, (a[1] + b[1]) / 2); usados += 1
-        if not dato and defecto != "dos_aguas_eje_largo":
-            continue
-        # cumbrera por el centro, en la direccion del eje largo; cada mitad cae a su alero (lado largo de su lado)
+            a, b = dato["cumbrera"]; (ux, uy), _ = geom.unit(a, b); c = Point((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
+        else:
+            sin_dato += 1
+            if defecto != "dos_aguas_eje_largo": continue
         nx, ny = -uy, ux; R = 1e4
-        cumbre = LineString([(c.x - ux * R, c.y - uy * R), (c.x + ux * R, c.y + uy * R)])
         izq = Polygon([(c.x - ux * R, c.y - uy * R), (c.x + ux * R, c.y + uy * R), (c.x + ux * R + nx * R, c.y + uy * R + ny * R),
                        (c.x - ux * R + nx * R, c.y - uy * R + ny * R)])
         for lado, mitad in ((1, p.intersection(izq)), (-1, p.difference(izq))):
             if mitad.is_empty or mitad.area < 0.5: continue
-            # alero: el lado largo del rectangulo que queda en esta mitad
             al = max(lados, key=lambda l: (((l[0][0] + l[1][0]) / 2 - c.x) * nx + ((l[0][1] + l[1][1]) / 2 - c.y) * ny) * lado)
             out.append({"techo": k, "poligono": mitad, "alero": LineString(al), "tipo": "dos_aguas"})
-    if len(pols) - usados > 0:
-        avisos.append("%d techos sin caida indicada: se tomaron a dos aguas con la cumbrera en el eje largo (criterio del usuario); "
-                      "confirmar o marcar la caida en el visor." % (len(pols) - usados))
+    if sin_dato:
+        avisos.append("%d techos sin flecha de caida: se tomaron a dos aguas con la cumbrera en el eje largo; confirmar o poner "
+                      "las flechas de caida en el visor." % sin_dato)
     return out, avisos
