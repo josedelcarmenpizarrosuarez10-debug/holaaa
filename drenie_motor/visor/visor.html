@@ -171,7 +171,7 @@ const TIPOS = {
   cuneta: ["Cuneta", "#5aa9e6"], verde: ["Área verde", "#6fae63"], sin_asignar: ["Sin asignar", "#ff4fd8"],
 };
 const ASIGNABLES = ["techo", "vereda", "patio", "pavimento", "estacionamiento", "juegos", "verde"];
-const NOM_ENT = { linea: "Línea", pl: "Polilínea", cuneta: "Eje de cuneta", flecha: "Flecha de caída", descarga: "Descarga", cota: "Cota", texto: "Texto" };
+const NOM_ENT = { linea: "Línea", pl: "Polilínea", cuneta: "Eje de cuneta", flecha: "Flecha de caída", descarga: "Descarga", cota: "Cota", texto: "Texto", montante: "Montante PVC 4\"" };
 // [nombre, texto, alias, grupo de la cinta, icono (trazos SVG 16x16)]
 const COMANDOS = [
   ["linea", "Línea", ["L", "LINEA", "LINE"], "Dibujo", "M2 14L14 2"],
@@ -183,6 +183,7 @@ const COMANDOS = [
   ["flecha", "Flecha de caída de techo", ["FL", "FLECHA"], "Drenaje", "M1 7l7-5 7 5M8 5v9M5 11l3 3 3-3"],
   ["cuneta", "Eje de cuneta", ["CU", "CUNETA"], "Drenaje", "M2 4v8h12V4M5 4v5h6V4"],
   ["descarga", "Descarga (salida por el cerco)", ["DE", "DESCARGA"], "Drenaje", "M8 2v8M5 7l3 3 3-3M2 14h12"],
+  ["montante", "Montante (bajada de techo)", ["MT", "MONTANTE"], "Drenaje", "M3 3h10v5H3zM8 5.5a1.6 1.6 0 1 0 .01 0M8 8v6"],
   ["mover", "Desplazar", ["M", "MOVER", "DESPLAZA", "MOVE"], "Modificar", "M8 1v14M1 8h14M6 3l2-2 2 2M6 13l2 2 2-2M3 6L1 8l2 2M13 6l2 2-2 2"],
   ["copiar", "Copiar", ["CO", "CP", "COPIAR", "COPY"], "Modificar", "M2 6h8v8H2zM6 2h8v8h-4"],
   ["rotar", "Girar", ["RO", "GI", "GIRA", "ROTAR", "ROTATE"], "Modificar", "M13 8a5 5 0 1 1-1.5-3.5M12 1v4H8"],
@@ -292,6 +293,11 @@ function deshacer() { if (!pilaU.length) return msg("Nada que deshacer."); pilaR
 function rehacer() { if (!pilaR.length) return msg("Nada que rehacer."); pilaU.push(JSON.stringify(ED)); ED = JSON.parse(pilaR.pop()); limpiarSel(); msg("Rehecho."); refrescar(); }
 const claveLS = () => "drenie-ediciones-" + (E && E.proyecto && E.proyecto.codigo || "x");
 function autoguardar() { try { localStorage.setItem(claveLS(), JSON.stringify(ED)); } catch (e) {} }
+function montantesIniciales() {     // los montantes que propone el programa (esquinas) pasan a ser objetos editables del visor
+  if (ED.montIni || !E || !E.montantes || !E.montantes.length) return;
+  for (const m of E.montantes) nuevaEnt("montante", [[m.x, m.y]], { u: m.u, n: m.n, auto: true });
+  ED.montIni = true;
+}
 function recuperar() {
   try { const s = localStorage.getItem(claveLS()); if (s) { ED = JSON.parse(s); ED.ents = ED.ents || []; ED.asign = ED.asign || []; sigId = 1 + Math.max(0, ...ED.ents.map(e => e.id)); } } catch (e) {}
 }
@@ -308,6 +314,7 @@ function asignarCaras(lista, t) {
 function exportar() {
   const U = p => [+(p[0] + ORX).toFixed(3), +(p[1] + ORY).toFixed(3)];
   const out = { version: 1, fuente: "visor DrenIE", asignaciones: [], superficies: [], flechas_techo: [], ejes_lineas: [], descargas: [], lineas: [], cotas: [], textos: [] };
+  if (ED.montIni) out.montantes = [];
   for (const a of ED.asign) { const p = U([a.x, a.y]); out.asignaciones.push({ x: p[0], y: p[1], tipo: a.tipo }); }
   let nd = 0;
   for (const e of ED.ents) {
@@ -315,6 +322,7 @@ function exportar() {
     else if (e.k === "flecha") out.flechas_techo.push({ desde: U(e.pts[0]), hacia: U(e.pts[1]) });
     else if (e.k === "cuneta") out.ejes_lineas.push(e.pts.map(U));
     else if (e.k === "descarga") { nd++; const p = U(e.pts[0]); out.descargas.push({ nombre: "D" + nd, x: p[0], y: p[1] }); }
+    else if (e.k === "montante") { const p = U(e.pts[0]); if (out.montantes) out.montantes.push({ x: p[0], y: p[1] }); }
     else if (e.k === "cota") out.cotas.push({ modo: e.modo, puntos: e.pts.map(U), medida: +medidaCota(e).v.toFixed(3) });
     else if (e.k === "texto") { const p = U(e.pts[0]); out.textos.push({ x: p[0], y: p[1], texto: e.t, altura: e.h }); }
     else out.lineas.push({ cerrada: !!e.cerr, puntos: e.pts.map(U) });
@@ -492,7 +500,7 @@ function dibujarCota(g, e, color) {
   g.fillStyle = color; g.fillText(txt, 0, -3);
   g.restore();
 }
-const COLOR_ENT = { linea: "#f3f6f9", pl: "#f3f6f9", cuneta: "#ff5ae6", flecha: "#ff8a3d", descarga: "#ff4d4d", cota: "#7fd6ff", texto: "#f3f6f9" };
+const COLOR_ENT = { linea: "#f3f6f9", pl: "#f3f6f9", cuneta: "#ff5ae6", flecha: "#ff8a3d", descarga: "#ff4d4d", cota: "#7fd6ff", texto: "#f3f6f9", montante: "#ff4dff" };
 function dibujarEnt(g, e, lw, resaltar) {
   const col = resaltar ? "#4f9dff" : (e.k === "pl" && e.tipo ? TIPOS[e.tipo][1] : COLOR_ENT[e.k] || "#fff");
   if (e.k === "cota") return dibujarCota(g, e, col);
@@ -503,6 +511,15 @@ function dibujarEnt(g, e, lw, resaltar) {
   }
   if (e.k === "flecha") return flecha(g, e.pts[0][0], e.pts[0][1], e.pts[1][0], e.pts[1][1], col, lw * 1.2);
   if (e.k === "descarga") { const [x, y] = e.pts[0]; g.beginPath(); g.arc(x, y, 7 * lw, 0, 2 * Math.PI); g.fillStyle = col; g.fill(); return; }
+  if (e.k === "montante") {           // falsa columna 0.20 x 0.15 adosada al muro, tubo PVC 4" y concreto que lo envuelve
+    const [x, y] = e.pts[0], u = e.u || [1, 0], n = e.n || [0, 1], C0 = [x - n[0] * 0.075 - u[0] * 0.10, y - n[1] * 0.075 - u[1] * 0.10];
+    const Q = (a, b) => [C0[0] + u[0] * a + n[0] * b, C0[1] + u[1] * a + n[1] * b];
+    g.lineWidth = 1.4 * lw; g.strokeStyle = resaltar ? col : "#2f8cff"; g.beginPath(); [Q(0, 0), Q(0.2, 0), Q(0.2, 0.15), Q(0, 0.15)].forEach((q, i) => i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1])); g.closePath(); g.stroke();
+    g.strokeStyle = resaltar ? col : "#00e5e5"; g.beginPath(); g.arc(x, y, 0.057, 0, 2 * Math.PI); g.stroke();
+    g.strokeStyle = col; g.beginPath(); g.arc(x, y, 0.069, 0, 2 * Math.PI); g.stroke();
+    if (V.s < 40) { g.beginPath(); g.arc(x, y, 5 * lw, 0, 2 * Math.PI); g.fillStyle = col; g.fill(); }      // a escala chica, un punto visible
+    return;
+  }
   g.strokeStyle = col; g.lineWidth = (e.k === "cuneta" ? 3 : 1.6) * lw; if (resaltar) g.setLineDash([6 * lw, 4 * lw]);
   g.stroke(caminoPts(e.pts, e.cerr)); g.setLineDash([]);
 }
@@ -597,6 +614,7 @@ function pedirPaso() {
     asignar: "ASIGNAR ÁREA  Clic dentro del área:",
     flecha: k ? "FLECHA  Clic hacia donde cae el agua:" : "FLECHA DE CAÍDA  Clic sobre el techo:",
     descarga: "DESCARGA  Clic sobre el cerco donde sale el agua:",
+    montante: "MONTANTE  Clic junto a la esquina de la edificacion, bajo el alero (Enter para terminar):",
     cotaal: ["COTA ALINEADA  Primer punto:", "COTA ALINEADA  Segundo punto:", "COTA ALINEADA  Ubique la línea de cota:"][k],
     cotalin: ["COTA LINEAL  Primer punto:", "COTA LINEAL  Segundo punto:", "COTA LINEAL  Ubique la línea de cota:"][k],
     dist: k ? "DISTANCIA  Segundo punto:" : "DISTANCIA  Primer punto:",
@@ -648,6 +666,7 @@ function punto(p) {           // un punto (clic o escrito) para el comando activ
     MED = { k: "area", cara: c }; msg("Área " + c.id + " = " + c.area.toFixed(2) + " m²   Perímetro = " + c.per.toFixed(2) + " m"); cancelar(true); return refrescar();
   }
   if (n === "descarga") { guardarPaso(); nuevaEnt("descarga", [p]); msg("Descarga fijada."); refrescar(); return cancelar(true); }
+  if (n === "montante") { guardarPaso(); ED.montIni = true; nuevaEnt("montante", [p], { u: [1, 0], n: [0, 1] }); msg("Montante agregado."); return refrescar(); }
   if (n === "id") { MED = { k: "punto", p }; msg("X = " + (p[0] + ORX).toFixed(3) + "   Y = " + (p[1] + ORY).toFixed(3)); cancelar(true); return refrescar(); }
   if (POR_OBJETO.includes(n)) return porObjeto(p);
   if (n === "desfase") {
@@ -1086,7 +1105,7 @@ function pintarEdiciones() {
   const ex = exportar();
   document.getElementById("hEd").innerHTML = "<h3>Lo marcado en el visor</h3><table class=\"tabla\">" +
     [["Áreas asignadas", ex.asignaciones.length], ["Polígonos de superficie", ex.superficies.length], ["Flechas de caída", ex.flechas_techo.length],
-     ["Ejes de cuneta", ex.ejes_lineas.length], ["Descargas fijadas", ex.descargas.length], ["Cotas", ex.cotas.length], ["Otras líneas y textos", ex.lineas.length + ex.textos.length]].map(r => "<tr><td>" + r[0] + '</td><td class="n">' + r[1] + "</td></tr>").join("") +
+     ["Ejes de cuneta", ex.ejes_lineas.length], ["Descargas fijadas", ex.descargas.length], ["Montantes", (ex.montantes || []).length], ["Cotas", ex.cotas.length], ["Otras líneas y textos", ex.lineas.length + ex.textos.length]].map(r => "<tr><td>" + r[0] + '</td><td class="n">' + r[1] + "</td></tr>").join("") +
     '</table><p class="nota">Es el archivo ediciones.json que DrenIE suma al proyecto. Se guarda en este navegador mientras trabaja.</p>' +
     '<div class="fila"><button type="button" id="btnCopiar">Copiar ediciones</button>' + (location.protocol === "file:" ? '<button type="button" id="btnGuardar">Guardar ediciones.json</button>' : "") + "</div>" +
     '<textarea id="txtEd" aria-label="Ediciones en formato JSON" readonly></textarea>' +
@@ -1157,6 +1176,7 @@ function importar(texto) {
   for (const f of d.flechas_techo || []) nuevaEnt("flecha", [L(f.desde), L(f.hacia)]);
   for (const l of d.ejes_lineas || []) nuevaEnt("cuneta", l.map(L));
   for (const q of d.descargas || []) nuevaEnt("descarga", [L([q.x, q.y])]);
+  if (d.montantes) { ED.ents = ED.ents.filter(e => e.k !== "montante"); ED.montIni = true; for (const q of d.montantes) nuevaEnt("montante", [L([q.x, q.y])], { u: [1, 0], n: [0, 1] }); }
   for (const c of d.cotas || []) nuevaEnt("cota", c.puntos.map(L), { modo: c.modo });
   for (const t of d.textos || []) nuevaEnt("texto", [L([t.x, t.y])], { t: t.texto, h: t.altura });
   for (const l of d.lineas || []) nuevaEnt(l.cerrada ? "pl" : "linea", l.puntos.map(L), { cerr: !!l.cerrada });
@@ -1365,11 +1385,11 @@ new ResizeObserver(dimensionar).observe(lienzo);
 (function () {
   let d = null; try { d = JSON.parse(document.getElementById("escena-datos").textContent); } catch (e) {}
   dimensionar();
-  if (d) { cargarEscena(d); recuperar(); refrescar(); msg("Escena cargada: " + caras.length + " áreas, " + capas.length + " capas. F1: lista de comandos."); }
+  if (d) { cargarEscena(d); recuperar(); montantesIniciales(); refrescar(); msg("Escena cargada: " + caras.length + " áreas, " + capas.length + " capas. F1: lista de comandos."); }
   else {
     msg("Abra la escena del proyecto (escena.json que genera el motor de DrenIE).");
     const i = document.createElement("input"); i.type = "file"; i.accept = ".json"; i.id = "abrirEscena";
-    i.onchange = () => { const r = new FileReader(); r.onload = () => { cargarEscena(JSON.parse(r.result)); recuperar(); refrescar(); }; r.readAsText(i.files[0]); };
+    i.onchange = () => { const r = new FileReader(); r.onload = () => { cargarEscena(JSON.parse(r.result)); recuperar(); montantesIniciales(); refrescar(); }; r.readAsText(i.files[0]); };
     document.querySelector(".linea-cmd").appendChild(i);
   }
 })();

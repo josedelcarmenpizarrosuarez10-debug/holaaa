@@ -46,7 +46,7 @@ def _punto(g, ox, oy):
     p = g.representative_point(); return [round(p.x - ox, 2), round(p.y - oy, 2)]
 
 
-def escribir(ruta, B, S, M, ejes, curvas, proyecto, aguas=None):
+def escribir(ruta, B, S, M, ejes, curvas, proyecto, aguas=None, montantes=None):
     x0, y0, x1, y1 = S.cerco.buffer(40).bounds
     ox, oy = round(S.cerco.bounds[0], 0), round(S.cerco.bounds[1], 0)
     capas = []
@@ -81,7 +81,10 @@ def escribir(ruta, B, S, M, ejes, curvas, proyecto, aguas=None):
     esc = {"version": 1, "proyecto": proyecto, "origen": [ox, oy], "unidad": "cm",
            "cerco": _cod(list(S.cerco.exterior.coords), ox, oy),
            "ejes": [_cod(p, ox, oy) for p in ejes], "capas": capas, "caras": caras, "textos": textos, "caidas": flechas,
-           "C": S.P["C"], "cuadre": M.cuadre}
+           "C": S.P["C"], "cuadre": M.cuadre,
+           # montantes propuestos (esquinas de cada edificacion): el visor los muestra para moverlos, quitarlos o agregar
+           "montantes": [{"x": round(m["x"] - ox, 3), "y": round(m["y"] - oy, 3), "u": [round(v, 4) for v in m["u"]], "n": [round(v, 4) for v in m["n"]]}
+                         for m in montantes or []]}
     with open(ruta, "w", encoding="utf-8") as f:
         json.dump(esc, f, ensure_ascii=False, separators=(",", ":"))
     return ruta

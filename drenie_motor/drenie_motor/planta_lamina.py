@@ -25,10 +25,12 @@ CAPAS = [("CURVAS", 33, "CONTINUOUS"), ("CURVAS-TXT", 33, "CONTINUOUS"), ("ARQ-T
          ("ARQ-MURO", 8, "CONTINUOUS"), ("LIMITE-INTERV", 1, "DASHED"), ("NUDOS", 7, "CONTINUOUS"), ("DESCARGA", 1, "CONTINUOUS"),
          ("CUN-REJ-BORDE", 4, "CONTINUOUS"), ("CUN-REJ-PLATINA", 4, "CONTINUOUS"), ("CUN-TAP-BORDE", 3, "CONTINUOUS"),
          ("CUN-FLUJO", 1, "CONTINUOUS"), ("CUN-TAPA-INSP", 5, "CONTINUOUS"), ("LLORADERO", 3, "CONTINUOUS"), ("EJE-ROTULO", 5, "CONTINUOUS"),
-         ("CANALETA", 30, "CONTINUOUS"), ("MONTANTE", 6, "CONTINUOUS"), ("MONTANTE-SALIDA", 6, "DASHED")]
+         ("CANALETA", 30, "CONTINUOUS"), ("MONTANTE", 6, "CONTINUOUS"), ("MONTANTE-SALIDA", 6, "DASHED"),
+         ("MONTANTE-TUBO", 4, "CONTINUOUS"), ("FALSA-COLUMNA", 5, "CONTINUOUS")]
 RGB = {"CURVAS": (176, 136, 96), "CURVAS-TXT": (150, 110, 70), "CUN-REJ-BORDE": (0, 170, 230), "CUN-REJ-PLATINA": (120, 205, 240),
        "CUN-TAP-BORDE": (0, 150, 0), "CUN-FLUJO": (230, 0, 0), "CUN-TAPA-INSP": (0, 0, 230), "LLORADERO": (0, 140, 60),
-       "CANALETA": (230, 130, 0), "MONTANTE": (190, 0, 190), "MONTANTE-SALIDA": (190, 0, 190)}
+       "CANALETA": (230, 130, 0), "MONTANTE": (255, 0, 255), "MONTANTE-SALIDA": (190, 0, 190), "MONTANTE-TUBO": (0, 230, 230),
+       "FALSA-COLUMNA": (0, 120, 255)}
 GROSOR = {"LIMITE-INTERV": 70, "CURVAS": 13, "ARQ-TECHO": 13, "ARQ-VEREDA": 9, "ARQ-MURO": 13, "DESCARGA": 35, "CUN-REJ-BORDE": 30,
           "CUN-TAP-BORDE": 30}
 
@@ -104,6 +106,17 @@ def tapa(lam, c, u):
     for sx in (-0.17, 0.17):
         m = (c[0] + u[0] * sx, c[1] + u[1] * sx)
         lam.poli([(m[0] - n[0] * 0.07, m[1] - n[1] * 0.07), (m[0] + n[0] * 0.07, m[1] + n[1] * 0.07)], "CUN-TAPA-INSP", ancho=0.025)
+
+
+def montante(lam, m, largo=0.20, ancho=0.15):
+    """Montante en planta como en los planos del usuario: falsa columna adosada al muro en la esquina de la edificacion (azul),
+    tubo PVC 4" (cian) y el concreto que lo envuelve (magenta)."""
+    V = m["esquina"]; u = m["a_lo_largo"]; nv = m["hacia_alero"]
+    P = lambda a, b: (V[0] + u[0] * a + nv[0] * b, V[1] + u[1] * a + nv[1] * b)
+    lam.poli([P(0, 0), P(largo, 0), P(largo, ancho), P(0, ancho)], "FALSA-COLUMNA", cerrada=True)
+    c = (m["x"], m["y"]); r = 0.1143 / 2
+    lam.circulo(c, r, "MONTANTE-TUBO")
+    lam.circulo(c, r + 0.012, "MONTANTE")
 
 
 def cunetas(lam, R, descargas, anchos, P):
@@ -228,10 +241,9 @@ def dc01(doc, codigo, R, red, sitio, curvas, P, anchos, V, lloraderos, proyecto,
         with EnBloque(lam, "CANALETAS_Y_MONTANTES", "CANALETA"):
             for l in techos["lados"]:
                 lam.poli([tuple(c) for c in l["alero"]], "CANALETA", ancho=techos["criterios"]["parametros"]["canaleta_b"])
+            tcp = techos["criterios"]["parametros"]
             for m in techos["montantes"]:
-                lam.circulo((m["x"], m["y"]), 0.22, "MONTANTE")
-                h = lam.msp.add_hatch(dxfattribs={"layer": "MONTANTE"}); h.set_solid_fill(color=6, rgb=(190, 0, 190))
-                h.paths.add_edge_path().add_arc((m["x"], m["y"]), 0.22, 0, 360)
+                montante(lam, m, tcp["fc_largo"], tcp["fc_ancho"])
                 if m["hacia"]: lam.linea((m["x"], m["y"]), tuple(m["hacia"]), "MONTANTE-SALIDA")
     Nn = R["nudos"]; D = set(red.descargas)
     with EnBloque(lam, "ROTULOS_RED", "NUDOS"):
@@ -268,7 +280,7 @@ def dc01(doc, codigo, R, red, sitio, curvas, P, anchos, V, lloraderos, proyecto,
              ("rect", "LLORADERO", "Lloradero PVC 3\" @ %.2f m con caja filtrante 0.30 x 0.30 (%d und)" % (P["llor_sep"], len(lloraderos))),
              ("linea2", "DESCARGA", "Descarga por el cerco (salida por gravedad)")] + ([
              ("linea2", "CANALETA", "Canaleta galvanizada %.2f x %.2f, S = 1 %% (%.1f m)" % (techos["criterios"]["parametros"]["canaleta_b"], techos["criterios"]["parametros"]["canaleta_h"], techos["metrado"]["canaleta_m"])),
-             ("punto", "MONTANTE", "Montante PVC 4\" y su salida a la cuneta (%d und)" % techos["metrado"]["montantes_und"], 6)] if techos else []) + [
+             ("rect", "FALSA-COLUMNA", "Montante PVC 4\" en falsa columna 0.20 x 0.15 en la esquina, y su salida a la cuneta (%d und)" % techos["metrado"]["montantes_und"])] if techos else []) + [
              ("linea", "CURVAS", "Curva de nivel"), ("linea", "ARQ-TECHO", "Proyeccion de techos"),
              ("linea", "ARQ-VEREDA", "Veredas y pisos (arquitectura)"), ("linea2", "LIMITE-INTERV", "Limite de intervencion = cerco perimetrico")]
     lam.leyenda2(30, 126, items, hmm=1.6, ancho_col=150, filas_col=6 if techos else 5)

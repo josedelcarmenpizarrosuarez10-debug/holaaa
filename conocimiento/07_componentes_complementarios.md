@@ -162,6 +162,13 @@ Partidas Delphin (Hogar de Refugio y CAR Varones): 01.04.03.05.01.03 CANALETA DE
 
 ## 3. Montantes PVC Ø 4" y accesorios
 
+### 3.0 Reglas para el programa DRENIE (24-10-2026)
+- El montante va pegado a la esquina de la edificación, en su falsa columna adosada al muro (dibujo del usuario: falsa columna,
+  tubo Ø 4" y el concreto que lo envuelve, junto a la columna de la esquina): por defecto 2 por lado (4 por edificación a dos aguas).
+- Siempre 4"; no usar 6". Si el área lo pide, se ponen más montantes de 4" por lado (3, o 4 por lado sobre todo en losas deportivas).
+- El proyectista puede mover, quitar o agregar montantes en el visor (comando MT); el programa diseña con los que deje.
+- "1616 soportes es demasiado; después revisaré" (pendiente: separación de soportes @0.60 m de la planilla).
+
 ### 3.1 Recorrido típico (corte I de DR-02, isométrico DR-04)
 Boquilla en el fondo de la canaleta → niple → codo PVC 4" x 90° → desvío horizontal bajo el alero (con colgadores) → codo 90° →
 bajada vertical adosada al muro con abrazaderas → tramo inferior dentro de la falsa columna → codo de salida 90° dentro del dado →

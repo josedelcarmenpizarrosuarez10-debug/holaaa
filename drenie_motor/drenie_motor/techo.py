@@ -3,7 +3,8 @@
 Por cada lado de techo (cada mitad a dos aguas, o cada parte que sigue una flecha de caida del usuario):
 - Canaleta a lo largo del alero: plancha galvanizada, seccion b x h (0.25 x 0.20 por defecto), S = 1 %, Manning n = 0.013, borde
   libre 0.05 m. Caudal del lado Q = C I A FS (C = 0.88 del techo, A en proyeccion horizontal).
-- Montantes PVC (Wyly-Eaton, llenado rs = 0.25): Q (l/s) = 1.754 rs^(5/3) D^(8/3); diametro minimo 4" (CE.040, art. 12.5).
+- Montantes PVC (Wyly-Eaton, llenado rs = 0.25): Q (l/s) = 1.754 rs^(5/3) D^(8/3); siempre 4" (CE.040, art. 12.5; el usuario no
+  usa 6": en techos grandes se ponen mas montantes de 4" por lado, 3 o 4; 4 por lado sobre todo en losas deportivas).
   N.° de montantes del lado = el mayor de: area / area que atiende un montante de 4", y lo que pida la canaleta (cada montante
   recibe Q / n por la canaleta). Se reparten a lo largo del alero, en el centro de su parte.
 - Cada montante baja por el muro y sale a la cuneta mas cercana (salida PVC horizontal); si no hay cuneta a menos de 3 m se avisa.
@@ -61,64 +62,136 @@ def _altura(techo_pol, cfg_alt):
     return float(cfg_alt.get("defecto", 3.50))
 
 
-def calcular(sitio, R, P, I, cfg):
-    """R: red con cotas. Devuelve dict con lados, montantes, metrado y avisos."""
-    tc = {"canaleta_b": 0.25, "canaleta_h": 0.20, "BL": 0.05, "S": 0.01, "n": 0.013, "rs": 0.25, "C": P["C"]["techo"],
-          "desvio": 0.50, "entrada_cuneta": 0.30, "sep_soporte": 0.60, "abrazadera_cada": 4.0, "colgadores": 2, "codos90": 3,
-          "salida_max": 3.0}
-    tc.update(cfg.get("techo_parametros", {}))
-    alturas = cfg.get("altura_alero", {"defecto": 3.50})
-    Nn = R["nudos"]
-    segs = [(r["codigo"], LineString([Nn[t["de"]], Nn[t["a"]]])) for r in R["ramales"] for t in r["tramos"] if t["origen"] != "pase"]
-    red = unary_union([s for _, s in segs])
-    q_m2 = tc["C"] * I / 3.6e6 * P["FS"] * 1000.0                          # l/s por m2 de techo
+PARAM = {"canaleta_b": 0.25, "canaleta_h": 0.20, "BL": 0.05, "S": 0.01, "n": 0.013, "rs": 0.25,
+         "desvio": 0.50, "entrada_cuneta": 0.30, "sep_soporte": 0.60, "abrazadera_cada": 4.0, "colgadores": 2, "codos90": 3,
+         "salida_max": 3.0, "d_montante": 4, "fc_largo": 0.20, "fc_ancho": 0.15, "esquina_max": 3.0, "alero_vuelo": 0.60}
+
+
+def _normal_alero(ag, al):
+    """Direccion hacia donde cae el agua, perpendicular al alero (del techo hacia el alero)."""
+    (x0, y0), (x1, y1) = al.coords[0], al.coords[-1]; L = math.dist((x0, y0), (x1, y1)) or 1.0
+    ux, uy = (x1 - x0) / L, (y1 - y0) / L; nx, ny = -uy, ux
+    c = ag["poligono"].representative_point(); m = al.interpolate(0.5, normalized=True)
+    if (m.x - c.x) * nx + (m.y - c.y) * ny < 0: nx, ny = -nx, -ny
+    return (ux, uy), (nx, ny)
+
+
+def _esquina(E, hacia, nrm, muros, tc):
+    """Montante pegado a la esquina de la edificacion junto al extremo E del alero: vertice del muro mas cercano (a menos de 3 m);
+    el tubo va en la cara que da al alero, al lado de la esquina, dentro de su falsa columna. Sin muros: bajo el alero, a
+    'alero_vuelo' hacia adentro."""
+    V = None
+    if muros is not None and not muros.is_empty:
+        cand = []
+        for p in (muros.geoms if hasattr(muros, "geoms") else [muros]):
+            if p.distance(Point(E)) > tc["esquina_max"]: continue
+            for v in list(p.exterior.coords)[:-1]:
+                d = math.dist(v, E)
+                if d <= tc["esquina_max"]: cand.append((d, v))
+        if cand: V = min(cand)[1]
+    if V is None: V = (E[0] - nrm[0] * tc["alero_vuelo"] + hacia[0] * 0.30, E[1] - nrm[1] * tc["alero_vuelo"] + hacia[1] * 0.30)
+    c = (V[0] + nrm[0] * tc["fc_ancho"] / 2 + hacia[0] * tc["fc_largo"] / 2, V[1] + nrm[1] * tc["fc_ancho"] / 2 + hacia[1] * tc["fc_largo"] / 2)
+    return c, V
+
+
+def ubicar(sitio, P, I, cfg):
+    """Lados de techo con su canaleta y la ubicacion de sus montantes (sin la red de cunetas). Por defecto: uno en cada esquina
+    de la edificacion junto a los extremos del alero (2 por lado: 4 por edificacion a dos aguas); si el area pide mas, se agregan
+    intermedios repartidos. Si el proyecto trae montantes del visor ("montantes": [{"x", "y"}]), se usan esos (movidos, agregados
+    o quitados por el proyectista): cada uno va al lado de techo con el alero mas cercano (a menos de 3 m)."""
+    tc = dict(PARAM, C=P["C"]["techo"]); tc.update(cfg.get("techo_parametros", {}))
+    q_m2 = tc["C"] * I / 3.6e6 * P["FS"] * 1000.0
     Q4 = q_wyly(4, tc["rs"]); A4 = Q4 / q_m2
     hu = tc["canaleta_h"] - tc["BL"]
     Qcan = tc["canaleta_b"] * hu * (tc["canaleta_b"] * hu / (tc["canaleta_b"] + 2 * hu)) ** (2 / 3) * math.sqrt(tc["S"]) / tc["n"] * 1000.0
-    lados, montantes, avisos = [], [], []
-    nt = {}
-    techo_pol = {}
-    for ag in getattr(sitio, "aguas", []): techo_pol[ag["techo"]] = unary_union([techo_pol.get(ag["techo"], ag["poligono"]), ag["poligono"]])
+    muros = getattr(sitio, "muros", None)
+    lados, avisos, nt = [], [], {}
     for ag in getattr(sitio, "aguas", []):
         al = _alero(ag)
         if al is None or al.length < 0.5:
             avisos.append("Un lado del techo %d no tiene borde hacia donde cae el agua; revisar la flecha." % (ag["techo"] + 1)); continue
+        u, nrm = _normal_alero(ag, al)
         A = ag["poligono"].area; Q = q_m2 * A; L = al.length
-        n = max(1, math.ceil(A / A4 - 1e-9), math.ceil(Q / Qcan - 1e-9))
-        Qm = Q / n; D = d_req(Qm, tc["rs"]); Dad = next(d for d in DIAMETROS if d >= max(4, D) - 1e-9)
-        y = tirante(Qm / 1000.0, tc["S"], tc["n"], tc["canaleta_b"])
+        n = max(1 if L < 3.0 else 2, math.ceil(A / A4 - 1e-9), math.ceil(Q / Qcan - 1e-9))
+        E0, E1 = al.coords[0], al.coords[-1]
+        c0, V0 = _esquina(E0, u, nrm, muros, tc)
+        pos = [(c0, V0, u)]
+        if n >= 2:
+            c1, V1 = _esquina(E1, (-u[0], -u[1]), nrm, muros, tc)
+            for k in range(1, n - 1):
+                t = k / (n - 1); c = (c0[0] + (c1[0] - c0[0]) * t, c0[1] + (c1[1] - c0[1]) * t)
+                pos.append((c, (c[0] - nrm[0] * tc["fc_ancho"] / 2 - u[0] * tc["fc_largo"] / 2, c[1] - nrm[1] * tc["fc_ancho"] / 2 - u[1] * tc["fc_largo"] / 2), u))
+            pos.append((c1, V1, (-u[0], -u[1])))
         nt[ag["techo"]] = nt.get(ag["techo"], 0) + 1
-        nombre = "T-%02d" % (ag["techo"] + 1); lado = "Lado %02d" % nt[ag["techo"]]
+        lados.append({"ag": ag, "alero": al, "u": u, "nrm": nrm, "A": A, "Q": Q, "L": L, "techo": "T-%02d" % (ag["techo"] + 1),
+                      "lado": "Lado %02d" % nt[ag["techo"]], "pos": pos})
+    manual = cfg.get("montantes")
+    if manual:
+        for l in lados: l["pos"] = []
+        for m in manual:
+            p = Point(m["x"], m["y"])
+            cerca = [l for l in lados if l["alero"].distance(p) <= tc["esquina_max"] + 1.0]
+            if not cerca:
+                avisos.append("El montante del visor en (%.2f, %.2f) no esta junto a ningun alero: no se tomo." % (m["x"], m["y"])); continue
+            l = min(cerca, key=lambda l: l["alero"].distance(p))
+            V = (m["x"] - l["nrm"][0] * tc["fc_ancho"] / 2 - l["u"][0] * tc["fc_largo"] / 2, m["y"] - l["nrm"][1] * tc["fc_ancho"] / 2 - l["u"][1] * tc["fc_largo"] / 2)
+            l["pos"].append(((m["x"], m["y"]), V, l["u"]))
+        for l in lados:
+            if not l["pos"]: avisos.append("%s %s no tiene montante (se quitaron en el visor): su agua (%.2f l/s) no tiene bajada." % (l["techo"], l["lado"], l["Q"]))
+    return lados, avisos, {"q_m2": q_m2, "Q4": Q4, "A4": A4, "Qcan": Qcan, "hu": hu, "tc": tc}
+
+
+def calcular(sitio, R, P, I, cfg):
+    """R: red con cotas. Devuelve dict con lados, montantes, metrado y avisos."""
+    lados0, avisos, K = ubicar(sitio, P, I, cfg)
+    tc, hu = K["tc"], K["hu"]
+    alturas = cfg.get("altura_alero", {"defecto": 3.50})
+    Nn = R["nudos"]
+    segs = [(r["codigo"], LineString([Nn[t["de"]], Nn[t["a"]]])) for r in R["ramales"] for t in r["tramos"] if t["origen"] != "pase"]
+    red = unary_union([s for _, s in segs])
+    techo_pol = {}
+    for l in lados0: techo_pol[l["techo"]] = unary_union([techo_pol.get(l["techo"], l["ag"]["poligono"]), l["ag"]["poligono"]])
+    lados, montantes = [], []
+    for l in lados0:
+        n = len(l["pos"]); A, Q, L = l["A"], l["Q"], l["L"]
+        # siempre montantes de 4" (usuario 24-10-2026: no usar 6"; si el lado es grande se ponen mas montantes de 4" por lado)
+        Qm = Q / n if n else 0.0; D = d_req(Qm, tc["rs"]); Dad = tc["d_montante"]
+        if n and D > Dad + 1e-6:
+            falta = math.ceil(Q / q_wyly(Dad, tc["rs"]) - 1e-9)
+            avisos.append("%s %s: con %d montantes de %d\" cada uno lleva %.2f l/s (pide %.2f\"); poner %d montantes de %d\" en ese lado." % (
+                l["techo"], l["lado"], n, Dad, Qm, D, falta, Dad))
+        y = tirante(Qm / 1000.0, tc["S"], tc["n"], tc["canaleta_b"]) if n else 0.0
+        h = _altura(techo_pol[l["techo"]], alturas)
         ms = []
-        for k in range(n):
-            p = al.interpolate((k + 0.5) / n, normalized=True)
+        for (c, V, hacia) in l["pos"]:
+            p = Point(c)
             d = red.distance(p) if not red.is_empty else float("inf")
-            eje = min(segs, key=lambda s: s[1].distance(p))[0] if segs else "-"
-            q = None
-            if segs:
-                ln = min(segs, key=lambda s: s[1].distance(p))[1]; q = ln.interpolate(ln.project(p))
-            h = _altura(techo_pol[ag["techo"]], alturas)
-            Lm = h + tc["desvio"] + d + tc["entrada_cuneta"] if d <= tc["salida_max"] else h + tc["desvio"] + tc["entrada_cuneta"]
-            m = {"montante": "M-%02d" % (len(montantes) + 1), "techo": nombre, "lado": lado, "x": round(p.x, 3), "y": round(p.y, 3),
-                 "cuneta": eje if d <= tc["salida_max"] else "SIN CUNETA CERCANA", "salida_m": round(d, 2),
+            seg = min(segs, key=lambda s: s[1].distance(p)) if segs else None
+            q = seg[1].interpolate(seg[1].project(p)) if seg else None
+            Lm = h + tc["desvio"] + (d if d <= tc["salida_max"] else 0.0) + tc["entrada_cuneta"]
+            m = {"montante": "M-%02d" % (len(montantes) + 1), "techo": l["techo"], "lado": l["lado"], "x": round(c[0], 3), "y": round(c[1], 3),
+                 "esquina": [round(V[0], 3), round(V[1], 3)], "a_lo_largo": [round(hacia[0], 4), round(hacia[1], 4)],
+                 "hacia_alero": [round(l["nrm"][0], 4), round(l["nrm"][1], 4)],
+                 "cuneta": seg[0] if seg and d <= tc["salida_max"] else "SIN CUNETA CERCANA", "salida_m": round(d, 2),
                  "hacia": [round(q.x, 3), round(q.y, 3)] if q is not None and d <= tc["salida_max"] else None,
                  "altura_alero": h, "L_m": round(Lm, 2), "Q_ls": round(Qm, 2), "D_req_pulg": round(D, 2), "D_pulg": Dad,
                  "codos90": tc["codos90"], "colgadores": tc["colgadores"], "abrazaderas": max(1, math.floor(Lm / tc["abrazadera_cada"]))}
             if d > tc["salida_max"]:
                 avisos.append("%s (%s %s) no tiene cuneta a menos de %.1f m (la mas cercana a %.1f m): revisar si falta cuneta o "
-                              "si descarga a otro lugar." % (m["montante"], nombre, lado, tc["salida_max"], d))
+                              "si descarga a otro lugar." % (m["montante"], l["techo"], l["lado"], tc["salida_max"], d))
             montantes.append(m); ms.append(m["montante"])
-        lados.append({"techo": nombre, "lado": lado, "A_m2": round(A, 2), "L_canaleta_m": round(L, 2), "Q_ls": round(Q, 2),
+        lados.append({"techo": l["techo"], "lado": l["lado"], "A_m2": round(A, 2), "L_canaleta_m": round(L, 2), "Q_ls": round(Q, 2),
                       "montantes": n, "Q_por_montante_ls": round(Qm, 2), "tirante_m": round(y, 3), "borde_libre_m": round(tc["canaleta_h"] - y, 3),
                       "canaleta": "CUMPLE" if y <= hu + 1e-6 else "NO CUMPLE", "soportes": math.ceil(L / tc["sep_soporte"] - 1e-9) + 1,
-                      "tapas": 2, "boquillas": n, "ids": ms, "alero": [list(c) for c in al.coords], "caida": ag["tipo"]})
+                      "tapas": 2, "boquillas": n, "ids": ms, "alero": [list(c) for c in l["alero"].coords], "caida": l["ag"]["tipo"]})
     met = {"canaleta_m": round(sum(l["L_canaleta_m"] for l in lados), 2), "soportes_und": sum(l["soportes"] for l in lados),
            "tapas_und": sum(l["tapas"] for l in lados), "boquillas_und": sum(l["boquillas"] for l in lados),
-           "montante_m": round(sum(m["L_m"] for m in montantes), 2), "montantes_und": len(montantes),
+           "montante_m": round(sum(m["L_m"] for m in montantes), 2), "montantes_und": len(montantes), "falsas_columnas_und": len(montantes),
            "codo90_und": sum(m["codos90"] for m in montantes), "colgador_und": sum(m["colgadores"] for m in montantes),
            "abrazadera_und": sum(m["abrazaderas"] for m in montantes)}
-    criterios = {"q_l_s_m2": round(q_m2, 5), "Q_montante_4_ls": round(Q4, 2), "A_por_montante_4_m2": round(A4, 1),
-                 "Q_canaleta_ls": round(Qcan, 2), "parametros": tc, "altura_alero": alturas}
+    criterios = {"q_l_s_m2": round(K["q_m2"], 5), "Q_montante_4_ls": round(K["Q4"], 2), "A_por_montante_4_m2": round(K["A4"], 1),
+                 "Q_canaleta_ls": round(K["Qcan"], 2), "parametros": tc, "altura_alero": alturas,
+                 "ubicacion": "visor (proyectista)" if cfg.get("montantes") else "esquinas de la edificacion (2 por lado; mas si el area lo pide)"}
     if not alturas.get("techos"):
         avisos.append("Altura de alero de %.2f m para todos los techos (valor por defecto): poner la altura de cada edificacion "
                       "(altura_alero) para la longitud real de los montantes." % float(alturas.get("defecto", 3.5)))

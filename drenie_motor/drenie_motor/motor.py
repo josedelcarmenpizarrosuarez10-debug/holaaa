@@ -39,6 +39,7 @@ def _sumar_ediciones(cfg, ed):
     cfg["flechas_techo"] = list(cfg.get("flechas_techo", [])) + list(ed.get("flechas_techo", []))
     cfg["ejes_lineas"] = list(cfg.get("ejes_lineas", [])) + list(ed.get("ejes_lineas", []))
     if ed.get("descargas"): cfg["descargas"] = ed["descargas"]
+    if ed.get("montantes"): cfg["montantes"] = ed["montantes"]          # todos los montantes que dejo el proyectista en el visor
 
 
 def _preparar(cfg, base, salida):
@@ -77,7 +78,10 @@ def leer(cfg_ruta):
     M = _mapa(B, S, cfg, P, [(a, b) for p in ejes for a, b in zip(p[:-1], p[1:])])
     png = salidas.png_planta(os.path.join(salida, "CONTROL_LECTURA.png"), None, None, S, cur, ejes,
                              "Lectura del plano: curvas, cerco (limite de intervencion) y lineas de cuneta del usuario - confirmar")
-    esc = escena.escribir(os.path.join(salida, "escena.json"), B, S, M, ejes, cur, cfg.get("proyecto", {}), getattr(S, "aguas", []))
+    LL, _ = _lluvia_diseno(cfg, base)
+    lados_t, _, _ = techo.ubicar(S, P, float(LL.get("I_mmh") or 0) or verificacion.intensidad(LL)[0], cfg)
+    mont = [{"x": c[0], "y": c[1], "V": V, "u": h, "n": l["nrm"]} for l in lados_t for (c, V, h) in l["pos"]]
+    esc = escena.escribir(os.path.join(salida, "escena.json"), B, S, M, ejes, cur, cfg.get("proyecto", {}), getattr(S, "aguas", []), mont)
     out = {"accion": "leer", "version": VERSION, "escena": esc, "dxf": B["resumen"], "capas": lector_dxf.capas_disponibles(B), "terreno": rep_t,
            "cerco": {"area_m2": round(S.cerco.area, 1), "perimetro_m": round(S.cerco.length, 1),
                      "vertices": [[round(x, 3), round(y, 3)] for x, y in list(S.cerco.exterior.coords)[:-1]]},
