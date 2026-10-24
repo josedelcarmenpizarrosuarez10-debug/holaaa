@@ -10,7 +10,7 @@ import json
 import os
 import time
 
-from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena
+from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia
 from .parametros import combinar
 
 VERSION = "0.1.0"
@@ -89,11 +89,33 @@ def leer(cfg_ruta):
     return out
 
 
+def _lluvia_diseno(cfg, base):
+    """Lluvia para el diseno: calculada desde la serie de la estacion si el proyecto la trae; si no, I_mmh o P24 dados."""
+    ll = cfg.get("lluvia", {"I_mmh": 0})
+    R = hidrologia.calcular(ll, base)
+    if R is None: return ll, None
+    return {"I_mmh": R["I"], "fuente": "%s, %s, T = %d anios, tc = %.0f min" % (R["estacion"].get("nombre", "estacion"), R["distribucion_nombre"],
+                                                                              R["T"], R["tc_min"])}, R
+
+
+def lluvia(cfg_ruta):
+    """Lluvia de diseno sola: hidrologia.json, HIDROLOGIA.xlsx y CURVAS_IDF.png."""
+    cfg, base, salida = _cargar(cfg_ruta)
+    ll, R = _lluvia_diseno(cfg, base)
+    if R is None: raise ValueError("El proyecto no trae datos de lluvia de una estacion (lluvia.archivo, lluvia.serie o lluvia.maximos)")
+    res = hidrologia.resumen(R)
+    xl = hidrologia.excel(R, os.path.join(salida, "HIDROLOGIA.xlsx")); png = hidrologia.png_idf(R, os.path.join(salida, "CURVAS_IDF.png"))
+    out = {"accion": "lluvia", "version": VERSION, "resumen": res, "avisos": R["avisos"], "archivos": [xl, png]}
+    json.dump(out, open(os.path.join(salida, "hidrologia.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+    return out
+
+
 def disenar(cfg_ruta):
     cfg, base, salida = _cargar(cfg_ruta)
     t0 = time.time()
     P, B, cur, rep_t, T, S, ejes = _preparar(cfg, base, salida)
     if not ejes: raise ValueError("No hay lineas de cuneta del usuario (capas.ejes o ejes_lineas)")
+    LL, _ = _lluvia_diseno(cfg, base)
     M0 = _mapa(B, S, cfg, P, [(a, b) for p in ejes for a, b in zip(p[:-1], p[1:])])
     if M0.sin_asignar:
         raise ValueError("Hay %d areas sin asignar (%.1f m2) en el mapa de superficies: asignar su tipo antes de disenar "
@@ -107,7 +129,7 @@ def disenar(cfg_ruta):
         hq, vueltas = {}, 0
         for vueltas in range(1, P["vueltas_max"] + 1):
             C = cotas.calcular(R, S, P, hq)
-            V, hq2 = verificacion.verificar(C, R, S, T, P, cfg.get("lluvia", {"I_mmh": 0}), hq)
+            V, hq2 = verificacion.verificar(C, R, S, T, P, LL, hq)
             if hq2 == hq: break
             hq = hq2
         # cuneta nunca enterrada: si una descarga no sale con las cotas reales, se reduce lo que puede recibir y se repite

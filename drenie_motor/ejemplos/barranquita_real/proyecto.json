@@ -452,8 +452,21 @@
   ]
  },
  "lluvia": {
-  "I_mmh": 293.18,
-  "fuente": "Pongo de Caynarachi (SENAMHI 003317) 1989-2013, Log Pearson III, T = 25 años, tc = 10 min"
+  "estacion": {
+   "nombre": "Pongo de Caynarachi",
+   "codigo": "003317",
+   "entidad": "SENAMHI",
+   "departamento": "San Martin",
+   "provincia": "Lamas",
+   "distrito": "Caynarachi",
+   "altitud": 230
+  },
+  "archivo": "../../../insumos/barranquita/lluvia/qc00003317_pongo_de_caynarachi.txt",
+  "desde": 1989,
+  "hasta": 2013,
+  "T": 25,
+  "tc_min": 10,
+  "factor": 1.0
  },
  "superficies": [
   {

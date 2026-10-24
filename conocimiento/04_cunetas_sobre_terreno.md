@@ -847,6 +847,16 @@ N.° de lloraderos del tramo = REDONDEAR.MAS(L / 1.50)       # hoja METRADO LLOR
   (norte arriba): `lado = +1 si dot((-u.y, u.x), RUMBO[lado]) > 0` (izquierda del sentido de la progresiva). Distancia del eje a la
   cara exterior del muro en el dibujo: `OFS = 0.55`. Escala 1/250, A1.
 
+### 18.3 Reglas para el programa DRENIE (24-10-2026)
+- **Lloraderos por lado**: el programa revisa cada lado de cada tramo de cuneta con el mapa de superficies; el lado cuyo muro
+  toca área verde lleva lloraderos (PVC Ø 3" @ 1.50 m, N.° = REDONDEAR.MAS(L / 1.50)); el lado que toca vereda, patio o
+  pavimento no lleva. Si los dos lados dan a área verde, en los dos. Cada lloradero lleva detrás una caja filtrante de
+  0.30 × 0.30 de grava envuelta en geotextil. Con lloraderos no se usan drenes franceses (subdrén).
+- **Dimensiones**: muros 0.10 y losa 0.10 fijos por defecto; ancho libre b y profundidad h salen del caudal de cada cuneta,
+  redondeados a medidas constructivas; el proyectista puede proponer su dimensionamiento y el programa lo verifica. No se
+  aceptan secciones que no se pueden encofrar ni acabar (p. ej. 0.20 × 0.20).
+- **Caudal por cuneta**: el programa muestra, por tramo, el área de techo, de pisos y de área verde que le llega y su caudal.
+
 ---
 
 ## 19. Para implementarlo en un programa

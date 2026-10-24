@@ -10,12 +10,14 @@ Criterios: `conocimiento/04_cunetas_sobre_terreno.md` y `conocimiento/02_hidrolo
 ## Uso
 
 ```
+python -m drenie_motor lluvia  proyecto.json   # lluvia de diseno: serie de la estacion, frecuencias, K-S, IDF, I de diseno
 python -m drenie_motor leer    proyecto.json   # lectura, mapa de superficies, imagen de control (confirmar antes de disenar)
 python -m drenie_motor disenar proyecto.json   # red, cotas, caudales, 12 comprobaciones, planta DXF y PNG
 ```
 
 Salida en la carpeta `salida` del proyecto: `lectura.json`, `CONTROL_LECTURA.png`, `resultado.json`,
-`PLANTA_RED_CUNETAS.dxf`, `PLANTA_RED_CUNETAS.png`. Código de salida 0 = bien; 2 = error de datos (mensaje en `error`).
+`PLANTA_RED_CUNETAS.dxf`, `PLANTA_RED_CUNETAS.png`; con `lluvia`: `hidrologia.json`, `HIDROLOGIA.xlsx` (datos, análisis,
+Kolmogorov-Smirnov, IDF) y `CURVAS_IDF.png`. Código de salida 0 = bien; 2 = error de datos (mensaje en `error`).
 
 Requisitos: Python 3.10+, `ezdxf`, `shapely` 2, `scipy`, `numpy`, `matplotlib`.
 
@@ -42,7 +44,7 @@ SENAMHI, análisis estadístico, Dick y Peschke → I) → 5. `disenar`: áreas 
 | `superficies_cfg.asignaciones` | clics del visor: `{"x", "y", "tipo"}` (punto dentro del área) |
 | `superficies_cfg.por_defecto` | tipo para lo no identificado; si falta, el diseño no corre hasta asignarlo |
 | `techos_caida`, `caida_por_defecto` | caída por techo: `{"punto", "tipo": "dos_aguas", "cumbrera": [[x, y], [x, y]]}` o `{"punto", "tipo": "una_agua", "lado_bajo": [...]}` |
-| `lluvia` | `{"I_mmh": ...}` (de DrenIE) o `{"P24": ..., "tc_min": 10}` (Dick y Peschke) |
+| `lluvia` | Datos de la estación: `{"estacion": {...}, "archivo": "datos diarios SENAMHI / NASA POWER / CHIRPS", "desde", "hasta", "T": 25, "tc_min": 10, "factor": 1.0, "distribucion": opcional}` o `"serie": {anio: [12 máximas mensuales]}` o `"maximos": {anio: P24}`. Sin datos de estación: `{"I_mmh": ...}` o `{"P24": ..., "tc_min": 10}`. Barranquita: P24 = 169.27 mm, I = 293.18 mm/h (igual al expediente) |
 | `descargas` | descargas fijadas por el usuario `[{"nombre": "D1", "x", "y"}]` (sin esto, el motor las propone) |
 | `parametros` | cambios a los valores por defecto |
 

@@ -780,6 +780,17 @@ Formato: fecha — lo que dijo (resumido, en sus palabras cuando es útil) → l
   techo tiene dos caídas va cuneta a cada lado?" → skill `planteamiento-cunetas-terreno`.
 - "Quiero que recuerdes todo, todo, al mínimo detalle… una memoria que dure siempre… para poder diseñar un programa o
   implementarlo en mi drenaje" → esta base de conocimiento (`conocimiento/`).
+- Programa DRENIE (rama `claude/programa-drenie`, carpeta `drenie_motor/`), reglas dadas por el usuario para el programa:
+  - Visor tipo AutoCAD dentro del programa para marcar a mano lo que no se detecta (áreas, flechas de caída, cunetas, descargas);
+    "toda cuneta enterrada está prohibida"; la marcación manual se hace en la computadora (en el celular solo se revisa).
+  - Orden: lluvia (estación SENAMHI, análisis estadístico, IDF, I) → superficies → caudal de cada cuneta (techos, pisos y áreas
+    verdes que le llegan) → dimensiones → planos, metrado y documentos; después montantes, canaletas y accesorios de techo.
+  - Lloraderos: solo en el muro de la cuneta que está en contacto con área verde (el muro que da a vereda o piso no lleva); con
+    ellos se drena el agua que se carga en el área verde y no se usan drenes franceses. Filtro: caja de 0.30 × 0.30 de grava
+    envuelta en geotextil (para que no pasen limos) detrás del tubo PVC Ø 3" @ 1.50 m.
+  - Dimensiones de cuneta: muros de 0.10 y losa (tapa) de 0.10 siempre por defecto; ancho libre y profundidad variables según el
+    caudal, propuestos por el programa, con opción de que el proyectista proponga su dimensionamiento y el programa lo verifique.
+    Todo debe ser constructivo: nada de cunetas de 0.20 × 0.20 que no se pueden encofrar ni acabar.
 
 ---
 

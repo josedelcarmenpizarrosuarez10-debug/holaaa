@@ -1,5 +1,6 @@
 """Linea de comandos del motor (la usa DrenIE como programa auxiliar).
 
+    python -m drenie_motor lluvia  proyecto.json   (lluvia de diseno desde los datos de la estacion)
     python -m drenie_motor leer    proyecto.json
     python -m drenie_motor disenar proyecto.json
 
@@ -14,10 +15,10 @@ from . import motor
 
 def main(argv=None):
     argv = argv if argv is not None else sys.argv[1:]
-    if len(argv) != 2 or argv[0] not in ("leer", "disenar"):
+    if len(argv) != 2 or argv[0] not in ("lluvia", "leer", "disenar"):
         print(__doc__); return 1
     try:
-        out = motor.leer(argv[1]) if argv[0] == "leer" else motor.disenar(argv[1])
+        out = {"lluvia": motor.lluvia, "leer": motor.leer, "disenar": motor.disenar}[argv[0]](argv[1])
     except (ValueError, KeyError, FileNotFoundError) as e:
         print(json.dumps({"error": str(e)}, ensure_ascii=False)); return 2
     corto = {k: out[k] for k in ("accion", "resumen", "avisos", "archivos", "imagen_control", "segundos", "requiere_confirmacion") if k in out}
