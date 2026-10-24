@@ -10,7 +10,7 @@ import json
 import os
 import time
 
-from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos, techo, sumideros, metrado, planta_lamina, memorias, especificaciones, revision
+from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos, techo, sumideros, metrado, planta_lamina, memorias, especificaciones, revision, render, memoria_calculo, caratulas
 from .parametros import combinar
 
 VERSION = "0.1.0"
@@ -197,15 +197,26 @@ def disenar(cfg_ruta):
     dxf = salidas.dxf_planta(os.path.join(salida, "PLANTA_RED_CUNETAS.dxf"), C, R, S, cur, P, proyecto, anchos, LLp)
     pl = cfg.get("planos", {})
     dxf_pf, laminas, n_sec, marcos = planos.dxf_planos(os.path.join(salida, "PLANOS_CUNETAS.dxf"), C, R, S, P, anchos, proyecto, cur, V, LLt, LLp,
-                                               list(secciones.values()), pl.get("prefijo", "DC"), pl.get("inicio", 1), TT, SM)
+                                               list(secciones.values()), pl.get("prefijo", "DC"), pl.get("inicio", 1), TT, SM,
+                                                       T, _niveles_txt(cfg), tapas_i)
     png = salidas.png_planta(os.path.join(salida, "PLANTA_RED_CUNETAS.png"), C, R, S, cur, ejes,
                              "%s - red de cunetas: %d ejes, %d descargas, %.1f m (%.1f m de uniones nuevas)" % (
                                  proyecto.get("nombre_corto", ""), resumen["ejes"], resumen["descargas"], Ltot, nuevas))
+    # vista previa PNG de cada lamina (LAMINA_<codigo>.png)
+    import ezdxf
+    dxf_doc = ezdxf.readfile(dxf_pf)
+    pngs = render.laminas_png(dxf_doc, [dict(m, codigo=c) for (c, _), m in zip(laminas, marcos)], salida) if cfg.get("png_laminas", True) else []
+    lams_idx = [dict(codigo=c, titulo=t, escala="1/%d" % m["esc"]) for (c, t), m in zip(laminas, marcos)]
+    doc_i = caratulas.indice_planos(os.path.join(salida, "CARATULA_E_INDICE_DE_PLANOS.docx"), proyecto, lams_idx,
+                                    caratulas.detalle_laminas(dxf_doc, marcos))
+    doc_c = caratulas.caratulas(os.path.join(salida, "CARATULAS_DRENAJE_PLUVIAL.docx"), proyecto)
     # documentos: memoria hidrologica, memoria descriptiva y especificaciones tecnicas (Word)
     lams = [{"codigo": c_, "titulo": t_} for c_, t_ in laminas]
     fig = {"planta": png}
     if Rh:
         hidrologia.excel(Rh, os.path.join(salida, "HIDROLOGIA.xlsx")); fig["idf"] = hidrologia.png_idf(Rh, os.path.join(salida, "CURVAS_IDF.png"))
+    xls_mc = memoria_calculo.libro(os.path.join(salida, "MEMORIA_CALCULO_DRENAJE_PLUVIAL.xlsx"), proyecto, P, Rh, LL, V, list(secciones.values()), TT, SM)
+    xls_mc_rc = metrado.recalcular(xls_mc, os.path.join(salida, "_recalculado"))
     xls_rc = metrado.recalcular(xls_m, os.path.join(salida, "_recalculado"))
     tot = metrado.totales(xls_rc)
     metas = [dict(x, total=tot.get(x["codigo"])) for x in partidas]
@@ -214,9 +225,9 @@ def disenar(cfg_ruta):
     doc_e = especificaciones.construir(os.path.join(salida, "ESPECIFICACIONES_TECNICAS_DRENAJE_PLUVIAL.docx"), partidas, P, cfg, q_m, V, lams, TT, SM, LLt)
     # revision general de todo lo entregado (conocimiento/01, seccion 8.2)
     rev = _revisar(salida, P, V, C, list(secciones.values()), TT, SM, LLt, M, xls_rc, tot, partidas, q_m, tapas_i, lams, marcos, Rh, proyecto,
-                   [doc_h, doc_d, doc_e, xls_m, xls, xls_t, dxf_pf, dxf] + ([os.path.join(salida, "HIDROLOGIA.xlsx")] if Rh else []),
+                   [doc_h, doc_d, doc_e, doc_i, doc_c, xls_m, xls, xls_t, xls_mc, dxf_pf, dxf] + ([os.path.join(salida, "HIDROLOGIA.xlsx")] if Rh else []),
                    {"memoria hidrológica": doc_h, "memoria descriptiva": doc_d, "especificaciones": doc_e}, hq,
-                   [a for a in S.avisos + M.avisos + R.avisos + SM["avisos"] if "no tiene cuneta" not in a])
+                   [a for a in S.avisos + M.avisos + R.avisos + SM["avisos"] if "no tiene cuneta" not in a], dxf_doc, xls_mc_rc)
     out = {"accion": "disenar", "version": VERSION, "proyecto": proyecto, "resumen": resumen, "parametros": P,
            "mapa_superficies": M.cuadro(),
            "terreno": rep_t, "avisos": S.avisos + M.avisos + R.avisos + TT["avisos"] + SM["avisos"] + ([
@@ -229,7 +240,7 @@ def disenar(cfg_ruta):
            "secciones_por_eje": list(secciones.values()), "techos": TT, "sumideros": SM, "lloraderos": {"resumen": lloraderos.resumen(LLt), "tramos": LLt},
            "profundidad_minima_por_capacidad": hq, "archivos": {"dxf": dxf, "png": png, "dimensionamiento": xls, "canaletas_montantes_y_sumideros": xls_t, "metrado": xls_m, "planos": dxf_pf,
                                                  "memoria_hidrologica": doc_h, "memoria_descriptiva": doc_d, "especificaciones": doc_e,
-                                                 "revision": rev[0]},
+                                                 "revision": rev[0], "png_laminas": pngs, "memoria_calculo": xls_mc, "indice_planos": doc_i, "caratulas": doc_c},
            "revision": rev[1],
            "metrado_resumen": metas,
            "laminas": [dict(codigo=c, titulo=t, marco=[round(m["x0"], 3), round(m["y0"], 3), round(m["x1"], 3), round(m["y1"], 3)], escala="1/%d" % m["esc"])
@@ -239,7 +250,18 @@ def disenar(cfg_ruta):
     return out
 
 
-def _revisar(salida, P, V, C, sec, TT, SM, LLt, M, xls_rc, tot, partidas, q, tapas, lams, marcos, Rh, proyecto, archivos, docs, hq=None, avisos=()):
+def _niveles_txt(cfg):
+    """Niveles del proyecto en una frase para las notas de los planos."""
+    nv = cfg.get("niveles", {}) or {}
+    b = nv.get("borde_cuneta") or nv.get("npt")
+    if b is None: return ""
+    t = ["NPT y borde de cuneta +%.2f (al ras)" % b]
+    if nv.get("area_verde") is not None: t.append("area verde +%.2f" % nv["area_verde"])
+    t += ["%s +%.2f" % (z.get("nombre", "zona").lower(), z["nivel"]) for z in nv.get("zonas", []) if z.get("nivel") is not None]
+    return "; ".join(t)
+
+
+def _revisar(salida, P, V, C, sec, TT, SM, LLt, M, xls_rc, tot, partidas, q, tapas, lams, marcos, Rh, proyecto, archivos, docs, hq=None, avisos=(), dxf_doc=None, xls_mc_rc=None):
     import ezdxf
     from shapely.geometry import Point
     I = revision.Informe()
@@ -262,7 +284,8 @@ def _revisar(salida, P, V, C, sec, TT, SM, LLt, M, xls_rc, tot, partidas, q, tap
         ("Boquillas", ("BOQUILLA",), "und", m.get("boquillas_und", 0), 0),
         ("Sumideros", ("SUMIDERO",), "und", sm.get("sumideros_und", 0), 0),
         ("Tubería de sumideros", ("TUBERIA DESAG",), "m", sm.get("tuberia_4_m", 0), 0.05)])
-    dxf_doc = ezdxf.readfile(next(a for a in archivos if a and a.endswith("PLANOS_CUNETAS.dxf")))
+    revision.memoria_calculo(I, xls_mc_rc, V, Rh, TT, SM)
+    if dxf_doc is None: dxf_doc = ezdxf.readfile(next(a for a in archivos if a and a.endswith("PLANOS_CUNETAS.dxf")))
     revision.documentos(I, archivos, proyecto, lams, dxf_doc)
     f2 = lambda v: "%.2f" % v
     todos = ("memoria hidrológica", "memoria descriptiva", "especificaciones")

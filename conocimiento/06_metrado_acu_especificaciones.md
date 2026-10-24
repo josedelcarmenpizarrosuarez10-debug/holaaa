@@ -250,6 +250,10 @@ Revisión general automática (24-10-2026): `drenie_motor/drenie_motor/revision.
 llenado 1/4 harían falta más, 4 con llenado hasta 7/24). Sumidero cuyo tubo no llega sobre la cota de fondo: se profundiza el
 tramo de cuneta que lo recibe (también al inicio del eje) y se recalcula. Guitarra de perfiles: textos horizontales y la
 pendiente de diseño del tramo (no la de cotas redondeadas al mm).
+Juego completo de DRENIE (24-10-2026): planta, cuadros, perfiles, secciones, una lámina 1/25 por descarga (planta, perfil e
+isométrico), 3 láminas de detalles a escala real (rejilla, tapa y juntas 1/5; lloradero, falsa columna, canaleta y sumidero 1/5;
+montante en elevación y muro con lloraderos 1/10), PNG por lámina, memoria de cálculo Excel con fórmulas, carátulas e índice de
+planos en Word; la revisión general comprueba que cada entregable exista.
 El programa entrega metrado, memorias (hidrológica y descriptiva), especificaciones técnicas y planos.
 
 ## 4. Hojas de la planilla y su función

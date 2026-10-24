@@ -400,7 +400,8 @@ class Planos:
         return lams
 
 
-def dxf_planos(ruta, R, red, sitio, P, anchos, proyecto, curvas, V, LLt, LLp, secciones_eje, pref="DC", num0=1, techos=None, sums=None):
+def dxf_planos(ruta, R, red, sitio, P, anchos, proyecto, curvas, V, LLt, LLp, secciones_eje, pref="DC", num0=1, techos=None, sums=None,
+               terreno=None, niveles_txt="", tapas=None):
     """PLANOS_CUNETAS.dxf: planta general (num0), cuadros (num0 + 1), perfiles y secciones, con una presentacion por lamina.
     Devuelve (ruta, [(codigo, titulo)], numero de secciones, marcos de las laminas en el modelo)."""
     from . import planta_lamina as PLT
@@ -412,7 +413,14 @@ def dxf_planos(ruta, R, red, sitio, P, anchos, proyecto, curvas, V, LLt, LLp, se
     lp = PL.perfiles(doc, 0.0, 0.0, sep_p, num0 + 2, pref)
     xs = len(lp) * sep_p + 20
     ls = PL.cortes(doc, xs, 0.0, 841 * ESC_S / 1000 + 15, num0 + 2 + len(lp), pref)
-    todas = [l1, l2] + lp + ls
+    from . import detalles as DT, descargas as DQ
+    xq = xs + len(ls) * (841 * ESC_S / 1000 + 15) + 20; sep_q = 841 * DQ.ESC / 1000 + 15
+    lq = DQ.laminas(doc, R, V, xq, 0.0, sep_q, num0 + 2 + len(lp) + len(ls), pref, sitio, terreno, curvas, anchos, P, tapas or [],
+                    niveles_txt) if terreno is not None else []
+    xd = xq + len(lq) * sep_q + 20
+    alero = max([m.get("altura_alero", 3.5) for m in (techos or {}).get("montantes", [])] or [3.5])
+    ld = DT.laminas(doc, xd, 0.0, 15.0, num0 + 2 + len(lp) + len(ls) + len(lq), pref, P, secciones_eje, alero)
+    todas = [l1, l2] + lp + ls + lq + ld
     LY.presentaciones(doc, {l.codigo: l for l in todas})
     B.guardar(doc, ruta)
     cajas = [{"codigo": l.codigo, "x0": l.ox, "y0": l.oy, "x1": l.ox + l.W * l.f, "y1": l.oy + l.H * l.f, "esc": l.esc} for l in todas]

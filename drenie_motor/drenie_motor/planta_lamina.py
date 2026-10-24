@@ -177,6 +177,15 @@ def cunetas(lam, R, descargas, anchos, P):
                      "ini": len(nudo_eje.get(r["nudos"][0], ())) == 1, "descarga": r["nudos"][-1] in descargas,
                      "recibe": [c for c in nudo_eje.get(r["nudos"][-1], ()) if c != r["codigo"]],
                      "empalmes": [tuple(Nn[n]) for n in r["nudos"][1:-1] if len(nudo_eje.get(n, ())) > 1]})
+    lineas = dibujar_ejes(lam, ejes, EM)
+    lista = posiciones_tapas(ejes, lineas, EM)
+    for t in lista: tapa(lam, (t["x"], t["y"]), t["u"])
+    return len(lista)
+
+
+def dibujar_ejes(lam, ejes, EM, fl=(0.70, 0.30, 0.13, 0.07)):
+    """Bordes (rejilla celeste / tapado verde), platinas y flechas de una lista de ejes {cod, pts, tap, b, ini, recibe}.
+    fl: flecha (largo, punta, media punta, grosor) en m; la de la planta general 1/250 o la de los detalles 1/25."""
     lineas = {e["cod"]: LineString(e["pts"]) for e in ejes}
 
     def franja(e, d, ini=0.0):
@@ -219,10 +228,8 @@ def cunetas(lam, R, descargas, anchos, P):
             L = math.dist(a, b)
             if L < 0.4: continue
             u = _u(a, b); n = max(1, int(L // PASO_FLECHA)) if L >= 2.0 else 1
-            for j in range(n): flecha(lam, (a[0] + u[0] * (j + 0.5) * L / n, a[1] + u[1] * (j + 0.5) * L / n), u)
-    lista = posiciones_tapas(ejes, lineas, EM)
-    for t in lista: tapa(lam, (t["x"], t["y"]), t["u"])
-    return len(lista)
+            for j in range(n): flecha(lam, (a[0] + u[0] * (j + 0.5) * L / n, a[1] + u[1] * (j + 0.5) * L / n), u, *fl)
+    return lineas
 
 
 def escala_para(caja, ancho_mm=790.0, alto_mm=448.0):

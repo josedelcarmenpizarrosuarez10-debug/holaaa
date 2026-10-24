@@ -310,6 +310,21 @@ def _limpia(x):
     return x
 
 
+DETALLE = [(("REJILLA", "TAPA DE INSPECCION", "JUNTA"), "DETALLES DE CUNETA"),
+           (("LLORADERO", "FALSA COLUMNA", "CANALETA", "SOPORTE", "TAPA LATERAL", "BOQUILLA", "SUMIDERO", "TUBERIA DESAG"), "DETALLES: LLORADERO"),
+           (("MONTANTE", "DADOS", "COLGADOR", "ABRAZADERA", "CODO"), "DETALLES: MONTANTE"),
+           (("PERFILADO",), "DETALLE DE LA DESCARGA")]
+
+
+def _lamina_detalle(d, laminas):
+    """Codigo de la lamina de detalle de la partida (o de la primera, si son varias)."""
+    for claves, tit in DETALLE:
+        if any(k in d for k in claves):
+            cods = [x["codigo"] for x in laminas if x["titulo"].upper().startswith(tit)]
+            if cods: return cods[0] if len(cods) == 1 else "%s a %s" % (cods[0], cods[-1])
+    return None
+
+
 def construir(ruta, partidas, P, cfg, q, V, laminas, TT, SM, LLt):
     proyecto = cfg.get("proyecto", {})
     D = Datos(P, cfg, q, V, laminas, TT, SM, LLt)
@@ -327,7 +342,10 @@ def construir(ruta, partidas, P, cfg, q, V, laminas, TT, SM, LLt):
         base = min(len(x["codigo"].split(".")) for x in partidas)
         for x in partidas:
             it = dict(codigo=x["codigo"], desc=x["desc"], und=x["und"], nivel=len(x["codigo"].split(".")) - base)
-            if x["und"]: it["secciones"] = ficha(x, D, Pd)
+            if x["und"]:
+                it["secciones"] = ficha(x, D, Pd)
+                lam = _lamina_detalle(x["desc"].upper(), laminas)
+                if lam: it["secciones"][0][1].append(p("Ver el detalle constructivo de la lamina %s." % lam))
             J["partidas"].append(it)
     finally:
         E.CUNETA = old

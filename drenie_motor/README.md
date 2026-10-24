@@ -146,3 +146,16 @@ entregable pendiente).
 - Planos: cotas con texto igual a su medida, unidades en metros, textos dentro del marco, sin encimarse, sin textos verticales,
   sin amarillo ni blanco puro.
 - Entregables pendientes y datos tomados por defecto, como avisos.
+
+## Juego completo de entregables (24-10-2026)
+`disenar` entrega, además de lo anterior:
+- Láminas de **descargas** (`descargas.py`, 1/25, una por descarga): planta, perfil longitudinal con el agua de diseño e
+  isométrico; portado del generador de Barranquita con los datos del proyecto.
+- Láminas de **detalles** (`detalles.py`, a escala real): DC rejilla, tapa de inspección y juntas (1/5); lloradero, falsa
+  columna con el montante en la esquina, canaleta con soporte y sumidero (1/5); montante en elevación y muro con lloraderos (1/10).
+  Las especificaciones citan la lámina de detalle de cada partida.
+- `MEMORIA_CALCULO_DRENAJE_PLUVIAL.xlsx` (`memoria_calculo.py`): DATOS editables, serie, frecuencias, Kolmogorov-Smirnov, IDF,
+  superficies, caudales y Manning por tramo, canaletas y montantes (Wyly-Eaton), sumideros y descargas, todo con fórmulas; la
+  revisión la recalcula y compara con el diseño.
+- `CARATULA_E_INDICE_DE_PLANOS.docx` y `CARATULAS_DRENAJE_PLUVIAL.docx` (`caratulas.py`).
+- `LAMINA_<código>.png` de cada lámina (`render.py`; se apaga con `"png_laminas": false`).

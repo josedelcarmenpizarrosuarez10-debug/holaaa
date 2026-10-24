@@ -141,6 +141,34 @@ def metrado(I, recalculado, tot, partidas, R_tot):
         I.add(g, "%s: metrado = diseño" % nombre, _es(v, valor, max(tol, 0.001 * abs(valor))), "%s metrado %s / diseño %s" % (cod or "-", "-" if v is None else round(v, 2), round(valor, 2)))
 
 
+def memoria_calculo(I, recalculado, V, Rh, TT, SM):
+    """La memoria de calculo con formulas, recalculada, debe dar lo mismo que el diseno."""
+    g = "Memoria de cálculo"
+    if not recalculado:
+        I.add(g, "Fórmulas de la memoria de cálculo recalculadas", False, "no hay LibreOffice para recalcular", aviso=True); return
+    from openpyxl import load_workbook
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        wb = load_workbook(recalculado, data_only=True)
+    err = ["%s!%s" % (ws.title, c.coordinate) for ws in wb.worksheets for row in ws.iter_rows() for c in row
+           if isinstance(c.value, str) and c.value.startswith("#") and c.value[:4].upper() in ("#REF", "#VAL", "#DIV", "#NAM", "#N/A", "#NUM", "#NUL")]
+    I.add(g, "Sin errores de fórmula", not err, ", ".join(err[:10]))
+    res = {r[0]: r[1] for r in wb["RESUMEN"].iter_rows(min_row=7, values_only=True) if r[0]}
+    H = V["hidraulica"]; hv = V["hidrologia"]
+    comp = [("Intensidad de diseño (mm/h)", hv["I"], 0.01), ("Caudal maximo en un tramo (l/s)", max(f["Q_ls"] for f in H), 0.15),
+            ("Menor borde libre (m)", min(f["borde_libre"] for f in H), 0.002), ("Velocidad maxima (m/s)", max(f["V"] for f in H), 0.02),
+            ("Tramos que no cumplen capacidad", 0, 0), ("Tramos que no cumplen velocidad", 0, 0)]
+    if Rh: comp += [("Precipitacion maxima en 24 h de diseño (mm)", Rh["P24"], 0.01)]
+    if TT and TT["lados"]: comp.append(("Montantes PVC 4\" que no cumplen", 0, 0))
+    for nom, val, tol in comp:
+        v = res.get(nom)
+        ok = isinstance(v, (int, float)) and abs(v - val) <= max(tol, 0.002 * abs(val)) + 1e-9      # redondeo de C y areas en la hoja
+        I.add(g, "%s: Excel = diseño" % nom, ok, "Excel %s / diseño %s" % (round(v, 3) if isinstance(v, (int, float)) else v, round(val, 3)))
+    if SM and SM["sumideros"] and "SUMIDEROS" in wb.sheetnames:
+        mal = [r[0] for r in wb["SUMIDEROS"].iter_rows(min_row=7, values_only=True) if r[0] and str(r[0]).startswith("S-") and r[12] != "SOBRE EL FONDO"]
+        I.add(g, "Sumideros: tubo sobre la cota de fondo (Excel)", not mal, ", ".join(mal))
+
+
 # ============================================================================================== documentos
 def _textos_docx(ruta):
     from docx import Document
@@ -238,7 +266,7 @@ def planos(I, doc, marcos):
     for e in msp.query("DIMENSION"):
         t = (e.dxf.get("text", "") or "").strip()
         if t in ("", "<>"): continue
-        m = re.fullmatch(r"[^\d-]*(-?\d+(?:\.\d+)?)\s*(m|cm)?[^\d]*", t)
+        m = re.fullmatch(r"\s*(-?\d+(?:\.\d+)?)\s*(m|cm)?\s*", t)              # solo textos que son una medida (no "H/2", "1\"")
         if not m: continue
         try: med = e.get_measurement()
         except Exception: continue
@@ -300,15 +328,17 @@ def entregables(I, salida, archivos, laminas=None):
                          ("Memoria descriptiva (Word)", "MEMORIA_DESCRIPTIVA_DRENAJE_PLUVIAL.docx"),
                          ("Especificaciones técnicas (Word)", "ESPECIFICACIONES_TECNICAS_DRENAJE_PLUVIAL.docx"),
                          ("Memoria de cálculo (Excel con fórmulas)", "MEMORIA_CALCULO_DRENAJE_PLUVIAL.xlsx"),
-                         ("Carátulas e índice de planos (Word)", "CARATULA_E_INDICE_DE_PLANOS.docx")):
+                         ("Carátula e índice de planos (Word)", "CARATULA_E_INDICE_DE_PLANOS.docx"),
+                         ("Carátulas de los documentos (Word)", "CARATULAS_DRENAJE_PLUVIAL.docx")):
         I.add(g, nom, hay(archivo), archivo if hay(archivo) else "pendiente: " + archivo, aviso=True)
     tit = [x["titulo"].upper() for x in (laminas or [])]
-    for nom, clave in (("Lámina de detalles (rejilla, tapa de inspección, juntas, lloradero, montante en falsa columna, sumidero)", "DETALLE"),
+    for nom, clave in (("Lámina de detalles (rejilla, tapa de inspección, juntas, lloradero, montante en falsa columna, sumidero)", "DETALLES"),
                        ("Láminas de descargas (planta, perfil e isométrico de cada descarga)", "DESCARGA")):
-        ok = any(t.startswith(clave) for t in tit)
+        ok = any((clave in t) if clave == "DESCARGA" else t.startswith(clave) for t in tit)
         I.add(g, nom, ok, "" if ok else "pendiente en el juego de planos", aviso=True)
     png = [n for n in os.listdir(salida) if n.startswith("LAMINA_") and n.endswith(".png")] if os.path.isdir(salida) else []
-    I.add(g, "Vista previa PNG de cada lámina", bool(png), "%d PNG" % len(png) if png else "pendiente", aviso=True)
+    falta = [x["codigo"] for x in (laminas or []) if "LAMINA_%s.png" % x["codigo"] not in png]
+    I.add(g, "Vista previa PNG de cada lámina", bool(png) and not falta, "%d PNG" % len(png) + ("; faltan " + ", ".join(falta) if falta else ""), aviso=True)
 
 
 def avisos_diseno(I, avisos):
