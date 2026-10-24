@@ -41,6 +41,11 @@ def _anillos(g, ox, oy):
     return out
 
 
+def _punto(g, ox, oy):
+    """Un punto dentro del area (el visor lo usa para asignarle su tipo)."""
+    p = g.representative_point(); return [round(p.x - ox, 2), round(p.y - oy, 2)]
+
+
 def escribir(ruta, B, S, M, ejes, curvas, proyecto, aguas=None):
     x0, y0, x1, y1 = S.cerco.buffer(40).bounds
     ox, oy = round(S.cerco.bounds[0], 0), round(S.cerco.bounds[1], 0)
@@ -62,7 +67,7 @@ def escribir(ruta, B, S, M, ejes, curvas, proyecto, aguas=None):
         if grupos:
             capas.append({"nombre": capa, "grupos": list(grupos.values()), "n": sum(len(g["p"]) for g in grupos.values())})
     caras = [{"id": c["id"], "tipo": c["tipo"], "nombre": c.get("nombre", ""), "fuente": c["fuente"],
-              "area": round(c["geom"].area, 2), "a": _anillos(c["geom"], ox, oy)} for c in M.caras]
+              "area": round(c["geom"].area, 2), "p": _punto(c["geom"], ox, oy), "a": _anillos(c["geom"], ox, oy)} for c in M.caras]
     textos = [{"t": s.split("\n")[0][:60], "x": round(x - ox, 2), "y": round(y - oy, 2), "h": round(h or 0.3, 2), "c": capa}
               for capa, s, x, y, h, col in B["txt"] if x0 <= x <= x1 and y0 <= y <= y1 and s.strip()]
     flechas = []

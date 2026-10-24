@@ -8,6 +8,8 @@ tipo (techo, pavimento, estacionamiento, area verde, cuneta), su coeficiente C y
 3. Cunetas: cada cuneta ocupa su franja real (0.60 m); las superficies de piso se recortan en la cara exterior de la cuneta.
    Bajo los techos manda el techo (la lluvia cae sobre el techo).
 4. Astillas: caras de menos de 0.10 m2 o de menos de 5 cm de ancho se suman a la cara vecina con mas borde comun.
+   Franjas: caras sin tipo de menos de 0.35 m de ancho o de menos de 1 m2 (sardineles, juntas, el espacio entre el borde de un
+   sombreado y la linea del plano) toman el tipo de la vecina con mas borde comun; quedan como area aparte (se pueden cambiar).
 5. Tipo de cada cara, en este orden: asignacion manual (clic en el visor) > leyenda de colores (sombreados) > superficie con
    nombre > capa de techos > zona de estacionamiento > capa de veredas > rotulo de texto > valor por defecto del proyecto.
    Sin tipo: "sin_asignar" (el diseno no corre hasta asignarlo, salvo que el proyecto fije un valor por defecto).
@@ -129,6 +131,7 @@ class Mapa:
                     nuevas.append({"geom": p, "tipo": "cuneta", "nivel": None, "fuente": "red de cunetas", "nombre": "Cuneta"})
             self.caras = nuevas
         self._astillas()
+        self._franjas(sup.get("franja_ancho", 0.35), sup.get("franja_area", 1.0))
         for k, c in enumerate(self.caras): c["id"] = k + 1
         self.cerrar()
 
@@ -170,6 +173,30 @@ class Mapa:
                 o["geom"] = unary_union([o["geom"], c["geom"]])
                 if hasattr(o["geom"], "geoms"): o["geom"] = max(o["geom"].geoms, key=lambda g: g.area)
                 self.caras.remove(c)
+
+    def _franjas(self, ancho_max, area_max):
+        """Franjas angostas sin tipo: toman el tipo de la vecina con mas borde comun (primero pisos y areas verdes; el techo o
+        la cuneta solo si no hay otra vecina). Se repite para las franjas que solo tocan otras franjas."""
+        franjas = []
+        for vuelta in range(4):
+            cambio = False
+            for c in self.caras:
+                g = c["geom"]
+                if c["tipo"] != "sin_asignar" or not (_ancho(g) < ancho_max or g.area < area_max): continue
+                vec = {}
+                for o in self.caras:
+                    if o is c or o["tipo"] == "sin_asignar" or not g.envelope.intersects(o["geom"].envelope): continue
+                    L = g.boundary.intersection(o["geom"].boundary).length
+                    if L > 1e-3: vec[o["tipo"]] = vec.get(o["tipo"], 0.0) + L
+                if not vec: continue
+                pref = {t: L for t, L in vec.items() if t not in ("techo", "cuneta")} or vec
+                t = max(pref, key=pref.get)
+                c.update(tipo=t, fuente="franja angosta: tipo de la vecina", nombre="Franja (sardinel o borde)")
+                franjas.append(c); cambio = True
+            if not cambio: break
+        if franjas:
+            self.avisos.append("%d franjas angostas sin tipo (%.1f m2: sardineles, juntas o bordes de dibujo) tomaron el tipo de su "
+                               "vecina; se pueden cambiar en el visor." % (len(franjas), sum(c["geom"].area for c in franjas)))
 
     def cerrar(self):
         """Control: suma de areas = area del cerco; sin montajes."""
