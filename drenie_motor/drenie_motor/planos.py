@@ -1,4 +1,4 @@
-"""Planos de perfiles longitudinales y secciones transversales de las cunetas (PERFILES_Y_SECCIONES_CUNETAS.dxf).
+"""Juego de planos de cunetas (PLANOS_CUNETAS.dxf): planta general y cuadros (planta_lamina.py), perfiles y secciones.
 
 Mismo estilo de las laminas aprobadas por el usuario (I.E. N.° 0590 Barranquita, perfiles_b.py), para cualquier proyecto:
 - Un perfil por eje, escala H = V = 1/50: borde superior (NCT) azul en tramos con rejilla y verde en tramos tapados (cara
@@ -375,15 +375,19 @@ class Planos:
         return lams
 
 
-def dxf_perfiles(ruta, R, red, sitio, P, anchos, proyecto, pref="DC", num0=1):
-    """PERFILES_Y_SECCIONES_CUNETAS.dxf con presentaciones (layouts) por lamina. Devuelve (ruta, [(codigo, titulo)])."""
-    doc = B.nuevo_documento(); capas(doc)
+def dxf_planos(ruta, R, red, sitio, P, anchos, proyecto, curvas, V, LLt, LLp, secciones_eje, pref="DC", num0=1):
+    """PLANOS_CUNETAS.dxf: planta general (num0), cuadros (num0 + 1), perfiles y secciones, con una presentacion por lamina.
+    Devuelve (ruta, [(codigo, titulo)], numero de secciones)."""
+    from . import planta_lamina as PLT
+    doc = B.nuevo_documento(); capas(doc); PLT.capas(doc)
     PL = Planos(R, red, sitio, P, anchos, proyecto)
+    l1 = PLT.dc01(doc, "%s-%02d" % (pref, num0), R, red, sitio, curvas, P, anchos, V, LLp, proyecto)
     sep_p = 841 * ESC_P / 1000 + 15
-    lp = PL.perfiles(doc, 0.0, 0.0, sep_p, num0, pref)
+    l2 = PLT.dc02(doc, "%s-%02d" % (pref, num0 + 1), -sep_p, 0.0, secciones_eje, V, LLt, P)
+    lp = PL.perfiles(doc, 0.0, 0.0, sep_p, num0 + 2, pref)
     xs = len(lp) * sep_p + 20
-    ls = PL.cortes(doc, xs, 0.0, 841 * ESC_S / 1000 + 15, num0 + len(lp), pref)
-    lams = {l.codigo: l for l in lp + ls}
-    LY.presentaciones(doc, lams)
+    ls = PL.cortes(doc, xs, 0.0, 841 * ESC_S / 1000 + 15, num0 + 2 + len(lp), pref)
+    todas = [l1, l2] + lp + ls
+    LY.presentaciones(doc, {l.codigo: l for l in todas})
     doc.saveas(ruta)
-    return ruta, [(l.codigo, l.titulo) for l in lp + ls], sum(len(v) for v in PL.SEC.values())
+    return ruta, [(l.codigo, l.titulo) for l in todas], sum(len(v) for v in PL.SEC.values())

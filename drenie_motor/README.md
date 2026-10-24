@@ -85,10 +85,15 @@ con los datos de entrada del usuario (curvas, techos, veredas, cerco y líneas m
   (capa `DRN-LLORADEROS` del DXF; el ancho de cada tramo en `DRN-SECCION-TXT`).
 - Comprobación 13: secciones constructivas.
 
-## Planos de perfiles y secciones (`PERFILES_Y_SECCIONES_CUNETAS.dxf`)
+## Juego de planos de cunetas (`PLANOS_CUNETAS.dxf`)
 
-Mismo estilo de las láminas de Barranquita, con presentaciones (layouts) por lámina y rótulo con los datos del proyecto (sin
-nombre ni CIP del proyectista): perfiles longitudinales por eje a 1/50 (NCT, NCF, secciones con su recuadro, guitarra) y el corte
-de cada sección a 1/20 (ancho libre del tramo, muros, losa de fondo, solado, rejilla o losa tapa, acero si h >= 0.40 o tapada,
-junta, cotas de ancho libre, total, altura libre y excavación). Prefijo y número inicial en `planos` (`{"prefijo": "DC", "inicio": 1}`).
+Mismo estilo de las láminas de Barranquita, una presentación (layout) por lámina y rótulo con los datos del proyecto (sin
+nombre ni CIP del proyectista):
+- DC-01 planta general (escala elegida para que el cerco entre en A1; coordenadas UTM): arquitectura de fondo, curvas, límite de
+  intervención, cunetas a escala real con el ancho de cada eje (rejilla con platinas, tapados con tapas 0.60 × 0.60), flechas de
+  flujo, lloraderos con su caja filtrante, nudos, códigos de eje con su ancho libre, descargas, leyenda, cuadro de descargas y
+  criterios; todo en bloques de AutoCAD por tema.
+- DC-02 cuadros: ejes (sector, L, Q máx, b libre, total, h mín/máx, excavación), descargas (ejes, L, Q, C.F.) y tramos de lloraderos.
+- DC-03 en adelante: perfiles longitudinales por eje (1/50) y el corte de cada sección (1/20).
+Prefijo y número inicial en `planos` (`{"prefijo": "DC", "inicio": 1}`). `PLANTA_RED_CUNETAS.dxf` queda como dibujo de trabajo.
 Librería de dibujo propia en `dxf_base.py` y `dxf_layouts.py` (copias de las de `herramientas/`).
