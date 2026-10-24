@@ -33,6 +33,21 @@ def _abrir(ruta):
         return doc
 
 
+def _a_wcs(e, pts, z=0.0):
+    """Coordenadas reales (WCS) de puntos dados en el sistema propio de la entidad (OCS). En bloques insertados en espejo
+    (escala X = -1) la extrusion queda (0, 0, -1) y sin esta conversion la geometria cae en x negativas."""
+    try:
+        ex = e.dxf.extrusion
+    except Exception:
+        return pts
+    if abs(ex[0]) < 1e-9 and abs(ex[1]) < 1e-9 and ex[2] > 0: return pts
+    ocs = e.ocs()
+    out = []
+    for x, y in pts:
+        p = ocs.to_wcs((x, y, z)); out.append((p.x, p.y))
+    return out
+
+
 def _color(e, doc, color_padre):
     c = e.dxf.get("color", 256)
     if c == 256:
@@ -111,10 +126,14 @@ def leer(ruta, capas=None, ventana=None, capa_ventana=None):
                         p = a.dxf.insert
                         if en_ventana(p.x, p.y): txt.append((capa, a.dxf.text, p.x, p.y, a.dxf.height, color))
                 elif t == "LWPOLYLINE":
-                    guardar_pl(capa, [(p[0], p[1]) for p in e.get_points("xy")], bool(e.closed), color, float(e.dxf.elevation))
+                    guardar_pl(capa, _a_wcs(e, [(p[0], p[1]) for p in e.get_points("xy")], e.dxf.elevation), bool(e.closed), color,
+                               float(e.dxf.elevation))
                 elif t == "POLYLINE":
                     vs = [v.dxf.location for v in e.vertices]
-                    if vs: guardar_pl(capa, [(v.x, v.y) for v in vs], bool(e.is_closed), color, float(vs[0].z))
+                    if vs:
+                        xy = [(v.x, v.y) for v in vs]
+                        if e.is_2d_polyline: xy = _a_wcs(e, xy, vs[0].z)       # las 2D estan en OCS; las 3D ya en WCS
+                        guardar_pl(capa, xy, bool(e.is_closed), color, float(vs[0].z))
                 elif t == "LINE":
                     a, b = e.dxf.start, e.dxf.end
                     guardar_pl(capa, [(a.x, a.y), (b.x, b.y)], False, color, float(a.z) if abs(a.z - b.z) < 1e-6 else None)
@@ -153,11 +172,12 @@ def leer(ruta, capas=None, ventana=None, capa_ventana=None):
                         xs = [p.x for p in cv]; ys = [p.y for p in cv]
                         tam = max(max(xs) - min(xs), max(ys) - min(ys), 0.1)
                         pts = [(p.x, p.y) for p in pa.flattening(max(0.02, tam / 500.0))]
-                        guardar_pl(capa, pts, True, color, None)
+                        guardar_pl(capa, _a_wcs(e, pts, e.dxf.elevation.z), True, color, None)
                         cuenta["_hatch"] = cuenta.get("_hatch", 0) + 1
                         patrones.setdefault(capa, set()).add(e.dxf.pattern_name)
                 elif t == "TEXT":
-                    p = e.dxf.insert
+                    (px, py), = _a_wcs(e, [(e.dxf.insert.x, e.dxf.insert.y)], e.dxf.insert.z)
+                    p = type("P", (), {"x": px, "y": py})
                     if en_ventana(p.x, p.y): txt.append((capa, e.dxf.text, p.x, p.y, e.dxf.height, color))
                 elif t == "MTEXT":
                     p = e.dxf.insert

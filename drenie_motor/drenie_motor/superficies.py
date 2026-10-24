@@ -76,6 +76,7 @@ class Mapa:
             if g is None or g.is_empty: continue
             for p in (g.geoms if hasattr(g, "geoms") else [g]):
                 if isinstance(p, Polygon): lineas.append(p.exterior); lineas.extend(p.interiors)
+        self.ambientes = []
         for sel in sup.get("lineas_extra", []):
             # {"sel": capa, "area_min": 20}: solo poligonos cerrados de al menos esa area (deja fuera recuadros de rotulos)
             amin = sel.get("area_min") if isinstance(sel, dict) and "sel" in sel else None
@@ -84,6 +85,7 @@ class Mapa:
                 if amin is None: lineas.append(LineString(e[0]))
                 elif e[1] and len(e[0]) >= 3 and Polygon(e[0]).buffer(0).area >= amin:
                     lineas.append(LineString(list(e[0]) + [e[0][0]]))
+                    self.ambientes.append(Polygon(e[0]).buffer(0))
         todas = unary_union([LineString(l.coords) for l in lineas])
         todas = shapely.snap(todas, todas, 0.05)                 # iman de 5 cm
         caras = [c.intersection(ce) for c in polygonize(unary_union(todas))]
@@ -91,6 +93,12 @@ class Mapa:
         resto = ce.difference(unary_union(caras)) if caras else ce
         caras += [p for p in (resto.geoms if hasattr(resto, "geoms") else [resto]) if p.area > 1e-4]
         caras = [p for c in caras for p in (c.geoms if hasattr(c, "geoms") else [c]) if isinstance(p, Polygon)]
+        # --- rotulos del proyecto: valen para todo el ambiente (el poligono mas chico que contiene el rotulo), no solo para el
+        #     pedazo donde cae el texto (dentro de un ambiente hay juegos, bancas, veredas que lo parten)
+        self.zonas_rot = []
+        for p, tipo, txt in self.rotulos_pry:
+            amb = [a for a in self.ambientes if a.contains(p)]
+            if amb: self.zonas_rot.append((min(amb, key=lambda a: a.area), tipo, txt))
         # --- tipo de cada cara
         self.caras = [self._clasificar(c) for c in caras]
         # --- cunetas: franja real; recortan las superficies de piso (no los techos)
@@ -129,6 +137,8 @@ class Mapa:
         def dentro(g): return not g.is_empty and g.contains(rp)
         for p, tipo, nivel, fuente in self.manual:
             if cara.contains(p): return {"geom": cara, "tipo": tipo, "nivel": nivel, "fuente": fuente, "nombre": "Asignada"}
+        for zona, tipo, txt in self.zonas_rot:
+            if zona.contains(rp): return {"geom": cara, "tipo": tipo, "nivel": None, "fuente": "rotulo del proyecto '%s'" % txt, "nombre": txt}
         for p, tipo, txt in self.rotulos_pry:
             if cara.contains(p): return {"geom": cara, "tipo": tipo, "nivel": None, "fuente": "rotulo del proyecto '%s'" % txt, "nombre": txt}
         cands = [(g, t, n, o) for g, t, n, o in self.leyenda if dentro(g)]
