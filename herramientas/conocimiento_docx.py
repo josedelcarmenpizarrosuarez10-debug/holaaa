@@ -71,6 +71,14 @@ def _tabla(d, filas, ancho):
         if i == 0:
             e = OxmlElement('w:tblHeader'); e.set(qn('w:val'), 'true'); tb.rows[0]._tr.get_or_add_trPr().append(e)
         tb.rows[-1]._tr.get_or_add_trPr().append(OxmlElement('w:cantSplit'))
+    # anchos de columna según el largo del texto (entre 9 y 60 caracteres por columna)
+    pesos = [min(60, max(9, max(len(f[j]) if j < len(f) else 0 for f in celdas))) for j in range(n)]
+    tb.autofit = False
+    for gc, p in zip(tb._tbl.tblGrid.findall(qn('w:gridCol')), pesos):
+        gc.set(qn('w:w'), str(int(ancho * p / sum(pesos) * 567)))
+    for fila in tb.rows:
+        for c, p in zip(fila.cells, pesos):
+            c.width = Cm(ancho * p / sum(pesos))
     d.add_paragraph().paragraph_format.space_after = Pt(2)
 
 

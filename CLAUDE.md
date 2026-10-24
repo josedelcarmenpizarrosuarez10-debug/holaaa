@@ -1,6 +1,8 @@
 # Proyecto: drenaje pluvial y colectores frontales – predio Los Mangos, Morales (San Martín)
 
 Leer completo antes de trabajar. Detalle técnico en los skills de `.claude/skills/` y en `BITACORA_CONVERSACION.md`.
+**Base de conocimiento completa (todo lo aprendido con el usuario, al mínimo detalle): `conocimiento/01_*.md` a `08_*.md`,
+índice en el skill `conocimiento-drenaje-pluvial`. Leer el capítulo del tema antes de diseñar, dibujar, metrar o redactar.** Manual Word: `conocimiento/MANUAL_TECNICO_DRENAJE_PLUVIAL.docx` (`python3 herramientas/conocimiento_docx.py`).
 
 ## Reglas permanentes del usuario (no negociables)
 - No modificar los metrados del usuario salvo pedido expreso; cambiar solo lo que se pida y verificar que lo demás quede idéntico.

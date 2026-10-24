@@ -637,3 +637,15 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Pregunta del usuario: si los criterios (cargar terreno, leer cotas y curvas, no salir del límite del terreno, cuneta a cada lado
   en techos a dos aguas, etc.) quedaron guardados. Se reunieron en `.claude/skills/planteamiento-cunetas-terreno/SKILL.md`
   (antes estaban repartidos en la bitácora, el código de herramientas/barranquita y CLAUDE.md) y se citan en CLAUDE.md.
+
+## 24/10/2026 - Base de conocimiento completa (memoria permanente) y manual técnico
+- Pedido del usuario: que todo lo aprendido desde el inicio (colector, cunetas, hidrología, planos ordenados, secciones, perfiles,
+  metrado, documentos) quede guardado al mínimo detalle, para recordarlo siempre e implementarlo en su programa (DRENIE).
+- `conocimiento/`: 8 capítulos (01 reglas y forma de trabajo, 02 hidrología e hidráulica, 03 colector frontal, 04 cunetas sobre
+  terreno, 05 planos DXF, 06 metrado/ACU/especificaciones, 07 componentes complementarios, 08 documentos del expediente; ~7 460
+  líneas), redactados a partir de los 328 mensajes del usuario (`_fuentes/mensajes_usuario.txt`), esta bitácora, los skills y el
+  código. Cada uno termina con "Para implementarlo en un programa".
+- Skill índice `.claude/skills/conocimiento-drenaje-pluvial/` y aviso al inicio de CLAUDE.md. Manual Word:
+  `herramientas/conocimiento_docx.py` -> `conocimiento/MANUAL_TECNICO_DRENAJE_PLUVIAL.docx` (≈159 páginas, índice automático).
+- Chat nuevo "PROGRAMA DRENIE" (rama `claude/programa-drenie`, parte de esta rama) para cargar el código del programa del usuario
+  e integrar la base de conocimiento.
