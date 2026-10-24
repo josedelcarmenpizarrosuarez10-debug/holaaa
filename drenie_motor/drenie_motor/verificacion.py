@@ -207,35 +207,46 @@ def verificar(R, red, sitio, terreno, P, lluvia, hq_prev=None):
     fijas = P.get("secciones") or {}
     sube = lambda v: math.ceil(v / paso - 1e-6) * paso
     filas = []; hq = dict(hq_prev or {})
+    # 1) ancho que pide cada tramo; 2) una sola medida por sector (o eje): la mayor que pida cualquiera de sus tramos
+    def pide(t, Q, S, hd):
+        hmax_t = max(t["h_de"], t["h_a"])
+        def basta(bb):
+            if hmax_t > P.get("h_b_max", 2.0) * bb + 1e-9: return False          # muy honda para ese ancho: no se puede encofrar
+            if Q <= 0: return True
+            y_ = yn(Q, S, P["n_cap"], bb)
+            return y_ + P["BL"] <= hd + 1e-9 and y_ <= P.get("y_b_max", 1.0) * bb + 1e-9
+        return next((bb for bb in anchos if basta(bb)), anchos[-1])
+    uni = P.get("uniforme", "sector")
+    grupo_de = lambda c: (fines.get(c, c) if uni == "sector" else c)
+    datos, pedido = [], {}
     for c, r in ram.items():
-        Ac = total(c); bprev = 0.0
+        Ac = total(c)
         for j, t in enumerate(r["tramos"]):
-            v = Ac[j]; Q = I * v[1] / 3.6e6 * P["FS"]
-            S = max(t["S"], P["S0"])
+            v = Ac[j]; Q = I * v[1] / 3.6e6 * P["FS"]; S = max(t["S"], P["S0"])
             hd = min(t["h_de"], t["h_a"]) - (P["e_tapa"] if t["L_tapado"] > 0 else 0.0)
-            if c in fijas: b = float(fijas[c]); origen_b = "proyectista"
-            else:
-                hmax_t = max(t["h_de"], t["h_a"])
-                def basta(bb):
-                    if hmax_t > P.get("h_b_max", 2.0) * bb + 1e-9: return False          # muy honda para ese ancho: no se puede encofrar
-                    if Q <= 0: return True
-                    y_ = yn(Q, S, P["n_cap"], bb)
-                    return y_ + P["BL"] <= hd + 1e-9 and y_ <= P.get("y_b_max", 1.0) * bb + 1e-9
-                b = next((bb for bb in anchos if basta(bb)), anchos[-1]); origen_b = "caudal y proporcion constructiva"
-            if b < bprev: b = bprev; origen_b = "no se angosta aguas abajo"
-            bprev = b
-            y = yn(Q, S, P["n_cap"], b) if Q > 0 else 0.0; yv = yn(Q, S, P["n_vel"], b) if Q > 0 else 1.0
-            V = Q / (b * yv) if Q > 0 else 0.0
-            q = lambda AC: round(1000 * I * AC / 3.6e6 * P["FS"], 2)
-            f = {"eje": c, "de": t["de"], "a": t["a"], "L": round(t["L"], 2), "A_m2": round(v[0], 0), "C": round(v[1] / v[0], 3) if v[0] else 0,
-                 "A_techo_m2": round(v[2], 0), "A_pisos_m2": round(v[4], 0), "A_verde_m2": round(v[6], 0),
-                 "Q_techo_ls": q(v[3]), "Q_pisos_ls": q(v[5]), "Q_verde_ls": q(v[7]),
-                 "Q_ls": round(1000 * Q, 2), "S_pct": round(100 * S, 2), "b": round(b, 3), "ancho_por": origen_b,
-                 "h_de": round(t["h_de"], 3), "h_a": round(t["h_a"], 3), "y": round(y, 3), "h": round(hd, 3), "borde_libre": round(hd - y, 3),
-                 "V": round(V, 2), "cap": "CUMPLE" if hd - y >= P["BL"] - 1e-3 else "NO CUMPLE", "vel": "CUMPLE" if V <= P["Vmax"] else "GRADAS"}
-            filas.append(f)
-            need = sube(y + P["BL"]); clave = "%s|%s|%s" % (c, t["de"], t["a"])
-            if need > P["hmin"] and hd - y < P["BL"]: hq[clave] = round(max(need, hq.get(clave, 0)), 3)
+            bp = pide(t, Q, S, hd); datos.append((c, t, v, Q, S, hd, bp))
+            k = grupo_de(c) if uni != "tramo" else (c, t["de"])
+            pedido[k] = max(pedido.get(k, 0.0), bp)
+    for c, t, v, Q, S, hd, bp in datos:
+        if c in fijas: b = float(fijas[c]); origen_b = "adoptado por el proyectista"
+        else:
+            b = pedido[grupo_de(c) if uni != "tramo" else (c, t["de"])]
+            origen_b = "caudal del tramo" if abs(b - bp) < 1e-9 else ("mayor del sector (%s)" % grupo_de(c) if uni == "sector" else "mayor del eje")
+        y = yn(Q, S, P["n_cap"], b) if Q > 0 else 0.0; yv = yn(Q, S, P["n_vel"], b) if Q > 0 else 1.0
+        V = Q / (b * yv) if Q > 0 else 0.0
+        q = lambda AC: round(1000 * I * AC / 3.6e6 * P["FS"], 2)
+        hmax_t = max(t["h_de"], t["h_a"])
+        f = {"eje": c, "sector": fines.get(c, "-"), "de": t["de"], "a": t["a"], "L": round(t["L"], 2), "A_m2": round(v[0], 0),
+             "C": round(v[1] / v[0], 3) if v[0] else 0,
+             "A_techo_m2": round(v[2], 0), "A_pisos_m2": round(v[4], 0), "A_verde_m2": round(v[6], 0),
+             "Q_techo_ls": q(v[3]), "Q_pisos_ls": q(v[5]), "Q_verde_ls": q(v[7]),
+             "Q_ls": round(1000 * Q, 2), "S_pct": round(100 * S, 2), "b_pide": round(bp, 3), "b": round(b, 3), "ancho_por": origen_b,
+             "ancho_total": round(b + 2 * P["e_muro"], 3), "excavacion_max": round(hmax_t + P["e_fondo"] + P["e_solado"], 3),
+             "h_de": round(t["h_de"], 3), "h_a": round(t["h_a"], 3), "y": round(y, 3), "h": round(hd, 3), "borde_libre": round(hd - y, 3),
+             "V": round(V, 2), "cap": "CUMPLE" if hd - y >= P["BL"] - 1e-3 else "NO CUMPLE", "vel": "CUMPLE" if V <= P["Vmax"] else "GRADAS"}
+        filas.append(f)
+        need = sube(y + P["BL"]); clave = "%s|%s|%s" % (c, t["de"], t["a"])
+        if need > P["hmin"] and hd - y < P["BL"]: hq[clave] = round(max(need, hq.get(clave, 0)), 3)
     ncap = [f for f in filas if f["cap"] != "CUMPLE"]; nvel = [f for f in filas if f["vel"] != "CUMPLE"]
     pc = min(filas, key=lambda f: f["borde_libre"]); pv = max(filas, key=lambda f: f["V"])
     Atot = sum(area.values()); Cp = sum(areaC.values()) / Atot if Atot else 0

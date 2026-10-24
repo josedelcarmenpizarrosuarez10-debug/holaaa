@@ -856,6 +856,12 @@ N.° de lloraderos del tramo = REDONDEAR.MAS(L / 1.50)       # hoja METRADO LLOR
   redondeados a medidas constructivas; el proyectista puede proponer su dimensionamiento y el programa lo verifica. No se
   aceptan secciones que no se pueden encofrar ni acabar (p. ej. 0.20 × 0.20).
 - **Caudal por cuneta**: el programa muestra, por tramo, el área de techo, de pisos y de área verde que le llega y su caudal.
+- **Medidas y uniformidad** (usuario, 24-10-2026): mínimo 0.30 × 0.30 libre, medidas de 5 en 5 cm, pendiente inicial 0.5 %.
+  0.30 × 0.30 es lo libre: ancho total 0.30 + 2 × 0.10 = 0.50; excavación 0.30 + 0.10 losa de fondo + 0.10 solado = 0.50. Un eje
+  o un sector (ejes que se unen y salen por la misma descarga) lleva una sola medida: la mayor que pida cualquiera de sus tramos;
+  no se mezclan 0.30 y 0.40 en tramos seguidos. El dimensionamiento final adoptado es manual (hoja DIMENSIONAMIENTO, columna B
+  ADOPTADO) y el programa lo verifica. Propuesta del programa (pendiente de confirmar): tirante <= ancho y profundidad <= 2 veces
+  el ancho.
 
 ---
 

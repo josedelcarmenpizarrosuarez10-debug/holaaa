@@ -16,6 +16,9 @@ PARAMETROS = {
     "paso_seccion": 0.05,     # ancho y profundidad requerida redondeados de 5 en 5 cm
     "e_muro": 0.10,           # espesor de muro (m)
     "e_tapa": 0.10,           # losa de los tramos tapados (m)
+    "e_fondo": 0.10,          # losa de fondo (m)
+    "e_solado": 0.10,         # solado (m): excavacion = altura libre + losa de fondo + solado (0.30 libre -> 0.50)
+    "uniforme": "sector",     # una sola medida por "sector" (ejes que salen por la misma descarga), por "eje" o por "tramo"
     "h0": 0.30,               # profundidad al inicio de cada eje (m)
     "hmin": 0.30,             # altura libre minima (bajo la losa en los tapados)
     "S0": 0.005,              # pendiente minima de la cota de fondo (0.5 %)

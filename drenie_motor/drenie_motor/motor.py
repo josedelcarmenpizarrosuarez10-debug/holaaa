@@ -10,7 +10,7 @@ import json
 import os
 import time
 
-from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos
+from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento
 from .parametros import combinar
 
 VERSION = "0.1.0"
@@ -116,7 +116,11 @@ def disenar(cfg_ruta):
     P, B, cur, rep_t, T, S, ejes = _preparar(cfg, base, salida)
     if not ejes: raise ValueError("No hay lineas de cuneta del usuario (capas.ejes o ejes_lineas)")
     LL, _ = _lluvia_diseno(cfg, base)
-    if cfg.get("secciones"): P["secciones"] = cfg["secciones"]       # ancho libre fijado por el proyectista: {"EJE-01": 0.45}
+    # ancho libre adoptado por el proyectista: hoja DIMENSIONAMIENTO llenada, o {"EJE-01": 0.45} en el proyecto
+    adop = {}
+    if cfg.get("dimensionamiento_adoptado"): adop.update(dimensionamiento.leer_adoptado(_ruta(base, cfg["dimensionamiento_adoptado"])))
+    adop.update(cfg.get("secciones") or {})
+    if adop: P["secciones"] = adop
     M0 = _mapa(B, S, cfg, P, [(a, b) for p in ejes for a, b in zip(p[:-1], p[1:])])
     if M0.sin_asignar:
         raise ValueError("Hay %d areas sin asignar (%.1f m2) en el mapa de superficies: asignar su tipo antes de disenar "
@@ -145,10 +149,14 @@ def disenar(cfg_ruta):
     LLt, LLp = lloraderos.calcular(C, verde, P, anchos)
     secciones = {}
     for f in V["hidraulica"]:
-        e = secciones.setdefault(f["eje"], {"eje": f["eje"], "L_m": 0.0, "b_min": 9, "b_max": 0, "h_min": 9, "h_max": 0, "Q_max_ls": 0})
-        e["L_m"] = round(e["L_m"] + f["L"], 2); e["b_min"] = min(e["b_min"], f["b"]); e["b_max"] = max(e["b_max"], f["b"])
+        e = secciones.setdefault(f["eje"], {"sector": f["sector"], "eje": f["eje"], "L_m": 0.0, "b_pide": 0, "b": f["b"],
+                                            "b_adoptado": (P.get("secciones") or {}).get(f["eje"], f["b"]), "ancho_total": f["ancho_total"],
+                                            "h_min": 9, "h_max": 0, "excavacion_max": 0, "Q_max_ls": 0, "ancho_por": f["ancho_por"]})
+        e["L_m"] = round(e["L_m"] + f["L"], 2); e["b_pide"] = max(e["b_pide"], f["b_pide"])
         e["h_min"] = round(min(e["h_min"], f["h_de"], f["h_a"]), 3); e["h_max"] = round(max(e["h_max"], f["h_de"], f["h_a"]), 3)
-        e["Q_max_ls"] = max(e["Q_max_ls"], f["Q_ls"])
+        e["excavacion_max"] = max(e["excavacion_max"], f["excavacion_max"]); e["Q_max_ls"] = max(e["Q_max_ls"], f["Q_ls"])
+    secciones = dict(sorted(secciones.items(), key=lambda e: (e[1]["sector"], e[0])))
+    xls = dimensionamiento.escribir(os.path.join(salida, "DIMENSIONAMIENTO.xlsx"), V["hidraulica"], list(secciones.values()), P)
     nuevas = sum(t["L"] for r in C["ramales"] for t in r["tramos"] if t["origen"] in ("union", "pase"))
     Ltot = sum(r["L"] for r in C["ramales"]); Ltap = sum(t["L_tapado"] for r in C["ramales"] for t in r["tramos"])
     resumen = {"ejes": len(C["ramales"]), "descargas": len(R.descargas), "longitud_m": round(Ltot, 2), "tapado_m": round(Ltap, 2),
@@ -174,7 +182,7 @@ def disenar(cfg_ruta):
                                      "terreno_exterior_min": round(v["z_req"], 2)} for k, v in R.descargas.items()],
            "sin_salida": [[list(a), list(b)] for a, b in R.sin_cubrir], "verificacion": V,
            "secciones_por_eje": list(secciones.values()), "lloraderos": {"resumen": lloraderos.resumen(LLt), "tramos": LLt},
-           "profundidad_minima_por_capacidad": hq, "archivos": {"dxf": dxf, "png": png}, "segundos": round(time.time() - t0, 1),
+           "profundidad_minima_por_capacidad": hq, "archivos": {"dxf": dxf, "png": png, "dimensionamiento": xls}, "segundos": round(time.time() - t0, 1),
            "requiere_confirmacion": ["descargas"] if not cfg.get("descargas") else []}
     json.dump(out, open(os.path.join(salida, "resultado.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
     return out

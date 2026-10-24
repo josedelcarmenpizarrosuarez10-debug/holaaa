@@ -44,8 +44,9 @@ SENAMHI, análisis estadístico, Dick y Peschke → I) → 5. `disenar`: áreas 
 | `superficies_cfg.asignaciones` | clics del visor: `{"x", "y", "tipo"}` (punto dentro del área) |
 | `superficies_cfg.por_defecto` | tipo para lo no identificado; si falta, el diseño no corre hasta asignarlo |
 | `techos_caida`, `caida_por_defecto` | caída por techo: `{"punto", "tipo": "dos_aguas", "cumbrera": [[x, y], [x, y]]}` o `{"punto", "tipo": "una_agua", "lado_bajo": [...]}` |
-| `secciones` | ancho libre propuesto por el proyectista por eje: `{"EJE-01": 0.45}` (el programa lo verifica) |
-| `parametros` | cambia cualquier valor de `parametros.py`: `b_int` 0.30 (ancho libre mínimo), `b_max` 1.00, `paso_seccion` 0.05, `hmin` 0.30, `h0` 0.30, `S0` 0.005, `e_muro` y `e_tapa` 0.10, `h_b_max` 2.0, `y_b_max` 1.0, `llor_sep` 1.50 |
+| `dimensionamiento_adoptado` | la hoja `DIMENSIONAMIENTO.xlsx` con la columna B ADOPTADO llena por el proyectista (el programa la verifica) |
+| `secciones` | ancho libre adoptado por eje escrito en el proyecto: `{"EJE-01": 0.45}` |
+| `parametros` | cambia cualquier valor de `parametros.py`: `b_int` 0.30 (ancho libre mínimo), `b_max` 1.00, `paso_seccion` 0.05, `hmin` 0.30, `h0` 0.30, `S0` 0.005, `e_muro`, `e_tapa`, `e_fondo` y `e_solado` 0.10, `uniforme` (`sector`, `eje` o `tramo`), `h_b_max` 2.0, `y_b_max` 1.0, `llor_sep` 1.50 |
 | `lluvia` | Datos de la estación: `{"estacion": {...}, "archivo": "datos diarios SENAMHI / NASA POWER / CHIRPS", "desde", "hasta", "T": 25, "tc_min": 10, "factor": 1.0, "distribucion": opcional}` o `"serie": {anio: [12 máximas mensuales]}` o `"maximos": {anio: P24}`. Sin datos de estación: `{"I_mmh": ...}` o `{"P24": ..., "tc_min": 10}`. Barranquita: P24 = 169.27 mm, I = 293.18 mm/h (igual al expediente) |
 | `descargas` | descargas fijadas por el usuario `[{"nombre": "D1", "x", "y"}]` (sin esto, el motor las propone) |
 | `parametros` | cambios a los valores por defecto |
@@ -71,7 +72,11 @@ con los datos de entrada del usuario (curvas, techos, veredas, cerco y líneas m
 
 ## Sección de cada tramo y lloraderos
 
-- Muros y losa de 0.10. Cada tramo toma el menor ancho libre (desde 0.30, de 5 en 5 cm) con el que el tirante más el borde libre
+- Medidas: 0.30 × 0.30 es la sección libre; ancho total = libre + 2 muros (0.50); excavación = altura libre + losa de fondo +
+  solado (0.50). Una sola medida por sector (todos los ejes que salen por la misma descarga llevan el mayor ancho que pida
+  cualquiera de sus tramos); `uniforme: "eje"` da una medida por eje. El dimensionamiento final lo adopta el proyectista en la hoja
+  `DIMENSIONAMIENTO.xlsx` (columna B ADOPTADO) y el programa lo verifica.
+- Muros y losa de 0.10. Cada tramo pide el menor ancho libre (desde 0.30, de 5 en 5 cm) con el que el tirante más el borde libre
   cabe en la profundidad que da el perfil, con el tirante no mayor que el ancho y la profundidad no mayor que 2 veces el ancho
   (que se pueda encofrar y acabar). Aguas abajo no se angosta. Si con `b_max` no alcanza, se profundiza (redondeado a 5 cm).
 - `resultado.json`: `verificacion.hidraulica` (por tramo: área y caudal de techos, pisos y áreas verdes, b, h, tirante, borde libre,
