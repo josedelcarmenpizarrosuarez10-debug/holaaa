@@ -43,6 +43,7 @@ def _preparar(cfg, base, salida):
                             "muros": capas.get("muros"), "niveles": cfg.get("niveles", {}),
                             "superficies": cfg.get("superficies", [])}, T, P)
     ejes = [e[0] for e in geom.seleccionar(B, capas["ejes"])] if capas.get("ejes") else []
+    ejes += [[tuple(p) for p in l] for l in cfg.get("ejes_lineas", [])]        # lineas trazadas en el visor
     S.revisar_superficies(ejes)
     S.flechas = superficies.flechas_de(B, cfg)
     S.aguas, av = superficies.aguas_de_techos(S, cfg, S.flechas); S.avisos += av
@@ -78,7 +79,7 @@ def disenar(cfg_ruta):
     cfg, base, salida = _cargar(cfg_ruta)
     t0 = time.time()
     P, B, cur, rep_t, T, S, ejes = _preparar(cfg, base, salida)
-    if not ejes: raise ValueError("No hay lineas de cuneta del usuario en la capa indicada (capas.ejes)")
+    if not ejes: raise ValueError("No hay lineas de cuneta del usuario (capas.ejes o ejes_lineas)")
     M0 = _mapa(B, S, cfg, P, [(a, b) for p in ejes for a, b in zip(p[:-1], p[1:])])
     if M0.sin_asignar:
         raise ValueError("Hay %d areas sin asignar (%.1f m2) en el mapa de superficies: asignar su tipo antes de disenar "

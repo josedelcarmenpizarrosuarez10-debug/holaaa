@@ -55,14 +55,19 @@ class Mapa:
             if pols: self.leyenda.append((geom.union(pols), regla["tipo"], regla.get("nivel"), "leyenda %s" % regla["sel"]))
         self.nombradas = [(e["geom"], e["tipo"], None, e["nombre"]) for e in sitio.extra]
         self.manual = [(Point(a["x"], a["y"]), a["tipo"], a.get("nivel"), "asignacion manual") for a in sup.get("asignaciones", [])]
-        rot = dict(ROTULOS); rot.update({_norm(k): v for k, v in sup.get("rotulos", {}).items()})
-        self.rotulos = []
+        # rotulos de ambientes: los del proyecto (p. ej. OE-04 = juegos) mandan sobre las capas y sombreados del plano;
+        # los de fabrica (AREA VERDE, VEREDA...) solo se usan si nada mas identifica el area
+        self.rotulos_pry, self.rotulos = [], []
+        propios = {_norm(k): v for k, v in sup.get("rotulos", {}).items()}
+        capas_rot = sup.get("rotulos_capas")
         for capa, s, x, y, h, col in B["txt"]:
-            n = _norm(s.strip())
-            for clave, tipo in sorted(rot.items(), key=lambda e: -len(e[0])):
-                if n.startswith(clave) or re.fullmatch(clave, n):
-                    if ce.contains(Point(x, y)): self.rotulos.append((Point(x, y), tipo, s.strip()))
-                    break
+            if capas_rot and capa not in capas_rot: continue
+            if not ce.contains(Point(x, y)): continue
+            n = _norm(s.strip().split("\n")[0])
+            if n in propios: self.rotulos_pry.append((Point(x, y), propios[n], s.strip())); continue
+            for clave, tipo in sorted(ROTULOS.items(), key=lambda e: -len(e[0])):
+                if n.startswith(clave):
+                    self.rotulos.append((Point(x, y), tipo, s.strip())); break
         self.por_defecto = sup.get("por_defecto")      # None: lo no identificado queda "sin_asignar"
         # --- lineas que delimitan
         lineas = [ce.exterior]
@@ -72,7 +77,13 @@ class Mapa:
             for p in (g.geoms if hasattr(g, "geoms") else [g]):
                 if isinstance(p, Polygon): lineas.append(p.exterior); lineas.extend(p.interiors)
         for sel in sup.get("lineas_extra", []):
-            lineas.extend(LineString(e[0]) for e in geom.seleccionar(B, sel))
+            # {"sel": capa, "area_min": 20}: solo poligonos cerrados de al menos esa area (deja fuera recuadros de rotulos)
+            amin = sel.get("area_min") if isinstance(sel, dict) and "sel" in sel else None
+            ents = geom.seleccionar(B, sel["sel"] if amin is not None else sel)
+            for e in ents:
+                if amin is None: lineas.append(LineString(e[0]))
+                elif e[1] and len(e[0]) >= 3 and Polygon(e[0]).buffer(0).area >= amin:
+                    lineas.append(LineString(list(e[0]) + [e[0][0]]))
         todas = unary_union([LineString(l.coords) for l in lineas])
         todas = shapely.snap(todas, todas, 0.05)                 # iman de 5 cm
         caras = [c.intersection(ce) for c in polygonize(unary_union(todas))]
@@ -118,6 +129,8 @@ class Mapa:
         def dentro(g): return not g.is_empty and g.contains(rp)
         for p, tipo, nivel, fuente in self.manual:
             if cara.contains(p): return {"geom": cara, "tipo": tipo, "nivel": nivel, "fuente": fuente, "nombre": "Asignada"}
+        for p, tipo, txt in self.rotulos_pry:
+            if cara.contains(p): return {"geom": cara, "tipo": tipo, "nivel": None, "fuente": "rotulo del proyecto '%s'" % txt, "nombre": txt}
         cands = [(g, t, n, o) for g, t, n, o in self.leyenda if dentro(g)]
         if cands:
             g, t, n, o = min(cands, key=lambda e: PRIORIDAD.get(e[1], 9)); return {"geom": cara, "tipo": t, "nivel": n, "fuente": o, "nombre": t}

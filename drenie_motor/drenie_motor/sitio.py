@@ -26,7 +26,7 @@ class Sitio:
                 self.avisos.append("La superficie '%s' no se encontro dentro del cerco." % s.get("nombre", k + 1)); continue
             self.extra.append({"nombre": s.get("nombre", "Superficie %d" % (k + 1)), "tipo": s.get("tipo", "pavimento"), "geom": g,
                                "obstaculo": s.get("obstaculo", s.get("tipo") == "techo")})
-        techos = [p.intersection(self.cerco) for p in geom.poligonos(geom.seleccionar(B, cfg["techos"]))] if cfg.get("techos") else []
+        techos = [p.intersection(self.cerco) for p in geom.poligonos_tolerantes(geom.seleccionar(B, cfg["techos"]))] if cfg.get("techos") else []
         self.techos_plano = geom.union(techos)
         self.techos = geom.union(techos + [e["geom"] for e in self.extra if e["tipo"] == "techo"])
         self.veredas_plano = geom.union([p for p in geom.poligonos(geom.seleccionar(B, cfg["veredas"]))]) if cfg.get("veredas") else Polygon()

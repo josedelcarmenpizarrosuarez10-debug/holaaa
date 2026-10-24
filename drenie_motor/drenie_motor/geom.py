@@ -42,6 +42,24 @@ def poligonos(ents, area_min=0.05):
     return pols
 
 
+def poligonos_tolerantes(ents, tol=0.05, area_min=2.0, rellenar=True):
+    """Caras que forman las lineas aunque no cierren exactamente: se cierran separaciones de hasta 2 x tol (como en
+    Barranquita con 0_PROYECCIONES 1). Con rellenar, cada contorno se toma lleno (sin los huecos de lineas interiores)."""
+    lineas = [LineString(list(p) + ([p[0]] if cl else [])) for p, cl, col, z in ents if len(p) >= 2]
+    if not lineas: return []
+    red = unary_union(lineas).buffer(tol, join_style=2)
+    caras = []
+    for g in (red.geoms if hasattr(red, "geoms") else [red]):
+        for h in g.interiors:
+            c = Polygon(h).buffer(tol, join_style=2)          # se devuelve el ancho de la linea a la cara
+            if c.area >= area_min: caras.append(c)
+    if not caras: return []
+    u = unary_union(caras)
+    if rellenar:
+        u = unary_union([Polygon(p.exterior) for p in (u.geoms if hasattr(u, "geoms") else [u])])
+    return [p for p in (u.geoms if hasattr(u, "geoms") else [u]) if p.area >= area_min]
+
+
 def union(pols):
     if not pols: return MultiPolygon()
     return unary_union([p.buffer(0) for p in pols])

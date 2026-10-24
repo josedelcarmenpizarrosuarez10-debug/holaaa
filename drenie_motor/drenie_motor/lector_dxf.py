@@ -4,6 +4,7 @@ Abre el DXF (tambien un ZIP con el DXF, o un ZIP partido en varias partes), expl
 coordenadas reales y guarda una base reducida por capa: polilineas (puntos, cerrada, color, elevacion) y textos (texto, x, y,
 altura). La base se guarda en un archivo .pkl junto al proyecto para no volver a leer un DXF de cientos de MB.
 """
+import math
 import os
 import io
 import zipfile
@@ -117,14 +118,31 @@ def leer(ruta, capas=None, ventana=None, capa_ventana=None):
                 elif t == "LINE":
                     a, b = e.dxf.start, e.dxf.end
                     guardar_pl(capa, [(a.x, a.y), (b.x, b.y)], False, color, float(a.z) if abs(a.z - b.z) < 1e-6 else None)
-                elif t in ("ARC", "CIRCLE", "ELLIPSE", "SPLINE"):
-                    if t in ("ARC", "CIRCLE"): tam = e.dxf.radius
+                elif t in ("ARC", "CIRCLE"):
+                    # puntos calculados aqui (la subdivision de ezdxf se dispara con algunos arcos de bloques espejados)
+                    c, r = e.dxf.center, abs(e.dxf.radius)
+                    if t == "CIRCLE": a0, a1 = 0.0, 360.0
                     else:
-                        cv = [(p.x, p.y) for p in (e.control_points if t == "SPLINE" else [e.dxf.center])]
-                        tam = max(1.0, max(abs(a[0] - b[0]) + abs(a[1] - b[1]) for a in cv for b in cv) if len(cv) > 1 else
-                                  (e.dxf.major_axis.magnitude if t == "ELLIPSE" else 1.0))
-                    pts = [(p.x, p.y) for p in e.flattening(max(0.05, tam / 200.0))]
+                        a0 = e.dxf.start_angle % 360.0; a1 = e.dxf.end_angle % 360.0
+                        if a1 <= a0: a1 += 360.0
+                    n = max(2, min(72, int(math.ceil((a1 - a0) / 5.0))))
+                    ocs = e.ocs()
+                    pts = []
+                    for k in range(n + 1):
+                        a = math.radians(a0 + (a1 - a0) * k / n)
+                        p = ocs.to_wcs((c.x + r * math.cos(a), c.y + r * math.sin(a), c.z))
+                        pts.append((p.x, p.y))
                     guardar_pl(capa, pts, t == "CIRCLE", color, None)
+                elif t == "SPLINE":
+                    # cantidad fija de tramos (la subdivision por precision no termina en algunas splines degeneradas)
+                    ct = e.construction_tool()
+                    n = min(400, max(16, 4 * len(ct.control_points)))
+                    pts = [(p.x, p.y) for p in ct.approximate(segments=n)]
+                    guardar_pl(capa, pts, bool(e.closed), color, None)
+                elif t == "ELLIPSE":
+                    ct = e.construction_tool()
+                    pts = [(p.x, p.y) for p in ct.vertices(ct.params(64))]
+                    guardar_pl(capa, pts, False, color, None)
                 elif t == "HATCH":
                     # cada contorno del sombreado como polilinea cerrada (sirve para la leyenda de colores)
                     from ezdxf.path import from_hatch_boundary_path
