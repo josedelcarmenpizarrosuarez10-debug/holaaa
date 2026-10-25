@@ -255,6 +255,18 @@ isométrico), 3 láminas de detalles a escala real (rejilla, tapa y juntas 1/5; 
 montante en elevación y muro con lloraderos 1/10), PNG por lámina, memoria de cálculo Excel con fórmulas, carátulas e índice de
 planos en Word; la revisión general comprueba que cada entregable exista.
 El programa entrega metrado, memorias (hidrológica y descriptiva), especificaciones técnicas y planos.
+Alcance de DRENIE en techos (usuario, 25-10-2026): ubica los montantes (esquinas) y metra canaletas, soportes de platina
+1" × 1/8", tapas laterales, boquillas, falsa columna 0.20 × 0.15 × 1.30 (concreto, encofrado y acero), dados, y por cada montante
+el codo de 90° de 4" del dado y la tubería PVC 4" embebida del dado a la cuneta (máximo 5 m, S 1 %, mínimo 0.5 %). La altura del
+montante, el tubo que sube a la canaleta, codos del desvío, colgadores y abrazaderas los mete el proyectista (dependen de los cortes
+de arquitectura); las rejillas, tramos tapados y áreas verdes los confirma el proyectista.
+Llegada de tuberías a la cuneta (usuario, 25-10-2026): el fondo del tubo (montante o sumidero) llega sobre el nivel del agua de la
+cuneta (cota de fondo + tirante) + 0.05 m; si llega a la cota de fondo, al llover el tubo queda ahogado, el agua se empoza y regresa.
+Si no se da, se busca la salida (0.5 %, tubo más alto, otra cuneta, profundizar el tramo como último recurso).
+Planteamiento de cunetas (usuario, 25-10-2026): la cuneta puede ir a lo largo del alero o transversal (por los lados cortos,
+recibiendo los montantes de las esquinas, como en el CAR Varones); lo que importa es que el tubo de cada montante llegue. Se busca
+el menor uso de cunetas largas (salen muy profundas o no llegan) y que empiecen lo menos profundas posible. Primero edificaciones
+y losa deportiva; después entradas y obras exteriores. En el CAR Varones se deja el planteamiento de la usuaria.
 
 ## 4. Hojas de la planilla y su función
 

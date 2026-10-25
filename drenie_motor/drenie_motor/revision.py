@@ -7,7 +7,7 @@ Grupos:
 - Diseno: secciones constructivas (0.30 a 0.40 libre, de 5 en 5 cm, una medida por sector), muros, losas y solado de 0.10,
   pendiente, profundidad, borde libre, velocidad, descargas por gravedad, comprobaciones del ciclo de verificacion.
 - Componentes: montantes siempre de 4" y a lo mas 4 por lado, canaletas, sumideros solo en areas libres sin cobertura y con
-  tuberia al 1 % (o 0.5 %) llegando sobre la cota de fondo, lloraderos @1.50 m solo junto a area verde.
+  tuberia al 1 % (o 0.5 %) llegando sobre el nivel del agua de la cuneta + 5 cm, lloraderos @1.50 m solo junto a area verde.
 - Metrado: sin errores de formula; cantidades iguales a las del diseno (rejilla, tapas, lloraderos, montantes, canaletas, sumideros).
 - Documentos: idioma y terminos del usuario, sin nombres de personas ni CIP, sin rastros de herramientas en textos ni metadatos,
   sin citas a otros proyectos, laminas citadas existentes, cifras de las memorias y especificaciones iguales a las del metrado.
@@ -94,23 +94,25 @@ def componentes(I, P, TT, SM, LLt, mapa_tipos):
               "; ".join("%s %s: %d (%.0f m²)" % (l["techo"], l["lado"], l["montantes"], l["A_m2"]) for l in mas))
         I.add(g, "Al menos 2 montantes por lado (esquinas)", all(l["montantes"] >= 2 for l in TT["lados"]))
         I.add(g, "Canaletas con borde libre", all(l["canaleta"] == "CUMPLE" for l in TT["lados"]))
-        av = [a for a in TT["avisos"] if "no tiene cuneta" in a]
+        tmax = TT["criterios"]["parametros"]["tubo_max"]
+        sin = [m for m in TT["montantes"] if not m.get("tubo_enterrado_m")]
         ent = [m for m in TT["montantes"] if m.get("tubo_enterrado_m")]
-        I.add(g, "Montantes con cuneta cercana (salida directa hasta 3 m o tubería enterrada hasta 25 m)", not av,
-              "%d montantes sin cuneta a menos de 25 m: revisar si falta cuneta" % len(av) if av else "%d con tubería enterrada" % len(ent), aviso=True)
+        I.add(g, "Cada montante llega a una cuneta (tubo del dado hasta %.0f m; la cuneta puede ir a lo largo del alero o transversal)" % tmax, not sin,
+              ("sin cuneta a menos de %.0f m: %s" % (tmax, ", ".join("%s (%s)" % (m["montante"], m["techo"]) for m in sin))) if sin else
+              "%d montantes, tubo de %.2f a %.2f m" % (len(ent), min(m["tubo_enterrado_m"] for m in ent), max(m["tubo_enterrado_m"] for m in ent)))
         for m in ent:
-            I.add(g, "Salida enterrada de %s: tubo 4\" al 1 %% (o 0.5 %%) sobre la cota de fondo" % m["montante"],
-                  m["S_tubo_pct"] in (1.0, 0.5) and m["z_llegada"] >= m["cf_cuneta"] - 1e-6,
-                  "%.2f m a %s, S = %.2f %%, llega a %.3f, cota de fondo %.3f" % (m["tubo_enterrado_m"], m["cuneta"], m["S_tubo_pct"], m["z_llegada"], m["cf_cuneta"]))
-        ale = [a for a in TT["avisos"] if "Altura de alero" in a]
-        I.add(g, "Altura de alero por edificación", not ale, ale[0] if ale else "", aviso=True)
+            I.add(g, "Salida de %s: codo 90 en el dado y tubo 4\" al 1 %% (o 0.5 %%) sobre el nivel del agua + 5 cm" % m["montante"],
+                  m["S_tubo_pct"] in (1.0, 0.5) and m["z_llegada"] >= m["nivel_min"] - 1e-6 and m["tubo_enterrado_m"] <= tmax + 1e-6,
+                  "%.2f m a %s, S = %.2f %%, llega a %.3f; cota de fondo %.3f + tirante %.3f + 0.05 = %.3f" % (
+                      m["tubo_enterrado_m"], m["cuneta"], m["S_tubo_pct"], m["z_llegada"], m["cf_cuneta"], m["tirante_cuneta"], m["nivel_min"]))
     for s in SM["sumideros"]:
         tipo = mapa_tipos(s["x"], s["y"])
         I.add(g, "Sumidero %s en área libre sin cobertura" % s["sumidero"], tipo not in ("verde", "vereda", "techo", "cuneta"),
               "superficie: %s" % (tipo or "sin identificar"))
-        I.add(g, "Sumidero %s: tubo 4\" al 1 %% (o 0.5 %%) llegando sobre la cota de fondo" % s["sumidero"],
-              s["S_tubo_pct"] in (1.0, 0.5) and s["z_llegada"] >= s["cf_cuneta"],
-              "S = %.2f %%, llega a %.3f, cota de fondo %.3f" % (s["S_tubo_pct"], s["z_llegada"], s["cf_cuneta"]))
+        I.add(g, "Sumidero %s: tubo 4\" al 1 %% (o 0.5 %%) llegando sobre el nivel del agua + 5 cm" % s["sumidero"],
+              s["S_tubo_pct"] in (1.0, 0.5) and s["z_llegada"] >= s["nivel_min"] - 1e-6,
+              "S = %.2f %%, llega a %.3f; cota de fondo %.3f + tirante %.3f + 0.05 = %.3f" % (s["S_tubo_pct"], s["z_llegada"], s["cf_cuneta"],
+                                                                                           s["tirante_cuneta"], s["nivel_min"]))
     if LLt:
         I.add(g, "Lloraderos @%.2f m" % P["llor_sep"], all(abs(x["sep_m"] - P["llor_sep"]) < 1e-6 for x in LLt),
               "%d lloraderos en %d tramos de muro junto a área verde" % (sum(x["n"] for x in LLt), len(LLt)))
@@ -170,8 +172,11 @@ def memoria_calculo(I, recalculado, V, Rh, TT, SM):
         ok = isinstance(v, (int, float)) and abs(v - val) <= max(tol, 0.002 * abs(val)) + 1e-9      # redondeo de C y areas en la hoja
         I.add(g, "%s: Excel = diseño" % nom, ok, "Excel %s / diseño %s" % (round(v, 3) if isinstance(v, (int, float)) else v, round(val, 3)))
     if SM and SM["sumideros"] and "SUMIDEROS" in wb.sheetnames:
-        mal = [r[0] for r in wb["SUMIDEROS"].iter_rows(min_row=7, values_only=True) if r[0] and str(r[0]).startswith("S-") and r[12] != "SOBRE EL FONDO"]
-        I.add(g, "Sumideros: tubo sobre la cota de fondo (Excel)", not mal, ", ".join(mal))
+        mal = [r[0] for r in wb["SUMIDEROS"].iter_rows(min_row=7, values_only=True) if r[0] and str(r[0]).startswith("S-") and r[14] != "SOBRE EL AGUA"]
+        I.add(g, "Sumideros: tubo sobre el nivel del agua + 5 cm (Excel)", not mal, ", ".join(mal))
+    if TT and "SALIDAS DE MONTANTES" in wb.sheetnames:
+        mal = [r[0] for r in wb["SALIDAS DE MONTANTES"].iter_rows(min_row=7, values_only=True) if r[0] and str(r[0]).startswith("M-") and r[10] != "SOBRE EL AGUA"]
+        I.add(g, "Salidas de montantes: tubo sobre el nivel del agua + 5 cm (Excel)", not mal, ", ".join(mal))
 
 
 # ============================================================================================== documentos

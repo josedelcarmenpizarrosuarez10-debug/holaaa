@@ -101,14 +101,19 @@ nombre ni CIP del proyectista):
 - DC-02 cuadros: ejes (sector, L, Q máx, b libre, total, h mín/máx, excavación), descargas (ejes, L, Q, C.F.) y tramos de lloraderos.
 - DC-03 en adelante: perfiles longitudinales por eje (1/50) y el corte de cada sección (1/20).
 Canaletas y montantes (`techo.py`, hoja `CANALETAS_Y_MONTANTES.xlsx`): por cada lado de techo, canaleta galvanizada
-0.25 × 0.20 a lo largo del alero (S 1 %, n 0.013, borde libre 0.05), montantes PVC 4" por Wyly-Eaton (rs 0.25) repartidos en el
-alero con su salida a la cuneta más cercana (aviso si no hay a menos de 3 m) y metrado con las reglas de la planilla del usuario
-(soportes @0.60 + 1, 2 tapas, 1 boquilla por montante, 3 codos de 90, 2 colgadores, abrazaderas cada 4 m). Altura del alero por
-techo en `altura_alero` (`{"defecto": 3.50, "techos": [{"punto": [x, y], "altura": 7.00}]}`); parámetros en `techo_parametros`.
-Se dibujan en la DC-01 (bloque CANALETAS_Y_MONTANTES) y su cuadro va en la DC-02. Montantes: en las esquinas de la
-edificación (2 por lado), siempre 4", editables en el visor (MT).
+0.25 × 0.20 a lo largo del alero (S 1 %, n 0.013, borde libre 0.05; soportes de platina 1" × 1/8" @0.60 + 1, 2 tapas laterales,
+1 boquilla por montante) y montantes PVC 4" por Wyly-Eaton (rs 0.25) en las esquinas de la edificación (2 por lado; hasta 4),
+editables en el visor (MT). DrenIE solo ubica el montante y mide su salida: falsa columna 0.20 × 0.15 × 1.30 y dado por montante;
+en el dado un codo de 90° de 4" y la tubería PVC 4" embebida hasta la cara interior de la cuneta (máximo 5 m, `tubo_max`), al 1 %
+(mínimo 0.5 %), con su fondo a 0.20 m bajo el piso (0.15 si hace falta). La altura del montante, el tubo que sube a la canaleta,
+los codos del desvío, colgadores y abrazaderas los mete el proyectista con los cortes de arquitectura (usuario, 25-10-2026).
+La cuneta puede ir a lo largo del alero o transversal a él: se verifica que el tubo de cada montante llegue a una cuneta.
+Llegada de tuberías (`llegada.py`, montantes y sumideros): el fondo del tubo llega sobre el nivel del agua de la cuneta en ese punto
+(cota de fondo + tirante con el caudal del punto) + 0.05 m, para que no quede ahogado. Si no: 0.5 %, tubo más alto, otra cuneta y
+por último se profundiza el tramo que lo recibe (sin pasar de 0.80 m en la llegada); si aun así no llega, se avisa.
+Se dibujan en la DC-01 (bloque CANALETAS_Y_MONTANTES) y su cuadro va en la DC-02.
 Sumideros (`sumideros.py`): solo en áreas libres sin cobertura (`sumidero_tipos`, por defecto patio y estacionamiento), donde la
-zona queda a más de 8 m de una cuneta; tubo PVC 4" recto a la cuneta (S 1 %, llega sobre la cota de fondo); editables en el
+zona queda a más de 8 m de una cuneta; tubo PVC 4" recto a la cuneta (S 1 %, llega sobre el nivel del agua + 0.05); editables en el
 visor (SU); hoja SUMIDEROS en `CANALETAS_MONTANTES_Y_SUMIDEROS.xlsx`, dibujo en la DC-01 y cuadro en la DC-02.
 Prefijo y número inicial en `planos` (`{"prefijo": "DC", "inicio": 1}`). `PLANTA_RED_CUNETAS.dxf` queda como dibujo de trabajo.
 Librería de dibujo propia en `dxf_base.py` y `dxf_layouts.py` (copias de las de `herramientas/`).

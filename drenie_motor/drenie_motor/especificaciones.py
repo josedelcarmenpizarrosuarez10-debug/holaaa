@@ -127,7 +127,7 @@ def ficha(pt, D, Pd):
                          "Cada montante va en la esquina de la edificacion, adosada al muro y protegida en su tramo inferior por una falsa columna de concreto; su codo inferior entrega en la "
                          "cuneta del tramo con rejilla mas cercano. Todas las montantes son de 4\": donde el area de techo lo pide se colocan 3 o 4 montantes por lado en lugar de un diametro mayor."),
                        p("Numero de montantes: %d; longitud total %.2f m (altura del alero mas la salida a la cuneta), segun la planta %s y la hoja METRADO MONTANTES." % (
-                           D.TT["metrado"]["montantes_und"], D.TT["metrado"]["montante_m"], D.planta))],
+                           D.TT["metrado"]["montantes_und"], D.TT["metrado"].get("montante_m", 0.0), D.planta))],
                       mat=l("Tuberia PVC para desague de 4\" (NTP 399.003) en tubos de 3 m; cemento solvente y limpiador; abrazaderas, colgadores y codos de las partidas de accesorios."),
                       equ=l("Sierra para PVC, lima, nivel, plomada, taladro, andamio o escalera."),
                       proc=l("Replantear cada montante en la esquina indicada en la planta, a plomo y adosada al muro.",
@@ -151,7 +151,8 @@ def ficha(pt, D, Pd):
     if "TUBER" in d and "4" in d:
         s = E.espec(pt, Pd, dict(colector=False))
         _sec(s, "DESCRIPCION", [p("Comprende el suministro e instalacion de la tuberia PVC para desague de 4\" de la red de recoleccion de piso, que une cada sumidero con la cuneta mas cercana, "
-                                  "con pendiente de 1 % (minimo 0.5 %), llegando sobre la cota de fondo de la cuneta (Norma CE.040).")])
+                                  "y cada dado de montante con la cuneta (desde el codo de 90 del dado), con pendiente de 1 % (minimo 0.5 %), llegando sobre el nivel del agua de la cuneta "
+                                  "(cota de fondo mas tirante) mas 0.05 m, para que no quede ahogada (Norma CE.040).")])
         return s
     s = E.espec(pt, Pd, dict(colector=False))
     # ---------------------------------------------------------------- ajustes a los textos comunes con los datos de este proyecto

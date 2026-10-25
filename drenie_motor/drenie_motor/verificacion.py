@@ -262,7 +262,7 @@ def verificar(R, red, sitio, terreno, P, lluvia, hq_prev=None):
              "Q_techo_ls": q(v[3]), "Q_pisos_ls": q(v[5]), "Q_verde_ls": q(v[7]),
              "Q_ls": round(1000 * Q, 2), "S_pct": round(100 * S, 2), "b_pide": round(bp, 3), "b": round(b, 3), "ancho_por": origen_b,
              "ancho_total": round(b + 2 * P["e_muro"], 3), "excavacion_max": round(hmax_t + P["e_fondo"] + P["e_solado"], 3),
-             "h_de": round(t["h_de"], 3), "h_a": round(t["h_a"], 3), "y": round(y, 3), "h": round(hd, 3), "Q_critico_ls": round(1000 * crit[1], 2), "borde_libre": round(hd - y, 3),
+             "h_de": round(t["h_de"], 3), "h_a": round(t["h_a"], 3), "y": round(y, 3), "h": round(hd, 3), "Q_critico_ls": round(1000 * crit[1], 2), "Q_in_ls": round(1000 * min(q_ for q_, h_ in mu), 2), "borde_libre": round(hd - y, 3),
              "V": round(V, 2), "cap": "CUMPLE" if hd - y >= P["BL"] - 1e-3 else "NO CUMPLE", "vel": "CUMPLE" if V <= P["Vmax"] else "GRADAS"}
         filas.append(f)
         need = sube(y + P["BL"]); clave = "%s|%s|%s" % (c, t["de"], t["a"])

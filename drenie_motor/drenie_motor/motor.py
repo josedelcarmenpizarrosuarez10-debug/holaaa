@@ -167,11 +167,13 @@ def disenar(cfg_ruta):
             info = R.descargas[d["D"]]
             falta = info["z_req"] + P["desc_margen"] - d["cf"]
             recorte[info["k"]] = recorte.get(info["k"], 0.0) + max(falta, 0.01) / P["S0"] + 2.0
-    TT = techo.calcular(S, C, P, V["hidrologia"]["I"], cfg, set(R.descargas))
-    SM = sumideros.calcular(M, S, C, P, V["hidrologia"]["I"], cfg, set(R.descargas))
-    # ninguna tuberia (de sumidero o de montante) llega bajo el fondo: se profundiza el tramo que la recibe y se recalcula
+    TT = techo.calcular(S, C, P, V["hidrologia"]["I"], cfg, set(R.descargas), V)
+    SM = sumideros.calcular(M, S, C, P, V["hidrologia"]["I"], cfg, set(R.descargas), V)
+    # ninguna tuberia (de sumidero o de montante) llega bajo el agua de la cuneta (+5 cm): se profundiza el tramo que la recibe, sin
+    # pasar de 0.80 m en la llegada, y se recalcula (llegada.py)
     for _ in range(3):
-        bajo = [x for x in SM["sumideros"] + [m for m in TT["montantes"] if m.get("llega")] if x["llega"] != "SOBRE EL FONDO" and x.get("tramo")]
+        bajo = [x for x in SM["sumideros"] + [m for m in TT["montantes"] if m.get("llega")]
+                if x["llega"] != "SOBRE EL AGUA" and x.get("tramo") and x["h_req_cuneta"] <= P.get("h_llegada_max", 0.80)]
         if not bajo: break
         for x in bajo: hq[x["tramo"]] = round(max(hq.get(x["tramo"], P["hmin"]), x["h_req_cuneta"]), 3)
         for _v in range(P["vueltas_max"]):
@@ -179,9 +181,9 @@ def disenar(cfg_ruta):
             V, hq2 = verificacion.verificar(C, R, S, T, P, LL, hq)
             if hq2 == hq: break
             hq = hq2
-        TT = techo.calcular(S, C, P, V["hidrologia"]["I"], cfg, set(R.descargas))
-        SM = sumideros.calcular(M, S, C, P, V["hidrologia"]["I"], cfg, set(R.descargas))
-        SM["avisos"].append("Se profundizaron los tramos %s para recibir la tuberia de %s sobre su cota de fondo." % (
+        TT = techo.calcular(S, C, P, V["hidrologia"]["I"], cfg, set(R.descargas), V)
+        SM = sumideros.calcular(M, S, C, P, V["hidrologia"]["I"], cfg, set(R.descargas), V)
+        SM["avisos"].append("Se profundizaron los tramos %s para recibir la tuberia de %s sobre el nivel del agua de la cuneta (+5 cm)." % (
             ", ".join(sorted({x["tramo"].replace("|", " ") for x in bajo})), ", ".join(x.get("sumidero") or x.get("montante") for x in bajo)))
     anchos = {(f["eje"], f["de"], f["a"]): f["b"] for f in V["hidraulica"]}
     xls_t = techo.excel(TT, os.path.join(salida, "CANALETAS_MONTANTES_Y_SUMIDEROS.xlsx"), SM)
@@ -247,10 +249,7 @@ def disenar(cfg_ruta):
                    [a for a in S.avisos + M.avisos + R.avisos + SM["avisos"] if "no tiene cuneta" not in a], dxf_doc, xls_mc_rc)
     out = {"accion": "disenar", "version": VERSION, "proyecto": proyecto, "resumen": resumen, "parametros": P,
            "mapa_superficies": M.cuadro(),
-           "terreno": rep_t, "avisos": S.avisos + M.avisos + R.avisos + TT["avisos"] + SM["avisos"] + ([
-               "%d mitades de techo (%d m2) no tienen cuneta bajo su alero: esa agua se mando a la cuneta mas cercana. Revisar si "
-               "falta cuneta o si cae al terreno." % (len(V["hidrologia"]["aleros_sin_cuneta"]), sum(a["area_m2"] for a in V["hidrologia"]["aleros_sin_cuneta"]))]
-               if V["hidrologia"]["aleros_sin_cuneta"] else []), "chaflanes": R.chaflanes_hechos, "red": C,
+           "terreno": rep_t, "avisos": S.avisos + M.avisos + R.avisos + TT["avisos"] + SM["avisos"], "chaflanes": R.chaflanes_hechos, "red": C,
            "descargas_propuestas": [{"D": k, "x": round(v["q"][0], 3), "y": round(v["q"][1], 3), "L_max_m": v["L_max"],
                                      "terreno_exterior_min": round(v["z_req"], 2)} for k, v in R.descargas.items()],
            "sin_salida": [[list(a), list(b)] for a, b in R.sin_cubrir], "verificacion": V,
@@ -293,7 +292,7 @@ def _revisar(salida, P, V, C, sec, TT, SM, LLt, M, xls_rc, tot, partidas, q, tap
         ("Rejilla (L - tapado)", ("REJILLA",), "m", Lt - Lta, 0.1),
         ("Tapas de inspección", ("TAPA DE INSPECCION",), "und", len(tapas), 0),
         ("Lloraderos", ("LLORADERO",), "und", sum(x["n"] for x in LLt), 0),
-        ("Montantes (m)", ("MONTANTE", "TUBER"), "m", m.get("montante_m", 0), 0.05),
+        ("Codos de 90° en piso (sumideros y dados)", ("CODO DESAG",), "und", sm.get("codo90_und", 0) + m.get("codo_dado_und", 0), 0),
         ("Falsas columnas", ("FALSA COLUMNA",), "und", m.get("falsas_columnas_und", 0), 0),
         ("Canaletas", ("CANALETA DE PLANCHA",), "m", m.get("canaleta_m", 0), 0.05),
         ("Soportes de canaleta", ("SOPORTE",), "und", m.get("soportes_und", 0), 0),

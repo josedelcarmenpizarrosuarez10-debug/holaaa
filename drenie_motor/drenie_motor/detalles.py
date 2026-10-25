@@ -299,7 +299,7 @@ def lamina_complementos(doc, codigo, ox, oy, P, b, sep_llor):
     V.cota((c, yP), (c, yP - 0.10), 6, False, "0.10")
     llamadas(lam, V, [((a0 + rj / 2, yP - IN / 2), ["REJILLA AL RAS DEL PISO TERMINADO (punto bajo)"]),
                       ((xs, yP - 0.18), ["SALIDA PVC 4\" Y CODO 90 (un solo codo)"]),
-                      ((c + 0.40, yc), ["TUBERIA PVC 4\" a la cuneta mas cercana, S = 1 %", "(minimo 0.5 %), llega sobre la cota de fondo"])],
+                      ((c + 0.40, yc), ["TUBERIA PVC 4\" a la cuneta mas cercana, S = 1 % (minimo 0.5 %),", "llega sobre el nivel del agua + 0.05"])],
              420 + (c + 0.55) * 200 + 8, 205, 130)
     lam.notas(45, 110, "NOTAS", [
         "1. Medidas en metros; escala real 1/5. Lloraderos solo en el muro que da a area verde, @%.2f m a media altura; reemplazan a los drenes franceses." % sep_llor,
@@ -349,7 +349,7 @@ def lamina_elevaciones(doc, codigo, ox, oy, P, b, alero, sep_llor):
                       ((xp + d / 2, 2.20), ["MONTANTE PVC 4\" ADOSADO AL MURO,", "ABRAZADERAS F°G° (1 cada 4.00 m, minimo 1)"]),
                       ((0.20, 0.80), ["FALSA COLUMNA 0.20 x 0.15 x 1.30"]),
                       ((0.25, -0.20), ["DADO 0.40 x 0.40 x 0.35 f'c = 140 kg/cm2", "con el codo de salida 90"]),
-                      ((xc - 0.30, -0.27), ["SALIDA PVC 4\" A LA CUNETA MAS CERCANA,", "sobre su cota de fondo"])],
+                      ((xc - 0.30, -0.27), ["TUBO PVC 4\" ENTERRADO HASTA LA CUNETA (max. 5 m),", "S = 1 %, sobre el nivel del agua + 0.05"])],
              90 + (1.20 + W) * 100 + 14, 535, 125)
     # ---------------------------------------------------------------- muro con lloraderos: elevacion
     Lm = 4.50; Hm = 0.60

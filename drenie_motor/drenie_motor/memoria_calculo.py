@@ -266,8 +266,8 @@ def libro(ruta, proyecto, P, Rh, LL, V, secciones, TT, SM):
         wsm = wb.create_sheet("SUMIDEROS")
         cabecera(wsm, "SUMIDEROS DE PISO: CAUDAL, TUBERIA PVC 4\" Y COTA DE LLEGADA A LA CUNETA")
         hdr = ["SUMIDERO", "AREA (m2)", "C", "Q (l/s)", "Q TUBO 4\" (l/s)", "CAPACIDAD", "CUNETA", "L TUBO (m)", "S (%)", "NIVEL SALIDA",
-               "LLEGADA", "COTA DE FONDO CUNETA", "LLEGA"]
-        tabla_cab(wsm, 6, hdr, [10, 10, 7, 9, 10, 11, 9, 9, 7, 11, 10, 12, 16])
+               "LLEGADA", "COTA DE FONDO CUNETA", "TIRANTE CUNETA (m)", "NIVEL MINIMO (+0.05)", "LLEGA"]
+        tabla_cab(wsm, 6, hdr, [10, 10, 7, 9, 10, 11, 9, 9, 7, 11, 10, 12, 10, 12, 16])
         for i, s in enumerate(SM["sumideros"]):
             r = 7 + i
             ck = "C_estacionamiento" if "C_estacionamiento" in D else next(k for k in D if k.startswith("C_"))
@@ -275,10 +275,28 @@ def libro(ruta, proyecto, P, Rh, LL, V, secciones, TT, SM):
                     ("=1000*PI()*{d}^2/4*({d}/4)^(2/3)*SQRT(I{r}/100)/{n}".format(d=D["D_tubo"], r=r, n=D["n_tubo"]), "0.00"),
                     ('=IF(D{r}<=E{r},"CUMPLE","NO CUMPLE")'.format(r=r), None), (s["cuneta"], None), (s["L_tubo_m"], "0.00"),
                     (s["S_tubo_pct"], "0.00"), (s["z_salida"], "0.000"), ("=J{r}-I{r}/100*H{r}".format(r=r), "0.000"), (s["cf_cuneta"], "0.000"),
-                    ('=IF(K{r}>=L{r}-0.0005,"SOBRE EL FONDO","BAJO EL FONDO")'.format(r=r), None)]
+                    (s["tirante_cuneta"], "0.000"), ("=L{r}+M{r}+0.05".format(r=r), "0.000"),
+                    ('=IF(K{r}>=N{r}-0.0005,"SOBRE EL AGUA","BAJO EL AGUA")'.format(r=r), None)]
             for j, (v, fmt) in enumerate(vals, 1): cel(wsm, r, j, v, fmt)
-        cel(wsm, 7 + len(SM["sumideros"]) + 1, 1, "Solo en areas libres sin cobertura. Tubo PVC 4\" al 1 % (minimo 0.5 %) hasta la cuneta mas cercana; debe llegar "
-                                                  "sobre su cota de fondo (si no, el programa profundiza ese tramo de cuneta).", borde=False)
+        cel(wsm, 7 + len(SM["sumideros"]) + 1, 1, "Solo en areas libres sin cobertura. Tubo PVC 4\" al 1 % (minimo 0.5 %) hasta la cuneta mas cercana; su fondo debe llegar "
+                                                  "sobre el nivel del agua de la cuneta (cota de fondo + tirante) + 0.05 m, para que no quede ahogado (si no, el programa "
+                                                  "profundiza ese tramo de cuneta).", borde=False)
+    # ------------------------------------------------------------------ SALIDAS DE MONTANTES
+    ment = [m for m in (TT or {}).get("montantes", []) if m.get("tubo_enterrado_m")]
+    if ment:
+        wsa = wb.create_sheet("SALIDAS DE MONTANTES")
+        cabecera(wsa, "SALIDA DE CADA MONTANTE: CODO 90 EN EL DADO Y TUBERIA PVC 4\" ENTERRADA HASTA LA CUNETA")
+        tabla_cab(wsa, 6, ["MONTANTE", "TECHO", "CUNETA", "L TUBO (m)", "S (%)", "NIVEL SALIDA", "LLEGADA", "COTA DE FONDO CUNETA", "TIRANTE CUNETA (m)",
+                           "NIVEL MINIMO (+0.05)", "LLEGA"], [10, 8, 9, 9, 7, 11, 10, 12, 10, 12, 16])
+        for i, m in enumerate(ment):
+            r = 7 + i
+            vals = [(m["montante"], None), (m["techo"], None), (m["cuneta"], None), (m["tubo_enterrado_m"], "0.00"), (m["S_tubo_pct"], "0.00"),
+                    (m["z_salida"], "0.000"), ("=F{r}-E{r}/100*D{r}".format(r=r), "0.000"), (m["cf_cuneta"], "0.000"), (m["tirante_cuneta"], "0.000"),
+                    ("=H{r}+I{r}+0.05".format(r=r), "0.000"), ('=IF(G{r}>=J{r}-0.0005,"SOBRE EL AGUA","BAJO EL AGUA")'.format(r=r), None)]
+            for j, (v, fmt) in enumerate(vals, 1): cel(wsa, r, j, v, fmt)
+        cel(wsa, 7 + len(ment) + 1, 1, "En el dado de cada montante, un codo de 90 de 4\" y la tuberia PVC 4\" enterrada hasta la cara interior de la cuneta (hasta "
+                                       "5 m), al 1 % (minimo 0.5 %); su fondo llega sobre el nivel del agua de la cuneta + 0.05 m. La cuneta puede ir a lo largo del "
+                                       "alero o transversal: basta que el tubo de cada montante llegue.", borde=False)
     # ------------------------------------------------------------------ DESCARGAS
     wdc = wb.create_sheet("DESCARGAS")
     cabecera(wdc, "DESCARGAS POR EL CERCO PERIMETRICO")

@@ -230,12 +230,22 @@ def hidrologica(D, c):
         D.tabla("Canaletas y montantes por lado de techo", ["Techo", "Lado", "Área (m²)", "Canaleta (m)", "Q (l/s)", "Montantes 4\"", "Q / montante (l/s)", "Tirante (m)", "Estado"],
                 filas, [1.4, 1.6, 1.7, 1.8, 1.5, 1.7, 2, 1.6, 1.8], tam=7.5)
         m = T["metrado"]
-        D.p("En total: %s m de canaleta, %d montantes de 4\" (%s m de tubería) y %d falsas columnas." % (mil(m["canaleta_m"]), m["montantes_und"], mil(m["montante_m"]), m["falsas_columnas_und"]))
+        D.p("En total: %s m de canaleta, %d montantes de 4\" en las esquinas, cada uno en una falsa columna de 0.20 x 0.15 x 1.30 m sobre su dado. "
+            "En el dado, un codo de 90° de 4\" y la tubería PVC de 4\" enterrada hasta la cuneta (%s m en total, hasta 5 m por montante), con pendiente "
+            "de 1 %% (mínimo 0.5 %%), llegando sobre el nivel del agua de la cuneta más 0.05 m para que no quede ahogada. La cuneta puede ir a lo largo "
+            "del alero o transversal a él: lo que se verifica es que el tubo de cada montante llegue." % (
+                mil(m["canaleta_m"]), m["montantes_und"], mil(m["tuberia_enterrada_m"])))
+        mt = [x for x in T["montantes"] if x.get("tubo_enterrado_m")]
+        if mt:
+            D.tabla("Salida enterrada de cada montante (del dado a la cuneta)", ["Montante", "Techo", "Cuneta", "Tubo (m)", "S (%)", "Llegada", "Cota de fondo",
+                                                                                  "Nivel mínimo", "Estado"],
+                    [[x["montante"], x["techo"], x["cuneta"], f2(x["tubo_enterrado_m"]), f2(x["S_tubo_pct"]), "%.3f" % x["z_llegada"], "%.3f" % x["cf_cuneta"],
+                      "%.3f" % x["nivel_min"], x["llega"].lower()] for x in mt], [1.6, 1.3, 1.6, 1.4, 1.2, 1.7, 1.9, 1.9, 2.4], tam=7.5)
     if c.SM["sumideros"]:
         D.h(1, "Sumideros de piso")
         D.p("Los sumideros se colocan solo en las áreas libres sin cobertura (patios, estacionamientos y pavimentos; no en áreas verdes ni en veredas) que "
             "quedan lejos de una cuneta. Cada uno descarga con tubería PVC de 4\" a la cuneta más cercana, con pendiente de 1 % (mínimo 0.5 %), llegando "
-            "sobre la cota de fondo de la cuneta (Norma CE.040).")
+            "sobre el nivel del agua de la cuneta (cota de fondo + tirante) más 0.05 m, para que no quede ahogada (Norma CE.040).")
         filas = [[s["sumidero"], mil(s["A_m2"], 0), "%.2f" % s["Q_ls"], s["cuneta"], mil(s["L_tubo_m"]), f2(s["S_tubo_pct"]), "%.3f" % s["z_llegada"], "%.3f" % s["cf_cuneta"], s["llega"].lower()]
                  for s in c.SM["sumideros"]]
         D.tabla("Sumideros y tubería a la cuneta", ["Sumidero", "Área (m²)", "Q (l/s)", "Cuneta", "Tubo 4\" (m)", "S (%)", "Llegada", "C.F. cuneta", "Estado"],
@@ -337,8 +347,9 @@ def descriptiva(D, c):
     if c.TT["montantes"]:
         m = c.TT["metrado"]
         D.h(2, "Canaletas y montantes")
-        D.p("Las coberturas descargan por %s m de canaleta galvanizada de 0.25 x 0.20 m a %d montantes de PVC de 4\" (%s m), ubicadas en las esquinas de las "
-            "edificaciones dentro de falsas columnas de 0.20 x 0.15 m, que entregan a la cuneta más cercana." % (mil(m["canaleta_m"]), m["montantes_und"], mil(m["montante_m"])))
+        D.p("Las coberturas descargan por %s m de canaleta galvanizada de 0.25 x 0.20 m a %d montantes de PVC de 4\", ubicados en las esquinas de las "
+            "edificaciones dentro de falsas columnas de 0.20 x 0.15 x 1.30 m; desde el dado de cada montante, un codo de 90° y tubería PVC de 4\" enterrada "
+            "(%s m) entregan a la cuneta sobre su nivel de agua." % (mil(m["canaleta_m"]), m["montantes_und"], mil(m["tuberia_enterrada_m"])))
     if c.SM["sumideros"]:
         m = c.SM["metrado"]
         D.h(2, "Sumideros de piso")

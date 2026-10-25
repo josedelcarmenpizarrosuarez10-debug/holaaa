@@ -120,7 +120,6 @@ PAR = [("Espesor de muros (m)", "e_muro", "em", "Secciones transversales"), ("Es
        ("Tapa de inspeccion: separacion de la parrilla de 3/8\" (m)", 0.15, "tsep", "Parrilla simple en ambos sentidos"),
        ("Lloradero: espaciamiento (m)", "llor_sep", "lls", "Solo en el muro que da a area verde"),
        ("Canaleta: separacion de soportes (m)", 0.60, "css", "Soportes = REDONDEAR.MAS(L / sep) + 1"),
-       ("Montante: una abrazadera cada (m)", 4.0, "mab", "Abrazaderas = MAX(1, REDONDEAR.MENOS(L / 4))"),
        ("Dado de montante: largo x ancho x alto (m3)", DADO[0] * DADO[1] * DADO[2], "dado", "0.40 x 0.40 x 0.35"),
        ("Falsa columna: concreto por und (m3)", FC["concreto"], "fcc", "0.20 x 0.15 x 1.30"),
        ("Falsa columna: encofrado por und (m2)", FC["encofrado"], "fce", "2 x 1.30 x 0.15 + 1.30 x 0.20"),
@@ -318,21 +317,24 @@ def libro(ruta, C, red, M, P, anchos, V, LLt, TT, SM, proyecto, cfg, tapas):
     nota(wll, rl1 + 2, 1, 8, "Lloradero de tuberia PVC 3\" a media altura del muro, con caja filtrante de 0.30 x 0.30 de grava envuelta en geotextil; solo en el "
          "muro que da a area verde (el que da a vereda o piso no lleva).")
 
-    # MONTANTES
-    cab_hoja(wm, "METRADO DE MONTANTES PVC Ø4\" Y ACCESORIOS", 12)
-    encabezado(wm, 7, ["MONTANTE", "TECHO", "LADO", "N° MONTANTES", "LONGITUD (m)", "TOTAL (m)", "CODO 90°", "COLGADOR", "ABRAZADERA", "FALSA COLUMNA",
-                       "DADO", "DESCARGA A"], [11, 9, 9, 11, 11, 11, 10, 10, 11, 11, 9, 14], alto=40)
+    # MONTANTES (DrenIE: ubicacion, falsa columna, dado y salida enterrada; la altura del montante y sus accesorios los mete el proyectista)
+    cab_hoja(wm, "MONTANTES PVC Ø4\": FALSA COLUMNA, DADO Y SALIDA ENTERRADA DEL DADO A LA CUNETA", 11)
+    encabezado(wm, 7, ["MONTANTE", "TECHO", "LADO", "N° MONTANTES", "FALSA COLUMNA", "DADO", "CODO 90° EN DADO", "TUBERIA ENTERRADA (m)",
+                       "PENDIENTE (%)", "DESCARGA A", "LLEGADA"], [11, 9, 9, 11, 11, 9, 11, 13, 11, 14, 16], alto=40)
     mts = (TT or {}).get("montantes", [])
     for i, m in enumerate(mts):
         r = 8 + i
-        for j, (v, fmt) in enumerate([(m["montante"], None), (m["techo"], None), (m["lado"], None), (1, "0"), (m["L_m"], "0.00"), ("=D%d*E%d" % (r, r), "0.00"),
-                                       ("=D%d*%d" % (r, m["codos90"]), "0"), ("=D%d*%d" % (r, m["colgadores"]), "0"),
-                                       ("=D%d*MAX(1,ROUNDDOWN(E%d/%s,0))" % (r, r, Pk["mab"]), "0"), ("=D%d" % r, "0"), ("=D%d" % r, "0"), (m["cuneta"], None)], 1):
+        for j, (v, fmt) in enumerate([(m["montante"], None), (m["techo"], None), (m["lado"], None), (1, "0"), ("=D%d" % r, "0"), ("=D%d" % r, "0"),
+                                       ("=D%d*%d" % (r, 1 if m.get("tubo_enterrado_m") else 0), "0"), (m.get("tubo_enterrado_m") or 0, "0.00"),
+                                       (m.get("S_tubo_pct"), "0.00"), (m["cuneta"], None), ((m.get("llega") or "NO LLEGA").lower(), None)], 1):
             cel(wm, r, j, v, fmt)
     rm1 = 8 + len(mts)
     cel(wm, rm1, 1, "TOTAL", bold=True); wm.merge_cells(start_row=rm1, start_column=1, end_row=rm1, end_column=3)
-    for j, col in ((4, "D"), (6, "F"), (7, "G"), (8, "H"), (9, "I"), (10, "J"), (11, "K")):
-        cel(wm, rm1, j, "=SUM(%s8:%s%d)" % (col, col, max(8, rm1 - 1)), "0.00" if col == "F" else "0", bold=True, bg=PAR_)
+    for j, col in ((4, "D"), (5, "E"), (6, "F"), (7, "G"), (8, "H")):
+        cel(wm, rm1, j, "=SUM(%s8:%s%d)" % (col, col, max(8, rm1 - 1)), "0.00" if col == "H" else "0", bold=True, bg=PAR_)
+    nota(wm, rm1 + 2, 1, 11, "En el dado, un codo de 90° de 4\" y de ahi la tuberia PVC 4\" enterrada hasta la cuneta, llegando sobre el nivel del agua "
+         "de la cuneta + 0.05 m (se mide en la hoja METRADO  EN PISO). La altura del montante, el tubo que sube a la canaleta, los codos del desvio, "
+         "colgadores y abrazaderas los metra el proyectista con los cortes de arquitectura.")
 
     # CANALETAS
     cab_hoja(wca, "METRADO DE CANALETAS DE PLANCHA GALVANIZADA", 10)
@@ -363,8 +365,8 @@ def libro(ruta, C, red, M, P, anchos, V, LLt, TT, SM, proyecto, cfg, tapas):
     ment = [m for m in (TT or {}).get("montantes", []) if m.get("tubo_enterrado_m")]       # salidas de montante enterradas
     for i, m in enumerate(ment):
         r = 8 + len(sms) + i
-        for j, (v, fmt) in enumerate([(m["montante"] + " (salida)", None), (None, "0.0"), (m["cuneta"], None), (m["tubo_enterrado_m"], "0.00"), (0, "0"),
-                                       (0, "0"), (0, "0"), (m.get("S_tubo_pct", 1.0), "0.00")], 1):
+        for j, (v, fmt) in enumerate([(m["montante"] + " (dado)", None), (None, "0.0"), (m["cuneta"], None), (m["tubo_enterrado_m"], "0.00"), (0, "0"),
+                                       (1, "0"), (0, "0"), (m.get("S_tubo_pct", 1.0), "0.00")], 1):
             cel(wsu, r, j, v, fmt)
     rs1 = 8 + len(sms) + len(ment)
     cel(wsu, rs1, 1, "TOTAL", bold=True); wsu.merge_cells(start_row=rs1, start_column=1, end_row=rs1, end_column=3)
@@ -453,9 +455,8 @@ def libro(ruta, C, red, M, P, anchos, V, LLt, TT, SM, proyecto, cfg, tapas):
         titulo(p(".05"), "RED DE COLECCIÓN")
     if mts:
         titulo(p(".05.01"), "RED DE RECOLECCION TECHO")
-        partida(p(".05.01.01"), "MONTANTE CON TUBERÍA PVC DE 4\"", "m", [("Montantes (hoja METRADO MONTANTES)", None, None, None, None, None, "=+'METRADO MONTANTES'!F%d" % rm1)])
         r_fc = partida(p(".05.01.02"), "FALSA COLUMNA P/MONTANTE DE 0.20m x 0.15m x 1.30m", "und",
-                       [("Una por montante (hoja METRADO MONTANTES)", None, None, None, None, None, "=+'METRADO MONTANTES'!J%d" % rm1)])
+                       [("Una por montante (hoja METRADO MONTANTES)", None, None, None, None, None, "=+'METRADO MONTANTES'!E%d" % rm1)])
         partida(p(".05.01.02.01"), "CONCRETO F´C=175 KG/CM2 EN FALSA COLUMNA", "m³", [("Falsas columnas x 0.20 x 0.15 x 1.30", "=K%d" % r_fc, None, None, None, None, "=C{r}*{fcc}")])
         partida(p(".05.01.02.02"), "ENCOFRADO Y DESENCOFRADO EN FALSA COLUMNA - MONTANTE PLUVIAL", "m²", [("Falsas columnas x 0.65 m2", "=K%d" % r_fc, None, None, None, None, "=C{r}*{fce}")])
         partida(p(".05.01.02.03"), "ACERO FY=4200 KG/CM2 EN FALSA COLUMNA (MONTANTE PLUVIAL)", "kg", [("Falsas columnas x 5.6112 kg", "=K%d" % r_fc, None, None, None, None, "=C{r}*{fca}")])
@@ -470,13 +471,11 @@ def libro(ruta, C, red, M, P, anchos, V, LLt, TT, SM, proyecto, cfg, tapas):
         partida(p(".05.02.01"), "TUBERIA DESAGÜE PVC-CP Ø4\"", "m", [("Sumideros y salidas de montante enterradas a la cuneta (hoja METRADO  EN PISO (SUMIDERO))", None, None, None, None, None, "=+'METRADO  EN PISO (SUMIDERO)'!D%d" % rs1)])
     if sms:
         partida(p(".05.02.02"), "SUMIDERO METALICO C/PLATINA 1\" X 3/16\"", "und", [("Sumideros", None, None, None, None, None, "=+'METRADO  EN PISO (SUMIDERO)'!E%d" % rs1)])
-        partida(p(".05.02.03"), "CODO DESAGÜE PVC Ø4\" x 90°", "und", [("Codos de salida del sumidero", None, None, None, None, None, "=+'METRADO  EN PISO (SUMIDERO)'!F%d" % rs1)])
+    if sms or ment:
+        partida(p(".05.02.03"), "CODO DESAGÜE PVC Ø4\" x 90°", "und", [("Codos de salida de sumideros y de los dados de montante", None, None, None, None, None,
+                                                                         "=+'METRADO  EN PISO (SUMIDERO)'!F%d" % rs1)])
+    if sms:
         partida(p(".05.02.04"), "TEE SANITARIA DESAGÜE PVC Ø4\"", "und", [("Tees", None, None, None, None, None, "=+'METRADO  EN PISO (SUMIDERO)'!G%d" % rs1)])
-    if mts:
-        titulo(p(".05.03"), "ACCESORIOS")
-        partida(p(".05.03.02"), "CODO DESAGÜE PVC Ø4\" x 90°", "und", [("Codos de montantes (hoja METRADO MONTANTES)", None, None, None, None, None, "=+'METRADO MONTANTES'!G%d" % rm1)])
-        partida(p(".05.03.04"), "COLGADOR F°G° P/TUBERIA PVC Ø4\"", "und", [("Colgadores (hoja METRADO MONTANTES)", None, None, None, None, None, "=+'METRADO MONTANTES'!H%d" % rm1)])
-        partida(p(".05.03.05"), "ABRAZADERA DE F°G° P/TUBERIA PVC Ø4\"", "und", [("Abrazaderas (hoja METRADO MONTANTES)", None, None, None, None, None, "=+'METRADO MONTANTES'!I%d" % rm1)])
 
     # RESUMEN
     cel(wr, 2, 1, "RESUMEN METRADOS DE DRENAJE PLUVIAL", bold=True, size=14, borde=False); wr.merge_cells("A2:D2")

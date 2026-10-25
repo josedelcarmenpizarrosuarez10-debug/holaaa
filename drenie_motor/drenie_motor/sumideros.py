@@ -84,7 +84,10 @@ def _cf_en(R, eje, punto):
     return Pf[-1][1], Pf[-1][2]
 
 
-def calcular(mapa, sitio, R, P, I, cfg, descargas=()):
+def calcular(mapa, sitio, R, P, I, cfg, descargas=(), V=None):
+    from . import llegada
+    tir = llegada.tirantes(V, P, R) if V else {}
+    anc = llegada.anchos(V) if V else {}
     ejes_l = [[R["nudos"][n] for n in r["nudos"]] for r in R["ramales"]]
     prop, K = proponer(mapa, ejes_l, P, I, cfg)
     tp = K["tp"]; Qt = _q_tubo(tp)
@@ -103,37 +106,46 @@ def calcular(mapa, sitio, R, P, I, cfg, descargas=()):
         manual = bool(cfg.get("sumideros"))
 
         def tubo(p):
-            eje, ln, _ = min(segs, key=lambda e: e[1].distance(p))
-            q = ln.interpolate(ln.project(p)); L = p.distance(q)
-            nct, cf = _cf_en(R, eje, (q.x, q.y))
+            # la cuneta mas cercana; si alli el tubo no llega sobre el agua, otra cuneta a no mas de 5 m adicionales donde si llegue
+            dmin = min(e[1].distance(p) for e in segs)
+            r0 = None
+            for e in sorted((e for e in segs if e[1].distance(p) <= dmin + 5.0), key=lambda e: e[1].distance(p)):
+                r = _tubo_a(p, e)
+                if r[7]: return r
+                r0 = r0 or r
+            return r0
+
+        def _tubo_a(p, e):
+            eje, ln, clave = e
+            q = ln.interpolate(ln.project(p)); L = max(p.distance(q) - anc.get(clave, P.get("b_int", 0.30)) / 2.0, 0.10)
+            nct, cf = _cf_en(R, eje, (q.x, q.y)); y = tir[clave]((q.x, q.y)) if clave in tir else 0.10
             z_piso = sitio.rasante(p.x, p.y); z_sal = z_piso - tp["prof_caja"] - tp["D_tubo"]
-            for S_ in (tp["S_tubo"], tp["S_min"]):                       # 1 %; si no llega sobre el fondo, el minimo (0.5 %)
-                if z_sal - S_ * L >= cf - 1e-6: return eje, q, L, cf, z_piso, z_sal, S_, True
-            return eje, q, L, cf, z_piso, z_sal, tp["S_tubo"], False
-        eje, q, L, cf, z_piso, z_sal, S_t, ok = tubo(p)
+            # 1 %; si no llega sobre el agua de la cuneta + 5 cm, el minimo (0.5 %)
+            S_, zl, nivel, ok = llegada.resolver(z_sal, L, cf, y, (tp["S_tubo"], tp["S_min"]))
+            return eje, q, L, cf, z_piso, z_sal, S_, ok, clave, y, nivel
+        eje, q, L, cf, z_piso, z_sal, S_t, ok, tramo, yv, nivel = tubo(p)
         if not ok and not manual:                                       # propuesta del programa: se acerca a la cuneta hasta que llegue
             for k in range(1, 40):
                 p2 = Point(p.x + (q.x - p.x) * k / 40, p.y + (q.y - p.y) * k / 40)
                 if libres.buffer(-0.40).contains(p2):                  # sin salir del area libre (nunca a area verde ni vereda)
                     r = tubo(p2)
-                    if r[-1]: p = p2; eje, q, L, cf, z_piso, z_sal, S_t, ok = r; break
+                    if r[7]: p = p2; eje, q, L, cf, z_piso, z_sal, S_t, ok, tramo, yv, nivel = r; break
         z_lleg = z_sal - S_t * L
-        tramo = min(segs, key=lambda e: e[1].distance(p))[2]
-        # profundidad que necesita la cuneta en la llegada para recibir el tubo al 0.5 % sobre su fondo (la usa el motor para profundizar)
-        h_req = round(sitio.rasante(q.x, q.y) - (z_sal - tp["S_min"] * L) + 0.01, 3)
+        # profundidad que necesita la cuneta en la llegada para recibir el tubo al 0.5 % sobre el agua (la usa el motor para profundizar)
+        h_req = round(llegada.h_req(sitio.rasante(q.x, q.y), z_sal, L, yv, tp["S_min"]), 3)
         A = s.get("A_m2") or (math.pi * tp["radio"] ** 2)
         Qs = K["q_m2"] * A
         if ok and S_t < tp["S_tubo"] - 1e-9:
-            avisos.append("S-%02d: con %.1f %% el tubo llegaria bajo el fondo de %s; se uso la pendiente minima de %.1f %%." % (i + 1, 100 * tp["S_tubo"], eje, 100 * S_t))
+            avisos.append("S-%02d: con %.1f %% el tubo llegaria bajo el agua de %s; se uso la pendiente minima de %.1f %%." % (i + 1, 100 * tp["S_tubo"], eje, 100 * S_t))
         if not ok:
-            avisos.append("S-%02d: la tuberia llega a %.3f, bajo la cota de fondo de %s (%.3f): acercar el sumidero a la cuneta o "
-                          "revisar niveles (no se deja tuberia enterrada bajo la cuneta)." % (i + 1, z_lleg, eje, cf))
+            avisos.append("S-%02d: la tuberia llega a %.3f, bajo el nivel del agua de %s (%.3f = cota de fondo %.3f + tirante + 0.05): "
+                          "se profundiza ese tramo o se acerca el sumidero a la cuneta." % (i + 1, z_lleg, eje, nivel, cf))
         if Qs > Qt:
             avisos.append("S-%02d recibe %.2f l/s, mas que su tubo de 4\" (%.2f l/s): agregar otro sumidero en esa zona." % (i + 1, Qs, Qt))
         sums.append({"sumidero": "S-%02d" % (i + 1), "x": round(p.x, 3), "y": round(p.y, 3), "zona": s.get("zona"), "A_m2": round(A, 1),
                      "Q_ls": round(Qs, 2), "cuneta": eje, "hacia": [round(q.x, 3), round(q.y, 3)], "L_tubo_m": round(L, 2), "S_tubo_pct": round(100 * S_t, 2),
                      "z_piso": round(z_piso, 3), "z_salida": round(z_sal, 3), "z_llegada": round(z_lleg, 3), "cf_cuneta": round(cf, 3),
-                     "llega": "SOBRE EL FONDO" if ok else "BAJO EL FONDO", "codos90": tp["codos90"],
+                     "tirante_cuneta": round(yv, 3), "nivel_min": round(nivel, 3), "llega": llegada.estado(ok), "codos90": tp["codos90"],
                      "tramo": tramo, "h_req_cuneta": h_req})
     met = {"sumideros_und": len(sums), "tuberia_4_m": round(sum(x["L_tubo_m"] for x in sums), 2), "codo90_und": sum(x["codos90"] for x in sums), "tee_und": 0}
     return {"sumideros": sums, "metrado": met, "avisos": avisos,
@@ -156,11 +168,12 @@ def hoja(wb, Sm):
     from openpyxl.styles import Font
     ws = wb.create_sheet("SUMIDEROS")
     ws["A1"] = "SUMIDEROS DE PISO Y TUBERIA PVC 4\" A LA CUNETA (solo areas libres sin cobertura)"; ws["A1"].font = Font(bold=True, size=12)
-    enc = ["SUMIDERO", "ZONA", "AREA (m2)", "Q (l/s)", "CUNETA", "TUBERIA (m)", "CODO 90", "NIVEL PISO", "SALIDA", "LLEGADA", "C.F. CUNETA", "LLEGA"]
+    enc = ["SUMIDERO", "ZONA", "AREA (m2)", "Q (l/s)", "CUNETA", "TUBERIA (m)", "CODO 90", "NIVEL PISO", "SALIDA", "LLEGADA", "C.F. CUNETA",
+           "TIRANTE", "NIVEL MINIMO (+5 cm)", "LLEGA"]
     for j, h in enumerate(enc): ws.cell(3, 1 + j, h).font = Font(bold=True)
     for i, s in enumerate(Sm["sumideros"]):
         for j, v in enumerate([s["sumidero"], s["zona"], s["A_m2"], s["Q_ls"], s["cuneta"], s["L_tubo_m"], s["codos90"], s["z_piso"], s["z_salida"],
-                               s["z_llegada"], s["cf_cuneta"], s["llega"]]):
+                               s["z_llegada"], s["cf_cuneta"], s.get("tirante_cuneta"), s.get("nivel_min"), s["llega"]]):
             ws.cell(4 + i, 1 + j, v)
     f = 4 + len(Sm["sumideros"])
     m = Sm["metrado"]

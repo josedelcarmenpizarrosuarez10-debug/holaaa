@@ -8,10 +8,12 @@ Por cada lado de techo (cada mitad a dos aguas, o cada parte que sigue una flech
   4 por lado: si con 1/4 harian falta mas, se quedan 4 y se admite el llenado hasta 7/24; si aun no alcanza, se avisa.
   N.° de montantes del lado = el mayor de: area / area que atiende un montante de 4", y lo que pida la canaleta (cada montante
   recibe Q / n por la canaleta). Se reparten a lo largo del alero, en el centro de su parte.
-- Cada montante baja por el muro y sale a la cuneta mas cercana (salida PVC horizontal); si no hay cuneta a menos de 3 m se avisa.
-- Metrado (reglas de la planilla del usuario): canaleta = largo del alero; soportes = REDONDEAR.MAS(L / 0.60) + 1; 2 tapas
-  laterales por canaleta; 1 boquilla por montante; montante = altura del alero + desvio bajo el alero + salida a la cuneta;
-  3 codos de 90 por montante; 2 colgadores (desvio bajo el alero); abrazaderas = MAX(1, REDONDEAR.MENOS(L / 4)).
+- Cada montante va en una esquina, dentro de una falsa columna de 0.20 x 0.15 x 1.30 sobre un dado; en el dado un codo de 90
+  de 4" y de ahi la tuberia PVC 4" enterrada hasta la cuneta (hasta 5 m), al 1 % (minimo 0.5 %), llegando sobre el nivel del agua
+  de la cuneta + 5 cm. La cuneta puede ir a lo largo del alero o transversal: basta que el tubo de cada montante llegue.
+- Metrado de DrenIE: canaleta = largo del alero; soportes = REDONDEAR.MAS(L / 0.60) + 1; 2 tapas laterales por canaleta;
+  1 boquilla por montante; falsa columna y dado por montante; codo del dado y tuberia enterrada. La altura del montante, el tubo
+  que sube a la canaleta, los codos del desvio, colgadores y abrazaderas los mete el proyectista (cortes de arquitectura).
 """
 import math
 
@@ -65,7 +67,7 @@ def _altura(techo_pol, cfg_alt):
 
 PARAM = {"canaleta_b": 0.25, "canaleta_h": 0.20, "BL": 0.05, "S": 0.01, "n": 0.013, "rs": 0.25, "rs_max": 7 / 24, "max_por_lado": 4,
          "desvio": 0.50, "entrada_cuneta": 0.30, "sep_soporte": 0.60, "abrazadera_cada": 4.0, "colgadores": 2, "codos90": 3,
-         "salida_max": 3.0, "tubo_max": 25.0, "S_tubo": 0.01, "S_tubo_min": 0.005, "prof_tubo": 0.40, "h_cuneta_max": 0.80, "d_montante": 4, "fc_largo": 0.20, "fc_ancho": 0.15, "esquina_max": 3.0, "alero_vuelo": 0.60}
+         "tubo_max": 5.0, "S_tubo": 0.01, "S_tubo_min": 0.005, "prof_tubo": 0.20, "prof_tubo_min": 0.15, "h_cuneta_max": 0.80, "d_montante": 4, "fc_largo": 0.20, "fc_ancho": 0.15, "esquina_max": 3.0, "alero_vuelo": 0.60}
 
 
 def _normal_alero(ag, al):
@@ -151,21 +153,21 @@ def _adentro(sitio, p, d=0.30):
     return b.interpolate(b.project(p))
 
 
-def calcular(sitio, R, P, I, cfg, descargas=()):
-    """R: red con cotas. Devuelve dict con lados, montantes, metrado y avisos.
-    Montante a mas de salida_max (3 m) de una cuneta: su salida es tuberia PVC 4" enterrada hasta la cuneta mas cercana (hasta
-    tubo_max, 25 m), al 1 % (minimo 0.5 %), que debe llegar sobre la cota de fondo; se mide en la red de piso, no en el montante."""
+def calcular(sitio, R, P, I, cfg, descargas=(), V=None):
+    """R: red con cotas; V: verificacion (tirantes y anchos de cada tramo). Devuelve dict con lados, montantes, metrado y avisos.
+    DrenIE ubica los montantes (esquinas) y mide su salida: en el dado un codo de 90 de 4" y de ahi la tuberia PVC 4" enterrada hasta
+    la cara interior de la cuneta (hasta tubo_max, 5 m; usuario 25-10-2026), al 1 % (minimo 0.5 %), llegando sobre el nivel del agua
+    de la cuneta + 5 cm (llegada.py). La altura del montante, el tubo que sube a la canaleta, abrazaderas y colgadores los mete el
+    proyectista con los cortes de arquitectura. No hace falta que la cuneta vaya a lo largo del alero: basta que cada montante llegue."""
     from .sumideros import _cf_en
+    from . import llegada
     lados0, avisos, K = ubicar(sitio, P, I, cfg)
     tc, hu = K["tc"], K["hu"]
-    alturas = cfg.get("altura_alero", {"defecto": 3.50})
+    tir = llegada.tirantes(V, P, R) if V else {}
+    anc = llegada.anchos(V) if V else {}
     Nn = R["nudos"]
-    segs = [(r["codigo"], LineString([Nn[t["de"]], Nn[t["a"]]])) for r in R["ramales"] for t in r["tramos"] if t["origen"] != "pase"]
-    red = unary_union([s for _, s in segs])
     segs_e = [(r["codigo"], LineString([Nn[t["de"]], Nn[t["a"]]]), "%s|%s|%s" % (r["codigo"], t["de"], t["a"])) for r in R["ramales"]
-              for t in r["tramos"] if t["origen"] != "pase" and t["a"] not in descargas and math.dist(Nn[t["de"]], Nn[t["a"]]) > 1.0]
-    techo_pol = {}
-    for l in lados0: techo_pol[l["techo"]] = unary_union([techo_pol.get(l["techo"], l["ag"]["poligono"]), l["ag"]["poligono"]])
+              for t in r["tramos"] if t["origen"] != "pase" and math.dist(Nn[t["de"]], Nn[t["a"]]) > 1.0]
     lados, montantes = [], []
     for l in lados0:
         n = len(l["pos"]); A, Q, L = l["A"], l["Q"], l["L"]
@@ -178,67 +180,60 @@ def calcular(sitio, R, P, I, cfg, descargas=()):
             avisos.append("%s %s: con %d montantes de %d\" cada uno lleva %.2f l/s (pide %.2f\"); poner %d montantes de %d\" en ese lado." % (
                 l["techo"], l["lado"], n, Dad, Qm, D, falta, Dad))
         y = tirante(Qm / 1000.0, tc["S"], tc["n"], tc["canaleta_b"]) if n else 0.0
-        h = _altura(techo_pol[l["techo"]], alturas)
         ms = []
-        for (c, V, hacia) in l["pos"]:
+        for (c, Vx, hacia) in l["pos"]:
             p = Point(c)
-            d = red.distance(p) if not red.is_empty else float("inf")
-            seg = min(segs, key=lambda s: s[1].distance(p)) if segs else None
-            q = seg[1].interpolate(seg[1].project(p)) if seg else None
-            Lm = h + tc["desvio"] + (d if d <= tc["salida_max"] else 0.0) + tc["entrada_cuneta"]
             m = {"montante": "M-%02d" % (len(montantes) + 1), "techo": l["techo"], "lado": l["lado"], "x": round(c[0], 3), "y": round(c[1], 3),
-                 "esquina": [round(V[0], 3), round(V[1], 3)], "a_lo_largo": [round(hacia[0], 4), round(hacia[1], 4)],
-                 "hacia_alero": [round(l["nrm"][0], 4), round(l["nrm"][1], 4)],
-                 "cuneta": seg[0] if seg and d <= tc["salida_max"] else "SIN CUNETA CERCANA", "salida_m": round(d, 2),
-                 "hacia": [round(q.x, 3), round(q.y, 3)] if q is not None and d <= tc["salida_max"] else None,
-                 "altura_alero": h, "L_m": round(Lm, 2), "Q_ls": round(Qm, 2), "D_req_pulg": round(D, 2), "D_pulg": Dad, "llenado": round(rs, 3),
-                 "codos90": tc["codos90"], "colgadores": tc["colgadores"], "abrazaderas": max(1, math.floor(Lm / tc["abrazadera_cada"]))}
-            if d > tc["salida_max"] and segs_e:
-                # la tuberia va dentro del cerco: si la esquina del techo cae fuera, se toma el piso del lado de adentro
-                pin = p if sitio.dentro(p.x, p.y) else _adentro(sitio, p)
-                z_sal = sitio.rasante(pin.x, pin.y) - tc["prof_tubo"]
+                 "esquina": [round(Vx[0], 3), round(Vx[1], 3)], "a_lo_largo": [round(hacia[0], 4), round(hacia[1], 4)],
+                 "hacia_alero": [round(l["nrm"][0], 4), round(l["nrm"][1], 4)], "Q_ls": round(Qm, 2), "D_req_pulg": round(D, 2), "D_pulg": Dad,
+                 "llenado": round(rs, 3), "codo_dado": 1, "cuneta": "SIN CUNETA A MENOS DE %.0f m" % tc["tubo_max"], "hacia": None,
+                 "salida_m": None, "llega": None, "tramo": None}
+            # la tuberia va dentro del cerco: si la esquina del techo cae fuera, se toma el piso del lado de adentro
+            pin = p if sitio.dentro(p.x, p.y) else _adentro(sitio, p)
+            z_piso = sitio.rasante(pin.x, pin.y)
 
-                def opcion(e):
-                    q_ = e[1].interpolate(e[1].project(p)); L_ = p.distance(q_); cf_ = _cf_en(R, e[0], (q_.x, q_.y))[1]
-                    h_ = sitio.rasante(q_.x, q_.y) - (z_sal - tc["S_tubo_min"] * L_) + 0.01
-                    return (z_sal - tc["S_tubo_min"] * L_ < cf_ - 1e-6, L_), e, q_, L_, cf_, h_
-                ops = sorted((opcion(e) for e in segs_e if e[1].distance(p) <= tc["tubo_max"]), key=lambda o: o[0])
-                if ops:
-                    _, (eje, ln, clave), qe, Le, cf, hreq = ops[0]
-                    St = next((S_ for S_ in (tc["S_tubo"], tc["S_tubo_min"]) if z_sal - S_ * Le >= cf - 1e-6), tc["S_tubo"])
-                    z_ll = z_sal - St * Le
-                    m.update({"cuneta": eje, "hacia": [round(qe.x, 3), round(qe.y, 3)], "salida_m": round(Le, 2), "tubo_enterrado_m": round(Le, 2),
-                              "S_tubo_pct": round(100 * St, 2), "z_salida": round(z_sal, 3), "z_llegada": round(z_ll, 3), "cf_cuneta": round(cf, 3),
-                              "llega": "SOBRE EL FONDO" if z_ll >= cf - 1e-6 else "BAJO EL FONDO", "tramo": clave,
-                              "h_req_cuneta": round(hreq, 3)})
-                    if z_ll < cf - 1e-6 and hreq > tc["h_cuneta_max"]:
-                        # no se entierra la cuneta para recibirla: el terreno en el montante es mas bajo que todas las cunetas cercanas
-                        m.update({"llega": "BAJO EL FONDO (TERRENO BAJO)", "tramo": None})
-                        avisos.append("%s (%s %s): el piso junto al montante (%.2f) es mas bajo que la cuneta mas cercana (%s, C.F. %.3f); "
-                                      "la tuberia no llega por gravedad sin profundizar la cuneta a %.2f m: llevar ese montante a otra cuneta, "
-                                      "a un sumidero o a un lado mas bajo del techo." % (m["montante"], l["techo"], l["lado"], z_sal + tc["prof_tubo"],
-                                                                                        eje, cf, hreq))
-                else:
-                    avisos.append("%s (%s %s) no tiene cuneta a menos de %.1f m (la mas cercana a %.1f m): revisar si falta cuneta o "
-                                  "si descarga a otro lugar." % (m["montante"], l["techo"], l["lado"], tc["tubo_max"], d))
+            def opcion(e):
+                # el tubo va embebido bajo el piso: sale del codo del dado con su fondo a prof_tubo (0.20) bajo el piso; si asi no llega sobre
+                # el agua, se sube hasta prof_tubo_min (0.15, la clave queda bajo el angulo de la rejilla); recien despues se profundiza la cuneta
+                q_ = e[1].interpolate(e[1].project(p))
+                L_ = max(p.distance(q_) - anc.get(e[2], P.get("b_int", 0.30)) / 2.0, 0.10)       # hasta la cara interior de la cuneta
+                cf_ = _cf_en(R, e[0], (q_.x, q_.y))[1]; y_ = tir[e[2]]((q_.x, q_.y)) if e[2] in tir else 0.10
+                for pr in (tc["prof_tubo"], tc["prof_tubo_min"]):
+                    z0 = z_piso - pr
+                    S_, zl_, nv_, ok_ = llegada.resolver(z0, L_, cf_, y_, (tc["S_tubo"], tc["S_tubo_min"]))
+                    if ok_: break
+                hr_ = llegada.h_req(sitio.rasante(q_.x, q_.y), z_piso - tc["prof_tubo_min"], L_, y_, tc["S_tubo_min"])
+                return (not ok_, L_), e, q_, L_, cf_, y_, S_, zl_, nv_, ok_, hr_, z0
+            ops = sorted((opcion(e) for e in segs_e if e[1].distance(p) - anc.get(e[2], 0.30) / 2.0 <= tc["tubo_max"]), key=lambda o: o[0])
+            if ops:
+                _, (eje, ln, clave), qe, Le, cf, yv, St, z_ll, nivel, ok, hreq, z_ini = ops[0]
+                m.update({"cuneta": eje, "hacia": [round(qe.x, 3), round(qe.y, 3)], "salida_m": round(Le, 2), "tubo_enterrado_m": round(Le, 2),
+                          "S_tubo_pct": round(100 * St, 2), "z_salida": round(z_ini, 3), "z_llegada": round(z_ll, 3), "cf_cuneta": round(cf, 3),
+                          "tirante_cuneta": round(yv, 3), "nivel_min": round(nivel, 3), "llega": llegada.estado(ok), "tramo": clave,
+                          "h_req_cuneta": round(hreq, 3)})
+                if not ok and hreq > tc["h_cuneta_max"]:
+                    # no se entierra la cuneta para recibirla
+                    m.update({"llega": "BAJO EL AGUA (TERRENO BAJO)", "tramo": None})
+                    avisos.append("%s (%s %s): la tuberia del dado llega a %.3f, bajo el nivel del agua de %s (%.3f); para recibirla la cuneta "
+                                  "tendria que tener %.2f m: llevar ese montante a otra esquina u otra cuneta, o poner una cuneta mas cerca." % (
+                                      m["montante"], l["techo"], l["lado"], z_ll, eje, nivel, hreq))
+            else:
+                avisos.append("%s (%s %s) no tiene cuneta a menos de %.1f m: su tubo no llega; poner una cuneta cerca de esa esquina "
+                              "(a lo largo del alero o transversal) o llevar el montante a otra esquina." % (m["montante"], l["techo"], l["lado"], tc["tubo_max"]))
             montantes.append(m); ms.append(m["montante"])
         lados.append({"techo": l["techo"], "lado": l["lado"], "A_m2": round(A, 2), "L_canaleta_m": round(L, 2), "Q_ls": round(Q, 2),
                       "montantes": n, "Q_por_montante_ls": round(Qm, 2), "tirante_m": round(y, 3), "borde_libre_m": round(tc["canaleta_h"] - y, 3),
                       "canaleta": "CUMPLE" if y <= hu + 1e-6 else "NO CUMPLE", "soportes": math.ceil(L / tc["sep_soporte"] - 1e-9) + 1,
                       "tapas": 2, "boquillas": n, "ids": ms, "alero": [list(c) for c in l["alero"].coords], "caida": l["ag"]["tipo"]})
+    ent = [m for m in montantes if m.get("tubo_enterrado_m")]
     met = {"canaleta_m": round(sum(l["L_canaleta_m"] for l in lados), 2), "soportes_und": sum(l["soportes"] for l in lados),
            "tapas_und": sum(l["tapas"] for l in lados), "boquillas_und": sum(l["boquillas"] for l in lados),
-           "montante_m": round(sum(m["L_m"] for m in montantes), 2), "montantes_und": len(montantes), "falsas_columnas_und": len(montantes),
-           "codo90_und": sum(m["codos90"] for m in montantes), "colgador_und": sum(m["colgadores"] for m in montantes),
-           "abrazadera_und": sum(m["abrazaderas"] for m in montantes),
-           "tuberia_enterrada_m": round(sum(m.get("tubo_enterrado_m", 0.0) for m in montantes), 2),
-           "montantes_con_tuberia_und": sum(1 for m in montantes if m.get("tubo_enterrado_m"))}
+           "montantes_und": len(montantes), "falsas_columnas_und": len(montantes), "dados_und": len(montantes),
+           "codo_dado_und": len(ent), "tuberia_enterrada_m": round(sum(m["tubo_enterrado_m"] for m in ent), 2),
+           "montantes_con_tuberia_und": len(ent), "montantes_sin_cuneta_und": len(montantes) - len(ent)}
     criterios = {"q_l_s_m2": round(K["q_m2"], 5), "Q_montante_4_ls": round(K["Q4"], 2), "A_por_montante_4_m2": round(K["A4"], 1),
-                 "Q_canaleta_ls": round(K["Qcan"], 2), "parametros": tc, "altura_alero": alturas,
+                 "Q_canaleta_ls": round(K["Qcan"], 2), "parametros": tc,
                  "ubicacion": "visor (proyectista)" if cfg.get("montantes") else "esquinas de la edificacion (2 por lado; mas si el area lo pide)"}
-    if not alturas.get("techos"):
-        avisos.append("Altura de alero de %.2f m para todos los techos (valor por defecto): poner la altura de cada edificacion "
-                      "(altura_alero) para la longitud real de los montantes." % float(alturas.get("defecto", 3.5)))
     return {"lados": lados, "montantes": montantes, "metrado": met, "criterios": criterios, "avisos": avisos}
 
 
@@ -270,13 +265,15 @@ def excel(T, ruta, SM=None):
     for j, v in ((4, m["canaleta_m"]), (5, m["soportes_und"]), (6, m["tapas_und"]), (7, m["boquillas_und"])):
         ws.cell(f, 1, "TOTAL").font = neg; c = ws.cell(f, 1 + j, v); c.font = neg; c.border = borde
     w = wb.create_sheet("MONTANTES")
-    w["A1"] = "MONTANTES PVC (Wyly-Eaton, rs = %.2f; hasta 7/24 con 4 por lado) Y ACCESORIOS" % tc["rs"]; w["A1"].font = Font(bold=True, size=12)
-    f = tabla(w, 3, ["MONTANTE", "TECHO", "LADO", "Q (l/s)", "D REQ. (pulg)", "D (pulg)", "ALTURA ALERO (m)", "SALIDA (m)", "LONGITUD (m)",
-                     "CODO 90", "COLGADOR", "ABRAZADERA", "DESCARGA A"],
-              [[x["montante"], x["techo"], x["lado"], x["Q_ls"], x["D_req_pulg"], x["D_pulg"], x["altura_alero"], x["salida_m"], x["L_m"],
-                x["codos90"], x["colgadores"], x["abrazaderas"], x["cuneta"]] for x in T["montantes"]],
-              [None, None, None, "0.00", "0.00", "0", "0.00", "0.00", "0.00", "0", "0", "0", None])
-    for j, v in ((8, m["montante_m"]), (9, m["codo90_und"]), (10, m["colgador_und"]), (11, m["abrazadera_und"])):
+    w["A1"] = "MONTANTES PVC 4\" (Wyly-Eaton, rs = %.2f; hasta 7/24 con 4 por lado): UBICACION Y SALIDA ENTERRADA DEL DADO A LA CUNETA" % tc["rs"]
+    w["A1"].font = Font(bold=True, size=12)
+    f = tabla(w, 3, ["MONTANTE", "TECHO", "LADO", "ESTE (m)", "NORTE (m)", "Q (l/s)", "D REQ. (pulg)", "D (pulg)", "CODO 90 EN DADO", "CUNETA",
+                     "TUBERIA ENTERRADA (m)", "S (%)", "COTA SALIDA", "COTA LLEGADA", "COTA DE FONDO", "TIRANTE (m)", "NIVEL MINIMO (+5 cm)", "LLEGA"],
+              [[x["montante"], x["techo"], x["lado"], x["x"], x["y"], x["Q_ls"], x["D_req_pulg"], x["D_pulg"], 1 if x.get("tubo_enterrado_m") else 0,
+                x["cuneta"], x.get("tubo_enterrado_m"), x.get("S_tubo_pct"), x.get("z_salida"), x.get("z_llegada"), x.get("cf_cuneta"),
+                x.get("tirante_cuneta"), x.get("nivel_min"), x.get("llega") or "NO LLEGA"] for x in T["montantes"]],
+              [None, None, None, "0.000", "0.000", "0.00", "0.00", "0", "0", None, "0.00", "0.00", "0.000", "0.000", "0.000", "0.000", "0.000", None])
+    for j, v in ((8, m["codo_dado_und"]), (10, m["tuberia_enterrada_m"])):
         w.cell(f, 1, "TOTAL").font = neg; c = w.cell(f, 1 + j, v); c.font = neg; c.border = borde
     k = wb.create_sheet("CRITERIOS")
     cr = T["criterios"]
@@ -284,8 +281,10 @@ def excel(T, ruta, SM=None):
              ("Area que atiende un montante de 4\" (m2)", cr["A_por_montante_4_m2"]), ("Capacidad de la canaleta con borde libre (l/s)", cr["Q_canaleta_ls"]),
              ("Seccion de canaleta (m)", "%.2f x %.2f" % (tc["canaleta_b"], tc["canaleta_h"])), ("Pendiente de canaleta", "%.1f %%" % (100 * tc["S"])),
              ("Manning n", tc["n"]), ("Soportes de platina F°G° 1\" x 1/8\"", "@ %.2f m (REDONDEAR.MAS(L/%.2f) + 1)" % (tc["sep_soporte"], tc["sep_soporte"])),
-             ("Montante", "altura de alero + desvio %.2f + salida a la cuneta + %.2f" % (tc["desvio"], tc["entrada_cuneta"])),
-             ("Accesorios por montante", "%d codos de 90, %d colgadores, abrazaderas MAX(1, REDONDEAR.MENOS(L/%.0f))" % (tc["codos90"], tc["colgadores"], tc["abrazadera_cada"]))]
+             ("Salida del montante", "codo de 90 de 4\" en el dado y tuberia PVC 4\" enterrada hasta la cuneta (maximo %.1f m), S = %.1f %% (minimo %.1f %%)" % (
+                 tc["tubo_max"], 100 * tc["S_tubo"], 100 * tc["S_tubo_min"])),
+             ("Llegada a la cuneta", "fondo del tubo sobre el nivel del agua de la cuneta (cota de fondo + tirante) + 0.05 m"),
+             ("A cargo del proyectista", "altura del montante, tubo que sube a la canaleta, codos del desvio, colgadores y abrazaderas")]
     for i, (a, b) in enumerate(filas):
         k.cell(2 + i, 1, a).border = borde; k.cell(2 + i, 2, b).border = borde
     k.column_dimensions["A"].width = 52; k.column_dimensions["B"].width = 60
