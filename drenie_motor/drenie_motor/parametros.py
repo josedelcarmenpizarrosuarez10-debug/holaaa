@@ -53,6 +53,12 @@ PARAMETROS = {
     # (juegos: piso de caucho, C 0.88, indicacion del usuario 24-10-2026 para la OE-04 de Barranquita)
     "C": {"techo": 0.88, "vereda": 0.88, "patio": 0.88, "pavimento": 0.88, "estacionamiento": 0.88, "juegos": 0.88,
           "cuneta": 0.88, "verde": 0.40},
+    # cambios de nivel del piso (plataformas): rangos del usuario (25-10-2026)
+    "caida_continua_max": 0.15,   # hasta 0.15 m la cuneta sigue continua (el desnivel se absorbe en la pendiente)
+    "caida_absorbe_L": 3.0,       # largo en que se absorbe ese desnivel (m)
+    "caida_corta_max": 0.50,      # de 0.15 a 0.50 m: caida corta (escalon en el fondo)
+    "caja_caida_max": 1.00,
+    "penal_subida": 200.0,        # costo por metro de subida de plataforma al elegir recorridos (el agua va de la alta a la baja)       # de 0.50 a 1.00 m: caja de caida con poza; mas de 1.00 m: muro de contencion con marco de C.A.
     # ciclo diseno <-> verificacion
     "vueltas_max": 8,
 }

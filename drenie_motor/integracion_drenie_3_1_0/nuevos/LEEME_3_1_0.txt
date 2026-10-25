@@ -37,6 +37,13 @@ Cómo se usa
    - Drenaje: eje de cuneta, montante, sumidero, descarga, caída de techo, asignar superficie.
    - Dibujo, Modificar, Medir y vista: los comandos de siempre (L, PL, M, CO, RO, TR, EX, DI, Z…).
    Lo dibujado se guarda solo en la carpeta del proyecto (ediciones.json).
+   - Niveles: plataforma (con su NPT y el rebaje del borde: al ras, 5 o 10 cm), rampa (nivel de inicio y de fin) y escalera
+     (ninguna cuneta pasa por ella). Al terminar cada eje de cuneta el programa pregunta su borde.
+   El agua va siempre de la plataforma alta a la baja. En cada cambio de nivel el programa pone la estructura:
+   hasta 0.15 m la cuneta sigue continua; hasta 0.50 m caída corta; hasta 1.00 m caja de caída con poza; con más de
+   1.00 m (muro de contención), pase con marco de concreto armado y poza de disipación. En estacionamientos la cuneta va
+   siempre tapada, con losa vehicular para el camión HL-93. Todo sale en planos, metrado, memorias y especificaciones.
+   El botón «Normas y fuentes» muestra de dónde sale cada valor (norma, referencia o criterio) y si ya se verificó.
 7. «Calcular todo»: diseña la red y genera los entregables en la carpeta «salida» del proyecto.
 8. «Soluciones»: lo que el programa no pudo resolver solo (por ejemplo, el agua que no sale por
    gravedad o un montante que llega bajo el nivel del agua) aparece con soluciones propuestas.

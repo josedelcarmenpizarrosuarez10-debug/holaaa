@@ -70,7 +70,7 @@ async function main() {
     const pestanas = await page.getByRole('tab').allTextContents();
     assert.equal(pestanas[pestanas.indexOf('LLUVIA') + 1], 'RED DE CUNETAS', 'la red va después de LLUVIA: ' + pestanas.join(', '));
     const rib = page.locator('.rb-panel');
-    for (const b of ['Nuevo desde plano DXF', 'Calcular todo', 'Entregables', 'Eje de cuneta', 'Montante', 'Sumidero', 'Descarga', 'Asignar superficie', 'Polilínea', 'Recortar', 'Distancia'])
+    for (const b of ['Nuevo desde plano DXF', 'Calcular todo', 'Entregables', 'Eje de cuneta', 'Montante', 'Sumidero', 'Descarga', 'Asignar superficie', 'Polilínea', 'Recortar', 'Distancia', 'Plataforma (NPT)', 'Rampa', 'Escalera', 'Normas y fuentes'])
       assert.equal(await rib.getByRole('button', { name: b, exact: true }).count(), 1, 'falta el botón ' + b);
     await page.screenshot({ path: path.join(out, '01_inicio_red.png') });
     report.checks.push({ name: 'Pestaña RED DE CUNETAS con su cinta de iconos y su página', passed: true });

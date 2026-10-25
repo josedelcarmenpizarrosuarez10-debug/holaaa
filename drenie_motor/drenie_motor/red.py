@@ -38,6 +38,14 @@ class UF:
 
 
 # ----------------------------------------------------------------------------------------------------------- grafo base
+def _paralelas(a, b, ang=30.0):
+    """Dos segmentos con menos de ang grados entre sus direcciones."""
+    (x0, y0), (x1, y1) = a.coords[0], a.coords[-1]; (u0, v0), (u1, v1) = b.coords[0], b.coords[-1]
+    da, db = math.atan2(y1 - y0, x1 - x0), math.atan2(v1 - v0, u1 - u0)
+    d = abs(da - db) % math.pi
+    return min(d, math.pi - d) < math.radians(ang)
+
+
 def grafo_usuario(polilineas, tol):
     """Nodos y aristas rectas con las lineas del usuario. Une extremos cercanos (tol), corta en cruces y en llegadas en T."""
     L = []
@@ -201,6 +209,28 @@ class Red:
                         out.append({"L": d, "n": n, "arista": (a, b), "p": p}); break
         return out
 
+    def _sube(self, N, a, b):
+        """Penalidad de que el agua corra de a hacia b subiendo de plataforma (borde mas alto en b): el agua va de la plataforma
+        alta a la baja; subir solo queda si no hay otro camino (y se avisa en las estructuras)."""
+        if not getattr(self.S, "por_sector", False): return 0.0
+        cache = self.__dict__.setdefault("_ras_cache", {})
+        def ras(n):
+            k = (round(N[n][0], 2), round(N[n][1], 2))
+            if k not in cache: cache[k] = self.S.rasante(*N[n])
+            return cache[k]
+        d = ras(b) - ras(a) - self.P["caida_continua_max"]
+        return self.P.get("penal_subida", 200.0) * d if d > 0 else 0.0
+
+    def _borde_alto(self, pu, pv, L):
+        """Posicion (desde pu) del cambio brusco de nivel de piso mas alto a lo largo de una arista, o None."""
+        if not getattr(self.S, "por_sector", False) or L < 1.0: return None
+        n = int(L / 0.5); zs = [self.S.rasante(pu[0] + (pv[0] - pu[0]) * k / n, pu[1] + (pv[1] - pu[1]) * k / n) for k in range(n + 1)]
+        saltos = [(abs(zs[k + 1] - zs[k]), k) for k in range(n) if abs(zs[k + 1] - zs[k]) > self.P["caida_continua_max"]]
+        if not saltos: return None
+        k = max(saltos)[1]
+        t = (k + (1 if zs[k + 1] > zs[k] else 0)) * L / n          # en el lado alto, justo en el borde
+        return min(max(t, 0.10), L - 0.10)
+
     def resolver(self, recorte=None):
         """Descargas y uniones. Cada descarga posible q del cerco admite un largo maximo de red Lcap(q): con el interior
         nivelado la cota de fondo baja S0 por metro desde h0, y en q debe quedar sobre el terreno exterior (cuneta nunca
@@ -261,6 +291,10 @@ class Red:
             p = Point(self.N[n]); s = anillo.project(p); f = anillo.interpolate(s); d = p.distance(f)
             if d > P["union_max"]: continue
             if d < 0.05: est_n = estacion(s); ar.append((n, est_n, 0.0, 0.0, "union")); continue
+            # extremo de una linea que llega al cerco (entre el camino perimetral y el cerco): ya esta sobre el camino; se une
+            # directo aunque la union quede sobre su propia linea
+            if d <= P["d_cerco"] + 0.15 and not self.S.cerco.buffer(-0.05).exterior.distance(p) > P["d_cerco"] + 0.05:
+                ar.append((n, estacion(s), 0.5 * d, d, "union")); continue
             if self._valida(self.N[n], (f.x, f.y), ignorar=(n,)):
                 ar.append((n, estacion(s), 3.0 + 1.5 * d, d, "union"))
         for k, c in enumerate(cand):
@@ -279,8 +313,11 @@ class Red:
             if not self.obst.is_empty and seg.intersection(self.obst).length > 0.05: continue
             if arbol_u is not None:
                 cerca = [lineas_u[int(i)] for i in arbol_u.query(seg.buffer(0.45))]
-                if cerca and seg.intersection(unary_union([l.buffer(0.45) for l in cerca])).length > 0.2 * L: continue   # ya hay cuneta
-                if any(seg.crosses(l) for l in cerca): continue
+                # ya hay cuneta a lo largo del camino (solo cuentan las paralelas; una cuneta que lo cruza no lo reemplaza)
+                par = [l for l in cerca if _paralelas(seg, l)]
+                if par and seg.intersection(unary_union([l.buffer(0.45) for l in par])).length > 0.2 * L: continue
+                # cruza una cuneta lejos de sus extremos (en el extremo, la estacion es justamente ese cruce)
+                if any(seg.crosses(l) and min(Point(seg.coords[0]).distance(l), Point(seg.coords[-1]).distance(l)) > 0.05 for l in cerca): continue
             ar.append((n1, n2, 1.5 * L, L, "union"))
         # dos tramos nuevos posibles que se cruzan (sin compartir extremo): se queda el mas corto
         nuevos = sorted([ie for ie, a in enumerate(ar) if a[4] == "union" and a[3] > 0.05], key=lambda ie: ar[ie][3])
@@ -302,10 +339,12 @@ class Red:
             ady[x].append((y, c, L, ie)); ady[y].append((x, c, L, ie))
 
         def es_desc(n): return n[0] in "bq" and n[1:].isdigit()
+        sube = {}                                  # penalidad acumulada por subir de plataforma en el camino a la descarga
 
         def dijkstra(fuentes):
             permit = {"q%d" % k for k in fuentes} | {"b%d" % k for k in fuentes}
             dist, fis, pred = {}, {}, {}
+            sube.clear()
             pq = []
             for k in fuentes:
                 q = "q%d" % k; dist[q] = 0.0; fis[q] = 0.0; heapq.heappush(pq, (0.0, q))
@@ -314,8 +353,10 @@ class Red:
                 if dd > dist[x] + 1e-12: continue
                 for y, c, L, ie in ady[x]:
                     if es_desc(y) and y not in permit: continue
-                    if dd + c < dist.get(y, math.inf) - 1e-9:
-                        dist[y] = dd + c; fis[y] = fis[x] + L; pred[y] = (x, ie); heapq.heappush(pq, (dist[y], y))
+                    ps = self._sube(N, y, x)                      # el agua iria de y hacia x
+                    if dd + c + ps < dist.get(y, math.inf) - 1e-9:
+                        dist[y] = dd + c + ps; fis[y] = fis[x] + L; pred[y] = (x, ie); sube[y] = sube.get(x, 0.0) + ps
+                        heapq.heappush(pq, (dist[y], y))
             return dist, fis, pred
 
         def cap(k):
@@ -324,7 +365,9 @@ class Red:
         cubre = {}
         for k in range(len(cand)):
             dist, fis, pred = dijkstra([k]); Lc = cap(k)
-            cubre[k] = {i for i, (x, y, L) in enumerate(usuario) if x in fis and y in fis and (fis[x] + fis[y] + L) / 2 <= Lc}
+            # una linea que solo llega a esta descarga subiendo de plataforma no queda cubierta por ella: se busca otra descarga
+            cubre[k] = {i for i, (x, y, L) in enumerate(usuario) if x in fis and y in fis and (fis[x] + fis[y] + L) / 2 <= Lc
+                        and max(sube.get(x, 0.0), sube.get(y, 0.0)) <= 0.0}
         falta = set(range(len(usuario))); elegidas = []
         Lc_cerco = self.S.cerco.exterior.length
         if self.descargas_fijas:
@@ -431,17 +474,20 @@ class Red:
             dd, n = heapq.heappop(pq)
             if dd > dist[n]: continue
             for m, L, k in ady[n]:
-                if dd + L < dist[m] - 1e-9:
-                    dist[m] = dd + L; sis[m] = sis[n]; heapq.heappush(pq, (dist[m], m))
+                c = L + self._sube(N, m, n)                       # el agua iria de m hacia n
+                if dd + c < dist[m] - 1e-9:
+                    dist[m] = dd + c; sis[m] = sis[n]; heapq.heappush(pq, (dist[m], m))
         # cada arista se orienta hacia el extremo mas cercano a la descarga; la que no esta en el camino mas corto se divide
         dirigidas = []
         for e in E:
             u, v, L = e["u"], e["v"], e["L"]
             if not (math.isfinite(dist[u]) and math.isfinite(dist[v])): continue
-            if abs(dist[u] + L - dist[v]) < 1e-6: dirigidas.append((v, u, e["origen"]))
-            elif abs(dist[v] + L - dist[u]) < 1e-6: dirigidas.append((u, v, e["origen"]))
+            if abs(dist[u] + L + self._sube(N, v, u) - dist[v]) < 1e-6: dirigidas.append((v, u, e["origen"]))
+            elif abs(dist[v] + L + self._sube(N, u, v) - dist[u]) < 1e-6: dirigidas.append((u, v, e["origen"]))
             else:
                 t = (dist[v] - dist[u] + L) / 2.0                     # punto alto: igual distancia a la descarga por ambos lados
+                tb = self._borde_alto(N[u], N[v], L)
+                if tb is not None: t = tb                              # con plataformas el agua se divide en el borde de la plataforma
                 if t < 0.10: dirigidas.append((u, v, e["origen"])); continue       # el punto alto cae en u: todo va a v
                 if t > L - 0.10: dirigidas.append((v, u, e["origen"])); continue
                 pu, pv = N[u], N[v]
@@ -545,6 +591,14 @@ class Red:
 
     def nombrar(self):
         """EJE-01, EJE-02 ... y nudos P-01, P-02 ... en el orden de los ejes; descargas D1, D2 ..."""
+        # nudos seguidos a menos de 2 cm en un mismo eje (estacion del camino perimetral sobre un nudo del usuario): se deja uno
+        for r in self.ramales:
+            nu = [r["nudos"][0]]
+            for n in r["nudos"][1:]:
+                if math.dist(self.Nf[nu[-1]], self.Nf[n]) < 0.02 and n not in self.descargas and n != r["nudos"][-1]: continue
+                if math.dist(self.Nf[nu[-1]], self.Nf[n]) < 0.02 and len(nu) > 1: nu[-1] = n; continue
+                nu.append(n)
+            r["nudos"] = nu
         nombre = {}
         for k, r in enumerate(self.ramales):
             r["codigo"] = "EJE-%02d" % (k + 1)

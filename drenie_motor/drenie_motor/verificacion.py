@@ -121,13 +121,28 @@ def verificar(R, red, sitio, terreno, P, lluvia, hq_prev=None):
                                                        else "el terreno exterior no baja de la C.F.") for d in desc))
     # 7 niveles: borde de cuneta al ras del piso (interior nivelado) y de cada zona
     altos = 0
+    sector = getattr(sitio, "por_sector", False)
+    if sector:
+        # niveles por plataforma, rampa o eje: el borde queda entre el nivel mas bajo y el mas alto definidos
+        nv = [sitio.borde] + [q["borde"] for q in sitio.plataformas] + [z[1] for z in sitio.zonas] + \
+             [v for r in sitio.rampas for v in (r["za"], r["zb"])] + [float(b["npt"]) - b["rebaje"] for b in sitio.bordes_eje if b["npt"] is not None]
+        tope = max(v for v in nv if v is not None)
     if sitio.modo == "nivelado":
         for c, r in ram.items():
             for p in r["perfil"]:
-                if p[1] > sitio.borde + 0.005 and not any(abs(p[1] - z[1]) < 0.005 for z in sitio.zonas): altos += 1
-    ok(7, "Borde de la cuneta al ras del piso" + (" (+%.2f)" % sitio.borde if sitio.borde else ""), "CUMPLE" if not altos else "NO CUMPLE",
-       ("borde +%.2f en la red; zonas: %s" % (sitio.borde, ", ".join("%s +%.2f" % (z[2], z[1]) for z in sitio.zonas) or "ninguna"))
-       if sitio.modo == "nivelado" else "rasante = terreno (modo terreno)")
+                if sector:
+                    if p[1] > tope + 0.005: altos += 1
+                elif p[1] > sitio.borde + 0.005 and not any(abs(p[1] - z[1]) < 0.005 for z in sitio.zonas): altos += 1
+    if sector:
+        det = "bordes por sector: " + ", ".join(["%s +%.2f" % (q["nombre"], q["borde"]) for q in sitio.plataformas] +
+                                                 ["%s +%.2f a +%.2f" % (r["nombre"], r["za"], r["zb"]) for r in sitio.rampas] +
+                                                 (["%d ejes con su propio borde" % len(sitio.bordes_eje)] if sitio.bordes_eje else []) +
+                                                 ["resto +%.2f" % sitio.borde])
+    else:
+        det = ("borde +%.2f en la red; zonas: %s" % (sitio.borde, ", ".join("%s +%.2f" % (z[2], z[1]) for z in sitio.zonas) or "ninguna")) \
+            if sitio.modo == "nivelado" else "rasante = terreno (modo terreno)"
+    ok(7, "Borde de la cuneta al ras del piso" + (" (+%.2f)" % sitio.borde if sitio.borde and not sector else " (por plataformas)" if sector else ""),
+       "CUMPLE" if not altos else "NO CUMPLE", det)
     # 8 y 9 capacidad y velocidad
     I, fuente_I = intensidad(lluvia)
     ce = sitio.cerco; x0, y0, x1, y1 = ce.bounds

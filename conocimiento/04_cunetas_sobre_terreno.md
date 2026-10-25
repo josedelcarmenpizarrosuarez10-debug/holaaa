@@ -938,3 +938,25 @@ Tapa        { eje, s, x, y }
 - Acero: h ≥ 0.40 o tapado; si no, concreto simple.
 - Longitudes en guitarras: siempre de sección a sección (no la parte de una pieza).
 - Si el dibujo del usuario no sigue la convención (colores, rótulos), avisar qué no se pudo leer.
+
+## 20. Plataformas, cambios de nivel y estacionamientos (usuario, 25-10-2026)
+- **Nivel de piso**: un solo NPT para todo o por plataformas (terrenos muy desnivelados: 1 a 4 plataformas). El usuario delimita
+  cada plataforma (en DrenIE: comando PLATAFORMA del visor) con su NPT y el rebaje del borde de cuneta (al ras, 5 o 10 cm).
+  Rampas: el borde de la cuneta sigue la pendiente de la rampa (nivel de inicio y de fin). Escaleras: nunca pasa una cuneta.
+- **Borde por eje**: al dibujar cada eje de cuneta el programa pregunta si va al ras del NPT o rebajado 5 o 10 cm (u otro), y el NPT
+  del eje si no es el de su plataforma.
+- **El agua va siempre de la plataforma alta a la baja**: una zona que solo saldría subiendo de plataforma tiene su propia descarga.
+- **Estructura según el desnivel** del borde entre plataformas:
+  - hasta 0.15 m: cuneta continua, el desnivel se absorbe en la pendiente (1.5 %, entre 3 y 15 m antes del cambio);
+  - 0.15 a 0.50 m: caída corta (escalón en el fondo, losa de fondo reforzada);
+  - 0.50 a 1.00 m: caja de caída de concreto armado con poza de disipación;
+  - más de 1.00 m (siempre hay muro de contención): la cuneta de arriba llega al ras hasta la cara del muro, lo atraviesa por un
+    **marco de concreto armado** (no tubería), cae vertical a una **poza de disipación** al pie del muro y de ahí sigue la cuneta de abajo.
+- Poza (USBR, caída vertical, Rand): D = q²/(g·hd³), Ld = 4.30·hd·D^0.27, yp = 1.00·hd·D^0.22, y1 = 0.54·hd·D^0.425,
+  y2 = 1.66·hd·D^0.27, L = Ld + 6.9·(y2 − y1); profundidad hasta cubrir y2; mínimos 0.60 m de largo y 0.10 m de colchón.
+  Concreto f'c 210, malla 3/8" @ 0.20 en ambos sentidos, espesor 0.15. La pendiente del tramo no cuenta la caída (la toma la estructura).
+- **Estacionamiento (regla fija)**: nunca rejilla, siempre cuneta tapada, con losa de concreto armado f'c 280 diseñada para la rueda del
+  camión HL-93 del MTC (72.5 kN, IM 33 %, factor 1.75): para 0.40 libre sale e = 0.15 con Ø 1/2" @ 0.175 en ambos sentidos.
+- Cada valor con su fuente en la biblioteca de normas (`drenie_motor/normas_biblioteca.json`): norma, referencia técnica o criterio
+  del proyectista, y su estado (verificado o por verificar con el texto oficial vigente). La OS.060 fue reemplazada por la CE.040
+  (R.M. N.° 126-2021-VIVIENDA).

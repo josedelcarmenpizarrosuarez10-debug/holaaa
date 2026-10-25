@@ -81,6 +81,48 @@ def ficha(pt, D, Pd):
     d = pt["desc"].upper(); und = pt["und"]; P = D.P; K = E.CUNETA
     hfs = P["e_fondo"] + P["e_solado"]
     # ---------------------------------------------------------------- partidas propias de la red de cunetas
+    if "TAPA VEHICULAR" in d:
+        TV = getattr(D, "TV", None) or {}
+        txt = ("Comprende la losa de tapa de concreto armado de las cunetas que pasan por estacionamientos y accesos vehiculares, donde no se "
+               "coloca rejilla: la cuneta va siempre tapada para el paso de vehiculos. Losa de %.2f m de espesor, f'c = 280 kg/cm2, apoyada sobre "
+               "los muros de la cuneta, con %s, disenada para la rueda del camion de diseno HL-93 del Manual de Puentes del MTC (%s)." % (
+                   TV.get("h", 0.15), TV.get("acero", "acero segun planos"), TV.get("texto", "")))
+        if "CONCRETO" in d:
+            return bloque([p(txt)], mat=l("Cemento portland tipo I, arena gruesa, piedra chancada de 1/2\" y agua limpia, dosificados para f'c = 280 kg/cm2."),
+                          equ=l("Mezcladora, vibrador de concreto, herramientas manuales."),
+                          proc=l("Verificar el encofrado y el acero antes del vaciado.", "Vaciar y vibrar el concreto en una sola operacion por pano, al ras del piso terminado.",
+                                 "Curar con agua por 7 dias como minimo; no permitir el transito vehicular antes de los 14 dias."),
+                          ctrl=l("Resistencia f'c = 280 kg/cm2 con probetas segun NTP 339.034; espesor y nivel segun planos."), seg=l(EPP), und=und,
+                          medicion=[p("Se medira el volumen de losa: longitud tapada en estacionamientos por el ancho total de la cuneta por el espesor, segun el metrado.")])
+        if "ENCOFRADO" in d:
+            return bloque([p(txt)], mat=l("Madera tornillo o triplay, alambre N.° 8, clavos, desmoldante."), equ=l("Herramientas de carpinteria."),
+                          proc=l("Apuntalar el fondo de la losa dentro de la cuneta y encofrar los cantos.", "Desencofrar el fondo despues de 7 dias."),
+                          ctrl=l("Medidas y niveles segun planos."), seg=l(EPP), und=und,
+                          medicion=[p("Se medira el area de contacto del encofrado: fondo de la losa y cantos, segun el metrado.")])
+        return bloque([p(txt)], mat=l("Acero corrugado grado 60, fy = 4200 kg/cm2 (NTP 341.031), alambre N.° 16."), equ=l("Cizalla, dobladora, herramientas manuales."),
+                      proc=l("Habilitar y colocar la malla inferior en ambos sentidos con recubrimiento de 0.04 m sobre dados de concreto.", "Amarrar todos los cruces."),
+                      ctrl=l("Diametros, separaciones y recubrimientos segun planos, aprobados por la Supervision antes del vaciado."), seg=l(EPP), und=und,
+                      medicion=[p("Se medira el peso del acero colocado, segun el metrado (kg).")])
+    if "ESTRUCTURAS DE CA" in d or "PASE DE CUNETA EN MURO" in d:
+        ES = getattr(D, "ES", None) or {}
+        lista = ", ".join("%s (%s, prog. %.2f, desnivel %.2f m)" % (e["codigo"], e["eje"], e["progresiva"], e["desnivel"])
+                          for e in ES.get("estructuras", []) if e.get("codigo"))
+        txt = ("Comprende las estructuras hidraulicas en los cambios de nivel entre plataformas: caidas cortas (desnivel de 0.15 a 0.50 m, escalon en el "
+               "fondo con losa de fondo reforzada), cajas de caida con poza de disipacion (0.50 a 1.00 m) y pases por muro de contencion (mas de 1.00 m), "
+               "donde la cuneta de arriba llega al ras hasta la cara del muro, lo atraviesa por un marco de concreto armado y el agua cae vertical a una "
+               "poza de disipacion al pie del muro, de donde sigue la cuneta de abajo. Las pozas se dimensionan para la caida vertical (alcance del chorro, "
+               "colchon de agua y resalto hidraulico) segun la memoria de calculo. Estructuras: %s." % (lista or "segun planos"))
+        if "MARCO" in d:
+            return bloque([p(txt)], mat=l("Concreto f'c = 210 kg/cm2; acero corrugado fy = 4200 kg/cm2."), equ=l("Mezcladora, vibrador, herramientas manuales."),
+                          proc=l("Dejar el marco embebido en el muro de contencion al construirlo, con la seccion interior de la cuneta de llegada.",
+                                 "Si el muro ya existe, abrir el vano con cortadora, reforzar el contorno y vaciar el marco monolitico con la cuneta."),
+                          ctrl=l("Seccion interior y cota de fondo del marco segun planos; sin filtraciones entre el marco y el muro."), seg=l(EPP), und=und,
+                          medicion=[p("Se contara el numero de marcos construidos (und).")])
+        return bloque([p(txt)], mat=l("Concreto f'c = 210 kg/cm2; acero corrugado fy = 4200 kg/cm2; encofrado de madera."),
+                      equ=l("Mezcladora, vibrador, herramientas manuales."),
+                      proc=l("Excavar hasta el fondo de la poza; colocar solado; armar la malla de acero y encofrar.", "Vaciar el fondo y los muros de la caja en forma monolitica; curar 7 dias."),
+                      ctrl=l("Medidas interiores, profundidad de la poza y cotas de fondo de llegada y salida segun planos."), seg=l(EPP), und=und,
+                      medicion=[p("Se medira segun la unidad de la partida (m3, m2 o kg), con las cantidades de cada estructura del metrado.")])
     if "PERFILADO" in d:
         return bloque([p("Comprende el perfilado manual del terreno natural al pie del cerco, frente a %s, para que el agua que sale por el pase en el cimiento "
                          "del cerco escurra libre sobre el terreno exterior, sin empozarse. No se construyen obras fuera del cerco." % D.descargas_txt())],
@@ -326,9 +368,10 @@ def _lamina_detalle(d, laminas):
     return None
 
 
-def construir(ruta, partidas, P, cfg, q, V, laminas, TT, SM, LLt):
+def construir(ruta, partidas, P, cfg, q, V, laminas, TT, SM, LLt, ES=None, TV=None):
     proyecto = cfg.get("proyecto", {})
     D = Datos(P, cfg, q, V, laminas, TT, SM, LLt)
+    D.ES, D.TV = ES, TV
     Pd = dict(clave="drenie", corto=proyecto.get("nombre_corto", ""), cui="", proyecto=proyecto.get("nombre", ""), junta_cuneta_seccion=True,
               lamina_rejilla=None, colector=dict(nombre="red de cunetas", receptor="el terreno exterior por pases en el cimiento del cerco",
                                                  sello="asfaltico", cajas=None, cerco=False, vereda=False))

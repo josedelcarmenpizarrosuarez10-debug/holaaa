@@ -10,7 +10,7 @@ import json
 import os
 import time
 
-from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos, techo, sumideros, metrado, planta_lamina, memorias, especificaciones, revision, render, memoria_calculo, caratulas, planteamiento, soluciones
+from . import estructuras, tapa_vehicular, lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos, techo, sumideros, metrado, planta_lamina, memorias, especificaciones, revision, render, memoria_calculo, caratulas, planteamiento, soluciones
 from .parametros import combinar
 
 VERSION = "0.1.0"
@@ -41,6 +41,10 @@ def _sumar_ediciones(cfg, ed):
     if ed.get("descargas"): cfg["descargas"] = ed["descargas"]
     if ed.get("montantes"): cfg["montantes"] = ed["montantes"]
     if ed.get("sumideros") is not None and ed.get("sumideros_visor"): cfg["sumideros"] = ed["sumideros"]
+    if ed.get("niveles"):                     # plataformas, rampas, escaleras y borde por eje dibujados en el visor
+        nv = cfg.setdefault("niveles", {})
+        for k in ("plataformas", "rampas", "escaleras", "bordes_eje"):
+            if ed["niveles"].get(k): nv[k] = list(nv.get(k, [])) + list(ed["niveles"][k])
     if ed.get("soluciones"): cfg["soluciones"] = list(cfg.get("soluciones", [])) + list(ed["soluciones"])   # ventana de soluciones          # todos los montantes que dejo el proyectista en el visor
 
 
@@ -139,6 +143,8 @@ def disenar(cfg_ruta):
     elegidas = soluciones.aplicar_en_cfg(cfg, cfg.get("soluciones"))      # lo elegido en la ventana de soluciones del visor
     t0 = time.time()
     P, B, cur, rep_t, T, S, ejes = _preparar(cfg, base, salida)
+    TV = tapa_vehicular.disenar(P["b_max"], P)          # tapa de las cunetas en estacionamientos (camion HL-93)
+    P["e_tapa_veh"] = TV["h"]
     LL, Rh = _lluvia_diseno(cfg, base)
     # planteamiento de cunetas para edificaciones y losa deportiva: cada montante debe tener una cuneta a su alcance (planteamiento.py)
     modo_pl = cfg.get("planteamiento", "completar")
@@ -208,11 +214,13 @@ def disenar(cfg_ruta):
         SM["avisos"].append("Se profundizaron los tramos %s para recibir la tuberia de %s sobre el nivel del agua de la cuneta (+5 cm)." % (
             ", ".join(sorted({x["tramo"].replace("|", " ") for x in bajo})), ", ".join(x.get("sumidero") or x.get("montante") for x in bajo)))
     anchos = {(f["eje"], f["de"], f["a"]): f["b"] for f in V["hidraulica"]}
+    ES = estructuras.calcular(C, V, P)                 # caidas, cajas de caida y pases por muros en los cambios de plataforma
     xls_t = techo.excel(TT, os.path.join(salida, "CANALETAS_MONTANTES_Y_SUMIDEROS.xlsx"), SM)
     verde = M.por_tipo().get("verde")
     LLt, LLp = lloraderos.calcular(C, verde, P, anchos)
     tapas_i = planta_lamina.tapas_de(C, set(R.descargas), anchos, P)
-    xls_m, q_m, partidas = metrado.libro(os.path.join(salida, "METRADO_DRENAJE_PLUVIAL.xlsx"), C, R, M, P, anchos, V, LLt, TT, SM, cfg.get("proyecto", {}), cfg, tapas_i)
+    xls_m, q_m, partidas = metrado.libro(os.path.join(salida, "METRADO_DRENAJE_PLUVIAL.xlsx"), C, R, M, P, anchos, V, LLt, TT, SM, cfg.get("proyecto", {}), cfg, tapas_i,
+                                         ES=ES, TV=TV)
     secciones = {}
     for f in V["hidraulica"]:
         e = secciones.setdefault(f["eje"], {"sector": f["sector"], "eje": f["eje"], "L_m": 0.0, "b_pide": 0, "b": f["b"],
@@ -233,13 +241,14 @@ def disenar(cfg_ruta):
                "comprobaciones": len(V["comprobaciones"]), "vueltas_ciclo": vueltas, "intentos_descargas": intento,
                "sin_salida_m": round(sum(geom.dist(a, b) for a, b in R.sin_cubrir), 1),
                "anchos_libres_m": sorted({f["b"] for f in V["hidraulica"]}), "lloraderos": lloraderos.resumen(LLt),
-               "techos": TT["metrado"], "sumideros": SM["metrado"]}
+               "techos": TT["metrado"], "sumideros": SM["metrado"], "estructuras": ES["resumen"],
+               "tapa_vehicular_m": round(sum(t.get("L_vehicular", 0) for r in C["ramales"] for t in r["tramos"]), 2)}
     proyecto = cfg.get("proyecto", {})
     dxf = salidas.dxf_planta(os.path.join(salida, "PLANTA_RED_CUNETAS.dxf"), C, R, S, cur, P, proyecto, anchos, LLp)
     pl = cfg.get("planos", {})
     dxf_pf, laminas, n_sec, marcos = planos.dxf_planos(os.path.join(salida, "PLANOS_CUNETAS.dxf"), C, R, S, P, anchos, proyecto, cur, V, LLt, LLp,
                                                list(secciones.values()), pl.get("prefijo", "DC"), pl.get("inicio", 1), TT, SM,
-                                                       T, _niveles_txt(cfg), tapas_i)
+                                                       T, _niveles_txt(cfg), tapas_i, estructuras=ES, tapa_veh=TV)
     png = salidas.png_planta(os.path.join(salida, "PLANTA_RED_CUNETAS.png"), C, R, S, cur, ejes,
                              "%s - red de cunetas: %d ejes, %d descargas, %.1f m (%.1f m de uniones nuevas)" % (
                                  proyecto.get("nombre_corto", ""), resumen["ejes"], resumen["descargas"], Ltot, nuevas))
@@ -256,16 +265,19 @@ def disenar(cfg_ruta):
     fig = {"planta": png}
     if Rh:
         hidrologia.excel(Rh, os.path.join(salida, "HIDROLOGIA.xlsx")); fig["idf"] = hidrologia.png_idf(Rh, os.path.join(salida, "CURVAS_IDF.png"))
-    xls_mc = memoria_calculo.libro(os.path.join(salida, "MEMORIA_CALCULO_DRENAJE_PLUVIAL.xlsx"), proyecto, P, Rh, LL, V, list(secciones.values()), TT, SM)
+    xls_mc = memoria_calculo.libro(os.path.join(salida, "MEMORIA_CALCULO_DRENAJE_PLUVIAL.xlsx"), proyecto, P, Rh, LL, V, list(secciones.values()), TT, SM,
+                                   ES=ES, TV=TV)
     xls_mc_rc = metrado.recalcular(xls_mc, os.path.join(salida, "_recalculado"))
     xls_rc = metrado.recalcular(xls_m, os.path.join(salida, "_recalculado"))
     tot = metrado.totales(xls_rc)
     metas = [dict(x, total=tot.get(x["codigo"])) for x in partidas]
     ctx = memorias.Contexto(cfg, P, Rh, LL, V, C, R, list(secciones.values()), TT, SM, LLt, lams, metas, rep_t, M.cuadro(), fig)
     ctx.plan = plan_inf
+    ctx.ES, ctx.TV = ES, TV
     ctx.hmax = max((x["h_max"] for x in q_m), default=ctx.hmax)       # una sola cifra en todos los documentos (la del metrado)
     doc_h, doc_d = memorias.escribir(salida, ctx)
-    doc_e = especificaciones.construir(os.path.join(salida, "ESPECIFICACIONES_TECNICAS_DRENAJE_PLUVIAL.docx"), partidas, P, cfg, q_m, V, lams, TT, SM, LLt)
+    doc_e = especificaciones.construir(os.path.join(salida, "ESPECIFICACIONES_TECNICAS_DRENAJE_PLUVIAL.docx"), partidas, P, cfg, q_m, V, lams, TT, SM, LLt,
+                                       ES=ES, TV=TV)
     # revision general de todo lo entregado (conocimiento/01, seccion 8.2)
     nivel = _nivel_necesario(R, P, V)
     if nivel[0] > 0:
@@ -278,14 +290,14 @@ def disenar(cfg_ruta):
                    [t["techo"] for t in plan_inf if t.get("decision") == "sin solucion automatica"])
     out = {"accion": "disenar", "version": VERSION, "proyecto": proyecto, "resumen": resumen, "parametros": P,
            "mapa_superficies": M.cuadro(),
-           "terreno": rep_t, "avisos": S.avisos + M.avisos + R.avisos + TT["avisos"] + SM["avisos"] + plan_av + (
+           "terreno": rep_t, "avisos": S.avisos + M.avisos + R.avisos + TT["avisos"] + SM["avisos"] + ES["avisos"] + plan_av + (
                ["SALIDA POR GRAVEDAD (%s). Solucion: %s." % (nivel[1], nivel[2])] if nivel[0] > 0 else []),
            "solucion_nivel": {"subir_npt_m": nivel[0], "detalle": nivel[1], "solucion": nivel[2], "verificado": nivel[3]} if nivel[0] > 0 else None,
            "planteamiento": {"modo": modo_pl, "lineas_nuevas": lineas_pl, "longitud_nueva_m": round(sum(geom.dist(a, b) for l in lineas_pl for a, b in zip(l[:-1], l[1:])), 2), "techos": plan_inf}, "chaflanes": R.chaflanes_hechos, "red": C,
            "descargas_propuestas": [{"D": k, "x": round(v["q"][0], 3), "y": round(v["q"][1], 3), "L_max_m": v["L_max"],
                                      "terreno_exterior_min": round(v["z_req"], 2)} for k, v in R.descargas.items()],
            "sin_salida": [[list(a), list(b)] for a, b in R.sin_cubrir], "verificacion": V,
-           "secciones_por_eje": list(secciones.values()), "techos": TT, "sumideros": SM, "lloraderos": {"resumen": lloraderos.resumen(LLt), "tramos": LLt},
+           "secciones_por_eje": list(secciones.values()), "techos": TT, "sumideros": SM, "estructuras": ES, "tapa_vehicular": TV, "lloraderos": {"resumen": lloraderos.resumen(LLt), "tramos": LLt},
            "profundidad_minima_por_capacidad": hq, "archivos": {"dxf": dxf, "png": png, "dimensionamiento": xls, "canaletas_montantes_y_sumideros": xls_t, "metrado": xls_m, "planos": dxf_pf,
                                                  "memoria_hidrologica": doc_h, "memoria_descriptiva": doc_d, "especificaciones": doc_e,
                                                  "revision": rev[0], "png_laminas": pngs, "memoria_calculo": xls_mc, "indice_planos": doc_i, "caratulas": doc_c},

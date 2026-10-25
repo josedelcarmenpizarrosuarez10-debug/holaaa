@@ -229,3 +229,16 @@ El ejecutable compilado solo trabaja con la ficha de sesión que firma DrenIE (`
 comparten `__main__.py` y `motor_red.rs`, válida 5 minutos); desde el código fuente no la pide. Todo lo que imprimen las
 bibliotecas durante el cálculo va a la salida de errores: la salida estándar lleva solo el JSON de respuesta, en UTF-8.
 Integración en DrenIE (archivos nuevos y cambios sobre 3.0.2): `integracion_drenie_3_1_0/`.
+
+## Plataformas, estructuras de caída y estacionamientos
+
+`niveles.plataformas` (polígono, NPT, rebaje), `niveles.rampas` (polígono, inicio, fin, NPT de inicio y de fin), `niveles.escaleras` y
+`niveles.bordes_eje` (línea, NPT, rebaje), también dibujados en el visor (comandos PLATAFORMA, RAMPA, ESCALERA y la pregunta del borde
+al terminar un eje de cuneta; viajan en `ediciones.json` → `niveles`). `sitio.rasante` da el borde en cada punto; `red.py` no deja
+que el agua suba de plataforma (penalidad al elegir recorridos y descargas, y división del flujo en el borde de la plataforma);
+`cotas.py` registra los cambios de nivel (`cambios_nivel`) y absorbe los de hasta 0.15 m; `estructuras.py` define y dimensiona caída
+corta, caja de caída y pase por muro con marco de C.A. y poza (USBR); `estructuras_dxf.py` dibuja su lámina de detalle. En
+estacionamientos la cuneta va siempre tapada con la losa de `tapa_vehicular.py` (rueda HL-93). Todo pasa al metrado, la memoria
+(capítulo propio y recuadros de fuente), la memoria de cálculo (hojas ESTRUCTURAS y TAPA VEHICULAR, con fórmulas) y las
+especificaciones. Terrenos de prueba: `python3 pruebas/plataformas.py` (PL1 muro de contención, rampa y escalera; PL2 caída corta,
+caja de caída y estacionamiento).

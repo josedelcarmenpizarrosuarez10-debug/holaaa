@@ -256,6 +256,36 @@ def hidrologica(D, c):
                  for s in c.SM["sumideros"]]
         D.tabla("Sumideros y tubería a la cuneta", ["Sumidero", "Área (m²)", "Q (l/s)", "Cuneta", "Tubo 4\" (m)", "S (%)", "Llegada", "C.F. cuneta", "Estado"],
                 filas, [1.7, 1.6, 1.4, 1.8, 1.7, 1.2, 1.7, 1.8, 2.6], tam=7.5)
+    # ---------------------------------------------------------------- plataformas, estructuras de caida y tapa vehicular
+    ES = getattr(c, "ES", None) or {}; TV = getattr(c, "TV", None); est = [e for e in ES.get("estructuras", []) if e.get("codigo")]
+    niv = c.cfg.get("niveles", {}) or {}
+    if niv.get("plataformas") or niv.get("rampas") or est:
+        D.h(1, "Niveles por plataforma y estructuras de caída")
+        filas = [[q.get("nombre", ""), "%.2f" % float(q["npt"]), "%.2f" % (float(q["npt"]) - float(q.get("rebaje", 0) or 0))] for q in niv.get("plataformas", [])]
+        if filas:
+            D.p("El terreno se resuelve en plataformas; en cada una el borde de la cuneta va al nivel de su piso terminado (o con el rebaje indicado). "
+                "El agua va siempre de la plataforma alta a la baja, y en cada cambio de nivel se dispone una estructura según el desnivel:")
+            D.tabla("Plataformas del proyecto", ["Plataforma", "NPT", "Borde de cuneta"], filas, [7, 3, 3.5])
+        D.vinetas(["Hasta 0.15 m: la cuneta sigue continua y el desnivel se absorbe en la pendiente de los 3 m anteriores.",
+                   "De 0.15 a 0.50 m: caída corta, escalón en el fondo con losa de fondo reforzada aguas abajo.",
+                   "De 0.50 a 1.00 m: caja de caída de concreto armado con poza de disipación.",
+                   "Más de 1.00 m (con muro de contención): la cuneta de arriba llega al ras hasta la cara del muro, lo atraviesa por un marco de "
+                   "concreto armado y el agua cae vertical a una poza de disipación al pie del muro, de donde sigue la cuneta de abajo."])
+        if est:
+            D.p("Cada poza se dimensiona para la caída vertical: con q = Q/b y el número de caída D = q²/(g·hd³) se obtienen el alcance del chorro "
+                "Ld = 4.30·hd·D^0.27, el colchón yp = 1.00·hd·D^0.22 y los tirantes conjugados del resalto y1 = 0.54·hd·D^0.425 e "
+                "y2 = 1.66·hd·D^0.27; el largo de la poza es Ld + 6.9·(y2 − y1) y su profundidad cubre el tirante conjugado.")
+            D.tabla("Estructuras en los cambios de nivel", ["Código", "Eje", "Prog.", "De → a", "Desnivel", "Caída de fondo", "Q (l/s)", "Poza L × prof.", "y2"],
+                    [[e["codigo"], e["eje"], "%.2f" % e["progresiva"], "%s → %s" % (e["nivel_arriba"], e["nivel_abajo"]), "%.2f" % e["desnivel"],
+                      "%.2f" % e["caida_fondo"], "%.1f" % e["Q_ls"], "%.2f × %.2f" % (e["L_poza"], e["prof_poza"]), "%.3f" % e["y2"]] for e in est],
+                    [1.5, 1.5, 1.3, 4, 1.5, 1.7, 1.4, 2.2, 1.2], tam=7.5)
+            normas.recuadro_word(D, "caida_vertical", "rangos_desnivel")
+        if ES.get("avisos"): D.vinetas(ES["avisos"])
+    if TV and any(t.get("L_vehicular", 0) > 0 for r in c.C["ramales"] for t in r["tramos"]):
+        D.h(1, "Cunetas en estacionamientos: tapa vehicular")
+        D.p("En los estacionamientos y accesos vehiculares la cuneta no lleva rejilla: va siempre tapada con una losa de concreto armado diseñada "
+            "para el paso de camiones. " + TV["texto"])
+        normas.recuadro_word(D, "carga_vehicular")
     # ---------------------------------------------------------------- descargas y conclusiones
     D.h(1, "Descargas")
     D.p("Cada sector entrega por gravedad a través de un pase en el cimiento del cerco perimétrico; fuera del cerco no se construyen obras y el agua "

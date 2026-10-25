@@ -77,9 +77,11 @@ def diseno(I, P, V, C, sec, hq=None):
     ini = []
     for r in C["ramales"]:
         t0 = r["tramos"][0]; tap = any(a <= 0.01 for a, b in r.get("tapados", []))
-        h_ini = P["h0"] + (P["e_tapa"] if tap else 0)
+        veh = any(a <= 0.01 for a, b in r.get("vehiculares", []))                     # en estacionamiento: losa vehicular
+        et = P.get("e_tapa_veh", P["e_tapa"]) if veh else P["e_tapa"] if tap else 0
+        h_ini = P["h0"] + et
         req = (hq or {}).get("%s|%s|%s" % (r["codigo"], t0["de"], t0["a"]))           # tramo profundizado (capacidad o tubo de sumidero)
-        if req: h_ini = max(h_ini, req + (P["e_tapa"] if tap else 0))
+        if req: h_ini = max(h_ini, req + et)
         ini.append(abs(t0["h_de"] - h_ini) < 0.006)
     I.add(g, "Profundidad inicial %.2f m (más la losa si empieza tapada) y altura libre >= %.2f m" % (P["h0"], P["hmin"]),
           all(ini) and min(min(t["h_de"], t["h_a"]) for r in C["ramales"] for t in r["tramos"]) >= P["hmin"] - 1e-6,

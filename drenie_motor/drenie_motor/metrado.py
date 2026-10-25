@@ -78,12 +78,15 @@ def cantidades(C, P, anchos, tapas, piso):
         t0 = r["tramos"][0]; b = anchos.get((r["codigo"], t0["de"], t0["a"]), P["b_int"]); be = b + 2 * EM; bexc = be + 2 * SOBREANCHO
         Pf = r["perfil"]; L = r["L"]
         L_tap = sum(bb - a for a, bb in r["tapados"]); L_rej = L - L_tap
+        L_veh = sum(bb - a for a, bb in r.get("vehiculares", []))          # tapa vehicular aparte (partida propia)
+        EV = P.get("e_tapa_veh", ET)
         int_h = int_hw = int_ho = int_hac = L_ac = hmax = 0.0
         for (s0, n0, f0), (s1, n1, f1) in zip(Pf[:-1], Pf[1:]):
             ds = s1 - s0
             if ds <= 0: continue
             h = ((n0 - f0) + (n1 - f1)) / 2; tap = _tap(r, (s0 + s1) / 2); hmax = max(hmax, n0 - f0, n1 - f1)
-            hw = h - (ET if tap else 0.0)
+            veh = any(a - 1e-6 <= (s0 + s1) / 2 <= bb + 1e-6 for a, bb in r.get("vehiculares", []))
+            hw = h - (EV if veh else ET if tap else 0.0)
             int_h += h * ds; int_hw += hw * ds; int_ho += (h + EF) * ds
             if tap or h >= P["h_acero"] - 1e-6: L_ac += ds; int_hac += h * ds
         h_prom = int_h / L if L else 0.0; h_ac = int_hac / L_ac if L_ac else 0.0
@@ -98,7 +101,8 @@ def cantidades(C, P, anchos, tapas, piso):
                 for sg in (1, -1):
                     if shapely.contains_xy(piso, p.x + sg * nx * (be / 2 + 0.15), p.y + sg * ny * (be / 2 + 0.15)): jp += 0.5
                 k += 0.5
-        out.append({"eje": r["codigo"], "b": round(b, 3), "be": round(be, 3), "bexc": round(bexc, 3), "L": round(L, 2), "L_tapado": round(L_tap, 2),
+        out.append({"eje": r["codigo"], "b": round(b, 3), "be": round(be, 3), "bexc": round(bexc, 3), "L": round(L, 2), "L_tapado": round(L_tap - L_veh, 2),
+                    "L_vehicular": round(L_veh, 2),
                     "L_rejilla": round(L_rej, 2), "h_prom": round(h_prom, 3), "h_max": round(hmax, 2), "area_muro": round(int_hw, 2),
                     "hw": round(int_hw / L, 3) if L else 0.0, "L_acero": round(L_ac, 2), "h_acero": round(h_ac, 3), "tapas": n_tapas,
                     "excavacion": round(exc, 3), "relleno": round(rell, 3), "junta_piso": round(min(jp, 2 * L), 2),
@@ -126,7 +130,7 @@ PAR = [("Espesor de muros (m)", "e_muro", "em", "Secciones transversales"), ("Es
        ("Falsa columna: acero por und (kg)", FC["acero"], "fca", "4 barras de 1.20 + 9 estribos de 0.58, 3/8\"")]
 
 
-def libro(ruta, C, red, M, P, anchos, V, LLt, TT, SM, proyecto, cfg, tapas):
+def libro(ruta, C, red, M, P, anchos, V, LLt, TT, SM, proyecto, cfg, tapas, ES=None, TV=None):
     piso = unary_union([c["geom"] for c in M.caras if c["tipo"] in TIPOS_PISO])
     q = cantidades(C, P, anchos, tapas, piso)
     Pk = {k: "PARAMETROS!$B$%d" % (5 + i) for i, (_, _, k, _) in enumerate(PAR)}
@@ -267,7 +271,7 @@ def libro(ruta, C, red, M, P, anchos, V, LLt, TT, SM, proyecto, cfg, tapas):
     ru0 = 8
     for i, x in enumerate(q):
         r = ru0 + i
-        vals = [(i + 1, "0"), (x["eje"], None), (x["tipo"], None), (x["L"], "0.00"), (x["L_rejilla"], "0.00"), (x["L_tapado"], "0.00"),
+        vals = [(i + 1, "0"), (x["eje"], None), (x["tipo"], None), (x["L"], "0.00"), (x["L_rejilla"], "0.00"), (round(x["L_tapado"] + x.get("L_vehicular", 0), 2), "0.00"),
                 (x["b"], "0.00"), (x["hw"], "0.000"), ("=2*D{r}*H{r}", "0.00"), ("=D{r}*G{r}", "0.00"),
                 ("=2*{em}*E{r}", "0.00"), ("=F{r}*(G{r}+2*{em})", "0.00"), ("=SUM(I{r}:L{r})", "0.00"), ("m²", None)]
         for j, (v, fmt) in enumerate(vals, 1):
@@ -284,7 +288,7 @@ def libro(ruta, C, red, M, P, anchos, V, LLt, TT, SM, proyecto, cfg, tapas):
     rg0 = 8
     for i, x in enumerate(q):
         r = rg0 + i
-        for j, (v, fmt) in enumerate([(i + 1, "0"), (x["eje"], None), (x["tipo"], None), (x["b"], "0.00"), (x["L"], "0.00"), (x["L_tapado"], "0.00"),
+        for j, (v, fmt) in enumerate([(i + 1, "0"), (x["eje"], None), (x["tipo"], None), (x["b"], "0.00"), (x["L"], "0.00"), (round(x["L_tapado"] + x.get("L_vehicular", 0), 2), "0.00"),
                                        ("=IF(E{r}-F{r}<0,0,E{r}-F{r})".format(r=r), "0.00"), (x["tapas"], "0"), ("m", None)], 1):
             cel(wg, r, j, v, fmt, bold=(j == 7), bg=VER if j == 7 else None)
     rg1 = rg0 + len(q)
@@ -476,6 +480,31 @@ def libro(ruta, C, red, M, P, anchos, V, LLt, TT, SM, proyecto, cfg, tapas):
                                                                          "=+'METRADO  EN PISO (SUMIDERO)'!F%d" % rs1)])
     if sms:
         partida(p(".05.02.04"), "TEE SANITARIA DESAGÜE PVC Ø4\"", "und", [("Tees", None, None, None, None, None, "=+'METRADO  EN PISO (SUMIDERO)'!G%d" % rs1)])
+    # tapa vehicular en estacionamientos (siempre tapada, carga de camion HL-93) y estructuras en los cambios de plataforma
+    qv = [x for x in q if x.get("L_vehicular", 0) > 0]
+    if qv and TV:
+        titulo(p(".06"), "TAPA VEHICULAR DE CUNETAS EN ESTACIONAMIENTOS")
+        partida(p(".06.01"), "CONCRETO f'c=280 kg/cm2 EN LOSA DE TAPA VEHICULAR", "m³",
+                [(x["eje"], 1, x["L_vehicular"], x["be"], TV["h"], None, "=C{r}*D{r}*E{r}*F{r}") for x in qv])
+        partida(p(".06.02"), "ENCOFRADO Y DESENCOFRADO EN LOSA DE TAPA VEHICULAR", "m²",
+                [(x["eje"], 1, x["L_vehicular"], "=%.2f+2*%.2f" % (x["b"], TV["h"]), None, None, "=C{r}*D{r}*E{r}") for x in qv])
+        partida(p(".06.03"), "ACERO f'y=4200 kg/cm2 EN LOSA DE TAPA VEHICULAR (%s)" % TV["acero"], "kg",
+                [(x["eje"], 1, x["L_vehicular"], x["be"], None, TV["kg_m2"], "=C{r}*D{r}*E{r}*G{r}") for x in qv])
+    es = [e for e in (ES or {}).get("estructuras", []) if e.get("metrado")]
+    if es:
+        it = ".07" if (qv and TV) else ".06"
+        titulo(p(it), "ESTRUCTURAS HIDRÁULICAS EN CAMBIOS DE NIVEL (CAÍDAS, CAJAS DE CAÍDA Y PASES POR MURO)")
+        nom = lambda e: "%s %s (%s, prog. %.2f)" % (e["codigo"], e["descripcion"].split(" (")[0].lower(), e["eje"], e["progresiva"])
+        partida(p(it + ".01"), "CONCRETO f'c=210 kg/cm2 EN ESTRUCTURAS DE CAÍDA Y POZAS DE DISIPACIÓN", "m³",
+                [(nom(e), 1, None, None, None, e["metrado"]["concreto_m3"], "=C{r}*G{r}") for e in es])
+        partida(p(it + ".02"), "ENCOFRADO Y DESENCOFRADO EN ESTRUCTURAS DE CAÍDA", "m²",
+                [(nom(e), 1, None, None, None, e["metrado"]["encofrado_m2"], "=C{r}*G{r}") for e in es])
+        partida(p(it + ".03"), "ACERO f'y=4200 kg/cm2 EN ESTRUCTURAS DE CAÍDA (Ø 3/8\" @ 0.20 m EN AMBOS SENTIDOS)", "kg",
+                [(nom(e), 1, None, None, None, e["metrado"]["acero_kg"], "=C{r}*G{r}") for e in es])
+        pm = [e for e in es if e["tipo"] == "muro"]
+        if pm:
+            partida(p(it + ".04"), "MARCO DE CONCRETO ARMADO PARA PASE DE CUNETA EN MURO DE CONTENCIÓN", "und",
+                    [(nom(e) + ": %.2f x %.2f m interior" % (e["marco_ancho"], e["marco_alto"]), 1, None, None, None, None, "=C{r}") for e in pm])
 
     # RESUMEN
     cel(wr, 2, 1, "RESUMEN METRADOS DE DRENAJE PLUVIAL", bold=True, size=14, borde=False); wr.merge_cells("A2:D2")

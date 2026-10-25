@@ -58,7 +58,7 @@ def yn(Q, S, n, b):
     return (lo + hi) / 2
 
 
-def libro(ruta, proyecto, P, Rh, LL, V, secciones, TT, SM):
+def libro(ruta, proyecto, P, Rh, LL, V, secciones, TT, SM, ES=None, TV=None):
     hv = V["hidrologia"]
     cab_txt = ["PROYECTO: " + proyecto.get("nombre", "") + ((" - " + proyecto["codigo"]) if proyecto.get("codigo") else ""),
                "  -  ".join(x for x in (("ENTIDAD: " + proyecto["entidad"]) if proyecto.get("entidad") else "",
@@ -342,6 +342,35 @@ def libro(ruta, proyecto, P, Rh, LL, V, secciones, TT, SM):
         ws.sheet_view.showGridLines = False; ws.page_setup.orientation = "landscape"; ws.page_setup.fitToWidth = 1
         ws.sheet_properties.pageSetUpPr.fitToPage = True; ws.page_setup.fitToHeight = 0
     wb.properties.creator = ""; wb.properties.lastModifiedBy = ""
+    est = [e for e in (ES or {}).get("estructuras", []) if e.get("codigo")]
+    if est:
+        # caida vertical con poza (Rand / USBR) con formulas: la profundidad de poza y la caida son datos del diseno
+        we = wb.create_sheet("ESTRUCTURAS"); cabecera(we, "ESTRUCTURAS EN LOS CAMBIOS DE NIVEL (CAIDA VERTICAL CON POZA)")
+        tabla_cab(we, 4, ["CODIGO", "EJE", "PROG. (m)", "DESNIVEL (m)", "Q (l/s)", "b (m)", "CAIDA DE FONDO (m)", "PROF. POZA (m)", "hd (m)", "q (m2/s)",
+                          "D", "Ld (m)", "yp (m)", "y1 (m)", "y2 (m)", "Lj (m)", "L POZA (m)", "TIPO"],
+                  [10, 9, 9, 10, 9, 8, 11, 10, 9, 10, 11, 9, 9, 9, 9, 9, 10, 44])
+        for i, e in enumerate(est):
+            r = 5 + i
+            vals = [e["codigo"], e["eje"], e["progresiva"], e["desnivel"], e["Q_ls"], e["b"], max(e["caida_fondo"], 0.0), e["prof_poza"],
+                    "=G{r}+H{r}", "=E{r}/1000/F{r}", "=J{r}^2/(9.81*I{r}^3)", "=4.3*I{r}*K{r}^0.27", "=1*I{r}*K{r}^0.22",
+                    "=0.54*I{r}*K{r}^0.425", "=1.66*I{r}*K{r}^0.27", "=6.9*(O{r}-N{r})", "=MAX(0.6,CEILING(L{r}+P{r},0.05))", e["descripcion"]]
+            fm = [None, None, "0.00", "0.00", "0.00", "0.00", "0.000", "0.00", "0.000", "0.0000", "0.000000", "0.000", "0.000", "0.000", "0.000", "0.000", "0.00", None]
+            for j, (v, f) in enumerate(zip(vals, fm)):
+                cel(we, r, j + 1, v.format(r=r) if isinstance(v, str) and v.startswith("=") else v, f, wrap=(j == 17))
+        r = 6 + len(est)
+        cel(we, r, 1, "Fuente: " + normas.cita_larga("caida_vertical") + ". Rangos: " + normas.dato("rangos_desnivel")["valor"] + " (criterio del proyectista).", borde=False)
+    if TV:
+        wt = wb.create_sheet("TAPA VEHICULAR"); cabecera(wt, "TAPA VEHICULAR DE CUNETAS EN ESTACIONAMIENTOS (RUEDA HL-93)")
+        tabla_cab(wt, 4, ["DATO", "VALOR", "", "FORMULA / FUENTE"], [52, 13, 2, 70])
+        filas = [("Rueda del camion HL-93 P (kN)", 72.5, "0.0", normas.cita("carga_vehicular")), ("Incremento por carga dinamica IM", 1.33, "0.00", "33 %"),
+                 ("Factor de carga (Resistencia I)", 1.75, "0.00", "AASHTO LRFD / Manual de Puentes MTC"), ("Pu (kN)", "=B5*B6*B7", "0.0", "P x IM x 1.75"),
+                 ("Luz de la losa L = b + e muro (m)", TV["luz"], "0.000", "ancho libre maximo mas espesor de muro"),
+                 ("Espesor de losa h (m)", TV["h"], "0.00", "f'c = 280 kg/cm2"), ("Ancho de reparto E = 0.51 + 2h (m)", "=0.51+2*B10", "0.000", "huella de la llanta 0.51 m, reparto a 45 grados"),
+                 ("Mu = Pu L / 4 / E (kN.m/m)", "=B8*B9/4/B11", "0.00", "rueda al centro de la luz"),
+                 ("Acero adoptado", TV["acero"], None, "As = %.2f cm2/m (>= 0.0018 h, E.060)" % TV["As_cm2_m"]),
+                 ("phi Vc punzonamiento (kN)", TV["phiVc_kN"], "0.0", "0.75 x 0.33 raiz(f'c) b0 d >= Pu")]
+        for i, (t, v, f, s) in enumerate(filas):
+            cel(wt, 5 + i, 1, t); cel(wt, 5 + i, 2, v, f, bold=True, fill=AM); cel(wt, 5 + i, 4, s)
     normas.hoja_excel(wb)
     wb.save(ruta)
     return ruta

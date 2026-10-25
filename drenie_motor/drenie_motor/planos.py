@@ -407,7 +407,7 @@ class Planos:
 
 
 def dxf_planos(ruta, R, red, sitio, P, anchos, proyecto, curvas, V, LLt, LLp, secciones_eje, pref="DC", num0=1, techos=None, sums=None,
-               terreno=None, niveles_txt="", tapas=None):
+               terreno=None, niveles_txt="", tapas=None, estructuras=None, tapa_veh=None):
     """PLANOS_CUNETAS.dxf: planta general (num0), cuadros (num0 + 1), perfiles y secciones, con una presentacion por lamina.
     Devuelve (ruta, [(codigo, titulo)], numero de secciones, marcos de las laminas en el modelo)."""
     from . import planta_lamina as PLT
@@ -426,7 +426,13 @@ def dxf_planos(ruta, R, red, sitio, P, anchos, proyecto, curvas, V, LLt, LLp, se
     xd = xq + len(lq) * sep_q + 20
     alero = max([m.get("altura_alero", 3.5) for m in (techos or {}).get("montantes", [])] or [3.5])
     ld = DT.laminas(doc, xd, 0.0, 15.0, num0 + 2 + len(lp) + len(ls) + len(lq), pref, P, secciones_eje, alero)
-    todas = [l1, l2] + lp + ls + lq + ld
+    le = []
+    con_tapa = bool(tapa_veh) and any(r.get("vehiculares") for r in R["ramales"])
+    if con_tapa or any(e.get("codigo") for e in (estructuras or {}).get("estructuras", [])):
+        from . import estructuras_dxf as EX
+        le = [EX.lamina(doc, "%s-%02d" % (pref, num0 + 2 + len(lp) + len(ls) + len(lq) + len(ld)), xd + len(ld) * (841 * 5 / 1000.0 + 15.0) + 20, 0.0,
+                        P, estructuras or {}, tapa_veh, con_tapa)]
+    todas = [l1, l2] + lp + ls + lq + ld + le
     LY.presentaciones(doc, {l.codigo: l for l in todas})
     B.guardar(doc, ruta)
     cajas = [{"codigo": l.codigo, "x0": l.ox, "y0": l.oy, "x1": l.ox + l.W * l.f, "y1": l.oy + l.H * l.f, "esc": l.esc} for l in todas]

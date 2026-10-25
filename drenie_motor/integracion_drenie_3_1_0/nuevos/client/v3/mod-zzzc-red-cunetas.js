@@ -15,6 +15,9 @@ var RC_ICONS = {
   red_flecha: '<path d="M3 13L16 5l13 8" fill="#E0F2FE" stroke="#0B2545" stroke-width="1.6"/><path d="M16 12v14M11 21l5 5 5-5" stroke="#E08A12" stroke-width="2.3"/>',
   red_asignar: '<rect x="4" y="4" width="24" height="24" rx="2" fill="#DCFCE7" stroke="#0B2545" stroke-width="1.6"/><path d="M4 16L16 4M4 28L28 4M16 28L28 16" stroke="#16A34A" stroke-width="1.6"/>',
   red_normas: '<path d="M5 5a2 2 0 0 1 2-2h8v24H7a2 2 0 0 0-2 2z" fill="#E0F2FE" stroke="#0B2545" stroke-width="1.5"/><path d="M15 3h10v24H15z" fill="#fff" stroke="#0B2545" stroke-width="1.5"/><path d="M18 9h5M18 13h5M18 17h3" stroke="#0B6FC0" stroke-width="1.6"/><path d="M8 9h4M8 13h4" stroke="#0B6FC0" stroke-width="1.6"/><circle cx="24" cy="24" r="5.5" fill="#1EA7F2"/><path d="M24 21.5v.3M24 23.5v3" stroke="#fff" stroke-width="1.8"/>',
+  red_plataforma: '<path d="M2 20h28" stroke="#0B2545" stroke-width="1.6"/><rect x="5" y="11" width="22" height="9" fill="#E0F2FE" stroke="#0B6FC0" stroke-width="1.6" stroke-dasharray="3 2"/><path d="M2 27h28" stroke="#0B2545" stroke-width="1.6"/><path d="M16 4v6M13 7l3 3 3-3" stroke="#1EA7F2" stroke-width="1.8"/>',
+  red_rampa: '<path d="M3 26L29 12v14z" fill="#FDE68A" stroke="#B45309" stroke-width="1.6"/><path d="M9 19l12-6M18 12l3 1-1 3" stroke="#E08A12" stroke-width="1.8"/>',
+  red_escalera: '<path d="M3 28h6v-6h6v-6h6v-6h8" fill="none" stroke="#0B2545" stroke-width="1.8"/><path d="M3 28h26V10" fill="#E2E8F0" stroke="none"/><path d="M3 28h6v-6h6v-6h6v-6h8" fill="none" stroke="#0B2545" stroke-width="1.8"/><path d="M6 6l20 20" stroke="#D61F9A" stroke-width="2"/>',
   red_capas: '<path d="M16 4l12 6-12 6-12-6z" fill="#E0F2FE" stroke="#0B2545" stroke-width="1.5"/><path d="M4 16l12 6 12-6" stroke="#1EA7F2" stroke-width="1.7"/><path d="M4 22l12 6 12-6" stroke="#0B6FC0" stroke-width="1.7"/>'
 };
 // [comando del visor, texto, grupo de la cinta, trazos 16 x 16] (mismos comandos que la línea de comando del visor)
@@ -132,6 +135,7 @@ function v3RedRibbon(props) {
     rbGrp('Normas', [rbBig('red_normas', 'Normas y\nfuentes', function () { RC.verNormas = true; RC.asistente = null; go(); rcAvisar(); }, { on: on && RC.verNormas, k: 'nor' })]),
     rbGrp('Drenaje', [big('cuneta', 'Eje de\ncuneta', 'red_cuneta'), big('montante', 'Montante', 'red_montante'), big('sumidero', 'Sumidero', 'red_sumidero'),
       big('descarga', 'Descarga', 'red_descarga'), big('flecha', 'Caída de\ntecho', 'red_flecha'), big('asignar', 'Asignar\nsuperficie', 'red_asignar')]),
+    rbGrp('Niveles', [big('plataforma', 'Plataforma\n(NPT)', 'red_plataforma'), big('rampa', 'Rampa', 'red_rampa'), big('escalera', 'Escalera', 'red_escalera')]),
     rbGrp('Dibujo', [col('dib', 0, 3), col('dib', 3, 6)]),
     rbGrp('Modificar', [col('mod', 0, 3), col('mod', 3, 6), col('mod', 6, 9), col('mod', 9, 12)]),
     rbGrp('Medir y vista', [col('med', 0, 3), col('vis', 0, 3), rbCol.apply(null, RC_CMDS.filter(function (c) { return c[2] === 'vis'; }).slice(3).map(function (c) { return rbSm('rc_' + c[0], c[1], cmd(c[0]), { k: c[0] }); })
@@ -208,6 +212,7 @@ function RcAsistente(props) {
         h('div', null, h('span', null, 'Lluvia de diseño'), h('b', null, ll.error ? 'Pendiente' : fmt(ll.I_mmh, 2) + ' mm/h'),
           h('small', null, ll.error || ll.fuente)),
         h(Btn, { onClick: function () { v3Go(props, 1); } }, 'Ir a LLUVIA')),
+      h('p', { className: 'ws-note' }, 'Si el terreno se resuelve en plataformas (desniveles, rampas, escaleras o muros de contención), después de crear el proyecto dibújelas en el visor con los botones Plataforma, Rampa y Escalera del grupo Niveles: cada plataforma lleva su NPT y el rebaje del borde de cuneta (al ras, 5 o 10 cm). Al dibujar cada eje de cuneta el programa pregunta su borde. En cada cambio de nivel el programa pone la estructura que corresponde: hasta 0.15 m continua, hasta 0.50 m caída corta, hasta 1.00 m caja de caída y, con muro de contención, pase con marco de concreto armado y poza de disipación.'),
       h('p', { className: 'ws-note' }, 'La cota de fondo de cada cuneta, sus descargas por gravedad y la llegada de cada montante sobre el nivel del agua se calculan y se verifican. Lo que el programa no pueda resolver solo aparece en la ventana de soluciones para que usted decida.'),
       h('div', { className: 'ws-actions ws-next' }, h(Btn, { onClick: function () { RC.asistente = null; rcAvisar(); } }, 'Cancelar'), h(Btn, { variant: 'primary', onClick: crear }, 'Crear y abrir el proyecto'))) : null);
 }
