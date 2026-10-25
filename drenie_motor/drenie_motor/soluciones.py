@@ -24,11 +24,24 @@ def _obs(id_, gravedad, titulo, que, porque, donde=None, opciones=(), recomendad
             "donde": {"x": round(donde[0], 3), "y": round(donde[1], 3)} if donde else None, "opciones": ops, "estado": "pendiente"}
 
 
+NPT_LEJOS_M = 3.0     # subir mas que esto el nivel de piso no es practico: se pide revisar el dato
+
+
 def armar(cfg, nivel=None, plan_inf=(), TT=None, SM=None, V=None, avisos=(), revision=None, R=None, S=None, elegidas=None, da=None,
           sin_gravedad=None):
     """Lista de observaciones del calculo. elegidas: {obs: {"opcion", "tipo"}} que el proyectista ya eligio en el visor."""
     out = []
     npt = (cfg.get("niveles") or {}).get("npt")
+    # ---------------------------------------------------------------- nivel de piso muy por debajo del terreno: probable error del dato
+    dz = max([nivel[0] if nivel else 0.0, (sin_gravedad or {}).get("subir_npt_m") or 0.0])
+    if dz > NPT_LEJOS_M:
+        out.append(_obs("npt-lejos", "revisar", "El nivel de piso queda %.2f m bajo lo que pide el terreno" % dz,
+                        "Para que el agua salga por gravedad habría que subir el nivel de piso %.2f m%s. Una diferencia así suele ser un dato "
+                        "mal ingresado (NPT de otro plano, cota relativa en vez de absoluta)." % (dz, (" (NPT dado %.2f)" % npt) if isinstance(npt, (int, float)) else ""),
+                        "El NPT está muy por debajo de las cotas del terreno del plano.", None,
+                        [{"id": "A", "tipo": "manual", "texto": "Corregir el NPT", "efecto": "Asistente del proyecto: ingrese el nivel de piso en la misma referencia que las curvas del plano."},
+                         {"id": "B", "tipo": "confirmar", "texto": "El NPT está bien", "efecto": "Se deja así; la red se diseña sin gravedad donde haga falta.", "cambio": {"confirmar": True}}],
+                        recomendada="A"))
     # ---------------------------------------------------------------- salida por gravedad
     if nivel and nivel[0] > 0:
         ops = []
@@ -118,7 +131,8 @@ def armar(cfg, nivel=None, plan_inf=(), TT=None, SM=None, V=None, avisos=(), rev
                         "del lugar (minutos para bajar 1 cm, IS.020) y la profundidad de la napa; sin ellos el programa vuelve a bombeo.",
                         "cambio": {"descarga_alternativa": {"tipo": "infiltracion"}}})
         if sin_gravedad and sin_gravedad.get("subir_npt_m"):
-            ops.append({"id": "C", "tipo": "automatica", "texto": "Subir el nivel de piso %.2f m y descargar por gravedad" % sin_gravedad["subir_npt_m"],
+            ops.append({"id": "C", "tipo": "automatica", "texto": "Subir el nivel de piso %.2f m y descargar por gravedad%s" % (
+                            sin_gravedad["subir_npt_m"], " (revise antes el NPT)" if sin_gravedad["subir_npt_m"] > NPT_LEJOS_M else ""),
                         "efecto": sin_gravedad.get("texto_nivel", ""), "cambio": {"subir_nivel": sin_gravedad["subir_npt_m"],
                                                                                  "descarga_alternativa": {"tipo": None}}})
         ops.append(MANUAL)
