@@ -192,3 +192,16 @@ El programa no se cae: un error interno sale como mensaje en español (código 3
 sí sale, calcula cuánto hay que subir el piso y lo verifica rediseñando con ese nivel («subir el nivel de piso 0.55 m
 (NPT 170.64): verificado, con ese nivel toda la red sale por gravedad»); si con ningún nivel razonable sale, pide una descarga
 a un colector o canal existente. Si quedan cunetas sin unir, la red se rehace admitiendo uniones más largas (×2, ×3).
+
+## Ventana de soluciones
+
+Lo que el programa no resuelve solo, o que conviene confirmar, no se esconde: `resultado.json` trae `observaciones`, cada una con
+qué pasó, dónde (E, N), por qué y las soluciones posibles: **automática** (el programa la aplica en el siguiente cálculo, p. ej.
+subir el NPT ya verificado o dejar que elija las descargas), **manual** («lo resuelvo a mano»: dibujar la cuneta, mover el montante,
+indicar una descarga) o **confirmar** (aceptar lo que supuso el programa: caída de techos, tipo de superficie por defecto). La
+recomendada va marcada. El motor arma `VISOR_DRENIE.html` (escena + observaciones) en la carpeta de salida; al abrirlo aparece la
+ventana «El programa necesita su decisión» (también el botón Soluciones y la pestaña Soluciones), con «Ver en el plano» (zoom y
+marca en el punto) y un botón por solución; «Lo analizo después» la deja pendiente. Lo elegido viaja en `ediciones.json`
+(`"soluciones"`) y el motor lo aplica al volver a calcular. Sin visor: `python -m drenie_motor aplicar proyecto.json nivel A`.
+La hoja SOLUCIONES de `REVISION_GENERAL.xlsx` lleva la misma lista. Arquitectura: ventana en JavaScript (visor), motor en
+Python, y se comunican por archivos JSON.

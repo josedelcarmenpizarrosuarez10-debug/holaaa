@@ -83,6 +83,23 @@ textarea { width: 100%; min-height: 110px; background: var(--bg); color: var(--f
 .ayuda table { width: 100%; border-collapse: collapse; }
 .ayuda td { padding: 3px 6px; border-bottom: 1px solid var(--line); font-size: 12px; }
 .ayuda td:first-child { font-family: var(--font-mono); color: var(--accent); white-space: nowrap; }
+.sol-btn { border-color: var(--warn); color: var(--fg); }
+.sol-btn b { background: var(--warn); color: #1b1f24; border-radius: 9px; padding: 0 6px; font: 600 11px var(--font-mono); }
+.sol-ven { max-width: 760px; }
+.sol-tar { border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; margin: 10px 0; background: var(--panel-2); }
+.sol-tar h4 { margin: 0 0 4px; font-size: 13px; font-weight: 600; text-wrap: balance; }
+.sol-tar p { margin: 3px 0; font-size: 12px; }
+.sol-tar p small { color: var(--muted); }
+.sol-chip { display: inline-block; font: 600 10px var(--font-ui); letter-spacing: .06em; text-transform: uppercase; border-radius: 3px; padding: 1px 6px; margin-right: 6px; vertical-align: 1px; }
+.sol-chip.decision { background: #4f9dff; color: #10161d; }
+.sol-chip.revisar { background: var(--warn); color: #10161d; }
+.sol-chip.confirmar { background: var(--accent); color: #10161d; }
+.sol-chip.hecho { background: #6fcf97; color: #10161d; }
+.sol-ops { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; }
+.sol-ops button { justify-content: flex-start; text-align: left; white-space: normal; }
+.sol-ops button small { color: var(--muted); display: block; font-weight: 400; }
+.sol-ops button.elegida { border-color: #6fcf97; box-shadow: inset 3px 0 0 #6fcf97; }
+.sol-ops button.recom::after { content: "recomendada"; margin-left: auto; font: 600 10px var(--font-ui); color: var(--accent); text-transform: uppercase; letter-spacing: .06em; }
 .pie { background: var(--panel); border-top: 1px solid var(--line); position: relative;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); }
 .historial { font: 12px var(--font-mono); color: var(--muted); height: 36px; overflow: auto; padding-top: 3px; white-space: pre-wrap; }
@@ -120,6 +137,7 @@ textarea { width: 100%; min-height: 110px; background: var(--bg); color: var(--f
 <div class="app">
   <header class="barra" id="barra">
     <div class="marca">DrenIE <small id="nombrePry">visor</small></div>
+    <button class="sol-btn" id="btnSol" hidden title="Observaciones del cálculo y soluciones propuestas">Soluciones <b id="nSol">0</b></button>
     <button class="mostrar-lado" id="btnLado" aria-label="Mostrar paneles">Paneles</button>
   </header>
 
@@ -129,10 +147,12 @@ textarea { width: 100%; min-height: 110px; background: var(--bg); color: var(--f
         <button class="on" data-hoja="hSup" role="tab">Superficies</button>
         <button data-hoja="hCapas" role="tab">Capas</button>
         <button data-hoja="hEd" role="tab">Ediciones</button>
+        <button data-hoja="hSol" role="tab" id="tabSol" hidden>Soluciones</button>
       </div>
       <div class="hoja" id="hSup"></div>
       <div class="hoja" id="hCapas" hidden></div>
       <div class="hoja" id="hEd" hidden></div>
+      <div class="hoja" id="hSol" hidden></div>
       <section class="props" id="props" aria-label="Propiedades"></section>
     </aside>
     <main class="lienzo" id="lienzo">
@@ -162,6 +182,7 @@ textarea { width: 100%; min-height: 110px; background: var(--bg); color: var(--f
 </div>
 
 <script id="escena-datos" type="application/json">null</script>
+<script id="resultado-datos" type="application/json">null</script>
 <script>
 "use strict";
 /* ====================================================================================== datos fijos */
@@ -330,6 +351,7 @@ function exportar() {
   if (ED.montIni) out.montantes = [];
   if (ED.sumIni) { out.sumideros = []; out.sumideros_visor = true; }
   for (const a of ED.asign) { const p = U([a.x, a.y]); out.asignaciones.push({ x: p[0], y: p[1], tipo: a.tipo }); }
+  out.soluciones = Object.values(ED.soluciones || {});              // lo elegido en la ventana de soluciones
   let nd = 0;
   for (const e of ED.ents) {
     if (e.k === "pl" && e.cerr && e.tipo) out.superficies.push({ nombre: e.nombre || TIPOS[e.tipo][0] + " (visor)", tipo: e.tipo, poligono: e.pts.map(U) });
@@ -1021,6 +1043,7 @@ function dibujarSup() {
     if (MED.k === "area") { const p = MED.cara ? MED.cara.path : caminoPts(MED.pts, true); g.fillStyle = "rgba(233,185,73,.2)"; g.fill(p); g.strokeStyle = "#e9b949"; g.lineWidth = 1.5 * lw; g.stroke(p); }
     if (MED.k === "punto") { g.strokeStyle = "#e9b949"; g.lineWidth = 1.5 * lw; const r = 8 * lw; g.beginPath(); g.moveTo(MED.p[0] - r, MED.p[1]); g.lineTo(MED.p[0] + r, MED.p[1]); g.moveTo(MED.p[0], MED.p[1] - r); g.lineTo(MED.p[0], MED.p[1] + r); g.stroke(); }
   }
+  marcasSoluciones(g, lw);
   // goma elastica del comando
   const p = puntoActual();
   if (C && p) goma(g, p, lw);
@@ -1072,7 +1095,7 @@ function goma(g, p, lw) {
   g.stroke(); g.setLineDash([]);
 }
 function redibujar() { dibujarBase(); dibujarSup(); }
-function refrescar() { autoguardar(); dibujarBase(); dibujarSup(); pintarSuperficies(); pintarEdiciones(); pintarPropiedades(); }
+function refrescar() { autoguardar(); dibujarBase(); dibujarSup(); pintarSuperficies(); pintarEdiciones(); pintarPropiedades(); pintarSoluciones(); }
 
 /* rotulo junto al cursor: tipo del area bajo el mouse o medida dinamica del comando */
 function actualizarTip(X, Y) {
@@ -1220,6 +1243,7 @@ function importar(texto) {
   for (const c of d.cotas || []) nuevaEnt("cota", c.puntos.map(L), { modo: c.modo });
   for (const t of d.textos || []) nuevaEnt("texto", [L([t.x, t.y])], { t: t.texto, h: t.altura });
   for (const l of d.lineas || []) nuevaEnt(l.cerrada ? "pl" : "linea", l.puntos.map(L), { cerr: !!l.cerrada });
+  ED.soluciones = ED.soluciones || {}; for (const so of d.soluciones || []) ED.soluciones[so.obs] = so;
   msg("Ediciones cargadas."); refrescar();
 }
 function irA(id) {
@@ -1417,15 +1441,96 @@ if (window.innerWidth > 760) lado.removeAttribute("data-cerrado");
 document.getElementById("btnLado").onclick = () => lado.toggleAttribute("data-cerrado");
 document.querySelectorAll(".pestanas button").forEach(b => b.onclick = () => {
   document.querySelectorAll(".pestanas button").forEach(x => x.classList.toggle("on", x === b));
-  for (const id of ["hSup", "hCapas", "hEd"]) document.getElementById(id).hidden = id !== b.dataset.hoja;
+  for (const id of ["hSup", "hCapas", "hEd", "hSol"]) document.getElementById(id).hidden = id !== b.dataset.hoja;
 });
 new ResizeObserver(dimensionar).observe(lienzo);
+
+/* ====================================================================================== soluciones
+   El motor deja en resultado.json lo que no pudo resolver solo o que conviene confirmar ("observaciones"), con las soluciones
+   posibles. Aqui el proyectista ve cada caso, lo ubica en el plano y elige: aplicar una solucion automatica, resolverlo a mano
+   o confirmarlo. Lo elegido viaja en ediciones.json ("soluciones") y el motor lo aplica en el siguiente calculo. */
+let RES = null;
+const GRAV = { decision: "Decisión del proyectista", revisar: "Revisar", confirmar: "Confirmar" };
+const htm = t => String(t == null ? "" : t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+function obsLista() { return (RES && RES.observaciones) || []; }
+function elegidaDe(o) { const s = (ED.soluciones || {})[o.id]; return s ? s.opcion : (o.estado !== "pendiente" ? o.elegida : null); }
+function pendientes() { return obsLista().filter(o => !elegidaDe(o)); }
+function tarjetaSol(o) {
+  const el = elegidaDe(o);
+  let h = '<div class="sol-tar" data-obs="' + htm(o.id) + '"><h4><span class="sol-chip ' + (el ? "hecho" : o.gravedad) + '">' + (el ? "Elegido" : GRAV[o.gravedad] || o.gravedad) + "</span>" + htm(o.titulo) + "</h4>" +
+    "<p>" + htm(o.que_paso) + "</p><p><small>Por qué: " + htm(o.por_que) + "</small></p>";
+  if (o.estado && o.estado !== "pendiente") h += "<p><small>Estado en el último cálculo: " + htm(o.estado) + "</small></p>";
+  h += '<div class="sol-ops">';
+  if (o.donde) h += '<button type="button" data-ver="' + htm(o.id) + '">Ver en el plano</button>';
+  for (const op of o.opciones) {
+    const tipo = op.tipo === "automatica" ? "Aplicar: " : (op.tipo === "confirmar" ? "Confirmar: " : "");
+    h += '<button type="button" data-obs="' + htm(o.id) + '" data-op="' + htm(op.id) + '" class="' + (el === op.id ? "elegida " : "") + (op.recomendada ? "recom" : "") + '">' +
+      "<span>" + htm(op.id) + ") " + tipo + htm(op.texto) + "<small>" + htm(op.efecto) + "</small></span></button>";
+  }
+  if (el) h += '<button type="button" data-anular="' + htm(o.id) + '">Deshacer la elección (vuelve a pendiente)</button>';
+  return h + "</div></div>";
+}
+function cuerpoSol() {
+  const L = obsLista(), np = pendientes().length;
+  if (!L.length) return '<p class="nota">El último cálculo no dejó observaciones: todo quedó resuelto y revisado.</p>';
+  return '<p class="nota">' + L.length + " observaciones del cálculo, " + np + " pendientes. Elija una solución en cada una: las automáticas las aplica el programa en el " +
+    "siguiente cálculo; las manuales quedan anotadas como resueltas por usted. «Lo analizo después» las deja pendientes.</p>" + L.map(tarjetaSol).join("");
+}
+function enlazarSol(raiz) {
+  raiz.querySelectorAll("[data-op]").forEach(b => b.onclick = () => elegirSol(b.dataset.obs, b.dataset.op));
+  raiz.querySelectorAll("[data-ver]").forEach(b => b.onclick = () => verSol(b.dataset.ver));
+  raiz.querySelectorAll("[data-anular]").forEach(b => b.onclick = () => { guardarPaso(); delete ED.soluciones[b.dataset.anular]; msg("Elección deshecha: la observación vuelve a pendiente."); refrescar(); });
+}
+function elegirSol(idObs, idOp) {
+  const o = obsLista().find(x => x.id === idObs); if (!o) return;
+  const op = o.opciones.find(x => x.id === idOp); if (!op) return;
+  guardarPaso(); ED.soluciones = ED.soluciones || {};
+  ED.soluciones[idObs] = { obs: idObs, opcion: idOp, tipo: op.tipo, cambio: op.cambio || null };
+  msg((op.tipo === "automatica" ? "Solución elegida: " : "Anotado: ") + op.texto + (op.tipo === "automatica" ? ". Se aplica al volver a calcular (guarde ediciones.json)." : "."));
+  refrescar();
+}
+function verSol(idObs) {
+  const o = obsLista().find(x => x.id === idObs); if (!o || !o.donde) return;
+  const x = o.donde.x - ORX, y = o.donde.y - ORY, m = 12;
+  guardarVista(); verCaja(x - m, y - m, x + m, y + m, 1); SOL_FOCO = idObs; redibujar();
+  const v = document.getElementById("ventanaSol"); if (v) v.remove();
+}
+let SOL_FOCO = null;
+function marcasSoluciones(g, lw) {
+  for (const o of obsLista()) {
+    if (!o.donde) continue;
+    const x = o.donde.x - ORX, y = o.donde.y - ORY, hecho = !!elegidaDe(o), foco = SOL_FOCO === o.id;
+    const r = (foco ? 16 : 11) * lw;
+    g.lineWidth = (foco ? 3 : 2) * lw; g.strokeStyle = hecho ? "#6fcf97" : "#ff4fd8";
+    g.beginPath(); g.arc(x, y, r, 0, 2 * Math.PI); g.stroke();
+    g.beginPath(); g.moveTo(x, y - r * 0.55); g.lineTo(x, y + r * 0.1); g.moveTo(x, y + r * 0.35); g.lineTo(x, y + r * 0.42); g.stroke();
+  }
+}
+function pintarSoluciones() {
+  const hs = document.getElementById("hSol"); if (!hs) return;
+  const n = obsLista().length, np = pendientes().length;
+  document.getElementById("tabSol").hidden = !n; document.getElementById("btnSol").hidden = !n;
+  document.getElementById("nSol").textContent = np;
+  hs.innerHTML = '<div class="fila"><button type="button" id="abrirSol">Abrir la ventana de soluciones</button></div>' + cuerpoSol();
+  document.getElementById("abrirSol").onclick = mostrarSoluciones; enlazarSol(hs);
+  const v = document.getElementById("cuerpoVenSol"); if (v) { v.innerHTML = cuerpoSol(); enlazarSol(v); }
+}
+function mostrarSoluciones() {
+  let a = document.getElementById("ventanaSol"); if (a) { a.remove(); return; }
+  a = document.createElement("div"); a.className = "ayuda sol-ven"; a.id = "ventanaSol"; a.setAttribute("role", "dialog"); a.setAttribute("aria-label", "Soluciones");
+  a.innerHTML = '<div class="fila" style="justify-content:space-between;margin-top:0"><b>El programa necesita su decisión</b><button type="button" id="cerrarSol">Lo analizo después</button></div><div id="cuerpoVenSol"></div>';
+  lienzo.appendChild(a); document.getElementById("cerrarSol").onclick = () => a.remove();
+  const c = document.getElementById("cuerpoVenSol"); c.innerHTML = cuerpoSol(); enlazarSol(c);
+}
+document.getElementById("btnSol").onclick = mostrarSoluciones;
 
 /* ====================================================================================== arranque */
 (function () {
   let d = null; try { d = JSON.parse(document.getElementById("escena-datos").textContent); } catch (e) {}
   dimensionar();
-  if (d) { cargarEscena(d); recuperar(); montantesIniciales(); sumiderosIniciales(); refrescar(); msg("Escena cargada: " + caras.length + " áreas, " + capas.length + " capas. F1: lista de comandos."); }
+  try { RES = JSON.parse(document.getElementById("resultado-datos").textContent); } catch (e) { RES = null; }
+  if (d) { cargarEscena(d); recuperar(); ED.soluciones = ED.soluciones || {}; montantesIniciales(); sumiderosIniciales(); refrescar(); msg("Escena cargada: " + caras.length + " áreas, " + capas.length + " capas. F1: lista de comandos.");
+    if (pendientes().length) { msg("El cálculo dejó " + pendientes().length + " observaciones con soluciones propuestas: botón Soluciones."); mostrarSoluciones(); } }
   else {
     msg("Abra la escena del proyecto (escena.json que genera el motor de DrenIE).");
     const i = document.createElement("input"); i.type = "file"; i.accept = ".json"; i.id = "abrirEscena";

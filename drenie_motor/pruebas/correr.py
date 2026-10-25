@@ -40,7 +40,8 @@ def correr(ruta, limite=1500):
     estado = "FALLA" if fallas else ("PROYECTISTA" if dec else "BIEN")
     return {"proyecto": ruta, "estado": estado, "segundos": seg, "fallas": fallas, "decisiones": dec,
             "resumen": {k: r.get(k) for k in ("ejes", "descargas", "longitud_m", "uniones_nuevas_m", "profundidad_max_m", "cumple", "comprobaciones", "sin_salida_m")},
-            "revision": "%s/%s" % (rv.get("comprobaciones", 0) - rv.get("no_cumple", 0), rv.get("comprobaciones", 0))}
+            "revision": "%s/%s" % (rv.get("comprobaciones", 0) - rv.get("no_cumple", 0), rv.get("comprobaciones", 0)),
+            "observaciones": len(R.get("observaciones", [])), "visor": bool((R.get("archivos") or {}).get("visor"))}
 
 
 def main():
@@ -56,7 +57,7 @@ def main():
         for res in ex.map(correr, rutas):
             out.append(res)
             print("%-12s %-55s %6.0f s  %s" % (res["estado"], os.path.relpath(res["proyecto"], RAIZ), res["segundos"],
-                                             res.get("revision", "") + " " + "; ".join(x[:150] for x in (res.get("fallas") or res.get("decisiones") or [res.get("detalle", "")])[:3])), flush=True)
+                                             res.get("revision", "") + (" obs %d%s" % (res["observaciones"], "" if res.get("visor") else " SIN VISOR") if "observaciones" in res else "") + " " + "; ".join(x[:150] for x in (res.get("fallas") or res.get("decisiones") or [res.get("detalle", "")])[:3])), flush=True)
     json.dump(out, open(os.path.join(AQUI, "RESULTADO_PRUEBAS.json"), "w"), indent=1, ensure_ascii=False)
     cuenta = {}
     for r in out: cuenta[r["estado"]] = cuenta.get(r["estado"], 0) + 1

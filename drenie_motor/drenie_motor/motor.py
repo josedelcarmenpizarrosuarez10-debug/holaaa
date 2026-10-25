@@ -10,7 +10,7 @@ import json
 import os
 import time
 
-from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos, techo, sumideros, metrado, planta_lamina, memorias, especificaciones, revision, render, memoria_calculo, caratulas, planteamiento
+from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos, techo, sumideros, metrado, planta_lamina, memorias, especificaciones, revision, render, memoria_calculo, caratulas, planteamiento, soluciones
 from .parametros import combinar
 
 VERSION = "0.1.0"
@@ -40,7 +40,8 @@ def _sumar_ediciones(cfg, ed):
     cfg["ejes_lineas"] = list(cfg.get("ejes_lineas", [])) + list(ed.get("ejes_lineas", []))
     if ed.get("descargas"): cfg["descargas"] = ed["descargas"]
     if ed.get("montantes"): cfg["montantes"] = ed["montantes"]
-    if ed.get("sumideros") is not None and ed.get("sumideros_visor"): cfg["sumideros"] = ed["sumideros"]          # todos los montantes que dejo el proyectista en el visor
+    if ed.get("sumideros") is not None and ed.get("sumideros_visor"): cfg["sumideros"] = ed["sumideros"]
+    if ed.get("soluciones"): cfg["soluciones"] = list(cfg.get("soluciones", [])) + list(ed["soluciones"])   # ventana de soluciones          # todos los montantes que dejo el proyectista en el visor
 
 
 def _preparar(cfg, base, salida):
@@ -135,6 +136,7 @@ def lluvia(cfg_ruta):
 
 def disenar(cfg_ruta):
     cfg, base, salida = _cargar(cfg_ruta)
+    elegidas = soluciones.aplicar_en_cfg(cfg, cfg.get("soluciones"))      # lo elegido en la ventana de soluciones del visor
     t0 = time.time()
     P, B, cur, rep_t, T, S, ejes = _preparar(cfg, base, salida)
     LL, Rh = _lluvia_diseno(cfg, base)
@@ -291,8 +293,29 @@ def disenar(cfg_ruta):
            "laminas": [dict(codigo=c, titulo=t, marco=[round(m["x0"], 3), round(m["y0"], 3), round(m["x1"], 3), round(m["y1"], 3)], escala="1/%d" % m["esc"])
                        for (c, t), m in zip(laminas, marcos)], "secciones_dibujadas": n_sec, "segundos": round(time.time() - t0, 1),
            "requiere_confirmacion": ["descargas"] if not cfg.get("descargas") else []}
+    # observaciones y soluciones propuestas (ventana de soluciones del visor y hoja SOLUCIONES de la revision)
+    out["observaciones"] = soluciones.armar(cfg, nivel, plan_inf, TT, SM, V, S.avisos + M.avisos + R.avisos + TT["avisos"] + SM["avisos"],
+                                            rev[1], R, S, elegidas)
+    out["resumen"]["observaciones_pendientes"] = sum(1 for o in out["observaciones"] if o["estado"] == "pendiente")
+    soluciones.hoja_excel(rev[0], out["observaciones"])
     json.dump(out, open(os.path.join(salida, "resultado.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+    try:
+        out["archivos"]["visor"] = _visor(salida, B, S, M, ejes, cur, cfg, TT, SM)
+        json.dump(out, open(os.path.join(salida, "resultado.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+    except Exception as e:                       # el visor es una ayuda: si falla, el diseno igual queda entregado
+        out["avisos"].append("No se pudo armar el visor con las soluciones (%s)." % type(e).__name__)
     return out
+
+
+def _visor(salida, B, S, M, ejes, cur, cfg, TT, SM):
+    """Escena del diseno y VISOR_DRENIE.html con la ventana de soluciones (lee resultado.json)."""
+    import importlib.util
+    mont = [{"x": m["x"], "y": m["y"], "V": m["esquina"], "u": m["a_lo_largo"], "n": m["hacia_alero"]} for m in TT["montantes"]]
+    sums = [{"x": x["x"], "y": x["y"], "zona": x.get("zona"), "A_m2": x.get("A_m2")} for x in SM["sumideros"]]
+    esc = escena.escribir(os.path.join(salida, "escena.json"), B, S, M, ejes, cur, cfg.get("proyecto", {}), getattr(S, "aguas", []), mont, sums)
+    ruta_av = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "visor", "armar_visor.py")
+    spec = importlib.util.spec_from_file_location("armar_visor", ruta_av); av = importlib.util.module_from_spec(spec); spec.loader.exec_module(av)
+    return av.armar(esc, os.path.join(salida, "VISOR_DRENIE.html"), os.path.join(salida, "resultado.json"))
 
 
 def _niveles_txt(cfg):
@@ -488,3 +511,20 @@ def _revisar(salida, P, V, C, sec, TT, SM, LLt, M, xls_rc, tot, partidas, q, tap
                    "con el nivel de piso dado el terreno no da salida por gravedad a toda la red (%s). Solucion: %s; la parte que si sale "
                    "queda disenada completa" % (nivel[1], nivel[2]))
     return revision.escribir(os.path.join(salida, "REVISION_GENERAL.xlsx"), I), I.resumen()
+
+
+def aplicar(cfg_ruta, obs, opcion):
+    """Aplica una solucion de la ventana de soluciones sin pasar por el visor: la anota en ediciones.json (como lo haria el
+    visor) y vuelve a disenar."""
+    cfg, base, salida = _cargar(cfg_ruta)
+    R = json.load(open(os.path.join(salida, "resultado.json"), encoding="utf-8"))
+    o = next((x for x in R.get("observaciones", []) if x["id"] == obs), None)
+    if o is None: raise ValueError("No hay una observacion '%s' en el ultimo calculo." % obs)
+    op = next((x for x in o["opciones"] if x["id"] == opcion), None)
+    if op is None: raise ValueError("La observacion '%s' no tiene la opcion '%s' (opciones: %s)." % (obs, opcion, ", ".join(x["id"] for x in o["opciones"])))
+    ruta_ed = _ruta(base, cfg.get("ediciones", "ediciones.json"))
+    ed = json.load(open(ruta_ed, encoding="utf-8")) if os.path.exists(ruta_ed) else {"version": 1, "fuente": "DrenIE"}
+    ed["soluciones"] = [x for x in ed.get("soluciones", []) if x.get("obs") != obs] + [{"obs": obs, "opcion": opcion, "tipo": op["tipo"], "cambio": op.get("cambio")}]
+    json.dump(ed, open(ruta_ed, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+    return disenar(cfg_ruta)
+

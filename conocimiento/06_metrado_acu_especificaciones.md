@@ -263,6 +263,11 @@ de arquitectura); las rejillas, tramos tapados y áreas verdes los confirma el p
 Llegada de tuberías a la cuneta (usuario, 25-10-2026): el fondo del tubo (montante o sumidero) llega sobre el nivel del agua de la
 cuneta (cota de fondo + tirante) + 0.05 m; si llega a la cota de fondo, al llover el tubo queda ahogado, el agua se empoza y regresa.
 Si no se da, se busca la salida (0.5 %, tubo más alto, otra cuneta, profundizar el tramo como último recurso).
+DRENIE como programa que propone soluciones (usuario, 25-10-2026): no esconder lo que no pudo resolver; mostrarlo en una ventana
+(qué pasó, dónde, por qué) con soluciones para elegir (aplicar automática, «lo hago a mano», confirmar, «lo analizo después»).
+Ventana en el visor (JavaScript); motor en Python; se comunican por JSON (resultado.json → observaciones; ediciones.json →
+soluciones elegidas). Terreno sin salida por gravedad: se calcula y se verifica cuánto subir el NPT. Batería de pruebas
+(`drenie_motor/pruebas/`) antes de entregar cualquier versión: ninguna caída ni falla sin explicar.
 Planteamiento de cunetas (usuario, 25-10-2026): la cuneta puede ir a lo largo del alero o transversal (por los lados cortos,
 recibiendo los montantes de las esquinas, como en el CAR Varones); lo que importa es que el tubo de cada montante llegue. Se busca
 el menor uso de cunetas largas (salen muy profundas o no llegan) y que empiecen lo menos profundas posible. Primero edificaciones

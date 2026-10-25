@@ -3,6 +3,7 @@
     python -m drenie_motor lluvia  proyecto.json   (lluvia de diseno desde los datos de la estacion)
     python -m drenie_motor leer    proyecto.json
     python -m drenie_motor disenar proyecto.json
+    python -m drenie_motor aplicar proyecto.json OBSERVACION OPCION   (solucion de la ventana de soluciones y nuevo calculo)
 
 Escribe lectura.json o resultado.json en la carpeta de salida del proyecto y un resumen JSON en la salida estandar.
 Codigo de salida: 0 bien, 2 error de datos, 3 error interno (mensaje en espanol en "error"; el detalle tecnico queda en
@@ -35,10 +36,11 @@ def _registrar(cfg_ruta, accion):
 
 def main(argv=None):
     argv = argv if argv is not None else sys.argv[1:]
-    if len(argv) != 2 or argv[0] not in ("lluvia", "leer", "disenar"):
+    if not ((len(argv) == 2 and argv[0] in ("lluvia", "leer", "disenar")) or (len(argv) == 4 and argv[0] == "aplicar")):
         print(__doc__); return 1
     try:
-        out = {"lluvia": motor.lluvia, "leer": motor.leer, "disenar": motor.disenar}[argv[0]](argv[1])
+        if argv[0] == "aplicar": out = motor.aplicar(argv[1], argv[2], argv[3])
+        else: out = {"lluvia": motor.lluvia, "leer": motor.leer, "disenar": motor.disenar}[argv[0]](argv[1])
     except (ValueError, FileNotFoundError) as e:
         print(json.dumps({"error": str(e), "tipo": "datos"}, ensure_ascii=False)); return 2
     except Exception as e:                                          # nunca se cae sin explicar: registro y mensaje en espanol
@@ -48,6 +50,9 @@ def main(argv=None):
                                        type(e).__name__, reg or "(sin registro)"), "tipo": "interno", "registro": reg}, ensure_ascii=False))
         return 3
     corto = {k: out[k] for k in ("accion", "resumen", "avisos", "archivos", "imagen_control", "segundos", "requiere_confirmacion") if k in out}
+    if out.get("observaciones"):
+        corto["observaciones"] = [{"id": o["id"], "titulo": o["titulo"], "estado": o["estado"],
+                                   "opciones": ["%s) %s" % (p["id"], p["texto"]) for p in o["opciones"]]} for o in out["observaciones"]]
     if "verificacion" in out:
         corto["comprobaciones"] = [(c["n"], c["estado"]) for c in out["verificacion"]["comprobaciones"]]
     print(json.dumps(corto, ensure_ascii=False, indent=1))
