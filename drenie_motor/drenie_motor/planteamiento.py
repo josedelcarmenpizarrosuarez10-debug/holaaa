@@ -129,7 +129,7 @@ def proponer(S, P, I, cfg, ejes):
         informe.append({"techo": nombre, "montantes": len(t["montantes"]), "sin_cuneta_antes": len(falta), "decision": mejor["tipo"],
                         "nueva_m": round(mejor["nueva_m"], 2), "opciones": {k: round(o["nueva_m"], 2) for k, o in por_tipo.items()},
                         "razon": "menor cuneta nueva que deja todos sus montantes a %.1f m o menos (%s)" % (tmax, comp)})
-    elegidas, prol = _prolongar(S, cfg, pp, base, elegidas, techos)
+    elegidas, prol = _prolongar(S, cfg, pp, base, elegidas, techos, P)
     if prol:
         informe.append({"techo": "-", "decision": "prolongaciones", "nueva_m": round(sum(x.length for x in prol), 2),
                         "razon": "%d cunetas prolongadas en linea recta hacia las descargas hasta otra cuneta o el cerco junto a una "
@@ -137,7 +137,7 @@ def proponer(S, P, I, cfg, ejes):
     return [[(round(x, 3), round(y, 3)) for x, y in l.coords] for l in elegidas], informe, avisos
 
 
-def _prolongar(S, cfg, pp, base, elegidas, techos):
+def _prolongar(S, cfg, pp, base, elegidas, techos, P=None):
     """Cada cuneta planteada se prolonga en linea recta por su extremo de aguas abajo (hacia las descargas indicadas o, sin
     ellas, hacia el terreno mas bajo) hasta encontrar otra cuneta o el cerco junto a una descarga, sin entrar en ningun techo."""
     desc = [Point(d["x"], d["y"]) for d in (cfg.get("descargas") or [])]
@@ -182,10 +182,18 @@ def _prolongar(S, cfg, pp, base, elegidas, techos):
             anclas = [Point(c) for g in base + elegidas + nuevas for c in (g.coords[0], g.coords[-1])] + [Point(t.coords[-1]) for t in nuevas]
             cerca = [a for a in anclas if 1e-6 < a.distance(H) <= pp["tol_rayo"] and a.distance(E) > 0.05]
             if cerca and not es_borde: H = min(cerca, key=lambda a: a.distance(H)); d = E.distance(H)
-            if es_borde and not any(H.distance(q) <= pp["cerca_descarga"] + 0.60 for q in desc): continue
+            if es_borde:
+                if desc:
+                    if not any(H.distance(q) <= pp["cerca_descarga"] + 0.60 for q in desc): continue
+                else:
+                    # sin descargas indicadas: llega al cerco solo donde el terreno exterior queda bajo su cota de fondo
+                    if T is None or P is None: continue
+                    ze = T.z(H.x + ux * 1.5, H.y + uy * 1.5)
+                    cf = S.rasante(H.x, H.y) - P["h0"] - P["S0"] * (ln.length + E.distance(H))
+                    if not (ze == ze) or ze > cf - P["desc_margen"]: continue
             tramo = LineString([e, (H.x, H.y)])
             if tramo.length < 0.3 or (not techos_u.is_empty and tramo.intersection(techos_u).length > 0.05): continue
-            if not bajo(E, H): continue
+            if not (es_borde and not desc) and not bajo(E, H): continue     # al cerco basta que el terreno exterior quede bajo la C.F.
             if mejor is None or d < mejor[0]: mejor = (d, tramo)
         if mejor: nuevas.append(mejor[1]); hechas.add(i)
     return elegidas + nuevas, nuevas

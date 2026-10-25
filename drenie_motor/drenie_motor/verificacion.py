@@ -67,7 +67,7 @@ def verificar(R, red, sitio, terreno, P, lluvia, hq_prev=None):
     ok(2, "Sin contrapendiente en la cota de fondo (cada 0.50 m)", "CUMPLE" if not malos else "NO CUMPLE",
        "la cota de fondo baja en todos los puntos" if not malos else "; ".join(malos))
     # 3 pendiente minima
-    tt = [(t["S"], c, t) for c, r in ram.items() for t in r["tramos"]]
+    tt = [(t["S"], c, t) for c, r in ram.items() for t in r["tramos"]] or [(P["S0"], "-", {"de": "-", "a": "-"})]
     smin = min(tt, key=lambda e: e[0])
     ok(3, "Pendiente minima de la cota de fondo >= %.1f %%" % (100 * P["S0"]), "CUMPLE" if smin[0] >= P["S0"] - 1e-4 else "NO CUMPLE",
        "minima %.2f %% (%s %s-%s); maxima %.2f %%" % (100 * smin[0], smin[1], smin[2]["de"], smin[2]["a"], 100 * max(e[0] for e in tt)))

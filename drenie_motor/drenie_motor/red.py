@@ -103,6 +103,7 @@ class Red:
         obst = self.S.muros if not self.S.muros.is_empty else self.S.techos_plano.buffer(-1.0)
         if not self.S.no_cruzar.is_empty: obst = geom.union([obst, self.S.no_cruzar.buffer(-0.5)])
         self.obst = obst
+        self.obst_d = obst.buffer(P.get("dist_muro", 0.30)) if not obst.is_empty else obst
 
     # --------------------------------------------------------------------------------------------- candidatos de descarga
     def candidatos_descarga(self, paso=1.0):
@@ -135,7 +136,8 @@ class Red:
         ls = LineString([a, b])
         if ls.length < 0.05: return True
         if not self.S.interior.buffer(0.02).covers(ls): return False
-        if not self.obst.is_empty and ls.intersection(self.obst).length > 0.05: return False
+        # a no menos de dist_muro (0.30 m) de las edificaciones, igual que la comprobacion 10
+        if not self.obst.is_empty and ls.intersection(self.obst_d).length > 0.05: return False
         for e in self.E:
             if e["u"] in ignorar or e["v"] in ignorar: continue
             le = LineString([self.N[e["u"]], self.N[e["v"]]])

@@ -177,3 +177,18 @@ entregable pendiente).
   revisión la recalcula y compara con el diseño.
 - `CARATULA_E_INDICE_DE_PLANOS.docx` y `CARATULAS_DRENAJE_PLUVIAL.docx` (`caratulas.py`).
 - `LAMINA_<código>.png` de cada lámina (`render.py`; se apaga con `"png_laminas": false`).
+
+## Batería de pruebas (antes de entregar cualquier versión)
+
+`python3 pruebas/sitios.py 12 100` arma terrenos de prueba inventados (`pruebas/sitios/`, no se versionan): cercos rectos, con
+esquina cortada o lado inclinado; edificios, techos en L y losa deportiva, pegados entre sí o cerca del cerco; sitio girado;
+terreno de 0.5 % a 7 % de pendiente. `python3 pruebas/correr.py` corre los proyectos de `ejemplos/` y esos terrenos y clasifica
+cada uno: BIEN (revisión sin fallas), PROYECTISTA (diseño completo; lo que no se resuelve sin cambiar un dato queda como
+«decisión del proyectista» con la solución calculada), DATOS (mensaje en español de lo que falta) o CAIDA / FALLA (no se entrega
+la versión). Resultado en `pruebas/RESULTADO_PRUEBAS.json`.
+
+El programa no se cae: un error interno sale como mensaje en español (código 3) y su detalle técnico queda en
+`REGISTRO_DE_ERROR.txt` de la carpeta de salida. Si el agua no tiene salida por gravedad con el NPT dado, el motor diseña lo que
+sí sale, calcula cuánto hay que subir el piso y lo verifica rediseñando con ese nivel («subir el nivel de piso 0.55 m
+(NPT 170.64): verificado, con ese nivel toda la red sale por gravedad»); si con ningún nivel razonable sale, pide una descarga
+a un colector o canal existente. Si quedan cunetas sin unir, la red se rehace admitiendo uniones más largas (×2, ×3).

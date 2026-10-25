@@ -21,7 +21,7 @@ import zipfile
 
 from shapely.geometry import Point, box
 
-CUMPLE, FALLA, AVISO = "CUMPLE", "NO CUMPLE", "AVISO"
+CUMPLE, FALLA, AVISO, DECISION = "CUMPLE", "NO CUMPLE", "AVISO", "DECISIÓN DEL PROYECTISTA"
 OTROS = {"2705619": "CAR Varones", "2675514": "Hogar de Refugio", "2717013": "CAR Mujeres", "468901": "I.E. N.° 0590 Barranquita",
          "2673852": "Vía SM-107"}
 NOMBRES_OTROS = ["CAR Varones", "CAR VARONES", "Mujeres Violentadas", "MUJERES VIOLENTADAS", "CAR Mujeres", "CAR MUJERES", "Hogar de Refugio",
@@ -40,10 +40,19 @@ class Informe:
     def add(self, grupo, comp, ok, detalle="", aviso=False):
         self.filas.append([grupo, comp, CUMPLE if ok else (AVISO if aviso else FALLA), detalle])
 
+    def decision(self, claves, motivo):
+        """Las fallas que no se resuelven sin cambiar un dato del proyecto (p. ej. el nivel del piso en un terreno plano) pasan a
+        'decision del proyectista', con la solucion calculada en el detalle."""
+        for f in self.filas:
+            if f[2] == FALLA and any(k in f[1] for k in claves):
+                f[2] = DECISION; f[3] = (f[3] + " | " if f[3] else "") + motivo
+
     def resumen(self):
         n = lambda e: sum(1 for f in self.filas if f[2] == e)
         return {"comprobaciones": len(self.filas), "cumple": n(CUMPLE), "no_cumple": n(FALLA), "avisos": n(AVISO),
-                "fallas": [f[1] + ": " + f[3] for f in self.filas if f[2] == FALLA]}
+                "decisiones_proyectista": n(DECISION),
+                "fallas": [f[1] + ": " + f[3] for f in self.filas if f[2] == FALLA],
+                "decisiones": [f[1] + ": " + f[3] for f in self.filas if f[2] == DECISION]}
 
 
 def _es(v, a, tol): return v is not None and a is not None and abs(float(v) - float(a)) <= tol
@@ -92,7 +101,9 @@ def componentes(I, P, TT, SM, LLt, mapa_tipos):
         mas = [l for l in TT["lados"] if l["montantes"] > 4]
         I.add(g, "A lo más 4 montantes de 4\" por lado de techo", not mas,
               "; ".join("%s %s: %d (%.0f m²)" % (l["techo"], l["lado"], l["montantes"], l["A_m2"]) for l in mas))
-        I.add(g, "Al menos 2 montantes por lado (esquinas)", all(l["montantes"] >= 2 for l in TT["lados"]))
+        cortos = [l for l in TT["lados"] if l["montantes"] < (2 if l["L_canaleta_m"] >= 3.0 else 1)]
+        I.add(g, "Al menos 2 montantes por lado, uno en cada esquina (1 si el alero mide menos de 3 m)", not cortos,
+              "; ".join("%s %s: %d en %.2f m" % (l["techo"], l["lado"], l["montantes"], l["L_canaleta_m"]) for l in cortos))
         I.add(g, "Canaletas con borde libre", all(l["canaleta"] == "CUMPLE" for l in TT["lados"]))
         tmax = TT["criterios"]["parametros"]["tubo_max"]
         sin = [m for m in TT["montantes"] if not m.get("tubo_enterrado_m")]
@@ -363,11 +374,12 @@ def escribir(ruta, I):
     wb = Workbook(); ws = wb.active; ws.title = "REVISION"
     ws["A1"] = "REVISIÓN GENERAL DE LOS ENTREGABLES DE DRENAJE PLUVIAL"; ws["A1"].font = Font(bold=True, size=13)
     r = I.resumen()
-    ws["A2"] = "%d comprobaciones: %d cumplen, %d no cumplen, %d avisos" % (r["comprobaciones"], r["cumple"], r["no_cumple"], r["avisos"])
+    ws["A2"] = "%d comprobaciones: %d cumplen, %d no cumplen, %d avisos, %d decisiones del proyectista" % (
+        r["comprobaciones"], r["cumple"], r["no_cumple"], r["avisos"], r["decisiones_proyectista"])
     cab = ["Grupo", "Comprobación", "Estado", "Detalle"]
     for j, h in enumerate(cab, 1):
         c = ws.cell(4, j, h); c.font = Font(bold=True, color="FFFFFF"); c.fill = PatternFill("solid", fgColor="305496")
-    color = {CUMPLE: "E2EFDA", FALLA: "F8CBAD", AVISO: "FFF2CC"}
+    color = {CUMPLE: "E2EFDA", FALLA: "F8CBAD", AVISO: "FFF2CC", DECISION: "DDEBF7"}
     for i, f in enumerate(I.filas, 5):
         for j, v in enumerate(f, 1):
             c = ws.cell(i, j, v); c.alignment = Alignment(wrap_text=True, vertical="top")

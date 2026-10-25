@@ -155,8 +155,13 @@ def disenar(cfg_ruta):
                          "(ver lectura.json, mapa_superficies.sin_asignar)." % (len(M0.sin_asignar), sum(c["geom"].area for c in M0.sin_asignar)))
     recorte = {}
     for intento in range(1, 6):
-        R = red_mod.Red(S, T, P, ejes, cfg.get("descargas")).resolver(recorte)
+        R = _red(S, T, P, ejes, cfg, recorte)
         R.chaflanes(); R.nombrar()
+        if not R.ramales:
+            dz, det = _nivel_necesario(R, P)
+            verif, probado = _nivel_verificado(cfg, base, salida, dz)
+            raise ValueError("Con los niveles dados el agua no tiene salida por gravedad por ningun lado del cerco (%s). Solucion: %s." % (
+                det or "ninguna cuneta llega a una descarga", _texto_nivel(cfg, dz, verif, probado)))
         M = _mapa(B, S, cfg, P, [(R.Nf[a], R.Nf[b]) for r in R.ramales for a, b in zip(r["nudos"][:-1], r["nudos"][1:])
                                  if not (b in R.descargas)])
         hq, vueltas = {}, 0
@@ -255,16 +260,24 @@ def disenar(cfg_ruta):
     metas = [dict(x, total=tot.get(x["codigo"])) for x in partidas]
     ctx = memorias.Contexto(cfg, P, Rh, LL, V, C, R, list(secciones.values()), TT, SM, LLt, lams, metas, rep_t, M.cuadro(), fig)
     ctx.plan = plan_inf
+    ctx.hmax = max((x["h_max"] for x in q_m), default=ctx.hmax)       # una sola cifra en todos los documentos (la del metrado)
     doc_h, doc_d = memorias.escribir(salida, ctx)
     doc_e = especificaciones.construir(os.path.join(salida, "ESPECIFICACIONES_TECNICAS_DRENAJE_PLUVIAL.docx"), partidas, P, cfg, q_m, V, lams, TT, SM, LLt)
     # revision general de todo lo entregado (conocimiento/01, seccion 8.2)
+    nivel = _nivel_necesario(R, P, V)
+    if nivel[0] > 0:
+        verif, probado = _nivel_verificado(cfg, base, salida, nivel[0])
+        nivel = (verif or nivel[0], nivel[1], _texto_nivel(cfg, nivel[0], verif, probado), verif is not None)
     rev = _revisar(salida, P, V, C, list(secciones.values()), TT, SM, LLt, M, xls_rc, tot, partidas, q_m, tapas_i, lams, marcos, Rh, proyecto,
                    [doc_h, doc_d, doc_e, doc_i, doc_c, xls_m, xls, xls_t, xls_mc, dxf_pf, dxf] + ([os.path.join(salida, "HIDROLOGIA.xlsx")] if Rh else []),
                    {"memoria hidrológica": doc_h, "memoria descriptiva": doc_d, "especificaciones": doc_e}, hq,
-                   [a for a in S.avisos + M.avisos + R.avisos + SM["avisos"] if "no tiene cuneta" not in a], dxf_doc, xls_mc_rc)
+                   [a for a in S.avisos + M.avisos + R.avisos + SM["avisos"] if "no tiene cuneta" not in a], dxf_doc, xls_mc_rc, nivel,
+                   [t["techo"] for t in plan_inf if t.get("decision") == "sin solucion automatica"])
     out = {"accion": "disenar", "version": VERSION, "proyecto": proyecto, "resumen": resumen, "parametros": P,
            "mapa_superficies": M.cuadro(),
-           "terreno": rep_t, "avisos": S.avisos + M.avisos + R.avisos + TT["avisos"] + SM["avisos"] + plan_av,
+           "terreno": rep_t, "avisos": S.avisos + M.avisos + R.avisos + TT["avisos"] + SM["avisos"] + plan_av + (
+               ["SALIDA POR GRAVEDAD (%s). Solucion: %s." % (nivel[1], nivel[2])] if nivel[0] > 0 else []),
+           "solucion_nivel": {"subir_npt_m": nivel[0], "detalle": nivel[1], "solucion": nivel[2], "verificado": nivel[3]} if nivel[0] > 0 else None,
            "planteamiento": {"modo": modo_pl, "lineas_nuevas": lineas_pl, "longitud_nueva_m": round(sum(geom.dist(a, b) for l in lineas_pl for a, b in zip(l[:-1], l[1:])), 2), "techos": plan_inf}, "chaflanes": R.chaflanes_hechos, "red": C,
            "descargas_propuestas": [{"D": k, "x": round(v["q"][0], 3), "y": round(v["q"][1], 3), "L_max_m": v["L_max"],
                                      "terreno_exterior_min": round(v["z_req"], 2)} for k, v in R.descargas.items()],
@@ -293,7 +306,141 @@ def _niveles_txt(cfg):
     return "; ".join(t)
 
 
-def _revisar(salida, P, V, C, sec, TT, SM, LLt, M, xls_rc, tot, partidas, q, tapas, lams, marcos, Rh, proyecto, archivos, docs, hq=None, avisos=(), dxf_doc=None, xls_mc_rc=None):
+def _red(S, T, P, ejes, cfg, recorte):
+    """Red con busqueda adaptativa: si quedan cunetas sin salida se admiten uniones mas largas (x2, x3) y se queda la red con
+    menos cuneta sin salida."""
+    mejor = None
+    for k in (1, 2, 3):
+        Pk = P if k == 1 else dict(P, union_max=P["union_max"] * k)
+        R = red_mod.Red(S, T, Pk, ejes, cfg.get("descargas")).resolver(recorte)
+        L_sin = sum(geom.dist(a, b) for a, b in R.sin_cubrir)
+        if mejor is None or L_sin < mejor[0] - 0.5: mejor = (L_sin, R, k)
+        if L_sin < 0.5: break
+    if mejor[0] >= 0.5:
+        # ultimo recurso: cada pedazo suelto se une en linea recta a la cuneta mas cercana que ya tiene salida, sin cruzar techos
+        # ni salir del cerco, y se rehace la red
+        from shapely.geometry import LineString
+        from shapely.ops import nearest_points, unary_union
+        R = mejor[1]
+        red_ok = unary_union([LineString([R.Nf[a], R.Nf[b]]) for r in R.ramales for a, b in zip(r["nudos"][:-1], r["nudos"][1:])])
+        sueltas = unary_union([LineString([a, b]) for a, b in R.sin_cubrir])
+        techos = S.techos.buffer(-0.05) if not S.techos.is_empty else S.techos
+        puentes = []
+        if not red_ok.is_empty:
+            for comp in (sueltas.geoms if hasattr(sueltas, "geoms") else [sueltas]):
+                a, b = nearest_points(comp, red_ok)
+                pz = LineString([a, b])
+                if pz.length < 0.05: continue
+                if S.interior.buffer(0.02).covers(pz) and (techos.is_empty or pz.intersection(techos).length < 0.05):
+                    puentes.append([(a.x, a.y), (b.x, b.y)])
+        if puentes:
+            R2 = red_mod.Red(S, T, P, ejes + puentes, cfg.get("descargas")).resolver(recorte)
+            L2 = sum(geom.dist(a, b) for a, b in R2.sin_cubrir)
+            if L2 < mejor[0] - 0.5:
+                R2.avisos.append("%d cunetas sueltas se unieron en linea recta a la cuneta mas cercana con salida (%.1f m)." % (
+                    len(puentes), sum(geom.dist(*p) for p in puentes)))
+                mejor = (L2, R2, mejor[2])
+    if mejor[2] > 1:
+        mejor[1].avisos.append("Para dar salida a todas las cunetas se admitieron uniones de hasta %.0f m." % (P["union_max"] * mejor[2]))
+    return mejor[1]
+
+
+def _nivel_necesario(R, P, V=None):
+    """Cuanto hay que subir el nivel del piso (NPT, y con el todas las cotas de fondo) para que el agua salga por gravedad:
+    - cuneta sin salida: lo que le falta a la mejor descarga posible del cerco para recibirla (S0 x recorrido - holgura);
+    - descarga que no sale: terreno exterior + margen - cota de fondo.
+    Devuelve (metros, detalle)."""
+    from shapely.geometry import LineString, Point
+    from shapely.ops import unary_union
+    falta, det = 0.0, []
+    if R.sin_cubrir:
+        cand = R.candidatos_descarga()
+        g = unary_union([LineString([a, b]) for a, b in R.sin_cubrir])
+        for comp in (g.geoms if hasattr(g, "geoms") else [g]):
+            pts = [Point(c) for c in comp.coords] if comp.geom_type == "LineString" else []
+            if not pts or not cand: continue
+            d = min(max(0.0, P["S0"] * 1.15 * max(Point(c["b"]).distance(p) for p in pts) - c["holgura"]) for c in cand)
+            if d > falta: falta = d
+        det.append("%.1f m de cuneta sin salida por gravedad" % sum(geom.dist(a, b) for a, b in R.sin_cubrir))
+    for d in (V or {}).get("descargas", []):
+        if d["estado"] != "SALE POR GRAVEDAD":
+            info = R.descargas.get(d["D"], {})
+            x = info.get("z_req", d["cf"]) + P["desc_margen"] - d["cf"]
+            if x > falta: falta = x
+            det.append("descarga %s no sale (cota de fondo %.3f)" % (d["D"], d["cf"]))
+    import math as _m
+    return (_m.ceil(falta * 20 - 1e-9) / 20.0 if falta > 0 else 0.0), "; ".join(det)
+
+
+def _con_nivel(cfg, dz):
+    """Copia del proyecto con el piso (NPT, borde de cuneta, area verde y zonas) dz m mas alto."""
+    import copy
+    c = copy.deepcopy(cfg); nv = c.setdefault("niveles", {})
+    for k in ("npt", "borde_cuneta", "area_verde"):
+        if isinstance(nv.get(k), (int, float)): nv[k] = round(nv[k] + dz, 3)
+    for z in nv.get("zonas", []):
+        if isinstance(z.get("nivel"), (int, float)): z["nivel"] = round(z["nivel"] + dz, 3)
+    return c
+
+
+def _ensayo(cfg, base, salida, dz):
+    """Diseno rapido (planteamiento, red, cotas y verificacion; sin documentos) con el piso dz m mas alto.
+    True si toda la red sale por gravedad."""
+    c = _con_nivel(cfg, dz)
+    P, B, cur, rep_t, T, S, ejes = _preparar(c, base, salida)
+    LL, Rh = _lluvia_diseno(c, base)
+    I = float(LL.get("I_mmh") or 0) or verificacion.intensidad(LL)[0]
+    lin, _, _ = planteamiento.proponer(S, P, I, c, ejes)
+    if c.get("planteamiento", "completar") == "automatico": ejes = []
+    ejes = ejes + lin
+    if not ejes: return False
+    recorte = {}
+    for _i in range(3):
+        R = _red(S, T, P, ejes, c, recorte); R.chaflanes(); R.nombrar()
+        if not R.ramales: return False
+        _mapa(B, S, c, P, [(R.Nf[a], R.Nf[b]) for r in R.ramales for a, b in zip(r["nudos"][:-1], r["nudos"][1:]) if not (b in R.descargas)])
+        hq = {}
+        for _v in range(P["vueltas_max"]):
+            C = cotas.calcular(R, S, P, hq)
+            V, hq2 = verificacion.verificar(C, R, S, T, P, LL, hq)
+            if hq2 == hq: break
+            hq = hq2
+        malas = [d for d in V["descargas"] if d["estado"] != "SALE POR GRAVEDAD"]
+        if not malas and not R.sin_cubrir: return True
+        if c.get("descargas"): return False
+        for d in malas:
+            info = R.descargas[d["D"]]
+            recorte[info["k"]] = recorte.get(info["k"], 0.0) + max(info["z_req"] + P["desc_margen"] - d["cf"], 0.01) / P["S0"] + 2.0
+    return False
+
+
+def _nivel_verificado(cfg, base, salida, dz0):
+    """Prueba el piso mas alto (desde lo estimado, de 5 en 5 cm y luego mas) hasta que todo salga por gravedad.
+    Devuelve (dz verificado o None, ultimo probado). Solo con el interior nivelado y un NPT dado."""
+    nv = cfg.get("niveles") or {}
+    if nv.get("modo", "nivelado") != "nivelado" or not isinstance(nv.get("npt"), (int, float)): return None, 0.0
+    d0 = max(round(dz0, 2), 0.05); probado = 0.0
+    for extra in (0.0, 0.05, 0.10, 0.20, 0.35, 0.50, 0.75, 1.00, 1.50):
+        probado = round(d0 + extra, 2)
+        try:
+            if _ensayo(cfg, base, salida, probado): return probado, probado
+        except Exception:
+            return None, probado
+    return None, probado
+
+
+def _texto_nivel(cfg, dz, verif, probado):
+    npt = (cfg.get("niveles") or {}).get("npt")
+    a = lambda d: (" (NPT %.2f)" % (npt + d)) if isinstance(npt, (int, float)) else ""
+    if verif is not None:
+        return "subir el nivel de piso %.2f m%s: verificado, con ese nivel toda la red sale por gravedad" % (verif, a(verif))
+    if probado:
+        return ("se probo subir el piso hasta %.2f m%s sin lograr salida por gravedad: indicar una descarga a un colector o canal "
+                "existente (receptor) o con su cota" % (probado, a(probado)))
+    return "subir el nivel de piso al menos %.2f m%s o indicar una descarga a un colector o canal existente" % (dz, a(dz))
+
+
+def _revisar(salida, P, V, C, sec, TT, SM, LLt, M, xls_rc, tot, partidas, q, tapas, lams, marcos, Rh, proyecto, archivos, docs, hq=None, avisos=(), dxf_doc=None, xls_mc_rc=None, nivel=None, sin_plan=()):
     import ezdxf
     from shapely.geometry import Point
     I = revision.Informe()
@@ -333,4 +480,11 @@ def _revisar(salida, P, V, C, sec, TT, SM, LLt, M, xls_rc, tot, partidas, q, tap
     revision.planos(I, dxf_doc, marcos)
     revision.entregables(I, salida, archivos, lams)
     revision.avisos_diseno(I, avisos)
+    if sin_plan:
+        I.decision(("llega a una cuneta",), "%s: alrededor del techo no cabe una cuneta automatica (cerco u otras edificaciones); "
+                   "plantear a mano la cuneta que reciba esos montantes o cambiarlos de esquina" % ", ".join(sin_plan))
+    if nivel and nivel[0] > 0:
+        I.decision(("Conectividad", "Descarga ", "Comprobación 1:", "Comprobación 6:", "Comprobación 12:", "llega a una cuneta", "Todas las lineas"),
+                   "con el nivel de piso dado el terreno no da salida por gravedad a toda la red (%s). Solucion: %s; la parte que si sale "
+                   "queda disenada completa" % (nivel[1], nivel[2]))
     return revision.escribir(os.path.join(salida, "REVISION_GENERAL.xlsx"), I), I.resumen()

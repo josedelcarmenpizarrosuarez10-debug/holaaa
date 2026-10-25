@@ -64,15 +64,34 @@ class Etiquetas:
 
     def libre(self, c): return all(c[2] < o[0] or c[0] > o[2] or c[3] < o[1] or c[1] > o[3] for o in self.cajas)
 
+    def caja_real(self, e, m=None):
+        """Caja del texto ya puesto, medida en el DXF (la misma medida que usa la revision de planos)."""
+        m = 0.3 * self.lam.f if m is None else m
+        try:
+            from ezdxf import bbox
+            ex = bbox.extents([e], fast=False)
+            return (ex.extmin.x - m, ex.extmin.y - m, ex.extmax.x + m, ex.extmax.y + m)
+        except Exception:
+            return None
+
+    def probar(self, e):
+        """Deja el texto si su caja real no pisa otro texto; si la pisa lo borra. Devuelve True si quedo."""
+        c = self.caja_real(e)
+        if c is not None and not self.libre(c):
+            self.lam.msp.delete_entity(e); return False
+        if c is not None: self.cajas.append(c)
+        return True
+
     def poner(self, p, txt, hmm=1.8, capa="TEXTOS", color=None, d_mm=2.2):
         f = self.lam.f; h = hmm * B.K_TXT.get(capa, 1.0) * f; w = len(txt) * 0.70 * h
-        for k in range(1, 7):
+        for k in range(1, 11):
             for sx, sy in [(1, 1), (1, -1), (-1, 1), (-1, -1), (1, 0), (-1, 0), (0, 1), (0, -1)]:
                 d = d_mm * f * k
                 x = p[0] + sx * d - (w if sx < 0 else (w / 2 if sx == 0 else 0)); y = p[1] + sy * d - (h if sy < 0 else (h / 2 if sy == 0 else 0))
                 c = (x - 0.3 * f, y - 0.3 * f, x + w + 0.3 * f, y + h + 0.3 * f)
                 if self.libre(c):
-                    self.cajas.append(c); self.lam.texto((x, y), txt, hmm, capa, TA.BOTTOM_LEFT, color=color)
+                    e = self.lam.texto((x, y), txt, hmm, capa, TA.BOTTOM_LEFT, color=color)
+                    if not self.probar(e): continue                    # la medida real pisa otro texto: siguiente posicion
                     if k > 1: self.lam.linea(p, (x if sx >= 0 else x + w, y + h / 2), "LLAMADAS")
                     return
         x, y = p[0] + d_mm * f, p[1] + d_mm * f; self.cajas.append((x, y, x + w, y + h)); self.lam.texto((x, y), txt, hmm, capa, TA.BOTTOM_LEFT, color=color)
@@ -323,7 +342,7 @@ def dc01(doc, codigo, R, red, sitio, curvas, P, anchos, V, lloraderos, proyecto,
             dx, dy = (w * ca + hc * sa) / 2 + 0.3 * f, (w * sa + hc * ca) / 2 + 0.3 * f
             caja = (p_[0] - dx, p_[1] - dy, p_[0] + dx, p_[1] + dy)
             if E.libre(caja):
-                E.cajas.append(caja); lam.texto(p_, t_, 1.5, "CURVAS-TXT", TA.MIDDLE_CENTER, rot=a_)
+                E.probar(lam.texto(p_, t_, 1.5, "CURVAS-TXT", TA.MIDDLE_CENTER, rot=a_))
     lam.bloque("SIMB-NORTE", lam.P(800, 555))
     bs = sorted(set(anchos.values()))
     items = [("linea", "CUN-REJ-BORDE", "Cuneta con rejilla (%s)" % ", ".join("%.2f libre / %.2f total" % (b, b + 2 * P["e_muro"]) for b in bs)),

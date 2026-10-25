@@ -20,7 +20,7 @@ import unicodedata
 
 import shapely
 from shapely.geometry import LineString, Point, Polygon, MultiPolygon
-from shapely.ops import polygonize, unary_union
+from shapely.ops import substring, polygonize, unary_union
 
 from . import geom
 
@@ -303,7 +303,15 @@ def aguas_de_techos(sitio, cfg, flechas=None):
         for lado, mitad in ((1, p.intersection(izq)), (-1, p.difference(izq))):
             if mitad.is_empty or mitad.area < 0.5: continue
             al = max(lados, key=lambda l: (((l[0][0] + l[1][0]) / 2 - c.x) * nx + ((l[0][1] + l[1][1]) / 2 - c.y) * ny) * lado)
-            out.append({"techo": k, "poligono": mitad, "alero": LineString(al), "tipo": "dos_aguas"})
+            al = LineString(al)
+            # techos que no son rectangulos (en L, con entrantes): el alero es solo el tramo del lado que tiene techo debajo
+            g = al.intersection(mitad.buffer(0.05))
+            pz = [x for x in ([g] if g.geom_type == "LineString" else getattr(g, "geoms", [])) if x.geom_type == "LineString" and x.length >= 0.5]
+            if pz:
+                # del primer al ultimo tramo con techo debajo (los entrantes pequenos no parten el alero)
+                ss = sorted(al.project(Point(c)) for x in pz for c in (x.coords[0], x.coords[-1]))
+                if ss[-1] - ss[0] < al.length - 0.1: al = substring(al, ss[0], ss[-1])
+            out.append({"techo": k, "poligono": mitad, "alero": al, "tipo": "dos_aguas"})
     if sin_dato:
         avisos.append("%d techos sin flecha de caida: se tomaron a dos aguas con la cumbrera en el eje largo; confirmar o poner "
                       "las flechas de caida en el visor." % sin_dato)
