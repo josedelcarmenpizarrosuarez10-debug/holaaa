@@ -2,7 +2,7 @@
 # Uso:  python -m PyInstaller --noconfirm --clean --distpath dist --workpath build drenie-motor.spec
 # Es programa de consola: DrenIE lo abre sin ventana (CREATE_NO_WINDOW) y le habla por la entrada y la salida estandar.
 import os
-from PyInstaller.utils.hooks import collect_data_files, collect_submodules
+from PyInstaller.utils.hooks import collect_data_files, collect_dynamic_libs, collect_submodules
 
 raiz = os.path.abspath(os.path.join(SPECPATH, ".."))
 datas = [(os.path.join(raiz, "visor", "visor.html"), "visor"), (os.path.join(raiz, "visor", "armar_visor.py"), "visor")]
@@ -14,8 +14,11 @@ for paquete in ("docx", "ezdxf", "openpyxl"):
 import docx
 datas.append((os.path.join(os.path.dirname(docx.__file__), "parts", "__init__.py"), os.path.join("docx", "parts")))
 ocultos = collect_submodules("drenie_motor") + collect_submodules("pycel") + ["matplotlib.backends.backend_agg"]
+# motor de EPA SWMM 5 (swmm-toolkit): sus bibliotecas compiladas (swmm5 y swmm-output) van junto a los modulos
+ocultos += collect_submodules("swmm.toolkit")
+binarios = collect_dynamic_libs("swmm.toolkit")
 
-a = Analysis([os.path.join(SPECPATH, "arranque.py")], pathex=[raiz], datas=datas, hiddenimports=ocultos,
+a = Analysis([os.path.join(SPECPATH, "arranque.py")], pathex=[raiz], datas=datas, binaries=binarios, hiddenimports=ocultos,
              excludes=["tkinter", "PyQt5", "PyQt6", "PySide2", "PySide6", "IPython", "pytest", "notebook", "matplotlib.backends.backend_tkagg"],
              noarchive=False)
 pyz = PYZ(a.pure)

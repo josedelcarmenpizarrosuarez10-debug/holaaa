@@ -286,6 +286,52 @@ def hidrologica(D, c):
         D.p("En los estacionamientos y accesos vehiculares la cuneta no lleva rejilla: va siempre tapada con una losa de concreto armado diseñada "
             "para el paso de camiones. " + TV["texto"])
         normas.recuadro_word(D, "carga_vehicular")
+    # ---------------------------------------------------------------- perfil de flujo (paso estandar) y simulacion dinamica (SWMM)
+    PF = getattr(c, "PF", None); SW = getattr(c, "SW", None)
+    if PF and PF.get("ejes"):
+        rs = PF["resumen"]
+        D.h(1, "Perfil de flujo y comprobación dinámica")
+        D.p("La verificación anterior usa el tirante normal de cada tramo. Para comprobar el nivel del agua real a lo largo de cada eje, con los "
+            "remansos en las uniones, las caídas y los cambios de pendiente, se calcula el perfil de flujo gradualmente variado por el método del "
+            "paso estándar, con el caudal de diseño de cada tramo y n = %.3f:" % PF["n"])
+        D.formula("z₁ + y₁ + V₁²/2g = z₂ + y₂ + V₂²/2g + hf     hf = Δx · (Sf₁ + Sf₂)/2     Sf = (n · V / R^(2/3))²")
+        D.vinetas(["Control aguas abajo: en una descarga libre por el cerco, el tirante crítico; en la unión con otra cuneta, el nivel del agua de "
+                   "la cuneta que recibe (por eso se calculan primero los ejes que reciben).",
+                   "Régimen subcrítico: de aguas abajo hacia aguas arriba; supercrítico: de aguas arriba hacia aguas abajo desde el tirante crítico. "
+                   "En cada estación (cada 0.5 m) queda el de mayor fuerza específica; el paso de supercrítico a subcrítico es un resalto hidráulico.",
+                   "En el borde de cada caída el tirante es el crítico (o el nivel de aguas abajo si la ahoga); la poza disipa la energía de la caída."])
+        filas = [[e["eje"], mil(e["L"]), "%.3f" % e["y_max"], "%.3f" % e["BL_min"], "%.2f" % e["s_BL_min"], "%.2f" % e["V_max"],
+                  "%.1f" % e["supercritico_m"], len(e["saltos"]), e["estado"].capitalize()] for e in PF["ejes"]]
+        D.tabla("Perfil de flujo por eje (paso estándar)", ["Eje", "L (m)", "y máx. (m)", "BL mín. (m)", "en prog. (m)", "V máx. (m/s)",
+                                                            "Supercrítico (m)", "Resaltos", "Estado"], filas, [1.6, 1.5, 1.6, 1.7, 1.8, 1.7, 2.0, 1.5, 2.2], tam=7.5)
+        D.p("En toda la red el menor borde libre del perfil de flujo es %.3f m y la velocidad máxima es %.2f m/s; %d de %d ejes cumplen el borde "
+            "libre mínimo de %.2f m con el nivel del agua real%s. El detalle de cada estación (tirante, velocidad, energía, número de Froude y "
+            "balance de energía con fórmulas) está en la hoja «PERFIL DE FLUJO» de la memoria de cálculo." % (
+                rs["BL_min"], rs["V_max"], rs["cumplen"], rs["ejes"], P["BL"],
+                "" if not rs["observados"] else " (" + "; ".join("%s: %s, %.3f m en la progresiva %.2f" % (o["eje"], o["estado"].lower(), o["BL_min"], o["s"])
+                                                                for o in rs["observados"]) + ")"))
+        normas.recuadro_word(D, "paso_estandar")
+        if SW:
+            H = SW["hietograma"]
+            D.p("Además, la red se entrega en un archivo de EPA SWMM 5 (RED_CUNETAS_SWMM.inp: %d puntos de la red, %d tramos de cuneta, %d áreas de "
+                "aporte y %d descargas) "
+                "para la comprobación con tránsito por onda dinámica y lluvia variable en el tiempo: %s (lámina total %.2f mm, intensidad pico "
+                "%.2f mm/h). Las áreas verdes infiltran por el método de Horton; techos y pisos son impermeables." % (
+                    SW["nudos"], SW["conductos"], SW["subcuencas"], SW["descargas"], H["metodo"], H["lamina_mm"], H["pico_mmh"]))
+            Sm = SW.get("simulacion")
+            if Sm:
+                D.p("Resultado de la simulación con el motor de %s: error de continuidad de %.2f %% en la escorrentía y %.2f %% en el tránsito; "
+                    "caudal pico en %s." % (Sm["motor"], Sm["continuidad_escorrentia_pct"] or 0, Sm["continuidad_transito_pct"] or 0,
+                                            ", ".join("%s %.1f l/s" % (d["D"], d["Q_max_ls"]) for d in Sm["descargas"])))
+                if Sm["rebalses"]:
+                    D.p("Con el bloque más intenso del hietograma (%d min) rebalsan por un momento %d puntos de la red (%s), con un volumen total "
+                        "de %.1f m³: la lluvia de %d min es más intensa que la del tiempo de concentración con la que se dimensionan los tramos "
+                        "por el método racional. El proyectista evalúa si acepta ese rebalse breve o si aumenta la sección de esos tramos." % (
+                            H["dt_min"], len(Sm["rebalses"]), ", ".join("%s (%.2f h)" % (r["nudo"], r["horas"]) for r in Sm["rebalses"][:8]),
+                            Sm["volumen_rebalse_m3"], H["dt_min"]))
+                else:
+                    D.p("Ningún punto de la red rebalsa durante la tormenta de diseño.")
+            normas.recuadro_word(D, "hietograma", "swmm")
     # ---------------------------------------------------------------- descargas y conclusiones
     D.h(1, "Descargas")
     D.p("Cada sector entrega por gravedad a través de un pase en el cimiento del cerco perimétrico; fuera del cerco no se construyen obras y el agua "

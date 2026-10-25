@@ -250,7 +250,7 @@ def para_drenie(ruta):
 
 def entregables(ruta):
     cfg, base, sal = _cargar(ruta)
-    ext = (".docx", ".xlsx", ".dxf", ".png")
+    ext = (".docx", ".xlsx", ".dxf", ".png", ".inp")
     arch = sorted(f for f in os.listdir(sal) if f.lower().endswith(ext) and not f.startswith("_")) if os.path.isdir(sal) else []
     return {"accion": "entregables", "carpeta": sal, "archivos": arch}
 

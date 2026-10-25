@@ -10,7 +10,7 @@ import json
 import os
 import time
 
-from . import estructuras, tapa_vehicular, lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos, techo, sumideros, metrado, planta_lamina, memorias, especificaciones, revision, render, memoria_calculo, caratulas, planteamiento, soluciones
+from . import estructuras, tapa_vehicular, lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos, techo, sumideros, metrado, planta_lamina, memorias, especificaciones, revision, render, memoria_calculo, caratulas, planteamiento, soluciones, perfil_flujo, swmm
 from .parametros import combinar
 
 VERSION = "0.1.0"
@@ -138,6 +138,31 @@ def lluvia(cfg_ruta):
     return out
 
 
+def _remansos(R, S, T, P, LL, hq, C, V):
+    """Perfil de flujo dentro del ciclo de diseno: donde el remanso no deja el borde libre minimo se profundiza el camino a la
+    descarga (perfil_flujo.profundizar) y se vuelve a verificar. Si una descarga que salia por gravedad deja de salir, se prueba
+    con el 75 % y el 50 % de lo profundizado; si tampoco, se deshace esa vuelta (el remanso queda como observacion)."""
+    def ciclo(h):
+        for _v in range(P["vueltas_max"]):
+            c_ = cotas.calcular(R, S, P, h)
+            v_, h2 = verificacion.verificar(c_, R, S, T, P, LL, h)
+            if h2 == h: break
+            h = h2
+        return h, c_, v_
+    for _ in range(4 if P.get("corregir_remansos", True) else 0):
+        nuevo = perfil_flujo.profundizar(C, V, P, hq, R.descargas)
+        if not nuevo: break
+        salian = {d["D"] for d in V["descargas"] if d["estado"] == "SALE POR GRAVEDAD"}
+        for f in (1.0, 0.75, 0.5):
+            prueba = {k: round(hq.get(k, P["hmin"]) + f * (v - hq.get(k, P["hmin"])), 3) for k, v in nuevo.items()}
+            h_, c_, v_ = ciclo(prueba)
+            if not any(d["D"] in salian and d["estado"] != "SALE POR GRAVEDAD" for d in v_["descargas"]): break
+        else:
+            return hq, C, V
+        hq, C, V = h_, c_, v_
+    return hq, C, V
+
+
 def disenar(cfg_ruta):
     cfg, base, salida = _cargar(cfg_ruta)
     elegidas = soluciones.aplicar_en_cfg(cfg, cfg.get("soluciones"))      # lo elegido en la ventana de soluciones del visor
@@ -179,6 +204,7 @@ def disenar(cfg_ruta):
             V, hq2 = verificacion.verificar(C, R, S, T, P, LL, hq)
             if hq2 == hq: break
             hq = hq2
+        hq, C, V = _remansos(R, S, T, P, LL, hq, C, V)
         # cuneta nunca enterrada: si una descarga no sale con las cotas reales, se reduce lo que puede recibir y se repite
         malas = [d for d in V["descargas"] if d["estado"] != "SALE POR GRAVEDAD"]
         if not malas or cfg.get("descargas"): break
@@ -209,12 +235,23 @@ def disenar(cfg_ruta):
             V, hq2 = verificacion.verificar(C, R, S, T, P, LL, hq)
             if hq2 == hq: break
             hq = hq2
+        hq, C, V = _remansos(R, S, T, P, LL, hq, C, V)
         TT = techo.calcular(S, C, P, V["hidrologia"]["I"], cfg, set(R.descargas), V)
         SM = sumideros.calcular(M, S, C, P, V["hidrologia"]["I"], cfg, set(R.descargas), V)
         SM["avisos"].append("Se profundizaron los tramos %s para recibir la tuberia de %s sobre el nivel del agua de la cuneta (+5 cm)." % (
             ", ".join(sorted({x["tramo"].replace("|", " ") for x in bajo})), ", ".join(x.get("sumidero") or x.get("montante") for x in bajo)))
     anchos = {(f["eje"], f["de"], f["a"]): f["b"] for f in V["hidraulica"]}
     ES = estructuras.calcular(C, V, P)                 # caidas, cajas de caida y pases por muros en los cambios de plataforma
+    PF = perfil_flujo.calcular(C, V, P)                # nivel del agua real por el paso estandar (remansos, caidas, resaltos)
+    rp = PF["resumen"]
+    V["comprobaciones"].append({"n": len(V["comprobaciones"]) + 1, "comprobacion": "Perfil de flujo (paso estandar): borde libre >= %.2f m con el "
+                                "nivel del agua real, con remansos en las uniones" % P["BL"], "estado": "CUMPLE" if not rp["observados"] else "NO CUMPLE",
+                                "detalle": "menor borde libre %.3f m, V max. %.2f m/s, %d resaltos" % (rp["BL_min"], rp["V_max"], rp["saltos"]) + (
+                                    "" if not rp["observados"] else "; " + "; ".join("%s %s (%.3f m en %.2f)" % (o["eje"], o["estado"].lower(), o["BL_min"], o["s"])
+                                                                              for o in rp["observados"]))})
+    SW = swmm.exportar(os.path.join(salida, "RED_CUNETAS_SWMM.inp"), C, V, P, LL, Rh, cfg.get("proyecto", {}))
+    try: SW["simulacion"] = swmm.simular(SW["archivo"])          # comprobacion dinamica con el motor de EPA SWMM (si esta instalado)
+    except Exception as e: SW["simulacion"] = None; ES["avisos"].append("No se pudo correr la simulación de SWMM (%s); el archivo .inp queda para abrirlo en SWMM." % type(e).__name__)
     xls_t = techo.excel(TT, os.path.join(salida, "CANALETAS_MONTANTES_Y_SUMIDEROS.xlsx"), SM)
     verde = M.por_tipo().get("verde")
     LLt, LLp = lloraderos.calcular(C, verde, P, anchos)
@@ -242,13 +279,17 @@ def disenar(cfg_ruta):
                "sin_salida_m": round(sum(geom.dist(a, b) for a, b in R.sin_cubrir), 1),
                "anchos_libres_m": sorted({f["b"] for f in V["hidraulica"]}), "lloraderos": lloraderos.resumen(LLt),
                "techos": TT["metrado"], "sumideros": SM["metrado"], "estructuras": ES["resumen"],
-               "tapa_vehicular_m": round(sum(t.get("L_vehicular", 0) for r in C["ramales"] for t in r["tramos"]), 2)}
+               "tapa_vehicular_m": round(sum(t.get("L_vehicular", 0) for r in C["ramales"] for t in r["tramos"]), 2),
+               "perfil_flujo": {k: v for k, v in PF["resumen"].items() if k != "observados"},
+               "swmm": dict({k: SW[k] for k in ("nudos", "descargas", "conductos", "subcuencas", "area_ha")},
+                            **({"rebalses": len(SW["simulacion"]["rebalses"]), "volumen_rebalse_m3": SW["simulacion"]["volumen_rebalse_m3"],
+                                "Q_pico_ls": {d["D"]: d["Q_max_ls"] for d in SW["simulacion"]["descargas"]}} if SW.get("simulacion") else {}))}
     proyecto = cfg.get("proyecto", {})
     dxf = salidas.dxf_planta(os.path.join(salida, "PLANTA_RED_CUNETAS.dxf"), C, R, S, cur, P, proyecto, anchos, LLp)
     pl = cfg.get("planos", {})
     dxf_pf, laminas, n_sec, marcos = planos.dxf_planos(os.path.join(salida, "PLANOS_CUNETAS.dxf"), C, R, S, P, anchos, proyecto, cur, V, LLt, LLp,
                                                list(secciones.values()), pl.get("prefijo", "DC"), pl.get("inicio", 1), TT, SM,
-                                                       T, _niveles_txt(cfg), tapas_i, estructuras=ES, tapa_veh=TV)
+                                                       T, _niveles_txt(cfg), tapas_i, estructuras=ES, tapa_veh=TV, perfil_flujo=PF)
     png = salidas.png_planta(os.path.join(salida, "PLANTA_RED_CUNETAS.png"), C, R, S, cur, ejes,
                              "%s - red de cunetas: %d ejes, %d descargas, %.1f m (%.1f m de uniones nuevas)" % (
                                  proyecto.get("nombre_corto", ""), resumen["ejes"], resumen["descargas"], Ltot, nuevas))
@@ -266,14 +307,14 @@ def disenar(cfg_ruta):
     if Rh:
         hidrologia.excel(Rh, os.path.join(salida, "HIDROLOGIA.xlsx")); fig["idf"] = hidrologia.png_idf(Rh, os.path.join(salida, "CURVAS_IDF.png"))
     xls_mc = memoria_calculo.libro(os.path.join(salida, "MEMORIA_CALCULO_DRENAJE_PLUVIAL.xlsx"), proyecto, P, Rh, LL, V, list(secciones.values()), TT, SM,
-                                   ES=ES, TV=TV)
+                                   ES=ES, TV=TV, PF=PF)
     xls_mc_rc = metrado.recalcular(xls_mc, os.path.join(salida, "_recalculado"))
     xls_rc = metrado.recalcular(xls_m, os.path.join(salida, "_recalculado"))
     tot = metrado.totales(xls_rc)
     metas = [dict(x, total=tot.get(x["codigo"])) for x in partidas]
     ctx = memorias.Contexto(cfg, P, Rh, LL, V, C, R, list(secciones.values()), TT, SM, LLt, lams, metas, rep_t, M.cuadro(), fig)
     ctx.plan = plan_inf
-    ctx.ES, ctx.TV = ES, TV
+    ctx.ES, ctx.TV, ctx.PF, ctx.SW = ES, TV, PF, SW
     ctx.hmax = max((x["h_max"] for x in q_m), default=ctx.hmax)       # una sola cifra en todos los documentos (la del metrado)
     doc_h, doc_d = memorias.escribir(salida, ctx)
     doc_e = especificaciones.construir(os.path.join(salida, "ESPECIFICACIONES_TECNICAS_DRENAJE_PLUVIAL.docx"), partidas, P, cfg, q_m, V, lams, TT, SM, LLt,
@@ -287,7 +328,7 @@ def disenar(cfg_ruta):
                    [doc_h, doc_d, doc_e, doc_i, doc_c, xls_m, xls, xls_t, xls_mc, dxf_pf, dxf] + ([os.path.join(salida, "HIDROLOGIA.xlsx")] if Rh else []),
                    {"memoria hidrológica": doc_h, "memoria descriptiva": doc_d, "especificaciones": doc_e}, hq,
                    [a for a in S.avisos + M.avisos + R.avisos + SM["avisos"] if "no tiene cuneta" not in a], dxf_doc, xls_mc_rc, nivel,
-                   [t["techo"] for t in plan_inf if t.get("decision") == "sin solucion automatica"])
+                   [t["techo"] for t in plan_inf if t.get("decision") == "sin solucion automatica"], remanso=perfil_flujo.limitado(PF, C, V, P))
     out = {"accion": "disenar", "version": VERSION, "proyecto": proyecto, "resumen": resumen, "parametros": P,
            "mapa_superficies": M.cuadro(),
            "terreno": rep_t, "avisos": S.avisos + M.avisos + R.avisos + TT["avisos"] + SM["avisos"] + ES["avisos"] + plan_av + (
@@ -297,10 +338,11 @@ def disenar(cfg_ruta):
            "descargas_propuestas": [{"D": k, "x": round(v["q"][0], 3), "y": round(v["q"][1], 3), "L_max_m": v["L_max"],
                                      "terreno_exterior_min": round(v["z_req"], 2)} for k, v in R.descargas.items()],
            "sin_salida": [[list(a), list(b)] for a, b in R.sin_cubrir], "verificacion": V,
-           "secciones_por_eje": list(secciones.values()), "techos": TT, "sumideros": SM, "estructuras": ES, "tapa_vehicular": TV, "lloraderos": {"resumen": lloraderos.resumen(LLt), "tramos": LLt},
+           "secciones_por_eje": list(secciones.values()), "techos": TT, "sumideros": SM, "estructuras": ES, "tapa_vehicular": TV, "perfil_flujo": perfil_flujo.redondear(PF, 2),
+           "hietograma": SW["hietograma"], "lloraderos": {"resumen": lloraderos.resumen(LLt), "tramos": LLt},
            "profundidad_minima_por_capacidad": hq, "archivos": {"dxf": dxf, "png": png, "dimensionamiento": xls, "canaletas_montantes_y_sumideros": xls_t, "metrado": xls_m, "planos": dxf_pf,
                                                  "memoria_hidrologica": doc_h, "memoria_descriptiva": doc_d, "especificaciones": doc_e,
-                                                 "revision": rev[0], "png_laminas": pngs, "memoria_calculo": xls_mc, "indice_planos": doc_i, "caratulas": doc_c},
+                                                 "revision": rev[0], "png_laminas": pngs, "memoria_calculo": xls_mc, "indice_planos": doc_i, "caratulas": doc_c, "swmm": SW["archivo"]},
            "revision": rev[1],
            "metrado_resumen": metas,
            "laminas": [dict(codigo=c, titulo=t, marco=[round(m["x0"], 3), round(m["y0"], 3), round(m["x1"], 3), round(m["y1"], 3)], escala="1/%d" % m["esc"])
@@ -476,7 +518,7 @@ def _texto_nivel(cfg, dz, verif, probado):
     return "subir el nivel de piso al menos %.2f m%s o indicar una descarga a un colector o canal existente" % (dz, a(dz))
 
 
-def _revisar(salida, P, V, C, sec, TT, SM, LLt, M, xls_rc, tot, partidas, q, tapas, lams, marcos, Rh, proyecto, archivos, docs, hq=None, avisos=(), dxf_doc=None, xls_mc_rc=None, nivel=None, sin_plan=()):
+def _revisar(salida, P, V, C, sec, TT, SM, LLt, M, xls_rc, tot, partidas, q, tapas, lams, marcos, Rh, proyecto, archivos, docs, hq=None, avisos=(), dxf_doc=None, xls_mc_rc=None, nivel=None, sin_plan=(), remanso=None):
     import ezdxf
     from shapely.geometry import Point
     I = revision.Informe()
@@ -519,6 +561,8 @@ def _revisar(salida, P, V, C, sec, TT, SM, LLt, M, xls_rc, tot, partidas, q, tap
     if sin_plan:
         I.decision(("llega a una cuneta",), "%s: alrededor del techo no cabe una cuneta automatica (cerco u otras edificaciones); "
                    "plantear a mano la cuneta que reciba esos montantes o cambiarlos de esquina" % ", ".join(sin_plan))
+    if remanso:
+        I.decision(("Perfil de flujo",), remanso)
     if nivel and nivel[0] > 0:
         I.decision(("Conectividad", "Descarga ", "Comprobación 1:", "Comprobación 6:", "Comprobación 12:", "llega a una cuneta", "Todas las lineas"),
                    "con el nivel de piso dado el terreno no da salida por gravedad a toda la red (%s). Solucion: %s; la parte que si sale "

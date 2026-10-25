@@ -242,3 +242,22 @@ estacionamientos la cuneta va siempre tapada con la losa de `tapa_vehicular.py` 
 (capítulo propio y recuadros de fuente), la memoria de cálculo (hojas ESTRUCTURAS y TAPA VEHICULAR, con fórmulas) y las
 especificaciones. Terrenos de prueba: `python3 pruebas/plataformas.py` (PL1 muro de contención, rampa y escalera; PL2 caída corta,
 caja de caída y estacionamiento).
+
+## Perfil de flujo (paso estándar) y comprobación dinámica (SWMM)
+
+`perfil_flujo.py` calcula el nivel del agua real de cada eje por el método del paso estándar (Chow, cap. 10), en régimen mixto:
+subcrítico de aguas abajo hacia arriba desde el control (descarga libre: tirante crítico; unión: nivel del agua de la cuneta que
+recibe, por eso se calculan primero los ejes que reciben), supercrítico de aguas arriba hacia abajo, y en cada estación (0.5 m) el de
+mayor fuerza específica; resaltos y caídas incluidos. El caudal crece a lo largo del tramo como en la verificación. Dentro del ciclo de
+diseño (`motor._remansos`), donde el remanso no deja el borde libre mínimo se profundiza en lo que falta el camino hasta la descarga
+(lo único que baja el nivel del agua), sin pasar del terreno exterior de la descarga; si una descarga dejara de salir se prueba con
+el 75 % y el 50 %, y si no, queda como observación (comprobación 14). Se apaga con `"corregir_remansos": false`.
+Salidas: línea de agua en los perfiles longitudinales (capa PERF-AGUA), hojas PERFIL DE FLUJO (con fórmulas y balance de energía) y
+PERFIL DE FLUJO RESUMEN en la memoria de cálculo, capítulo «Perfil de flujo y comprobación dinámica» en la memoria hidrológica y
+`perfil_flujo` en `resultado.json`.
+
+`swmm.py` exporta la red a EPA SWMM 5 (`RED_CUNETAS_SWMM.inp`: conductos partidos en las caídas, secciones abiertas o cerradas,
+áreas de aporte por tramo con Horton en las áreas verdes, hietograma de bloques alternos de `hietograma.py` con bloques del tiempo de
+concentración) y, si `swmm-toolkit` está instalado (va en el motor compilado), lo corre con el motor de EPA y resume continuidad,
+caudales pico por descarga, rebalses y tramos llenos (`RED_CUNETAS_SWMM.rpt`). Fuentes en la biblioteca de normas: `paso_estandar`,
+`hietograma`, `swmm`.

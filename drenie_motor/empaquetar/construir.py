@@ -46,6 +46,8 @@ def main():
     if con.get("sugeridas", {}).get("cerco") != "CERCO": sys.exit("El motor compilado no leyo el plano de prueba: %s" % con)
     nor = correr(exe, ["normas"], ficha())
     if len(nor.get("datos", [])) < 20: sys.exit("El motor compilado no trae la biblioteca de normas: %s" % str(nor)[:300])
+    libs = [f for d, _, fs in os.walk(os.path.dirname(exe)) for f in fs if "swmm5" in f.lower()]
+    if not libs: sys.exit("El motor compilado no trae el motor de EPA SWMM (swmm-toolkit)")
     tam = sum(os.path.getsize(os.path.join(d, f)) for d, _, fs in os.walk(os.path.dirname(exe)) for f in fs)
     print("OK · motor de la red de cunetas compilado y probado · %s (%.0f MB)" % (exe, tam / 1e6))
 

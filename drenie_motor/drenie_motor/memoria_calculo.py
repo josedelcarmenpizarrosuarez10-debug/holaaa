@@ -58,7 +58,7 @@ def yn(Q, S, n, b):
     return (lo + hi) / 2
 
 
-def libro(ruta, proyecto, P, Rh, LL, V, secciones, TT, SM, ES=None, TV=None):
+def libro(ruta, proyecto, P, Rh, LL, V, secciones, TT, SM, ES=None, TV=None, PF=None):
     hv = V["hidrologia"]
     cab_txt = ["PROYECTO: " + proyecto.get("nombre", "") + ((" - " + proyecto["codigo"]) if proyecto.get("codigo") else ""),
                "  -  ".join(x for x in (("ENTIDAD: " + proyecto["entidad"]) if proyecto.get("entidad") else "",
@@ -371,6 +371,49 @@ def libro(ruta, proyecto, P, Rh, LL, V, secciones, TT, SM, ES=None, TV=None):
                  ("phi Vc punzonamiento (kN)", TV["phiVc_kN"], "0.0", "0.75 x 0.33 raiz(f'c) b0 d >= Pu")]
         for i, (t, v, f, s) in enumerate(filas):
             cel(wt, 5 + i, 1, t); cel(wt, 5 + i, 2, v, f, bold=True, fill=AM); cel(wt, 5 + i, 4, s)
+    if PF and PF.get("ejes"):
+        # perfil de flujo por el paso estandar: el tirante es el resultado iterado (valor); el Excel recalcula la energia y comprueba
+        # el balance H(i) = H(i+1) + hf entre estaciones (residuo ~ 0 salvo en controles, caidas y resaltos, que se indican)
+        wp = wb.create_sheet("PERFIL DE FLUJO"); cabecera(wp, "PERFIL DE FLUJO POR EL METODO DEL PASO ESTANDAR (FLUJO GRADUALMENTE VARIADO)")
+        cel(wp, 4, 1, "n de Manning", bold=True); cel(wp, 4, 2, PF["n"], "0.000", fill=AM); cel(wp, 4, 3, "g (m/s2)", bold=True); cel(wp, 4, 4, 9.81, "0.00", fill=AM)
+        cel(wp, 4, 6, "Fuente: " + _F("paso_estandar"), borde=False)
+        tabla_cab(wp, 6, ["EJE", "PROG. s (m)", "COTA DE FONDO z (m)", "Q (l/s)", "b (m)", "TIRANTE y (m)", "A (m2)", "R (m)", "V (m/s)", "V2/2g (m)",
+                          "ENERGIA H (m)", "Sf", "dx (m)", "hf (m)", "BALANCE H(i)-H(i+1)-hf (m)", "yc (m)", "Fr", "REGIMEN", "ALTURA LIBRE h (m)",
+                          "BORDE LIBRE (m)", "OBSERVACION"],
+                  [9, 9, 11, 8, 7, 9, 8, 8, 8, 9, 10, 10, 7, 8, 13, 8, 7, 12, 10, 10, 30])
+        r = 7
+        for e in PF["ejes"]:
+            pts = e["estaciones"]; sal = {round(x["s"], 2) for x in e["saltos"]}
+            for k, p in enumerate(pts):
+                ult = k == len(pts) - 1
+                sig = None if ult else pts[k + 1]
+                obs = ""
+                if ult: obs = "control: " + e["control"]
+                elif p["z"] - sig["z"] > 0.05 and (p["z"] - sig["z"]) / max(sig["s"] - p["s"], 1e-6) > 0.10: obs = "caida de fondo (tirante critico en el borde)"
+                elif round(sig["s"], 2) in sal: obs = "resalto hidraulico"
+                elif abs(p["y"] - p["yc"]) < 0.002: obs = "tirante critico (control)"
+                vals = [e["eje"], round(p["s"], 3), round(p["z"], 4), round(1000 * p["Q"], 3), p["b"], round(p["y"], 4),
+                        "=E{r}*F{r}", "=G{r}/(E{r}+2*F{r})", "=D{r}/1000/G{r}", "=I{r}^2/(2*$D$4)", "=C{r}+F{r}+J{r}", "=($B$4*I{r}/H{r}^(2/3))^2",
+                        None if ult else "=B{n}-B{r}", None if ult else "=M{r}*(L{r}+L{n})/2", None if ult else "=K{r}-K{n}-N{r}",
+                        "=(D{r}^2/1000000/($D$4*E{r}^2))^(1/3)", "=I{r}/SQRT($D$4*F{r})", p["regimen"], round(p["h"], 3), "=S{r}-F{r}", obs]
+                fm = [None, "0.00", "0.000", "0.00", "0.00", "0.000", "0.0000", "0.0000", "0.00", "0.0000", "0.000", "0.000000", "0.00", "0.0000",
+                      "0.0000", "0.000", "0.00", None, "0.000", "0.000", None]
+                for j, (v, f) in enumerate(zip(vals, fm)):
+                    cel(wp, r, j + 1, v.format(r=r, n=r + 1) if isinstance(v, str) and v.startswith("=") else v, f,
+                        fill=(AM if j == 5 else VE if j in (14, 19) else None))
+                r += 1
+        wp.freeze_panes = "C7"
+        r += 1
+        cel(wp, r, 1, "Tirante: resultado del paso estandar (iterado). Subcritico: de aguas abajo hacia aguas arriba desde el control; supercritico: de aguas "
+                      "arriba hacia aguas abajo desde el tirante critico; en cada estacion el de mayor fuerza especifica. El balance es ~0 entre "
+                      "estaciones del mismo tramo; en controles, caidas y resaltos no aplica.", borde=False)
+        wr2 = wb.create_sheet("PERFIL DE FLUJO RESUMEN"); cabecera(wr2, "PERFIL DE FLUJO - RESUMEN POR EJE")
+        tabla_cab(wr2, 4, ["EJE", "LONGITUD (m)", "CONTROL AGUAS ABAJO", "TIRANTE MAX. (m)", "BORDE LIBRE MIN. (m)", "PROG. (m)", "V MAX. (m/s)",
+                           "SUPERCRITICO (m)", "RESALTOS", "ESTADO"], [9, 11, 52, 11, 12, 9, 10, 12, 10, 18])
+        for i, e in enumerate(PF["ejes"]):
+            for j, (v, f) in enumerate(zip([e["eje"], e["L"], e["control"], e["y_max"], e["BL_min"], e["s_BL_min"], e["V_max"], e["supercritico_m"],
+                                            len(e["saltos"]), e["estado"]], [None, "0.00", None, "0.000", "0.000", "0.00", "0.00", "0.0", "0", None])):
+                cel(wr2, 5 + i, j + 1, v, f, wrap=(j == 2), fill=(VE if e["estado"] == "CUMPLE" else AM) if j == 9 else None)
     normas.hoja_excel(wb)
     wb.save(ruta)
     return ruta

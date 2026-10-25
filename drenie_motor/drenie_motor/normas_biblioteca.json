@@ -53,6 +53,16 @@
    "nombre": "Chow, V. T. Hidráulica de canales abiertos (McGraw-Hill)",
    "dispositivo": ""
   },
+  "CHOW_HA": {
+   "sigla": "Chow, Maidment y Mays",
+   "nombre": "Chow, V. T., Maidment, D. R. y Mays, L. W. Hidrología aplicada (McGraw-Hill, 1994)",
+   "dispositivo": ""
+  },
+  "EPA_SWMM": {
+   "sigla": "EPA SWMM 5",
+   "nombre": "U.S. Environmental Protection Agency. Storm Water Management Model, Reference Manual, Volume II – Hydraulics (2017)",
+   "dispositivo": ""
+  },
   "APARICIO": {
    "sigla": "Aparicio",
    "nombre": "Aparicio, F. J. Fundamentos de hidrología de superficie (Limusa, 1992)",
@@ -373,6 +383,42 @@
    "fuente": "USBR",
    "ref": "caída vertical (ecuaciones de Rand)",
    "consideracion": "La norma peruana no detalla las caídas; se usa la referencia internacional. Mínimos constructivos: poza de 0.60 m de largo y colchón de 0.10 m.",
+   "estado": "por_verificar"
+  },
+  {
+   "id": "paso_estandar",
+   "grupo": "Hidráulica",
+   "texto": "Perfil de flujo gradualmente variado (método del paso estándar)",
+   "valor": "z1 + y1 + V1²/2g = z2 + y2 + V2²/2g + hf; hf = Δx·(Sf1 + Sf2)/2; Sf = (n·V/R^(2/3))²",
+   "unidad": "m",
+   "clase": "referencia",
+   "fuente": "CHOW",
+   "ref": "capítulo 10, cálculo del flujo gradualmente variado",
+   "consideracion": "Régimen mixto: subcrítico de aguas abajo hacia arriba desde el control (descarga libre: tirante crítico; unión: nivel del agua de la cuneta que recibe), supercrítico de aguas arriba hacia abajo; en cada estación, el de mayor fuerza específica. El caudal crece a lo largo del tramo como en la verificación; n de capacidad (el más rugoso).",
+   "estado": "por_verificar"
+  },
+  {
+   "id": "hietograma",
+   "grupo": "Hidrología",
+   "texto": "Hietograma de diseño por bloques alternos",
+   "valor": "P(D) = I(D)·D/60 para D = Δt, 2Δt, …; incrementos ordenados alternando alrededor del bloque central",
+   "unidad": "mm",
+   "clase": "referencia",
+   "fuente": "CHOW_HA",
+   "ref": "sección 14.4, método del bloque alterno",
+   "consideracion": "Se usa para la simulación dinámica (SWMM) con la curva IDF del proyecto; tormenta de 120 min en bloques de duración igual al tiempo de concentración (mínimo 10 min), así el bloque pico es la intensidad de diseño del método racional.",
+   "estado": "por_verificar"
+  },
+  {
+   "id": "swmm",
+   "grupo": "Hidráulica",
+   "texto": "Tránsito dinámico de la red (onda dinámica, ecuaciones de Saint-Venant)",
+   "valor": "FLOW_ROUTING DYNWAVE; infiltración de Horton en áreas verdes (f0 = 75 mm/h, fc = 6 mm/h, k = 4 h⁻¹)",
+   "unidad": "",
+   "clase": "referencia",
+   "fuente": "EPA_SWMM",
+   "ref": "capítulos 2 y 3 (tránsito por onda dinámica)",
+   "consideracion": "La red se exporta a SWMM para una comprobación independiente con lluvia variable en el tiempo; los parámetros de Horton son valores típicos y el proyectista los ajusta al suelo del lugar.",
    "estado": "por_verificar"
   },
   {

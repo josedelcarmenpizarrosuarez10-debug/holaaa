@@ -27,8 +27,8 @@ CAJA_W, CAJA_PASO = 25.0, 34.0
 CAPAS = [("PERF-NCT", 5, "CONTINUOUS"), ("PERF-TAPA", 3, "CONTINUOUS"), ("PERF-FONDO", 6, "CONTINUOUS"), ("PERF-SECCION", 1, "CONTINUOUS"),
          ("PERF-REF", 9, "CONTINUOUS"), ("PERF-CAJA", 7, "CONTINUOUS"), ("SEC-ABIERTA", 5, "CONTINUOUS"), ("SEC-TAPADA", 3, "CONTINUOUS"),
          ("SEC-ACERO", 6, "CONTINUOUS"), ("SEC-ACERO-LONG", 5, "CONTINUOUS"), ("SEC-REJILLA", 1, "CONTINUOUS"), ("SEC-PISO", 8, "CONTINUOUS"),
-         ("SEC-JUNTA", 8, "CONTINUOUS"), ("SEC-SOLADO", 8, "CONTINUOUS")]
-GROSOR = {"PERF-NCT": 35, "PERF-TAPA": 35, "PERF-FONDO": 35, "PERF-SECCION": 25, "PERF-REF": 9, "SEC-ABIERTA": 35, "SEC-TAPADA": 35,
+         ("SEC-JUNTA", 8, "CONTINUOUS"), ("SEC-SOLADO", 8, "CONTINUOUS"), ("PERF-AGUA", 150, "CONTINUOUS")]
+GROSOR = {"PERF-NCT": 35, "PERF-TAPA": 35, "PERF-FONDO": 35, "PERF-SECCION": 25, "PERF-REF": 9, "SEC-ABIERTA": 35, "SEC-TAPADA": 35, "PERF-AGUA": 25,
           "SEC-ACERO": 50, "SEC-REJILLA": 35, "SEC-PISO": 25}
 
 
@@ -251,6 +251,8 @@ class Planos:
             if tap: lam.poli([(X(p[0]), Yz(p[1] - self.P["e_tapa"])) for p in g], "PERF-TAPA")
         lam.poli([(X(p[0]), Yz(p[2])) for p in Pf], "PERF-FONDO")
         lam.poli([(X(p[0]), Yz(p[2] - EL)) for p in Pf], "PERF-FONDO")
+        agua = [(s, w) for s, w in getattr(self, "AGUA", {}).get(r["codigo"], []) if s0 - 1e-6 <= s <= s1 + 1e-6]
+        if len(agua) >= 2: lam.poli([(X(s), Yz(w)) for s, w in agua], "PERF-AGUA")     # nivel del agua (paso estandar)
         pos, filas = _filas_cajas(secs, [(x["s"] - s0) / f for x in secs], -6, (s1 - s0) / f + 6, CAJA_W)
         ytop = Yz(max(p[1] for p in Pf))
         xprev, nivel = None, 0
@@ -293,6 +295,7 @@ class Planos:
                                 ("linea", "PERF-TAPA", "Tramo tapado: cara superior e inferior de la losa"),
                                 ("linea", "PERF-FONDO", "Cota de fondo (NCF) y cara inferior de la losa de fondo"),
                                 ("linea", "PERF-SECCION", "Seccion (corte transversal en las laminas de secciones)"),
+                                ("linea", "PERF-AGUA", "Nivel del agua con el caudal de diseno (perfil de flujo, paso estandar)"),
                                 ("linea", "PERF-REF", "Altura relativa al NPT cada 0.15 m (0.00 = NPT %+.2f)" % self.NPT)],
                      hmm=1.6, ancho_col=150, filas_col=3)
 
@@ -407,12 +410,13 @@ class Planos:
 
 
 def dxf_planos(ruta, R, red, sitio, P, anchos, proyecto, curvas, V, LLt, LLp, secciones_eje, pref="DC", num0=1, techos=None, sums=None,
-               terreno=None, niveles_txt="", tapas=None, estructuras=None, tapa_veh=None):
+               terreno=None, niveles_txt="", tapas=None, estructuras=None, tapa_veh=None, perfil_flujo=None):
     """PLANOS_CUNETAS.dxf: planta general (num0), cuadros (num0 + 1), perfiles y secciones, con una presentacion por lamina.
     Devuelve (ruta, [(codigo, titulo)], numero de secciones, marcos de las laminas en el modelo)."""
     from . import planta_lamina as PLT
     doc = B.nuevo_documento(); capas(doc); PLT.capas(doc)
     PL = Planos(R, red, sitio, P, anchos, proyecto)
+    PL.AGUA = {e["eje"]: [(p["s"], p["ws"]) for p in e["estaciones"]] for e in (perfil_flujo or {}).get("ejes", [])}
     l1 = PLT.dc01(doc, "%s-%02d" % (pref, num0), R, red, sitio, curvas, P, anchos, V, LLp, proyecto, techos, sums)
     sep_p = 841 * ESC_P / 1000 + 15
     l2 = PLT.dc02(doc, "%s-%02d" % (pref, num0 + 1), -sep_p, 0.0, secciones_eje, V, LLt, P, techos, sums)

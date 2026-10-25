@@ -97,6 +97,20 @@ def armar(cfg, nivel=None, plan_inf=(), TT=None, SM=None, V=None, avisos=(), rev
                                 [{"id": "A", "tipo": "automatica", "texto": "Dejar que el programa elija las descargas", "efecto": "Quita las descargas fijadas y busca las del lado bajo.",
                                   "cambio": {"quitar_descargas_fijas": True}},
                                  {"id": "B", "tipo": "manual", "texto": "Mover la descarga en el visor", "efecto": "Comando DESCARGA en el visor."}, MANUAL]))
+    # ---------------------------------------------------------------- remanso que la descarga ya no puede corregir (perfil de flujo)
+    rem = next((x for x in (revision or {}).get("decisiones", []) if "Perfil de flujo" in x), None)
+    if rem:
+        import re
+        Ds = re.findall(r"\b(D\d+) \(C\.F\.", rem)
+        q = (R.descargas[Ds[0]]["q"] if R is not None and Ds and Ds[0] in getattr(R, "descargas", {}) else None)
+        out.append(_obs("remanso", "decision", "El nivel del agua deja poco borde libre (remanso desde la descarga)", rem.split(" | ")[0],
+                        "Con el caudal de diseño, el agua de los tramos finales sube hacia aguas arriba; para bajarla habría que bajar la "
+                        "descarga, y el terreno exterior ya no lo permite.", q,
+                        [{"id": "A", "tipo": "manual", "texto": "Adoptar un ancho libre mayor en los tramos finales",
+                          "efecto": "Hoja DIMENSIONAMIENTO (ancho adoptado) o «secciones» del proyecto, en los ejes que llegan a la descarga."},
+                         {"id": "B", "tipo": "manual", "texto": "Indicar otra descarga", "efecto": "Comando DESCARGA en el visor, en otro lado bajo del cerco."},
+                         {"id": "C", "tipo": "confirmar", "texto": "Aceptar el borde libre calculado", "efecto": "Se deja así; queda anotado en la memoria.",
+                          "cambio": {"confirmar": True}}, MANUAL]))
     # ---------------------------------------------------------------- lo que el programa supuso y conviene confirmar
     for a in avisos or ():
         if "techos sin flecha de caida" in a:
