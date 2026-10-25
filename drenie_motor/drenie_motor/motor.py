@@ -364,13 +364,11 @@ def disenar(cfg_ruta):
 
 def _visor(salida, B, S, M, ejes, cur, cfg, TT, SM):
     """Escena del diseno y VISOR_DRENIE.html con la ventana de soluciones (lee resultado.json)."""
-    import importlib.util
     mont = [{"x": m["x"], "y": m["y"], "V": m["esquina"], "u": m["a_lo_largo"], "n": m["hacia_alero"]} for m in TT["montantes"]]
     sums = [{"x": x["x"], "y": x["y"], "zona": x.get("zona"), "A_m2": x.get("A_m2")} for x in SM["sumideros"]]
     esc = escena.escribir(os.path.join(salida, "escena.json"), B, S, M, ejes, cur, cfg.get("proyecto", {}), getattr(S, "aguas", []), mont, sums)
-    ruta_av = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "visor", "armar_visor.py")
-    spec = importlib.util.spec_from_file_location("armar_visor", ruta_av); av = importlib.util.module_from_spec(spec); spec.loader.exec_module(av)
-    return av.armar(esc, os.path.join(salida, "VISOR_DRENIE.html"), os.path.join(salida, "resultado.json"))
+    from .visor_html import armar
+    return armar(esc, os.path.join(salida, "VISOR_DRENIE.html"), os.path.join(salida, "resultado.json"))
 
 
 def _niveles_txt(cfg):

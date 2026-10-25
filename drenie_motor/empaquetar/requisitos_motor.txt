@@ -10,3 +10,4 @@ pillow==12.3.0
 pycel==1.0b30
 swmm-toolkit==0.17.0
 pyinstaller==6.22.3
+nuitka==4.3.1

@@ -1,6 +1,12 @@
 """Compila el motor de la red de cunetas (drenie-motor.exe) para el instalador de DrenIE 3.1.0 y lo prueba.
 
-    python construir.py [carpeta_destino]     (por defecto ../../client/src-tauri/motor-dist, la que usa tauri.conf.json)
+    python construir.py [carpeta_destino] [--sin-compilar]
+    (destino por defecto ../../client/src-tauri/motor-dist, la que usa tauri.conf.json)
+
+Proteccion del codigo: primero Nuitka compila el paquete drenie_motor a un modulo binario (C compilado; en Windows usa Visual
+Studio si esta instalado o descarga su propio compilador MinGW64 la primera vez); PyInstaller empaqueta ese modulo en lugar del
+bytecode (drenie-motor.spec, DRENIE_MOTOR_COMPILADO) y se comprueba que ningun modulo de drenie_motor quede como bytecode.
+--sin-compilar: solo para pruebas internas (no se entrega a clientes).
 
 Pruebas del ejecutable compilado: sin la ficha de sesion de DrenIE debe negarse; con ella debe leer las capas del plano de
 prueba. Termina con codigo distinto de 0 si algo falla (PROBAR_Y_COMPILAR.ps1 se detiene)."""
@@ -15,7 +21,9 @@ import time
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 RAIZ = os.path.dirname(AQUI)
-DESTINO = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else os.path.normpath(os.path.join(RAIZ, "..", "client", "src-tauri", "motor-dist"))
+ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
+SIN_COMPILAR = "--sin-compilar" in sys.argv
+DESTINO = os.path.abspath(ARGS[0]) if ARGS else os.path.normpath(os.path.join(RAIZ, "..", "client", "src-tauri", "motor-dist"))
 CLAVE = bytes.fromhex("5d0e9b3a7c41f26e8a19d4c07b3e52f1a6c98d2e40b71f53c8e6a29d1047fb3c")
 PLANO = os.path.join(RAIZ, "pruebas", "sitios", "S04", "PLANO.dxf")
 
@@ -33,11 +41,36 @@ def correr(exe, args, sesion=None):
     return json.loads(r.stdout.decode("utf-8").strip() or "{}")
 
 
+def compilar(salida):
+    """Modulo binario del paquete drenie_motor con Nuitka; devuelve la ruta del .pyd (Windows) o .so."""
+    if os.path.isdir(salida): shutil.rmtree(salida)
+    os.makedirs(salida)
+    subprocess.run([sys.executable, "-m", "nuitka", "--module", os.path.join(RAIZ, "drenie_motor"), "--include-package=drenie_motor",
+                    "--output-dir=" + salida, "--remove-output", "--no-pyi-file", "--assume-yes-for-downloads"], check=True, cwd=RAIZ)
+    mod = [f for f in os.listdir(salida) if f.startswith("drenie_motor.") and f.endswith((".pyd", ".so"))]
+    if len(mod) != 1: sys.exit("Nuitka no genero el modulo compilado del motor: %s" % os.listdir(salida))
+    return os.path.join(salida, mod[0])
+
+
+def sin_bytecode(trabajo):
+    """Ningun modulo del paquete drenie_motor puede quedar como bytecode dentro del ejecutable."""
+    from PyInstaller.archive.readers import ZlibArchiveReader
+    pyz = [os.path.join(d, f) for d, _, fs in os.walk(trabajo) for f in fs if f.endswith(".pyz")]
+    if not pyz: sys.exit("No se encontro el archivo PYZ del empaquetado")
+    for p in pyz:
+        malos = [n for n in ZlibArchiveReader(p).toc if n == "drenie_motor" or n.startswith("drenie_motor.")]
+        if malos: sys.exit("Quedo codigo del motor como bytecode: %s" % ", ".join(malos[:5]))
+
+
 def main():
     trabajo = os.path.join(AQUI, "build")
     if os.path.isdir(DESTINO): shutil.rmtree(DESTINO)
+    env = dict(os.environ); env.pop("DRENIE_MOTOR_COMPILADO", None)
+    if not SIN_COMPILAR:
+        env["DRENIE_MOTOR_COMPILADO"] = compilar(os.path.join(trabajo, "nuitka"))
     subprocess.run([sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean", "--distpath", DESTINO, "--workpath", trabajo,
-                    os.path.join(AQUI, "drenie-motor.spec")], check=True)
+                    os.path.join(AQUI, "drenie-motor.spec")], check=True, env=env)
+    if not SIN_COMPILAR: sin_bytecode(trabajo)
     exe = os.path.join(DESTINO, "drenie-motor", "drenie-motor.exe" if os.name == "nt" else "drenie-motor")
     if not os.path.isfile(exe): sys.exit("No se genero %s" % exe)
     sin = correr(exe, ["capas", PLANO])

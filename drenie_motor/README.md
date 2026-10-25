@@ -230,6 +230,12 @@ comparten `__main__.py` y `motor_red.rs`, válida 5 minutos); desde el código f
 bibliotecas durante el cálculo va a la salida de errores: la salida estándar lleva solo el JSON de respuesta, en UTF-8.
 Integración en DrenIE (archivos nuevos y cambios sobre 3.0.2): `integracion_drenie_3_1_0/`.
 
+Protección del código: `construir.py` compila primero el paquete `drenie_motor` con Nuitka (módulo binario de C compilado:
+`.pyd` en Windows, con Visual Studio o con el MinGW64 que Nuitka descarga solo la primera vez) y PyInstaller empaqueta ese módulo
+en lugar del bytecode; el análisis de PyInstaller sigue usando el código fuente solo para encontrar las bibliotecas. Al final se
+comprueba que ningún módulo de `drenie_motor` quede como bytecode. Los resultados son los mismos que con el código fuente
+(probado con un diseño completo). `--sin-compilar` arma una versión sin proteger, solo para pruebas internas.
+
 ## Plataformas, estructuras de caída y estacionamientos
 
 `niveles.plataformas` (polígono, NPT, rebaje), `niveles.rampas` (polígono, inicio, fin, NPT de inicio y de fin), `niveles.escaleras` y

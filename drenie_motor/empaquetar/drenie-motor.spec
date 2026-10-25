@@ -5,7 +5,7 @@ import os
 from PyInstaller.utils.hooks import collect_data_files, collect_dynamic_libs, collect_submodules
 
 raiz = os.path.abspath(os.path.join(SPECPATH, ".."))
-datas = [(os.path.join(raiz, "visor", "visor.html"), "visor"), (os.path.join(raiz, "visor", "armar_visor.py"), "visor")]
+datas = [(os.path.join(raiz, "visor", "visor.html"), "visor")]
 # archivos de datos del paquete (biblioteca de normas y fuentes)
 datas += [(os.path.join(raiz, "drenie_motor", f), "drenie_motor") for f in os.listdir(os.path.join(raiz, "drenie_motor")) if f.endswith(".json")]
 for paquete in ("docx", "ezdxf", "openpyxl"):
@@ -21,6 +21,12 @@ binarios = collect_dynamic_libs("swmm.toolkit")
 a = Analysis([os.path.join(SPECPATH, "arranque.py")], pathex=[raiz], datas=datas, binaries=binarios, hiddenimports=ocultos,
              excludes=["tkinter", "PyQt5", "PyQt6", "PySide2", "PySide6", "IPython", "pytest", "notebook", "matplotlib.backends.backend_tkagg"],
              noarchive=False)
+# proteccion del codigo: con DRENIE_MOTOR_COMPILADO (modulo de Nuitka: drenie_motor.*.pyd / .so) el paquete drenie_motor no va como
+# bytecode; el analisis anterior uso el codigo fuente solo para encontrar las bibliotecas que necesita
+COMPILADO = os.environ.get("DRENIE_MOTOR_COMPILADO")
+if COMPILADO:
+    a.pure = [x for x in a.pure if not (x[0] == "drenie_motor" or x[0].startswith("drenie_motor."))]
+    a.binaries = a.binaries + [(os.path.basename(COMPILADO), COMPILADO, "BINARY")]
 pyz = PYZ(a.pure)
 exe = EXE(pyz, a.scripts, [], exclude_binaries=True, name="drenie-motor", console=True, upx=False, strip=False,
           version=os.path.join(SPECPATH, "version_motor.txt") if os.name == "nt" else None)
