@@ -140,13 +140,18 @@ def calcular(C, V, P, descargas=None):
                 ws = nivel_en(recibe[c][0], recibe[c][1]); yfin = max(0.0, ws - est[-1]["z"])
                 control = "nivel del agua de %s en la progresiva %.2f (+%.3f)" % (recibe[c][0], recibe[c][1], ws)
         pts = perfil_eje(est, yfin, n)
+        for p in pts:                    # margen: borde libre minimo y, en tramos tapados, tirante <= 80 % de la altura libre (CE.040, 17.6.2)
+            p["margen"] = p["h"] - (max(p["y"] + P["BL"], p["y"] / P.get("tirante_max_conducto", 0.80)) if p["tapado"] else p["y"] + P["BL"])
         saltos = [{"s": round(b["s"], 2), "y1": round(a["y"], 3), "y2": round(b["y"], 3)} for a, b in zip(pts[:-1], pts[1:])
                   if a["regimen"] == "supercrítico" and b["regimen"] != "supercrítico" and not _es_caida(a, b)]
         bl = min(pts, key=lambda p: p["BL"]); vm = max(pts, key=lambda p: p["V"])
         presion = [p for p in pts if p["tapado"] and p["y"] > p["h"] + 1e-3]
-        estado = "DESBORDA" if bl["BL"] < -1e-3 else ("CUMPLE" if bl["BL"] >= P["BL"] - 1e-3 else "BORDE LIBRE MENOR")
+        mg = min(pts, key=lambda p: p["margen"])
+        estado = "DESBORDA" if bl["BL"] < -1e-3 else ("CUMPLE" if mg["margen"] >= -1e-3 else
+                                                      ("TIRANTE MAYOR AL 80 %" if mg["tapado"] and mg["BL"] >= P["BL"] - 1e-3 else "BORDE LIBRE MENOR"))
         res[c] = {"eje": c, "control": control, "estaciones": pts, "saltos": saltos, "estado": estado,
-                  "BL_min": round(bl["BL"], 3), "s_BL_min": round(bl["s"], 2), "V_max": round(vm["V"], 2), "s_V_max": round(vm["s"], 2),
+                  "BL_min": round(bl["BL"], 3), "s_BL_min": round(bl["s"], 2) if estado != "TIRANTE MAYOR AL 80 %" else round(mg["s"], 2),
+                  "margen_min": round(mg["margen"], 3), "V_max": round(vm["V"], 2), "s_V_max": round(vm["s"], 2),
                   "y_max": round(max(p["y"] for p in pts), 3), "tramos_a_presion_m": round(sum(1 for _ in presion) * 0.5, 1),
                   "supercritico_m": round(sum(b["s"] - a["s"] for a, b in zip(pts[:-1], pts[1:]) if a["regimen"] == "supercrítico"), 1),
                   "L": round(pts[-1]["s"], 2)}
@@ -157,20 +162,22 @@ def calcular(C, V, P, descargas=None):
     return {"ejes": ejes, "metodo": "paso estándar (Chow), régimen mixto por fuerza específica", "n": n,
             "resumen": {"ejes": len(ejes), "cumplen": len(ejes) - len(malos), "BL_min": min((e["BL_min"] for e in ejes), default=None),
                         "V_max": max((e["V_max"] for e in ejes), default=None), "saltos": sum(len(e["saltos"]) for e in ejes),
-                        "observados": [{"eje": e["eje"], "estado": e["estado"], "BL_min": e["BL_min"], "s": e["s_BL_min"]} for e in malos]}}
+                        "observados": [{"eje": e["eje"], "estado": e["estado"], "BL_min": e["BL_min"], "margen_min": e["margen_min"],
+                                        "s": e["s_BL_min"]} for e in malos]}}
 
 
 def profundizar(C, V, P, hq, descargas):
     """Remansos: donde el nivel del agua real deja menos borde libre que el mínimo, el nivel lo fija lo que hay aguas abajo; se
     profundiza en lo que falta el camino desde ese punto hasta la descarga (el tramo, los que le siguen en el eje y los de los ejes
-    que lo reciben), sin pasar de lo que permite el terreno exterior en la descarga. Devuelve el nuevo hq o None si no hay cambio."""
+    que lo reciben), sin pasar de lo que permite el terreno exterior en la descarga. Devuelve {descarga: {tramo: altura libre minima}}
+    con lo que cambia (vacio si no hay nada que corregir)."""
     PF = calcular(C, V, P)
     ram = {r["codigo"]: r for r in C["ramales"] if r.get("tramos") and len(r.get("perfil", [])) >= 2}
     recibe = _recibe(ram)
     # lo que puede bajar cada descarga con el mismo criterio de la verificacion: terreno exterior bajo la C.F. - margen a <= 2 m
     holgura = {d["D"]: d["cf"] - P["desc_margen"] - min([zt for dd, zt in d.get("exterior", []) if dd <= P["desc_dist_ext"]] or [d["cf"]])
                for d in V["descargas"] if d["estado"] == "SALE POR GRAVEDAD"}
-    nuevo = dict(hq); cambio = False
+    nuevo = {}
 
     def tramos_desde(c, s):
         r = ram[c]; s0 = 0.0; out = []
@@ -179,9 +186,9 @@ def profundizar(C, V, P, hq, descargas):
             s0 += t["L"]
         return out
     for e in PF["ejes"]:
-        malos = [p for p in e["estaciones"] if p["BL"] < P["BL"] - 1e-3]
+        malos = [p for p in e["estaciones"] if p["margen"] < -1e-3]
         if not malos: continue
-        p = min(malos, key=lambda q: q["BL"]); falta = math.ceil((P["BL"] - p["BL"]) * 100 - 1e-6) / 100.0
+        p = min(malos, key=lambda q: q["margen"]); falta = math.ceil(-p["margen"] * 100 - 1e-6) / 100.0
         camino = tramos_desde(e["eje"], p["s"]); c = e["eje"]; vistos = {c}
         while c in recibe and recibe[c][0] in ram and recibe[c][0] not in vistos:
             c, s = recibe[c]; vistos.add(c); camino += tramos_desde(c, s)
@@ -196,9 +203,10 @@ def profundizar(C, V, P, hq, descargas):
                 P["e_tapa"] if any(a <= s_ <= b for a, b in rr.get("tapados", [])) else 0.0)
             libres = [ras - cf - losa(s_) for s_, ras, cf in rr["perfil"] if s0 - 1e-6 <= s_ <= s0 + t["L"] + 1e-6]
             hlib = min(libres) if libres else min(t["h_de"], t["h_a"])
-            k = "%s|%s|%s" % (cod, t["de"], t["a"]); v = round(max(nuevo.get(k, P["hmin"]), hlib + d), 3)
-            if v > nuevo.get(k, P["hmin"]) + 1e-6: nuevo[k] = v; cambio = True
-    return nuevo if cambio else None
+            k = "%s|%s|%s" % (cod, t["de"], t["a"]); g = nuevo.setdefault(D, {})
+            v = round(max(g.get(k, 0.0), hq.get(k, P["hmin"]), hlib + d), 3)
+            if v > hq.get(k, P["hmin"]) + 1e-6: g[k] = v
+    return {D: g for D, g in nuevo.items() if g}
 
 
 def limitado(PF, C, V, P):
@@ -216,7 +224,8 @@ def limitado(PF, C, V, P):
         c = o["eje"]; vistos = {c}
         while c in recibe and recibe[c][0] not in vistos: c = recibe[c][0]; vistos.add(c)
         D = ram[c].get("descarga")
-        if holgura.get(D, 0.0) >= P["BL"] - o["BL_min"] - 0.005: return None
+        if D not in V.get("remanso_sin_salida", []) and holgura.get(D, 0.0) >= max(0.01, -o.get("margen_min", o["BL_min"] - P["BL"]) - 0.005):
+            return None
         por_d.setdefault(D, []).append(o["eje"])
     return ("el nivel del agua lo fija la descarga %s, que ya no puede bajar más por el terreno exterior; soluciones: ancho libre mayor "
             "en los tramos de mayor caudal que llegan a esa descarga, otra descarga para %s, o subir el nivel de piso" % (

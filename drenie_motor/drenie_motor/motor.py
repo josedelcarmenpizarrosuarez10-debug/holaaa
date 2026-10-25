@@ -139,9 +139,10 @@ def lluvia(cfg_ruta):
 
 
 def _remansos(R, S, T, P, LL, hq, C, V):
-    """Perfil de flujo dentro del ciclo de diseno: donde el remanso no deja el borde libre minimo se profundiza el camino a la
-    descarga (perfil_flujo.profundizar) y se vuelve a verificar. Si una descarga que salia por gravedad deja de salir, se prueba
-    con el 75 % y el 50 % de lo profundizado; si tampoco, se deshace esa vuelta (el remanso queda como observacion)."""
+    """Perfil de flujo dentro del ciclo de diseno: donde el remanso no deja el borde libre minimo (o el tirante pasa del 80 % en un
+    tramo tapado) se profundiza el camino a la descarga (perfil_flujo.profundizar), descarga por descarga. Si esa descarga deja de
+    salir por gravedad, se prueba con el 75 % y el 50 % de lo profundizado; si tampoco, ese sector queda como esta y el remanso pasa
+    a decision del proyectista (perfil_flujo.limitado)."""
     def ciclo(h):
         for _v in range(P["vueltas_max"]):
             c_ = cotas.calcular(R, S, P, h)
@@ -149,17 +150,24 @@ def _remansos(R, S, T, P, LL, hq, C, V):
             if h2 == h: break
             h = h2
         return h, c_, v_
+    bloqueadas = set()                                      # descargas donde ya no se pudo bajar (pasa a decision del proyectista)
     for _ in range(4 if P.get("corregir_remansos", True) else 0):
-        nuevo = perfil_flujo.profundizar(C, V, P, hq, R.descargas)
-        if not nuevo: break
-        salian = {d["D"] for d in V["descargas"] if d["estado"] == "SALE POR GRAVEDAD"}
-        for f in (1.0, 0.75, 0.5):
-            prueba = {k: round(hq.get(k, P["hmin"]) + f * (v - hq.get(k, P["hmin"])), 3) for k, v in nuevo.items()}
-            h_, c_, v_ = ciclo(prueba)
-            if not any(d["D"] in salian and d["estado"] != "SALE POR GRAVEDAD" for d in v_["descargas"]): break
-        else:
-            return hq, C, V
-        hq, C, V = h_, c_, v_
+        grupos = perfil_flujo.profundizar(C, V, P, hq, R.descargas)
+        grupos = {D: g for D, g in grupos.items() if D not in bloqueadas}
+        if not grupos: break
+        avanzo = False
+        for D, cambios in sorted(grupos.items()):
+            salian = {d["D"] for d in V["descargas"] if d["estado"] == "SALE POR GRAVEDAD"}
+            for f in (1.0, 0.75, 0.5):
+                prueba = dict(hq); prueba.update({k: round(hq.get(k, P["hmin"]) + f * (v - hq.get(k, P["hmin"])), 3) for k, v in cambios.items()})
+                h_, c_, v_ = ciclo(prueba)
+                if not any(d["D"] in salian and d["estado"] != "SALE POR GRAVEDAD" for d in v_["descargas"]):
+                    hq, C, V = h_, c_, v_; avanzo = True
+                    break
+            else:
+                bloqueadas.add(D)
+        if not avanzo: break
+    V["remanso_sin_salida"] = sorted(bloqueadas | set(V.get("remanso_sin_salida", [])))
     return hq, C, V
 
 
@@ -245,7 +253,8 @@ def disenar(cfg_ruta):
     PF = perfil_flujo.calcular(C, V, P)                # nivel del agua real por el paso estandar (remansos, caidas, resaltos)
     rp = PF["resumen"]
     V["comprobaciones"].append({"n": len(V["comprobaciones"]) + 1, "comprobacion": "Perfil de flujo (paso estandar): borde libre >= %.2f m con el "
-                                "nivel del agua real, con remansos en las uniones" % P["BL"], "estado": "CUMPLE" if not rp["observados"] else "NO CUMPLE",
+                                "nivel del agua real, con remansos en las uniones; en tramos tapados tirante <= %.0f %% de la altura libre" % (
+                                    P["BL"], 100 * P.get("tirante_max_conducto", 0.80)), "estado": "CUMPLE" if not rp["observados"] else "NO CUMPLE",
                                 "detalle": "menor borde libre %.3f m, V max. %.2f m/s, %d resaltos" % (rp["BL_min"], rp["V_max"], rp["saltos"]) + (
                                     "" if not rp["observados"] else "; " + "; ".join("%s %s (%.3f m en %.2f)" % (o["eje"], o["estado"].lower(), o["BL_min"], o["s"])
                                                                               for o in rp["observados"]))})

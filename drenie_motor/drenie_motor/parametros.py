@@ -27,6 +27,7 @@ PARAMETROS = {
     "n_cap": 0.015,           # Manning para la capacidad
     "n_vel": 0.013,           # Manning para la velocidad
     "BL": 0.05,               # borde libre minimo (m)
+    "tirante_max_conducto": 0.80,  # en tramos tapados el tirante no pasa del 80 % de la altura libre bajo la losa (CE.040, 17.6.2)
     "Vmax": 3.0,              # velocidad maxima en concreto (m/s); si pasa, gradas
     "FS": 1.15,               # factor de seguridad de los caudales
     # trazo en planta

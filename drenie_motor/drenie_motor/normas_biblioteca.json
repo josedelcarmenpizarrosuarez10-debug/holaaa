@@ -1,32 +1,61 @@
 {
  "version": "2026-10-25",
- "nota": "Biblioteca única de fuentes de DrenIE: cada valor normativo se guarda una sola vez y lo leen la pantalla, el Excel, la memoria y el informe. clase: norma (exigencia de una norma peruana), referencia (manual o libro técnico), criterio (decisión del proyectista o del proyecto). estado: por_verificar (transcrito de los expedientes del proyectista, falta cotejar con el texto oficial vigente) o verificado (cotejado; se indica la página).",
+ "nota": "Cada dato con su fuente. Verificado = cotejado con el texto oficial (PDF en insumos/normas/, 25-10-2026); por verificar = falta el documento oficial o es una referencia técnica sin texto a la mano.",
  "normas": {
   "CE040": {
    "sigla": "CE.040",
    "nombre": "Norma Técnica CE.040 Drenaje Pluvial del Reglamento Nacional de Edificaciones",
-   "dispositivo": "R.M. N.° 126-2021-VIVIENDA, que reemplaza a la OS.060 Drenaje Pluvial Urbano",
-   "nota": "Hay un proyecto de modificación de 2024 (R.M. N.° 385); revisar si se aprobó."
+   "dispositivo": "R.M. N.° 126-2021-VIVIENDA (El Peruano, 24-04-2021), que reemplaza a la OS.060 Drenaje Pluvial Urbano",
+   "nota": "Hay un proyecto de modificación de 2024 (R.M. N.° 385); revisar si se aprobó.",
+   "archivo": "CE.040_DRENAJE_PLUVIAL_RM_126-2021-VIVIENDA.pdf"
   },
   "E060": {
    "sigla": "E.060",
    "nombre": "Norma Técnica E.060 Concreto Armado del Reglamento Nacional de Edificaciones",
-   "dispositivo": "D.S. N.° 010-2009-VIVIENDA"
+   "dispositivo": "D.S. N.° 010-2009-VIVIENDA, edición SENCICO con NTP actualizadas",
+   "archivo": "e.060-concreto-armado-sencico.pdf"
   },
   "E020": {
    "sigla": "E.020",
    "nombre": "Norma Técnica E.020 Cargas del Reglamento Nacional de Edificaciones",
-   "dispositivo": ""
+   "dispositivo": "",
+   "archivo": "Norma_E_020_CARGAS.pdf"
   },
   "IS010": {
    "sigla": "IS.010",
    "nombre": "Norma Técnica IS.010 Instalaciones Sanitarias para Edificaciones del Reglamento Nacional de Edificaciones",
-   "dispositivo": ""
+   "dispositivo": "D.S. N.° 011-2006-VIVIENDA, modificada por D.S. N.° 017-2012-VIVIENDA",
+   "archivo": "IS.010_Instalaciones_Sanitarias_para_Edificaciones_DS_N__017-2012.pdf"
+  },
+  "IS020": {
+   "sigla": "IS.020",
+   "nombre": "Norma Técnica IS.020 Tanques Sépticos del Reglamento Nacional de Edificaciones",
+   "dispositivo": "D.S. N.° 011-2006-VIVIENDA",
+   "archivo": "IS.020.pdf"
+  },
+  "OS080": {
+   "sigla": "OS.080",
+   "nombre": "Norma Técnica OS.080 Estaciones de Bombeo de Aguas Residuales del Reglamento Nacional de Edificaciones",
+   "dispositivo": "D.S. N.° 011-2006-VIVIENDA",
+   "archivo": "OS.080_Estaciones_de_bombeo_aguas_residuales.pdf"
+  },
+  "E050": {
+   "sigla": "E.050",
+   "nombre": "Norma Técnica E.050 Suelos y Cimentaciones del Reglamento Nacional de Edificaciones",
+   "dispositivo": "",
+   "archivo": "E.050_Suelos_y_Cimentaciones.pdf"
+  },
+  "REG_DRENAJE": {
+   "sigla": "Reglamento de la Ley General de Drenaje Pluvial",
+   "nombre": "Reglamento del Decreto Legislativo N.° 1356, Ley General de Drenaje Pluvial",
+   "dispositivo": "D.S. N.° 009-2026-VIVIENDA (El Peruano, 29-05-2026), que deroga el D.S. N.° 016-2018-VIVIENDA",
+   "archivo": "REGLAMENTO_DRENAJE_PLUVIAL_2026.pdf"
   },
   "MTC_HHD": {
    "sigla": "MTC – Hidrología",
    "nombre": "Manual de Hidrología, Hidráulica y Drenaje del Ministerio de Transportes y Comunicaciones",
-   "dispositivo": "R.D. N.° 20-2011-MTC/14"
+   "dispositivo": "R.D. N.° 20-2011-MTC/14",
+   "archivo": "MAN_11_HHD-2011.pdf"
   },
   "MTC_PUENTES": {
    "sigla": "MTC – Puentes",
@@ -78,6 +107,11 @@
    "nombre": "Wyly, R. S. y Eaton, H. N. Capacities of Plumbing Stacks in Buildings (National Bureau of Standards)",
    "dispositivo": ""
   },
+  "CIRIA": {
+   "sigla": "CIRIA C753",
+   "nombre": "CIRIA. The SuDS Manual, C753 (Londres, 2015): diseño de sistemas de drenaje sostenible (zanjas y pozos de infiltración, almacenamiento)",
+   "dispositivo": ""
+  },
   "PROYECTISTA": {
    "sigla": "Criterio del proyectista",
    "nombre": "Criterio adoptado por el proyectista para el diseño de drenaje pluvial",
@@ -94,8 +128,8 @@
    "clase": "norma",
    "fuente": "CE040",
    "ref": "numerales 11.1 y 11.3",
-   "consideracion": "El período se elige según el tipo de proyecto y el criterio del profesional (11.1); para precipitaciones de baja frecuencia, T ≥ 25 años (11.3). Probabilidad anual 4 %.",
-   "estado": "por_verificar"
+   "consideracion": "El período se escoge según el tipo de obra y el criterio de quien diseña (11.1); los caudales de precipitaciones de baja frecuencia son los de T ≥ 25 años (11.3), por el método racional en cuencas ≤ 3 km². Probabilidad anual 4 %.",
+   "estado": "verificado"
   },
   {
    "id": "tc_min",
@@ -105,9 +139,9 @@
    "unidad": "min",
    "clase": "norma",
    "fuente": "CE040",
-   "ref": "tiempo de concentración",
-   "consideracion": "La intensidad de un punto corresponde a una duración igual al tiempo de concentración del área que drena hacia él; si el tc calculado es menor, se adopta 10 min.",
-   "estado": "por_verificar"
+   "ref": "Anexo I, numeral 1.2.3",
+   "consideracion": "«El tiempo de concentración no debe ser menor que 10 minutos.»",
+   "estado": "verificado"
   },
   {
    "id": "registro_min",
@@ -118,8 +152,8 @@
    "clase": "referencia",
    "fuente": "MTC_HHD",
    "ref": "numeral 3.4",
-   "consideracion": "Orientación metodológica del manual, no exigencia de la CE.040.",
-   "estado": "por_verificar"
+   "consideracion": "Se recomienda un mínimo de 25 años de registro, incluyendo los años del fenómeno El Niño.",
+   "estado": "verificado"
   },
   {
    "id": "dick_peschke",
@@ -129,9 +163,9 @@
    "unidad": "mm, mm/h",
    "clase": "referencia",
    "fuente": "MTC_HHD",
-   "ref": "lluvias de corta duración",
-   "consideracion": "Las estaciones del SENAMHI registran lluvia máxima de 24 h; la expresión la reparte a duraciones cortas (D en minutos).",
-   "estado": "por_verificar"
+   "ref": "numeral 3.8, ecuación 16",
+   "consideracion": "Para duraciones menores de 1 hora o sin pluviógrafo: Pd = P24h·(d/1440)^0.25; la intensidad es Pd entre la duración.",
+   "estado": "verificado"
   },
   {
    "id": "riesgo",
@@ -141,9 +175,9 @@
    "unidad": "",
    "clase": "referencia",
    "fuente": "MTC_HHD",
-   "ref": "riesgo de falla",
+   "ref": "numeral 3.6, ecuación 1",
    "consideracion": "Se tabula para T de 5 a 100 años y vida útil de 10 a 50 años.",
-   "estado": "por_verificar"
+   "estado": "verificado"
   },
   {
    "id": "ks_alfa",
@@ -153,9 +187,9 @@
    "unidad": "",
    "clase": "referencia",
    "fuente": "MTC_HHD",
-   "ref": "pruebas de bondad de ajuste",
-   "consideracion": "La distribución adoptada es la de menor estadístico D, siempre que D ≤ D crítico = √(−ln(α/2)/(2n)) − 1/(6n).",
-   "estado": "por_verificar"
+   "ref": "numeral 3.7 b), Tabla N.° 03",
+   "consideracion": "D = máx |Fo(xm) − F(xm)| con Fo(xm) = 1 − m/(n+1) (datos de mayor a menor); se acepta si D < d crítico de la Tabla N.° 03 para el nivel de significancia adoptado (0.05).",
+   "estado": "verificado"
   },
   {
    "id": "FS",
@@ -176,10 +210,10 @@
    "valor": 3.0,
    "unidad": "m/s",
    "clase": "norma",
-   "fuente": "CE040",
-   "ref": "velocidades admisibles",
-   "consideracion": "Si la velocidad pasa de 3.0 m/s se disponen gradas (escalones) de concreto o una estructura de caída.",
-   "estado": "por_verificar"
+   "fuente": "MTC_HHD",
+   "ref": "numeral 4.1, Tabla N.° 10 (concreto: 3.0 – 6.0 m/s)",
+   "consideracion": "La CE.040 deja la velocidad máxima al proyectista según el material (17.8). Se adopta el límite inferior del rango del MTC para conductos revestidos de concreto, del lado seguro frente a la erosión.",
+   "estado": "verificado"
   },
   {
    "id": "Vmin",
@@ -189,9 +223,9 @@
    "unidad": "m/s",
    "clase": "norma",
    "fuente": "CE040",
-   "ref": "velocidades admisibles",
-   "consideracion": "Con el caudal de diseño, para evitar sedimentación.",
-   "estado": "por_verificar"
+   "ref": "numeral 17.7",
+   "consideracion": "0.90 m/s en subcolectores y colectores con el caudal de diseño; si no se cumple, el profesional lo justifica. En las cunetas la autolimpieza se asegura con la pendiente mínima de 0.5 % (17.9).",
+   "estado": "verificado"
   },
   {
    "id": "n_cap",
@@ -199,11 +233,11 @@
    "texto": "Coeficiente de Manning para la capacidad (concreto con rejilla)",
    "valor": 0.015,
    "unidad": "",
-   "clase": "referencia",
-   "fuente": "CHOW",
-   "ref": "tabla de coeficientes de rugosidad (concreto)",
-   "consideracion": "Valor más rugoso del concreto para no sobrestimar la capacidad (rejilla, juntas y uso).",
-   "estado": "por_verificar"
+   "clase": "norma",
+   "fuente": "CE040",
+   "ref": "Anexo II, Tabla 1",
+   "consideracion": "Cuneta de concreto paleteado n = 0.012, más 0.002 donde puede acumularse sedimento (0.014). Se adopta 0.015 para la capacidad por la rejilla y las juntas, del lado seguro.",
+   "estado": "verificado"
   },
   {
    "id": "n_vel",
@@ -211,11 +245,11 @@
    "texto": "Coeficiente de Manning para la velocidad (concreto liso)",
    "valor": 0.013,
    "unidad": "",
-   "clase": "referencia",
-   "fuente": "CHOW",
-   "ref": "tabla de coeficientes de rugosidad (concreto)",
-   "consideracion": "Valor más liso del concreto: da la mayor velocidad, la más desfavorable frente a la velocidad máxima.",
-   "estado": "por_verificar"
+   "clase": "criterio",
+   "fuente": "CE040",
+   "ref": "Anexo II, Tabla 1",
+   "consideracion": "La Tabla 1 da 0.012 a 0.016 según el acabado; el proyectista adopta 0.013 (concreto liso) para la velocidad, con el límite de 3.0 m/s que ya es el inferior del rango admisible del MTC.",
+   "estado": "verificado"
   },
   {
    "id": "BL",
@@ -249,9 +283,9 @@
    "unidad": "%",
    "clase": "norma",
    "fuente": "CE040",
-   "ref": "artículo 12.4",
-   "consideracion": "",
-   "estado": "por_verificar"
+   "ref": "numeral 12.4",
+   "consideracion": "Pendiente mínima de 1 % y diámetro mínimo de 0.10 m; la canaleta de 0.25 × 0.20 m lo cumple.",
+   "estado": "verificado"
   },
   {
    "id": "D_montante_min",
@@ -261,9 +295,9 @@
    "unidad": "m",
    "clase": "norma",
    "fuente": "CE040",
-   "ref": "artículo 12.5",
-   "consideracion": "Se adopta PVC de 4\" (0.10 m) en todos los montantes, mayor que el mínimo.",
-   "estado": "por_verificar"
+   "ref": "numeral 12.5",
+   "consideracion": "Mínimo de norma 0.05 m; el proyectista usa siempre 4\" (0.10 m).",
+   "estado": "verificado"
   },
   {
    "id": "wyly",
@@ -308,10 +342,10 @@
    "valor": 4200,
    "unidad": "kg/cm²",
    "clase": "norma",
-   "fuente": "NTP341031",
-   "ref": "grado 60",
+   "fuente": "E060",
+   "ref": "numeral 3.5.3.1 (NTP 341.031:2018, grado 60, fy = 420 MPa)",
    "consideracion": "Acero corrugado grado 60 (ASTM A615).",
-   "estado": "por_verificar"
+   "estado": "verificado"
   },
   {
    "id": "rho_temp",
@@ -321,9 +355,9 @@
    "unidad": "",
    "clase": "norma",
    "fuente": "E060",
-   "ref": "acero de contracción y temperatura",
-   "consideracion": "Sobre el área bruta de la sección.",
-   "estado": "por_verificar"
+   "ref": "numeral 9.7.2",
+   "consideracion": "Barras corrugadas o malla con fy ≥ 420 MPa: 0.0018 del área bruta.",
+   "estado": "verificado"
   },
   {
    "id": "s_max_temp",
@@ -333,21 +367,21 @@
    "unidad": "",
    "clase": "norma",
    "fuente": "E060",
-   "ref": "acero de contracción y temperatura",
+   "ref": "numeral 9.7.3",
    "consideracion": "El menor de tres veces el espesor y 0.40 m.",
-   "estado": "por_verificar"
+   "estado": "verificado"
   },
   {
    "id": "recub_suelo",
    "grupo": "Concreto armado",
-   "texto": "Recubrimiento mínimo, concreto vaciado contra el suelo y en contacto permanente con él",
-   "valor": 7.0,
+   "texto": "Recubrimiento mínimo, concreto colocado contra el suelo y expuesto permanentemente a él",
+   "valor": 7.5,
    "unidad": "cm",
    "clase": "norma",
    "fuente": "E060",
-   "ref": "recubrimientos mínimos",
-   "consideracion": "",
-   "estado": "por_verificar"
+   "ref": "numeral 7.7.1 a)",
+   "consideracion": "75 mm. Las cunetas, cajas y pozas se vacían sobre solado: les corresponde 7.7.1 b) (4 cm).",
+   "estado": "verificado"
   },
   {
    "id": "recub_expuesto",
@@ -357,9 +391,9 @@
    "unidad": "cm",
    "clase": "norma",
    "fuente": "E060",
-   "ref": "recubrimientos mínimos",
-   "consideracion": "",
-   "estado": "por_verificar"
+   "ref": "numeral 7.7.1 b)",
+   "consideracion": "Concreto en contacto permanente con el suelo o la intemperie, barras de 5/8\" y menores y mallas: 40 mm.",
+   "estado": "verificado"
   },
   {
    "id": "carga_vehicular",
@@ -404,10 +438,10 @@
    "valor": "P(D) = I(D)·D/60 para D = Δt, 2Δt, …; incrementos ordenados alternando alrededor del bloque central",
    "unidad": "mm",
    "clase": "referencia",
-   "fuente": "CHOW_HA",
-   "ref": "sección 14.4, método del bloque alterno",
-   "consideracion": "Se usa para la simulación dinámica (SWMM) con la curva IDF del proyecto; tormenta de 120 min en bloques de duración igual al tiempo de concentración (mínimo 10 min), así el bloque pico es la intensidad de diseño del método racional.",
-   "estado": "por_verificar"
+   "fuente": "MTC_HHD",
+   "ref": "numeral 3.10.1, método del bloque alterno",
+   "consideracion": "Intensidades de la curva IDF para Δt, 2Δt, …; los incrementos se ordenan con el máximo al centro y los demás alternando a la derecha y a la izquierda (Chow et al.). Se usa para la simulación dinámica (SWMM), la infiltración y el bombeo, con bloques del tiempo de concentración (mínimo 10 min).",
+   "estado": "verificado"
   },
   {
    "id": "swmm",
@@ -443,6 +477,186 @@
    "fuente": "PROYECTISTA",
    "ref": "",
    "consideracion": "Tapa de concreto armado f'c = 280 kg/cm² diseñada para la rueda del camión HL-93.",
+   "estado": "verificado"
+  },
+  {
+   "id": "tirante_max_conducto",
+   "grupo": "Hidráulica",
+   "texto": "Tirante máximo en conductos de sección no circular (tramos tapados)",
+   "valor": 80,
+   "unidad": "% de la altura libre",
+   "clase": "norma",
+   "fuente": "CE040",
+   "ref": "numeral 17.6.2",
+   "consideracion": "En los tramos tapados la cuneta trabaja como conducto cerrado: además del borde libre de 0.05 m, el tirante no pasa del 80 % de la altura libre bajo la losa.",
+   "estado": "verificado"
+  },
+  {
+   "id": "evacuacion",
+   "grupo": "Descargas",
+   "texto": "Tipos de evacuación: gravedad, bombeo o mixta",
+   "valor": "gravedad; bombeo; mixta",
+   "unidad": "",
+   "clase": "norma",
+   "fuente": "CE040",
+   "ref": "artículo 21 (21.2.1 a 21.2.3)",
+   "consideracion": "Por gravedad siempre que se pueda; si no es posible, estación de bombeo (21.2.2) con otra fuente de energía prevista; mixta con válvula de retención cuando el receptor sube de nivel.",
+   "estado": "verificado"
+  },
+  {
+   "id": "detencion",
+   "grupo": "Descargas",
+   "texto": "Unidades de detención o retención",
+   "valor": "volumen por tránsito en el reservorio",
+   "unidad": "",
+   "clase": "norma",
+   "fuente": "CE040",
+   "ref": "numerales 22.2 a 22.4",
+   "consideracion": "Reducen el caudal pico que la infraestructura no puede evacuar; el volumen y el caudal atenuado se calculan por el tránsito de avenidas en el reservorio.",
+   "estado": "verificado"
+  },
+  {
+   "id": "infraestructura_verde",
+   "grupo": "Descargas",
+   "texto": "Infiltración y retención como estructuras complementarias",
+   "valor": "permitida",
+   "unidad": "",
+   "clase": "norma",
+   "fuente": "REG_DRENAJE",
+   "ref": "artículos 6.1 y 8.2; Segunda Disposición Complementaria Final",
+   "consideracion": "El sistema puede incluir retención, filtración e infiltración (infraestructura verde o azul). Mientras el MVCS no apruebe su norma, se tratan como estructuras complementarias de la CE.040 y su diseño se ampara en normativa internacional especializada (CIRIA C753).",
+   "estado": "verificado"
+  },
+  {
+   "id": "bombeo_pluvial",
+   "grupo": "Bombeo",
+   "texto": "Bombeo de aguas de lluvia en edificaciones",
+   "valor": "automático, con la máxima intensidad",
+   "unidad": "",
+   "clase": "norma",
+   "fuente": "IS010",
+   "ref": "numerales 7.1 f) y 7.2",
+   "consideracion": "La capacidad de las bombas se calcula con la máxima intensidad de lluvia; el volumen de almacenamiento, según la intensidad y frecuencia de lluvias; la elevación sigue lo de las cámaras de bombeo de la norma.",
+   "estado": "verificado"
+  },
+  {
+   "id": "bombas_numero",
+   "grupo": "Bombeo",
+   "texto": "Número y capacidad de las bombas",
+   "valor": "2 alternadas, cada una con el gasto máximo",
+   "unidad": "",
+   "clase": "norma",
+   "fuente": "IS010",
+   "ref": "numeral 6.4 b) y c)",
+   "consideracion": "Mínimo dos equipos de funcionamiento alternado, cada uno con el gasto máximo (capacidad total ≥ 150 %); tubería de descarga con válvula de interrupción y de retención; arranque por niveles, control manual y alarma de sobre nivel.",
+   "estado": "verificado"
+  },
+  {
+   "id": "camara_bombeo",
+   "grupo": "Bombeo",
+   "texto": "Cámara de bombeo",
+   "valor": "permanencia ≤ 30 min; reserva; NPSH disponible − requerido ≥ 0.80 m",
+   "unidad": "",
+   "clase": "norma",
+   "fuente": "OS080",
+   "ref": "numerales 1 y 4",
+   "consideracion": "La OS.080 alcanza a las estaciones de aguas pluviales: cámara de rejas a la entrada, fondo con pendiente a la succión, bomba de reserva, succión un diámetro mayor que la impulsión, válvulas de interrupción, retención y aire, control de niveles con alarma, rebose o grupo electrógeno.",
+   "estado": "verificado"
+  },
+  {
+   "id": "ciclo_bombas",
+   "grupo": "Bombeo",
+   "texto": "Volumen útil por arranques de la bomba",
+   "valor": "V = Qb · Tmin / 4; Tmin = 10 min",
+   "unidad": "m³",
+   "clase": "referencia",
+   "fuente": "PROYECTISTA",
+   "ref": "",
+   "consideracion": "Volumen entre los niveles de arranque y parada para no más de 6 arranques por hora (práctica de fabricantes de bombas sumergibles); se verifica además la permanencia ≤ 30 min de la OS.080.",
+   "estado": "por_verificar"
+  },
+  {
+   "id": "percolacion",
+   "grupo": "Infiltración",
+   "texto": "Test de percolación y clase de terreno",
+   "valor": "rápido 0–4; medio 4–8; lento 8–12 min/cm",
+   "unidad": "min por 1 cm",
+   "clase": "norma",
+   "fuente": "IS020",
+   "ref": "artículo 17 a) y Anexo 1",
+   "consideracion": "Seis o más agujeros de 0.30 × 0.30 m a la profundidad del sistema, saturación de 4 h (24 h salvo arenas). Con más de 12 min/cm el terreno no es apto: se plantea bombeo.",
+   "estado": "verificado"
+  },
+  {
+   "id": "pozo_absorcion",
+   "grupo": "Infiltración",
+   "texto": "Pozo de absorción (infiltración)",
+   "valor": "D ≥ 1.0 m; 2 m en la capa filtrante; fondo ≥ 2 m sobre la napa; separación ≥ 6 m",
+   "unidad": "",
+   "clase": "norma",
+   "fuente": "IS020",
+   "ref": "artículos 20 y 21",
+   "consideracion": "Área efectiva: la lateral del cilindro con el diámetro exterior (sin el fondo); muro de mampostería con juntas abiertas, relleno de grava de 1\" y tapa de inspección de 0.60 m.",
+   "estado": "verificado"
+  },
+  {
+   "id": "zanja_infiltracion",
+   "grupo": "Infiltración",
+   "texto": "Zanja de infiltración (percolación)",
+   "valor": "ancho 0.45–0.90 m; profundidad ≥ 0.60 m; ≥ 2 m sobre la napa; línea ≤ 30 m; ejes a ≥ 2 m",
+   "unidad": "",
+   "clase": "norma",
+   "fuente": "IS020",
+   "ref": "artículos 18 y 19",
+   "consideracion": "Área útil: la mayor entre el fondo y las paredes laterales; grava de 1.5 a 5 cm y tubería PVC de 100 mm perforada con pendiente de 1.5 a 5 ‰; caja de inspección de 0.60 × 0.60 m al inicio.",
+   "estado": "verificado"
+  },
+  {
+   "id": "distancias_infiltracion",
+   "grupo": "Infiltración",
+   "texto": "Distancias mínimas del pozo o zanja de infiltración",
+   "valor": "vivienda 6 m; pozo de agua 25 m; tubería de agua 10–15 m; curso de agua 10–15 m",
+   "unidad": "m",
+   "clase": "norma",
+   "fuente": "IS020",
+   "ref": "artículo 17 b), tabla de distancias mínimas",
+   "consideracion": "La tabla es para efluentes de tanque séptico; para agua de lluvia se toma como mínimo prudente frente a cimentaciones, pozos y tuberías.",
+   "estado": "verificado"
+  },
+  {
+   "id": "tasa_infiltracion",
+   "grupo": "Infiltración",
+   "texto": "Tasa de infiltración de diseño",
+   "valor": "f = (1 cm / t) / FS",
+   "unidad": "m/h",
+   "clase": "referencia",
+   "fuente": "CIRIA",
+   "ref": "capítulo 25, factores de seguridad para infiltración",
+   "consideracion": "La tasa medida en el test de percolación (IS.020) se divide entre un factor de seguridad según el área drenada y las consecuencias de una falla (1.5 a 10; por defecto 3). La curva de la IS.020 (R en L/m²/día) es para efluente séptico que colmata el suelo y no se usa para lluvia.",
+   "estado": "por_verificar"
+  },
+  {
+   "id": "vaciado",
+   "grupo": "Infiltración",
+   "texto": "Tiempo de vaciado del almacenamiento de infiltración",
+   "valor": "mitad del volumen en ≤ 24 h",
+   "unidad": "h",
+   "clase": "referencia",
+   "fuente": "CIRIA",
+   "ref": "capítulo 25",
+   "consideracion": "Para que el sistema esté disponible para la siguiente tormenta.",
+   "estado": "por_verificar"
+  },
+  {
+   "id": "napa",
+   "grupo": "Infiltración",
+   "texto": "Nivel de la napa freática en el estudio de suelos",
+   "valor": "obligatorio",
+   "unidad": "",
+   "clase": "norma",
+   "fuente": "E050",
+   "ref": "informe del EMS, «Nivel de la Napa Freática»",
+   "consideracion": "El estudio de mecánica de suelos indica la napa con su fecha de medición; con napa alta la infraestructura debe ser compatible con el subdrenaje (CE.040, artículo 9).",
    "estado": "verificado"
   }
  ],
@@ -480,8 +694,8 @@
      0.4
     ]
    ],
-   "consideracion": "Valores tal como los citan las memorias de los expedientes; la tabla completa tiene más superficies, pendientes y períodos de retorno.",
-   "estado": "por_verificar"
+   "consideracion": "Valores para T = 25 años de la Tabla 1.a (Chow et al. 1994, tabla 15.1.1, estándares de Austin): concreto/techo 0.88; asfáltico 0.86; zonas verdes planas 0–2 %: 0.29 (buena), 0.34 (promedio), 0.40 (pobre).",
+   "estado": "verificado"
   },
   {
    "id": "C_adoptados",
@@ -672,6 +886,147 @@
     ]
    ],
    "consideracion": "",
+   "estado": "verificado"
+  },
+  {
+   "id": "n_manning_ce040",
+   "grupo": "Hidráulica",
+   "titulo": "n de Manning para cunetas de calles y calzadas",
+   "clase": "norma",
+   "fuente": "CE040",
+   "ref": "Anexo II, Tabla 1",
+   "columnas": [
+    "Tipo de cuneta o calzada",
+    "n"
+   ],
+   "filas": [
+    [
+     "Cuneta de concreto con acabado paleteado",
+     0.012
+    ],
+    [
+     "Calzada de asfalto, textura suave",
+     0.013
+    ],
+    [
+     "Calzada de asfalto, textura rugosa",
+     0.016
+    ],
+    [
+     "Cuneta de concreto y calzada de asfalto, suave",
+     0.013
+    ],
+    [
+     "Cuneta de concreto y calzada de asfalto, rugoso",
+     0.015
+    ],
+    [
+     "Calzada de concreto, acabado",
+     0.014
+    ],
+    [
+     "Calzada de concreto, acabado escobillado",
+     0.016
+    ],
+    [
+     "Incremento en cunetas de pendiente pequeña con sedimento",
+     0.002
+    ]
+   ],
+   "consideracion": "Referencia USDOT FHWA HEC-22 (2013).",
+   "estado": "verificado"
+  },
+  {
+   "id": "velocidades_mtc",
+   "grupo": "Hidráulica",
+   "titulo": "Velocidades máximas admisibles en conductos revestidos",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 4.1, Tabla N.° 10",
+   "columnas": [
+    "Revestimiento",
+    "V (m/s)"
+   ],
+   "filas": [
+    [
+     "Concreto",
+     "3.0 – 6.0"
+    ],
+    [
+     "Ladrillo con concreto",
+     "2.5 – 3.5"
+    ],
+    [
+     "Mampostería de piedra y concreto",
+     "2.0"
+    ]
+   ],
+   "consideracion": "Fuente citada por el MTC: HCANALES, Máximo Villón B.",
+   "estado": "verificado"
+  },
+  {
+   "id": "clases_terreno",
+   "grupo": "Infiltración",
+   "titulo": "Clasificación de los terrenos según el test de percolación",
+   "clase": "norma",
+   "fuente": "IS020",
+   "ref": "artículo 17 a)",
+   "columnas": [
+    "Clase de terreno",
+    "Tiempo para el descenso de 1 cm"
+   ],
+   "filas": [
+    [
+     "Rápido",
+     "0 a 4 min"
+    ],
+    [
+     "Medio",
+     "4 a 8 min"
+    ],
+    [
+     "Lento",
+     "8 a 12 min"
+    ],
+    [
+     "No apto",
+     "más de 12 min"
+    ]
+   ],
+   "consideracion": "",
+   "estado": "verificado"
+  },
+  {
+   "id": "distancias_is020",
+   "grupo": "Infiltración",
+   "titulo": "Distancia mínima al sistema (m)",
+   "clase": "norma",
+   "fuente": "IS020",
+   "ref": "artículo 17 b)",
+   "columnas": [
+    "Sistema",
+    "Pozo de agua",
+    "Tubería de agua",
+    "Curso superficial",
+    "Vivienda"
+   ],
+   "filas": [
+    [
+     "Campo de percolación",
+     25,
+     15,
+     10,
+     6
+    ],
+    [
+     "Pozo de absorción",
+     25,
+     10,
+     15,
+     6
+    ]
+   ],
+   "consideracion": "Tabla para efluentes de tanque séptico; para agua de lluvia se toma como mínimo prudente.",
    "estado": "verificado"
   }
  ]

@@ -207,11 +207,11 @@ def hidrologica(D, c):
     D.h(1, "Verificación hidráulica de las cunetas")
     D.p("La profundidad es variable desde %.2f m al inicio de cada eje, con la cota de fondo en pendiente mínima de %.1f %% y el borde al ras del piso. "
         "Con el caudal de diseño se verifica:" % (P["h0"], 100 * P["S0"]))
-    D.vinetas(["Capacidad: tirante normal de Manning con n = %.3f (concreto con rejilla) y borde libre mínimo de %.2f m respecto de la altura libre (bajo la losa en los tramos tapados)." % (P["n_cap"], P["BL"]),
+    D.vinetas(["Capacidad: tirante normal de Manning con n = %.3f (concreto con rejilla) y borde libre mínimo de %.2f m respecto de la altura libre (bajo la losa en los tramos tapados); en los tramos tapados, que trabajan como conducto cerrado, se verifica además con el nivel del agua real que el tirante no pase del %.0f %% de la altura libre (CE.040, 17.6.2; ver «Perfil de flujo»)." % (P["n_cap"], P["BL"], 100 * P.get("tirante_max_conducto", 0.80)),
                "Velocidad: con n = %.3f (concreto liso), máximo %.1f m/s para no erosionar el concreto." % (P["n_vel"], P["Vmax"]),
                "Pendiente mínima de %.1f %% en todos los tramos, para la autolimpieza." % (100 * P["S0"])])
     D.formula("Q = (1/n) · A · R^(2/3) · S^(1/2)     A = b · y     R = b·y / (b + 2y)")
-    normas.recuadro_word(D, "n_cap", "n_vel", "Vmax", "BL", "S0")
+    normas.recuadro_word(D, "n_cap", "n_vel", "Vmax", "BL", "tirante_max_conducto", "S0")
     filas = [[e, "%.1f" % f["Q_ls"], f2(f["S_pct"]), f2(f["b"]), "%.3f" % f["y"], f2(f["h"]), "%.3f" % c.bl_min[e], f2(f["V"]),
               "Cumple" if f["cap"] == "CUMPLE" and f["vel"] == "CUMPLE" else "Revisar"] for e, f in sorted(c.por_eje.items())]
     D.tabla("Verificación hidráulica por eje (tramo más cargado)", ["Eje", "Q (l/s)", "S (%)", "b (m)", "y (m)", "h libre (m)", "BL mín. (m)", "V (m/s)", "Estado"],
@@ -305,7 +305,7 @@ def hidrologica(D, c):
         D.tabla("Perfil de flujo por eje (paso estándar)", ["Eje", "L (m)", "y máx. (m)", "BL mín. (m)", "en prog. (m)", "V máx. (m/s)",
                                                             "Supercrítico (m)", "Resaltos", "Estado"], filas, [1.6, 1.5, 1.6, 1.7, 1.8, 1.7, 2.0, 1.5, 2.2], tam=7.5)
         D.p("En toda la red el menor borde libre del perfil de flujo es %.3f m y la velocidad máxima es %.2f m/s; %d de %d ejes cumplen el borde "
-            "libre mínimo de %.2f m con el nivel del agua real%s. El detalle de cada estación (tirante, velocidad, energía, número de Froude y "
+            "libre mínimo de %.2f m (y el tirante máximo de 80 %% en los tramos tapados) con el nivel del agua real%s. El detalle de cada estación (tirante, velocidad, energía, número de Froude y "
             "balance de energía con fórmulas) está en la hoja «PERFIL DE FLUJO» de la memoria de cálculo." % (
                 rs["BL_min"], rs["V_max"], rs["cumplen"], rs["ejes"], P["BL"],
                 "" if not rs["observados"] else " (" + "; ".join("%s: %s, %.3f m en la progresiva %.2f" % (o["eje"], o["estado"].lower(), o["BL_min"], o["s"])
