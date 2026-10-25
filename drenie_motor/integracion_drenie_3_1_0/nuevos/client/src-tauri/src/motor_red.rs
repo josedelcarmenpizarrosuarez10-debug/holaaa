@@ -14,18 +14,27 @@ const CLAVE_SESION: [u8; 32] = [
     0x5d, 0x0e, 0x9b, 0x3a, 0x7c, 0x41, 0xf2, 0x6e, 0x8a, 0x19, 0xd4, 0xc0, 0x7b, 0x3e, 0x52, 0xf1,
     0xa6, 0xc9, 0x8d, 0x2e, 0x40, 0xb7, 0x1f, 0x53, 0xc8, 0xe6, 0xa2, 0x9d, 0x10, 0x47, 0xfb, 0x3c,
 ];
-// orden -> (argumentos mínimos, máximos, lleva JSON por la entrada estándar, módulo de la licencia)
+// orden -> (argumentos mínimos, máximos, lleva JSON por la entrada estándar, permiso)
+// Permiso DEMO: también la edición demo (leer el plano, crear el proyecto, dibujar). EXPORTAR: licencia con el módulo export
+// (calcular la red y generar los entregables).
+const DEMO: &str = "demo";
+const EXPORTAR: &str = "export";
 const ORDENES: &[(&str, usize, usize, bool, &str)] = &[
-    ("capas", 1, 1, false, "calculate"),
-    ("crear", 0, 0, true, "projects"),
-    ("vista", 1, 1, false, "calculate"),
-    ("leer", 1, 1, false, "calculate"),
-    ("ediciones", 1, 1, true, "projects"),
-    ("disenar", 1, 1, false, "export"),
-    ("aplicar", 3, 3, false, "export"),
-    ("entregables", 1, 1, false, "calculate"),
-    ("abrir", 1, 2, false, "calculate"),
+    ("capas", 1, 1, false, DEMO),
+    ("crear", 0, 0, true, DEMO),
+    ("vista", 1, 1, false, DEMO),
+    ("leer", 1, 1, false, DEMO),
+    ("ediciones", 1, 1, true, DEMO),
+    ("datos", 1, 1, true, DEMO),
+    ("disenar", 1, 1, false, EXPORTAR),
+    ("aplicar", 3, 3, false, EXPORTAR),
+    ("entregables", 1, 1, false, DEMO),
+    ("abrir", 1, 2, false, DEMO),
 ];
+
+fn permiso(app: &tauri::AppHandle, clase: &str) -> Result<(), String> {
+    if clase == DEMO { licensing::authorize_feature(app.clone(), "calculate".into(), 0, 0) } else { licensing::require_feature(app, clase) }
+}
 const ENTRADA_MAX: usize = 20 * 1024 * 1024;
 
 fn hmac_sha256(clave: &[u8], mensaje: &[u8]) -> [u8; 32] {
@@ -54,7 +63,7 @@ fn argumento_valido(a: &str) -> bool {
 
 #[tauri::command]
 pub async fn motor_red(app: tauri::AppHandle, accion: String, args: Vec<String>, entrada: Option<String>) -> Result<String, String> {
-    let Some(&(_, minimo, maximo, con_entrada, modulo)) = ORDENES.iter().find(|o| o.0 == accion) else {
+    let Some(&(_, minimo, maximo, con_entrada, clase)) = ORDENES.iter().find(|o| o.0 == accion) else {
         return Err("Orden no permitida.".into());
     };
     if args.len() < minimo || args.len() > maximo || !args.iter().all(|a| argumento_valido(a)) {
@@ -62,7 +71,7 @@ pub async fn motor_red(app: tauri::AppHandle, accion: String, args: Vec<String>,
     }
     let entrada = if con_entrada { entrada.unwrap_or_default() } else { String::new() };
     if entrada.len() > ENTRADA_MAX { return Err("Los datos enviados al motor exceden 20 MB.".into()); }
-    licensing::require_feature(&app, modulo)?;
+    permiso(&app, clase)?;
     let exe = ejecutable(&app)?;
     let sesion = ficha()?;
     tauri::async_runtime::spawn_blocking(move || {
@@ -89,7 +98,7 @@ pub async fn motor_red(app: tauri::AppHandle, accion: String, args: Vec<String>,
 // Archivos y carpetas siempre elegidos en el diálogo del sistema.
 #[tauri::command]
 pub async fn motor_elegir(app: tauri::AppHandle, tipo: String) -> Result<Option<String>, String> {
-    licensing::require_feature(&app, "calculate")?;
+    permiso(&app, DEMO)?;
     tauri::async_runtime::spawn_blocking(move || {
         let dialogo = app.dialog().file();
         let elegido = match tipo.as_str() {
@@ -117,7 +126,8 @@ mod tests {
     }
     #[test]
     fn solo_ordenes_conocidas() {
-        assert!(ORDENES.iter().all(|o| o.1 <= o.2));
+        assert!(ORDENES.iter().all(|o| o.1 <= o.2 && (o.4 == DEMO || o.4 == EXPORTAR)));
+        assert!(ORDENES.iter().filter(|o| o.4 == EXPORTAR).all(|o| o.0 == "disenar" || o.0 == "aplicar"));
         assert!(!ORDENES.iter().any(|o| o.0 == "lluvia" || o.0 == "cmd"));
         assert!(!argumento_valido("--help") && !argumento_valido("") && argumento_valido("C:\\obra\\proyecto.json"));
     }

@@ -30,11 +30,28 @@ var RC_CMDS = [
 ];
 Object.keys(RC_ICONS).forEach(function (k) { V3_RIB_ICONS[k] = RC_ICONS[k]; });
 RC_CMDS.forEach(function (c) { V3_RIB_ICONS['rc_' + c[0]] = '<path d="' + c[3] + '" transform="scale(2)" stroke="#0B2545" stroke-width="1.15"/>'; });
-V3_RIB_TABS.splice(V3_RIB_TABS.length - 1, 0, ['red', 'RED DE CUNETAS']);
+// Orden de trabajo: la red de cunetas va después de la lluvia de diseño (la usa) y antes de techos, cunetas y montantes.
+V3_RIB_TABS.splice(V3_RIB_TABS.findIndex(function (t) { return t[0] === 'lluvia'; }) + 1, 0, ['red', 'RED DE CUNETAS']);
 V3_STEP_TAB[15] = 'red';
-V3_NAV.push([15, 'Red de cunetas', 'R', 'profile']);
+V3_NAV.splice(V3_NAV.findIndex(function (n) { return n[0] === 1; }) + 1, 0, [15, 'Red de cunetas', 'R', 'profile']);
 
-var RC = { proyecto: null, nombre: '', pendientes: 0, observaciones: 0, asistente: null, aviso: null, marco: null, visorListo: false };
+var RC = { proyecto: null, nombre: '', pendientes: 0, observaciones: 0, asistente: null, aviso: null, marco: null, visorListo: false, estado: null, setState: null };
+// Lluvia de diseño de la pestaña LLUVIA: la misma intensidad (curva IDF y tiempo de concentración de diseño) para todo el proyecto.
+function rcLluvia(st) {
+  if (!st) return { error: 'Abra la pestaña LLUVIA y complete la curva IDF del proyecto.' };
+  var d = v3DesignDuration(st), I = v3DesignIntensity(st);
+  if (!d.valid) return { error: 'Revise el tiempo de concentración de diseño en la pestaña LLUVIA: ' + (d.errors || []).join(' ') };
+  if (!(I > 0)) return { error: 'La curva IDF de la pestaña LLUVIA no está completa: ' + (v3IdfErrors(st).join(' ') || 'agregue al menos una fila.') };
+  var rows = validIdfRows(st.idf || []).map(function (r) { return [r.duration, r.intensity]; }).sort(function (a, b) { return a[0] - b[0]; });
+  var s = st.statistics || {}, est = s.station && (s.station.name || s.station.nombre) || s.sourceName || '';
+  var origen = s.connected ? 'análisis estadístico de DrenIE' + (est ? ' (' + est + ')' : '') + (s.returnPeriod ? ', T = ' + s.returnPeriod + ' años' : '') : 'curva IDF ingresada en DrenIE';
+  var ejemplo = v3IdfSample(st);
+  return { I_mmh: Math.round(I * 100) / 100, tc_min: d.duration, metodo_tc: d.method, idf: rows, ejemplo: ejemplo || undefined,
+    fuente: 'Pestaña LLUVIA de DrenIE: ' + origen + '; I para tc = ' + fmt(d.duration, 0) + ' min (' + d.method + ')' + (ejemplo ? '. CURVA DE EJEMPLO: reemplazar con la de la estación del proyecto' : '') };
+}
+function rcVincular(ruta, nombre) {
+  if (RC.setState) RC.setState(function (prev) { return prev.redCunetas && prev.redCunetas.proyecto === ruta ? prev : Object.assign({}, prev, { redCunetas: { proyecto: ruta, nombre: nombre || '' } }); });
+}
 var RC_PLANTEAMIENTO = [['completar', 'Completar mis líneas de cuneta (recomendado)'], ['automatico', 'Proponer toda la red (no usar las líneas del plano)'], ['no', 'Solo mis líneas de cuneta']];
 function rcAvisar() { window.dispatchEvent(new Event('drenie-red')); window.dispatchEvent(new Event('drenie-ui')); }
 function rcRecientes() { try { return JSON.parse(localStorage.getItem('drenie-red-recientes') || '[]').filter(function (r) { return r && r.ruta; }); } catch (e) { return []; } }
@@ -58,7 +75,7 @@ function rcOcupado(texto, fn) {
   RC.aviso = { texto: texto, desde: Date.now() }; rcAvisar();
   return Promise.resolve().then(fn).finally(function () { RC.aviso = null; rcAvisar(); });
 }
-function rcAbrirProyecto(ruta, nombre) { RC.proyecto = ruta; RC.nombre = nombre || ''; RC.asistente = null; RC.pendientes = 0; RC.observaciones = 0; RC.visorListo = false; rcRecordar(ruta, nombre || ruta); rcAvisar(); }
+function rcAbrirProyecto(ruta, nombre) { RC.proyecto = ruta; RC.nombre = nombre || ''; RC.asistente = null; RC.pendientes = 0; RC.observaciones = 0; RC.visorListo = false; rcRecordar(ruta, nombre || ruta); RC.vinculoVisto = ruta; rcVincular(ruta, nombre); rcAvisar(); }
 function rcAbrirDialogo() { rcElegir('proyecto').then(function (r) { if (r) rcAbrirProyecto(r, ''); }).catch(function (e) { rcError('Abrir proyecto de red', e); }); }
 function rcNuevo() {
   RC.asistente = { dxf: '', capas: [], sel: {}, landxml: '', nombre: '', codigo: '', entidad: '', ubicacion: '', carpeta: '', npt: '', area_verde: '', I_mmh: '', planteamiento: 'completar', por_defecto: 'verde' };
@@ -73,9 +90,12 @@ var RC_API = {
   leer: function (a) { return rcOcupado(a.texto || 'Leyendo el plano', function () { return rcMotor('leer', [RC.proyecto]); }); },
   ediciones: function (a) { return rcMotor('ediciones', [RC.proyecto], a.ediciones || {}); },
   calcular: function (a) {
+    var ll = rcLluvia(RC.estado);
+    if (ll.error) return Promise.reject(Error(ll.error));
     return rcOcupado(a.texto || 'Calculando el diseño, los planos y los documentos', function () {
       var t0 = Date.now();
-      return (a.ediciones ? rcMotor('ediciones', [RC.proyecto], a.ediciones) : Promise.resolve()).then(function () { return rcMotor('disenar', [RC.proyecto]); })
+      return rcMotor('datos', [RC.proyecto], { lluvia: ll })
+        .then(function () { return a.ediciones ? rcMotor('ediciones', [RC.proyecto], a.ediciones) : null; }).then(function () { return rcMotor('disenar', [RC.proyecto]); })
         .then(function (r) { r.segundos = r.segundos || (Date.now() - t0) / 1000; return r; });
     });
   },
@@ -101,6 +121,7 @@ function v3RedRibbon(props) {
   function big(n, t, k) { return rbBig(k, t, cmd(n), { k: n, title: t.replace('\n', ' ') }); }
   function col(g, desde, hasta) { return rbCol.apply(null, RC_CMDS.filter(function (c) { return c[2] === g; }).slice(desde, hasta).map(function (c) { return rbSm('rc_' + c[0], c[1], cmd(c[0]), { k: c[0] }); })); }
   var on = !props.home && props.state.step === 15;
+  RC.estado = props.state; RC.setState = props.setState;
   return [
     rbGrp('Proyecto de red', [rbBig('red_nuevo', 'Nuevo desde\nplano DXF', function () { go(); rcNuevo(); }, { on: on && !!RC.asistente }), rbBig('abrir', 'Abrir\nproyecto', function () { go(); rcAbrirDialogo(); }, { k: 'rab' })]),
     rbGrp('Cálculo', [rbBig('red_calc', 'Calcular\ntodo', rcNecesita(function () { go(); rcOrden('calcular'); })),
@@ -131,6 +152,7 @@ function RcAviso() {
 }
 function RcAsistente(props) {
   var a = RC.asistente, st = props.state;
+  RC.estado = st; RC.setState = props.setState;
   function set(k, v) { a[k] = v; rcAvisar(); }
   function setCapa(k, v) { a.sel[k] = v; rcAvisar(); }
   function plano() {
@@ -148,13 +170,14 @@ function RcAsistente(props) {
   function carpeta() { rcElegir('carpeta').then(function (r) { if (r) set('carpeta', r); }).catch(function (e) { rcError('Carpeta del proyecto', e); }); }
   function landxml() { rcElegir('landxml').then(function (r) { if (r) set('landxml', r); }).catch(function (e) { rcError('Terreno LandXML', e); }); }
   function crear() {
+    if (ll.error) { v3Notice(ll.error, { title: 'Lluvia de diseño' }); return; }
     var d = { nombre: a.nombre, codigo: a.codigo, entidad: a.entidad, ubicacion: a.ubicacion, dxf: a.dxf, carpeta: a.carpeta || null, landxml: a.landxml || null,
-      capas: a.sel, npt: a.npt, area_verde: a.area_verde, I_mmh: a.I_mmh, planteamiento: a.planteamiento, por_defecto: a.por_defecto };
+      capas: a.sel, npt: a.npt, area_verde: a.area_verde, lluvia: ll, planteamiento: a.planteamiento, por_defecto: a.por_defecto };
     rcOcupado('Creando el proyecto', function () { return rcMotor('crear', [], d); }).then(function (r) { rcAbrirProyecto(r.proyecto, a.nombre); })
       .catch(function (e) { rcError('Proyecto de red', e); });
   }
   var opc = [['', '(ninguna)']].concat(a.capas.map(function (c) { return [c.capa, c.capa + ' · ' + c.entidades + ' obj.' + (c.cerradas ? ' · ' + c.cerradas + ' cerradas' : '') + (c.con_cota ? ' · ' + c.con_cota + ' con cota' : '')]; }));
-  var idf10 = (st.idf || []).find(function (r) { return +r.duration === 10 && +r.intensity > 0; });
+  var ll = rcLluvia(st);
   return h(React.Fragment, null,
     h('section', { className: 'card' }, h('h2', null, '1 · Plano del local'),
       h('p', { className: 'muted small' }, 'Plano general en DXF a escala real (1 unidad = 1 m), con el cerco perimétrico, las proyecciones de techo y las curvas de nivel con su cota.'),
@@ -176,10 +199,12 @@ function RcAsistente(props) {
       h('div', { className: 'ws-form-grid' },
         rcCampo('NPT y borde de cuneta (m)', a.npt, function (v) { set('npt', v); }, { inputMode: 'decimal', placeholder: 'ej. 184.65' }),
         rcCampo('Nivel de área verde (m)', a.area_verde, function (v) { set('area_verde', v); }, { inputMode: 'decimal', placeholder: 'NPT − 0.05' }),
-        rcCampo('Intensidad de diseño (mm/h)', a.I_mmh, function (v) { set('I_mmh', v); }, { inputMode: 'decimal' }),
         rcSelect('Planteamiento de la red', a.planteamiento, RC_PLANTEAMIENTO, function (v) { set('planteamiento', v); }),
         rcSelect('Áreas que el plano no define', a.por_defecto, [['verde', 'Área verde'], ['pavimento', 'Piso de concreto']], function (v) { set('por_defecto', v); })),
-      idf10 ? h('div', { className: 'ws-actions' }, h(Btn, { onClick: function () { set('I_mmh', String(idf10.intensity)); } }, 'Usar la curva IDF del proyecto (10 min: ' + idf10.intensity + ' mm/h)')) : null,
+      h('div', { className: 'rc-lluvia' + (ll.error ? ' falta' : ll.ejemplo ? ' ejemplo' : '') },
+        h('div', null, h('span', null, 'Lluvia de diseño'), h('b', null, ll.error ? 'Pendiente' : fmt(ll.I_mmh, 2) + ' mm/h'),
+          h('small', null, ll.error || ll.fuente)),
+        h(Btn, { onClick: function () { v3Go(props, 1); } }, 'Ir a LLUVIA')),
       h('p', { className: 'ws-note' }, 'La cota de fondo de cada cuneta, sus descargas por gravedad y la llegada de cada montante sobre el nivel del agua se calculan y se verifican. Lo que el programa no pueda resolver solo aparece en la ventana de soluciones para que usted decida.'),
       h('div', { className: 'ws-actions ws-next' }, h(Btn, { onClick: function () { RC.asistente = null; rcAvisar(); } }, 'Cancelar'), h(Btn, { variant: 'primary', onClick: crear }, 'Crear y abrir el proyecto'))) : null);
 }
@@ -199,6 +224,10 @@ function RcPage(props) {
   var tick = useState(0), ref = React.useRef(null);
   useEffect(function () { function f() { tick[1](function (n) { return n + 1; }); } window.addEventListener('drenie-red', f); return function () { window.removeEventListener('drenie-red', f); }; }, []);
   useEffect(function () { RC.marco = ref.current; return function () { if (RC.marco === ref.current) RC.marco = null; }; });
+  RC.estado = props.state; RC.setState = props.setState;
+  // El proyecto de DrenIE recuerda su red de cunetas: al abrirlo, la página vuelve a esa red.
+  var vinc = props.state.redCunetas;
+  if (!RC.asistente && vinc && vinc.proyecto && RC.vinculoVisto !== vinc.proyecto) { RC.vinculoVisto = vinc.proyecto; RC.proyecto = vinc.proyecto; RC.nombre = vinc.nombre || ''; RC.pendientes = 0; RC.observaciones = 0; }
   var abierto = RC.proyecto && !RC.asistente;
   return h('div', { className: 'ws-page rc-page' + (abierto ? ' rc-con-visor' : ''), 'data-workspace': 'red' },
     abierto ? h('div', { className: 'rc-cab' }, h('div', null, h('h1', null, RC.nombre || 'Red de cunetas'), h('span', { className: 'rc-ruta', title: RC.proyecto }, RC.proyecto)),

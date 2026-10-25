@@ -5,7 +5,8 @@
     python -m drenie_motor disenar proyecto.json
     python -m drenie_motor aplicar proyecto.json OBSERVACION OPCION   (solucion de la ventana de soluciones y nuevo calculo)
     python -m drenie_motor capas plano.dxf | crear (JSON por stdin) | vista proyecto.json | ediciones proyecto.json (JSON por stdin)
-                           | entregables proyecto.json | abrir proyecto.json [ARCHIVO]      (ordenes de la pagina Red de cunetas)
+                           | datos proyecto.json (JSON por stdin) | entregables proyecto.json | abrir proyecto.json [ARCHIVO]
+                           (ordenes de la pagina Red de cunetas)
 
 Escribe lectura.json o resultado.json en la carpeta de salida del proyecto y un resumen JSON en la salida estandar.
 Codigo de salida: 0 bien, 2 error de datos, 3 error interno (mensaje en espanol en "error"; el detalle tecnico queda en
@@ -48,7 +49,7 @@ def _entrada():
     return json.loads(datos) if datos else {}
 
 
-ESCRITORIO = {"capas": (1, 1), "crear": (0, 0), "vista": (1, 1), "ediciones": (1, 1), "entregables": (1, 1), "abrir": (1, 2)}
+ESCRITORIO = {"capas": (1, 1), "crear": (0, 0), "vista": (1, 1), "ediciones": (1, 1), "datos": (1, 1), "entregables": (1, 1), "abrir": (1, 2)}
 
 
 def _registrar(cfg_ruta, accion):
@@ -123,6 +124,7 @@ def _escritorio(argv):
         elif a == "crear": out = escritorio.crear(_entrada())
         elif a == "vista": out = escritorio.vista(argv[1])
         elif a == "ediciones": out = escritorio.ediciones(argv[1], _entrada())
+        elif a == "datos": out = escritorio.datos(argv[1], _entrada())
         elif a == "entregables": out = escritorio.entregables(argv[1])
         else: out = escritorio.abrir(argv[1], argv[2] if len(argv) > 2 else None)
     except (ValueError, FileNotFoundError, KeyError) as e:

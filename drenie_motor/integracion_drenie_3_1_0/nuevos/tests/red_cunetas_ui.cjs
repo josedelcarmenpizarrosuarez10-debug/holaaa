@@ -55,10 +55,20 @@ async function main() {
     page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) report.pageErrors.push('consola: ' + m.text()); });
     await page.goto('http://127.0.0.1:' + server.address().port + '/');
     await page.waitForFunction(() => window.__APP_MOUNTED__);
+    await page.evaluate(() => { try { localStorage.removeItem('drenie-red-recientes'); } catch (e) {} });
+    // Curva IDF del proyecto en la pestaña LLUVIA (la de ejemplo del programa): la red la toma de ahí.
+    await page.getByRole('tab', { name: 'LLUVIA', exact: true }).click();
+    const idf = [[10, 142], [30, 94], [60, 67], [120, 43], [360, 22], [720, 13]];
+    for (let i = 0; i < idf.length; i++) {
+      await page.getByLabel('Duración fila ' + (i + 1), { exact: true }).fill(String(idf[i][0]));
+      await page.getByLabel('Intensidad fila ' + (i + 1), { exact: true }).fill(String(idf[i][1]));
+    }
     const tab = page.getByRole('tab', { name: 'RED DE CUNETAS', exact: true });
     await tab.click();
     await page.getByRole('heading', { name: 'Red de cunetas desde el plano', exact: true }).waitFor();
     assert.equal(await tab.getAttribute('aria-selected'), 'true');
+    const pestanas = await page.getByRole('tab').allTextContents();
+    assert.equal(pestanas[pestanas.indexOf('LLUVIA') + 1], 'RED DE CUNETAS', 'la red va después de LLUVIA: ' + pestanas.join(', '));
     const rib = page.locator('.rb-panel');
     for (const b of ['Nuevo desde plano DXF', 'Calcular todo', 'Entregables', 'Eje de cuneta', 'Montante', 'Sumidero', 'Descarga', 'Asignar superficie', 'Polilínea', 'Recortar', 'Distancia'])
       assert.equal(await rib.getByRole('button', { name: b, exact: true }).count(), 1, 'falta el botón ' + b);
@@ -71,11 +81,12 @@ async function main() {
     assert.equal(await page.getByLabel('Cerco perimétrico (límite de intervención)').inputValue(), 'CERCO');
     await page.getByRole('textbox', { name: 'Nombre del proyecto', exact: true }).fill('Prueba de la red de cunetas');
     await page.getByRole('textbox', { name: 'NPT y borde de cuneta (m)', exact: true }).fill('195.86');
-    await page.getByRole('textbox', { name: 'Intensidad de diseño (mm/h)', exact: true }).fill('155.98');
+    assert.match(await page.locator('.rc-lluvia b').innerText(), /^142[.,]00 mm\/h$/);           // curva IDF del proyecto, tc = 10 min
+    assert.match(await page.locator('.rc-lluvia small').innerText(), /Pestaña LLUVIA de DrenIE/);
     await page.getByRole('button', { name: 'Carpeta del proyecto', exact: true }).click();
     await page.getByText(carpeta, { exact: true }).waitFor();
     await page.screenshot({ path: path.join(out, '02_asistente.png'), fullPage: true });
-    report.checks.push({ name: 'Asistente: capas del plano sugeridas, datos, niveles y lluvia', passed: true });
+    report.checks.push({ name: 'Asistente: capas del plano sugeridas, datos, niveles y lluvia de la pestaña LLUVIA', passed: true });
 
     await page.getByRole('button', { name: 'Crear y abrir el proyecto', exact: true }).click();
     const marco = page.frameLocator('.rc-visor iframe');
@@ -98,6 +109,9 @@ async function main() {
     await page.locator('.rc-velo').waitFor({ state: 'detached', timeout: 600000 });
     await marco.locator('#historial').getByText(/Cálculo listo/).waitFor({ timeout: 60000 });
     assert(fs.existsSync(path.join(carpeta, 'salida', 'resultado.json')));
+    const cfg = JSON.parse(fs.readFileSync(path.join(carpeta, 'proyecto.json'), 'utf8'));
+    assert.equal(cfg.lluvia.I_mmh, 142); assert.match(cfg.lluvia.fuente, /Pestaña LLUVIA de DrenIE.*CURVA DE EJEMPLO/);
+    assert.equal(await page.evaluate(() => window.__calls.filter(c => c.cmd === 'motor_red' && c.args.accion === 'datos').length), 1);
     await page.waitForTimeout(800);
     await page.screenshot({ path: path.join(out, '05_resultado_y_soluciones.png') });
     report.checks.push({ name: 'Calcular todo con el motor real desde la cinta', passed: true });

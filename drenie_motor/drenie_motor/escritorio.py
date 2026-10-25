@@ -6,6 +6,7 @@ el motor responde un JSON por la salida estandar. Ordenes (ademas de leer, disen
     crear                      (JSON por stdin) crea la carpeta del proyecto y su proyecto.json; devuelve la ruta
     vista proyecto.json        escena, resultado (observaciones) y ediciones del proyecto, para el visor
     ediciones proyecto.json    (JSON por stdin) guarda lo editado en el visor (ediciones.json)
+    datos proyecto.json        (JSON por stdin) actualiza datos que vienen de DrenIE (la lluvia de la pestana LLUVIA)
     entregables proyecto.json  lista de entregables del ultimo calculo
     abrir proyecto.json [ARCH] abre la carpeta de salida o un entregable con el programa del sistema
 Ningun error cierra el programa: __main__ devuelve {"error": mensaje en espanol}.
@@ -58,13 +59,11 @@ def crear(d):
     dxf = d.get("dxf")
     if not dxf or not os.path.exists(dxf): raise FileNotFoundError("Elija el plano DXF del proyecto.")
     c = d.get("capas") or {}
-    if not c.get("cerco"): raise ValueError("Elija la capa del cerco perimetrico (limite de intervencion).")
+    if not c.get("cerco"): raise ValueError("Elija la capa del cerco perimétrico (límite de intervención).")
     if not c.get("curvas") and not d.get("landxml"): raise ValueError("Elija la capa de las curvas de nivel o un archivo LandXML del terreno.")
     try: npt = float(str(d.get("npt")).replace(",", "."))
     except (TypeError, ValueError): raise ValueError("Escriba el NPT (nivel de piso terminado) en metros.")
-    try: imm = float(str(d.get("I_mmh")).replace(",", "."))
-    except (TypeError, ValueError): imm = 0.0
-    if not imm > 0: raise ValueError("Escriba la intensidad de lluvia de diseno en mm/h.")
+    lluvia = _lluvia(d.get("lluvia") if d.get("lluvia") is not None else {"I_mmh": d.get("I_mmh")})
     os.makedirs(carpeta, exist_ok=True)
     capas_cfg = {"cerco": {"capa": c["cerco"]}}
     for k in ("techos", "veredas", "muros", "ejes"):
@@ -77,12 +76,40 @@ def crear(d):
            "dxf": os.path.abspath(dxf), "salida": "salida", "capas": capas_cfg,
            "niveles": {"modo": "nivelado", "npt": npt, "borde_cuneta": npt,
                        "area_verde": round(float(str(verde).replace(",", ".")) if verde not in (None, "") else npt - 0.05, 3)},
-           "lluvia": {"I_mmh": imm}, "superficies_cfg": {"por_defecto": d.get("por_defecto") or "verde"},
+           "lluvia": lluvia, "superficies_cfg": {"por_defecto": d.get("por_defecto") or "verde"},
            "planteamiento": d.get("planteamiento") or "completar"}
     if d.get("landxml"): cfg["terreno"] = {"landxml": os.path.abspath(d["landxml"]), "equidistancia": 0.25}
     ruta = os.path.join(carpeta, "proyecto.json")
     json.dump(cfg, open(ruta, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
     return {"accion": "crear", "proyecto": ruta}
+
+
+def _lluvia(ll):
+    """Lluvia de diseno que manda DrenIE: I (mm/h) para el tiempo de concentracion de diseno, con la curva IDF y su fuente."""
+    if not isinstance(ll, dict): raise ValueError("Lluvia de diseño inválida.")
+    try: imm = float(str(ll.get("I_mmh")).replace(",", "."))
+    except (TypeError, ValueError): imm = 0.0
+    if not 0 < imm < 1000:
+        raise ValueError("Falta la lluvia de diseño: complete la curva IDF en la pestaña LLUVIA de DrenIE.")
+    out = {"I_mmh": round(imm, 2)}
+    if ll.get("tc_min") not in (None, ""): out["tc_min"] = float(ll["tc_min"])
+    idf = [[float(a), float(b)] for a, b in (ll.get("idf") or []) if float(a) > 0 and float(b) > 0]
+    if idf: out["idf"] = sorted(idf)
+    for k in ("fuente", "metodo_tc", "ejemplo"):
+        if ll.get(k) not in (None, ""): out[k] = ll[k]
+    return out
+
+
+def datos(ruta, d):
+    """Datos que manda DrenIE antes de cada calculo (hoy, la lluvia de la pestana LLUVIA); no toca nada mas del proyecto."""
+    cfg, base, sal = _cargar(ruta)
+    if not isinstance(d, dict): raise ValueError("Datos inválidos.")
+    cambios = []
+    if "lluvia" in d:
+        nueva = _lluvia(d["lluvia"])
+        if nueva != cfg.get("lluvia"): cfg["lluvia"] = nueva; cambios.append("lluvia")
+    if cambios: json.dump(cfg, open(ruta, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+    return {"accion": "datos", "cambios": cambios}
 
 
 def _cargar(ruta):
@@ -104,7 +131,7 @@ def vista(ruta):
 
 def ediciones(ruta, ed):
     cfg, base, sal = _cargar(ruta)
-    if not isinstance(ed, dict): raise ValueError("Ediciones invalidas.")
+    if not isinstance(ed, dict): raise ValueError("Ediciones inválidas.")
     json.dump(ed, open(os.path.join(base, "ediciones.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
     return {"accion": "ediciones", "guardado": True}
 
@@ -118,7 +145,7 @@ def entregables(ruta):
 
 def abrir(ruta, nombre=None):
     cfg, base, sal = _cargar(ruta)
-    if nombre and (os.path.basename(nombre) != nombre or nombre.startswith(".")): raise ValueError("Nombre de archivo invalido.")
+    if nombre and (os.path.basename(nombre) != nombre or nombre.startswith(".")): raise ValueError("Nombre de archivo inválido.")
     r = os.path.join(sal, nombre) if nombre else sal
     if not os.path.exists(r): raise FileNotFoundError("No existe %s" % r)
     if sys.platform.startswith("win"): os.startfile(r)                       # noqa: Windows

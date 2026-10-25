@@ -364,10 +364,10 @@ index dc959ea..361a010 100644
  var rain=document.getElementById('rain');for(var i=0;i<28;i++){var drop=document.createElement('i');drop.className='drop';drop.style.left=(5+(i*37)%108)+'%';drop.style.setProperty('--speed',(1.05+(i%7)*.13)+'s');drop.style.setProperty('--delay',(-i*.23)+'s');rain.appendChild(drop)}
  // El mínimo de siete segundos empieza cuando las imágenes ya cargaron.
 diff --git a/client/v3/theme-v3.css b/client/v3/theme-v3.css
-index cbb482a..84e904d 100644
+index cbb482a..1a6fbc7 100644
 --- a/client/v3/theme-v3.css
 +++ b/client/v3/theme-v3.css
-@@ -404,3 +404,26 @@ body.ui-cinta .v3-steps{display:none!important}
+@@ -404,3 +404,33 @@ body.ui-cinta .v3-steps{display:none!important}
  @media print{.v3-dlg-overlay{display:none!important}}
  
  .ws-settings>.page-head{display:block}
@@ -394,6 +394,13 @@ index cbb482a..84e904d 100644
 +@keyframes rcIr{from{transform:translateX(-100%)}to{transform:translateX(260%)}}
 +@media (prefers-reduced-motion:reduce){.rc-barra i{animation:none;width:100%}}
 +.ws-file-action svg{flex:none}
++.rc-lluvia{display:flex;align-items:center;gap:16px;flex-wrap:wrap;border:1px solid var(--line);border-left:4px solid var(--brand);border-radius:12px;background:var(--surface-2);padding:12px 16px;margin:6px 0 12px}
++.rc-lluvia>div{flex:1;min-width:220px;display:flex;flex-direction:column;gap:2px}
++.rc-lluvia span{font-size:11px;color:var(--ink-soft);letter-spacing:.5px;text-transform:uppercase}
++.rc-lluvia b{font-size:20px;color:var(--ink)}
++.rc-lluvia small{color:var(--ink-soft);line-height:1.5}
++.rc-lluvia.ejemplo{border-left-color:#E08A12}
++.rc-lluvia.falta{border-left-color:#D61F9A}
 diff --git a/tests/run_checks.py b/tests/run_checks.py
 index e05056a..f606f7a 100644
 --- a/tests/run_checks.py

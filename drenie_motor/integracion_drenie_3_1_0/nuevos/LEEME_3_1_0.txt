@@ -15,13 +15,17 @@ memoria descriptiva, memoria de cálculo, especificaciones técnicas, carátulas
 
 Cómo se usa
 -----------
+0. Pestaña LLUVIA: complete la curva IDF (análisis estadístico de la estación o curva ingresada). La red de cunetas usa
+   esa misma lluvia: la intensidad para el tiempo de concentración de diseño, con su fuente. Por eso la pestaña
+   RED DE CUNETAS va justo después de LLUVIA.
 1. Pestaña RED DE CUNETAS → «Nuevo desde plano DXF».
 2. «Elegir plano DXF»: el programa lee las capas y propone cuál es el cerco, los techos, las
    curvas de nivel, las veredas, los muros y las líneas de cuneta del proyectista. Revise cada una.
    Si el plano no tiene curvas, elija el terreno en LandXML.
-3. Escriba el nombre, el CUI, la entidad y la ubicación; el NPT (borde de cuneta), el nivel del
-   área verde y la intensidad de diseño en mm/h (si el proyecto de DrenIE ya tiene su curva IDF,
-   un botón copia la intensidad de 10 minutos).
+3. Escriba el nombre, el CUI, la entidad y la ubicación; el NPT (borde de cuneta) y el nivel del área
+   verde. La lluvia de diseño aparece sola, tomada de la pestaña LLUVIA (si falta, el botón «Ir a LLUVIA»
+   lleva a completarla; si es la curva de ejemplo, el programa lo advierte). Antes de cada cálculo la red
+   vuelve a tomar la lluvia de la pestaña LLUVIA, así todo el proyecto usa la misma.
 4. Planteamiento:
    - «Completar mis líneas de cuneta» (recomendado): usa las líneas del plano y solo agrega
      cuneta donde un montante no llega.
@@ -54,11 +58,11 @@ colgadores. También confirma las rejillas, los tramos tapados y las áreas verd
 Licencia
 --------
 La página usa la misma licencia de DrenIE:
-- leer el plano y dibujar: módulo «calculate»;
-- crear proyectos y guardar lo dibujado: módulo «projects»;
-- calcular y generar entregables: módulo «export».
+- leer el plano, crear el proyecto de red y dibujar: licencia completa o demo vigente;
+- calcular la red y generar los entregables: licencia completa con el módulo «export».
 
-La edición demo no habilita la red de cunetas.
+Así la demo muestra el programa funcionando, pero no entrega el expediente. El proyecto de DrenIE recuerda su
+red de cunetas (campo redCunetas): al abrirlo, la página vuelve a esa red.
 
 Compilación (Windows x64)
 -------------------------
