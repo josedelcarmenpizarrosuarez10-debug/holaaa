@@ -12,7 +12,7 @@ Leer completo antes de trabajar. Detalle técnico en los skills de `.claude/skil
 - Nada en los documentos que revele uso de IA. No poner nombre ni CIP del proyectista (campos en blanco).
 - Partidas con nombres y estructura Delphin (base: CAR Mujeres); cantidades siempre del metrado propio.
 - Precios reales con su fuente; mano de obra CAPECO-FTCCP 2026 (operario 28.95, oficial 22.68, peón 20.54).
-- Todo en español. Actualizar todo lo relacionado de forma coherente (metrado ↔ planos ↔ especificaciones ↔ memoria).
+- Todo en español: documentos, código, commits y también cada mensaje al usuario (avances, resúmenes, preguntas y descripciones de comandos). Nunca responder en inglés. Actualizar todo lo relacionado de forma coherente (metrado ↔ planos ↔ especificaciones ↔ memoria).
 - No mezclar partidas ni láminas entre proyectos.
 - Estudios de gestión de riesgos de obra: sin montos en soles ni "observaciones" a documentos ajenos; efectos en % del presupuesto.
 - PSST y gestión de riesgos: siempre con su matriz (IPERC o matriz de riesgos) en Excel con fórmulas y un Word ordenado con tablas y gráficos.
