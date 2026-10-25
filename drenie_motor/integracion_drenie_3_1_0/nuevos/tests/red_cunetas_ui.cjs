@@ -30,7 +30,8 @@ const server = http.createServer((req, res) => {
   if (!file.startsWith(base + '/')) return res.writeHead(403).end();
   fs.readFile(file, (err, b) => {
     if (err) return res.writeHead(404).end();
-    res.setHeader('Content-Type', file.endsWith('.html') ? 'text/html; charset=utf-8' : file.endsWith('.js') ? 'application/javascript' : 'application/octet-stream'); res.end(b);
+    const tipos = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascript', '.svg': 'image/svg+xml', '.png': 'image/png', '.css': 'text/css', '.json': 'application/json' };
+    res.setHeader('Content-Type', tipos[path.extname(file).toLowerCase()] || 'application/octet-stream'); res.end(b);
   });
 });
 async function main() {
