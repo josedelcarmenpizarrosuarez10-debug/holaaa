@@ -49,6 +49,12 @@ Cómo se usa
    gravedad o un montante que llega bajo el nivel del agua) aparece con soluciones propuestas.
    Usted elige una en cada observación y pulsa «Calcular con lo elegido».
 9. «Entregables»: lista de archivos; cada uno se abre con su programa (Word, Excel, AutoCAD).
+10. «Pasar a CUNETAS»: la red calculada pasa a las pestañas de siempre. Cada eje queda como un perfil de cuneta en
+   CUNETAS (misma cota de fondo, pendiente, ancho, tramos tapados y vehiculares, caídas como escalón del fondo, y la
+   conexión a la cuneta que lo recibe); cada techo queda como un módulo en MONTANTES; las estructuras de caída y los
+   montantes de la red entran como partidas adicionales en METRADO. El caudal propio de cada eje va como aportes por
+   progresiva y DrenIE suma por su cuenta las cunetas conectadas. Si se vuelve a pasar, se reemplaza solo lo que vino
+   de la red; lo que usted hizo a mano no se toca.
 
 Lo que hace el programa y lo que mete el proyectista
 ----------------------------------------------------
@@ -66,7 +72,7 @@ Licencia
 --------
 La página usa la misma licencia de DrenIE:
 - leer el plano, crear el proyecto de red y dibujar: licencia completa o demo vigente;
-- calcular la red y generar los entregables: licencia completa con el módulo «export».
+- calcular la red, generar los entregables y pasarla a CUNETAS: licencia completa con el módulo «export».
 
 Así la demo muestra el programa funcionando, pero no entrega el expediente. El proyecto de DrenIE recuerda su
 red de cunetas (campo redCunetas): al abrirlo, la página vuelve a esa red.

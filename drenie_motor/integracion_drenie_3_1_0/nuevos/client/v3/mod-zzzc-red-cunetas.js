@@ -7,6 +7,7 @@ var RC_ICONS = {
   red_nuevo: '<rect x="3" y="5" width="23" height="19" rx="2" fill="#fff" stroke="#0B2545" stroke-width="1.6"/><path d="M7 19l5-6 4 3 6-7" stroke="#D61F9A" stroke-width="2"/><circle cx="24" cy="24" r="6" fill="#16A34A"/><path d="M24 21v6M21 24h6" stroke="#fff" stroke-width="1.8"/>',
   red_calc: '<rect x="3" y="4" width="22" height="22" rx="3" fill="#E0F2FE" stroke="#0B2545" stroke-width="1.6"/><path d="M7 9h14M7 9v12M7 15h9M16 15v6" stroke="#D61F9A" stroke-width="2"/><circle cx="23.5" cy="23.5" r="6.5" fill="#1EA7F2"/><path d="M21.5 20.5v6l5-3z" fill="#fff"/>',
   red_sol: '<path d="M16 3a9 9 0 0 0-5 16.5V23h10v-3.5A9 9 0 0 0 16 3z" fill="#FDE68A" stroke="#B45309" stroke-width="1.5"/><path d="M12 26h8M13 29h6" stroke="#0B2545" stroke-width="1.8"/><path d="M16 8v7M12.5 11.5h7" stroke="#B45309" stroke-width="1.6"/>',
+  red_pasar: '<rect x="3" y="6" width="12" height="20" rx="2" fill="#E0F2FE" stroke="#0B2545" stroke-width="1.5"/><path d="M6 12h6M6 16h6M6 20h4" stroke="#0B6FC0" stroke-width="1.5"/><path d="M16 16h9M21 11l5 5-5 5" fill="none" stroke="#1EA7F2" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><rect x="27" y="6" width="2.5" height="20" rx="1" fill="#0B2545"/>',
   red_entreg: '<rect x="9" y="3" width="18" height="22" rx="2" fill="#fff" stroke="#0B2545" stroke-width="1.5"/><rect x="5" y="7" width="18" height="22" rx="2" fill="#E0F2FE" stroke="#0B2545" stroke-width="1.5"/><path d="M9 13h10M9 17h10M9 21h6" stroke="#0B6FC0" stroke-width="1.6"/><circle cx="23" cy="25" r="5" fill="#16A34A"/><path d="M20.8 25l1.6 1.6 3-3.2" stroke="#fff" stroke-width="1.6"/>',
   red_cuneta: '<path d="M3 8v13h26V8" fill="#E0F2FE" stroke="#0B2545" stroke-width="1.6"/><path d="M8 8v8h16V8" fill="#fff" stroke="#0B2545" stroke-width="1.6"/><path d="M8 13h16" stroke="#1EA7F2" stroke-width="2"/><path d="M3 26h26" stroke="#D61F9A" stroke-width="2" stroke-dasharray="4 2.5"/>',
   red_montante: '<rect x="3" y="4" width="25" height="6" fill="#E0F2FE" stroke="#0B2545" stroke-width="1.5"/><path d="M13 10v12a4 4 0 0 0 4 4h11" stroke="#0B6FC0" stroke-width="3.4"/><path d="M13 10v12a4 4 0 0 0 4 4h11" stroke="#7DD3FC" stroke-width="1.2"/><rect x="9.5" y="21" width="7" height="7" fill="#CBD5E1" stroke="#0B2545" stroke-width="1.2"/>',
@@ -119,6 +120,29 @@ window.addEventListener('message', function (e) {
           function (er) { var m = String(er && er.message || er); if (rcEsLicencia(m)) licenseDialog(m); e.source.postMessage({ drenie: 'red', tipo: 'api-r', id: d.id, error: m }, destino); });
 });
 
+// La red calculada pasa a las pestañas CUNETAS, MONTANTES y METRADO: cada eje es un perfil, cada techo un módulo y las
+// estructuras de caída y los montantes de la red, partidas adicionales. Lo que vino antes de la red (origen «red») se reemplaza.
+function rcPasar(st, d) {
+  var viejos = (st.sectors || []).filter(function (s) { return s.origen !== 'red'; });
+  if (viejos.length === 1 && !(st.perfiles || []).length && viejos[0].name === 'Módulo 1' && +viejos[0].area === 120) viejos = [];
+  var secs = viejos.concat((d.modulos || []).map(function (m, i) { return Object.assign(blankSector(viejos.length + i + 1, st.coefficients), m); }));
+  var base = Object.assign({}, st, { sectors: secs.length ? secs : st.sectors, activeSectorId: secs.length ? secs[0].id : st.activeSectorId });
+  var perfiles = (st.perfiles || []).filter(function (p) { return p.origen !== 'red'; }).concat((d.perfiles || []).map(function (p) {
+    var q = Object.assign(pfNew(base), p); q.cortes = []; return q;
+  }));
+  var man = mtManual(st).filter(function (m) { return m.origen !== 'red'; }).concat(d.metrado_adicional || []);
+  return Object.assign(base, { perfiles: perfiles, activePerfilId: perfiles.length ? perfiles[0].id : st.activePerfilId, metrado: Object.assign({}, st.metrado || {}, { manual: man }) });
+}
+function rcPasarDrenie() {
+  rcOcupado('Pasando la red a CUNETAS, MONTANTES y METRADO', function () { return rcMotor('para_drenie', [RC.proyecto]); }).then(function (d) {
+    var st = RC.estado || {}, ant = (st.perfiles || []).filter(function (p) { return p.origen === 'red'; }).length;
+    v3Ask('Se pasarán ' + d.resumen.ejes + ' ejes de cuneta a CUNETAS, ' + d.resumen.modulos + ' techos a MONTANTES y ' + d.resumen.partidas +
+      ' partidas (estructuras de caída y montantes de la red) a METRADO' + (ant ? '. Se reemplazan los ' + ant + ' perfiles que vinieron antes de la red; lo demás no se toca.' : '. Lo que ya tiene el proyecto no se toca.'),
+      function () { RC.setState(function (prev) { return rcPasar(prev, d); }); v3Notice('La red ya está en CUNETAS, MONTANTES y METRADO. Los perfiles llevan la misma cota de fondo, pendiente, sección y caídas de la red.', { title: 'Red de cunetas' }); },
+      { ok: 'Sí, pasar la red', title: 'Pasar la red a las pestañas' });
+  }).catch(function (e) { rcError('Pasar la red', e); });
+}
+
 // Cinta RED DE CUNETAS
 function v3RedRibbon(props) {
   function go() { if (props.home || props.state.step !== 15) v3Go(props, 15); }
@@ -131,7 +155,8 @@ function v3RedRibbon(props) {
     rbGrp('Proyecto de red', [rbBig('red_nuevo', 'Nuevo desde\nplano DXF', function () { go(); rcNuevo(); }, { on: on && !!RC.asistente }), rbBig('abrir', 'Abrir\nproyecto', function () { go(); rcAbrirDialogo(); }, { k: 'rab' })]),
     rbGrp('Cálculo', [rbBig('red_calc', 'Calcular\ntodo', rcNecesita(function () { go(); rcOrden('calcular'); })),
       rbBig('red_sol', 'Soluciones' + (RC.pendientes ? '\n(' + RC.pendientes + ' por decidir)' : '\npropuestas'), rcNecesita(function () { go(); rcOrden('soluciones'); }), { k: 'sol' }),
-      rbBig('red_entreg', 'Entregables', rcNecesita(function () { go(); rcOrden('entregables'); }))]),
+      rbBig('red_entreg', 'Entregables', rcNecesita(function () { go(); rcOrden('entregables'); })),
+      rbBig('red_pasar', 'Pasar a\nCUNETAS', rcNecesita(rcPasarDrenie), { k: 'pas', title: 'Pasar la red a CUNETAS, MONTANTES y METRADO' })]),
     rbGrp('Normas', [rbBig('red_normas', 'Normas y\nfuentes', function () { RC.verNormas = true; RC.asistente = null; go(); rcAvisar(); }, { on: on && RC.verNormas, k: 'nor' })]),
     rbGrp('Drenaje', [big('cuneta', 'Eje de\ncuneta', 'red_cuneta'), big('montante', 'Montante', 'red_montante'), big('sumidero', 'Sumidero', 'red_sumidero'),
       big('descarga', 'Descarga', 'red_descarga'), big('flecha', 'Caída de\ntecho', 'red_flecha'), big('asignar', 'Asignar\nsuperficie', 'red_asignar')]),

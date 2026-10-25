@@ -70,7 +70,7 @@ async function main() {
     const pestanas = await page.getByRole('tab').allTextContents();
     assert.equal(pestanas[pestanas.indexOf('LLUVIA') + 1], 'RED DE CUNETAS', 'la red va después de LLUVIA: ' + pestanas.join(', '));
     const rib = page.locator('.rb-panel');
-    for (const b of ['Nuevo desde plano DXF', 'Calcular todo', 'Entregables', 'Eje de cuneta', 'Montante', 'Sumidero', 'Descarga', 'Asignar superficie', 'Polilínea', 'Recortar', 'Distancia', 'Plataforma (NPT)', 'Rampa', 'Escalera', 'Normas y fuentes'])
+    for (const b of ['Nuevo desde plano DXF', 'Calcular todo', 'Entregables', 'Eje de cuneta', 'Montante', 'Sumidero', 'Descarga', 'Asignar superficie', 'Polilínea', 'Recortar', 'Distancia', 'Plataforma (NPT)', 'Rampa', 'Escalera', 'Normas y fuentes', 'Pasar a CUNETAS'])
       assert.equal(await rib.getByRole('button', { name: b, exact: true }).count(), 1, 'falta el botón ' + b);
     await page.screenshot({ path: path.join(out, '01_inicio_red.png') });
     report.checks.push({ name: 'Pestaña RED DE CUNETAS con su cinta de iconos y su página', passed: true });
@@ -130,6 +130,25 @@ async function main() {
     const n = await marco.locator('table.entreg tr').count(); assert(n > 10, 'pocos entregables: ' + n);
     await page.screenshot({ path: path.join(out, '06_entregables.png') });
     report.checks.push({ name: 'Entregables del cálculo (' + n + ' archivos)', passed: true });
+    await rib.getByRole('button', { name: 'Pasar a CUNETAS', exact: true }).click();
+    await page.getByRole('button', { name: 'Sí, pasar la red', exact: true }).click({ timeout: 120000 });
+    await page.getByText(/La red ya está en CUNETAS, MONTANTES y METRADO/).waitFor();
+    await page.getByRole('button', { name: /^Aceptar|^Entendido|^OK$/ }).first().click().catch(() => {});
+    await page.getByRole('tab', { name: 'CUNETAS', exact: true }).click();
+    const sel = page.locator('label.pf-num').filter({ hasText: 'Cuneta' }).locator('select').first(); await sel.waitFor();
+    const ejes = (await sel.locator('option').allTextContents()).filter(t => /red de cunetas/.test(t));
+    assert(ejes.length >= 1, 'no llegaron los ejes a CUNETAS');
+    await page.screenshot({ path: path.join(out, '07_red_en_cunetas.png') });
+    await page.locator('.rb-panel').getByRole('button', { name: 'Hidráulica', exact: true }).click();
+    await page.waitForTimeout(800);
+    assert.equal(await page.getByText(/Datos de caudal inválidos|Complete la geometría/).count(), 0, 'DrenIE no puede verificar el eje de la red');
+    await page.screenshot({ path: path.join(out, '07b_hidraulica_eje_red.png'), fullPage: true });
+    await page.getByRole('tab', { name: 'METRADO', exact: true }).click();
+    await page.locator('input.mt-ed').first().waitFor({ timeout: 30000 });
+    const partidasRed = await page.locator('input.mt-ed').evaluateAll(els => els.filter(e => /\(red\)|EN ESTRUCTURA/.test(e.value)).length);
+    assert(partidasRed >= 1, 'no llegaron las partidas de la red a METRADO');
+    await page.screenshot({ path: path.join(out, '08_red_en_metrado.png') });
+    report.checks.push({ name: 'La red pasa a CUNETAS (' + ejes.length + ' ejes), MONTANTES y METRADO (' + partidasRed + ' partidas)', passed: true });
     assert.deepEqual(report.pageErrors, []);
     report.passed = true;
   } catch (e) { report.error = e.stack; report.passed = false; process.exitCode = 1; }

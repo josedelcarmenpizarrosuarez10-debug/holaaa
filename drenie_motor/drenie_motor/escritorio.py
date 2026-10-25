@@ -165,9 +165,23 @@ def para_drenie(ruta):
         for a, b in zip(perfil[:-1], perfil[1:]):
             if a[0] <= x <= b[0]: return a[k] + (b[k] - a[k]) * ((x - a[0]) / (b[0] - a[0]) if b[0] > a[0] else 0)
         return perfil[-1][k]
+    # caudal propio de cada eje como aportes por progresiva: lo que crece el caudal de un tramo al siguiente menos lo que entra
+    # por otros ejes (DrenIE suma por su cuenta los ejes conectados, así el caudal no se cuenta dos veces)
+    q_fin = {r["codigo"]: (fila.get((r["codigo"], r["tramos"][-1]["de"], r["tramos"][-1]["a"])) or {}).get("Q_ls", 0.0) for r in C["ramales"] if r["tramos"]}
+    llega = {}
+    for r in C["ramales"]:
+        fin = r["nudos"][-1]
+        for q in C["ramales"]:
+            if q["codigo"] != r["codigo"] and fin in q["nudos"][1:-1]: llega.setdefault((q["codigo"], fin), []).append(r["codigo"])
     perfiles = []
     for r in C["ramales"]:
         pf = r["perfil"]; L = r["L"]; cod = r["codigo"]
+        aportes = []; q_ant = 0.0
+        for t in r["tramos"]:
+            q = (fila.get((cod, t["de"], t["a"])) or {}).get("Q_ls", q_ant)
+            dq = q - q_ant - sum(q_fin.get(h, 0.0) for h in llega.get((cod, t["de"]), []))
+            if dq > 0.0005: aportes.append({"id": "ap-red-%s-%d" % (cod, len(aportes)), "tipo": "caudal", "x": prog[cod][t["de"]], "q": round(dq, 3)})
+            q_ant = q
         cortes = {0.0, round(L, 2)}
         lim = []; s = 0.0
         for t in r["tramos"]: lim.append((s, s + t["L"], t)); s += t["L"]; cortes.add(round(s, 2))
@@ -193,13 +207,18 @@ def para_drenie(ruta):
                   "EM": P["e_muro"], "EL": P["e_fondo"], "tipo": "cajon" if (tap or veh) else "abierta"}
             if tap or veh: tr["uso"] = "vehicular" if veh else "peatonal"; tr["ET"] = P.get("e_tapa_veh", P["e_tapa"]) if veh else P["e_tapa"]
             if drop: tr["drop"] = drop
-            tramos.append(tr); cf_prev = cf1
+            u = tramos[-1] if tramos else None
+            if u and not drop and all(u.get(k) == tr.get(k) for k in ("tipo", "uso", "b", "ET")) and abs(u["S"] - tr["S"]) < (0.15 if min(u["L"], tr["L"]) < 2.0 else 0.05):
+                Lm = u["L"] + tr["L"]; u["S"] = round(max(0.0, (u["_cf0"] - cf1) / Lm) * 100, 3); u["L"] = round(Lm, 2)    # misma sección y pendiente: un tramo
+            else: tr["_cf0"] = cf0; tramos.append(tr)
+            cf_prev = cf1
+        for tr in tramos: tr.pop("_cf0", None)
         fin = r["nudos"][-1]
         rec = next((q for q in C["ramales"] if q["codigo"] != cod and fin in q["nudos"][1:-1]), None)
         outlet = {"type": "channel", "targetId": pid(rec["codigo"]), "at": prog[rec["codigo"]].get(fin, 0.0)} if rec else {"type": "external"}
         hmax = max(p[1] - p[2] for p in pf)
-        perfiles.append({"id": pid(cod), "name": "%s · red de cunetas" % cod, "origen": "red", "redEje": cod, "qManual": str(max(
-            (f["Q_ls"] for k, f in fila.items() if k[0] == cod), default=0)), "nct": "%.3f" % pf[0][1], "ncf0": "%.3f" % pf[0][2],
+        perfiles.append({"id": pid(cod), "name": "%s · red de cunetas" % cod, "origen": "red", "redEje": cod, "sectorId": "", "qManual": "", "qInicio": 0,
+            "aportes": aportes, "nct": "%.3f" % pf[0][1], "ncf0": "%.3f" % pf[0][2],
             "nctPts": [{"x": round(q[0], 2), "z": round(q[1], 3)} for q in pf[::4]] + [{"x": round(pf[-1][0], 2), "z": round(pf[-1][1], 3)}],
             "sFija": False, "hMax": round(max(1.0, hmax + 0.10), 2), "hArm": P["h_acero"], "tramos": tramos,
             "routing": {"buildings": [], "outlet": outlet},
