@@ -75,6 +75,15 @@ async function main() {
     await page.screenshot({ path: path.join(out, '01_inicio_red.png') });
     report.checks.push({ name: 'Pestaña RED DE CUNETAS con su cinta de iconos y su página', passed: true });
 
+    await rib.getByRole('button', { name: 'Normas y fuentes', exact: true }).click();
+    await page.getByRole('heading', { name: 'Normas, referencias y criterios', exact: true }).waitFor({ timeout: 60000 });
+    assert((await page.locator('.rc-dato').count()) >= 20); assert((await page.locator('.rc-tabla').count()) >= 5);
+    assert.match(await page.locator('.rc-dato').first().innerText(), /CE\.040/);
+    await page.screenshot({ path: path.join(out, '01b_normas_y_fuentes.png') });
+    await page.getByRole('button', { name: 'Volver', exact: true }).click();
+    await page.getByRole('heading', { name: 'Red de cunetas desde el plano', exact: true }).waitFor();
+    report.checks.push({ name: 'Normas y fuentes: cada dato con su norma, consideración y estado', passed: true });
+
     await rib.getByRole('button', { name: 'Nuevo desde plano DXF', exact: true }).click();
     await page.getByRole('button', { name: 'Elegir plano DXF', exact: true }).click();
     await page.getByRole('heading', { name: '2 · Datos del proyecto' }).waitFor({ timeout: 120000 });

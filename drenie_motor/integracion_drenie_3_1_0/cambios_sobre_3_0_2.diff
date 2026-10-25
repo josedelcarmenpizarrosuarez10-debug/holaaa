@@ -364,10 +364,10 @@ index dc959ea..361a010 100644
  var rain=document.getElementById('rain');for(var i=0;i<28;i++){var drop=document.createElement('i');drop.className='drop';drop.style.left=(5+(i*37)%108)+'%';drop.style.setProperty('--speed',(1.05+(i%7)*.13)+'s');drop.style.setProperty('--delay',(-i*.23)+'s');rain.appendChild(drop)}
  // El mínimo de siete segundos empieza cuando las imágenes ya cargaron.
 diff --git a/client/v3/theme-v3.css b/client/v3/theme-v3.css
-index cbb482a..1a6fbc7 100644
+index cbb482a..f6ffcf3 100644
 --- a/client/v3/theme-v3.css
 +++ b/client/v3/theme-v3.css
-@@ -404,3 +404,33 @@ body.ui-cinta .v3-steps{display:none!important}
+@@ -404,3 +404,50 @@ body.ui-cinta .v3-steps{display:none!important}
  @media print{.v3-dlg-overlay{display:none!important}}
  
  .ws-settings>.page-head{display:block}
@@ -401,6 +401,23 @@ index cbb482a..1a6fbc7 100644
 +.rc-lluvia small{color:var(--ink-soft);line-height:1.5}
 +.rc-lluvia.ejemplo{border-left-color:#E08A12}
 +.rc-lluvia.falta{border-left-color:#D61F9A}
++.rc-datos{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:12px}
++.rc-dato{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff;display:flex;flex-direction:column;gap:8px;min-width:0}
++.rc-dato-cab{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
++.rc-dato-cab span{font-weight:600;color:var(--ink)}
++.rc-dato-cab span{min-width:0}
++.rc-dato-cab b{color:var(--brand-dark);text-align:right;max-width:55%;overflow-wrap:anywhere}
++.rc-fuente{border-left:4px solid var(--brand);background:#EEF6FD;border-radius:8px;padding:8px 12px;font-size:11.5px;line-height:1.55;color:var(--ink)}
++.rc-fuente b{color:var(--brand-dark)}
++.rc-clase{display:inline-block;border-radius:99px;padding:1px 9px;font-size:10px;font-weight:600;background:#E0F2FE;color:#0B6FC0}
++.rc-clase.criterio{background:#EDE9FE;color:#5B21B6}
++.rc-clase.referencia{background:#E0F2FE;color:#0B6FC0}
++.rc-clase.norma{background:#DCFCE7;color:#12784F}
++.rc-est{display:inline-block;border-radius:99px;padding:1px 9px;font-size:10px;font-weight:600}
++.rc-est.ok{background:#DCFCE7;color:#12784F}
++.rc-est.pend{background:#FFF4D6;color:#9A5B00}
++.rc-tabla{width:100%;border-collapse:collapse;margin:8px 0 10px}
++.rc-tabla th,.rc-tabla td{border:1px solid var(--line);padding:6px 10px;text-align:left;font-size:12px}
 diff --git a/tests/run_checks.py b/tests/run_checks.py
 index e05056a..f606f7a 100644
 --- a/tests/run_checks.py

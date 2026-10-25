@@ -8,6 +8,7 @@ el motor responde un JSON por la salida estandar. Ordenes (ademas de leer, disen
     ediciones proyecto.json    (JSON por stdin) guarda lo editado en el visor (ediciones.json)
     datos proyecto.json        (JSON por stdin) actualiza datos que vienen de DrenIE (la lluvia de la pestana LLUVIA)
     entregables proyecto.json  lista de entregables del ultimo calculo
+    normas                     biblioteca de normas y fuentes (cada dato con su norma, articulo o tabla y su estado)
     abrir proyecto.json [ARCH] abre la carpeta de salida o un entregable con el programa del sistema
 Ningun error cierra el programa: __main__ devuelve {"error": mensaje en espanol}.
 """
@@ -134,6 +135,11 @@ def ediciones(ruta, ed):
     if not isinstance(ed, dict): raise ValueError("Ediciones inválidas.")
     json.dump(ed, open(os.path.join(base, "ediciones.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
     return {"accion": "ediciones", "guardado": True}
+
+
+def normas_fuentes():
+    from . import normas
+    return dict(normas.para_drenie(), accion="normas")
 
 
 def entregables(ruta):

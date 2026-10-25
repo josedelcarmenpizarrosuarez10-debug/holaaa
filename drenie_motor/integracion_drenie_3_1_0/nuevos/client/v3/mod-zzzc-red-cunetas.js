@@ -14,6 +14,7 @@ var RC_ICONS = {
   red_descarga: '<rect x="3" y="4" width="6" height="24" fill="#CBD5E1" stroke="#0B2545" stroke-width="1.4"/><path d="M9 15h13" stroke="#1EA7F2" stroke-width="3"/><path d="M19 10l6 5-6 5" stroke="#0B6FC0" stroke-width="2"/><path d="M13 26c2-1.5 4-1.5 6 0s4 1.5 6 0" stroke="#1EA7F2" stroke-width="1.6"/>',
   red_flecha: '<path d="M3 13L16 5l13 8" fill="#E0F2FE" stroke="#0B2545" stroke-width="1.6"/><path d="M16 12v14M11 21l5 5 5-5" stroke="#E08A12" stroke-width="2.3"/>',
   red_asignar: '<rect x="4" y="4" width="24" height="24" rx="2" fill="#DCFCE7" stroke="#0B2545" stroke-width="1.6"/><path d="M4 16L16 4M4 28L28 4M16 28L28 16" stroke="#16A34A" stroke-width="1.6"/>',
+  red_normas: '<path d="M5 5a2 2 0 0 1 2-2h8v24H7a2 2 0 0 0-2 2z" fill="#E0F2FE" stroke="#0B2545" stroke-width="1.5"/><path d="M15 3h10v24H15z" fill="#fff" stroke="#0B2545" stroke-width="1.5"/><path d="M18 9h5M18 13h5M18 17h3" stroke="#0B6FC0" stroke-width="1.6"/><path d="M8 9h4M8 13h4" stroke="#0B6FC0" stroke-width="1.6"/><circle cx="24" cy="24" r="5.5" fill="#1EA7F2"/><path d="M24 21.5v.3M24 23.5v3" stroke="#fff" stroke-width="1.8"/>',
   red_capas: '<path d="M16 4l12 6-12 6-12-6z" fill="#E0F2FE" stroke="#0B2545" stroke-width="1.5"/><path d="M4 16l12 6 12-6" stroke="#1EA7F2" stroke-width="1.7"/><path d="M4 22l12 6 12-6" stroke="#0B6FC0" stroke-width="1.7"/>'
 };
 // [comando del visor, texto, grupo de la cinta, trazos 16 x 16] (mismos comandos que la línea de comando del visor)
@@ -35,7 +36,7 @@ V3_RIB_TABS.splice(V3_RIB_TABS.findIndex(function (t) { return t[0] === 'lluvia'
 V3_STEP_TAB[15] = 'red';
 V3_NAV.splice(V3_NAV.findIndex(function (n) { return n[0] === 1; }) + 1, 0, [15, 'Red de cunetas', 'R', 'profile']);
 
-var RC = { proyecto: null, nombre: '', pendientes: 0, observaciones: 0, asistente: null, aviso: null, marco: null, visorListo: false, estado: null, setState: null };
+var RC = { normas: null, verNormas: false, proyecto: null, nombre: '', pendientes: 0, observaciones: 0, asistente: null, aviso: null, marco: null, visorListo: false, estado: null, setState: null };
 // Lluvia de diseño de la pestaña LLUVIA: la misma intensidad (curva IDF y tiempo de concentración de diseño) para todo el proyecto.
 function rcLluvia(st) {
   if (!st) return { error: 'Abra la pestaña LLUVIA y complete la curva IDF del proyecto.' };
@@ -75,9 +76,10 @@ function rcOcupado(texto, fn) {
   RC.aviso = { texto: texto, desde: Date.now() }; rcAvisar();
   return Promise.resolve().then(fn).finally(function () { RC.aviso = null; rcAvisar(); });
 }
-function rcAbrirProyecto(ruta, nombre) { RC.proyecto = ruta; RC.nombre = nombre || ''; RC.asistente = null; RC.pendientes = 0; RC.observaciones = 0; RC.visorListo = false; rcRecordar(ruta, nombre || ruta); RC.vinculoVisto = ruta; rcVincular(ruta, nombre); rcAvisar(); }
+function rcAbrirProyecto(ruta, nombre) { RC.verNormas = false; RC.proyecto = ruta; RC.nombre = nombre || ''; RC.asistente = null; RC.pendientes = 0; RC.observaciones = 0; RC.visorListo = false; rcRecordar(ruta, nombre || ruta); RC.vinculoVisto = ruta; rcVincular(ruta, nombre); rcAvisar(); }
 function rcAbrirDialogo() { rcElegir('proyecto').then(function (r) { if (r) rcAbrirProyecto(r, ''); }).catch(function (e) { rcError('Abrir proyecto de red', e); }); }
 function rcNuevo() {
+  RC.verNormas = false;
   RC.asistente = { dxf: '', capas: [], sel: {}, landxml: '', nombre: '', codigo: '', entidad: '', ubicacion: '', carpeta: '', npt: '', area_verde: '', I_mmh: '', planteamiento: 'completar', por_defecto: 'verde' };
   rcAvisar();
 }
@@ -127,6 +129,7 @@ function v3RedRibbon(props) {
     rbGrp('Cálculo', [rbBig('red_calc', 'Calcular\ntodo', rcNecesita(function () { go(); rcOrden('calcular'); })),
       rbBig('red_sol', 'Soluciones' + (RC.pendientes ? '\n(' + RC.pendientes + ' por decidir)' : '\npropuestas'), rcNecesita(function () { go(); rcOrden('soluciones'); }), { k: 'sol' }),
       rbBig('red_entreg', 'Entregables', rcNecesita(function () { go(); rcOrden('entregables'); }))]),
+    rbGrp('Normas', [rbBig('red_normas', 'Normas y\nfuentes', function () { RC.verNormas = true; RC.asistente = null; go(); rcAvisar(); }, { on: on && RC.verNormas, k: 'nor' })]),
     rbGrp('Drenaje', [big('cuneta', 'Eje de\ncuneta', 'red_cuneta'), big('montante', 'Montante', 'red_montante'), big('sumidero', 'Sumidero', 'red_sumidero'),
       big('descarga', 'Descarga', 'red_descarga'), big('flecha', 'Caída de\ntecho', 'red_flecha'), big('asignar', 'Asignar\nsuperficie', 'red_asignar')]),
     rbGrp('Dibujo', [col('dib', 0, 3), col('dib', 3, 6)]),
@@ -220,6 +223,38 @@ function RcInicio() {
     h('section', { className: 'card' }, h('h2', null, 'Qué entrega'), h('p', { className: 'ws-note' },
       'Planta de la red con cotas de fondo, perfiles longitudinales, secciones, descargas, detalles, metrado (concreto, encofrado, acero, curado, rejillas, tapas, juntas, canaletas, falsas columnas, dados y tubería enterrada de cada montante), memoria descriptiva, memoria de cálculo, especificaciones técnicas, carátulas e índice de planos, en Word, Excel, DXF y PNG.')));
 }
+// Normas y fuentes: la misma biblioteca que usan el Excel, la memoria y el informe (orden normas del motor).
+function RcNormas() {
+  var t = useState(0);
+  useEffect(function () {
+    if (RC.normas || RC.normasError) return;
+    rcMotor('normas', []).then(function (d) { RC.normas = d; t[1](1); }, function (e) { RC.normasError = String(e && e.message || e); t[1](2); });
+  }, []);
+  var B = RC.normas;
+  if (!B) return h('section', { className: 'card' }, h('p', { className: 'muted' }, RC.normasError || 'Cargando la biblioteca de normas…'));
+  function chip(x) { return h('span', { className: 'rc-est ' + (x.estado === 'verificado' ? 'ok' : 'pend') }, x.estado === 'verificado' ? 'Verificado' : 'Por verificar'); }
+  function citaLarga(x) { var n = B.normas[x.fuente] || {}; return (n.nombre || x.fuente) + (n.dispositivo ? ' (' + n.dispositivo + ')' : '') + (x.ref ? ', ' + x.ref : ''); }
+  function caja(x) {
+    return h('div', { className: 'rc-fuente' }, h('b', null, 'Fuente. '), citaLarga(x) + '. ', x.consideracion ? h(React.Fragment, null, h('b', null, 'Consideración. '), x.consideracion + ' ') : null,
+      h('span', { className: 'rc-clase ' + x.clase }, B.clases[x.clase]), ' ', chip(x));
+  }
+  var grupos = [];
+  B.datos.forEach(function (d) { if (grupos.indexOf(d.grupo) < 0) grupos.push(d.grupo); });
+  return h(React.Fragment, null,
+    h('section', { className: 'card' }, h('h2', null, 'Normas, referencias y criterios'),
+      h('p', { className: 'muted small' }, 'Cada valor del diseño con su fuente. Norma: exigencia de una norma peruana. Referencia técnica: manual o libro. Criterio del proyectista: decisión del proyecto. Lo mismo sale en la memoria (recuadros y anexo) y en la hoja NORMAS Y FUENTES de la memoria de cálculo.'),
+      B.pendientes ? h('p', { className: 'ws-note' }, B.pendientes + ' datos y cuadros están «por verificar»: se transcribieron de los expedientes y falta cotejarlos con el texto oficial vigente de cada norma.') : null),
+    grupos.map(function (g) {
+      return h('section', { key: g, className: 'card' }, h('h2', null, g), h('div', { className: 'rc-datos' }, B.datos.filter(function (d) { return d.grupo === g; }).map(function (d) {
+        return h('div', { key: d.id, className: 'rc-dato' }, h('div', { className: 'rc-dato-cab' }, h('span', null, d.texto), h('b', null, String(d.valor) + (d.unidad ? ' ' + d.unidad : ''))), caja(d));
+      })));
+    }),
+    B.cuadros.map(function (q) {
+      return h('section', { key: q.id, className: 'card' }, h('h2', null, q.titulo),
+        h('div', { className: 'table-wrap' }, h('table', { className: 'rc-tabla' }, h('thead', null, h('tr', null, q.columnas.map(function (c) { return h('th', { key: c }, c); }))),
+          h('tbody', null, q.filas.map(function (f, i) { return h('tr', { key: i }, f.map(function (v, j) { return h('td', { key: j }, String(v)); })); })))), caja(q));
+    }));
+}
 function RcPage(props) {
   var tick = useState(0), ref = React.useRef(null);
   useEffect(function () { function f() { tick[1](function (n) { return n + 1; }); } window.addEventListener('drenie-red', f); return function () { window.removeEventListener('drenie-red', f); }; }, []);
@@ -228,12 +263,13 @@ function RcPage(props) {
   // El proyecto de DrenIE recuerda su red de cunetas: al abrirlo, la página vuelve a esa red.
   var vinc = props.state.redCunetas;
   if (!RC.asistente && vinc && vinc.proyecto && RC.vinculoVisto !== vinc.proyecto) { RC.vinculoVisto = vinc.proyecto; RC.proyecto = vinc.proyecto; RC.nombre = vinc.nombre || ''; RC.pendientes = 0; RC.observaciones = 0; }
-  var abierto = RC.proyecto && !RC.asistente;
+  var abierto = RC.proyecto && !RC.asistente && !RC.verNormas;
   return h('div', { className: 'ws-page rc-page' + (abierto ? ' rc-con-visor' : ''), 'data-workspace': 'red' },
     abierto ? h('div', { className: 'rc-cab' }, h('div', null, h('h1', null, RC.nombre || 'Red de cunetas'), h('span', { className: 'rc-ruta', title: RC.proyecto }, RC.proyecto)),
         RC.observaciones ? h('span', { className: 'rc-chip' + (RC.pendientes ? ' pend' : ' ok') }, RC.pendientes ? RC.pendientes + ' observación(es) por decidir' : 'Observaciones resueltas') : null,
         h(Btn, { onClick: function () { RC.proyecto = null; RC.nombre = ''; rcAvisar(); } }, 'Cerrar proyecto'))
       : wsHead('Red de cunetas desde el plano', 'Lee el plano del local, propone la red de cunetas con sus descargas por gravedad y entrega planos, metrado, memorias y especificaciones.'),
+    RC.verNormas ? h(React.Fragment, null, h('div', { className: 'ws-actions' }, h(Btn, { onClick: function () { RC.verNormas = false; rcAvisar(); } }, abierto ? 'Volver al visor' : 'Volver')), h(RcNormas)) :
     RC.asistente ? h(RcAsistente, props) : abierto ? h('section', { className: 'card rc-visor' }, h('iframe', { ref: ref, key: RC.proyecto, src: 'visor-red.html?drenie=1', title: 'Visor de la red de cunetas' })) : h(RcInicio, props),
     h(RcAviso));
 }

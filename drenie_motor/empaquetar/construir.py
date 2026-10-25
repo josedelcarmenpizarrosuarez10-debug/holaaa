@@ -44,6 +44,8 @@ def main():
     if "solo funciona desde el programa DrenIE" not in sin.get("error", ""): sys.exit("El motor trabajo sin la ficha de sesion: %s" % sin)
     con = correr(exe, ["capas", PLANO], ficha())
     if con.get("sugeridas", {}).get("cerco") != "CERCO": sys.exit("El motor compilado no leyo el plano de prueba: %s" % con)
+    nor = correr(exe, ["normas"], ficha())
+    if len(nor.get("datos", [])) < 20: sys.exit("El motor compilado no trae la biblioteca de normas: %s" % str(nor)[:300])
     tam = sum(os.path.getsize(os.path.join(d, f)) for d, _, fs in os.walk(os.path.dirname(exe)) for f in fs)
     print("OK · motor de la red de cunetas compilado y probado · %s (%.0f MB)" % (exe, tam / 1e6))
 

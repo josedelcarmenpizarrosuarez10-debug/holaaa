@@ -30,6 +30,7 @@ const ORDENES: &[(&str, usize, usize, bool, &str)] = &[
     ("aplicar", 3, 3, false, EXPORTAR),
     ("entregables", 1, 1, false, DEMO),
     ("abrir", 1, 2, false, DEMO),
+    ("normas", 0, 0, false, DEMO),
 ];
 
 fn permiso(app: &tauri::AppHandle, clase: &str) -> Result<(), String> {

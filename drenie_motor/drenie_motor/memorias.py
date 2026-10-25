@@ -9,7 +9,7 @@ proyecto lo trae en "memoria"; no se inventan datos.
 """
 import os
 
-from . import word
+from . import normas, word
 
 f2 = lambda v: "%.2f" % v
 mil = lambda v, d=2: ("{:,.%df}" % d).format(v)
@@ -154,6 +154,7 @@ def hidrologica(D, c):
         D.h(1, "Periodo de retorno y tiempo de concentración")
         D.p("Se adopta un periodo de retorno de %d años para las cunetas, canaletas y montantes. El tiempo de concentración de cada cuneta se toma igual a "
             "la duración mínima de %.0f minutos, porque las áreas de aporte son pequeñas, con recorridos cortos sobre techos y pavimentos." % (Rh["T"], Rh["tc_min"]))
+        normas.recuadro_word(D, "T", "tc_min")
         D.h(1, "Lluvias de corta duración e intensidades")
         D.p("Las lluvias de corta duración se obtienen con la expresión de Dick y Peschke, recomendada por el Manual de Hidrología del MTC, y la "
             "intensidad como la lluvia dividida entre la duración:")
@@ -171,6 +172,7 @@ def hidrologica(D, c):
         D.h(1, "Intensidad de diseño")
         D.p("El proyecto no trae registros de una estación; se usa la intensidad de diseño indicada: I = %.2f mm/h (%s)." % (
             hv["I"], c.LL.get("fuente") or "dato del proyecto"))
+        normas.recuadro_word(D, "tc_min")
     # ---------------------------------------------------------------- superficies
     D.h(1, "Coeficientes de escorrentía y áreas de aporte")
     D.p("El área dentro del cerco se dividió en superficies según la planta del proyecto (techos, pisos de concreto y áreas verdes) y cada celda de "
@@ -179,11 +181,13 @@ def hidrologica(D, c):
     filas = [[NOM_SUP.get(k, k.capitalize()), mil(v["A"], 0), f2(v["C"]), "%.1f %%" % (100 * v["A"] / tot)] for k, v in sup.items() if v["A"] > 0]
     filas.append(["Total / C ponderado", mil(tot, 0), "%.3f" % hv["C"], "100.0 %"])
     D.tabla("Superficies y coeficiente de escorrentía", ["Superficie", "Área (m²)", "C", "%"], filas, [8.5, 2.5, 2, 2], total=True)
+    normas.recuadro_word(D, "C_tabla1a")
     D.figura(c.fig.get("planta"), "Planta de la red de cunetas, descargas y superficies de aporte.", 15.5)
     # ---------------------------------------------------------------- caudales
     D.h(1, "Caudales de diseño")
     D.p("Los caudales se calculan con el método racional, válido para áreas pequeñas, separando el aporte de techos, pisos y áreas verdes:")
     D.formula("Q = C · I · A · FS / 3 600 000     (Q en m³/s; I en mm/h; A en m²; FS = %.2f)" % hv["FS"])
+    normas.recuadro_word(D, "FS")
     D.p("El caudal de cada tramo considera el área acumulada aguas arriba, incluidas las cuencas de los ejes que le entregan. La tabla muestra el tramo "
         "más cargado de cada eje; el detalle por tramo está en la hoja POR TRAMO del libro DIMENSIONAMIENTO.xlsx.")
     filas = [[e, f["sector"], mil(f["A_m2"], 0), "%.1f" % f["Q_techo_ls"], "%.1f" % f["Q_pisos_ls"], "%.1f" % f["Q_verde_ls"], "%.1f" % f["Q_ls"]]
@@ -207,6 +211,7 @@ def hidrologica(D, c):
                "Velocidad: con n = %.3f (concreto liso), máximo %.1f m/s para no erosionar el concreto." % (P["n_vel"], P["Vmax"]),
                "Pendiente mínima de %.1f %% en todos los tramos, para la autolimpieza." % (100 * P["S0"])])
     D.formula("Q = (1/n) · A · R^(2/3) · S^(1/2)     A = b · y     R = b·y / (b + 2y)")
+    normas.recuadro_word(D, "n_cap", "n_vel", "Vmax", "BL", "S0")
     filas = [[e, "%.1f" % f["Q_ls"], f2(f["S_pct"]), f2(f["b"]), "%.3f" % f["y"], f2(f["h"]), "%.3f" % c.bl_min[e], f2(f["V"]),
               "Cumple" if f["cap"] == "CUMPLE" and f["vel"] == "CUMPLE" else "Revisar"] for e, f in sorted(c.por_eje.items())]
     D.tabla("Verificación hidráulica por eje (tramo más cargado)", ["Eje", "Q (l/s)", "S (%)", "b (m)", "y (m)", "h libre (m)", "BL mín. (m)", "V (m/s)", "Estado"],
@@ -229,6 +234,7 @@ def hidrologica(D, c):
                   "%.3f" % x["tirante_m"], x["canaleta"]] for x in T["lados"]]
         D.tabla("Canaletas y montantes por lado de techo", ["Techo", "Lado", "Área (m²)", "Canaleta (m)", "Q (l/s)", "Montantes 4\"", "Q / montante (l/s)", "Tirante (m)", "Estado"],
                 filas, [1.4, 1.6, 1.7, 1.8, 1.5, 1.7, 2, 1.6, 1.8], tam=7.5)
+        normas.recuadro_word(D, "D_montante_min", "wyly", "S_canaleta", "llegada")
         m = T["metrado"]
         D.p("En total: %s m de canaleta, %d montantes de 4\" en las esquinas, cada uno en una falsa columna de 0.20 x 0.15 x 1.30 m sobre su dado. "
             "En el dado, un codo de 90° de 4\" y la tubería PVC de 4\" enterrada hasta la cuneta (%s m en total, hasta 5 m por montante), con pendiente "
@@ -273,7 +279,9 @@ def hidrologica(D, c):
     D.vinetas(["Lluvia de diseño (Excel): HIDROLOGIA.xlsx." if c.Rh else "Intensidad de diseño del proyecto.",
                "Dimensionamiento de las cunetas por sector y por tramo (Excel): DIMENSIONAMIENTO.xlsx.",
                "Canaletas, montantes y sumideros (Excel): CANALETAS_MONTANTES_Y_SUMIDEROS.xlsx.",
-               "Planos de drenaje pluvial %s (PLANOS_CUNETAS.dxf)." % c.planos], izq=True)
+               "Planos de drenaje pluvial %s (PLANOS_CUNETAS.dxf)." % c.planos,
+               "Normas, referencias y criterios del diseño (anexo siguiente y hoja NORMAS Y FUENTES de la memoria de cálculo)."], izq=True)
+    normas.anexo_word(D)
 
 
 # ============================================================================== MEMORIA DESCRIPTIVA

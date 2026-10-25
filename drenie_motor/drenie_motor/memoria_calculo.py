@@ -15,6 +15,15 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter as CL
 
+from . import normas
+
+
+def _F(clave):
+    """Fuente de un dato tomada de la biblioteca de normas (cita, tipo y estado)."""
+    d = normas.biblioteca()["_datos"].get(clave) or normas.cuadro(clave)
+    if d["clase"] == "criterio": return normas.cita(clave)
+    return "%s (%s%s)" % (normas.cita(clave), normas.CLASES[d["clase"]].lower(), "" if d["estado"] == "verificado" else ", por verificar")
+
 _b = Side(style="thin", color="808080"); BOR = Border(left=_b, right=_b, top=_b, bottom=_b)
 F = lambda **k: Font(name="Arial", size=k.pop("size", 9), **k)
 AZ, AM, VE = "DDEBF7", "FFF2CC", "E2EFDA"
@@ -74,23 +83,23 @@ def libro(ruta, proyecto, P, Rh, LL, V, secciones, TT, SM):
         e = Rh["estacion"] or {}
         dato("factor", "Factor aplicado a la serie de maximas", Rh["factor"], "0.0000",
              "1.0 = serie medida en la estacion, sin transposicion" if abs(Rh["factor"] - 1) < 1e-9 else "Transposicion por precipitaciones medias anuales (MTC)")
-        dato("T", "Periodo de retorno de diseño T (años)", Rh["T"], "0", "Criterio de diseño de los expedientes de drenaje pluvial")
-        dato("tc", "Tiempo de concentracion de cunetas tc (min)", Rh["tc_min"], "0.0", "Duracion minima (Norma CE.040)")
-    dato("n_cap", "Coeficiente de Manning para capacidad (concreto con rejilla)", P["n_cap"], "0.000", "Norma CE.040")
-    dato("n_vel", "Coeficiente de Manning para velocidad (concreto liso)", P["n_vel"], "0.000", "Norma CE.040")
-    dato("BL", "Borde libre minimo (m)", P["BL"], "0.00", "Criterio de diseño")
-    dato("Vmax", "Velocidad maxima en concreto (m/s)", P["Vmax"], "0.00", "Norma CE.040")
-    dato("FS", "Factor de seguridad de los caudales FS", hv["FS"], "0.00", "Q = C I A FS (criterio de diseño)")
+        dato("T", "Periodo de retorno de diseño T (años)", Rh["T"], "0", _F("T"))
+        dato("tc", "Tiempo de concentracion de cunetas tc (min)", Rh["tc_min"], "0.0", _F("tc_min"))
+    dato("n_cap", "Coeficiente de Manning para capacidad (concreto con rejilla)", P["n_cap"], "0.000", _F("n_cap"))
+    dato("n_vel", "Coeficiente de Manning para velocidad (concreto liso)", P["n_vel"], "0.000", _F("n_vel"))
+    dato("BL", "Borde libre minimo (m)", P["BL"], "0.00", _F("BL"))
+    dato("Vmax", "Velocidad maxima en concreto (m/s)", P["Vmax"], "0.00", _F("Vmax"))
+    dato("FS", "Factor de seguridad de los caudales FS", hv["FS"], "0.00", "Q = C I A FS; " + _F("FS"))
     for k, c in P["C"].items():
-        dato("C_" + k, "Coeficiente de escorrentia - " + NOM_SUP.get(k, k).lower(), c, "0.00", "Norma CE.040, Anexo I, Tabla 1.a, T = 25 años")
+        dato("C_" + k, "Coeficiente de escorrentia - " + NOM_SUP.get(k, k).lower(), c, "0.00", _F("C_tabla1a") + "; adoptado: " + _F("C_adoptados"))
     if Rh:
         dato("P24", "Precipitacion maxima en 24 h de diseño (mm)", 0, "0.00", "Hoja FRECUENCIAS (%s)" % DN[Rh["distribucion"]])
-        dato("Ptc", "Precipitacion en tc - Dick y Peschke P = P24 (tc/1440)^0.25 (mm)", "=%s*(%s/1440)^0.25" % (D["P24"], D["tc"]), "0.00", "Dick y Peschke")
+        dato("Ptc", "Precipitacion en tc - Dick y Peschke P = P24 (tc/1440)^0.25 (mm)", "=%s*(%s/1440)^0.25" % (D["P24"], D["tc"]), "0.00", "Dick y Peschke: " + _F("dick_peschke"))
         dato("I", "Intensidad de diseño I = P x 60 / tc (mm/h)", "=%s*60/%s" % (D["Ptc"], D["tc"]), "0.00", "Para el metodo racional")
     else:
         dato("I", "Intensidad de diseño (mm/h)", hv["I"], "0.00", LL.get("fuente") or "Dato del proyecto")
     dato("n_can", "Canaleta: coeficiente de Manning (plancha galvanizada)", 0.013, "0.000", "Memorias de los CAR")
-    dato("S_can", "Canaleta: pendiente (m/m)", 0.01, "0.000", "Memorias de los CAR")
+    dato("S_can", "Canaleta: pendiente (m/m)", 0.01, "0.000", _F("S_canaleta"))
     dato("b_can", "Canaleta: ancho (m)", 0.25, "0.00", "Partida Delphin 0.25 x 0.20")
     dato("h_can", "Canaleta: alto (m)", 0.20, "0.00", "Partida Delphin 0.25 x 0.20")
     dato("D4", "Montante: diametro (pulgadas)", 4, "0", "Siempre 4\" (regla del usuario)")
@@ -333,5 +342,6 @@ def libro(ruta, proyecto, P, Rh, LL, V, secciones, TT, SM):
         ws.sheet_view.showGridLines = False; ws.page_setup.orientation = "landscape"; ws.page_setup.fitToWidth = 1
         ws.sheet_properties.pageSetUpPr.fitToPage = True; ws.page_setup.fitToHeight = 0
     wb.properties.creator = ""; wb.properties.lastModifiedBy = ""
+    normas.hoja_excel(wb)
     wb.save(ruta)
     return ruta

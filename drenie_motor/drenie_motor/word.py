@@ -196,6 +196,19 @@ class Doc:
             self.d.add_paragraph().paragraph_format.space_after = Pt(2)
         return t
 
+    def recuadro(self, texto, titulo="Fuente"):
+        """Recuadro de fuente: tabla de una celda sombreada con borde izquierdo azul, letra de 8 pt."""
+        t = self.d.add_table(rows=1, cols=1); t.alignment = WD_TABLE_ALIGNMENT.CENTER
+        cc = t.rows[0].cells[0]; cc.text = ""; _sombra(cc, "EEF6FD")
+        bordes = OxmlElement("w:tcBorders")
+        for lado, val, sz, col in (("left", "single", "24", "1EA7F2"), ("top", "nil", "0", "auto"), ("bottom", "nil", "0", "auto"), ("right", "nil", "0", "auto")):
+            e = OxmlElement("w:" + lado); e.set(qn("w:val"), val); e.set(qn("w:sz"), sz); e.set(qn("w:color"), col); bordes.append(e)
+        cc._tc.get_or_add_tcPr().append(bordes)
+        par = cc.paragraphs[0]; r = par.add_run(titulo + ". "); r.bold = True; r.font.size = Pt(8); r.font.color.rgb = AZUL
+        r = par.add_run(texto); r.font.size = Pt(8)
+        self.d.add_paragraph().paragraph_format.space_after = Pt(2)
+        return t
+
     def figura(self, ruta, titulo, ancho=15.5, fuente=None):
         if not ruta or not os.path.exists(ruta): return
         self.nf += 1
