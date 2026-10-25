@@ -15,3 +15,39 @@ cuerpo = vis.index('<div class="app">')
 pagina = ('<!doctype html>\n<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
           '<style id="drenie-v3-fonts">' + ''.join(fonts) + '</style>\n' + vis[:cuerpo] + '</head><body>\n' + vis[cuerpo:] + '\n</body></html>\n')
 open(os.path.join(CLIENT, 'src', 'visor-red.html'), 'w', encoding='utf-8').write(pagina)
+
+# ---------------------------------------------------------------- mapas de ubicación automáticos (Datos del proyecto)
+# Límites del INEI incorporados (el mismo archivo del motor de la red): País → Departamento → Provincia → Distrito sin internet.
+lim = json.load(open(os.path.join(CLIENT, '..', 'motor_red', 'drenie_motor', 'limites_peru.json'), encoding='utf-8'))
+lim_js = json.dumps({k: lim[k] for k in ('fuente', 'departamentos', 'provincias', 'distritos', 'paises')}, ensure_ascii=False, separators=(',', ':'))
+R("\n/* ===== fin DrenIE 3.0 ===== */\n",
+  "\nvar WS_LIMITES_PERU = " + lim_js.replace('<', '\\u003C') + ";\n/* ===== fin DrenIE 3.0 ===== */\n", 1, '3.1.0 límites del INEI incorporados')
+R("""    }, wsMapName(st, level))), h('div', {
+        className: 'ws-actions'
+    }, h(Btn, {
+        onClick: function() {
+            file.current.click();""", """    }, wsMapName(st, level))), h(WsAutoMapa, {
+        state: st,
+        setState: props.setState,
+        level: level,
+        map: m,
+        message: message[1]
+    }), h('div', {
+        className: 'ws-actions'
+    }, h(Btn, {
+        onClick: function() {
+            file.current.click();""", 1, '3.1.0 lista desplegable en cada mapa de ubicación')
+R("""            var image = await wsReadMap(f);
+            if (projectRuntime.id !== projectId) return;
+            update({
+                image: image,
+                points: [],
+                closed: false
+            });""", """            var image = await wsuEncajar(await wsReadMap(f));
+            if (projectRuntime.id !== projectId) return;
+            update({
+                image: image,
+                points: [],
+                closed: false,
+                auto: false
+            });""", 1, '3.1.0 imagen cargada ajustada al tamaño de los mapas')

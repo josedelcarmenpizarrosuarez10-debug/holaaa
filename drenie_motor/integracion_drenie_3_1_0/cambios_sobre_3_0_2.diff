@@ -1,5 +1,5 @@
 diff --git a/PROBAR_Y_COMPILAR.ps1 b/PROBAR_Y_COMPILAR.ps1
-index 06f2870..cfcf43c 100644
+index 06f2870..0748484 100644
 --- a/PROBAR_Y_COMPILAR.ps1
 +++ b/PROBAR_Y_COMPILAR.ps1
 @@ -1,11 +1,11 @@
@@ -35,7 +35,7 @@ index 06f2870..cfcf43c 100644
    Run-Native 'Regeneración y regresiones de cálculo/datos' 'python' @((Join-Path $root 'tests\run_checks.py'), '--report', (Join-Path $out 'REGRESIONES.json'))
    Run-Native 'Assets de distribución' 'python' @('v3\release_assets.py')
    Run-Native 'Prueba del registro y códigos de salida' 'powershell.exe' @('-NoProfile', '-File', (Join-Path $root 'tests\release_script.ps1'))
-@@ -109,12 +112,31 @@ try {
+@@ -109,12 +112,29 @@ try {
      Run-Native 'Pruebas nativas Propietario' 'cargo' @('test', '--locked', '--manifest-path', 'src-tauri\Cargo.toml', '--target', 'x86_64-pc-windows-msvc', '--features', 'owner-edition')
    }
    $started = [DateTime]::UtcNow
@@ -57,9 +57,7 @@ index 06f2870..cfcf43c 100644
 +  Run-Native "Instalador Cliente $version" 'pnpm' $argsCliente
 +  Remove-Item Env:TAURI_SIGNING_PRIVATE_KEY, Env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD -ErrorAction SilentlyContinue
    Copy-Installer "DrenIE_${version}_x64-setup.exe" $clientOut 'CLIENTE' $started
-+  $firma = Join-Path $env:CARGO_TARGET_DIR "x86_64-pc-windows-msvc
-+eleaseundle
-+sis\DrenIE_${version}_x64-setup.exe.sig"
++  $firma = Join-Path $env:CARGO_TARGET_DIR "x86_64-pc-windows-msvc\release\bundle\nsis\DrenIE_${version}_x64-setup.exe.sig"
 +  if ((Test-Path -LiteralPath $claveAct) -and (Test-Path -LiteralPath $firma)) { Copy-Item -LiteralPath $firma -Destination $clientOut }
    if (!$SoloCliente) {
      New-Item -ItemType Directory -Path $ownerOut -Force | Out-Null
@@ -1030,7 +1028,7 @@ index a4e97e6..7766ac8 100644
    home: 'M4 11l8-7 8 7v9h-5v-6H9v6H4z', chart: 'M5 20V10M10 20V5M15 20v-8M20 20v-4',
    grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
 diff --git a/client/v3/build_v3.py b/client/v3/build_v3.py
-index 2ccf5b1..d8659a7 100644
+index 2ccf5b1..79f81c5 100644
 --- a/client/v3/build_v3.py
 +++ b/client/v3/build_v3.py
 @@ -124,6 +124,8 @@ exec(read('patches_v301.py'))
@@ -1042,11 +1040,13 @@ index 2ccf5b1..d8659a7 100644
  
  # El lector aislado usa exactamente el mismo SheetJS auditado que la interfaz.
  vendor_name = 'xlsx-0.20.3.min.js'
-@@ -140,4 +142,4 @@ shutil.copyfile(vendor_path, os.path.join(vendor_out, vendor_name))
+@@ -139,5 +141,5 @@ os.makedirs(vendor_out, exist_ok=True)
+ shutil.copyfile(vendor_path, os.path.join(vendor_out, vendor_name))
  shutil.copyfile(os.path.join(HERE, 'drenie-import-worker.js'), os.path.join(CLIENT, 'src', 'drenie-import-worker.js'))
  
- open(OUT, 'w', encoding='utf-8').write(src)
+-open(OUT, 'w', encoding='utf-8').write(src)
 -print('OK · %d parches históricos + %d correcciones 3.0.1 + %d correcciones 3.0.2 · %s (%.1f MB)' % (historical_count, v301_count - historical_count, len(applied) - v301_count, OUT, len(src.encode()) / 1e6))
++open(OUT, 'w', encoding='utf-8', newline='\n').write(src)   # LF también en Windows: las pruebas comparan el HTML con los módulos
 +print('OK · %d parches históricos + %d correcciones 3.0.1 + %d correcciones 3.0.2 + %d red de cunetas 3.1.0 · %s (%.1f MB)' % (historical_count, v301_count - historical_count, v302_count - v301_count, len(applied) - v302_count, OUT, len(src.encode()) / 1e6))
 diff --git a/client/v3/mod-ribbon.js b/client/v3/mod-ribbon.js
 index c4f5c78..9bac89a 100644
@@ -1097,10 +1097,10 @@ index dc959ea..361a010 100644
  var rain=document.getElementById('rain');for(var i=0;i<28;i++){var drop=document.createElement('i');drop.className='drop';drop.style.left=(5+(i*37)%108)+'%';drop.style.setProperty('--speed',(1.05+(i%7)*.13)+'s');drop.style.setProperty('--delay',(-i*.23)+'s');rain.appendChild(drop)}
  // El mínimo de siete segundos empieza cuando las imágenes ya cargaron.
 diff --git a/client/v3/theme-v3.css b/client/v3/theme-v3.css
-index cbb482a..f6ffcf3 100644
+index cbb482a..7f93f5e 100644
 --- a/client/v3/theme-v3.css
 +++ b/client/v3/theme-v3.css
-@@ -404,3 +404,50 @@ body.ui-cinta .v3-steps{display:none!important}
+@@ -404,3 +404,54 @@ body.ui-cinta .v3-steps{display:none!important}
  @media print{.v3-dlg-overlay{display:none!important}}
  
  .ws-settings>.page-head{display:block}
@@ -1151,6 +1151,10 @@ index cbb482a..f6ffcf3 100644
 +.rc-est.pend{background:#FFF4D6;color:#9A5B00}
 +.rc-tabla{width:100%;border-collapse:collapse;margin:8px 0 10px}
 +.rc-tabla th,.rc-tabla td{border:1px solid var(--line);padding:6px 10px;text-align:left;font-size:12px}
++/* 3.1.0: si la cinta no cabe a lo ancho, la barra de desplazamiento va debajo de los nombres de los grupos (la altura fija
++   de 100 px hacía que Windows la dibujara encima de «Proyecto de red», «Cálculo», «Normas»...). */
++.rb-panel{height:auto;min-height:100px;scrollbar-width:thin;scrollbar-color:#B9CCE0 transparent}
++.rb-panel::-webkit-scrollbar{height:8px}.rb-panel::-webkit-scrollbar-thumb{background:#B9CCE0;border-radius:8px}.rb-panel::-webkit-scrollbar-track{background:transparent}
 diff --git a/tests/run_checks.py b/tests/run_checks.py
 index e05056a..f606f7a 100644
 --- a/tests/run_checks.py
@@ -1180,3 +1184,24 @@ index 763b9b2..3c1854d 100644
  assert json.loads((CLIENT / 'package.json').read_text(encoding='utf-8'))['version'] == version
  assert json.loads((CLIENT / 'src-tauri/tauri.conf.json').read_text(encoding='utf-8'))['version'] == version
  assert f"var V3_VERSION = '{version}';" in (V3 / 'app-v3.js').read_text(encoding='utf-8')
+diff --git a/tests/workspace_ui.cjs b/tests/workspace_ui.cjs
+index 87f3759..8d29852 100644
+--- a/tests/workspace_ui.cjs
++++ b/tests/workspace_ui.cjs
+@@ -24,6 +24,7 @@ async function main(){let browser;try{
+  const geo=await page.evaluate(()=>window.__WS.getState().project.geography);assert.equal(geo.maps[0].points.length,3);assert.equal(geo.maps[0].closed,true);assert.equal(geo.province,'Huaraz');assert(await page.evaluate(()=>window.__calls.some(c=>c.cmd==='open_location_map'&&c.args.query==='Perú, Áncash')));
+  await page.locator('.rb-panel').getByRole('button',{name:'Guardar proyecto',exact:true}).click();await page.waitForFunction(()=>window.__calls.some(c=>c.cmd==='save_project'));const json=await page.evaluate(()=>window.__calls.filter(c=>c.cmd==='save_project').at(-1).args.json);await page.getByRole('button',{name:'Entendido',exact:true}).click();fs.writeFileSync(path.join(out,'PROYECTO_MAPA.json'),json);assert.equal(JSON.parse(json).project.geography.maps[0].closed,true);
+  await page.evaluate(j=>{const s=window.__WS.normalize(JSON.parse(j));window.__WS.setState(s);},json);await card.locator('svg polygon').waitFor();await page.getByLabel('Archivo de proyecto',{exact:true}).setInputFiles({name:'mapas-guardados.json',mimeType:'application/json',buffer:Buffer.from(json)});await page.getByRole('dialog').getByText('Proyecto abierto correctamente.',{exact:true}).waitFor();await page.getByRole('button',{name:'Entendido',exact:true}).click();assert.deepEqual(await page.evaluate(()=>window.__WS.getState().project.geography),JSON.parse(json).project.geography);report.checks.push({name:'PNG local, delimitación de región, búsqueda opcional y respaldo JSON conservan datos',passed:true});
++ const antesMapas=await page.evaluate(()=>JSON.stringify(window.__WS.getState()));await page.getByLabel('Distrito del mapa',{exact:true}).selectOption({label:'Huaraz'});await page.locator('[data-map-level="distrito"] svg image').waitFor();const gm=await page.evaluate(()=>window.__WS.getState().project.geography);const mp=l=>gm.maps.find(m=>m.level===l)||{};assert.equal(gm.region,'Áncash');assert.equal(gm.province,'Huaraz');assert.equal(gm.district,'Huaraz');assert.deepEqual(gm.ubigeo,{dep:'02',prov:'0201',dist:'020101'});assert.equal(mp('distrito').auto,true);assert.equal(mp('provincia').auto,true);assert.equal(mp('distrito').image.width,960);assert.equal(mp('distrito').image.height,1040);assert.equal(mp('region').auto,false);assert.equal(mp('region').closed,true);await page.getByLabel('Imagen de Localidad / centro poblado',{exact:true}).setInputFiles({name:'localidad.png',mimeType:'image/png',buffer:Buffer.from(image,'base64')});await page.locator('[data-map-level="localidad"] svg image').waitFor();const lo=await page.evaluate(()=>window.__WS.getState().project.geography.maps.find(m=>m.level==='localidad'));assert.equal(lo.image.width,960);assert.equal(lo.image.height,1040);await page.evaluate(()=>window.__WS.validate(window.__WS.getState()));await page.locator('[data-map-level="provincia"]').screenshot({path:path.join(out,'03b_mapa_provincia_automatico.png')});await page.evaluate(j=>window.__WS.setState(JSON.parse(j)),antesMapas);await page.waitForFunction(()=>window.__WS.getState().project.geography.maps.length===1);report.checks.push({name:'Mapas automáticos por lista (INEI, sin internet): el mapa propio no se reemplaza y la imagen cargada se ajusta a 960 x 1040',passed:true});
+  await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));await page.screenshot({path:path.join(out,'proyecto-mapas.png'),fullPage:true});
+  await page.evaluate(()=>{const st=window.__WS.getState(),mk=(id,name,q,ncf)=>Object.assign(window.__WS.pfNew(st),{id,name,sectorId:'',qManual:q,nct:ncf+1,ncf0:ncf,sFija:false,tramos:[{id:id+'t',L:10,S:.5,b:.4,EM:.1,EL:.1,tipo:'abierta'}]});const a=mk('a','Cuneta A',2,101),b=mk('b','Cuneta B',3,99);a.routing={buildings:[{sectorId:st.sectors[0].id,side:'Norte'}],outlet:{type:'channel',targetId:'b',at:5}};a.plan={points:[{x:0,y:12},{x:10,y:12}]};b.routing={buildings:[],outlet:{type:'external',name:'Colector exterior'}};b.plan={points:[{x:10,y:12},{x:10,y:2}]};window.__WS.setState(Object.assign({},st,{perfiles:[a,b],activePerfilId:'a'}));});
+  await tab('CUNETAS','Perfil de cuneta');await page.getByRole('heading',{name:'Recorrido y descarga de la cuneta'}).waitFor();assert.equal(await page.getByLabel('Cuneta receptora',{exact:true}).inputValue(),'b');
+@@ -32,7 +33,7 @@ async function main(){let browser;try{
+  await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));await page.screenshot({path:path.join(out,'planta-general.png'),fullPage:true});report.checks.push({name:'Cuneta, lado del módulo, conexión y suma de caudales en la progresiva, planta general',passed:true,observed:network});
+  const state=await page.evaluate(()=>window.__WS.getState());fs.writeFileSync(path.join(out,'PROYECTO_CON_PLANTA.json'),JSON.stringify(state,null,2));await page.evaluate(()=>{const s=window.__WS.getState();window.__WS.validate(s);window.__WS.renderReport(s);});await page.locator('#ws-test-report .ws-map-svg').waitFor();await page.locator('#ws-test-report .ws-plan-svg').waitFor();report.checks.push({name:'Memoria incorpora el mapa delimitado y la planta de cunetas',passed:true});
+  const invalid=JSON.parse(JSON.stringify(state));invalid.project.geography.maps[0].image.data='https://example.invalid/map.svg';const before=JSON.stringify(state);await page.getByLabel('Archivo de proyecto',{exact:true}).setInputFiles({name:'mapa-invalido.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(invalid))});await page.getByRole('dialog').getByText(/No se pudo abrir el proyecto/).waitFor();assert.equal(await page.evaluate(()=>JSON.stringify(window.__WS.getState())),before);await page.getByRole('button',{name:'Entendido',exact:true}).click();report.checks.push({name:'Importación rechaza imágenes remotas y conserva el proyecto abierto',passed:true});
+- await page.evaluate(()=>{document.getElementById('ws-test-report').remove();window.__WS.setState(prev=>Object.assign({},prev,{sectors:prev.sectors.map(s=>Object.assign({},s,{area:''}))}));window.__WS.setStep(7);});await page.locator('main #technical-report .ws-map-svg').waitFor();await page.evaluate(async()=>{await window.__WS.exportWord(window.__WS.getState());});const word=await page.evaluate(()=>window.__calls.filter(c=>c.cmd==='save_export'&&c.args.filename.endsWith('.docx')).at(-1));if(!word)report.wordNotice=await page.locator('body').innerText();assert(word,'La memoria Word debe emitirse');fs.writeFileSync(path.join(out,'MEMORIA_MAPA_Y_PLANTA.docx'),Buffer.from(word.args.data));report.checks.push({name:'Word real con mapas delimitados y planta emitido por la biblioteca del programa',passed:true});
++ await page.evaluate(()=>{document.getElementById('ws-test-report').remove();window.__WS.setState(prev=>Object.assign({},prev,{sectors:prev.sectors.map(s=>Object.assign({},s,{area:''}))}));window.__WS.setStep(7);});await page.locator('main #technical-report .ws-map-svg').waitFor();await page.evaluate(async()=>{await window.__WS.exportWord(window.__WS.getState());});await page.waitForFunction(()=>window.__calls.some(c=>c.cmd==='save_export'&&c.args.filename.endsWith('.docx')),null,{timeout:120000}).catch(()=>{});const word=await page.evaluate(()=>window.__calls.filter(c=>c.cmd==='save_export'&&c.args.filename.endsWith('.docx')).at(-1));if(!word)report.wordNotice=await page.locator('body').innerText();assert(word,'La memoria Word debe emitirse');fs.writeFileSync(path.join(out,'MEMORIA_MAPA_Y_PLANTA.docx'),Buffer.from(word.args.data));report.checks.push({name:'Word real con mapas delimitados y planta emitido por la biblioteca del programa',passed:true});
+  await tab('CONFIGURACIÓN','Configuración');await page.locator('.rb-panel').getByRole('button',{name:'Vista clásica',exact:true}).click();await page.locator('.v3-side').waitFor();await page.waitForFunction(()=>!document.body.classList.contains('ui-cinta'));const classic=await page.evaluate(()=>({sidebar:document.querySelector('.v3-side').getBoundingClientRect().right,main:document.querySelector('main').getBoundingClientRect().left,footer:document.querySelector('.license-strip').getBoundingClientRect().left}));assert(Math.abs(classic.main-classic.sidebar)<=1);assert(Math.abs(classic.footer-classic.sidebar)<=1);await page.locator('.v3-side').getByRole('button',{name:'Datos del proyecto',exact:true}).click();await page.getByRole('heading',{name:'Datos del proyecto',exact:true}).waitFor();await page.locator('.v3-side').getByRole('button',{name:'Archivos',exact:true}).click();await page.getByRole('heading',{name:'Archivos del proyecto',exact:true}).waitFor();await page.locator('.v3-side').getByRole('button',{name:'Vista con cintas',exact:true}).click();await page.locator('.rb').waitFor();report.checks.push({name:'Vista clásica conserva páginas independientes y alinea contenido y pie con la barra lateral',passed:true,observed:classic});
+  assert.deepEqual(report.pageErrors,[]);report.passed=true;
+  }catch(e){report.error=e.stack;report.passed=false;process.exitCode=1;}finally{if(browser)await browser.close();server.close();fs.writeFileSync(path.join(out,'UI_WORKSPACE.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));}}
