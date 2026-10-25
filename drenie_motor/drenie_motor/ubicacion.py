@@ -63,7 +63,7 @@ def _geom(anillos_lista):
 @lru_cache(maxsize=1)
 def limites():
     d = json.load(open(RUTA, encoding="utf-8"))
-    out = {"fuente": d.get("fuente", "INEI")}
+    out = {"fuente": d.get("fuente", "INEI"), "fuente_corta": d.get("fuente_corta")}
     for k in ("departamentos", "provincias", "distritos", "paises"):
         out[k] = [dict(x, geom=_geom(x["g"])) for x in d[k] if x.get("g")]
         for x in out[k]: x.pop("g")
@@ -349,7 +349,7 @@ def generar(salida, cerco_xy, techos, cfg, bajar=None):
     nombres = cfg_u.get("nombres") or {}
     ren = lambda lst: [dict(x, n=nombres.get(x["u"], x["n"])) for x in lst]
     carpeta = os.path.join(salida, "mapas_ubicacion"); os.makedirs(carpeta, exist_ok=True)
-    fte = "Límites: INEI"
+    fte = L.get("fuente_corta") or "Límites: INEI"
     peru = MultiPolygon([p for x in L["departamentos"] for p in (x["geom"].geoms if hasattr(x["geom"], "geoms") else [x["geom"]])])
     U["mapas"].append(_mapa_division(os.path.join(carpeta, "MAPA_01_PERU.png"), U["titulos"][0], [], ren(L["departamentos"]),
                                      peru, dep, cfg_u, fte + "; países: Natural Earth", paises=L["paises"], mar=True))

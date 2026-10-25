@@ -302,7 +302,7 @@ la cámara se hace aparte con el hidrograma de la tormenta). La batería de prue
 Con el cerco del plano el motor ubica el proyecto solo: pasa el centro del cerco de UTM WGS 84 a latitud y longitud (prueba las zonas
 17S, 18S y 19S y se queda con la que cae dentro de un distrito; si caben varias, decide por el nombre del distrito escrito en el proyecto
 y deja la observación «Confirmar la zona UTM del plano») y busca el distrito, la provincia y el departamento en los límites del INEI
-(`limites_peru.json`: 25 departamentos, 197 provincias y 1 826 distritos; países vecinos de Natural Earth). Si el plano no está en UTM
+(`limites_peru.json`: 25 departamentos y 195 provincias con la forma real del IGN —vía OCHA ROLAC y geoBoundaries, CC BY 3.0 IGO—, 1 826 distritos censales del INEI 2007 y países vecinos de Natural Earth; `herramientas_mapas/limites_ign.py` reemplaza las formas con las capas del IGN, también los distritos cuando se tengan). Si el plano no está en UTM
 se usa el distrito escrito en el proyecto o el elegido en el editor.
 
 Salidas en «Calcular todo»:
