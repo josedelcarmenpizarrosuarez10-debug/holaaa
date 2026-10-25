@@ -103,6 +103,20 @@ button.calc { background: linear-gradient(120deg, #1EA7F2, #0B6FC0); color: #fff
 .sol-btn { border-color: var(--warn); color: var(--fg); }
 .sol-btn b { background: var(--warn); color: #fff; border-radius: 9px; padding: 0 6px; font: 600 11px var(--font-mono); }
 .sol-ven { max-width: 760px; }
+.ubi-ven { max-width: 900px; }
+.ubi-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 14px; }
+.ubi-grid label, .ubi-campo { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--muted); min-width: 0; }
+.ubi-grid input[type=text], .ubi-grid input[type=number], .ubi-ven input[type=search] { width: 100%; box-sizing: border-box; background: var(--bg); color: var(--fg);
+  border: 1px solid var(--line); border-radius: 4px; font: 12px var(--font-ui); padding: 4px 6px; }
+.ubi-ven input[type=color] { width: 44px; height: 26px; padding: 0 2px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); }
+.ubi-res { max-height: 150px; overflow: auto; border: 1px solid var(--line); border-radius: 4px; margin-top: 4px; }
+.ubi-res button { width: 100%; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; justify-content: flex-start; text-align: left; background: transparent; }
+.ubi-mapas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
+.ubi-mapas img { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 4px; display: block; background: #fff; }
+.ubi-dato { font-size: 13px; margin: 4px 0 8px; }
+.ubi-dato b { color: var(--accent-2); }
+.ubi-aviso { font-size: 12px; color: var(--fg); background: var(--panel-2); border-left: 3px solid var(--warn); padding: 4px 8px; margin: 4px 0; }
+@media (max-width: 640px) { .ubi-grid, .ubi-mapas { grid-template-columns: minmax(0, 1fr); } }
 .sol-tar { border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; margin: 10px 0; background: var(--panel-2); }
 .sol-tar h4 { margin: 0 0 4px; font-size: 13px; font-weight: 600; text-wrap: balance; }
 .sol-tar p { margin: 3px 0; font-size: 12px; }
@@ -1706,6 +1720,7 @@ if (PUENTE) window.addEventListener("message", e => {
   else if (d.orden === "calcular") calcularApp();
   else if (d.orden === "soluciones") mostrarSoluciones();
   else if (d.orden === "entregables") mostrarEntregables();
+  else if (d.orden === "ubicacion") mostrarUbicacion();
   else if (d.orden === "recargar") cargarApp().catch(er => alertaVen("No se pudo abrir el proyecto", er.message));
   else if (d.orden === "paneles") lado.toggleAttribute("data-cerrado");
   else if (d.orden === "superficies") document.getElementById("btnSup").click();
@@ -1770,6 +1785,88 @@ async function mostrarEntregables() {
     a.querySelectorAll("[data-f]").forEach(b => b.onclick = () => api("abrir_archivo", { nombre: e.archivos[+b.dataset.f] }).then(() => msg("Abriendo " + e.archivos[+b.dataset.f]), er => msg(er.message)));
   } catch (er) { msg(er.message); }
 }
+/* ---------------------------------------------------------------------------- editor de Ubicación (mapas 1 a 4 y lámina U-01)
+   Lo elegido se guarda en el proyecto (proyecto.json, "ubicacion") y entra en el siguiente cálculo: lámina U-01 y memoria descriptiva. */
+let UBI = null;
+async function mostrarUbicacion() {
+  let a = document.getElementById("ventanaSol"); if (a) a.remove();
+  try {
+    velo("Ubicando el proyecto y dibujando los mapas");
+    try { UBI = await api("ubicacion", { entrada: { generar: true } }); } finally { velo(null); }
+    a = document.createElement("div"); a.className = "ayuda ubi-ven"; a.id = "ventanaSol"; a.setAttribute("role", "dialog"); a.setAttribute("aria-label", "Ubicación del proyecto");
+    lienzo.appendChild(a); pintarUbicacion(a);
+  } catch (er) { msg("Ubicación: " + er.message); alertaVen("No se pudo ubicar el proyecto", er.message); }
+}
+function pintarUbicacion(a) {
+  const U = UBI.ubicacion || {}, c = JSON.parse(JSON.stringify(UBI.config || {})), ub = c.ubigeo || U.ubigeo || "";
+  const nom = c.nombres || {}, col = Object.assign({ resaltado: "#E4572E", recuadro: "#D90429", cerco: "#FFD60A" }, c.colores || {});
+  const tit = c.titulos || ["", "", "", ""], f = c.foto || {}, ext = U.extension_local || [];
+  const campo = (id, et, v, ph, tipo) => '<label>' + htm(et) + '<input type="' + (tipo || "text") + '" id="' + id + '" value="' + htm(v == null ? "" : v) + '" placeholder="' + htm(ph || "") + '"></label>';
+  a.innerHTML = '<div class="fila" style="justify-content:space-between;margin-top:0"><b>Ubicación del proyecto</b><span class="fila" style="margin:0">' +
+      '<button type="button" class="calc" id="ubGuardar">Guardar y redibujar</button><button type="button" id="cerrarSol">Cerrar</button></span></div>' +
+    '<p class="ubi-aviso" id="ubErr" role="alert" hidden></p><p class="ubi-dato">' + (U.ubigeo ? "<b>" + htm(U.distrito) + "</b> · provincia de " + htm(U.provincia) + " · departamento de " + htm(U.departamento) +
+      " · ubigeo " + htm(U.ubigeo) + (U.georef ? " · UTM WGS 84 zona " + U.zona + "S" : " · sin coordenadas UTM") + (U.automatica ? " (ubicado con las coordenadas del plano)" : "")
+      : "<b>Sin ubicar</b>: busque el distrito abajo.") + "</p>" +
+    (U.avisos || []).map(t => '<p class="ubi-aviso">' + htm(t) + "</p>").join("") +
+    '<h3>Distrito</h3><div class="ubi-grid"><label>Zona UTM del plano<select id="ubZona">' +
+      [["", "Automática"], ["17", "17 S"], ["18", "18 S"], ["19", "19 S"]].map(o => '<option value="' + o[0] + '"' + (String(c.zona_utm || "") === o[0] ? " selected" : "") + ">" + o[1] + "</option>").join("") +
+      '</select></label><div class="ubi-campo">Buscar distrito (nombre, provincia o ubigeo)<input type="search" id="ubBuscar" placeholder="Ej.: Morales, San Martín"><div class="ubi-res" id="ubRes" hidden></div></div></div>' +
+    '<p class="nota" id="ubElegido">' + (c.ubigeo ? "Distrito fijado a mano: ubigeo " + htm(c.ubigeo) + ' <button type="button" id="ubAuto">Volver a automático</button>' : "El distrito sale de las coordenadas del plano.") + "</p>" +
+    (ub ? '<h3>Nombres en los mapas</h3><div class="ubi-grid">' + campo("ubNd", "Distrito", nom[ub] || "", U.distrito) + campo("ubNp", "Provincia", nom[ub.slice(0, 4)] || "", U.provincia) +
+      campo("ubNdp", "Departamento", nom[ub.slice(0, 2)] || "", U.departamento) + "</div>" : "") +
+    '<h3>Títulos de los mapas (en blanco: automático)</h3><div class="ubi-grid">' + [0, 1, 2, 3].map(i => campo("ubT" + i, "Mapa " + (i + 1), tit[i] || "", (U.titulos || [])[i] || "")).join("") + "</div>" +
+    '<h3>Colores</h3><div class="fila">' + [["resaltado", "Área resaltada"], ["recuadro", "Recuadro"], ["cerco", "Cerco del proyecto"]].map(k =>
+      '<label class="fila" style="margin:0;align-items:center;font-size:12px"><input type="color" id="ubC' + k[0] + '" value="' + htm(col[k[0]]) + '">' + k[1] + "</label>").join("") + "</div>" +
+    '<h3>Mapa 4: fondo</h3><label class="fila" style="margin:0;align-items:center;font-size:12px"><input type="checkbox" id="ubOsm"' + (c.osm === false ? "" : " checked") +
+      '> Calles de OpenStreetMap (con internet), si no hay foto</label>' +
+    '<div class="ubi-grid" style="margin-top:6px"><div class="ubi-campo">Foto aérea propia (PNG o JPG)<span class="fila" style="margin:0"><input type="text" id="ubFoto" value="' + htm(f.ruta || "") +
+      '" placeholder="Sin foto" style="flex:1"><button type="button" id="ubFotoSel">Elegir…</button></span></div>' + campo("ubFuente", "Fuente de la foto", f.fuente || "", "Ej.: Google Earth, 2026") +
+      campo("ubX0", "Esquina inferior izquierda: Este", f.xmin, ext[0], "number") + campo("ubY0", "Esquina inferior izquierda: Norte", f.ymin, ext[1], "number") +
+      campo("ubX1", "Esquina superior derecha: Este", f.xmax, ext[2], "number") + campo("ubY1", "Esquina superior derecha: Norte", f.ymax, ext[3], "number") + "</div>" +
+    '<p class="nota">Coordenadas UTM de las esquinas de la foto. ' + (ext.length ? '<button type="button" id="ubExt">Usar el recuadro del mapa 4</button> (recorte la foto a ese recuadro).' : "") + "</p>" +
+    '<h3>Vista previa</h3><div class="ubi-mapas">' + (UBI.imagenes || []).map((src, i) => '<img alt="Mapa ' + (i + 1) + '" src="' + src + '">').join("") + "</div>" +
+    '<p class="nota">Fuente de límites: ' + htm(U.fuente_limites || "INEI") + ". Lo guardado entra en la lámina U-01 y en la memoria descriptiva al Calcular.</p>";
+  const $ = id => document.getElementById(id);
+  const error = t => { $("ubErr").textContent = t; $("ubErr").hidden = false; a.scrollTop = 0; };
+  $("cerrarSol").onclick = () => a.remove();
+  let ubFijo = c.ubigeo || "";
+  if ($("ubAuto")) $("ubAuto").onclick = () => { ubFijo = ""; $("ubElegido").textContent = "El distrito saldrá de las coordenadas del plano al guardar."; };
+  let tb = null;
+  $("ubBuscar").oninput = () => {
+    clearTimeout(tb); const t = $("ubBuscar").value.trim(), r = $("ubRes");
+    if (t.length < 2) { r.hidden = true; return; }
+    tb = setTimeout(() => api("ubicacion", { entrada: { buscar: t } }).then(d => {
+      r.hidden = false;
+      r.innerHTML = d.distritos.length ? d.distritos.map((x, k) => '<button type="button" data-k="' + k + '">' + htm(x.distrito) + " · " + htm(x.provincia) + " · " + htm(x.departamento) +
+        ' <small style="margin-left:auto">' + x.ubigeo + "</small></button>").join("") : '<p class="nota" style="padding:4px 6px">Ningún distrito con ese nombre.</p>';
+      r.querySelectorAll("[data-k]").forEach(b => b.onclick = () => { const x = d.distritos[+b.dataset.k]; ubFijo = x.ubigeo; r.hidden = true; $("ubBuscar").value = "";
+        $("ubElegido").textContent = "Distrito elegido: " + x.distrito + " (" + x.provincia + ", " + x.departamento + "), ubigeo " + x.ubigeo + ". Pulse Guardar y redibujar."; });
+    }, er => msg(er.message)), 250);
+  };
+  $("ubFotoSel").onclick = () => api("elegir_imagen", {}).then(r => { if (r) $("ubFoto").value = r; }, er => error(er.message));
+  if ($("ubExt")) $("ubExt").onclick = () => { ["ubX0", "ubY0", "ubX1", "ubY1"].forEach((id, i) => { $(id).value = ext[i]; }); };
+  $("ubGuardar").onclick = async () => {
+    const g = { zona_utm: $("ubZona").value ? +$("ubZona").value : null, ubigeo: ubFijo || null, osm: $("ubOsm").checked,
+                colores: { resaltado: $("ubCresaltado").value, recuadro: $("ubCrecuadro").value, cerco: $("ubCcerco").value },
+                titulos: [0, 1, 2, 3].map(i => $("ubT" + i).value.trim()), nombres: {} };
+    if (c.codigo_lamina) g.codigo_lamina = c.codigo_lamina;
+    if (ub && ub === (ubFijo || U.ubigeo)) {
+      Object.assign(g.nombres, nom);
+      [["ubNd", ub], ["ubNp", ub.slice(0, 4)], ["ubNdp", ub.slice(0, 2)]].forEach(([id, k]) => { const v = $(id).value.trim(); if (v) g.nombres[k] = v; else delete g.nombres[k]; });
+    }
+    if ($("ubFoto").value.trim()) {
+      const n = id => parseFloat($(id).value);
+      if ([n("ubX0"), n("ubY0"), n("ubX1"), n("ubY1")].some(v => !isFinite(v))) { error("Falta ubicar la foto: escriba las coordenadas UTM de sus dos esquinas (o use el recuadro del mapa 4)."); return; }
+      g.foto = { ruta: $("ubFoto").value.trim(), fuente: $("ubFuente").value.trim(), xmin: n("ubX0"), ymin: n("ubY0"), xmax: n("ubX1"), ymax: n("ubY1") };
+    }
+    try {
+      velo("Guardando la ubicación y redibujando los mapas");
+      try { UBI = await api("ubicacion", { entrada: { guardar: g, generar: true } }); } finally { velo(null); }
+      pintarUbicacion(a); msg("Ubicación guardada: " + ((UBI.ubicacion || {}).distrito || "sin distrito") + ". Entra en la lámina U-01 y en la memoria al Calcular.");
+    } catch (er) { msg("Ubicación: " + er.message); error("No se guardó la ubicación: " + er.message); }
+  };
+}
+
 if (PUENTE) document.body.classList.add("modo-drenie");
 else if (APP) {
   document.body.classList.add("modo-app");

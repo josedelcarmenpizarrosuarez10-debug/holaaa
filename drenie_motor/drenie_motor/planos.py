@@ -410,8 +410,10 @@ class Planos:
 
 
 def dxf_planos(ruta, R, red, sitio, P, anchos, proyecto, curvas, V, LLt, LLp, secciones_eje, pref="DC", num0=1, techos=None, sums=None,
-               terreno=None, niveles_txt="", tapas=None, estructuras=None, tapa_veh=None, perfil_flujo=None, descarga_alt=None):
-    """PLANOS_CUNETAS.dxf: planta general (num0), cuadros (num0 + 1), perfiles y secciones, con una presentacion por lamina.
+               terreno=None, niveles_txt="", tapas=None, estructuras=None, tapa_veh=None, perfil_flujo=None, descarga_alt=None,
+               ubicacion=None, cerco_xy=None, techos_u=None, cfg_u=None, cod_ubic="U-01"):
+    """PLANOS_CUNETAS.dxf: ubicacion (U-01, si se pudo ubicar el proyecto), planta general (num0), cuadros (num0 + 1), perfiles y secciones,
+    con una presentacion por lamina.
     Devuelve (ruta, [(codigo, titulo)], numero de secciones, marcos de las laminas en el modelo)."""
     from . import planta_lamina as PLT
     doc = B.nuevo_documento(); capas(doc); PLT.capas(doc)
@@ -440,7 +442,12 @@ def dxf_planos(ruta, R, red, sitio, P, anchos, proyecto, curvas, V, LLt, LLp, se
         from . import descarga_alt_dxf as DX
         le.append(DX.lamina(doc, "%s-%02d" % (pref, num0 + 2 + len(lp) + len(ls) + len(lq) + len(ld) + len(le)),
                             xd + len(ld) * (841 * 5 / 1000.0 + 15.0) + 20 + len(le) * (841 * 20 / 1000.0 + 15.0) + 20, 0.0, P, descarga_alt))
-    todas = [l1, l2] + lp + ls + lq + ld + le
+    lu = []
+    if ubicacion and ubicacion.get("ubigeo") and cerco_xy:
+        from . import ubicacion_dxf as UX
+        ancho_u = 841 * UX.escala_local(cerco_xy) / 1000
+        lu = [UX.lamina(doc, cod_ubic, -sep_p - 15 - ancho_u, 0.0, ubicacion, cerco_xy, techos_u, cfg_u)]
+    todas = lu + [l1, l2] + lp + ls + lq + ld + le
     LY.presentaciones(doc, {l.codigo: l for l in todas})
     B.guardar(doc, ruta)
     cajas = [{"codigo": l.codigo, "x0": l.ox, "y0": l.oy, "x1": l.ox + l.W * l.f, "y1": l.oy + l.H * l.f, "esc": l.esc} for l in todas]

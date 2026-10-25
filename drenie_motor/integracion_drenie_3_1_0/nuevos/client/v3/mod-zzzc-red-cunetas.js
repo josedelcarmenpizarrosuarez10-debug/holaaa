@@ -19,6 +19,7 @@ var RC_ICONS = {
   red_plataforma: '<path d="M2 20h28" stroke="#0B2545" stroke-width="1.6"/><rect x="5" y="11" width="22" height="9" fill="#E0F2FE" stroke="#0B6FC0" stroke-width="1.6" stroke-dasharray="3 2"/><path d="M2 27h28" stroke="#0B2545" stroke-width="1.6"/><path d="M16 4v6M13 7l3 3 3-3" stroke="#1EA7F2" stroke-width="1.8"/>',
   red_rampa: '<path d="M3 26L29 12v14z" fill="#FDE68A" stroke="#B45309" stroke-width="1.6"/><path d="M9 19l12-6M18 12l3 1-1 3" stroke="#E08A12" stroke-width="1.8"/>',
   red_escalera: '<path d="M3 28h6v-6h6v-6h6v-6h8" fill="none" stroke="#0B2545" stroke-width="1.8"/><path d="M3 28h26V10" fill="#E2E8F0" stroke="none"/><path d="M3 28h6v-6h6v-6h6v-6h8" fill="none" stroke="#0B2545" stroke-width="1.8"/><path d="M6 6l20 20" stroke="#D61F9A" stroke-width="2"/>',
+  red_ubic: '<rect x="3" y="6" width="26" height="20" rx="2" fill="#E0F2FE" stroke="#0B2545" stroke-width="1.5"/><path d="M3 18l7-5 6 4 6-6 7 5" fill="none" stroke="#16A34A" stroke-width="1.5"/><path d="M16 3a5 5 0 0 0-5 5c0 4 5 9 5 9s5-5 5-9a5 5 0 0 0-5-5z" fill="#E4572E" stroke="#0B2545" stroke-width="1.3"/><circle cx="16" cy="8" r="1.8" fill="#fff"/>',
   red_capas: '<path d="M16 4l12 6-12 6-12-6z" fill="#E0F2FE" stroke="#0B2545" stroke-width="1.5"/><path d="M4 16l12 6 12-6" stroke="#1EA7F2" stroke-width="1.7"/><path d="M4 22l12 6 12-6" stroke="#0B6FC0" stroke-width="1.7"/>'
 };
 // [comando del visor, texto, grupo de la cinta, trazos 16 x 16] (mismos comandos que la línea de comando del visor)
@@ -106,7 +107,9 @@ var RC_API = {
     });
   },
   entregables: function () { return rcMotor('entregables', [RC.proyecto]); },
-  abrir_archivo: function (a) { return rcMotor('abrir', a.nombre ? [RC.proyecto, a.nombre] : [RC.proyecto]); }
+  abrir_archivo: function (a) { return rcMotor('abrir', a.nombre ? [RC.proyecto, a.nombre] : [RC.proyecto]); },
+  ubicacion: function (a) { return rcMotor('ubicacion', [RC.proyecto], a.entrada || {}); },
+  elegir_imagen: function () { return rcElegir('imagen'); }
 };
 window.addEventListener('message', function (e) {
   if (!RC.marco || e.source !== RC.marco.contentWindow || !e.data || e.data.drenie !== 'red') return;
@@ -156,6 +159,7 @@ function v3RedRibbon(props) {
     rbGrp('Cálculo', [rbBig('red_calc', 'Calcular\ntodo', rcNecesita(function () { go(); rcOrden('calcular'); })),
       rbBig('red_sol', 'Soluciones' + (RC.pendientes ? '\n(' + RC.pendientes + ' por decidir)' : '\npropuestas'), rcNecesita(function () { go(); rcOrden('soluciones'); }), { k: 'sol' }),
       rbBig('red_entreg', 'Entregables', rcNecesita(function () { go(); rcOrden('entregables'); })),
+      rbBig('red_ubic', 'Ubicación\n(mapas)', rcNecesita(function () { go(); rcOrden('ubicacion'); }), { k: 'ubi', title: 'Ubicación del proyecto: mapas del Perú, departamento, provincia y local (lámina U-01)' }),
       rbBig('red_pasar', 'Pasar a\nCUNETAS', rcNecesita(rcPasarDrenie), { k: 'pas', title: 'Pasar la red a CUNETAS, MONTANTES y METRADO' })]),
     rbGrp('Normas', [rbBig('red_normas', 'Normas y\nfuentes', function () { RC.verNormas = true; RC.asistente = null; go(); rcAvisar(); }, { on: on && RC.verNormas, k: 'nor' })]),
     rbGrp('Drenaje', [big('cuneta', 'Eje de\ncuneta', 'red_cuneta'), big('montante', 'Montante', 'red_montante'), big('sumidero', 'Sumidero', 'red_sumidero'),

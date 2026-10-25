@@ -72,7 +72,7 @@ async function main() {
     const pestanas = await page.getByRole('tab').allTextContents();
     assert.equal(pestanas[pestanas.indexOf('LLUVIA') + 1], 'RED DE CUNETAS', 'la red va después de LLUVIA: ' + pestanas.join(', '));
     const rib = page.locator('.rb-panel');
-    for (const b of ['Nuevo desde plano DXF', 'Calcular todo', 'Entregables', 'Eje de cuneta', 'Montante', 'Sumidero', 'Descarga', 'Asignar superficie', 'Polilínea', 'Recortar', 'Distancia', 'Plataforma (NPT)', 'Rampa', 'Escalera', 'Normas y fuentes', 'Pasar a CUNETAS'])
+    for (const b of ['Nuevo desde plano DXF', 'Calcular todo', 'Entregables', 'Eje de cuneta', 'Montante', 'Sumidero', 'Descarga', 'Asignar superficie', 'Polilínea', 'Recortar', 'Distancia', 'Plataforma (NPT)', 'Rampa', 'Escalera', 'Normas y fuentes', 'Pasar a CUNETAS', 'Ubicación (mapas)'])
       assert.equal(await rib.getByRole('button', { name: b, exact: true }).count(), 1, 'falta el botón ' + b);
     await page.screenshot({ path: path.join(out, '01_inicio_red.png') });
     await page.getByRole('tab', { name: 'ARCHIVO', exact: true }).click();
@@ -138,6 +138,20 @@ async function main() {
     const n = await marco.locator('table.entreg tr').count(); assert(n > 10, 'pocos entregables: ' + n);
     await page.screenshot({ path: path.join(out, '06_entregables.png') });
     report.checks.push({ name: 'Entregables del cálculo (' + n + ' archivos)', passed: true });
+
+    await rib.getByRole('button', { name: 'Ubicación (mapas)', exact: true }).click();
+    await marco.getByText('Ubicación del proyecto', { exact: true }).waitFor({ timeout: 120000 });
+    assert.equal(await marco.locator('.ubi-mapas img').count(), 4);
+    await marco.locator('#ubBuscar').fill('Morales');
+    await marco.locator('#ubRes button').filter({ hasText: /Morales · San Martín · San Martín/ }).first().click();
+    await marco.locator('#ubT3').fill('Mapa N° 04: Localización del local');
+    await marco.getByRole('button', { name: 'Guardar y redibujar', exact: true }).click();
+    await marco.locator('.ubi-dato b').filter({ hasText: 'Morales' }).waitFor({ timeout: 120000 });
+    const cfgU = JSON.parse(fs.readFileSync(path.join(carpeta, 'proyecto.json'), 'utf8')).ubicacion;
+    assert.equal(cfgU.ubigeo, '220910'); assert.equal(cfgU.titulos[3], 'Mapa N° 04: Localización del local');
+    await page.screenshot({ path: path.join(out, '06b_ubicacion.png') });
+    await marco.getByRole('button', { name: 'Cerrar', exact: true }).click();
+    report.checks.push({ name: 'Editor de Ubicación: 4 mapas, búsqueda del distrito y guardado en el proyecto', passed: true });
     await rib.getByRole('button', { name: 'Pasar a CUNETAS', exact: true }).click();
     await page.getByRole('button', { name: 'Sí, pasar la red', exact: true }).click({ timeout: 120000 });
     await page.getByText(/La red ya está en CUNETAS, MONTANTES y METRADO/).waitFor();

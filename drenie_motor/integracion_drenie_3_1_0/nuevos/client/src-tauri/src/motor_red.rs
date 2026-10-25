@@ -32,6 +32,7 @@ const ORDENES: &[(&str, usize, usize, bool, &str)] = &[
     ("abrir", 1, 2, false, DEMO),
     ("normas", 0, 0, false, DEMO),
     ("para_drenie", 1, 1, false, EXPORTAR),
+    ("ubicacion", 1, 1, true, DEMO),
 ];
 
 fn permiso(app: &tauri::AppHandle, clase: &str) -> Result<(), String> {
@@ -108,6 +109,7 @@ pub async fn motor_elegir(app: tauri::AppHandle, tipo: String) -> Result<Option<
             "landxml" => dialogo.set_title("Superficie del terreno (LandXML) — DrenIE").add_filter("LandXML", &["xml", "zip"]).blocking_pick_file(),
             "proyecto" => dialogo.set_title("Proyecto de red de cunetas — DrenIE").add_filter("Proyecto de red (proyecto.json)", &["json"]).blocking_pick_file(),
             "carpeta" => dialogo.set_title("Carpeta del proyecto — DrenIE").blocking_pick_folder(),
+            "imagen" => dialogo.set_title("Foto aérea del proyecto — DrenIE").add_filter("Imagen (PNG o JPG)", &["png", "jpg", "jpeg"]).blocking_pick_file(),
             _ => return Err("Tipo de archivo no válido.".into()),
         };
         let Some(elegido) = elegido else { return Ok(None) };
@@ -129,8 +131,12 @@ mod tests {
     #[test]
     fn solo_ordenes_conocidas() {
         assert!(ORDENES.iter().all(|o| o.1 <= o.2 && (o.4 == DEMO || o.4 == EXPORTAR)));
-        assert!(ORDENES.iter().filter(|o| o.4 == EXPORTAR).all(|o| o.0 == "disenar" || o.0 == "aplicar"));
+        // con licencia (módulo export): diseñar, aplicar soluciones y pasar la red a CUNETAS / MONTANTES / METRADO
+        assert!(ORDENES.iter().filter(|o| o.4 == EXPORTAR).all(|o| o.0 == "disenar" || o.0 == "aplicar" || o.0 == "para_drenie"));
+        assert!(["disenar", "aplicar", "para_drenie"].iter().all(|n| ORDENES.iter().any(|o| o.0 == *n && o.4 == EXPORTAR)));
         assert!(!ORDENES.iter().any(|o| o.0 == "lluvia" || o.0 == "cmd"));
+        // editor de Ubicación: solo mapas de vista previa, recibe lo editado por la entrada estándar
+        assert!(ORDENES.iter().any(|o| o.0 == "ubicacion" && o.1 == 1 && o.2 == 1 && o.3 && o.4 == DEMO));
         assert!(!argumento_valido("--help") && !argumento_valido("") && argumento_valido("C:\\obra\\proyecto.json"));
     }
 }

@@ -53,7 +53,19 @@ Cómo se usa
 8. «Soluciones»: lo que el programa no pudo resolver solo (por ejemplo, el agua que no sale por
    gravedad o un montante que llega bajo el nivel del agua) aparece con soluciones propuestas.
    Usted elige una en cada observación y pulsa «Calcular con lo elegido».
+   Descargas sin gravedad (CE.040, art. 21): si el agua no sale por gravedad por ningún lado del cerco, el programa no se
+   detiene: diseña la red con cámara de bombeo (dos bombas sumergibles alternadas, niveles de parada, arranque y alarma,
+   impulsión de PVC, altura dinámica y potencia; IS.010 y OS.080) o, si se da el test de percolación y la profundidad de la
+   napa, con pozos de absorción (IS.020: tránsito de la tormenta, vaciado en menos de 24 h, fondo a 2 m sobre la napa).
+   Le dice además cuánto subir el nivel de piso para salir por gravedad, verificado. Todo sale en la lámina de detalle,
+   el metrado, las especificaciones, la memoria de cálculo y la memoria hidrológica. Si el nivel de piso queda más de 3 m
+   por debajo de lo que pide el terreno, el programa le pide revisar el NPT (suele ser un dato de otro plano).
 9. «Entregables»: lista de archivos; cada uno se abre con su programa (Word, Excel, AutoCAD).
+   «Ubicación (mapas)»: el programa ubica solo el proyecto con las coordenadas del plano (departamento, provincia y distrito,
+   límites del INEI) y dibuja 4 mapas: Perú, departamento, provincia y el local (con su foto aérea si la carga, si no las calles de
+   OpenStreetMap cuando hay internet). En esta ventana puede buscar y fijar otro distrito, cambiar la zona UTM, los nombres, los
+   títulos y los colores, y cargar su foto con las coordenadas de sus esquinas. Lo guardado sale al «Calcular todo» en la lámina
+   U-01 (primera del juego de planos) y en la memoria descriptiva.
 10. «Pasar a CUNETAS»: la red calculada pasa a las pestañas de siempre. Cada eje queda como un perfil de cuneta en
    CUNETAS (misma cota de fondo, pendiente, ancho, tramos tapados y vehiculares, caídas como escalón del fondo, y la
    conexión a la cuneta que lo recibe); cada techo queda como un módulo en MONTANTES; las estructuras de caída y los
@@ -84,7 +96,8 @@ red de cunetas (campo redCunetas): al abrirlo, la página vuelve a esa red.
 
 Compilación (Windows x64)
 -------------------------
-Igual que 3.0.2: ejecute PROBAR_Y_COMPILAR.ps1. Ahora, además:
+Paso a paso, con la instalación de las herramientas: COMPILAR_PASO_A_PASO_3_1.txt (y para ChatGPT/Codex:
+INSTRUCCIONES_PARA_CODEX.txt). Igual que 3.0.2: ejecute PROBAR_Y_COMPILAR.ps1. Ahora, además:
 - instala las bibliotecas del motor (motor_red\empaquetar\requisitos_motor.txt);
 - compila el motor protegido y lo prueba (motor_red\empaquetar\construir.py → client\src-tauri\motor-dist): Nuitka
   convierte el código del motor en un módulo binario (C compilado, no se puede leer como Python) y PyInstaller lo empaqueta con

@@ -15,6 +15,7 @@ el motor responde un JSON por la salida estandar. Ordenes (ademas de leer, disen
 Ningun error cierra el programa: __main__ devuelve {"error": mensaje en espanol}.
 """
 import hashlib
+import io
 import json
 import os
 import re
@@ -113,6 +114,69 @@ def datos(ruta, d):
         if nueva != cfg.get("lluvia"): cfg["lluvia"] = nueva; cambios.append("lluvia")
     if cambios: json.dump(cfg, open(ruta, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
     return {"accion": "datos", "cambios": cambios}
+
+
+COLOR_HEX = re.compile(r"^#[0-9A-Fa-f]{6}$")
+
+
+def _ubic_limpia(u):
+    """Lo que el editor de Ubicación puede guardar en el proyecto (cfg["ubicacion"]), revisado."""
+    from . import ubicacion as UBI
+    if not isinstance(u, dict): raise ValueError("Datos de ubicación inválidos.")
+    o = {}
+    if u.get("zona_utm") not in (None, "", 0):
+        z = int(u["zona_utm"])
+        if z not in (17, 18, 19): raise ValueError("La zona UTM del Perú es 17, 18 o 19.")
+        o["zona_utm"] = z
+    if u.get("ubigeo"):
+        ub = str(u["ubigeo"]).strip()
+        if ub not in UBI.limites()["por_u"] or len(ub) != 6: raise ValueError("Ubigeo %s no encontrado en los límites del INEI." % ub)
+        o["ubigeo"] = ub
+    if isinstance(u.get("nombres"), dict):
+        o["nombres"] = {str(k): str(v).strip()[:80] for k, v in u["nombres"].items() if str(v).strip()}
+    if isinstance(u.get("titulos"), list):
+        t = [str(x or "").strip()[:150] for x in u["titulos"][:4]]
+        if any(t): o["titulos"] = t
+    if isinstance(u.get("colores"), dict):
+        o["colores"] = {k: v for k, v in u["colores"].items() if k in ("resaltado", "recuadro", "cerco") and isinstance(v, str) and COLOR_HEX.match(v)}
+    f = u.get("foto")
+    if isinstance(f, dict) and f.get("ruta"):
+        if not os.path.exists(f["ruta"]): raise FileNotFoundError("No se encuentra la foto: %s" % f["ruta"])
+        o["foto"] = {"ruta": f["ruta"], "fuente": str(f.get("fuente") or "").strip()[:120]}
+        for k in ("xmin", "ymin", "xmax", "ymax"): o["foto"][k] = float(f[k])
+        if o["foto"]["xmax"] <= o["foto"]["xmin"] or o["foto"]["ymax"] <= o["foto"]["ymin"]:
+            raise ValueError("Las esquinas de la foto están invertidas: la esquina superior derecha debe tener mayor Este y mayor Norte.")
+    if "osm" in u: o["osm"] = bool(u["osm"])
+    if u.get("codigo_lamina"): o["codigo_lamina"] = str(u["codigo_lamina"]).strip()[:12]
+    return o
+
+
+def ubicacion(ruta, d):
+    """Editor de Ubicación del visor. d: {"buscar": texto} lista distritos; {"guardar": {...}} guarda en el proyecto;
+    {"generar": true} (o junto con guardar) rehace los 4 mapas con lo guardado y los devuelve como imágenes de vista previa."""
+    from . import ubicacion as UBI
+    import base64
+    cfg, base, sal = _cargar(ruta)
+    d = d if isinstance(d, dict) else {}
+    if d.get("buscar") is not None:
+        return {"accion": "ubicacion", "distritos": UBI.buscar(d["buscar"])}
+    guardado = False
+    if "guardar" in d:
+        nueva = _ubic_limpia(d["guardar"])
+        if nueva != (cfg.get("ubicacion") or {}):
+            if nueva: cfg["ubicacion"] = nueva
+            else: cfg.pop("ubicacion", None)
+            json.dump(cfg, open(ruta, "w", encoding="utf-8"), indent=1, ensure_ascii=False); guardado = True
+    cerco, techos = UBI.leer_sitio(sal)
+    if cerco is None: raise ValueError("Primero lea el plano del proyecto (el visor lo hace al abrirlo) para ubicar el cerco.")
+    U = UBI.generar(sal, cerco, techos, cfg) if (d.get("generar", True)) else UBI.ubicar(cerco, cfg.get("ubicacion"), "")
+    imgs = []
+    for r in U.get("mapas") or []:
+        from PIL import Image
+        im = Image.open(r).convert("RGB"); im.thumbnail((640, 640))
+        b = io.BytesIO(); im.save(b, "JPEG", quality=82)
+        imgs.append("data:image/jpeg;base64," + base64.b64encode(b.getvalue()).decode())
+    return {"accion": "ubicacion", "guardado": guardado, "config": cfg.get("ubicacion") or {}, "ubicacion": UBI.resumen(U), "imagenes": imgs}
 
 
 def _cargar(ruta):

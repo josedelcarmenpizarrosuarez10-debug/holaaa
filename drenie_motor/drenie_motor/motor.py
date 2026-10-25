@@ -10,7 +10,7 @@ import json
 import os
 import time
 
-from . import estructuras, tapa_vehicular, lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos, techo, sumideros, metrado, planta_lamina, memorias, especificaciones, revision, render, memoria_calculo, caratulas, planteamiento, soluciones, perfil_flujo, swmm, hietograma, descarga_alternativa
+from . import estructuras, tapa_vehicular, lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos, techo, sumideros, metrado, planta_lamina, memorias, especificaciones, revision, render, memoria_calculo, caratulas, planteamiento, soluciones, perfil_flujo, swmm, hietograma, descarga_alternativa, ubicacion
 from .parametros import combinar
 
 VERSION = "0.1.0"
@@ -106,6 +106,8 @@ def leer(cfg_ruta):
     mont = [{"x": c[0], "y": c[1], "V": V, "u": h, "n": l["nrm"]} for l in lados_t for (c, V, h) in l["pos"]]
     sums, _ = sumideros.proponer(M, ejes, P, float(LL.get("I_mmh") or 0) or verificacion.intensidad(LL)[0], cfg)
     esc = escena.escribir(os.path.join(salida, "escena.json"), B, S, M, ejes, cur, cfg.get("proyecto", {}), getattr(S, "aguas", []), mont, sums)
+    try: ubicacion.guardar_sitio(salida, list(S.cerco.exterior.coords)[:-1], [S.techos])     # para el editor de Ubicación del visor
+    except Exception: pass
     out = {"accion": "leer", "version": VERSION, "escena": esc, "dxf": B["resumen"], "capas": lector_dxf.capas_disponibles(B), "terreno": rep_t,
            "cerco": {"area_m2": round(S.cerco.area, 1), "perimetro_m": round(S.cerco.length, 1),
                      "vertices": [[round(x, 3), round(y, 3)] for x, y in list(S.cerco.exterior.coords)[:-1]]},
@@ -323,11 +325,17 @@ def disenar(cfg_ruta):
                             **({"rebalses": len(SW["simulacion"]["rebalses"]), "volumen_rebalse_m3": SW["simulacion"]["volumen_rebalse_m3"],
                                 "Q_pico_ls": {d["D"]: d["Q_max_ls"] for d in SW["simulacion"]["descargas"]}} if SW.get("simulacion") else {}))}
     proyecto = cfg.get("proyecto", {})
+    # ubicacion del proyecto (departamento, provincia, distrito) y sus 4 mapas: U-01, memoria descriptiva y visor
+    cerco_xy = [tuple(p) for p in list(S.cerco.exterior.coords)[:-1]]
+    try: ubicacion.guardar_sitio(salida, cerco_xy, [S.techos]); UB = ubicacion.generar(salida, cerco_xy, [S.techos], cfg)
+    except Exception as e: UB = {"ubigeo": "", "mapas": [], "avisos": ["No se pudieron armar los mapas de ubicación (%s)." % type(e).__name__]}
     dxf = salidas.dxf_planta(os.path.join(salida, "PLANTA_RED_CUNETAS.dxf"), C, R, S, cur, P, proyecto, anchos, LLp)
     pl = cfg.get("planos", {})
     dxf_pf, laminas, n_sec, marcos = planos.dxf_planos(os.path.join(salida, "PLANOS_CUNETAS.dxf"), C, R, S, P, anchos, proyecto, cur, V, LLt, LLp,
                                                list(secciones.values()), pl.get("prefijo", "DC"), pl.get("inicio", 1), TT, SM,
-                                                       T, _niveles_txt(cfg), tapas_i, estructuras=ES, tapa_veh=TV, perfil_flujo=PF, descarga_alt=DA)
+                                                       T, _niveles_txt(cfg), tapas_i, estructuras=ES, tapa_veh=TV, perfil_flujo=PF, descarga_alt=DA,
+                                                       ubicacion=UB, cerco_xy=cerco_xy, techos_u=[S.techos], cfg_u=cfg.get("ubicacion"),
+                                                       cod_ubic=(cfg.get("ubicacion") or {}).get("codigo_lamina", "U-01"))
     png = salidas.png_planta(os.path.join(salida, "PLANTA_RED_CUNETAS.png"), C, R, S, cur, ejes,
                              "%s - red de cunetas: %d ejes, %d descargas, %.1f m (%.1f m de uniones nuevas)" % (
                                  proyecto.get("nombre_corto", ""), resumen["ejes"], resumen["descargas"], Ltot, nuevas))
@@ -353,6 +361,7 @@ def disenar(cfg_ruta):
     ctx = memorias.Contexto(cfg, P, Rh, LL, V, C, R, list(secciones.values()), TT, SM, LLt, lams, metas, rep_t, M.cuadro(), fig)
     ctx.plan = plan_inf
     ctx.ES, ctx.TV, ctx.PF, ctx.SW, ctx.DA = ES, TV, PF, SW, DA
+    ctx.UB = UB
     ctx.hmax = max((x["h_max"] for x in q_m), default=ctx.hmax)       # una sola cifra en todos los documentos (la del metrado)
     doc_h, doc_d = memorias.escribir(salida, ctx)
     doc_e = especificaciones.construir(os.path.join(salida, "ESPECIFICACIONES_TECNICAS_DRENAJE_PLUVIAL.docx"), partidas, P, cfg, q_m, V, lams, TT, SM, LLt,
@@ -369,7 +378,7 @@ def disenar(cfg_ruta):
                    [t["techo"] for t in plan_inf if t.get("decision") == "sin solucion automatica"], remanso=perfil_flujo.limitado(PF, C, V, P))
     out = {"accion": "disenar", "version": VERSION, "proyecto": proyecto, "resumen": resumen, "parametros": P,
            "mapa_superficies": M.cuadro(),
-           "terreno": rep_t, "avisos": S.avisos + M.avisos + R.avisos + TT["avisos"] + SM["avisos"] + ES["avisos"] + plan_av + (
+           "terreno": rep_t, "avisos": S.avisos + M.avisos + R.avisos + TT["avisos"] + SM["avisos"] + ES["avisos"] + plan_av + UB.get("avisos", []) + (
                ["SALIDA POR GRAVEDAD (%s). Solucion: %s." % (nivel[1], nivel[2])] if nivel[0] > 0 else []),
            "solucion_nivel": {"subir_npt_m": nivel[0], "detalle": nivel[1], "solucion": nivel[2], "verificado": nivel[3]} if nivel[0] > 0 else None,
            "planteamiento": {"modo": modo_pl, "lineas_nuevas": lineas_pl, "longitud_nueva_m": round(sum(geom.dist(a, b) for l in lineas_pl for a, b in zip(l[:-1], l[1:])), 2), "techos": plan_inf}, "chaflanes": R.chaflanes_hechos, "red": C,
@@ -381,14 +390,14 @@ def disenar(cfg_ruta):
            "profundidad_minima_por_capacidad": hq, "archivos": {"dxf": dxf, "png": png, "dimensionamiento": xls, "canaletas_montantes_y_sumideros": xls_t, "metrado": xls_m, "planos": dxf_pf,
                                                  "memoria_hidrologica": doc_h, "memoria_descriptiva": doc_d, "especificaciones": doc_e,
                                                  "revision": rev[0], "png_laminas": pngs, "memoria_calculo": xls_mc, "indice_planos": doc_i, "caratulas": doc_c, "swmm": SW["archivo"]},
-           "revision": rev[1],
+           "revision": rev[1], "ubicacion": ubicacion.resumen(UB),
            "metrado_resumen": metas,
            "laminas": [dict(codigo=c, titulo=t, marco=[round(m["x0"], 3), round(m["y0"], 3), round(m["x1"], 3), round(m["y1"], 3)], escala="1/%d" % m["esc"])
                        for (c, t), m in zip(laminas, marcos)], "secciones_dibujadas": n_sec, "segundos": round(time.time() - t0, 1),
            "requiere_confirmacion": ["descargas"] if not cfg.get("descargas") else []}
     # observaciones y soluciones propuestas (ventana de soluciones del visor y hoja SOLUCIONES de la revision)
     out["observaciones"] = soluciones.armar(cfg, nivel, plan_inf, TT, SM, V, S.avisos + M.avisos + R.avisos + TT["avisos"] + SM["avisos"],
-                                            rev[1], R, S, elegidas, da=DA, sin_gravedad=sin_gravedad)
+                                            rev[1], R, S, elegidas, da=DA, sin_gravedad=sin_gravedad, ub=UB)
     out["resumen"]["observaciones_pendientes"] = sum(1 for o in out["observaciones"] if o["estado"] == "pendiente")
     soluciones.hoja_excel(rev[0], out["observaciones"])
     json.dump(out, open(os.path.join(salida, "resultado.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
@@ -405,6 +414,8 @@ def _visor(salida, B, S, M, ejes, cur, cfg, TT, SM):
     mont = [{"x": m["x"], "y": m["y"], "V": m["esquina"], "u": m["a_lo_largo"], "n": m["hacia_alero"]} for m in TT["montantes"]]
     sums = [{"x": x["x"], "y": x["y"], "zona": x.get("zona"), "A_m2": x.get("A_m2")} for x in SM["sumideros"]]
     esc = escena.escribir(os.path.join(salida, "escena.json"), B, S, M, ejes, cur, cfg.get("proyecto", {}), getattr(S, "aguas", []), mont, sums)
+    try: ubicacion.guardar_sitio(salida, list(S.cerco.exterior.coords)[:-1], [S.techos])     # para el editor de Ubicación del visor
+    except Exception: pass
     from .visor_html import armar
     return armar(esc, os.path.join(salida, "VISOR_DRENIE.html"), os.path.join(salida, "resultado.json"))
 

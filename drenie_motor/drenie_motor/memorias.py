@@ -74,16 +74,30 @@ class Contexto:
         return ("una descarga (%s)" % D[0]) if len(D) == 1 else "%d descargas (%s)" % (len(D), ", ".join(D))
 
 
-def _ubicacion(Dc, c):
+def _ubicacion(Dc, c, mapas=False):
     pr, mem = c.pr, c.mem
-    filas = [[k, mem[k2]] for k, k2 in (("Departamento", "departamento"), ("Provincia", "provincia"), ("Distrito", "distrito"), ("Localidad", "localidad"),
-                                         ("Predio", "predio"), ("Colindancias", "colindancias"), ("Acceso", "acceso")) if mem.get(k2)]
+    UB = getattr(c, "UB", None) or {}
+    # departamento, provincia y distrito: los de la memoria y, si faltan, los de la ubicación automática (límites del INEI)
+    dato = lambda k: mem.get(k) or (UB.get(k) if UB.get("ubigeo") else None)
+    filas = [[k, dato(k2)] for k, k2 in (("Departamento", "departamento"), ("Provincia", "provincia"), ("Distrito", "distrito"), ("Localidad", "localidad"),
+                                         ("Predio", "predio"), ("Colindancias", "colindancias"), ("Acceso", "acceso")) if dato(k2)]
     if pr.get("ubicacion") and not filas: filas.append(["Ubicación", pr["ubicacion"]])
+    if UB.get("ubigeo"): filas.append(["Ubigeo (INEI)", UB["ubigeo"]])
+    if UB.get("georef"):
+        filas.append(["Coordenadas UTM (WGS 84, zona %dS)" % UB["zona"], "E %s m - N %s m" % (mil(UB["este"], 1), mil(UB["norte"], 1))])
+        filas.append(["Latitud / longitud", "%.5f° / %.5f°" % (UB["lat"], UB["lon"])])
     filas.append(["Área de intervención (dentro del cerco)", "%s m²" % mil(c.mapa.get("area_total_m2") or c.hv["A_total"], 0)])
     if c.npt is not None: filas.append(["Nivel de piso terminado (NPT)", "+%.2f m s. n. m." % c.npt])
     if c.rep_t.get("z_min") is not None:
         filas.append(["Terreno (curvas de nivel leídas)", "de %.2f a %.2f m s. n. m." % (c.rep_t["z_min"], c.rep_t["z_max"])])
     Dc.tabla("Ubicación del proyecto", ["Descripción", "Dato"], filas, [5.5, 10])
+    if mapas and len(UB.get("mapas") or []) == 4:
+        Dc.p("La ubicación del proyecto se muestra en los mapas siguientes: el Perú con el departamento, el departamento con la provincia, la provincia "
+             "con el distrito y el área del proyecto dentro del distrito.")
+        fte = "Límites políticos referenciales: %s." % UB.get("fuente_limites", "INEI")
+        if UB.get("fondo_local") == "foto": fte += " Mapa 4: fotografía aérea del proyecto."
+        elif UB.get("fondo_local") == "osm": fte += " Mapa 4: © colaboradores de OpenStreetMap."
+        Dc.cuadro_figuras(UB["mapas"], [""] * 4, "Mapas de ubicación del proyecto", fte)
 
 
 # ============================================================================== MEMORIA HIDROLOGICA
@@ -416,7 +430,7 @@ def descriptiva(D, c):
     D.p("Captar y conducir por gravedad las aguas de lluvia de techos, veredas, patios y áreas libres hasta el terreno natural exterior, evitando "
         "empozamientos, el ingreso de agua a los ambientes y el deterioro de pisos y estructuras.")
     D.h(1, "Ubicación")
-    _ubicacion(D, c)
+    _ubicacion(D, c, mapas=True)
     D.h(1, "Características del terreno")
     t = []
     if c.rep_t.get("z_min") is not None:

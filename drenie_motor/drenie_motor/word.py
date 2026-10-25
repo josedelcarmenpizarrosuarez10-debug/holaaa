@@ -219,6 +219,27 @@ class Doc:
         if fuente:
             r = par.add_run("\nFuente: " + fuente); r.italic = True; r.font.size = Pt(8)
 
+    def cuadro_figuras(self, rutas, subtitulos, titulo, fuente=None, ancho=15.5, cols=2):
+        """Varias imágenes en un cuadro de cols columnas (sin bordes), cada una con su subtítulo; una sola leyenda de figura."""
+        rutas = [(r, t) for r, t in zip(rutas, subtitulos) if r and os.path.exists(r)]
+        if not rutas: return
+        self.nf += 1
+        filas = (len(rutas) + cols - 1) // cols
+        t = self.d.add_table(rows=filas, cols=cols); t.alignment = WD_TABLE_ALIGNMENT.CENTER
+        w = ancho / cols - 0.3
+        for k, (r, sub) in enumerate(rutas):
+            cc = t.rows[k // cols].cells[k % cols]; cc.width = Cm(ancho / cols); cc.text = ""
+            par = cc.paragraphs[0]; par.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            if sub:
+                par.paragraph_format.keep_with_next = True
+                rr = par.add_run(sub); rr.bold = True; rr.font.size = Pt(8)
+                par = cc.add_paragraph(); par.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            par.add_run().add_picture(r, width=Cm(w))
+        par = self.d.add_paragraph(); par.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        r = par.add_run("Figura N° %02d. %s" % (self.nf, titulo)); r.bold = True; r.font.size = Pt(9)
+        if fuente:
+            r = par.add_run("\nFuente: " + fuente); r.italic = True; r.font.size = Pt(8)
+
     def guardar(self, ruta):
         cp = self.d.core_properties
         for k in ("author", "last_modified_by", "comments", "title", "subject", "keywords", "category"): setattr(cp, k, "")

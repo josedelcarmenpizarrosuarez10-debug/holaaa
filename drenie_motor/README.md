@@ -296,3 +296,35 @@ Salidas: lámina de detalle (corte y planta de cada pozo, corte de cada cámara,
 especificaciones, hoja DESCARGA SIN GRAVEDAD (con fórmulas) en la memoria de cálculo, capítulo en la memoria hidrológica y
 `descargas_sin_gravedad` en `resultado.json`. En SWMM el pozo o la cámara se representan como descarga libre (el diseño de los pozos y de
 la cámara se hace aparte con el hidrograma de la tormenta). La batería de pruebas corre además una copia de S02 con pozos de absorción.
+
+## Mapas de ubicación y lámina U-01 (`ubicacion.py`, `ubicacion_dxf.py`)
+
+Con el cerco del plano el motor ubica el proyecto solo: pasa el centro del cerco de UTM WGS 84 a latitud y longitud (prueba las zonas
+17S, 18S y 19S y se queda con la que cae dentro de un distrito; si caben varias, decide por el nombre del distrito escrito en el proyecto
+y deja la observación «Confirmar la zona UTM del plano») y busca el distrito, la provincia y el departamento en los límites del INEI
+(`limites_peru.json`: 25 departamentos, 197 provincias y 1 826 distritos; países vecinos de Natural Earth). Si el plano no está en UTM
+se usa el distrito escrito en el proyecto o el elegido en el editor.
+
+Salidas en «Calcular todo»:
+- `mapas_ubicacion/MAPA_01_PERU.png` a `MAPA_04_LOCAL.png`: Perú con el departamento, departamento con la provincia, provincia con el
+  distrito y el local. El mapa 4 lleva de fondo la foto aérea del proyecto (si se dio, con sus esquinas en UTM), si no las calles de
+  OpenStreetMap (con internet; quedan en caché en `_mapas_osm`), si no el plano del sitio.
+- Lámina U-01 (primera del juego `PLANOS_CUNETAS.dxf`): los tres mapas, la localización a escala (la escala se elige para que el cerco
+  entre en su marco) con la cuadrícula UTM verdadera, datos de ubicación, coordenadas de los vértices del cerco y notas.
+- Memoria descriptiva: cuadro de ubicación con ubigeo, coordenadas UTM y geográficas, y los 4 mapas en un cuadro de 2 × 2.
+- `ubicacion` en `resultado.json`.
+
+Lo que se puede cambiar (editor de Ubicación del visor, orden `ubicacion`, o a mano en el proyecto):
+
+```json
+"ubicacion": {"zona_utm": 18, "ubigeo": "220910", "nombres": {"220910": "Morales"},
+              "titulos": ["", "", "", "Mapa N° 04: Localización del local"],
+              "colores": {"resaltado": "#E4572E", "recuadro": "#D90429", "cerco": "#FFD60A"},
+              "foto": {"ruta": "C:/obra/foto.jpg", "fuente": "Google Earth, 2026", "xmin": 353900, "ymin": 9279892, "xmax": 354218, "ymax": 9280210},
+              "osm": true, "codigo_lamina": "U-01"}
+```
+
+El distrito elegido en el editor (`ubigeo`) manda sobre las coordenadas (queda un aviso si no coinciden). Orden de escritorio:
+`python -m drenie_motor ubicacion proyecto.json` con JSON por la entrada: `{"buscar": "Morales"}` lista distritos; `{"guardar": {...}}`
+guarda lo editado y rehace los 4 mapas (vista previa en JPEG dentro de la respuesta). Para rearmar los límites con un shapefile más
+reciente del INEI: `python herramientas_mapas/armar_limites.py departamentos.shp provincias.shp distritos.shp paises.shp --fuente "..."`.

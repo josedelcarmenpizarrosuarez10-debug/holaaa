@@ -28,7 +28,7 @@ NPT_LEJOS_M = 3.0     # subir mas que esto el nivel de piso no es practico: se p
 
 
 def armar(cfg, nivel=None, plan_inf=(), TT=None, SM=None, V=None, avisos=(), revision=None, R=None, S=None, elegidas=None, da=None,
-          sin_gravedad=None):
+          sin_gravedad=None, ub=None):
     """Lista de observaciones del calculo. elegidas: {obs: {"opcion", "tipo"}} que el proyectista ya eligio en el visor."""
     out = []
     npt = (cfg.get("niveles") or {}).get("npt")
@@ -42,6 +42,23 @@ def armar(cfg, nivel=None, plan_inf=(), TT=None, SM=None, V=None, avisos=(), rev
                         [{"id": "A", "tipo": "manual", "texto": "Corregir el NPT", "efecto": "Asistente del proyecto: ingrese el nivel de piso en la misma referencia que las curvas del plano."},
                          {"id": "B", "tipo": "confirmar", "texto": "El NPT está bien", "efecto": "Se deja así; la red se diseña sin gravedad donde haga falta.", "cambio": {"confirmar": True}}],
                         recomendada="A"))
+    # ---------------------------------------------------------------- ubicacion del proyecto (mapas y lamina U-01)
+    if ub is not None:
+        cands = ub.get("candidatos") or []
+        if not ub.get("ubigeo"):
+            out.append(_obs("ubicacion", "revisar", "No se pudo ubicar el distrito del proyecto",
+                            "Sin distrito no salen la lámina %s ni los mapas de ubicación de la memoria descriptiva." % (cfg.get("ubicacion") or {}).get("codigo_lamina", "U-01"),
+                            " ".join(ub.get("avisos") or []) or "El plano no tiene coordenadas UTM y el nombre del distrito no aparece en los datos del proyecto.", None,
+                            [{"id": "A", "tipo": "manual", "texto": "Elegir el distrito", "efecto": "Editor de Ubicación del visor: busque el distrito o escriba su ubigeo del INEI."},
+                             MANUAL], recomendada="A"))
+        elif ub.get("automatica") and len(cands) > 1:
+            ops = [{"id": chr(65 + i), "tipo": "automatica", "texto": "Zona %dS: %s" % (c["zona"], c["distrito"]),
+                    "efecto": "Ubica el proyecto con la zona UTM %dS (ubigeo %s)." % (c["zona"], c["ubigeo"]),
+                    "cambio": {"ubicacion": {"zona_utm": c["zona"]}}} for i, c in enumerate(cands)]
+            elegida = next((o["id"] for o, c in zip(ops, cands) if c["ubigeo"] == ub.get("ubigeo")), "A")
+            out.append(_obs("ubicacion", "confirmar", "Confirmar la zona UTM del plano",
+                            "Las coordenadas del plano caen en un distrito en más de una zona UTM; se tomó la zona %sS (%s)." % (ub.get("zona"), ub.get("distrito")),
+                            "Las zonas 17S, 18S y 19S usan los mismos números de coordenadas: el plano no dice en cuál está.", None, ops, recomendada=elegida))
     # ---------------------------------------------------------------- salida por gravedad
     if nivel and nivel[0] > 0:
         ops = []
@@ -216,6 +233,7 @@ def aplicar_en_cfg(cfg, soluciones):
                 if isinstance(nv.get(k), (int, float)): nv[k] = round(nv[k] + dz, 3)
             for z in nv.get("zonas", []):
                 if isinstance(z.get("nivel"), (int, float)): z["nivel"] = round(z["nivel"] + dz, 3)
+        if c.get("ubicacion"): cfg["ubicacion"] = dict(cfg.get("ubicacion") or {}, **c["ubicacion"])
         if c.get("quitar_descargas_fijas"): cfg.pop("descargas", None)
         if "descarga_alternativa" in c:
             da = dict(cfg.get("descarga_alternativa") or {}, **c["descarga_alternativa"])

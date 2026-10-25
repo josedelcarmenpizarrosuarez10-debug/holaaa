@@ -4,3 +4,5 @@ __pycache__/
 entregables/_tmp/
 herramientas/especificaciones/_json/
 herramientas/render_tapa/*.png
+drenie_motor/empaquetar/build/
+drenie_motor/empaquetar/dist/
