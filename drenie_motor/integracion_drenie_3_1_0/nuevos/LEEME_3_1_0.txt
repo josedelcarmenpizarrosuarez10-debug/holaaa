@@ -45,6 +45,11 @@ Cómo se usa
    siempre tapada, con losa vehicular para el camión HL-93. Todo sale en planos, metrado, memorias y especificaciones.
    El botón «Normas y fuentes» muestra de dónde sale cada valor (norma, referencia o criterio) y si ya se verificó.
 7. «Calcular todo»: diseña la red y genera los entregables en la carpeta «salida» del proyecto.
+   Además del tirante normal de cada tramo, el programa calcula el nivel del agua real de cada eje (perfil de flujo por el
+   método del paso estándar, con los remansos en las uniones, las caídas y los resaltos) y, si el remanso no deja el borde libre,
+   profundiza el camino hasta la descarga. La línea de agua sale en los perfiles longitudinales. La red también se exporta a
+   EPA SWMM 5 (RED_CUNETAS_SWMM.inp) y se simula con su motor con el hietograma de bloques alternos de la curva IDF: caudal pico
+   en cada descarga y puntos que rebalsan, en la memoria hidrológica. El archivo .inp se abre en SWMM (gratuito, de la EPA).
 8. «Soluciones»: lo que el programa no pudo resolver solo (por ejemplo, el agua que no sale por
    gravedad o un montante que llega bajo el nivel del agua) aparece con soluciones propuestas.
    Usted elige una en cada observación y pulsa «Calcular con lo elegido».
@@ -81,7 +86,10 @@ Compilación (Windows x64)
 -------------------------
 Igual que 3.0.2: ejecute PROBAR_Y_COMPILAR.ps1. Ahora, además:
 - instala las bibliotecas del motor (motor_red\empaquetar\requisitos_motor.txt);
-- compila el motor con PyInstaller y lo prueba (motor_red\empaquetar\construir.py → client\src-tauri\motor-dist);
+- compila el motor protegido y lo prueba (motor_red\empaquetar\construir.py → client\src-tauri\motor-dist): Nuitka
+  convierte el código del motor en un módulo binario (C compilado, no se puede leer como Python) y PyInstaller lo empaqueta con
+  sus bibliotecas; se comprueba que no quede código del motor legible. La primera vez Nuitka puede descargar su compilador
+  (MinGW64) si la PC no tiene Visual Studio: acepte la descarga;
 - lo incluye en el instalador como recurso (carpeta «motor» junto a DrenIE.exe).
 
 El motor solo trabaja cuando lo llama DrenIE: cada llamada lleva una ficha de sesión firmada.
@@ -90,6 +98,24 @@ y splash.html.
 
 El motor no necesita LibreOffice. Si está instalado, lo usa para recalcular las fórmulas del
 metrado; si no, usa su calculador interno, que da los mismos totales.
+
+Actualizaciones automáticas firmadas
+------------------------------------
+DrenIE busca una versión nueva al abrirse (una vez al día) y con «Buscar actualización» (ARCHIVO y CONFIGURACIÓN). Solo
+instala un instalador firmado con la clave del propietario; un archivo cambiado o firmado con otra clave se rechaza. La
+licencia se conserva al actualizar.
+Una sola vez, en su PC:
+  1. Cree en GitHub un repositorio PÚBLICO solo para los instaladores (por ejemplo drenie-actualizaciones).
+  2. powershell -ExecutionPolicy Bypass -File GENERAR_CLAVE_ACTUALIZACIONES.ps1 -Repositorio usuario/drenie-actualizaciones
+     Pide una contraseña. La clave privada queda en %USERPROFILE%\DrenIE_Actualizaciones_PRIVADO: guarde una copia en una USB;
+     si se pierde, las copias instaladas ya no aceptan actualizaciones. La clave pública queda en tauri.conf.json.
+Cada versión nueva (suba antes la versión en tauri.conf.json, package.json y Cargo.toml):
+  3. PROBAR_Y_COMPILAR.ps1: con la clave presente pide la contraseña y deja el instalador con su firma (.sig).
+  4. powershell -ExecutionPolicy Bypass -File PUBLICAR_ACTUALIZACION.ps1 -Repositorio usuario/drenie-actualizaciones -Notas "Qué cambió"
+     (necesita el programa gh de GitHub con la sesión iniciada: gh auth login).
+Las copias instaladas antes de configurar la clave no buscan actualizaciones: esas se actualizan una vez a mano.
+La firma de las actualizaciones es independiente del certificado de firma de código de Windows (que se compra aparte):
+sin ese certificado, Windows SmartScreen puede advertir al instalar por primera vez.
 
 Pruebas
 -------
@@ -104,6 +130,10 @@ Nuevos:
 - client\src-tauri\src\motor_red.rs          órdenes nativas motor_red y motor_elegir
 - motor_red\                                 código del motor, visor, empaquetado y plano de prueba
 - tests\red_cunetas_ui.cjs                   prueba de la página en Chromium
+- client\v3\mod-zzzd-actualizaciones.js      buscar e instalar actualizaciones firmadas
+- client\src-tauri\src\actualizaciones.rs     órdenes nativas buscar_actualizacion e instalar_actualizacion
+- client\src-tauri\tauri.actualizaciones.conf.json   paquete de actualización firmado al compilar
+- GENERAR_CLAVE_ACTUALIZACIONES.ps1 y PUBLICAR_ACTUALIZACION.ps1
 
 Cambiados:
 - client\v3\mod-ribbon.js                    pestaña y cinta
@@ -113,6 +143,7 @@ Cambiados:
 - client\src-tauri\src\main.rs               registro de las órdenes
 - client\src-tauri\src\integrity.rs          visor-red.html en la comprobación de integridad
 - client\src-tauri\build.rs                  visor-red.html en la comprobación de integridad
-- client\src-tauri\tauri.conf.json           versión y recurso del motor
+- client\src-tauri\tauri.conf.json           versión, recurso del motor y actualizaciones (plugins.updater)
+- client\src-tauri\Cargo.toml                tauri-plugin-updater (TLS de Windows)
 - versiones 3.1.0                            package.json, Cargo.toml, Cargo.lock, app-v3.js, pruebas
-- PROBAR_Y_COMPILAR.ps1                      pasos del motor
+- PROBAR_Y_COMPILAR.ps1                      pasos del motor y firma de la actualización y firma de la actualización

@@ -47,6 +47,7 @@ async function main() {
         if (cmd === 'license_status') return { full: true, kind: 'owner', modules: ['calculate', 'projects', 'import', 'assistant', 'reports', 'export'], holder: 'Prueba', machine: 'TEST', demo_active: false };
         if (cmd === 'motor_red') { const r = await fetch('/__motor', { method: 'POST', body: JSON.stringify(args) }); return r.text(); }
         if (cmd === 'motor_elegir') return args.tipo === 'dxf' ? plano : args.tipo === 'carpeta' ? carpeta : null;
+        if (cmd === 'buscar_actualizacion') return { disponible: false, version: '3.1.0', actual: '3.1.0', notas: '', fecha: '' };
         return null;
       } } };
     }, [plano, carpeta]);
@@ -73,6 +74,12 @@ async function main() {
     for (const b of ['Nuevo desde plano DXF', 'Calcular todo', 'Entregables', 'Eje de cuneta', 'Montante', 'Sumidero', 'Descarga', 'Asignar superficie', 'Polilínea', 'Recortar', 'Distancia', 'Plataforma (NPT)', 'Rampa', 'Escalera', 'Normas y fuentes', 'Pasar a CUNETAS'])
       assert.equal(await rib.getByRole('button', { name: b, exact: true }).count(), 1, 'falta el botón ' + b);
     await page.screenshot({ path: path.join(out, '01_inicio_red.png') });
+    await page.getByRole('tab', { name: 'ARCHIVO', exact: true }).click();
+    await page.locator('.rb-panel').getByRole('button', { name: 'Buscar actualización', exact: true }).click();
+    await page.getByText(/Ya tiene la última versión de DrenIE \(3\.1\.0\)/).waitFor();
+    await page.getByRole('button', { name: 'Entendido', exact: true }).click();
+    report.checks.push({ name: 'Botón Buscar actualización (orden nativa simulada)', passed: true });
+    await page.getByRole('tab', { name: 'RED DE CUNETAS', exact: true }).click();
     report.checks.push({ name: 'Pestaña RED DE CUNETAS con su cinta de iconos y su página', passed: true });
 
     await rib.getByRole('button', { name: 'Normas y fuentes', exact: true }).click();
