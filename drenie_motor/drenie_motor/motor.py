@@ -10,7 +10,7 @@ import json
 import os
 import time
 
-from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos, techo, sumideros, metrado, planta_lamina, memorias, especificaciones, revision, render, memoria_calculo, caratulas
+from . import lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos, techo, sumideros, metrado, planta_lamina, memorias, especificaciones, revision, render, memoria_calculo, caratulas, planteamiento
 from .parametros import combinar
 
 VERSION = "0.1.0"
@@ -137,8 +137,13 @@ def disenar(cfg_ruta):
     cfg, base, salida = _cargar(cfg_ruta)
     t0 = time.time()
     P, B, cur, rep_t, T, S, ejes = _preparar(cfg, base, salida)
-    if not ejes: raise ValueError("No hay lineas de cuneta del usuario (capas.ejes o ejes_lineas)")
     LL, Rh = _lluvia_diseno(cfg, base)
+    # planteamiento de cunetas para edificaciones y losa deportiva: cada montante debe tener una cuneta a su alcance (planteamiento.py)
+    modo_pl = cfg.get("planteamiento", "completar")
+    lineas_pl, plan_inf, plan_av = planteamiento.proponer(S, P, float(LL.get("I_mmh") or 0) or verificacion.intensidad(LL)[0], cfg, ejes)
+    if modo_pl == "automatico": ejes = []
+    ejes = ejes + lineas_pl
+    if not ejes: raise ValueError("No hay lineas de cuneta del usuario (capas.ejes o ejes_lineas) ni techos para plantearlas")
     # ancho libre adoptado por el proyectista: hoja DIMENSIONAMIENTO llenada, o {"EJE-01": 0.45} en el proyecto
     adop = {}
     if cfg.get("dimensionamiento_adoptado"): adop.update(dimensionamiento.leer_adoptado(_ruta(base, cfg["dimensionamiento_adoptado"])))
@@ -170,12 +175,21 @@ def disenar(cfg_ruta):
     TT = techo.calcular(S, C, P, V["hidrologia"]["I"], cfg, set(R.descargas), V)
     SM = sumideros.calcular(M, S, C, P, V["hidrologia"]["I"], cfg, set(R.descargas), V)
     # ninguna tuberia (de sumidero o de montante) llega bajo el agua de la cuneta (+5 cm): se profundiza el tramo que la recibe, sin
-    # pasar de 0.80 m en la llegada, y se recalcula (llegada.py)
+    # pasar de la profundidad maxima objetivo (1.00 m) en la llegada, y se recalcula (llegada.py)
     for _ in range(3):
         bajo = [x for x in SM["sumideros"] + [m for m in TT["montantes"] if m.get("llega")]
-                if x["llega"] != "SOBRE EL AGUA" and x.get("tramo") and x["h_req_cuneta"] <= P.get("h_llegada_max", 0.80)]
+                if x["llega"] != "SOBRE EL AGUA" and x.get("tramo") and x["h_req_cuneta"] <= P.get("h_llegada_max", P["prof_max_objetivo"])]
         if not bajo: break
-        for x in bajo: hq[x["tramo"]] = round(max(hq.get(x["tramo"], P["hmin"]), x["h_req_cuneta"]), 3)
+        for x in bajo:
+            hq[x["tramo"]] = round(max(hq.get(x["tramo"], P["hmin"]), x["h_req_cuneta"]), 3)
+            # los tramos cortos (< 3 m) que van antes en el mismo eje toman la misma profundidad: sin caida brusca (ni gradas)
+            eje, de, a = x["tramo"].split("|")
+            rr = next((r for r in C["ramales"] if r["codigo"] == eje), None)
+            if rr:
+                k = next((i for i, t in enumerate(rr["tramos"]) if t["de"] == de and t["a"] == a), None)
+                while k is not None and k > 0 and rr["tramos"][k - 1]["L"] < 3.0:
+                    k -= 1; t = rr["tramos"][k]; c = "%s|%s|%s" % (eje, t["de"], t["a"])
+                    hq[c] = round(max(hq.get(c, P["hmin"]), x["h_req_cuneta"]), 3)
         for _v in range(P["vueltas_max"]):
             C = cotas.calcular(R, S, P, hq)
             V, hq2 = verificacion.verificar(C, R, S, T, P, LL, hq)
@@ -240,6 +254,7 @@ def disenar(cfg_ruta):
     tot = metrado.totales(xls_rc)
     metas = [dict(x, total=tot.get(x["codigo"])) for x in partidas]
     ctx = memorias.Contexto(cfg, P, Rh, LL, V, C, R, list(secciones.values()), TT, SM, LLt, lams, metas, rep_t, M.cuadro(), fig)
+    ctx.plan = plan_inf
     doc_h, doc_d = memorias.escribir(salida, ctx)
     doc_e = especificaciones.construir(os.path.join(salida, "ESPECIFICACIONES_TECNICAS_DRENAJE_PLUVIAL.docx"), partidas, P, cfg, q_m, V, lams, TT, SM, LLt)
     # revision general de todo lo entregado (conocimiento/01, seccion 8.2)
@@ -249,7 +264,8 @@ def disenar(cfg_ruta):
                    [a for a in S.avisos + M.avisos + R.avisos + SM["avisos"] if "no tiene cuneta" not in a], dxf_doc, xls_mc_rc)
     out = {"accion": "disenar", "version": VERSION, "proyecto": proyecto, "resumen": resumen, "parametros": P,
            "mapa_superficies": M.cuadro(),
-           "terreno": rep_t, "avisos": S.avisos + M.avisos + R.avisos + TT["avisos"] + SM["avisos"], "chaflanes": R.chaflanes_hechos, "red": C,
+           "terreno": rep_t, "avisos": S.avisos + M.avisos + R.avisos + TT["avisos"] + SM["avisos"] + plan_av,
+           "planteamiento": {"modo": modo_pl, "lineas_nuevas": lineas_pl, "longitud_nueva_m": round(sum(geom.dist(a, b) for l in lineas_pl for a, b in zip(l[:-1], l[1:])), 2), "techos": plan_inf}, "chaflanes": R.chaflanes_hechos, "red": C,
            "descargas_propuestas": [{"D": k, "x": round(v["q"][0], 3), "y": round(v["q"][1], 3), "L_max_m": v["L_max"],
                                      "terreno_exterior_min": round(v["z_req"], 2)} for k, v in R.descargas.items()],
            "sin_salida": [[list(a), list(b)] for a, b in R.sin_cubrir], "verificacion": V,

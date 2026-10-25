@@ -67,7 +67,7 @@ def _altura(techo_pol, cfg_alt):
 
 PARAM = {"canaleta_b": 0.25, "canaleta_h": 0.20, "BL": 0.05, "S": 0.01, "n": 0.013, "rs": 0.25, "rs_max": 7 / 24, "max_por_lado": 4,
          "desvio": 0.50, "entrada_cuneta": 0.30, "sep_soporte": 0.60, "abrazadera_cada": 4.0, "colgadores": 2, "codos90": 3,
-         "tubo_max": 5.0, "S_tubo": 0.01, "S_tubo_min": 0.005, "prof_tubo": 0.20, "prof_tubo_min": 0.15, "h_cuneta_max": 0.80, "d_montante": 4, "fc_largo": 0.20, "fc_ancho": 0.15, "esquina_max": 3.0, "alero_vuelo": 0.60}
+         "tubo_max": 5.0, "S_tubo": 0.01, "S_tubo_min": 0.005, "prof_tubo": 0.20, "prof_tubo_min": 0.15, "d_montante": 4, "fc_largo": 0.20, "fc_ancho": 0.15, "esquina_max": 3.0, "alero_vuelo": 0.60}
 
 
 def _normal_alero(ag, al):
@@ -211,7 +211,7 @@ def calcular(sitio, R, P, I, cfg, descargas=(), V=None):
                           "S_tubo_pct": round(100 * St, 2), "z_salida": round(z_ini, 3), "z_llegada": round(z_ll, 3), "cf_cuneta": round(cf, 3),
                           "tirante_cuneta": round(yv, 3), "nivel_min": round(nivel, 3), "llega": llegada.estado(ok), "tramo": clave,
                           "h_req_cuneta": round(hreq, 3)})
-                if not ok and hreq > tc["h_cuneta_max"]:
+                if not ok and hreq > tc.get("h_cuneta_max", P["prof_max_objetivo"]):
                     # no se entierra la cuneta para recibirla
                     m.update({"llega": "BAJO EL AGUA (TERRENO BAJO)", "tramo": None})
                     avisos.append("%s (%s %s): la tuberia del dado llega a %.3f, bajo el nivel del agua de %s (%.3f); para recibirla la cuneta "

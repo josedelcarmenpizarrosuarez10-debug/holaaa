@@ -184,12 +184,22 @@ def png_planta(ruta, R, red, sitio, curvas, ejes_usuario, titulo, candidatos=Non
     mapa = getattr(sitio, "mapa", None)
     if mapa is not None:
         # caras grandes primero y las chicas encima (asi los huecos de una cara quedan cubiertos por las caras que los ocupan)
+        from matplotlib.path import Path
+        from matplotlib.patches import PathPatch
+
+        def con_huecos(g, **kw):
+            # la cara con sus huecos (una cuneta que rodea una edificacion no pinta la edificacion)
+            for p in (g.geoms if hasattr(g, "geoms") else [g]):
+                if p.is_empty or p.geom_type != "Polygon": continue
+                vs, cs = [], []
+                for r in [p.exterior] + list(p.interiors):
+                    q = list(r.coords); vs += q; cs += [Path.MOVETO] + [Path.LINETO] * (len(q) - 2) + [Path.CLOSEPOLY]
+                ax.add_patch(PathPatch(Path(vs, cs), **kw))
         for c in sorted(mapa.caras, key=lambda c: -c["geom"].area):
-            xs, ys = c["geom"].exterior.xy
             if c["tipo"] == "sin_asignar":
-                ax.fill(xs, ys, fc="#ff4fd8", ec="#c2008f", lw=0.6, hatch="////", alpha=0.55, zorder=2)
+                con_huecos(c["geom"], fc="#ff4fd8", ec="#c2008f", lw=0.6, hatch="////", alpha=0.55, zorder=2)
             else:
-                ax.fill(xs, ys, fc=COLOR_SUP.get(c["tipo"], "#ffffff"), ec="#ffffff", lw=0.15, zorder=2)
+                con_huecos(c["geom"], fc=COLOR_SUP.get(c["tipo"], "#ffffff"), ec="#ffffff", lw=0.15, zorder=2)
     else:
         for k in ("verde", "estacionamiento", "pavimento", "techo"):        # de abajo hacia arriba: el verde tiene huecos
             if not sup[k].is_empty: poly(sup[k], fc=COLOR_SUP[k], ec="none", zorder=2)

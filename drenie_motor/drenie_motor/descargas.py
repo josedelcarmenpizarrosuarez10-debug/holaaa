@@ -340,12 +340,18 @@ def perfil(lam, d, x0mm, y0mm):
         if a > s_a + 0.05: est.append((a, "Inicio de tapado"))
     est.append((L, "Descarga " + d["D"]))
     est.sort()
+    # dos estaciones a menos de 0.30 m (p. ej. un eje que llega al inicio de la vista) van en una sola, con las dos notas
+    junt = []
+    for s_, nota_ in est:
+        if junt and s_ - junt[-1][0] < 0.30: junt[-1] = (junt[-1][0], junt[-1][1] + "; " + nota_)
+        else: junt.append((s_, nota_))
+    est = junt
     ult = -1e9; ytope = 0.0
     for k, (s, nota) in enumerate(est):
         nct, ncf = _valor(P, s); xs = X(s)
         lam.linea((xs, Yz(nct)), (xs, Yz(ncf - EL)), "DET-SECCION")
         lam.linea((xs, lam.P(0, yg)[1]), (xs, lam.P(0, yg1)[1]), "GUITARRA")
-        lin = ["NCT: %.2f" % nct, "NCF: %.3f" % ncf, " H: %.2f m" % (nct - ncf), nota]
+        lin = ["NCT: %.2f" % nct, "NCF: %.3f" % ncf, " H: %.2f m" % (nct - ncf)] + nota.split("; ")
         w = 30.0; alto = 2.4 + 3.6 * len(lin)
         xc = max(xs + 0, ult + (w + 3) * f); ult = xc
         yb = Yz(nct) + 0.62 + 6 * f

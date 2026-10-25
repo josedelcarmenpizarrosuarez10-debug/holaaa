@@ -86,7 +86,8 @@ def verificar(R, red, sitio, terreno, P, lluvia, hq_prev=None):
         fin = r["nudos"][-1]
         if fin in D: continue
         for c2, r2 in ram.items():
-            if c2 != c and fin in r2["nudos"][1:]:
+            # recibe la cuneta que pasa por el nudo (no otra que tambien termina en el)
+            if c2 != c and fin in r2["nudos"][1:-1]:
                 acc, s_n = 0.0, None
                 for t in r2["tramos"]:
                     acc += t["L"]

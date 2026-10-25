@@ -110,8 +110,16 @@ los codos del desvío, colgadores y abrazaderas los mete el proyectista con los 
 La cuneta puede ir a lo largo del alero o transversal a él: se verifica que el tubo de cada montante llegue a una cuneta.
 Llegada de tuberías (`llegada.py`, montantes y sumideros): el fondo del tubo llega sobre el nivel del agua de la cuneta en ese punto
 (cota de fondo + tirante con el caudal del punto) + 0.05 m, para que no quede ahogado. Si no: 0.5 %, tubo más alto, otra cuneta y
-por último se profundiza el tramo que lo recibe (sin pasar de 0.80 m en la llegada); si aun así no llega, se avisa.
+por último se profundiza el tramo que lo recibe (sin pasar de la profundidad máxima objetivo, 1.00 m); si aun así no llega, se avisa.
 Se dibujan en la DC-01 (bloque CANALETAS_Y_MONTANTES) y su cuadro va en la DC-02.
+Planteamiento de cunetas de edificaciones y losa deportiva (`planteamiento.py`, proyecto `"planteamiento"`): para cada techo se
+prueban los lados de su contorno (a 0.30 m fuera de la proyección del techo; a lo largo del alero o transversales) y todas sus
+combinaciones, y se elige la que deja todos sus montantes a 5 m o menos con menos cuneta nueva, aprovechando las cunetas vecinas
+(dos techos vecinos comparten la cuneta del espacio entre ellos). Luego cada cuneta planteada se prolonga en línea recta hacia las
+descargas hasta otra cuneta o el cerco junto a una descarga, sin entrar en techos; el resto de uniones las hace la red. Modos:
+`"completar"` (por defecto: solo donde un montante no llega a las líneas del proyectista), `"automatico"` (todo desde cero, sin
+las líneas del proyectista; ejemplo `ejemplos/car_varones_auto/`) y `"no"`. El razonamiento por techo va en
+`resultado.json` (`planteamiento.techos`) y en la memoria descriptiva.
 Sumideros (`sumideros.py`): solo en áreas libres sin cobertura (`sumidero_tipos`, por defecto patio y estacionamiento), donde la
 zona queda a más de 8 m de una cuneta; tubo PVC 4" recto a la cuneta (S 1 %, llega sobre el nivel del agua + 0.05); editables en el
 visor (SU); hoja SUMIDEROS en `CANALETAS_MONTANTES_Y_SUMIDEROS.xlsx`, dibujo en la DC-01 y cuadro en la DC-02.

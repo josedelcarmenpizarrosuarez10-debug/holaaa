@@ -38,6 +38,16 @@ def calcular(red, sitio, P, hq=None):
             if o == "union" and s[i1] > s[i0]:
                 for i in range(i0 + 1, i1): rr[i] = rr[i0] + (rr[i1] - rr[i0]) * (s[i] - s[i0]) / (s[i1] - s[i0])
         tap = [sitio.tapado(p[0], p[1]) for p in pts]
+        # un pedazo tapado de menos de 0.40 m (la cuneta apenas toca una vereda) no se toma como tapado, igual que en los planos
+        i = 0
+        while i < len(pts):
+            if tap[i]:
+                j = i
+                while j + 1 < len(pts) and tap[j + 1]: j += 1
+                if s[j] - s[i] <= 0.4:
+                    for k in range(i, j + 1): tap[k] = False
+                i = j + 1
+            else: i += 1
         if nudos[-1] in D:                                     # pase por el cerco: mismo borde y tapado
             idn = idx[-2]
             for i in range(idn + 1, len(pts)): rr[i] = rr[idn]; tap[i] = True
@@ -72,7 +82,7 @@ def calcular(red, sitio, P, hq=None):
         for r in red.ramales:
             cod, fin = r["codigo"], r["nudos"][-1]; v = fondo[cod][-1]
             for r2 in red.ramales:
-                if r2["codigo"] != cod and fin in r2["nudos"][1:]:
+                if r2["codigo"] != cod and fin in r2["nudos"][1:-1]:
                     k = [i for i, p in enumerate(geo[r2["codigo"]][0]) if p[2] == fin][0]
                     if fondo[r2["codigo"]][k] > v + 1e-6:
                         req[fin] = min(req.get(fin, 9e9), v); cambio = True

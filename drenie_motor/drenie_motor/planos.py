@@ -154,6 +154,12 @@ def _titulo_perfil(r, s0, s1):
 def _ancho_titulo(r, s0, s1): return 1.95 * len(_titulo_perfil(r, s0, s1))      # mm de papel (titulo de 2.0 mm, Arial)
 
 
+def _paso_cajas(secs):
+    """Paso entre filas de cajas de seccion: la caja mas alta (6 lineas mas sus notas) con su titulo encima, sin encimarse."""
+    n = max([6 + (len(x["nota"].split("; ")) if x.get("nota") else 0) for x in secs] or [6])
+    return max(CAJA_PASO, 2.4 + 3.7 * n + 7.0)
+
+
 def _franjas(R):
     f = ESC_P / 1000.0; largo = (ANCHO_LAM - CAB - 14) * f
     franjas, cur, usado = [], [], 0.0
@@ -199,7 +205,7 @@ class Planos:
         secs = [x for x in self.SEC[r["codigo"]] if s0 - 1e-6 <= x["s"] <= s1 + 1e-6]
         f = ESC_P / 1000.0
         _, filas = _filas_cajas(secs, [(x["s"] - s0) / f for x in secs], -6, (s1 - s0) / f + 6, CAJA_W)
-        return ALTO_FILA * len(FILAS) + 10 + nref * PASO_REF / f + 14 + filas * CAJA_PASO + 9, filas
+        return ALTO_FILA * len(FILAS) + 10 + nref * PASO_REF / f + 14 + filas * _paso_cajas(secs) + 9, filas
 
     def perfil(self, lam, pz, xmm, ymm):
         r, s0, s1, n = pz; f = lam.f; NPT, EL, EM = self.NPT, self.EL, self.EM
@@ -255,7 +261,7 @@ class Planos:
             lineas = ["NCT: %.2f" % x["nct"], "NCF: %.2f" % x["ncf"], " H: %.2f m" % x["h"], " b: %.2f m" % x["b"], " EL: %.2f m" % EL, " EM: %.2f m" % EM]
             if x["nota"]: lineas += x["nota"].split("; ")
             alto = 2.4 + 3.7 * len(lineas)
-            cx = lam.P(xd0 + xc, 0)[0]; yc0 = ytop + (12 + fila * CAJA_PASO) * f; w = CAJA_W * f
+            cx = lam.P(xd0 + xc, 0)[0]; yc0 = ytop + (12 + fila * _paso_cajas(secs)) * f; w = CAJA_W * f
             lam.rect(cx - w / 2, yc0, cx + w / 2, yc0 + alto * f, "PERF-CAJA")
             for i, t in enumerate(lineas):
                 lam.texto((cx - w / 2 + 1.3 * f, yc0 + (alto - 2.8 - 3.7 * i) * f), t, 1.45 if i < 6 else 1.15, "TEXTOS", TA.MIDDLE_LEFT)
@@ -278,7 +284,7 @@ class Planos:
             if (a < s0 - 1e-6 or b > s1 + 1e-6) and (vb - va) / f > 40: lon += "  (S-%02d a S-%02d)" % (A["n"], Bs["n"])
             lam.texto((xm, lam.P(0, yg1 - 2.5 * ALTO_FILA)[1]), lon, 1.2, "TEXTOS", TA.MIDDLE_CENTER)
             lam.texto((xm, lam.P(0, yg1 - 3.5 * ALTO_FILA)[1]), "%.2f" % _pendiente(r, a, b, za, zb), 1.2, "TEXTOS", TA.MIDDLE_CENTER)
-        yt = lam.P(0, (ytop - lam.oy) / f + 12 + filas * CAJA_PASO + 4)[1]
+        yt = lam.P(0, (ytop - lam.oy) / f + 12 + filas * _paso_cajas(secs) + 4)[1]
         lam.texto((lam.P(xg0, 0)[0], yt), _titulo_perfil(r, s0, s1), 2.0, "TITULOS", TA.LEFT)
         return max(CAB + (s1 - s0) / f, _ancho_titulo(r, s0, s1))
 

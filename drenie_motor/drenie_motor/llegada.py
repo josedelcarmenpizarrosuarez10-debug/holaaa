@@ -5,7 +5,7 @@ libre, con 5 cm de margen: cota de llegada >= cota de fondo + tirante del tramo 
 la cuneta lo ahoga, el agua se empoza y regresa por el tubo.
 Si no llega se busca la salida en este orden: pendiente minima (0.5 %), tubo embebido mas alto (fondo a 0.15 bajo el piso), otra
 cuneta al alcance, y por ultimo profundizar el tramo
-que la recibe (lo hace el motor con h_req, sin pasar de la profundidad maxima).
+que la recibe (lo hace el motor con h_req, sin pasar de la profundidad maxima objetivo, 1.00 m).
 """
 from .techo import tirante
 

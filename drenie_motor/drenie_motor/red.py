@@ -229,6 +229,9 @@ class Red:
             if math.dist(u["p"], N[a]) < 0.3: u["m"] = a
             elif math.dist(u["p"], N[b]) < 0.3: u["m"] = b
             else:
+                # dos uniones que llegan a menos de 0.30 m en la misma cuneta comparten el nudo (sin tramos de centimetros)
+                junto = next((m for m in cortes[(a, b)] if math.dist(N[m], u["p"]) < 0.3), None)
+                if junto: u["m"] = junto; continue
                 u["m"] = "t%d" % iu; N[u["m"]] = u["p"]; cortes[(a, b)].append(u["m"])
         usuario = []
         for e in self.E:

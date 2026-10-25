@@ -334,6 +334,19 @@ def descriptiva(D, c):
     D.tabla("Ejes de cuneta", ["Eje", "Descarga", "L (m)", "b libre (m)", "h mín. (m)", "h máx. (m)", "Excavación máx. (m)"], filas,
             [1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 2.6], tam=7.5, total=True)
     D.figura(c.fig.get("planta"), "Planta general de la red de cunetas.", 15.5)
+    pl = [t for t in (getattr(c, "plan", None) or []) if t.get("decision") not in (None, "ya cubierto")]
+    if pl:
+        D.h(2, "Planteamiento de las cunetas de las edificaciones")
+        D.p("Cada edificación y la losa deportiva descargan su techo por canaletas a montantes en las esquinas; de cada dado sale un tubo de 4\" que "
+            "debe llegar a una cuneta a 5 m o menos. Por eso la cuneta puede ir a lo largo del alero o por los lados cortos del techo (transversal): "
+            "para cada techo se probaron sus lados y sus combinaciones y se eligió la que deja todos sus montantes al alcance con menos cuneta nueva, "
+            "aprovechando las cunetas vecinas; luego cada cuneta se prolongó en línea recta hacia las descargas hasta otra cuneta o el cerco. Menos "
+            "cuneta larga significa menos profundidad y descargas que sí llegan por gravedad.")
+        trad = {"a lo largo del alero": "a lo largo del alero", "transversal": "transversal (lados cortos)", "mixta": "mixta", "prolongaciones": "prolongaciones"}
+        filas = [[t["techo"], str(t.get("montantes", "")), trad.get(t["decision"], t["decision"]), mil(t["nueva_m"]) if t.get("nueva_m") is not None else "",
+                  "; ".join("%s: %s m" % (k, mil(v)) for k, v in sorted((t.get("opciones") or {}).items()))] for t in pl]
+        D.tabla("Planteamiento por techo", ["Techo", "Montantes", "Opción elegida", "Cuneta nueva (m)", "Opciones comparadas (cuneta nueva)"], filas,
+                [1.4, 1.7, 3.2, 2.2, 7.5], tam=7.5)
     D.h(2, "Descargas")
     D.p("Las descargas cruzan el cerco con un pase en su cimiento, en tramo tapado, y entregan el agua al terreno natural exterior por gravedad. Fuera del "
         "cerco no hay obras; solo se perfila el terreno al pie del cerco donde hace falta.")
