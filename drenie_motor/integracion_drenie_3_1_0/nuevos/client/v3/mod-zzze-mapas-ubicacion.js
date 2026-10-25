@@ -6,7 +6,8 @@
 var WSU_W = 960, WSU_H = 1040;                       // misma proporción de la figura de la memoria (600 x 650)
 var WSU_PASTEL = [ '#A8C5E8', '#F6D186', '#B5DEA4', '#F2B5C9', '#C9B8E8', '#9ED9D4', '#F8C59B' ];
 var WSU_RES = '#E4572E', WSU_REC = '#D90429', WSU_TXT = '#1B2A3A', WSU_AZUL = '#0B2545';
-var WSU_FUENTE = 'Límites: INEI (límites censales)';
+// los límites se cargan al final del programa: la fuente se lee al dibujar
+function wsuFuente() { var L = wsuDatos(); return (L && L.fuente_corta) || 'Límites: INEI (límites censales)'; }
 var WSU_PAISES = [ [ 'ECUADOR', -78.6, -1.8 ], [ 'COLOMBIA', -72.5, -1.0 ], [ 'BRASIL', -68.6, -8.6 ], [ 'BOLIVIA', -66.9, -15.6 ], [ 'CHILE', -69.6, -19.3 ] ];
 
 function wsuDatos() { return typeof WS_LIMITES_PERU === 'object' && WS_LIMITES_PERU ? WS_LIMITES_PERU : null; }
@@ -164,7 +165,7 @@ function wsuDibujar(nivel, u) {
   wsuNorte(ctx, W - 56, 40);
   wsuEscala(ctx, V, 34, H - 34, W);
   ctx.font = "500 12px Poppins, 'Segoe UI', Arial, sans-serif"; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
-  var f = WSU_FUENTE + (mar ? '; países: Natural Earth' : ''), fw = ctx.measureText(f).width;
+  var f = wsuFuente() + (mar ? '; países: Natural Earth' : ''), fw = ctx.measureText(f).width;
   ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.fillRect(W - fw - 14, H - 24, fw + 10, 20); ctx.fillStyle = '#5C7390'; ctx.fillText(f, W - 8, H - 8);
   ctx.strokeStyle = WSU_AZUL; ctx.lineWidth = 3; ctx.strokeRect(1.5, 1.5, W - 3, H - 3);
   return wsuImagen(c, 'mapa_' + nivel + '.png');
@@ -203,7 +204,7 @@ function wsuRegenerar(setState, u, niveles, forzar) {
       var n = Object.assign({}, m, { points: [], closed: false, auto: true });
       if (!u[need] && nivel !== 'pais') { n.image = null; }
       else { try { n.image = wsuDibujar(nivel, u); } catch (e) { return; } }
-      if (!n.source || m.auto) n.source = WSU_FUENTE;
+      if (!n.source || m.auto) n.source = wsuFuente();
       if (i >= 0) maps[i] = n; else maps.push(n);
     });
     return Object.assign({}, prev, { project: Object.assign({}, prev.project, { geography: Object.assign({}, g, { maps: maps }) }) });

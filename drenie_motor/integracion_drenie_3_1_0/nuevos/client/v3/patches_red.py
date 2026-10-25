@@ -19,7 +19,7 @@ open(os.path.join(CLIENT, 'src', 'visor-red.html'), 'w', encoding='utf-8').write
 # ---------------------------------------------------------------- mapas de ubicación automáticos (Datos del proyecto)
 # Límites del INEI incorporados (el mismo archivo del motor de la red): País → Departamento → Provincia → Distrito sin internet.
 lim = json.load(open(os.path.join(CLIENT, '..', 'motor_red', 'drenie_motor', 'limites_peru.json'), encoding='utf-8'))
-lim_js = json.dumps({k: lim[k] for k in ('fuente', 'departamentos', 'provincias', 'distritos', 'paises')}, ensure_ascii=False, separators=(',', ':'))
+lim_js = json.dumps({k: lim[k] for k in ('fuente', 'fuente_corta', 'departamentos', 'provincias', 'distritos', 'paises')}, ensure_ascii=False, separators=(',', ':'))
 R("\n/* ===== fin DrenIE 3.0 ===== */\n",
   "\nvar WS_LIMITES_PERU = " + lim_js.replace('<', '\\u003C') + ";\n/* ===== fin DrenIE 3.0 ===== */\n", 1, '3.1.0 límites del INEI incorporados')
 R("""    }, wsMapName(st, level))), h('div', {
