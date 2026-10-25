@@ -16,6 +16,7 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter as CL
 
 from . import normas
+from .descarga_alternativa import DIAM_PVC
 
 
 def _F(clave):
@@ -58,7 +59,7 @@ def yn(Q, S, n, b):
     return (lo + hi) / 2
 
 
-def libro(ruta, proyecto, P, Rh, LL, V, secciones, TT, SM, ES=None, TV=None, PF=None):
+def libro(ruta, proyecto, P, Rh, LL, V, secciones, TT, SM, ES=None, TV=None, PF=None, DA=None):
     hv = V["hidrologia"]
     cab_txt = ["PROYECTO: " + proyecto.get("nombre", "") + ((" - " + proyecto["codigo"]) if proyecto.get("codigo") else ""),
                "  -  ".join(x for x in (("ENTIDAD: " + proyecto["entidad"]) if proyecto.get("entidad") else "",
@@ -414,6 +415,53 @@ def libro(ruta, proyecto, P, Rh, LL, V, secciones, TT, SM, ES=None, TV=None, PF=
             for j, (v, f) in enumerate(zip([e["eje"], e["L"], e["control"], e["y_max"], e["BL_min"], e["s_BL_min"], e["V_max"], e["supercritico_m"],
                                             len(e["saltos"]), e["estado"]], [None, "0.00", None, "0.000", "0.000", "0.00", "0.00", "0.0", "0", None])):
                 cel(wr2, 5 + i, j + 1, v, f, wrap=(j == 2), fill=(VE if e["estado"] == "CUMPLE" else AM) if j == 9 else None)
+    if DA:
+        # descargas sin gravedad: pozos de absorcion (tasa del test y area lateral) y camara de bombeo (volumen util, ADT y potencia)
+        wa = wb.create_sheet("DESCARGA SIN GRAVEDAD"); cabecera(wa, "DESCARGAS SIN GRAVEDAD: POZOS DE ABSORCION / CAMARA DE BOMBEO")
+        r = 5
+        for k, v in sorted(DA.items()):
+            cel(wa, r, 1, "%s - %s" % (k, v["tipo"].upper()), bold=True, borde=False); r += 1
+            if v.get("tipo") == "pozo de absorción":
+                filas = [("Test de percolacion t (min por 1 cm)", v["test_min_por_cm"], "0.0", "IS.020, Anexo 1"),
+                         ("Factor de seguridad FS", v["FS"], "0.0", "CIRIA C753, cap. 25"),
+                         ("Tasa de diseno f (m/h)", "=0.6/B{a}/B{b}", "0.0000", "(1 cm / t) / FS"),
+                         ("Numero de pozos", v["n"], "0", "separacion >= 6 m (IS.020, 21 c)"),
+                         ("Diametro interior Di (m)", v["Di"], "0.00", ">= 1.0 m (IS.020, 20 e)"),
+                         ("Diametro exterior De (m)", v["De"], "0.00", "Di + 2 muro"),
+                         ("Altura de absorcion H (m)", v["H_absorcion"], "0.00", "bajo el nivel maximo"),
+                         ("Area de infiltracion (m2)", "=B{n}*PI()*B{de}*B{h}", "0.00", "lateral, sin el fondo (IS.020, 20 b)"),
+                         ("Capacidad de infiltracion con el pozo lleno (l/s)", "=B{f}*B{ar}/3.6", "0.00", "f x area"),
+                         ("Almacenamiento interior (m3)", "=B{n}*PI()*B{di}^2/4*B{h}", "0.00", ""),
+                         ("Volumen de la tormenta de diseno (m3)", v["volumen_tormenta_m3"], "0.00", "hidrograma de bloques alternos"),
+                         ("Nivel maximo del agua sobre el fondo (m)", v["h_max"], "0.000", "transito: dV = (Qe - f pi De h) dt"),
+                         ("Vaciado del 50 % (h)", v["t50_h"], "0.0", "<= 24 h (CIRIA)"),
+                         ("Profundidad total (m)", v["profundidad_total"], "0.00", "fondo 2 m sobre la napa (IS.020, 20 d)")]
+            else:
+                filas = [("Caudal pico que llega Qp (l/s)", v["Qp_ls"], "0.00", "IS.010 7.1 f: maxima intensidad"),
+                         ("Caudal de cada bomba Qb (l/s)", "=B{qp}", "0.00", "2 bombas alternadas (IS.010 6.4 c)"),
+                         ("Tiempo minimo entre arranques (min)", 10, "0", "<= 6 arranques por hora"),
+                         ("Volumen util V = Qb T / 4 (m3)", "=B{qb}/1000*B{tm}*60/4", "0.000", ""),
+                         ("Lado interior de la camara (m)", v["lado_m"], "0.00", ""),
+                         ("Altura util (m)", "=MAX(0.3,B{vu}/B{la}^2)", "0.000", ""),
+                         ("Desnivel geometrico Hg (m)", v["Hg_m"], "0.00", "cota de entrega - nivel de parada"),
+                         ("Longitud de impulsion (m)", v["L_impulsion_m"], "0.0", ""),
+                         ("Diametro interior de impulsion (m)", dict(DIAM_PVC)[v["D_impulsion_pulg"]], "0.0000", "PVC %d\" clase 10" % v["D_impulsion_pulg"]),
+                         ("Velocidad en la impulsion (m/s)", "=B{qb}/1000/(PI()*B{di}^2/4)", "0.00", "0.6 a 2.0 m/s"),
+                         ("Perdida por friccion hf (m)", "=10.67*B{li}*(B{qb}/1000)^1.852/(150^1.852*B{di}^4.87)", "0.000", "Hazen-Williams C = 150"),
+                         ("Perdida en accesorios hm (m)", "=5*B{vi}^2/(2*9.81)", "0.000", "K = 5"),
+                         ("Altura dinamica total ADT (m)", "=B{hg}+B{hf}+B{hm}+1", "0.00", "+ 1.0 m de llegada"),
+                         ("Eficiencia", v["eficiencia"], "0.00", ""),
+                         ("Potencia (kW)", "=9.81*B{qb}/1000*B{adt}/B{ef}", "0.00", ""),
+                         ("Motor comercial (HP)", v["motor_HP"], "0.0", ">= 1.15 x potencia")]
+            pos = {}; r0 = r
+            claves = (["a", "b", "f", "n", "di", "de", "h", "ar"] if v.get("tipo") == "pozo de absorción"
+                      else ["qp", "qb", "tm", "vu", "la", "hu", "hg", "li", "di", "vi", "hf", "hm", "adt", "ef", "pot", "hp"])
+            for i, kk in enumerate(claves): pos[kk] = r0 + i
+            for i, (t_, v_, f_, s_) in enumerate(filas):
+                cel(wa, r, 1, t_); cel(wa, r, 2, v_.format(**pos) if isinstance(v_, str) and v_.startswith("=") else v_, f_, bold=True, fill=AM)
+                cel(wa, r, 3, s_, borde=False); r += 1
+            r += 1
+        wa.column_dimensions["A"].width = 52; wa.column_dimensions["B"].width = 14; wa.column_dimensions["C"].width = 48
     normas.hoja_excel(wb)
     wb.save(ruta)
     return ruta

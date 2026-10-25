@@ -332,10 +332,51 @@ def hidrologica(D, c):
                 else:
                     D.p("Ningún punto de la red rebalsa durante la tormenta de diseño.")
             normas.recuadro_word(D, "hietograma", "swmm")
+    # ---------------------------------------------------------------- descargas sin gravedad: pozos de absorcion o camara de bombeo
+    DA = getattr(c, "DA", None) or {}
+    if DA:
+        D.h(1, "Descargas sin gravedad")
+        D.p("Donde con los niveles del proyecto el agua no puede salir por gravedad a través del cerco, la red entrega a un pozo de absorción "
+            "o a una cámara de bombeo, según la CE.040 (artículo 21: evacuación por gravedad, por bombeo o mixta). El Reglamento de la Ley "
+            "General de Drenaje Pluvial (D.S. N.° 009-2026-VIVIENDA) admite la infiltración como estructura complementaria.")
+        pz = {k: v for k, v in DA.items() if v.get("tipo") == "pozo de absorción"}
+        cm = {k: v for k, v in DA.items() if v.get("tipo") == "cámara de bombeo"}
+        if pz:
+            D.p("Pozos de absorción (IS.020, artículos 17, 20 y 21). La tasa de infiltración de diseño sale del test de percolación del lugar: "
+                "f = (1 cm / t) / FS. El hidrograma de la tormenta de diseño (bloques alternos de la curva IDF por C·A del sector) llena el "
+                "pozo y sale por sus paredes (área lateral con el diámetro exterior), con el nivel máximo 0.30 m bajo la cota de fondo de la "
+                "cuneta que llega; la mitad del volumen se vacía en menos de 24 horas.")
+            D.formula("dV/dt = Qe(t) − f · π · De · h(t)     f = 0.6 / t / FS (m/h)")
+            D.tabla("Pozos de absorción por descarga", ["Descarga", "Test (min/cm)", "Terreno", "f (mm/h)", "Pozos", "D int. (m)", "Prof. (m)",
+                                                        "Volumen (m³)", "N.A. máx. (m)", "Vaciado 50 % (h)"],
+                    [[k, "%.1f" % v["test_min_por_cm"], v["clase"], "%.0f" % v["f_mmh"], v["n"], "%.2f" % v["Di"], "%.2f" % v["profundidad_total"],
+                      "%.1f" % v["volumen_tormenta_m3"], "%.2f" % v["h_max"], "%.1f" % v["t50_h"]] for k, v in sorted(pz.items())],
+                    [1.4, 1.5, 1.4, 1.3, 1.1, 1.4, 1.3, 1.6, 1.6, 1.7], tam=7.5)
+            normas.recuadro_word(D, "percolacion", "pozo_absorcion", "tasa_infiltracion", "vaciado", "infraestructura_verde")
+        if cm:
+            D.p("Cámaras de bombeo (CE.040 21.2.2; IS.010 6.4 y 7.1 f; OS.080): dos bombas sumergibles de funcionamiento alternado, cada una con el "
+                "caudal pico que llega (máxima intensidad), volumen útil entre arranque y parada para no más de 6 arranques por hora, nivel de "
+                "alarma bajo la cota de fondo de la cuneta que llega, impulsión de PVC con velocidad de 0.6 a 2.0 m/s y altura dinámica total "
+                "con fricción de Hazen-Williams (C = 150) y accesorios.")
+            D.formula("V útil = Qb · Tmin / 4     ADT = Hg + hf + hm + 1.0     P = 9.81 · Qb · ADT / η")
+            D.tabla("Cámaras de bombeo por descarga", ["Descarga", "Q (l/s)", "Cámara (m)", "Prof. (m)", "V útil (m³)", "Impulsión", "ADT (m)",
+                                                      "Potencia (kW)", "Motor (HP)"],
+                    [[k, "%.1f" % v["Qb_ls"], "%.2f × %.2f" % (v["lado_m"], v["lado_m"]), "%.2f" % v["profundidad_m"], "%.2f" % v["V_util_m3"],
+                      "PVC %d\" %.0f m" % (v["D_impulsion_pulg"], v["L_impulsion_m"]), "%.2f" % v["TDH_m"], "%.2f" % v["potencia_kW"], "%g" % v["motor_HP"]]
+                     for k, v in sorted(cm.items())], [1.4, 1.3, 1.9, 1.3, 1.5, 2.0, 1.3, 1.6, 1.4], tam=7.5)
+            normas.recuadro_word(D, "evacuacion", "bombeo_pluvial", "bombas_numero", "camara_bombeo", "ciclo_bombas")
+        av = [a for v in DA.values() for a in v.get("avisos", []) if a]
+        if av: D.vinetas(av)
+        D.p("En la comprobación dinámica con SWMM el pozo o la cámara se representan como descarga libre en la llegada de la cuneta: el "
+            "almacenamiento, la infiltración y el bombeo se diseñan aparte con el hidrograma de la tormenta, como se indica arriba.")
     # ---------------------------------------------------------------- descargas y conclusiones
     D.h(1, "Descargas")
-    D.p("Cada sector entrega por gravedad a través de un pase en el cimiento del cerco perimétrico; fuera del cerco no se construyen obras y el agua "
-        "sigue por el terreno natural.")
+    if DA:
+        D.p("Las descargas %s entregan a pozo de absorción o a cámara de bombeo (capítulo «Descargas sin gravedad»); las demás entregan por "
+            "gravedad a través de un pase en el cimiento del cerco perimétrico, y fuera del cerco el agua sigue por el terreno natural." % ", ".join(sorted(DA)))
+    else:
+        D.p("Cada sector entrega por gravedad a través de un pase en el cimiento del cerco perimétrico; fuera del cerco no se construyen obras y el agua "
+            "sigue por el terreno natural.")
     filas = [[d["D"], "%.3f" % d["cf"], "%.2f" % d["terreno"], d["estado"].capitalize(), ("%.2f m" % d["perfilado_max"]) if d.get("perfilado_max") else "-"]
              for d in c.V["descargas"]]
     D.tabla("Descargas de la red de cunetas", ["Descarga", "Cota de fondo", "Terreno exterior", "Estado", "Perfilado"], filas, [2, 2.5, 2.8, 5, 2.5], tam=8)

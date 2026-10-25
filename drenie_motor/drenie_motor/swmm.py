@@ -112,10 +112,8 @@ def exportar(ruta, C, V, P, ll, Rh=None, proyecto=None, duracion=120, dt=None):
             A_ant = A; s0 = s1
     for c in conductos:                                                    # el nudo llega a la corona de sus conductos (como SWMM)
         prof[c["de"]] = max(prof[c["de"]], c["cf_de"] + c["h"]); prof[c["a"]] = max(prof[c["a"]], c["cf_a"] + c["h"])
-    if dt is None:                                  # bloques del tiempo de concentracion: el bloque pico es la intensidad de diseno
-        tc = float((Rh or {}).get("tc_min") or ll.get("tc_min") or 10.0)
-        dt = int(max(10, 5 * round(tc / 5.0)))
-    H = hietograma.bloques_alternos(ll, Rh, duracion, dt)
+    H = hietograma.diseno(ll, Rh, duracion) if dt is None else hietograma.bloques_alternos(ll, Rh, duracion, dt)
+    dt = H["dt_min"]
     fin = len(H["intensidades"]) * dt + 60
     nom = (proyecto or {}).get("nombre", "Red de cunetas")
     L = []

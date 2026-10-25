@@ -77,6 +77,50 @@ def cuneta(D):
                 dado=DADO, fcol=(0.20, 0.15, 1.30), S_can=1.00, n_cun=P["n_cap"], n_can=0.013, sep_sop=0.60)
 
 
+def ficha_sin_gravedad(pt, D, d, und):
+    """Fichas de las descargas sin gravedad (pozos de absorcion IS.020; camara de bombeo IS.010 y OS.080)."""
+    DA = getattr(D, "DA", None) or {}
+    pz = [x for x in DA.values() if x.get("tipo") == "pozo de absorción"]; cm = [x for x in DA.values() if x.get("tipo") == "cámara de bombeo"]
+    txt = []
+    if pz:
+        txt.append("Pozos de absorcion donde el agua no sale por gravedad (CE.040, art. 21; IS.020, arts. 17, 20 y 21): %s." % "; ".join(
+            "%s: %d pozo(s) de %.2f m de diametro interior y %.2f m de profundidad, test de percolacion %.1f min/cm (terreno %s)" % (
+                x["D"], x["n"], x["Di"], x["profundidad_total"], x["test_min_por_cm"], x["clase"]) for x in pz))
+    if cm:
+        txt.append("Camaras de bombeo donde el agua no sale por gravedad (CE.040, 21.2.2; IS.010, 6.4 y 7.1 f; OS.080): %s" % " ".join(x["texto"] for x in cm))
+    base = [p(" ".join(txt) or "Descargas sin gravedad segun planos.")]
+    EPPx = [EPP, "Arnes y linea de vida para trabajo en excavaciones profundas.", "Entibar las paredes de la excavacion cuando pase de 1.50 m (Norma G.050)."]
+    if "EXCAVACI" in d or "ELIMINACI" in d:
+        return bloque(base, equ=l("Herramientas manuales, retroexcavadora donde haya acceso, volquete para la eliminacion."),
+                      proc=l("Trazar el pozo o la camara segun planos y excavar por capas, entibando las paredes cuando la profundidad pase de 1.50 m.",
+                             "Retirar el material excedente a un botadero autorizado."),
+                      ctrl=l("Profundidad y medidas segun planos; fondo del pozo como minimo 2 m sobre la napa freatica (IS.020, 20 d)."),
+                      seg=l(*EPPx), und=und, medicion=[p("Se medira el volumen segun el metrado (m3).")])
+    if "MAMPOSTER" in d or "GRAVA" in d:
+        return bloque(base, mat=l("Ladrillo King Kong macizo o piedra asentada sin juntear en las juntas verticales; grava limpia de 1\" para el anillo."),
+                      equ=l("Herramientas de albanileria, winche manual."),
+                      proc=l("Levantar el muro del pozo dejando las juntas verticales abiertas para el paso del agua (IS.020, 21 a).",
+                             "Rellenar el espacio entre el muro y el terreno con grava limpia de 1\" a medida que sube el muro."),
+                      ctrl=l("Diametro interior, verticalidad y juntas abiertas segun planos."), seg=l(*EPPx), und=und,
+                      medicion=[p("Se medira segun el metrado (m2 de muro o m3 de grava).")])
+    if "BOMBA" in d or "TABLERO" in d or "IMPULSI" in d or "VÁLVULA" in d or "REJILLA MET" in d:
+        return bloque(base, mat=l("Bombas sumergibles para agua de lluvia con solidos en suspension, tablero de control con alternador, flotadores y alarma, "
+                                  "tuberia PVC clase 10, valvulas de retencion y de compuerta, rejilla y tapa de acero galvanizado."),
+                      equ=l("Herramientas de gasfiteria y electricidad, tecle para el izaje de las bombas."),
+                      proc=l("Instalar las dos bombas con su cadena de izaje y guias, de modo que trabajen alternadas por niveles (IS.010, 6.4).",
+                             "Instalar la impulsion con valvula de compuerta y de retencion por bomba; probar a presion antes de tapar.",
+                             "Conectar el tablero con arranque y parada por niveles, alarma de nivel alto y provision de grupo electrogeno o rebose de emergencia (OS.080)."),
+                      ctrl=l("Prueba de funcionamiento: caudal y altura de cada bomba segun la memoria de calculo; alternancia y alarma operativas."),
+                      seg=l(EPP, "Bloqueo y etiquetado electrico durante la instalacion."), und=und,
+                      medicion=[p("Se medira segun el metrado (und o m).")])
+    return bloque(base, mat=l("Concreto f'c = 210 kg/cm2; acero corrugado fy = 4200 kg/cm2 (NTP 341.031); encofrado de madera."),
+                  equ=l("Mezcladora, vibrador, herramientas manuales."),
+                  proc=l("Colocar el solado, armar la malla en ambas caras con recubrimiento de 0.04 m y encofrar.",
+                         "Vaciar el fondo y los muros en forma monolitica; impermeabilizar las caras interiores de la camara (OS.080); curar 7 dias."),
+                  ctrl=l("Medidas, cotas de fondo y de llegada segun planos."), seg=l(*EPPx), und=und,
+                  medicion=[p("Se medira segun el metrado (m3, m2 o kg).")])
+
+
 def ficha(pt, D, Pd):
     d = pt["desc"].upper(); und = pt["und"]; P = D.P; K = E.CUNETA
     hfs = P["e_fondo"] + P["e_solado"]
@@ -103,6 +147,9 @@ def ficha(pt, D, Pd):
                       proc=l("Habilitar y colocar la malla inferior en ambos sentidos con recubrimiento de 0.04 m sobre dados de concreto.", "Amarrar todos los cruces."),
                       ctrl=l("Diametros, separaciones y recubrimientos segun planos, aprobados por la Supervision antes del vaciado."), seg=l(EPP), und=und,
                       medicion=[p("Se medira el peso del acero colocado, segun el metrado (kg).")])
+    if any(k in d for k in ("POZOS DE ABSORCI", "POZO DE ABSORCI", "CÁMARA DE BOMBEO", "BOMBA SUMERGIBLE", "IMPULSIÓN", "TABLERO ELÉCTRICO",
+                            "REJILLA METÁLICA DE ENTRADA", "ANILLO DE LOS POZOS", "TECHO DE POZOS")) or ("ELIMINACI" in d and getattr(D, "DA", None)):
+        return ficha_sin_gravedad(pt, D, d, und)
     if "ESTRUCTURAS DE CA" in d or "PASE DE CUNETA EN MURO" in d:
         ES = getattr(D, "ES", None) or {}
         lista = ", ".join("%s (%s, prog. %.2f, desnivel %.2f m)" % (e["codigo"], e["eje"], e["progresiva"], e["desnivel"])
@@ -368,10 +415,10 @@ def _lamina_detalle(d, laminas):
     return None
 
 
-def construir(ruta, partidas, P, cfg, q, V, laminas, TT, SM, LLt, ES=None, TV=None):
+def construir(ruta, partidas, P, cfg, q, V, laminas, TT, SM, LLt, ES=None, TV=None, DA=None):
     proyecto = cfg.get("proyecto", {})
     D = Datos(P, cfg, q, V, laminas, TT, SM, LLt)
-    D.ES, D.TV = ES, TV
+    D.ES, D.TV, D.DA = ES, TV, DA or {}
     Pd = dict(clave="drenie", corto=proyecto.get("nombre_corto", ""), cui="", proyecto=proyecto.get("nombre", ""), junta_cuneta_seccion=True,
               lamina_rejilla=None, colector=dict(nombre="red de cunetas", receptor="el terreno exterior por pases en el cimiento del cerco",
                                                  sello="asfaltico", cajas=None, cerco=False, vereda=False))

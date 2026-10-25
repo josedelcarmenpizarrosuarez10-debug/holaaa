@@ -16,6 +16,11 @@ from shapely.geometry import LineString, Point
 from . import geom
 
 
+def descarga_ok(d):
+    """La descarga sale por gravedad o, sin gravedad, la recibe un pozo de absorcion o una camara de bombeo."""
+    return d["estado"] == "SALE POR GRAVEDAD" or bool(d.get("alternativa"))
+
+
 def intensidad(lluvia):
     """I (mm/h). Directa, o por Dick y Peschke: P_D = P24 (D/1440)^0.25, I = 60 P_D / D (D = tc, minimo 10 min)."""
     if lluvia.get("I_mmh"): return float(lluvia["I_mmh"]), "dato"
@@ -112,12 +117,19 @@ def verificar(R, red, sitio, terreno, P, lluvia, hq_prev=None):
         sobre = max([zt - cf for dd, zt in ext if dd <= 1.0] + [-9])
         baja = next((dd for dd, zt in ext if zt <= cf - P["desc_margen"]), None)
         okd = baja is not None and baja <= P["desc_dist_ext"]
+        alt = not okd and bool(P.get("descarga_alternativa"))
         desc.append({"D": d, "x": round(x, 3), "y": round(y, 3), "cf": round(cf, 3), "terreno": round(terreno.z(x, y), 2),
-                     "sale_a_m": baja, "perfilado_max": round(max(sobre, 0), 2), "estado": "SALE POR GRAVEDAD" if okd else "NO SALE",
+                     "sale_a_m": baja, "perfilado_max": round(max(sobre, 0), 2),
+                     "estado": "SALE POR GRAVEDAD" if okd else ("SIN GRAVEDAD" if alt else "NO SALE"), "alternativa": alt,
+                     "ras": round(sitio.rasante(*info["b"]), 3),
+                     "holgura_alt": round(cf - (sitio.rasante(*info["b"]) - P.get("prof_max_sin_gravedad", P["prof_max_objetivo"])), 3) if alt else None,
                      "exterior": [[dd, round(zt, 2)] for dd, zt in ext[:16]]})
-    malas = [d for d in desc if d["estado"] != "SALE POR GRAVEDAD"]
-    ok(6, "Descargas por el cerco: el agua sale por gravedad sin obras fuera del cerco", "CUMPLE" if not malas else "NO CUMPLE",
+    malas = [d for d in desc if not descarga_ok(d)]
+    ok(6, "Descargas por el cerco: el agua sale por gravedad sin obras fuera del cerco" if not P.get("descarga_alternativa") else
+       "Descargas: por gravedad o a pozo de absorcion / camara de bombeo donde no hay gravedad (CE.040, art. 21)",
+       "CUMPLE" if not malas else "NO CUMPLE",
        "; ".join("%s C.F. %.3f: %s" % (d["D"], d["cf"], ("terreno exterior bajo la C.F. a %.2f m del cerco" % d["sale_a_m"]) if d["sale_a_m"]
+                                                       else ("sin gravedad: %s" % P["descarga_alternativa"]) if d["alternativa"]
                                                        else "el terreno exterior no baja de la C.F.") for d in desc))
     # 7 niveles: borde de cuneta al ras del piso (interior nivelado) y de cada zona
     altos = 0

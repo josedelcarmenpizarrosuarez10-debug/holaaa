@@ -130,7 +130,7 @@ PAR = [("Espesor de muros (m)", "e_muro", "em", "Secciones transversales"), ("Es
        ("Falsa columna: acero por und (kg)", FC["acero"], "fca", "4 barras de 1.20 + 9 estribos de 0.58, 3/8\"")]
 
 
-def libro(ruta, C, red, M, P, anchos, V, LLt, TT, SM, proyecto, cfg, tapas, ES=None, TV=None):
+def libro(ruta, C, red, M, P, anchos, V, LLt, TT, SM, proyecto, cfg, tapas, ES=None, TV=None, DA=None):
     piso = unary_union([c["geom"] for c in M.caras if c["tipo"] in TIPOS_PISO])
     q = cantidades(C, P, anchos, tapas, piso)
     Pk = {k: "PARAMETROS!$B$%d" % (5 + i) for i, (_, _, k, _) in enumerate(PAR)}
@@ -505,6 +505,13 @@ def libro(ruta, C, red, M, P, anchos, V, LLt, TT, SM, proyecto, cfg, tapas, ES=N
         if pm:
             partida(p(it + ".04"), "MARCO DE CONCRETO ARMADO PARA PASE DE CUNETA EN MURO DE CONTENCIÓN", "und",
                     [(nom(e) + ": %.2f x %.2f m interior" % (e["marco_ancho"], e["marco_alto"]), 1, None, None, None, None, "=C{r}") for e in pm])
+
+    if DA:
+        from .descarga_alternativa import metrado as _met_da
+        it = ".%02d" % (6 + bool(qv and TV) + bool(es))
+        titulo(p(it), "DESCARGAS SIN GRAVEDAD (POZOS DE ABSORCIÓN / CÁMARA DE BOMBEO)")
+        for k, (desc, und, filas) in enumerate(_met_da(DA), 1):
+            partida(p("%s.%02d" % (it, k)), desc, und, [(x, 1, None, None, None, qq, "=C{r}*G{r}") for x, qq in filas])
 
     # RESUMEN
     cel(wr, 2, 1, "RESUMEN METRADOS DE DRENAJE PLUVIAL", bold=True, size=14, borde=False); wr.merge_cells("A2:D2")

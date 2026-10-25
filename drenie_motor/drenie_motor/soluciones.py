@@ -24,7 +24,8 @@ def _obs(id_, gravedad, titulo, que, porque, donde=None, opciones=(), recomendad
             "donde": {"x": round(donde[0], 3), "y": round(donde[1], 3)} if donde else None, "opciones": ops, "estado": "pendiente"}
 
 
-def armar(cfg, nivel=None, plan_inf=(), TT=None, SM=None, V=None, avisos=(), revision=None, R=None, S=None, elegidas=None):
+def armar(cfg, nivel=None, plan_inf=(), TT=None, SM=None, V=None, avisos=(), revision=None, R=None, S=None, elegidas=None, da=None,
+          sin_gravedad=None):
     """Lista de observaciones del calculo. elegidas: {obs: {"opcion", "tipo"}} que el proyectista ya eligio en el visor."""
     out = []
     npt = (cfg.get("niveles") or {}).get("npt")
@@ -37,6 +38,12 @@ def armar(cfg, nivel=None, plan_inf=(), TT=None, SM=None, V=None, avisos=(), rev
                         "cambio": {"subir_nivel": nivel[0]}})
         ops.append({"id": "B", "tipo": "manual", "texto": "Indicar una descarga a un colector o canal existente",
                     "efecto": "Marque en el visor (comando DESCARGA) el punto del cerco donde sale el agua, o agregue el receptor al proyecto."})
+        ops.append({"id": "C", "tipo": "automatica", "texto": "Descargar sin gravedad con cámara de bombeo",
+                    "efecto": "Dos bombas sumergibles alternadas donde no hay gravedad (CE.040 21.2.2; IS.010 7.1 f; OS.080).",
+                    "cambio": {"descarga_alternativa": {"tipo": "bombeo"}}})
+        ops.append({"id": "D", "tipo": "automatica", "texto": "Descargar sin gravedad a pozos de absorción",
+                    "efecto": "Necesita el test de percolación del lugar y la napa (IS.020); sin ellos se diseña con bombeo.",
+                    "cambio": {"descarga_alternativa": {"tipo": "infiltracion"}}})
         ops.append(dict(MANUAL, efecto="La parte que sí sale queda diseñada; el resto lo resuelve el proyectista."))
         out.append(_obs("nivel", "decision", "El agua no sale por gravedad en toda la red",
                         "Con el nivel de piso dado: %s." % nivel[1],
@@ -90,13 +97,39 @@ def armar(cfg, nivel=None, plan_inf=(), TT=None, SM=None, V=None, avisos=(), rev
     # ---------------------------------------------------------------- descargas indicadas que no salen
     if cfg.get("descargas") and not (nivel and nivel[0] > 0):
         for d in (V or {}).get("descargas", []):
-            if d["estado"] != "SALE POR GRAVEDAD":
+            if d["estado"] != "SALE POR GRAVEDAD" and not d.get("alternativa"):
                 q = (R.descargas.get(d["D"], {}) or {}).get("q") if R is not None else None
                 out.append(_obs("descarga:" + d["D"], "revisar", "La descarga %s no sale por gravedad" % d["D"],
                                 "Cota de fondo %.3f; el terreno exterior no baja de ella cerca del cerco." % d["cf"], "La descarga indicada está en un lado alto del cerco.", q,
                                 [{"id": "A", "tipo": "automatica", "texto": "Dejar que el programa elija las descargas", "efecto": "Quita las descargas fijadas y busca las del lado bajo.",
                                   "cambio": {"quitar_descargas_fijas": True}},
                                  {"id": "B", "tipo": "manual", "texto": "Mover la descarga en el visor", "efecto": "Comando DESCARGA en el visor."}, MANUAL]))
+    # ---------------------------------------------------------------- descargas sin gravedad (pozos de absorcion o camara de bombeo)
+    if da:
+        tipos = sorted({d["tipo"] for d in da.values()})
+        hay_pozo = any(d["tipo"] == "pozo de absorción" for d in da.values())
+        ops = [{"id": "A", "tipo": "confirmar", "texto": "Mantener %s" % " y ".join(tipos), "efecto": "Se deja así; el diseño completo está en la "
+                "lámina, el metrado, la memoria y las especificaciones.", "cambio": {"confirmar": True}}]
+        if hay_pozo:
+            ops.append({"id": "B", "tipo": "automatica", "texto": "Cambiar a cámara de bombeo", "efecto": "Dos bombas sumergibles alternadas en cada descarga sin gravedad.",
+                        "cambio": {"descarga_alternativa": {"tipo": "bombeo"}}})
+        else:
+            ops.append({"id": "B", "tipo": "automatica", "texto": "Cambiar a pozos de absorción (infiltración)", "efecto": "Necesita el test de percolación "
+                        "del lugar (minutos para bajar 1 cm, IS.020) y la profundidad de la napa; sin ellos el programa vuelve a bombeo.",
+                        "cambio": {"descarga_alternativa": {"tipo": "infiltracion"}}})
+        if sin_gravedad and sin_gravedad.get("subir_npt_m"):
+            ops.append({"id": "C", "tipo": "automatica", "texto": "Subir el nivel de piso %.2f m y descargar por gravedad" % sin_gravedad["subir_npt_m"],
+                        "efecto": sin_gravedad.get("texto_nivel", ""), "cambio": {"subir_nivel": sin_gravedad["subir_npt_m"],
+                                                                                 "descarga_alternativa": {"tipo": None}}})
+        ops.append(MANUAL)
+        d0 = sorted(da)[0]
+        q = R.descargas[d0]["q"] if R is not None and d0 in getattr(R, "descargas", {}) else None
+        out.append(_obs("sin-gravedad", "decision", "Descarga sin gravedad: %s" % ", ".join("%s a %s" % (k, v["tipo"]) for k, v in sorted(da.items())),
+                        ("Con los niveles del proyecto el agua no sale por gravedad (%s)." % sin_gravedad["detalle"]) if sin_gravedad else
+                        "El proyecto pide descargar sin gravedad en %s." % ", ".join(sorted(da)),
+                        "El terreno exterior queda más alto que la cota de fondo a la que llegan las cunetas; la cuneta nunca va enterrada.",
+                        q, ops, recomendada="C" if (sin_gravedad and sin_gravedad.get("verificado") and
+                                                    0 < (sin_gravedad.get("subir_npt_m") or 9) <= 0.50) else "A"))
     # ---------------------------------------------------------------- remanso que la descarga ya no puede corregir (perfil de flujo)
     rem = next((x for x in (revision or {}).get("decisiones", []) if "Perfil de flujo" in x), None)
     if rem:
@@ -147,7 +180,7 @@ def _punto_sin_salida(R, V):
     if R is not None and getattr(R, "sin_cubrir", None):
         a, b = R.sin_cubrir[0]; return ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
     for d in (V or {}).get("descargas", []):
-        if d["estado"] != "SALE POR GRAVEDAD" and R is not None and d["D"] in R.descargas: return R.descargas[d["D"]]["q"]
+        if d["estado"] != "SALE POR GRAVEDAD" and not d.get("alternativa") and R is not None and d["D"] in R.descargas: return R.descargas[d["D"]]["q"]
     return None
 
 
@@ -170,6 +203,11 @@ def aplicar_en_cfg(cfg, soluciones):
             for z in nv.get("zonas", []):
                 if isinstance(z.get("nivel"), (int, float)): z["nivel"] = round(z["nivel"] + dz, 3)
         if c.get("quitar_descargas_fijas"): cfg.pop("descargas", None)
+        if "descarga_alternativa" in c:
+            da = dict(cfg.get("descarga_alternativa") or {}, **c["descarga_alternativa"])
+            if da.get("tipo"): cfg["descarga_alternativa"] = da
+            else:
+                cfg.pop("descarga_alternativa", None); cfg["descarga_alternativa_auto"] = False
     return elegidas
 
 

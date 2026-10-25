@@ -44,6 +44,18 @@ def correr(ruta, limite=1500):
             "observaciones": len(R.get("observaciones", [])), "visor": bool((R.get("archivos") or {}).get("visor"))}
 
 
+def variante_infiltracion(sd, sitio="S02"):
+    """Copia de un sitio con descarga obligada a pozos de absorcion (test de percolacion de 4 min/cm, napa a 6 m), para probar ese camino."""
+    base = os.path.join(sd, sitio, "proyecto.json")
+    if not os.path.isfile(base): return []
+    with open(base, encoding="utf-8") as f: d = json.load(f)
+    d["salida"] = "salida_infiltracion"
+    d["descarga_alternativa"] = {"tipo": "infiltracion", "infiltracion": {"test_min_por_cm": 4.0, "napa_prof_m": 6.0}}
+    ruta = os.path.join(sd, sitio, "proyecto_infiltracion.json")
+    with open(ruta, "w", encoding="utf-8") as f: json.dump(d, f, ensure_ascii=False, indent=1)
+    return [ruta]
+
+
 def main():
     hilos = int(sys.argv[sys.argv.index("--hilos") + 1]) if "--hilos" in sys.argv else 4
     rutas = []
@@ -52,6 +64,7 @@ def main():
     if "--solo-ejemplos" not in sys.argv:
         sd = os.path.join(AQUI, "sitios")
         rutas += sorted(os.path.join(sd, d, "proyecto.json") for d in os.listdir(sd)) if os.path.isdir(sd) else []
+        rutas += variante_infiltracion(sd)
     out = []
     with cf.ThreadPoolExecutor(hilos) as ex:
         for res in ex.map(correr, rutas):

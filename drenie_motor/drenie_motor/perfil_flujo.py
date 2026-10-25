@@ -177,6 +177,7 @@ def profundizar(C, V, P, hq, descargas):
     # lo que puede bajar cada descarga con el mismo criterio de la verificacion: terreno exterior bajo la C.F. - margen a <= 2 m
     holgura = {d["D"]: d["cf"] - P["desc_margen"] - min([zt for dd, zt in d.get("exterior", []) if dd <= P["desc_dist_ext"]] or [d["cf"]])
                for d in V["descargas"] if d["estado"] == "SALE POR GRAVEDAD"}
+    holgura.update({d["D"]: d["holgura_alt"] for d in V["descargas"] if d.get("alternativa") and d.get("holgura_alt") is not None})
     nuevo = {}
 
     def tramos_desde(c, s):
@@ -218,6 +219,7 @@ def limitado(PF, C, V, P):
     recibe = _recibe({c: r for c, r in ram.items() if len(r.get("perfil", [])) >= 2})
     holgura = {d["D"]: d["cf"] - P["desc_margen"] - min([zt for dd, zt in d.get("exterior", []) if dd <= P["desc_dist_ext"]] or [d["cf"]])
                for d in V["descargas"]}
+    holgura.update({d["D"]: d["holgura_alt"] for d in V["descargas"] if d.get("alternativa") and d.get("holgura_alt") is not None})
     cf = {d["D"]: d["cf"] for d in V["descargas"]}
     por_d = {}
     for o in obs:

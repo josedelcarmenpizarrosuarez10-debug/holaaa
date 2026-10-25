@@ -410,7 +410,7 @@ class Planos:
 
 
 def dxf_planos(ruta, R, red, sitio, P, anchos, proyecto, curvas, V, LLt, LLp, secciones_eje, pref="DC", num0=1, techos=None, sums=None,
-               terreno=None, niveles_txt="", tapas=None, estructuras=None, tapa_veh=None, perfil_flujo=None):
+               terreno=None, niveles_txt="", tapas=None, estructuras=None, tapa_veh=None, perfil_flujo=None, descarga_alt=None):
     """PLANOS_CUNETAS.dxf: planta general (num0), cuadros (num0 + 1), perfiles y secciones, con una presentacion por lamina.
     Devuelve (ruta, [(codigo, titulo)], numero de secciones, marcos de las laminas en el modelo)."""
     from . import planta_lamina as PLT
@@ -436,6 +436,10 @@ def dxf_planos(ruta, R, red, sitio, P, anchos, proyecto, curvas, V, LLt, LLp, se
         from . import estructuras_dxf as EX
         le = [EX.lamina(doc, "%s-%02d" % (pref, num0 + 2 + len(lp) + len(ls) + len(lq) + len(ld)), xd + len(ld) * (841 * 5 / 1000.0 + 15.0) + 20, 0.0,
                         P, estructuras or {}, tapa_veh, con_tapa)]
+    if descarga_alt:
+        from . import descarga_alt_dxf as DX
+        le.append(DX.lamina(doc, "%s-%02d" % (pref, num0 + 2 + len(lp) + len(ls) + len(lq) + len(ld) + len(le)),
+                            xd + len(ld) * (841 * 5 / 1000.0 + 15.0) + 20 + len(le) * (841 * 20 / 1000.0 + 15.0) + 20, 0.0, P, descarga_alt))
     todas = [l1, l2] + lp + ls + lq + ld + le
     LY.presentaciones(doc, {l.codigo: l for l in todas})
     B.guardar(doc, ruta)

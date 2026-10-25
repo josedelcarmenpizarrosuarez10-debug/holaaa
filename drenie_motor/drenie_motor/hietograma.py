@@ -10,10 +10,14 @@ import math
 
 
 def curva(ll, Rh=None):
-    """[(D min, I mm/h)] de la estación calculada (periodo de diseño) o de la pestaña LLUVIA."""
+    """[(D min, I mm/h)] de la estación calculada (periodo de diseño) o de la pestaña LLUVIA. Si solo se tiene la intensidad de diseño,
+    la curva se arma con Dick-Peschke (Manual MTC, 3.8): P(D) = P24·(D/1440)^0.25 con P24 sacada de la intensidad en tc."""
     if Rh and Rh.get("idf") and Rh.get("T") in Rh["idf"]:
         return sorted((float(d), float(i)) for d, i in Rh["idf"][Rh["T"]].items())
-    return sorted((float(d), float(i)) for d, i in (ll.get("idf") or []) if float(d) > 0 and float(i) > 0)
+    c = sorted((float(d), float(i)) for d, i in (ll.get("idf") or []) if float(d) > 0 and float(i) > 0)
+    if c or not float(ll.get("I_mmh") or 0): return c
+    tc = max(10.0, float(ll.get("tc_min") or 10)); P24 = float(ll["I_mmh"]) * tc / 60.0 / (tc / 1440.0) ** 0.25
+    return [(D, 60.0 * P24 * (D / 1440.0) ** 0.25 / D) for D in (10, 15, 20, 30, 60, 120, 240, 360, 720, 1440)]
 
 
 def intensidad(c, D):
@@ -24,6 +28,12 @@ def intensidad(c, D):
     else: (d0, i0), (d1, i1) = (c[0], c[1]) if D < c[0][0] else (c[-2], c[-1])
     k = (lx - math.log(d0)) / (math.log(d1) - math.log(d0))
     return math.exp(math.log(i0) + k * (math.log(i1) - math.log(i0)))
+
+
+def diseno(ll, Rh=None, duracion=120):
+    """Hietograma de diseño con bloques del tiempo de concentración (mínimo 10 min): el bloque pico es la intensidad de diseño."""
+    tc = float((Rh or {}).get("tc_min") or ll.get("tc_min") or 10.0)
+    return bloques_alternos(ll, Rh, duracion, int(max(10, 5 * round(tc / 5.0))))
 
 
 def bloques_alternos(ll, Rh=None, duracion=120, dt=5):
@@ -44,4 +54,5 @@ def bloques_alternos(ll, Rh=None, duracion=120, dt=5):
         orden[min(max(pos, 0), n - 1)] = v
     bl = [v * 60.0 / dt for v in orden]
     return {"dt_min": dt, "intensidades": [round(v, 3) for v in bl], "lamina_mm": round(sum(orden), 2), "pico_mmh": round(max(bl), 2),
-            "metodo": "bloques alternos de %d min, tormenta de %d min, curva IDF %s" % (dt, duracion, "de la estación" if Rh else "de la pestaña LLUVIA")}
+            "metodo": "bloques alternos de %d min, tormenta de %d min, curva IDF %s" % (dt, duracion, "de la estación" if Rh else (
+                "de la pestaña LLUVIA" if ll.get("idf") else "por Dick-Peschke desde la intensidad de diseño"))}

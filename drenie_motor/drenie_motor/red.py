@@ -135,8 +135,10 @@ class Red:
             b = (q.x + nin[0] * self.P["d_cerco"], q.y + nin[1] * self.P["d_cerco"])
             if not self.S.interior.buffer(0.05).contains(Point(b)): continue
             ras = self.S.rasante(*b)
-            out.append({"s": s, "q": (q.x, q.y), "b": b, "nin": nin, "z_req": min(zs), "ras": ras,
-                        "holgura": ras - self.P["h0"] - (min(zs) + self.P["desc_margen"])})
+            hol = ras - self.P["h0"] - (min(zs) + self.P["desc_margen"])
+            if self.P.get("descarga_alternativa"):       # a pozo de absorcion o camara de bombeo: hasta la profundidad maxima
+                hol = max(hol, self.P.get("prof_max_sin_gravedad", self.P["prof_max_objetivo"]) - self.P["h0"])
+            out.append({"s": s, "q": (q.x, q.y), "b": b, "nin": nin, "z_req": min(zs), "ras": ras, "holgura": hol})
         return out
 
     # --------------------------------------------------------------------------------------------- validez de una union
@@ -252,7 +254,7 @@ class Red:
         else:
             cand = [c for i, c in enumerate(cand) if c["holgura"] > 0 and i % 2 == 0]       # cada 2 m de cerco
         self.candidatos = cand
-        Lprof = (P["prof_max_objetivo"] - P["h0"]) / P["S0"]
+        Lprof = ((P.get("prof_max_sin_gravedad", P["prof_max_objetivo"]) if P.get("descarga_alternativa") else P["prof_max_objetivo"]) - P["h0"]) / P["S0"]
         N = dict(self.N); ar = []              # aristas: (x, y, costo, largo, tipo)
         # 1) lineas del usuario, partidas donde llega una union
         cortes = defaultdict(list)

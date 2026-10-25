@@ -10,7 +10,7 @@ import json
 import os
 import time
 
-from . import estructuras, tapa_vehicular, lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos, techo, sumideros, metrado, planta_lamina, memorias, especificaciones, revision, render, memoria_calculo, caratulas, planteamiento, soluciones, perfil_flujo, swmm
+from . import estructuras, tapa_vehicular, lector_dxf, terreno, sitio as sitio_mod, red as red_mod, cotas, verificacion, salidas, geom, superficies, escena, hidrologia, lloraderos, dimensionamiento, planos, techo, sumideros, metrado, planta_lamina, memorias, especificaciones, revision, render, memoria_calculo, caratulas, planteamiento, soluciones, perfil_flujo, swmm, hietograma, descarga_alternativa
 from .parametros import combinar
 
 VERSION = "0.1.0"
@@ -138,6 +138,21 @@ def lluvia(cfg_ruta):
     return out
 
 
+def _sin_gravedad(C, V, P, da_cfg, LL, Rh):
+    """Diseno de los pozos de absorcion o de la camara de bombeo de cada descarga sin gravedad (descarga_alternativa.py)."""
+    if not P.get("descarga_alternativa"): return {}
+    alts = {d["D"]: {"cf": d["cf"], "ras": d["ras"], "terreno_ext": d["terreno"]} for d in V["descargas"] if d.get("alternativa")}
+    if not alts: return {}
+    fila = {(f["eje"], f["de"], f["a"]): f for f in V["hidraulica"]}
+    AC, Qd = {}, {}
+    for r in C["ramales"]:
+        D = r["nudos"][-1]
+        if D not in alts or not r["tramos"]: continue
+        t = r["tramos"][-1]; f = fila.get((r["codigo"], t["de"], t["a"])) or {}
+        AC[D] = AC.get(D, 0.0) + f.get("A_m2", 0.0) * f.get("C", 0.0); Qd[D] = Qd.get(D, 0.0) + f.get("Q_ls", 0.0) / 1000.0
+    return descarga_alternativa.disenar(alts, dict(da_cfg, tipo=P["descarga_alternativa"]), P, hietograma.diseno(LL, Rh), AC, Qd)
+
+
 def _remansos(R, S, T, P, LL, hq, C, V):
     """Perfil de flujo dentro del ciclo de diseno: donde el remanso no deja el borde libre minimo (o el tirante pasa del 80 % en un
     tramo tapado) se profundiza el camino a la descarga (perfil_flujo.profundizar), descarga por descarga. Si esa descarga deja de
@@ -157,11 +172,11 @@ def _remansos(R, S, T, P, LL, hq, C, V):
         if not grupos: break
         avanzo = False
         for D, cambios in sorted(grupos.items()):
-            salian = {d["D"] for d in V["descargas"] if d["estado"] == "SALE POR GRAVEDAD"}
+            salian = {d["D"] for d in V["descargas"] if verificacion.descarga_ok(d)}
             for f in (1.0, 0.75, 0.5):
                 prueba = dict(hq); prueba.update({k: round(hq.get(k, P["hmin"]) + f * (v - hq.get(k, P["hmin"])), 3) for k, v in cambios.items()})
                 h_, c_, v_ = ciclo(prueba)
-                if not any(d["D"] in salian and d["estado"] != "SALE POR GRAVEDAD" for d in v_["descargas"]):
+                if not any(d["D"] in salian and not verificacion.descarga_ok(d) for d in v_["descargas"]):
                     hq, C, V = h_, c_, v_; avanzo = True
                     break
             else:
@@ -195,13 +210,25 @@ def disenar(cfg_ruta):
     if M0.sin_asignar:
         raise ValueError("Hay %d areas sin asignar (%.1f m2) en el mapa de superficies: asignar su tipo antes de disenar "
                          "(ver lectura.json, mapa_superficies.sin_asignar)." % (len(M0.sin_asignar), sum(c["geom"].area for c in M0.sin_asignar)))
-    recorte = {}
-    for intento in range(1, 6):
+    # descargas sin gravedad (CE.040, art. 21): a pozos de absorcion o a camara de bombeo, si el proyecto lo pide o si con los
+    # niveles dados el agua no sale por gravedad por ningun lado (entonces se disena con bombeo, o con pozos si hay test de percolacion)
+    da_cfg = cfg.get("descarga_alternativa") or {}
+    if da_cfg.get("tipo"): P["descarga_alternativa"] = da_cfg["tipo"]
+    sin_gravedad = None
+    recorte = {}; intento = 0
+    while intento < 5:                      # 5 intentos; al pasar a descarga sin gravedad se empieza de nuevo
+        intento += 1
         R = _red(S, T, P, ejes, cfg, recorte)
         R.chaflanes(); R.nombrar()
         if not R.ramales:
             dz, det = _nivel_necesario(R, P)
             verif, probado = _nivel_verificado(cfg, base, salida, dz)
+            if not P.get("descarga_alternativa") and cfg.get("descarga_alternativa_auto", True):
+                sin_gravedad = {"detalle": det or "ninguna cuneta llega a una descarga", "subir_npt_m": dz, "verificado": verif is not None,
+                                "texto_nivel": _texto_nivel(cfg, dz, verif, probado)}
+                P["descarga_alternativa"] = "infiltracion" if (da_cfg.get("infiltracion") or {}).get("test_min_por_cm") else "bombeo"
+                recorte = {}; intento = 0
+                continue
             raise ValueError("Con los niveles dados el agua no tiene salida por gravedad por ningun lado del cerco (%s). Solucion: %s." % (
                 det or "ninguna cuneta llega a una descarga", _texto_nivel(cfg, dz, verif, probado)))
         M = _mapa(B, S, cfg, P, [(R.Nf[a], R.Nf[b]) for r in R.ramales for a, b in zip(r["nudos"][:-1], r["nudos"][1:])
@@ -214,7 +241,7 @@ def disenar(cfg_ruta):
             hq = hq2
         hq, C, V = _remansos(R, S, T, P, LL, hq, C, V)
         # cuneta nunca enterrada: si una descarga no sale con las cotas reales, se reduce lo que puede recibir y se repite
-        malas = [d for d in V["descargas"] if d["estado"] != "SALE POR GRAVEDAD"]
+        malas = [d for d in V["descargas"] if not verificacion.descarga_ok(d)]
         if not malas or cfg.get("descargas"): break
         for d in malas:
             info = R.descargas[d["D"]]
@@ -251,6 +278,7 @@ def disenar(cfg_ruta):
     anchos = {(f["eje"], f["de"], f["a"]): f["b"] for f in V["hidraulica"]}
     ES = estructuras.calcular(C, V, P)                 # caidas, cajas de caida y pases por muros en los cambios de plataforma
     PF = perfil_flujo.calcular(C, V, P)                # nivel del agua real por el paso estandar (remansos, caidas, resaltos)
+    DA = _sin_gravedad(C, V, P, da_cfg, LL, Rh)        # pozos de absorcion o camara de bombeo donde no hay gravedad
     rp = PF["resumen"]
     V["comprobaciones"].append({"n": len(V["comprobaciones"]) + 1, "comprobacion": "Perfil de flujo (paso estandar): borde libre >= %.2f m con el "
                                 "nivel del agua real, con remansos en las uniones; en tramos tapados tirante <= %.0f %% de la altura libre" % (
@@ -266,7 +294,7 @@ def disenar(cfg_ruta):
     LLt, LLp = lloraderos.calcular(C, verde, P, anchos)
     tapas_i = planta_lamina.tapas_de(C, set(R.descargas), anchos, P)
     xls_m, q_m, partidas = metrado.libro(os.path.join(salida, "METRADO_DRENAJE_PLUVIAL.xlsx"), C, R, M, P, anchos, V, LLt, TT, SM, cfg.get("proyecto", {}), cfg, tapas_i,
-                                         ES=ES, TV=TV)
+                                         ES=ES, TV=TV, DA=DA)
     secciones = {}
     for f in V["hidraulica"]:
         e = secciones.setdefault(f["eje"], {"sector": f["sector"], "eje": f["eje"], "L_m": 0.0, "b_pide": 0, "b": f["b"],
@@ -290,6 +318,7 @@ def disenar(cfg_ruta):
                "techos": TT["metrado"], "sumideros": SM["metrado"], "estructuras": ES["resumen"],
                "tapa_vehicular_m": round(sum(t.get("L_vehicular", 0) for r in C["ramales"] for t in r["tramos"]), 2),
                "perfil_flujo": {k: v for k, v in PF["resumen"].items() if k != "observados"},
+               "descargas_sin_gravedad": {D: d["tipo"] for D, d in DA.items()},
                "swmm": dict({k: SW[k] for k in ("nudos", "descargas", "conductos", "subcuencas", "area_ha")},
                             **({"rebalses": len(SW["simulacion"]["rebalses"]), "volumen_rebalse_m3": SW["simulacion"]["volumen_rebalse_m3"],
                                 "Q_pico_ls": {d["D"]: d["Q_max_ls"] for d in SW["simulacion"]["descargas"]}} if SW.get("simulacion") else {}))}
@@ -298,7 +327,7 @@ def disenar(cfg_ruta):
     pl = cfg.get("planos", {})
     dxf_pf, laminas, n_sec, marcos = planos.dxf_planos(os.path.join(salida, "PLANOS_CUNETAS.dxf"), C, R, S, P, anchos, proyecto, cur, V, LLt, LLp,
                                                list(secciones.values()), pl.get("prefijo", "DC"), pl.get("inicio", 1), TT, SM,
-                                                       T, _niveles_txt(cfg), tapas_i, estructuras=ES, tapa_veh=TV, perfil_flujo=PF)
+                                                       T, _niveles_txt(cfg), tapas_i, estructuras=ES, tapa_veh=TV, perfil_flujo=PF, descarga_alt=DA)
     png = salidas.png_planta(os.path.join(salida, "PLANTA_RED_CUNETAS.png"), C, R, S, cur, ejes,
                              "%s - red de cunetas: %d ejes, %d descargas, %.1f m (%.1f m de uniones nuevas)" % (
                                  proyecto.get("nombre_corto", ""), resumen["ejes"], resumen["descargas"], Ltot, nuevas))
@@ -316,18 +345,18 @@ def disenar(cfg_ruta):
     if Rh:
         hidrologia.excel(Rh, os.path.join(salida, "HIDROLOGIA.xlsx")); fig["idf"] = hidrologia.png_idf(Rh, os.path.join(salida, "CURVAS_IDF.png"))
     xls_mc = memoria_calculo.libro(os.path.join(salida, "MEMORIA_CALCULO_DRENAJE_PLUVIAL.xlsx"), proyecto, P, Rh, LL, V, list(secciones.values()), TT, SM,
-                                   ES=ES, TV=TV, PF=PF)
+                                   ES=ES, TV=TV, PF=PF, DA=DA)
     xls_mc_rc = metrado.recalcular(xls_mc, os.path.join(salida, "_recalculado"))
     xls_rc = metrado.recalcular(xls_m, os.path.join(salida, "_recalculado"))
     tot = metrado.totales(xls_rc)
     metas = [dict(x, total=tot.get(x["codigo"])) for x in partidas]
     ctx = memorias.Contexto(cfg, P, Rh, LL, V, C, R, list(secciones.values()), TT, SM, LLt, lams, metas, rep_t, M.cuadro(), fig)
     ctx.plan = plan_inf
-    ctx.ES, ctx.TV, ctx.PF, ctx.SW = ES, TV, PF, SW
+    ctx.ES, ctx.TV, ctx.PF, ctx.SW, ctx.DA = ES, TV, PF, SW, DA
     ctx.hmax = max((x["h_max"] for x in q_m), default=ctx.hmax)       # una sola cifra en todos los documentos (la del metrado)
     doc_h, doc_d = memorias.escribir(salida, ctx)
     doc_e = especificaciones.construir(os.path.join(salida, "ESPECIFICACIONES_TECNICAS_DRENAJE_PLUVIAL.docx"), partidas, P, cfg, q_m, V, lams, TT, SM, LLt,
-                                       ES=ES, TV=TV)
+                                       ES=ES, TV=TV, DA=DA)
     # revision general de todo lo entregado (conocimiento/01, seccion 8.2)
     nivel = _nivel_necesario(R, P, V)
     if nivel[0] > 0:
@@ -347,7 +376,7 @@ def disenar(cfg_ruta):
            "descargas_propuestas": [{"D": k, "x": round(v["q"][0], 3), "y": round(v["q"][1], 3), "L_max_m": v["L_max"],
                                      "terreno_exterior_min": round(v["z_req"], 2)} for k, v in R.descargas.items()],
            "sin_salida": [[list(a), list(b)] for a, b in R.sin_cubrir], "verificacion": V,
-           "secciones_por_eje": list(secciones.values()), "techos": TT, "sumideros": SM, "estructuras": ES, "tapa_vehicular": TV, "perfil_flujo": perfil_flujo.redondear(PF, 2),
+           "secciones_por_eje": list(secciones.values()), "techos": TT, "sumideros": SM, "estructuras": ES, "tapa_vehicular": TV, "perfil_flujo": perfil_flujo.redondear(PF, 2), "descargas_sin_gravedad": DA,
            "hietograma": SW["hietograma"], "lloraderos": {"resumen": lloraderos.resumen(LLt), "tramos": LLt},
            "profundidad_minima_por_capacidad": hq, "archivos": {"dxf": dxf, "png": png, "dimensionamiento": xls, "canaletas_montantes_y_sumideros": xls_t, "metrado": xls_m, "planos": dxf_pf,
                                                  "memoria_hidrologica": doc_h, "memoria_descriptiva": doc_d, "especificaciones": doc_e,
@@ -359,7 +388,7 @@ def disenar(cfg_ruta):
            "requiere_confirmacion": ["descargas"] if not cfg.get("descargas") else []}
     # observaciones y soluciones propuestas (ventana de soluciones del visor y hoja SOLUCIONES de la revision)
     out["observaciones"] = soluciones.armar(cfg, nivel, plan_inf, TT, SM, V, S.avisos + M.avisos + R.avisos + TT["avisos"] + SM["avisos"],
-                                            rev[1], R, S, elegidas)
+                                            rev[1], R, S, elegidas, da=DA, sin_gravedad=sin_gravedad)
     out["resumen"]["observaciones_pendientes"] = sum(1 for o in out["observaciones"] if o["estado"] == "pendiente")
     soluciones.hoja_excel(rev[0], out["observaciones"])
     json.dump(out, open(os.path.join(salida, "resultado.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
@@ -448,7 +477,7 @@ def _nivel_necesario(R, P, V=None):
             if d > falta: falta = d
         det.append("%.1f m de cuneta sin salida por gravedad" % sum(geom.dist(a, b) for a, b in R.sin_cubrir))
     for d in (V or {}).get("descargas", []):
-        if d["estado"] != "SALE POR GRAVEDAD":
+        if not verificacion.descarga_ok(d):
             info = R.descargas.get(d["D"], {})
             x = info.get("z_req", d["cf"]) + P["desc_margen"] - d["cf"]
             if x > falta: falta = x
@@ -490,7 +519,7 @@ def _ensayo(cfg, base, salida, dz):
             V, hq2 = verificacion.verificar(C, R, S, T, P, LL, hq)
             if hq2 == hq: break
             hq = hq2
-        malas = [d for d in V["descargas"] if d["estado"] != "SALE POR GRAVEDAD"]
+        malas = [d for d in V["descargas"] if not verificacion.descarga_ok(d)]
         if not malas and not R.sin_cubrir: return True
         if c.get("descargas"): return False
         for d in malas:

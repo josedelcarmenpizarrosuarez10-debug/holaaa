@@ -267,3 +267,32 @@ PERFIL DE FLUJO RESUMEN en la memoria de cálculo, capítulo «Perfil de flujo y
 concentración) y, si `swmm-toolkit` está instalado (va en el motor compilado), lo corre con el motor de EPA y resume continuidad,
 caudales pico por descarga, rebalses y tramos llenos (`RED_CUNETAS_SWMM.rpt`). Fuentes en la biblioteca de normas: `paso_estandar`,
 `hietograma`, `swmm`.
+En los tramos tapados el tirante del perfil de flujo no pasa del 80 % de la altura libre bajo la losa (`tirante_max_conducto`, CE.040,
+17.6.2; con 1 se desactiva). Esta regla va solo en el perfil de flujo (comprobación 14), no en la verificación por tramo.
+
+## Descargas sin gravedad: pozos de absorción y cámara de bombeo (`descarga_alternativa.py`)
+
+Cuando con los niveles dados el agua no sale por gravedad por ningún lado del cerco, el motor ya no se detiene: rediseña la red con
+descarga sin gravedad (CE.040, art. 21) y deja la observación con las opciones (subir el nivel de piso lo que hace falta, bombeo o
+pozos). También se puede pedir desde el proyecto:
+
+```json
+"descarga_alternativa": {"tipo": "infiltracion",
+                         "infiltracion": {"test_min_por_cm": 4.0, "napa_prof_m": 6.0, "FS": 3.0},
+                         "bombeo": {"cota_entrega": 159.20, "L_impulsion_m": 25}}
+```
+
+- `tipo`: `infiltracion` (pozos; si el terreno no es apto pasa a bombeo) o `bombeo`. Sin `tipo`, el rediseño automático usa pozos
+  si hay test de percolación y bombeo si no (`"descarga_alternativa_auto": false` lo apaga).
+- Pozos de absorción (IS.020, arts. 17, 20 y 21): tasa f = 0.6/t/FS (m/h); tránsito del hidrograma de la tormenta de diseño en el pozo
+  (entra Qe, sale f por la pared mojada); vaciado del 50 % en 24 h como máximo; fondo 2 m sobre la napa; D interior ≥ 1 m; 6 m entre
+  pozos; t > 12 min/cm: no apto.
+- Cámara de bombeo (IS.010, 6.4 y 7.1 f; OS.080): dos bombas alternadas, cada una con el caudal pico; volumen útil para ciclos de
+  10 min; niveles de alarma, arranque, parada y fondo; impulsión PVC con V ≤ 2 m/s, Hazen-Williams C = 150; potencia con 60 % de
+  eficiencia y 15 % de reserva.
+- Con descarga sin gravedad la cuneta puede bajar hasta `prof_max_sin_gravedad` (1.50 m) para reducir el número de descargas.
+
+Salidas: lámina de detalle (corte y planta de cada pozo, corte de cada cámara, cuadro y notas), partidas en el metrado y en las
+especificaciones, hoja DESCARGA SIN GRAVEDAD (con fórmulas) en la memoria de cálculo, capítulo en la memoria hidrológica y
+`descargas_sin_gravedad` en `resultado.json`. En SWMM el pozo o la cámara se representan como descarga libre (el diseño de los pozos y de
+la cámara se hace aparte con el hidrograma de la tormenta). La batería de pruebas corre además una copia de S02 con pozos de absorción.

@@ -61,7 +61,8 @@ PARAMETROS = {
     "caja_caida_max": 1.00,       # de 0.50 a 1.00 m: caja de caida con poza; mas de 1.00 m: muro de contencion con marco de C.A.
     "penal_subida": 200.0,        # costo por metro de subida de plataforma al elegir recorridos (el agua va de la alta a la baja)
     "S_max_fondo": 0.02,          # bajada maxima del fondo fuera de las estructuras (profundizar empezando antes)
-    "corregir_remansos": True,    # perfil de flujo: profundizar el camino a la descarga donde el remanso no deja el borde libre
+    "corregir_remansos": True,
+    "prof_max_sin_gravedad": 1.50,  # con descarga sin gravedad (pozo o camara) la cuneta puede bajar hasta aqui, para tener menos descargas    # perfil de flujo: profundizar el camino a la descarga donde el remanso no deja el borde libre
     # ciclo diseno <-> verificacion
     "vueltas_max": 8,
 }

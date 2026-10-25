@@ -92,8 +92,12 @@ def diseno(I, P, V, C, sec, hq=None):
     I.add(g, "Borde libre >= %.2f m con el caudal de diseño" % P["BL"], bl >= P["BL"] - 1e-6, "mínimo %.3f m" % bl)
     I.add(g, "Velocidad <= %.1f m/s" % P["Vmax"], vm <= P["Vmax"] + 1e-6, "máxima %.2f m/s" % vm)
     for d in V["descargas"]:
-        I.add(g, "Descarga %s por gravedad" % d["D"], d["estado"] == "SALE POR GRAVEDAD",
-              "cota de fondo %.3f, terreno exterior %.2f" % (d["cf"], d["terreno"]))
+        if d.get("alternativa"):
+            I.add(g, "Descarga %s sin gravedad, a pozo de absorción o cámara de bombeo" % d["D"], True,
+                  "cota de fondo %.3f, terreno exterior %.2f" % (d["cf"], d["terreno"]))
+        else:
+            I.add(g, "Descarga %s por gravedad" % d["D"], d["estado"] == "SALE POR GRAVEDAD",
+                  "cota de fondo %.3f, terreno exterior %.2f" % (d["cf"], d["terreno"]))
     for c in V["comprobaciones"]:
         I.add(g, "Comprobación %d: %s" % (c["n"], c["comprobacion"]), c["estado"].startswith("CUMPLE"), c.get("detalle", ""))
 
