@@ -15,6 +15,7 @@ import hmac
 import json
 import os
 import shutil
+import stat
 import subprocess
 import sys
 import time
@@ -43,13 +44,37 @@ def correr(exe, args, sesion=None):
 
 def compilar(salida):
     """Modulo binario del paquete drenie_motor con Nuitka; devuelve la ruta del .pyd (Windows) o .so."""
-    if os.path.isdir(salida): shutil.rmtree(salida)
+    borrar(salida)
     os.makedirs(salida)
     subprocess.run([sys.executable, "-m", "nuitka", "--module", os.path.join(RAIZ, "drenie_motor"), "--include-package=drenie_motor",
                     "--output-dir=" + salida, "--remove-output", "--no-pyi-file", "--assume-yes-for-downloads"], check=True, cwd=RAIZ)
     mod = [f for f in os.listdir(salida) if f.startswith("drenie_motor.") and f.endswith((".pyd", ".so"))]
     if len(mod) != 1: sys.exit("Nuitka no genero el modulo compilado del motor: %s" % os.listdir(salida))
     return os.path.join(salida, mod[0])
+
+
+def borrar(carpeta):
+    """Borra una carpeta aunque Windows la tenga ocupada un momento (antivirus o indexador): reintenta y quita «solo lectura»."""
+    def quitar_lectura(func, ruta, _):
+        try: os.chmod(ruta, stat.S_IWRITE); func(ruta)
+        except OSError: pass
+    for intento in range(5):
+        if not os.path.isdir(carpeta): return
+        shutil.rmtree(carpeta, onerror=quitar_lectura)
+        if os.path.isdir(carpeta): time.sleep(2 * (intento + 1))
+    if os.path.isdir(carpeta): sys.exit("No se pudo borrar %s: cierre DrenIE y el explorador en esa carpeta y vuelva a ejecutar" % carpeta)
+
+
+def empaquetar(trabajo, env):
+    """PyInstaller con su propia carpeta de trabajo; si falla (archivo bloqueado en Windows), un segundo intento desde cero."""
+    for intento in (1, 2):
+        borrar(trabajo); borrar(DESTINO)
+        r = subprocess.run([sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean", "--distpath", DESTINO, "--workpath", trabajo,
+                            os.path.join(AQUI, "drenie-motor.spec")], env=env)
+        if r.returncode == 0: return
+        print("PyInstaller fallo (intento %d de 2)%s" % (intento, "; se repite desde cero" if intento == 1 else ""), flush=True)
+        time.sleep(5)
+    sys.exit("PyInstaller no pudo empaquetar el motor (ver los mensajes de arriba)")
 
 
 def sin_bytecode(trabajo):
@@ -63,13 +88,14 @@ def sin_bytecode(trabajo):
 
 
 def main():
-    trabajo = os.path.join(AQUI, "build")
-    if os.path.isdir(DESTINO): shutil.rmtree(DESTINO)
+    # cada ejecucion en carpetas nuevas: nada de una compilacion anterior (o bloqueado por Windows) entra en esta
+    base = os.path.join(AQUI, "build"); borrar(base)
+    marca = time.strftime("%Y%m%d-%H%M%S")
+    nuitka, trabajo = os.path.join(base, "nuitka-" + marca), os.path.join(base, "pyinstaller-" + marca)
     env = dict(os.environ); env.pop("DRENIE_MOTOR_COMPILADO", None)
     if not SIN_COMPILAR:
-        env["DRENIE_MOTOR_COMPILADO"] = compilar(os.path.join(trabajo, "nuitka"))
-    subprocess.run([sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean", "--distpath", DESTINO, "--workpath", trabajo,
-                    os.path.join(AQUI, "drenie-motor.spec")], check=True, env=env)
+        env["DRENIE_MOTOR_COMPILADO"] = compilar(nuitka)
+    empaquetar(trabajo, env)
     if not SIN_COMPILAR: sin_bytecode(trabajo)
     exe = os.path.join(DESTINO, "drenie-motor", "drenie-motor.exe" if os.name == "nt" else "drenie-motor")
     if not os.path.isfile(exe): sys.exit("No se genero %s" % exe)
