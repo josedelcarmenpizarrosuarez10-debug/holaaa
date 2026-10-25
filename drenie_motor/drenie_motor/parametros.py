@@ -57,8 +57,9 @@ PARAMETROS = {
     "caida_continua_max": 0.15,   # hasta 0.15 m la cuneta sigue continua (el desnivel se absorbe en la pendiente)
     "caida_absorbe_L": 3.0,       # largo en que se absorbe ese desnivel (m)
     "caida_corta_max": 0.50,      # de 0.15 a 0.50 m: caida corta (escalon en el fondo)
-    "caja_caida_max": 1.00,
-    "penal_subida": 200.0,        # costo por metro de subida de plataforma al elegir recorridos (el agua va de la alta a la baja)       # de 0.50 a 1.00 m: caja de caida con poza; mas de 1.00 m: muro de contencion con marco de C.A.
+    "caja_caida_max": 1.00,       # de 0.50 a 1.00 m: caja de caida con poza; mas de 1.00 m: muro de contencion con marco de C.A.
+    "penal_subida": 200.0,        # costo por metro de subida de plataforma al elegir recorridos (el agua va de la alta a la baja)
+    "S_max_fondo": 0.02,          # bajada maxima del fondo fuera de las estructuras (profundizar empezando antes)
     # ciclo diseno <-> verificacion
     "vueltas_max": 8,
 }

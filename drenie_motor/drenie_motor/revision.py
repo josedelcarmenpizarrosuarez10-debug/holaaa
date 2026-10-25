@@ -74,7 +74,7 @@ def diseno(I, P, V, C, sec, hq=None):
           all(abs(P[k] - 0.10) < 1e-9 for k in ("e_muro", "e_fondo", "e_tapa", "e_solado")))
     smin = min(f["S_pct"] for f in H)
     I.add(g, "Pendiente de la cota de fondo >= %.1f %%" % (100 * P["S0"]), smin >= 100 * P["S0"] - 1e-6, "mínima %.2f %%" % smin)
-    ini = []
+    ini, exacto = [], []
     for r in C["ramales"]:
         t0 = r["tramos"][0]; tap = any(a <= 0.01 for a, b in r.get("tapados", []))
         veh = any(a <= 0.01 for a, b in r.get("vehiculares", []))                     # en estacionamiento: losa vehicular
@@ -82,10 +82,12 @@ def diseno(I, P, V, C, sec, hq=None):
         h_ini = P["h0"] + et
         req = (hq or {}).get("%s|%s|%s" % (r["codigo"], t0["de"], t0["a"]))           # tramo profundizado (capacidad o tubo de sumidero)
         if req: h_ini = max(h_ini, req + et)
-        ini.append(abs(t0["h_de"] - h_ini) < 0.006)
+        # nunca menos que la minima; mas solo si hay que profundizar desde el inicio (bajada maxima del fondo de 2 %)
+        ini.append(t0["h_de"] >= h_ini - 0.006); exacto.append(abs(t0["h_de"] - h_ini) < 0.006)
     I.add(g, "Profundidad inicial %.2f m (más la losa si empieza tapada) y altura libre >= %.2f m" % (P["h0"], P["hmin"]),
           all(ini) and min(min(t["h_de"], t["h_a"]) for r in C["ramales"] for t in r["tramos"]) >= P["hmin"] - 1e-6,
-          "%d de %d ejes empiezan con la profundidad mínima" % (sum(ini), len(ini)))
+          "%d de %d ejes empiezan con la profundidad mínima; los demás, más profundos para no bajar el fondo más de %.0f %%" % (
+              sum(exacto), len(ini), 100 * P.get("S_max_fondo", 0.02)))
     bl = min(f["borde_libre"] for f in H); vm = max(f["V"] for f in H)
     I.add(g, "Borde libre >= %.2f m con el caudal de diseño" % P["BL"], bl >= P["BL"] - 1e-6, "mínimo %.3f m" % bl)
     I.add(g, "Velocidad <= %.1f m/s" % P["Vmax"], vm <= P["Vmax"] + 1e-6, "máxima %.2f m/s" % vm)

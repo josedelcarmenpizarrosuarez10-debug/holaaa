@@ -49,7 +49,7 @@ def _entrada():
     return json.loads(datos) if datos else {}
 
 
-ESCRITORIO = {"capas": (1, 1), "crear": (0, 0), "vista": (1, 1), "ediciones": (1, 1), "datos": (1, 1), "entregables": (1, 1), "abrir": (1, 2), "normas": (0, 0)}
+ESCRITORIO = {"capas": (1, 1), "crear": (0, 0), "vista": (1, 1), "ediciones": (1, 1), "datos": (1, 1), "entregables": (1, 1), "abrir": (1, 2), "normas": (0, 0), "para_drenie": (1, 1)}
 
 
 def _registrar(cfg_ruta, accion):
@@ -127,6 +127,7 @@ def _escritorio(argv):
         elif a == "datos": out = escritorio.datos(argv[1], _entrada())
         elif a == "entregables": out = escritorio.entregables(argv[1])
         elif a == "normas": out = escritorio.normas_fuentes()
+        elif a == "para_drenie": out = escritorio.para_drenie(argv[1])
         else: out = escritorio.abrir(argv[1], argv[2] if len(argv) > 2 else None)
     except (ValueError, FileNotFoundError, KeyError) as e:
         _emitir({"error": str(e).strip("'\"") or type(e).__name__, "tipo": "datos"}); return 2

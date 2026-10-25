@@ -94,6 +94,12 @@ def calcular(red, sitio, P, hq=None):
                 if pts[k1][2] in req and f[k1] < f[k1 - 1] - P["S0"] * (s[k1] - s[k1 - 1]) * 1.5:
                     for i in range(k0 + 1, k1):
                         f[i] = min(f[i], f[k0] + (f[k1] - f[k0]) * (s[i] - s[k0]) / (s[k1] - s[k0]))
+            # ninguna bajada del fondo mas fuerte que S_max (fuera de las estructuras de caida): si hay que profundizar, se empieza
+            # antes (sin escalones que suban la velocidad)
+            smax = P.get("S_max_fondo", 0.02)
+            for i in range(len(pts) - 1, 0, -1):
+                if rr[i - 1] - rr[i] > P["caida_continua_max"]: continue
+                f[i - 1] = min(f[i - 1], f[i] + smax * (s[i] - s[i - 1]) + max(0.0, rr[i - 1] - rr[i]))
             fondo[cod] = f
         for r in red.ramales:
             cod, fin = r["codigo"], r["nudos"][-1]; v = fondo[cod][-1]

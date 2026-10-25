@@ -9,6 +9,8 @@ el motor responde un JSON por la salida estandar. Ordenes (ademas de leer, disen
     datos proyecto.json        (JSON por stdin) actualiza datos que vienen de DrenIE (la lluvia de la pestana LLUVIA)
     entregables proyecto.json  lista de entregables del ultimo calculo
     normas                     biblioteca de normas y fuentes (cada dato con su norma, articulo o tabla y su estado)
+    para_drenie proyecto.json  la red calculada en el formato de DrenIE (perfiles de CUNETAS, modulos de MONTANTES y partidas
+                               de METRADO) para pasarla a sus pestanas
     abrir proyecto.json [ARCH] abre la carpeta de salida o un entregable con el programa del sistema
 Ningun error cierra el programa: __main__ devuelve {"error": mensaje en espanol}.
 """
@@ -140,6 +142,91 @@ def ediciones(ruta, ed):
 def normas_fuentes():
     from . import normas
     return dict(normas.para_drenie(), accion="normas")
+
+
+def para_drenie(ruta):
+    """Red calculada -> DrenIE. Cada eje es un perfil de cuneta (tramos partidos en las estructuras de caida, los tramos tapados y
+    los vehiculares, con la misma cota de fondo de la red), conectado a la cuneta que lo recibe o a su descarga; cada techo es un
+    modulo con sus montantes; las estructuras de caida van como partidas adicionales del metrado."""
+    cfg, base, sal = _cargar(ruta)
+    rr = os.path.join(sal, "resultado.json")
+    if not os.path.exists(rr): raise FileNotFoundError("Primero calcule la red (Calcular todo).")
+    R = json.load(open(rr, encoding="utf-8")); P = R["parametros"]; C = R["red"]
+    fila = {(f["eje"], f["de"], f["a"]): f for f in R["verificacion"]["hidraulica"]}
+    N = C["nudos"]; x0 = min(v[0] for v in N.values()); y0 = min(v[1] for v in N.values())
+    pid = lambda cod: "pf-red-" + cod
+    prog = {}
+    for r in C["ramales"]:
+        s = 0.0; prog[r["codigo"]] = {r["nudos"][0]: 0.0}
+        for t in r["tramos"]: s += t["L"]; prog[r["codigo"]][t["a"]] = round(s, 2)
+
+    def interp(perfil, x, k):
+        if x <= perfil[0][0]: return perfil[0][k]
+        for a, b in zip(perfil[:-1], perfil[1:]):
+            if a[0] <= x <= b[0]: return a[k] + (b[k] - a[k]) * ((x - a[0]) / (b[0] - a[0]) if b[0] > a[0] else 0)
+        return perfil[-1][k]
+    perfiles = []
+    for r in C["ramales"]:
+        pf = r["perfil"]; L = r["L"]; cod = r["codigo"]
+        cortes = {0.0, round(L, 2)}
+        lim = []; s = 0.0
+        for t in r["tramos"]: lim.append((s, s + t["L"], t)); s += t["L"]; cortes.add(round(s, 2))
+        caidas = {}
+        for c in r.get("cambios_nivel", []):
+            if c["sentido"] == "baja" and c["caida_fondo"] > 0.05:
+                cortes.add(round(c["s"], 2)); caidas[round(c["s"], 2)] = c
+        for a, b in r.get("tapados", []) + r.get("vehiculares", []): cortes.update((round(a, 2), round(b, 2)))
+        cortes = sorted(x for x in cortes if 0 <= x <= L + 1e-6)
+        tramos = []; cf_prev = interp(pf, 0, 2)
+        for a, b in zip(cortes[:-1], cortes[1:]):
+            if b - a < 0.05: continue
+            m = (a + b) / 2
+            t = next((q for q in lim if q[0] - 1e-6 <= m <= q[1] + 1e-6), lim[-1])[2]
+            f = fila.get((cod, t["de"], t["a"])) or {}
+            veh = any(x <= m <= y for x, y in r.get("vehiculares", [])); tap = any(x <= m <= y for x, y in r.get("tapados", []))
+            drop = 0.0; cf0 = cf_prev
+            if round(a, 2) in caidas: c = caidas[round(a, 2)]; drop = round(max(0.0, c["cf_arriba"] - c["cf_abajo"]), 3); cf0 = cf_prev - drop
+            c_fin = caidas.get(round(b, 2))
+            cf1 = c_fin["cf_arriba"] if c_fin else interp(pf, b, 2)
+            S = max(0.0, (cf0 - cf1) / (b - a)) * 100
+            tr = {"id": "t-red-%s-%d" % (cod, len(tramos)), "L": round(b - a, 2), "S": round(S, 3), "b": f.get("b", P["b_int"]),
+                  "EM": P["e_muro"], "EL": P["e_fondo"], "tipo": "cajon" if (tap or veh) else "abierta"}
+            if tap or veh: tr["uso"] = "vehicular" if veh else "peatonal"; tr["ET"] = P.get("e_tapa_veh", P["e_tapa"]) if veh else P["e_tapa"]
+            if drop: tr["drop"] = drop
+            tramos.append(tr); cf_prev = cf1
+        fin = r["nudos"][-1]
+        rec = next((q for q in C["ramales"] if q["codigo"] != cod and fin in q["nudos"][1:-1]), None)
+        outlet = {"type": "channel", "targetId": pid(rec["codigo"]), "at": prog[rec["codigo"]].get(fin, 0.0)} if rec else {"type": "external"}
+        hmax = max(p[1] - p[2] for p in pf)
+        perfiles.append({"id": pid(cod), "name": "%s · red de cunetas" % cod, "origen": "red", "redEje": cod, "qManual": str(max(
+            (f["Q_ls"] for k, f in fila.items() if k[0] == cod), default=0)), "nct": "%.3f" % pf[0][1], "ncf0": "%.3f" % pf[0][2],
+            "nctPts": [{"x": round(q[0], 2), "z": round(q[1], 3)} for q in pf[::4]] + [{"x": round(pf[-1][0], 2), "z": round(pf[-1][1], 3)}],
+            "sFija": False, "hMax": round(max(1.0, hmax + 0.10), 2), "hArm": P["h_acero"], "tramos": tramos,
+            "routing": {"buildings": [], "outlet": outlet},
+            "plan": {"points": [{"x": round(N[n][0] - x0, 3), "y": round(N[n][1] - y0, 3)} for n in r["nudos"]]}})
+    modulos = {}
+    for l in R["techos"]["lados"]:
+        m = modulos.setdefault(l["techo"], {"id": "sec-red-" + l["techo"], "name": "%s · red de cunetas" % l["techo"], "origen": "red", "area": 0.0,
+                                            "runoffC": P["C"]["techo"], "roofType": "one", "downspoutsPerSide": 1, "lados": 0})
+        m["area"] = round(m["area"] + l["A_m2"], 2); m["lados"] += 1; m["downspoutsPerSide"] = max(m["downspoutsPerSide"], l["montantes"])
+        if m["lados"] >= 2: m["roofType"] = "two"
+    adicionales = []
+    for e in R.get("estructuras", {}).get("estructuras", []):
+        if not e.get("codigo"): continue
+        mt = e["metrado"]
+        for k, nom, und in (("concreto_m3", "CONCRETO f'c=210 kg/cm2 EN ESTRUCTURA", "m³"), ("encofrado_m2", "ENCOFRADO Y DESENCOFRADO EN ESTRUCTURA", "m²"),
+                            ("acero_kg", "ACERO f'y=4200 kg/cm2 EN ESTRUCTURA", "kg")):
+            adicionales.append({"id": "mm-red-%s-%s" % (e["codigo"], k), "code": "RED.%s" % e["codigo"], "name": "%s %s (%s, %s prog. %.2f)" % (
+                nom, e["codigo"], e["descripcion"].split(" (")[0].lower(), e["eje"], e["progresiva"]), "unit": und, "qty": str(mt[k]), "origen": "red"})
+        if e["tipo"] == "muro":
+            adicionales.append({"id": "mm-red-%s-marco" % e["codigo"], "code": "RED.%s" % e["codigo"], "name": "MARCO DE CONCRETO ARMADO PARA PASE EN MURO "
+                                "DE CONTENCION %s (%.2f x %.2f m)" % (e["codigo"], e["marco_ancho"], e["marco_alto"]), "unit": "und", "qty": "1", "origen": "red"})
+    tm = R["techos"]["metrado"]
+    for k, nom, und in (("tuberia_enterrada_m", "TUBERIA PVC Ø4\" ENTERRADA DADO - CUNETA (red)", "m"), ("dados_und", "DADO DE CONCRETO DE MONTANTE (red)", "und"),
+                        ("codo_dado_und", "CODO PVC Ø4\" x 90° EN DADO (red)", "und"), ("falsas_columnas_und", "FALSA COLUMNA 0.20 x 0.15 x 1.30 (red)", "und")):
+        if tm.get(k): adicionales.append({"id": "mm-red-%s" % k, "code": "RED.MON", "name": nom, "unit": und, "qty": str(tm[k]), "origen": "red"})
+    return {"accion": "para_drenie", "perfiles": perfiles, "modulos": list(modulos.values()), "metrado_adicional": adicionales,
+            "resumen": {"ejes": len(perfiles), "modulos": len(modulos), "partidas": len(adicionales)}}
 
 
 def entregables(ruta):
