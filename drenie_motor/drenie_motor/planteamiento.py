@@ -69,7 +69,7 @@ def proponer(S, P, I, cfg, ejes):
     lados, _, K = techo.ubicar(S, P, I, cfg)
     tmax = K["tc"]["tubo_max"]
     alcance = tmax                  # al eje de la cuneta (conservador: el tubo se mide hasta su cara interior, y la red recorta pases y chaflanes)
-    base = [LineString(e) for e in ejes if len(e) > 1] if modo == "completar" else []
+    base = [LineString(e) for e in ejes if len(e) > 1]          # el motor ya paso solo las lineas que valen en cada modo
     techos = {}
     for l in lados:
         t = techos.setdefault(l["techo"], {"pol": [], "aleros": [], "montantes": []})

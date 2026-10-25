@@ -1,23 +1,25 @@
 <title>Visor DrenIE</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap">
 <style>
 /* Espacio modelo de CAD a pantalla completa: cinta de iconos arriba, paneles y propiedades a la izquierda,
-   linea de comando y barra de estado abajo. Un solo aspecto oscuro, como el espacio modelo de AutoCAD. */
+   linea de comando y barra de estado abajo. Mismo aspecto claro que DrenIE (Poppins, azul marino y celeste). */
 :root {
-  --bg: #1f252c;          /* espacio modelo */
-  --panel: #272e37;       /* barras y paneles */
-  --panel-2: #303945;
-  --line: #3d4856;
-  --fg: #dfe5ec;
-  --muted: #95a2b1;
-  --accent: #e9b949;      /* OSNAP, comando activo, medidas */
-  --sel: #4f9dff;         /* seleccion y pinzamientos */
-  --cota: #7fd6ff;        /* cotas */
-  --warn: #ff4fd8;        /* areas sin asignar */
-  --font-ui: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", "Consolas", ui-monospace, monospace;
-  color-scheme: dark;
+  --bg: #ffffff;          /* espacio modelo */
+  --panel: #F3F7FB;       /* barras y paneles */
+  --panel-2: #ffffff;
+  --line: #DCE6F0;
+  --fg: #0B2545;
+  --muted: #5C7390;
+  --accent: #1EA7F2;      /* comando activo, botones principales */
+  --accent-2: #0B6FC0;
+  --sel: #0B6FC0;         /* seleccion y pinzamientos */
+  --cota: #0B6FC0;        /* cotas */
+  --warn: #D61F9A;        /* areas sin asignar, observaciones */
+  --ok: #12A36A;
+  --font-ui: "Poppins", "Segoe UI", Arial, sans-serif;
+  --font-mono: "Consolas", "Cascadia Mono", ui-monospace, monospace;
+  color-scheme: light;
 }
 html, body { height: 100%; }
 body { background: var(--bg); color: var(--fg); font: 13px/1.35 var(--font-ui); overflow: hidden; }
@@ -31,15 +33,15 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .grupo { display: flex; align-items: center; gap: 2px; padding-right: 8px; border-right: 1px solid var(--line); }
 .grupo:last-child { border-right: 0; }
 .grupo > span { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .07em; margin-right: 4px; }
-button { font: 500 12px var(--font-ui); color: var(--fg); background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px;
+button { font: 500 12px var(--font-ui); color: var(--fg); background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px;
   padding: 5px 8px; cursor: pointer; display: inline-flex; gap: 5px; align-items: center; }
-button:hover { border-color: var(--muted); }
+button:hover { border-color: #9FD4FA; background: #E8F4FE; }
 button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 button.ico { width: 30px; height: 28px; padding: 0; justify-content: center; background: transparent; border-color: transparent; }
 button.ico:hover { background: var(--panel-2); border-color: var(--line); }
 button.ico svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.35; stroke-linecap: round; stroke-linejoin: round; }
-button.on { border-color: var(--accent); color: var(--accent); }
-button.activo { background: var(--accent); color: #1b1f24; border-color: var(--accent); }
+button.on { border-color: #9FD4FA; color: var(--accent-2); background: #DCEFFD; }
+button.activo { background: var(--accent); color: #fff; border-color: var(--accent); }
 .cuerpo { display: grid; grid-template-columns: 272px 1fr; min-height: 0; }
 .lado { background: var(--panel); border-right: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; min-width: 0; }
 .pestanas { display: flex; border-bottom: 1px solid var(--line); }
@@ -68,43 +70,58 @@ textarea { width: 100%; min-height: 110px; background: var(--bg); color: var(--f
 .lienzo { position: relative; min-width: 0; min-height: 0; overflow: hidden; touch-action: none; }
 .lienzo canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 #capaSup { cursor: none; }
-.tip { position: absolute; z-index: 4; pointer-events: none; background: rgba(32, 38, 46, .94); border: 1px solid var(--line); border-radius: 4px;
+.tip { position: absolute; z-index: 4; pointer-events: none; background: rgba(255, 255, 255, .96); box-shadow: 0 4px 12px rgba(11,37,69,.12); border: 1px solid var(--line); border-radius: 4px;
   padding: 3px 7px; font: 11px/1.4 var(--font-mono); color: var(--fg); white-space: nowrap; max-width: 340px; overflow: hidden; text-overflow: ellipsis; }
-.tip b { color: var(--accent); font-weight: 500; }
+.tip b { color: var(--accent-2); font-weight: 500; }
 .tip small { display: block; color: var(--muted); font-size: 10px; }
 .paleta { position: absolute; z-index: 5; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 8px;
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; width: 300px; max-width: calc(100% - 20px); box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; width: 300px; max-width: calc(100% - 20px); box-shadow: 0 8px 24px rgba(11,37,69,.16); }
 .paleta p { grid-column: 1 / -1; margin: 0 0 4px; color: var(--muted); font-size: 12px; }
 .paleta button { justify-content: flex-start; }
 .paleta button i, .muestra { width: 12px; height: 12px; border-radius: 2px; display: inline-block; flex: none; }
 .paleta kbd { margin-left: auto; font: 11px var(--font-mono); color: var(--muted); }
 .ayuda { position: absolute; z-index: 7; inset: 12px; max-width: 640px; margin: auto; height: fit-content; max-height: calc(100% - 24px); overflow: auto;
-  background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; box-shadow: 0 12px 32px rgba(0,0,0,.45); }
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; box-shadow: 0 12px 32px rgba(11,37,69,.18); }
 .ayuda table { width: 100%; border-collapse: collapse; }
 .ayuda td { padding: 3px 6px; border-bottom: 1px solid var(--line); font-size: 12px; }
-.ayuda td:first-child { font-family: var(--font-mono); color: var(--accent); white-space: nowrap; }
+.ayuda td:first-child { font-family: var(--font-mono); color: var(--accent-2); white-space: nowrap; }
+.app-btn { display: none; }
+body.modo-app .app-btn { display: inline-flex; }
+body.modo-drenie .barra { display: none; }
+body.modo-drenie .app { grid-template-rows: 1fr auto; }
+button.calc { background: linear-gradient(120deg, #1EA7F2, #0B6FC0); color: #fff; border-color: #1492DF; font-weight: 600; }
+.velo { position: fixed; inset: 0; background: rgba(11, 37, 69, .35); display: grid; place-items: center; z-index: 20; }
+.velo > div { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 26px; min-width: min(380px, 90vw); text-align: center; }
+.velo b { display: block; margin-bottom: 6px; }
+.velo small { color: var(--muted); font-family: var(--font-mono); }
+.barra-p { height: 4px; background: var(--panel-2); border-radius: 2px; overflow: hidden; margin-top: 12px; }
+.barra-p i { display: block; height: 100%; width: 40%; background: var(--accent); animation: ir 1.3s ease-in-out infinite; }
+@keyframes ir { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+@media (prefers-reduced-motion: reduce) { .barra-p i { animation: none; width: 100%; } }
+.entreg td { padding: 4px 6px; border-bottom: 1px solid var(--line); font-size: 12px; }
+.entreg td:last-child { text-align: right; }
 .sol-btn { border-color: var(--warn); color: var(--fg); }
-.sol-btn b { background: var(--warn); color: #1b1f24; border-radius: 9px; padding: 0 6px; font: 600 11px var(--font-mono); }
+.sol-btn b { background: var(--warn); color: #fff; border-radius: 9px; padding: 0 6px; font: 600 11px var(--font-mono); }
 .sol-ven { max-width: 760px; }
 .sol-tar { border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; margin: 10px 0; background: var(--panel-2); }
 .sol-tar h4 { margin: 0 0 4px; font-size: 13px; font-weight: 600; text-wrap: balance; }
 .sol-tar p { margin: 3px 0; font-size: 12px; }
 .sol-tar p small { color: var(--muted); }
 .sol-chip { display: inline-block; font: 600 10px var(--font-ui); letter-spacing: .06em; text-transform: uppercase; border-radius: 3px; padding: 1px 6px; margin-right: 6px; vertical-align: 1px; }
-.sol-chip.decision { background: #4f9dff; color: #10161d; }
-.sol-chip.revisar { background: var(--warn); color: #10161d; }
-.sol-chip.confirmar { background: var(--accent); color: #10161d; }
-.sol-chip.hecho { background: #6fcf97; color: #10161d; }
+.sol-chip.decision { background: #0B6FC0; color: #fff; }
+.sol-chip.revisar { background: var(--warn); color: #fff; }
+.sol-chip.confirmar { background: #E08A12; color: #fff; }
+.sol-chip.hecho { background: var(--ok); color: #fff; }
 .sol-ops { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; }
 .sol-ops button { justify-content: flex-start; text-align: left; white-space: normal; }
 .sol-ops button small { color: var(--muted); display: block; font-weight: 400; }
-.sol-ops button.elegida { border-color: #6fcf97; box-shadow: inset 3px 0 0 #6fcf97; }
-.sol-ops button.recom::after { content: "recomendada"; margin-left: auto; font: 600 10px var(--font-ui); color: var(--accent); text-transform: uppercase; letter-spacing: .06em; }
+.sol-ops button.elegida { border-color: var(--ok); box-shadow: inset 3px 0 0 var(--ok); }
+.sol-ops button.recom::after { content: "recomendada"; margin-left: auto; font: 600 10px var(--font-ui); color: var(--accent-2); text-transform: uppercase; letter-spacing: .06em; }
 .pie { background: var(--panel); border-top: 1px solid var(--line); position: relative;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); }
 .historial { font: 12px var(--font-mono); color: var(--muted); height: 36px; overflow: auto; padding-top: 3px; white-space: pre-wrap; }
 .linea-cmd { display: flex; align-items: center; gap: 8px; padding: 3px 0; position: relative; }
-.linea-cmd b { font: 500 12px var(--font-mono); color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 62%; }
+.linea-cmd b { font: 500 12px var(--font-mono); color: var(--accent-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 62%; }
 .linea-cmd input { flex: 1; min-width: 0; background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 4px; font: 13px var(--font-mono); padding: 4px 8px; }
 .sug { position: absolute; bottom: 100%; right: 0; z-index: 8; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; min-width: 240px; padding: 3px; }
 .sug div { padding: 3px 8px; font: 12px var(--font-mono); cursor: pointer; display: flex; gap: 10px; }
@@ -126,7 +143,7 @@ textarea { width: 100%; min-height: 110px; background: var(--bg); color: var(--f
   .estado > * { flex: none; }
   #coord, #modoSnap, #btnTxt, #btnAyuda { display: none; }
   .cuerpo { grid-template-columns: 1fr; position: relative; }
-  .lado { position: absolute; z-index: 6; top: 0; bottom: 0; left: 0; width: min(290px, 86vw); box-shadow: 4px 0 18px rgba(0,0,0,.4); }
+  .lado { position: absolute; z-index: 6; top: 0; bottom: 0; left: 0; width: min(290px, 86vw); box-shadow: 4px 0 18px rgba(11,37,69,.18); }
   .lado[data-cerrado] { display: none; }
   .mostrar-lado { display: inline-flex; }
   .grupo > span { display: none; }
@@ -137,6 +154,9 @@ textarea { width: 100%; min-height: 110px; background: var(--bg); color: var(--f
 <div class="app">
   <header class="barra" id="barra">
     <div class="marca">DrenIE <small id="nombrePry">visor</small></div>
+    <button class="app-btn" id="btnInicio" title="Volver a la lista de proyectos">Inicio</button>
+    <button class="app-btn calc" id="btnCalcular" title="Calcula todo el diseño con lo dibujado y elegido en el visor">Calcular</button>
+    <button class="app-btn" id="btnEntreg" title="Planos, metrado, memorias, especificaciones y revisión">Entregables</button>
     <button class="sol-btn" id="btnSol" hidden title="Observaciones del cálculo y soluciones propuestas">Soluciones <b id="nSol">0</b></button>
     <button class="mostrar-lado" id="btnLado" aria-label="Mostrar paneles">Paneles</button>
   </header>
@@ -241,6 +261,14 @@ const CON_SELECCION = ["mover", "copiar", "rotar", "escala", "simetria", "descom
 
 /* ====================================================================================== escena */
 let E = null, ORX = 0, ORY = 0;
+// Colores del DXF sobre fondo blanco: el blanco (ACI 7) y los colores muy claros se oscurecen para que se lean.
+function tinta(hex) {
+  const m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex || ""); if (!m) return hex || "#334155";
+  let [r, g, b] = [m[1], m[2], m[3]].map(v => parseInt(v, 16)); const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  if (lum > 215) return "#1f2a37";
+  if (lum > 135) { const k = 120 / lum; [r, g, b] = [r, g, b].map(v => Math.round(v * k)); }
+  return "#" + [r, g, b].map(v => v.toString(16).padStart(2, "0")).join("");
+}
 const capas = [], porNombre = new Map();   // {nombre, visible, grupos:[{color, path}], n, color}
 const caras = [];                          // {id, tipo, nombre, fuente, area, p, anillos, bb, path, per}
 let cerco = [], ejes = [];
@@ -269,12 +297,12 @@ function cargarEscena(esc) {
         if (g.c[j]) path.closePath();
         agregarSegs(v, g.c[j], k);
       });
-      grupos.push({ color: g.color, path });
+      grupos.push({ color: tinta(g.color), path });
     }
     const capa = { nombre: c.nombre, visible: !/^(ARBOLES|equipamiento|INODOROS|AS AMOBLADOS)/i.test(c.nombre), grupos, n: c.n, color: grupos[0] ? grupos[0].color : "#888" };
     capas.push(capa); porNombre.set(c.nombre, capa);
   });
-  for (const t of esc.textos || []) if (!porNombre.has(t.c)) { const capa = { nombre: t.c, visible: true, grupos: [], n: 0, color: "#c8d0d9", soloTexto: true }; capas.push(capa); porNombre.set(t.c, capa); }
+  for (const t of esc.textos || []) if (!porNombre.has(t.c)) { const capa = { nombre: t.c, visible: true, grupos: [], n: 0, color: "#334155", soloTexto: true }; capas.push(capa); porNombre.set(t.c, capa); }
   for (const f of esc.caras) {
     const anillos = [], path = new Path2D(); let bb = [1e18, 1e18, -1e18, -1e18], per = 0;
     for (const pol of f.a) for (const an of pol) {
@@ -457,7 +485,7 @@ const aplicarT = g => g.setTransform(DPR * V.s, 0, 0, -DPR * V.s, DPR * (W / 2 -
 let pendiente = false;
 function dibujarBase() { if (!pendiente) { pendiente = true; requestAnimationFrame(() => { pendiente = false; _dibujarBase(); }); } }
 function _dibujarBase() {
-  const g = gb; g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = "#1f252c"; g.fillRect(0, 0, cb.width, cb.height); if (!E) return;
+  const g = gb; g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = "#ffffff"; g.fillRect(0, 0, cb.width, cb.height); if (!E) return;
   aplicarT(g); const lw = 1 / V.s;
   if (verSup) {
     for (const c of caras) {
@@ -474,13 +502,13 @@ function _dibujarBase() {
   for (const c of capas) if (c.visible) for (const gr of c.grupos) { g.strokeStyle = gr.color; g.stroke(gr.path); }
   trazar(g, cerco, true, "#c45bd0", 2.2 * lw);
   for (const v of ejes) trazar(g, v, false, "rgba(240,90,230,.75)", 3 * lw);
-  for (const f of (E.caidas || [])) flecha(g, f.x - f.dx * 0.6, f.y - f.dy * 0.6, f.x + f.dx * 2.2, f.y + f.dy * 2.2, f.usuario ? "#ff8a3d" : "#4f9fe8", lw);
+  for (const f of (E.caidas || [])) flecha(g, f.x - f.dx * 0.6, f.y - f.dy * 0.6, f.x + f.dx * 2.2, f.y + f.dy * 2.2, f.usuario ? "#ff8a3d" : "#1EA7F2", lw);
   if (verTxt) textosPlano(g);
   for (const e of ED.ents) dibujarEnt(g, e, lw, false);
 }
 function textosPlano(g) {
   // solo los legibles (8 px o mas), de capas encendidas y sin encimarse unos con otros
-  g.save(); g.setTransform(DPR, 0, 0, DPR, 0, 0); g.fillStyle = "#c8d0d9"; g.textBaseline = "alphabetic";
+  g.save(); g.setTransform(DPR, 0, 0, DPR, 0, 0); g.fillStyle = "#334155"; g.textBaseline = "alphabetic";
   const ocup = [];
   for (const t of (E.textos || [])) {
     const capa = porNombre.get(t.c); if (capa && !capa.visible) continue;
@@ -533,13 +561,13 @@ function dibujarCota(g, e, color) {
   g.translate((A2[0] + B2[0]) / 2, (A2[1] + B2[1]) / 2); g.rotate(ang);
   g.font = "500 " + tam + "px " + FUENTE_MONO; g.textAlign = "center"; g.textBaseline = "bottom";
   const txt = v.toFixed(2), w = g.measureText(txt).width;
-  g.fillStyle = "rgba(31,37,44,.85)"; g.fillRect(-w / 2 - 2, -tam - 4, w + 4, tam + 2);
+  g.fillStyle = "rgba(255,255,255,.9)"; g.fillRect(-w / 2 - 2, -tam - 4, w + 4, tam + 2);
   g.fillStyle = color; g.fillText(txt, 0, -3);
   g.restore();
 }
-const COLOR_ENT = { linea: "#f3f6f9", pl: "#f3f6f9", cuneta: "#ff5ae6", flecha: "#ff8a3d", descarga: "#ff4d4d", cota: "#7fd6ff", texto: "#f3f6f9", montante: "#ff4dff", sumidero: "#ff5252" };
+const COLOR_ENT = { linea: "#0B2545", pl: "#0B2545", cuneta: "#ff5ae6", flecha: "#ff8a3d", descarga: "#ff4d4d", cota: "#0B6FC0", texto: "#0B2545", montante: "#ff4dff", sumidero: "#ff5252" };
 function dibujarEnt(g, e, lw, resaltar) {
-  const col = resaltar ? "#4f9dff" : (e.k === "pl" && e.tipo ? TIPOS[e.tipo][1] : COLOR_ENT[e.k] || "#fff");
+  const col = resaltar ? "#0B6FC0" : (e.k === "pl" && e.tipo ? TIPOS[e.tipo][1] : COLOR_ENT[e.k] || "#0B2545");
   if (e.k === "cota") return dibujarCota(g, e, col);
   if (e.k === "texto") {
     g.save(); g.setTransform(DPR, 0, 0, DPR, 0, 0); const [X, Y] = aPant(...e.pts[0]), px = e.h * V.s;
@@ -565,7 +593,7 @@ function dibujarEnt(g, e, lw, resaltar) {
     const [x, y] = e.pts[0], u = e.u || [1, 0], n = e.n || [0, 1], C0 = [x - n[0] * 0.075 - u[0] * 0.10, y - n[1] * 0.075 - u[1] * 0.10];
     const Q = (a, b) => [C0[0] + u[0] * a + n[0] * b, C0[1] + u[1] * a + n[1] * b];
     g.lineWidth = 1.4 * lw; g.strokeStyle = resaltar ? col : "#2f8cff"; g.beginPath(); [Q(0, 0), Q(0.2, 0), Q(0.2, 0.15), Q(0, 0.15)].forEach((q, i) => i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1])); g.closePath(); g.stroke();
-    g.strokeStyle = resaltar ? col : "#00e5e5"; g.beginPath(); g.arc(x, y, 0.057, 0, 2 * Math.PI); g.stroke();
+    g.strokeStyle = resaltar ? col : "#0891B2"; g.beginPath(); g.arc(x, y, 0.057, 0, 2 * Math.PI); g.stroke();
     g.strokeStyle = col; g.beginPath(); g.arc(x, y, 0.069, 0, 2 * Math.PI); g.stroke();
     if (V.s < 40) { g.beginPath(); g.arc(x, y, 5 * lw, 0, 2 * Math.PI); g.fillStyle = col; g.fill(); }      // a escala chica, un punto visible
     return;
@@ -612,7 +640,7 @@ function buscarSnap(x, y, ultimo, sin) {
   return mejor;
 }
 function marcaSnap(g, sn) {
-  const [X, Y] = aPant(sn.x, sn.y), r = 6; g.strokeStyle = "#e9b949"; g.lineWidth = 2; g.beginPath();
+  const [X, Y] = aPant(sn.x, sn.y), r = 6; g.strokeStyle = "#E08A12"; g.lineWidth = 2; g.beginPath();
   if (sn.tipo === "fin") g.rect(X - r, Y - r, 2 * r, 2 * r);
   else if (sn.tipo === "medio") { g.moveTo(X, Y - r); g.lineTo(X + r, Y + r); g.lineTo(X - r, Y + r); g.closePath(); }
   else if (sn.tipo === "centro") g.arc(X, Y, r, 0, 2 * Math.PI);
@@ -1029,19 +1057,19 @@ function dibujarSup() {
   const g = gs; g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cs.width, cs.height); if (!E) return;
   aplicarT(g); const lw = 1 / V.s;
   // area bajo el cursor
-  if (hoverCara && !SEL.caras.includes(hoverCara.id)) { g.fillStyle = "rgba(233,185,73,.16)"; g.fill(hoverCara.path, "evenodd"); g.strokeStyle = "#e9b949"; g.lineWidth = 2 * lw; g.stroke(hoverCara.path); }
+  if (hoverCara && !SEL.caras.includes(hoverCara.id)) { g.fillStyle = "rgba(224,138,18,.16)"; g.fill(hoverCara.path, "evenodd"); g.strokeStyle = "#E08A12"; g.lineWidth = 2 * lw; g.stroke(hoverCara.path); }
   // seleccion
-  for (const id of SEL.caras) { const c = caras.find(q => q.id === id); if (!c) continue; g.fillStyle = "rgba(79,157,255,.28)"; g.fill(c.path, "evenodd");
-    g.strokeStyle = "#4f9dff"; g.lineWidth = 2 * lw; g.setLineDash([6 * lw, 4 * lw]); g.stroke(c.path); g.setLineDash([]); }
-  if (SEL.seg >= 0) { const a = segs.a, k = SEL.seg; g.strokeStyle = "#4f9dff"; g.lineWidth = 4 * lw; g.beginPath(); g.moveTo(a[k], a[k + 1]); g.lineTo(a[k + 2], a[k + 3]); g.stroke(); }
+  for (const id of SEL.caras) { const c = caras.find(q => q.id === id); if (!c) continue; g.fillStyle = "rgba(11,111,192,.28)"; g.fill(c.path, "evenodd");
+    g.strokeStyle = "#0B6FC0"; g.lineWidth = 2 * lw; g.setLineDash([6 * lw, 4 * lw]); g.stroke(c.path); g.setLineDash([]); }
+  if (SEL.seg >= 0) { const a = segs.a, k = SEL.seg; g.strokeStyle = "#0B6FC0"; g.lineWidth = 4 * lw; g.beginPath(); g.moveTo(a[k], a[k + 1]); g.lineTo(a[k + 2], a[k + 3]); g.stroke(); }
   if (hoverEnt && !SEL.ents.includes(hoverEnt.id)) dibujarEnt(g, hoverEnt, lw * 1.6, true);
   const selC = C && C.sel ? C.sel : [];
   for (const id of SEL.ents.concat(selC)) { const e = entPorId(id); if (e) dibujarEnt(g, e, lw, true); }
   // medida temporal (DI, AREA, ID)
   if (MED) {
-    if (MED.k === "dist") dibujarCota(g, MED.e, "#e9b949");
-    if (MED.k === "area") { const p = MED.cara ? MED.cara.path : caminoPts(MED.pts, true); g.fillStyle = "rgba(233,185,73,.2)"; g.fill(p); g.strokeStyle = "#e9b949"; g.lineWidth = 1.5 * lw; g.stroke(p); }
-    if (MED.k === "punto") { g.strokeStyle = "#e9b949"; g.lineWidth = 1.5 * lw; const r = 8 * lw; g.beginPath(); g.moveTo(MED.p[0] - r, MED.p[1]); g.lineTo(MED.p[0] + r, MED.p[1]); g.moveTo(MED.p[0], MED.p[1] - r); g.lineTo(MED.p[0], MED.p[1] + r); g.stroke(); }
+    if (MED.k === "dist") dibujarCota(g, MED.e, "#E08A12");
+    if (MED.k === "area") { const p = MED.cara ? MED.cara.path : caminoPts(MED.pts, true); g.fillStyle = "rgba(224,138,18,.2)"; g.fill(p); g.strokeStyle = "#E08A12"; g.lineWidth = 1.5 * lw; g.stroke(p); }
+    if (MED.k === "punto") { g.strokeStyle = "#E08A12"; g.lineWidth = 1.5 * lw; const r = 8 * lw; g.beginPath(); g.moveTo(MED.p[0] - r, MED.p[1]); g.lineTo(MED.p[0] + r, MED.p[1]); g.moveTo(MED.p[0], MED.p[1] - r); g.lineTo(MED.p[0], MED.p[1] + r); g.stroke(); }
   }
   marcasSoluciones(g, lw);
   // goma elastica del comando
@@ -1051,25 +1079,25 @@ function dibujarSup() {
   g.setTransform(DPR, 0, 0, DPR, 0, 0);
   for (const id of SEL.ents) { const e = entPorId(id); if (!e) continue;
     for (const q of pinzasDe(e)) { const [X, Y] = aPant(...q); const h = hoverPinza && hoverPinza.id === id && dist(hoverPinza.p, q) < 1e-9;
-      g.fillStyle = h ? "#ff5a5a" : "#4f9dff"; g.fillRect(X - 4, Y - 4, 8, 8); g.strokeStyle = "#0d1b2e"; g.lineWidth = 1; g.strokeRect(X - 4, Y - 4, 8, 8); } }
+      g.fillStyle = h ? "#ff5a5a" : "#0B6FC0"; g.fillRect(X - 4, Y - 4, 8, 8); g.strokeStyle = "#ffffff"; g.lineWidth = 1; g.strokeRect(X - 4, Y - 4, 8, 8); } }
   if (caja) {
     const [A, B] = caja, ventana = B[0] >= A[0];
-    g.fillStyle = ventana ? "rgba(79,157,255,.15)" : "rgba(108,194,138,.15)"; g.fillRect(A[0], A[1], B[0] - A[0], B[1] - A[1]);
-    g.strokeStyle = ventana ? "#4f9dff" : "#6cc28a"; g.lineWidth = 1; g.setLineDash(ventana ? [] : [5, 4]); g.strokeRect(A[0], A[1], B[0] - A[0], B[1] - A[1]); g.setLineDash([]);
+    g.fillStyle = ventana ? "rgba(11,111,192,.15)" : "rgba(18,163,106,.15)"; g.fillRect(A[0], A[1], B[0] - A[0], B[1] - A[1]);
+    g.strokeStyle = ventana ? "#0B6FC0" : "#12A36A"; g.lineWidth = 1; g.setLineDash(ventana ? [] : [5, 4]); g.strokeRect(A[0], A[1], B[0] - A[0], B[1] - A[1]); g.setLineDash([]);
   }
   // rastreo polar
   const u = ultimoPunto();
-  if (C && u && polarAng !== null && !snap) { const [X0, Y0] = aPant(...u), r = polarAng * Math.PI / 180; g.strokeStyle = "rgba(127,214,255,.6)"; g.setLineDash([3, 4]);
+  if (C && u && polarAng !== null && !snap) { const [X0, Y0] = aPant(...u), r = polarAng * Math.PI / 180; g.strokeStyle = "rgba(11,111,192,.6)"; g.setLineDash([3, 4]);
     g.beginPath(); g.moveTo(X0, Y0); g.lineTo(X0 + Math.cos(r) * 4000, Y0 - Math.sin(r) * 4000); g.stroke(); g.setLineDash([]); }
   if (snap) marcaSnap(g, snap);
-  const [X, Y] = raton; g.strokeStyle = "rgba(235,240,245,.9)"; g.lineWidth = 1; g.beginPath();
+  const [X, Y] = raton; g.strokeStyle = "rgba(11,37,69,.85)"; g.lineWidth = 1; g.beginPath();
   if (C && C.nombre === "pan") { g.arc(X, Y, 7, 0, 2 * Math.PI); }
   else { g.moveTo(X - 22, Y); g.lineTo(X + 22, Y); g.moveTo(X, Y - 22); g.lineTo(X, Y + 22); if (!C || (C.sel && !C.listo)) g.rect(X - 4, Y - 4, 8, 8); }
   g.stroke();
 }
 function goma(g, p, lw) {
   const n = C.nombre, P = C.pts || [];
-  g.strokeStyle = "#e9b949"; g.lineWidth = lw; g.setLineDash([5 * lw, 4 * lw]); g.beginPath();
+  g.strokeStyle = "#E08A12"; g.lineWidth = lw; g.setLineDash([5 * lw, 4 * lw]); g.beginPath();
   if (n === "pinza") { const e = entPorId(C.ent); g.setLineDash([]); dibujarEnt(g, Object.assign({}, e, conPinza(e, C.idx, p)), lw, true); return; }
   if ((n === "mover" || n === "copiar" || n === "rotar" || n === "escala") && C.base) {
     let T;
@@ -1087,15 +1115,15 @@ function goma(g, p, lw) {
   else if (n === "cotaal" || n === "cotalin" || n === "dist") {
     g.setLineDash([]);
     const e = { k: "cota", modo: n === "cotalin" && P.length === 2 ? "lin" : "al", pts: P.length === 1 ? [P[0], p, P[0]] : [P[0], P[1], p] };
-    return dibujarCota(g, e, n === "dist" ? "#e9b949" : "#7fd6ff");
+    return dibujarCota(g, e, n === "dist" ? "#E08A12" : "#0B6FC0");
   }
   else if (n === "zoom") { const a = P[0]; g.setLineDash([]); g.rect(a[0], a[1], p[0] - a[0], p[1] - a[1]); }
-  else if (n === "area") { g.moveTo(P[0][0], P[0][1]); for (const q of P.slice(1)) g.lineTo(q[0], q[1]); g.lineTo(p[0], p[1]); g.closePath(); g.fillStyle = "rgba(233,185,73,.12)"; g.fill(); }
+  else if (n === "area") { g.moveTo(P[0][0], P[0][1]); for (const q of P.slice(1)) g.lineTo(q[0], q[1]); g.lineTo(p[0], p[1]); g.closePath(); g.fillStyle = "rgba(224,138,18,.12)"; g.fill(); }
   else if (n !== "texto") { g.moveTo(P[0][0], P[0][1]); for (const q of P.slice(1)) g.lineTo(q[0], q[1]); g.lineTo(p[0], p[1]); }
   g.stroke(); g.setLineDash([]);
 }
 function redibujar() { dibujarBase(); dibujarSup(); }
-function refrescar() { autoguardar(); dibujarBase(); dibujarSup(); pintarSuperficies(); pintarEdiciones(); pintarPropiedades(); pintarSoluciones(); }
+function refrescar() { autoguardar(); guardarEnDrenie(); dibujarBase(); dibujarSup(); pintarSuperficies(); pintarEdiciones(); pintarPropiedades(); pintarSoluciones(); avisarDrenie(); }
 
 /* rotulo junto al cursor: tipo del area bajo el mouse o medida dinamica del comando */
 function actualizarTip(X, Y) {
@@ -1501,7 +1529,7 @@ function marcasSoluciones(g, lw) {
     if (!o.donde) continue;
     const x = o.donde.x - ORX, y = o.donde.y - ORY, hecho = !!elegidaDe(o), foco = SOL_FOCO === o.id;
     const r = (foco ? 16 : 11) * lw;
-    g.lineWidth = (foco ? 3 : 2) * lw; g.strokeStyle = hecho ? "#6fcf97" : "#ff4fd8";
+    g.lineWidth = (foco ? 3 : 2) * lw; g.strokeStyle = hecho ? "#12A36A" : "#ff4fd8";
     g.beginPath(); g.arc(x, y, r, 0, 2 * Math.PI); g.stroke();
     g.beginPath(); g.moveTo(x, y - r * 0.55); g.lineTo(x, y + r * 0.1); g.moveTo(x, y + r * 0.35); g.lineTo(x, y + r * 0.42); g.stroke();
   }
@@ -1518,16 +1546,130 @@ function pintarSoluciones() {
 function mostrarSoluciones() {
   let a = document.getElementById("ventanaSol"); if (a) { a.remove(); return; }
   a = document.createElement("div"); a.className = "ayuda sol-ven"; a.id = "ventanaSol"; a.setAttribute("role", "dialog"); a.setAttribute("aria-label", "Soluciones");
-  a.innerHTML = '<div class="fila" style="justify-content:space-between;margin-top:0"><b>El programa necesita su decisión</b><button type="button" id="cerrarSol">Lo analizo después</button></div><div id="cuerpoVenSol"></div>';
+  a.innerHTML = '<div class="fila" style="justify-content:space-between;margin-top:0"><b>El programa necesita su decisión</b><span class="fila" style="margin:0">' +
+    (APP ? '<button type="button" class="calc" id="calcSol">Calcular con lo elegido</button>' : "") + '<button type="button" id="cerrarSol">Lo analizo después</button></span></div><div id="cuerpoVenSol"></div>';
   lienzo.appendChild(a); document.getElementById("cerrarSol").onclick = () => a.remove();
+  if (APP) document.getElementById("calcSol").onclick = () => { a.remove(); calcularApp(); };
   const c = document.getElementById("cuerpoVenSol"); c.innerHTML = cuerpoSol(); enlazarSol(c);
 }
 document.getElementById("btnSol").onclick = mostrarSoluciones;
+
+/* ====================================================================================== modo aplicacion
+   Dentro de DrenIE (pagina Red de cunetas): el visor va en un marco de la pagina y habla con ella por mensajes; la cinta de
+   DrenIE manda los comandos y la pagina llama al motor. El visor carga el proyecto abierto, calcula (manda lo editado y
+   elegido como ediciones.json), muestra los entregables y abre la ventana de soluciones con el resultado. */
+const PUENTE = window.parent !== window && /[?&]drenie=1\b/.test(location.search);
+const APP = PUENTE ? { puente: true } : (window.DRENIE_APP || null);
+const ORIGEN = location.origin === "null" ? "*" : location.origin, ESPERA = new Map();
+let sigMsg = 1;
+async function api(nombre, args) {
+  if (PUENTE) return new Promise((res, rej) => { const id = sigMsg++; ESPERA.set(id, { res, rej }); parent.postMessage({ drenie: "red", tipo: "api", id, nombre, args: args || {} }, ORIGEN); });
+  const r = await fetch("/api/" + nombre, { method: "POST", headers: { "Content-Type": "application/json", "X-DrenIE-Ficha": APP.ficha }, body: JSON.stringify(args || {}) });
+  const d = await r.json(); if (d && d.error) throw new Error(d.error); return d;
+}
+// Trabajo largo: dentro de DrenIE la pagina muestra su propio aviso de avance y responde al terminar.
+async function tarea(nombre, args, texto) {
+  if (PUENTE) return api(nombre, Object.assign({ texto }, args || {}));
+  return esperarTarea((await api(nombre, args)).tarea, texto);
+}
+function avisarDrenie() {
+  if (PUENTE) parent.postMessage({ drenie: "red", tipo: "estado", pendientes: pendientes().length, observaciones: obsLista().length, ediciones: ED.ents.length + ED.asign.length }, ORIGEN);
+}
+let guardaPend = null, ultimoGuardado = "";
+function guardarEnDrenie() {          // solo cuando lo editado cambia de verdad (abrir un proyecto no escribe nada)
+  if (!PUENTE || !E) return; clearTimeout(guardaPend);
+  guardaPend = setTimeout(() => {
+    const ed = exportar(), t = JSON.stringify(ed); if (t === ultimoGuardado) return;
+    api("ediciones", { ediciones: ed }).then(() => { ultimoGuardado = t; }, er => msg("No se guardaron las ediciones: " + er.message));
+  }, 1500);
+}
+if (PUENTE) window.addEventListener("message", e => {
+  if (e.source !== parent || (ORIGEN !== "*" && e.origin !== ORIGEN) || !e.data || e.data.drenie !== "red") return;
+  const d = e.data;
+  if (d.tipo === "api-r") { const q = ESPERA.get(d.id); if (!q) return; ESPERA.delete(d.id); d.error ? q.rej(new Error(d.error)) : q.res(d.datos); return; }
+  if (d.tipo !== "orden") return;
+  const a = d.args || {};
+  if (d.orden === "comando" && TXT_CMD[a.nombre]) { iniciar(a.nombre); entrada.focus({ preventScroll: true }); }
+  else if (d.orden === "calcular") calcularApp();
+  else if (d.orden === "soluciones") mostrarSoluciones();
+  else if (d.orden === "entregables") mostrarEntregables();
+  else if (d.orden === "recargar") cargarApp().catch(er => alertaVen("No se pudo abrir el proyecto", er.message));
+  else if (d.orden === "paneles") lado.toggleAttribute("data-cerrado");
+  else if (d.orden === "superficies") document.getElementById("btnSup").click();
+  else if (d.orden === "textos") document.getElementById("btnTxt").click();
+});
+function velo(texto) {
+  let v = document.getElementById("velo");
+  if (texto == null) { if (v) v.remove(); return; }
+  if (!v) { v = document.createElement("div"); v.className = "velo"; v.id = "velo"; v.innerHTML = '<div><b id="veloTxt"></b><small id="veloSeg">0 s</small><div class="barra-p"><i></i></div></div>'; document.body.appendChild(v); }
+  document.getElementById("veloTxt").textContent = texto;
+}
+async function esperarTarea(tid, texto) {
+  velo(texto);
+  try {
+    for (;;) {
+      const t = await api("tarea", { id: tid }); document.getElementById("veloSeg").textContent = Math.round(t.segundos) + " s";
+      if (t.estado === "listo") return t.resultado;
+      if (t.estado === "error") throw new Error(t.mensaje);
+      await new Promise(r => setTimeout(r, 900));
+    }
+  } finally { velo(null); }
+}
+async function cargarApp() {
+  let d = await api("escena");
+  if (!d.escena) { await tarea("leer", {}, "Leyendo el plano"); d = await api("escena"); }
+  RES = d.resultado; ED = { ents: [], asign: [], soluciones: {} }; sigId = 1;
+  cargarEscena(d.escena); montantesIniciales(); sumiderosIniciales();
+  if (d.ediciones) { importar(JSON.stringify(d.ediciones)); pilaU.length = 0; }
+  if (PUENTE) { ultimoGuardado = JSON.stringify(exportar()); const np = document.getElementById("nombrePry"); if (np && d.nombre) np.textContent = d.nombre; }
+  refrescar();
+  msg("Proyecto cargado: " + caras.length + " áreas, " + capas.length + " capas." + (RES ? " Último cálculo: " + (RES.resumen.longitud_m || 0).toFixed(1) + " m de cuneta, " +
+      RES.resumen.cumple + "/" + RES.resumen.comprobaciones + " comprobaciones." : " Todavía sin calcular: botón Calcular."));
+  if (pendientes().length) mostrarSoluciones();
+}
+async function calcularApp() {
+  try {
+    clearTimeout(guardaPend);
+    const r = await tarea("calcular", { ediciones: exportar() }, "Calculando el diseño, los planos y los documentos");
+    await cargarApp();
+    const rs = r.resumen || {}, rv = r.revision || {};
+    msg("Cálculo listo en " + Math.round(r.segundos || 0) + " s: " + rs.ejes + " ejes, " + (rs.longitud_m || 0).toFixed(1) + " m, " + rs.descargas + " descargas, " +
+        rs.cumple + "/" + rs.comprobaciones + " comprobaciones; revisión " + (rv.comprobaciones - rv.no_cumple) + "/" + rv.comprobaciones +
+        (rs.observaciones_pendientes ? "; " + rs.observaciones_pendientes + " observaciones por decidir." : "."));
+  } catch (er) { msg("No se pudo calcular: " + er.message); alertaVen("No se pudo calcular", er.message); }
+}
+function alertaVen(titulo, texto) {
+  let a = document.getElementById("ventanaSol"); if (a) a.remove();
+  a = document.createElement("div"); a.className = "ayuda"; a.id = "ventanaSol"; a.setAttribute("role", "dialog");
+  a.innerHTML = '<div class="fila" style="justify-content:space-between;margin-top:0"><b>' + htm(titulo) + '</b><button type="button" id="cerrarSol">Cerrar</button></div><p>' + htm(texto) + "</p>";
+  lienzo.appendChild(a); document.getElementById("cerrarSol").onclick = () => a.remove();
+}
+async function mostrarEntregables() {
+  let a = document.getElementById("ventanaSol"); if (a) a.remove();
+  try {
+    const e = await api("entregables");
+    a = document.createElement("div"); a.className = "ayuda"; a.id = "ventanaSol"; a.setAttribute("role", "dialog");
+    a.innerHTML = '<div class="fila" style="justify-content:space-between;margin-top:0"><b>Entregables del último cálculo</b><span class="fila" style="margin:0"><button type="button" id="abrCarp">Abrir la carpeta</button><button type="button" id="cerrarSol">Cerrar</button></span></div>' +
+      (e.archivos.length ? '<table class="entreg">' + e.archivos.map((f, k) => "<tr><td>" + htm(f) + '</td><td><button type="button" data-f="' + k + '">Abrir</button></td></tr>').join("") + "</table>" : '<p class="nota">Todavía no hay entregables: use Calcular.</p>') +
+      '<p class="nota">Carpeta: ' + htm(e.carpeta) + "</p>";
+    lienzo.appendChild(a); document.getElementById("cerrarSol").onclick = () => a.remove();
+    document.getElementById("abrCarp").onclick = () => api("abrir_archivo", {}).catch(er => msg(er.message));
+    a.querySelectorAll("[data-f]").forEach(b => b.onclick = () => api("abrir_archivo", { nombre: e.archivos[+b.dataset.f] }).then(() => msg("Abriendo " + e.archivos[+b.dataset.f]), er => msg(er.message)));
+  } catch (er) { msg(er.message); }
+}
+if (PUENTE) document.body.classList.add("modo-drenie");
+else if (APP) {
+  document.body.classList.add("modo-app");
+  document.getElementById("btnInicio").onclick = () => { location.href = "/"; };
+  document.getElementById("btnCalcular").onclick = calcularApp;
+  document.getElementById("btnEntreg").onclick = mostrarEntregables;
+}
 
 /* ====================================================================================== arranque */
 (function () {
   let d = null; try { d = JSON.parse(document.getElementById("escena-datos").textContent); } catch (e) {}
   dimensionar();
+  if (APP) { dimensionar(); cargarApp().catch(er => { msg("No se pudo abrir el proyecto: " + er.message); alertaVen("No se pudo abrir el proyecto", er.message); }); return; }
   try { RES = JSON.parse(document.getElementById("resultado-datos").textContent); } catch (e) { RES = null; }
   if (d) { cargarEscena(d); recuperar(); ED.soluciones = ED.soluciones || {}; montantesIniciales(); sumiderosIniciales(); refrescar(); msg("Escena cargada: " + caras.length + " áreas, " + capas.length + " capas. F1: lista de comandos.");
     if (pendientes().length) { msg("El cálculo dejó " + pendientes().length + " observaciones con soluciones propuestas: botón Soluciones."); mostrarSoluciones(); } }

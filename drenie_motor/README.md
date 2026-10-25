@@ -205,3 +205,27 @@ marca en el punto) y un botón por solución; «Lo analizo después» la deja pe
 (`"soluciones"`) y el motor lo aplica al volver a calcular. Sin visor: `python -m drenie_motor aplicar proyecto.json nivel A`.
 La hoja SOLUCIONES de `REVISION_GENERAL.xlsx` lleva la misma lista. Arquitectura: ventana en JavaScript (visor), motor en
 Python, y se comunican por archivos JSON.
+
+## Dentro de DrenIE 3.1.0 (pestaña RED DE CUNETAS)
+
+El motor va dentro del instalador de DrenIE como programa auxiliar (`empaquetar/`: `arranque.py`, `drenie-motor.spec`,
+`construir.py` compila con PyInstaller y prueba el ejecutable; bibliotecas en `requisitos_motor.txt`). DrenIE lo llama con la
+orden nativa `motor_red` (licencia de DrenIE en cada llamada) y el visor va en un marco de la página 15 (`visor-red.html`, el
+mismo `visor/visor.html` con el tema claro de DrenIE: Poppins, azul marino #0B2545 y celeste #1EA7F2). La cinta RED DE CUNETAS
+manda los comandos al visor por mensajes (`postMessage`) y el visor pide a la página lo que necesita del motor.
+
+Órdenes de escritorio (`escritorio.py`; responden un JSON por la salida estándar, con `error` en español si algo falla):
+
+```
+python -m drenie_motor capas plano.dxf                 # capas del plano y las que el programa propone (cerco, techos, curvas...)
+python -m drenie_motor crear < datos.json              # carpeta y proyecto.json (nombre, dxf, capas, npt, I_mmh, planteamiento)
+python -m drenie_motor vista proyecto.json             # escena, ediciones y observaciones para el visor
+python -m drenie_motor ediciones proyecto.json < ed.json   # guarda lo dibujado en el visor (ediciones.json)
+python -m drenie_motor entregables proyecto.json       # archivos del último cálculo
+python -m drenie_motor abrir proyecto.json [ARCHIVO]   # abre la carpeta de salida o un entregable
+```
+
+El ejecutable compilado solo trabaja con la ficha de sesión que firma DrenIE (`DRENIE_SESION`, HMAC-SHA256 con la clave que
+comparten `__main__.py` y `motor_red.rs`, válida 5 minutos); desde el código fuente no la pide. Todo lo que imprimen las
+bibliotecas durante el cálculo va a la salida de errores: la salida estándar lleva solo el JSON de respuesta, en UTF-8.
+Integración en DrenIE (archivos nuevos y cambios sobre 3.0.2): `integracion_drenie_3_1_0/`.

@@ -1,0 +1,101 @@
+DrenIE 3.1.0 · Red de cunetas desde el plano
+=============================================
+
+Qué trae esta versión
+---------------------
+Todo lo de DrenIE 3.0.2, sin cambios en sus cálculos (las 26 pruebas de regresión dan igual), más
+la pestaña RED DE CUNETAS, con el mismo aspecto del programa: cinta con iconos, Poppins, azul
+marino y celeste, y la misma pantalla de inicio (solo cambia el texto a VERSIÓN 3.1.0).
+
+La página Red de cunetas lee el plano general del local en DXF (cerco, techos, curvas de nivel),
+propone la red de cunetas con sus descargas por gravedad y entrega todo el expediente de drenaje:
+planta con cotas de fondo, perfiles, secciones, descargas y detalles (DXF y PNG), metrado (Excel),
+memoria descriptiva, memoria de cálculo, especificaciones técnicas, carátulas e índice de planos
+(Word).
+
+Cómo se usa
+-----------
+1. Pestaña RED DE CUNETAS → «Nuevo desde plano DXF».
+2. «Elegir plano DXF»: el programa lee las capas y propone cuál es el cerco, los techos, las
+   curvas de nivel, las veredas, los muros y las líneas de cuneta del proyectista. Revise cada una.
+   Si el plano no tiene curvas, elija el terreno en LandXML.
+3. Escriba el nombre, el CUI, la entidad y la ubicación; el NPT (borde de cuneta), el nivel del
+   área verde y la intensidad de diseño en mm/h (si el proyecto de DrenIE ya tiene su curva IDF,
+   un botón copia la intensidad de 10 minutos).
+4. Planteamiento:
+   - «Completar mis líneas de cuneta» (recomendado): usa las líneas del plano y solo agrega
+     cuneta donde un montante no llega.
+   - «Proponer toda la red»: no usa las líneas del plano.
+   - «Solo mis líneas de cuneta».
+5. «Crear y abrir el proyecto»: se crea la carpeta del proyecto (proyecto.json) y se abre el visor.
+6. En el visor se dibuja como en AutoCAD (línea de comando abajo, OSNAP, ORTO, POLAR), y con los
+   botones de la cinta:
+   - Drenaje: eje de cuneta, montante, sumidero, descarga, caída de techo, asignar superficie.
+   - Dibujo, Modificar, Medir y vista: los comandos de siempre (L, PL, M, CO, RO, TR, EX, DI, Z…).
+   Lo dibujado se guarda solo en la carpeta del proyecto (ediciones.json).
+7. «Calcular todo»: diseña la red y genera los entregables en la carpeta «salida» del proyecto.
+8. «Soluciones»: lo que el programa no pudo resolver solo (por ejemplo, el agua que no sale por
+   gravedad o un montante que llega bajo el nivel del agua) aparece con soluciones propuestas.
+   Usted elige una en cada observación y pulsa «Calcular con lo elegido».
+9. «Entregables»: lista de archivos; cada uno se abre con su programa (Word, Excel, AutoCAD).
+
+Lo que hace el programa y lo que mete el proyectista
+----------------------------------------------------
+El programa ubica los montantes y meta:
+- el tubo PVC 4" enterrado del dado a la cuneta, con su codo de 90° en el dado, su longitud y su
+  pendiente (máximo 5 m; llega 5 cm sobre el nivel del agua de la cuneta);
+- la falsa columna de 0.20 × 0.15 × 1.30 m y los dados;
+- las canaletas, sus soportes de platina de 1" × 1/8", las tapas laterales y las boquillas;
+- los sumideros.
+
+El proyectista calcula la altura de los montantes y mete el tubo vertical, las abrazaderas y los
+colgadores. También confirma las rejillas, los tramos tapados y las áreas verdes.
+
+Licencia
+--------
+La página usa la misma licencia de DrenIE:
+- leer el plano y dibujar: módulo «calculate»;
+- crear proyectos y guardar lo dibujado: módulo «projects»;
+- calcular y generar entregables: módulo «export».
+
+La edición demo no habilita la red de cunetas.
+
+Compilación (Windows x64)
+-------------------------
+Igual que 3.0.2: ejecute PROBAR_Y_COMPILAR.ps1. Ahora, además:
+- instala las bibliotecas del motor (motor_red\empaquetar\requisitos_motor.txt);
+- compila el motor con PyInstaller y lo prueba (motor_red\empaquetar\construir.py → client\src-tauri\motor-dist);
+- lo incluye en el instalador como recurso (carpeta «motor» junto a DrenIE.exe).
+
+El motor solo trabaja cuando lo llama DrenIE: cada llamada lleva una ficha de sesión firmada.
+La página del visor (visor-red.html) entra en la comprobación de integridad, igual que index.html
+y splash.html.
+
+El motor no necesita LibreOffice. Si está instalado, lo usa para recalcular las fórmulas del
+metrado; si no, usa su calculador interno, que da los mismos totales.
+
+Pruebas
+-------
+python tests\run_checks.py              regresiones de DrenIE (sin cambios)
+python tests\run_checks.py --browser    además, la página Red de cunetas en Chromium con el motor real
+
+Archivos nuevos o cambiados
+---------------------------
+Nuevos:
+- client\v3\mod-zzzc-red-cunetas.js          página 15, cinta RED DE CUNETAS e iconos
+- client\v3\patches_red.py                   enlace de la página 15 y generación de visor-red.html
+- client\src-tauri\src\motor_red.rs          órdenes nativas motor_red y motor_elegir
+- motor_red\                                 código del motor, visor, empaquetado y plano de prueba
+- tests\red_cunetas_ui.cjs                   prueba de la página en Chromium
+
+Cambiados:
+- client\v3\mod-ribbon.js                    pestaña y cinta
+- client\v3\build_v3.py                      ejecuta patches_red.py
+- client\v3\theme-v3.css                     estilos de la página
+- client\v3\splash-claro.template.html       texto de la versión
+- client\src-tauri\src\main.rs               registro de las órdenes
+- client\src-tauri\src\integrity.rs          visor-red.html en la comprobación de integridad
+- client\src-tauri\build.rs                  visor-red.html en la comprobación de integridad
+- client\src-tauri\tauri.conf.json           versión y recurso del motor
+- versiones 3.1.0                            package.json, Cargo.toml, Cargo.lock, app-v3.js, pruebas
+- PROBAR_Y_COMPILAR.ps1                      pasos del motor

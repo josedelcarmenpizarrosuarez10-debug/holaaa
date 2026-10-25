@@ -497,19 +497,51 @@ def libro(ruta, C, red, M, P, anchos, V, LLt, TT, SM, proyecto, cfg, tapas):
 
 
 def recalcular(ruta, destino):
-    """Copia recalculada del libro con LibreOffice (destino = carpeta); devuelve su ruta o None si no hay LibreOffice."""
+    """Copia recalculada del libro (destino = carpeta): con LibreOffice si esta instalado; si no, con el calculador de formulas
+    interno (pycel), asi el programa no depende de LibreOffice. Devuelve su ruta o None."""
     import glob, os, shutil, subprocess
     exe = shutil.which("soffice") or shutil.which("libreoffice") or next(iter(
         glob.glob(r"C:\Program Files*\LibreOffice\program\soffice.exe")), None)
-    if not exe: return None
     os.makedirs(destino, exist_ok=True)
+    r = os.path.join(destino, os.path.basename(ruta))
+    if exe and os.environ.get("DRENIE_SIN_LIBREOFFICE") != "1":
+        try:
+            subprocess.run([exe, "--headless", "--calc", "--convert-to", "xlsx", "--outdir", destino, ruta], check=True,
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=300,
+                           creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+            if os.path.exists(r): return r
+        except Exception:
+            pass
+    return recalcular_interno(ruta, r)
+
+
+def recalcular_interno(ruta, salida):
+    """Evalua todas las formulas del libro con pycel y guarda una copia con los valores (sin LibreOffice)."""
+    import warnings
+    from openpyxl import load_workbook
     try:
-        subprocess.run([exe, "--headless", "--calc", "--convert-to", "xlsx", "--outdir", destino, ruta], check=True,
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=300)
+        from pycel import ExcelCompiler
     except Exception:
         return None
-    r = os.path.join(destino, os.path.basename(ruta))
-    return r if os.path.exists(r) else None
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            xl = ExcelCompiler(filename=ruta)
+            wb = load_workbook(ruta)
+            for ws in wb.worksheets:
+                for fila in ws.iter_rows():
+                    for c in fila:
+                        if isinstance(c.value, str) and c.value.startswith("="):
+                            try:
+                                v = xl.evaluate("'%s'!%s" % (ws.title, c.coordinate))
+                            except Exception:
+                                v = None
+                            if hasattr(v, "item"): v = v.item()
+                            c.value = v if isinstance(v, (int, float, str, bool)) or v is None else str(v)
+            wb.save(salida)
+        return salida
+    except Exception:
+        return None
 
 
 def totales(recalculado):

@@ -1,0 +1,425 @@
+diff --git a/PROBAR_Y_COMPILAR.ps1 b/PROBAR_Y_COMPILAR.ps1
+index 06f2870..75bc94d 100644
+--- a/PROBAR_Y_COMPILAR.ps1
++++ b/PROBAR_Y_COMPILAR.ps1
+@@ -1,11 +1,11 @@
+-﻿# DrenIE 3.0.2 · Compilación verificable en Windows x64.
++﻿# DrenIE 3.1.0 · Compilación verificable en Windows x64 (con el motor de la red de cunetas).
+ [CmdletBinding()]
+ param([switch]$SoloCliente, [switch]$ExigirFirma)
+ 
+ $ErrorActionPreference = 'Stop'
+ Set-StrictMode -Version Latest
+ $root = $PSScriptRoot
+-$version = '3.0.2'
++$version = '3.1.0'
+ $runId = $version + '-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + ([guid]::NewGuid().ToString('N').Substring(0, 6))
+ $out = Join-Path (Join-Path $root 'SALIDA') $runId
+ $clientOut = Join-Path $out 'CLIENTE'
+@@ -20,7 +20,7 @@ $previousPythonIo = $env:PYTHONIOENCODING
+ $previousConsoleEncoding = [Console]::OutputEncoding
+ $previousOutputEncoding = $OutputEncoding
+ $records = @()
+-$manifest = [ordered]@{ version = $version; startedUtc = [DateTime]::UtcNow.ToString('o'); status = 'EN_PROCESO'; artifacts = @(); scope = 'Instaladores compilados desde fuentes 3.0.2; aceptación manual registrada por separado.' }
++$manifest = [ordered]@{ version = $version; startedUtc = [DateTime]::UtcNow.ToString('o'); status = 'EN_PROCESO'; artifacts = @(); scope = 'Instaladores compilados desde fuentes 3.1.0; aceptación manual registrada por separado.' }
+ 
+ function Save-Manifest {
+   $manifest['artifacts'] = @($script:records)
+@@ -100,6 +100,9 @@ try {
+   Set-Location (Join-Path $root 'client')
+   Run-Native 'Dependencias fijadas de compilación' 'pnpm' @('install', '--frozen-lockfile', '--ignore-scripts')
+   Run-Native 'Herramientas Python fijadas' 'python' @('-m', 'pip', 'install', '-r', (Join-Path $root 'requirements-build.txt'))
++  # 3.1.0: el motor de la red de cunetas se compila y se prueba antes que el programa (tauri.conf.json lo lleva como recurso).
++  Run-Native 'Bibliotecas del motor de la red de cunetas' 'python' @('-m', 'pip', 'install', '-r', (Join-Path $root 'motor_red\empaquetar\requisitos_motor.txt'))
++  Run-Native 'Motor de la red de cunetas' 'python' @((Join-Path $root 'motor_red\empaquetar\construir.py'), (Join-Path $root 'client\src-tauri\motor-dist'))
+   Run-Native 'Regeneración y regresiones de cálculo/datos' 'python' @((Join-Path $root 'tests\run_checks.py'), '--report', (Join-Path $out 'REGRESIONES.json'))
+   Run-Native 'Assets de distribución' 'python' @('v3\release_assets.py')
+   Run-Native 'Prueba del registro y códigos de salida' 'powershell.exe' @('-NoProfile', '-File', (Join-Path $root 'tests\release_script.ps1'))
+@@ -109,12 +112,12 @@ try {
+     Run-Native 'Pruebas nativas Propietario' 'cargo' @('test', '--locked', '--manifest-path', 'src-tauri\Cargo.toml', '--target', 'x86_64-pc-windows-msvc', '--features', 'owner-edition')
+   }
+   $started = [DateTime]::UtcNow
+-  Run-Native 'Instalador Cliente 3.0.2' 'pnpm' @('build', '--', '--locked')
++  Run-Native "Instalador Cliente $version" 'pnpm' @('build', '--', '--locked')
+   Copy-Installer "DrenIE_${version}_x64-setup.exe" $clientOut 'CLIENTE' $started
+   if (!$SoloCliente) {
+     New-Item -ItemType Directory -Path $ownerOut -Force | Out-Null
+     $started = [DateTime]::UtcNow
+-    Run-Native 'Instalador Propietario 3.0.2' 'pnpm' @('build:owner', '--', '--locked')
++    Run-Native "Instalador Propietario $version" 'pnpm' @('build:owner', '--', '--locked')
+     Copy-Installer "DrenIE Propietario_${version}_x64-setup.exe" $ownerOut 'PROPIETARIO' $started
+     $started = [DateTime]::UtcNow
+     Run-Native 'Administrador de licencias de producción' 'powershell.exe' @('-NoProfile', '-File', (Join-Path $root 'manager\build.ps1'))
+diff --git a/client/package.json b/client/package.json
+index 4a45547..35fc02e 100644
+--- a/client/package.json
++++ b/client/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "hidro-ce040",
+-  "version": "3.0.2",
++  "version": "3.1.0",
+   "private": true,
+   "scripts": {
+     "assets:release": "python v3/release_assets.py",
+diff --git a/client/src-tauri/Cargo.lock b/client/src-tauri/Cargo.lock
+index 6e8997a..ecc94d6 100644
+--- a/client/src-tauri/Cargo.lock
++++ b/client/src-tauri/Cargo.lock
+@@ -1228,7 +1228,7 @@ checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
+ 
+ [[package]]
+ name = "hidro-ce040"
+-version = "3.0.2"
++version = "3.1.0"
+ dependencies = [
+  "base64 0.22.1",
+  "brotli",
+diff --git a/client/src-tauri/Cargo.toml b/client/src-tauri/Cargo.toml
+index f363a6e..3d40726 100644
+--- a/client/src-tauri/Cargo.toml
++++ b/client/src-tauri/Cargo.toml
+@@ -1,6 +1,6 @@
+ [package]
+ name = "hidro-ce040"
+-version = "3.0.2"
++version = "3.1.0"
+ description = "DrenIE — diseño de drenaje pluvial (Hidroconsult)"
+ edition = "2021"
+ 
+diff --git a/client/src-tauri/build.rs b/client/src-tauri/build.rs
+index 2c66880..7aeb8a3 100644
+--- a/client/src-tauri/build.rs
++++ b/client/src-tauri/build.rs
+@@ -47,6 +47,7 @@ fn main() {
+     for (name, source_env, asset_env) in [
+         ("index.html", "DRENIE_HTML_SHA", "DRENIE_ASSET_SHA"),
+         ("splash.html", "DRENIE_SPLASH_SHA", "DRENIE_SPLASH_ASSET_SHA"),
++        ("visor-red.html", "DRENIE_VISOR_SHA", "DRENIE_VISOR_ASSET_SHA"),
+     ] {
+     println!("cargo:rerun-if-changed=../src/{name}");
+     let html = std::fs::read(format!("../src/{name}")).expect("Asset HTML de inicio");
+diff --git a/client/src-tauri/src/integrity.rs b/client/src-tauri/src/integrity.rs
+index db48994..7fa1c5e 100644
+--- a/client/src-tauri/src/integrity.rs
++++ b/client/src-tauri/src/integrity.rs
+@@ -1,75 +1,76 @@
+-use sha2::{Digest, Sha256};
+-
+-pub const ERROR: &str = "Los archivos internos de DrenIE no superaron la comprobación de integridad. Instale nuevamente una copia original.";
+-
+-pub fn verify(bytes: &[u8], expected: &str) -> Result<(), &'static str> {
+-    if format!("{:x}", Sha256::digest(bytes)) == expected { Ok(()) } else { Err(ERROR) }
+-}
+-
+-pub const ASSETS: [(&str, &str); 2] = [
+-    ("index.html", env!("DRENIE_ASSET_SHA")),
+-    ("splash.html", env!("DRENIE_SPLASH_ASSET_SHA")),
+-];
+-
+-pub fn check_context<R: tauri::Runtime>(context: &tauri::Context<R>) -> Result<(), &'static str> {
+-    for (name, expected) in ASSETS {
+-        let bytes = context.assets().get(&name.into()).ok_or(ERROR)?;
+-        verify(&bytes, expected)?;
+-    }
+-    Ok(())
+-}
+-
+-// Tauri's raw asset iterator yields Brotli-compressed data (unlike assets().get()).
+-pub fn verify_compressed_with(bytes: &[u8], expected: &str) -> Result<(), &'static str> {
+-    let mut html = Vec::new();
+-    brotli::BrotliDecompress(&mut std::io::Cursor::new(bytes), &mut html).map_err(|_| ERROR)?;
+-    verify(&html, expected)
+-}
+-
+-pub fn show_error() {
+-    #[cfg(target_os = "windows")]
+-    {
+-        let title: Vec<u16> = "DrenIE — Integridad".encode_utf16().chain(Some(0)).collect();
+-        let message: Vec<u16> = ERROR.encode_utf16().chain(Some(0)).collect();
+-        unsafe { windows_sys::Win32::UI::WindowsAndMessaging::MessageBoxW(
+-            std::ptr::null_mut(), message.as_ptr(), title.as_ptr(),
+-            windows_sys::Win32::UI::WindowsAndMessaging::MB_OK | windows_sys::Win32::UI::WindowsAndMessaging::MB_ICONERROR
+-        ); }
+-    }
+-    #[cfg(not(target_os = "windows"))]
+-    eprintln!("{ERROR}");
+-}
+-
+-#[cfg(test)]
+-mod tests {
+-    use super::*;
+-    #[test]
+-    fn source_hash_matches_final_html() {
+-        assert!(verify(include_bytes!("../../src/index.html"), env!("DRENIE_HTML_SHA")).is_ok());
+-        assert!(verify(include_bytes!("../../src/splash.html"), env!("DRENIE_SPLASH_SHA")).is_ok());
+-    }
+-    #[test]
+-    fn embedded_asset_matches_expected_hash() {
+-        assert!(check_context::<tauri::Wry>(&tauri::generate_context!()).is_ok());
+-    }
+-    #[test]
+-    fn iterator_asset_is_verified_after_decompression() {
+-        let context: tauri::Context<tauri::Wry> = tauri::generate_context!();
+-        let (_, bytes) = context.assets().iter().find(|(key, _)| key.as_ref().trim_start_matches('/') == "index.html").unwrap();
+-        assert!(verify_compressed_with(&bytes, env!("DRENIE_ASSET_SHA")).is_ok());
+-        assert!(verify_compressed_with(b"broken compression", env!("DRENIE_ASSET_SHA")).is_err());
+-        let (_, splash) = context.assets().iter().find(|(key, _)| key.as_ref().trim_start_matches('/') == "splash.html").unwrap();
+-        assert!(verify_compressed_with(&splash, env!("DRENIE_SPLASH_ASSET_SHA")).is_ok());
+-        assert!(verify_compressed_with(&splash, env!("DRENIE_ASSET_SHA")).is_err());
+-    }
+-    #[test]
+-    fn rejects_changed_missing_or_wrong_hash() {
+-        let original = b"DrenIE: licencia comprobada";
+-        let hash = format!("{:x}", Sha256::digest(original));
+-        assert!(verify(original, &hash).is_ok());
+-        let mut altered = original.to_vec(); altered[0] ^= 1;
+-        assert!(verify(&altered, &hash).is_err());
+-        assert!(verify(b"", &hash).is_err());
+-        assert!(verify(original, "").is_err());
+-    }
+-}
++use sha2::{Digest, Sha256};
++
++pub const ERROR: &str = "Los archivos internos de DrenIE no superaron la comprobación de integridad. Instale nuevamente una copia original.";
++
++pub fn verify(bytes: &[u8], expected: &str) -> Result<(), &'static str> {
++    if format!("{:x}", Sha256::digest(bytes)) == expected { Ok(()) } else { Err(ERROR) }
++}
++
++pub const ASSETS: [(&str, &str); 3] = [
++    ("index.html", env!("DRENIE_ASSET_SHA")),
++    ("splash.html", env!("DRENIE_SPLASH_ASSET_SHA")),
++    ("visor-red.html", env!("DRENIE_VISOR_ASSET_SHA")),
++];
++
++pub fn check_context<R: tauri::Runtime>(context: &tauri::Context<R>) -> Result<(), &'static str> {
++    for (name, expected) in ASSETS {
++        let bytes = context.assets().get(&name.into()).ok_or(ERROR)?;
++        verify(&bytes, expected)?;
++    }
++    Ok(())
++}
++
++// Tauri's raw asset iterator yields Brotli-compressed data (unlike assets().get()).
++pub fn verify_compressed_with(bytes: &[u8], expected: &str) -> Result<(), &'static str> {
++    let mut html = Vec::new();
++    brotli::BrotliDecompress(&mut std::io::Cursor::new(bytes), &mut html).map_err(|_| ERROR)?;
++    verify(&html, expected)
++}
++
++pub fn show_error() {
++    #[cfg(target_os = "windows")]
++    {
++        let title: Vec<u16> = "DrenIE — Integridad".encode_utf16().chain(Some(0)).collect();
++        let message: Vec<u16> = ERROR.encode_utf16().chain(Some(0)).collect();
++        unsafe { windows_sys::Win32::UI::WindowsAndMessaging::MessageBoxW(
++            std::ptr::null_mut(), message.as_ptr(), title.as_ptr(),
++            windows_sys::Win32::UI::WindowsAndMessaging::MB_OK | windows_sys::Win32::UI::WindowsAndMessaging::MB_ICONERROR
++        ); }
++    }
++    #[cfg(not(target_os = "windows"))]
++    eprintln!("{ERROR}");
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    #[test]
++    fn source_hash_matches_final_html() {
++        assert!(verify(include_bytes!("../../src/index.html"), env!("DRENIE_HTML_SHA")).is_ok());
++        assert!(verify(include_bytes!("../../src/splash.html"), env!("DRENIE_SPLASH_SHA")).is_ok());
++    }
++    #[test]
++    fn embedded_asset_matches_expected_hash() {
++        assert!(check_context::<tauri::Wry>(&tauri::generate_context!()).is_ok());
++    }
++    #[test]
++    fn iterator_asset_is_verified_after_decompression() {
++        let context: tauri::Context<tauri::Wry> = tauri::generate_context!();
++        let (_, bytes) = context.assets().iter().find(|(key, _)| key.as_ref().trim_start_matches('/') == "index.html").unwrap();
++        assert!(verify_compressed_with(&bytes, env!("DRENIE_ASSET_SHA")).is_ok());
++        assert!(verify_compressed_with(b"broken compression", env!("DRENIE_ASSET_SHA")).is_err());
++        let (_, splash) = context.assets().iter().find(|(key, _)| key.as_ref().trim_start_matches('/') == "splash.html").unwrap();
++        assert!(verify_compressed_with(&splash, env!("DRENIE_SPLASH_ASSET_SHA")).is_ok());
++        assert!(verify_compressed_with(&splash, env!("DRENIE_ASSET_SHA")).is_err());
++    }
++    #[test]
++    fn rejects_changed_missing_or_wrong_hash() {
++        let original = b"DrenIE: licencia comprobada";
++        let hash = format!("{:x}", Sha256::digest(original));
++        assert!(verify(original, &hash).is_ok());
++        let mut altered = original.to_vec(); altered[0] ^= 1;
++        assert!(verify(&altered, &hash).is_err());
++        assert!(verify(b"", &hash).is_err());
++        assert!(verify(original, "").is_err());
++    }
++}
+diff --git a/client/src-tauri/src/main.rs b/client/src-tauri/src/main.rs
+index 9172e86..c7a6e98 100644
+--- a/client/src-tauri/src/main.rs
++++ b/client/src-tauri/src/main.rs
+@@ -18,6 +18,7 @@ mod hardware;
+ mod integrity;
+ mod startup;
+ mod location_maps;
++mod motor_red;
+ 
+ // The destination always comes from the native Save As dialog, never from web content.
+ #[tauri::command]
+@@ -99,7 +100,7 @@ fn main() {
+     }
+     tauri::Builder::default()
+         .plugin(tauri_plugin_dialog::init())
+-        .invoke_handler(tauri::generate_handler![startup::startup_ready, startup::startup_visible, save_export, save_project, location_maps::open_location_map, licensing::license_status, licensing::activate_license, licensing::authorize_feature, licensing::contact_activation, licensing::request_clock_recovery, licensing::recover_clock])
++        .invoke_handler(tauri::generate_handler![startup::startup_ready, startup::startup_visible, save_export, save_project, location_maps::open_location_map, licensing::license_status, licensing::activate_license, licensing::authorize_feature, licensing::contact_activation, licensing::request_clock_recovery, licensing::recover_clock, motor_red::motor_red, motor_red::motor_elegir])
+         .setup(|app| {
+             // iter() returns compressed assets before runtime CSP nonce substitution.
+             let resolver = app.asset_resolver();
+diff --git a/client/src-tauri/tauri.conf.json b/client/src-tauri/tauri.conf.json
+index 86ddb75..6086b41 100644
+--- a/client/src-tauri/tauri.conf.json
++++ b/client/src-tauri/tauri.conf.json
+@@ -1,7 +1,7 @@
+ {
+   "$schema": "https://schema.tauri.app/config/2",
+   "productName": "DrenIE",
+-  "version": "3.0.2",
++  "version": "3.1.0",
+   "identifier": "pe.hidro.ce040.desktop",
+   "build": {
+     "beforeBuildCommand": "pnpm assets:release",
+@@ -53,6 +53,9 @@
+     ],
+     "shortDescription": "Diseño hidráulico de drenaje pluvial",
+     "licenseFile": "LICENCIA_DrenIE.txt",
++    "resources": {
++      "motor-dist/drenie-motor/": "motor/"
++    },
+     "windows": {
+       "webviewInstallMode": {
+         "type": "downloadBootstrapper",
+diff --git a/client/v3/app-v3.js b/client/v3/app-v3.js
+index a4e97e6..7766ac8 100644
+--- a/client/v3/app-v3.js
++++ b/client/v3/app-v3.js
+@@ -1,5 +1,5 @@
+ /* DrenIE 3.0 · interfaz (barra lateral, pasos, inicio). Se inserta dentro del módulo principal. */
+-var V3_VERSION = '3.0.2';
++var V3_VERSION = '3.1.0';
+ var V3_ICONS = {
+   home: 'M4 11l8-7 8 7v9h-5v-6H9v6H4z', chart: 'M5 20V10M10 20V5M15 20v-8M20 20v-4',
+   grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
+diff --git a/client/v3/build_v3.py b/client/v3/build_v3.py
+index 2ccf5b1..d8659a7 100644
+--- a/client/v3/build_v3.py
++++ b/client/v3/build_v3.py
+@@ -124,6 +124,8 @@ exec(read('patches_v301.py'))
+ v301_count = len(applied)
+ exec(read('patches_v302.py'))
+ exec(read('patches_workspace.py'))
++v302_count = len(applied)
++exec(read('patches_red.py'))
+ 
+ # El lector aislado usa exactamente el mismo SheetJS auditado que la interfaz.
+ vendor_name = 'xlsx-0.20.3.min.js'
+@@ -140,4 +142,4 @@ shutil.copyfile(vendor_path, os.path.join(vendor_out, vendor_name))
+ shutil.copyfile(os.path.join(HERE, 'drenie-import-worker.js'), os.path.join(CLIENT, 'src', 'drenie-import-worker.js'))
+ 
+ open(OUT, 'w', encoding='utf-8').write(src)
+-print('OK · %d parches históricos + %d correcciones 3.0.1 + %d correcciones 3.0.2 · %s (%.1f MB)' % (historical_count, v301_count - historical_count, len(applied) - v301_count, OUT, len(src.encode()) / 1e6))
++print('OK · %d parches históricos + %d correcciones 3.0.1 + %d correcciones 3.0.2 + %d red de cunetas 3.1.0 · %s (%.1f MB)' % (historical_count, v301_count - historical_count, v302_count - v301_count, len(applied) - v302_count, OUT, len(src.encode()) / 1e6))
+diff --git a/client/v3/mod-ribbon.js b/client/v3/mod-ribbon.js
+index c4f5c78..5324aac 100644
+--- a/client/v3/mod-ribbon.js
++++ b/client/v3/mod-ribbon.js
+@@ -31,7 +31,7 @@ function V3Ribbon(props) {
+   useEffect(function () { if (props.home) return; var t = state.step === 10 && pfTab === 'metrado' ? 'metrado' : V3_STEP_TAB[state.step]; if (t && t !== tab) { tabT[1](t); v3SetPref('drenie-rib-tab',t); } }, [state.step, props.home, pfTab]);
+   useEffect(function () { document.body.classList.toggle('rb-collapsed', colT[0]); return function () { document.body.classList.remove('rb-collapsed'); }; }, [colT[0]]);
+   // Al hacer clic en una pestaña de trabajo, el programa va a su página (no solo cambia la cinta).
+-  var TAB_GO = { archivo:[12], proyecto:[11], config:[13], lluvia: [1], techos: [3], cunetas: [10,{pfTab:'perfil'}], montantes: [6], resultados: [4], metrado: [10, { pfTab: 'metrado' }] };
++  var TAB_GO = { archivo:[12], proyecto:[11], config:[13], red:[15], lluvia: [1], techos: [3], cunetas: [10,{pfTab:'perfil'}], montantes: [6], resultados: [4], metrado: [10, { pfTab: 'metrado' }] };
+   function showingTab(t) {
+     if (props.home) return false;
+     if (t === 'metrado') return state.step === 10 && V3UI.pfTab === 'metrado';
+@@ -88,6 +88,7 @@ function V3Ribbon(props) {
+     rbGrp('Resultados', [rbBig('resultados', 'Resultados', function () { go(4); }, { on: onCur(4) }), rbBig('obs', 'Observa-\nciones', function () { go(9); }, { on: onCur(9) })]),
+     rbGrp('Informe', [rbBig('word', 'Informe', function () { go(7); }, { on: onCur(7) })]),
+     rbGrp('Exportar', [rbBig('excel', 'Excel del\ncálculo', props.onExportExcel), rbBig('dxf', 'DXF\nperfil', function () { needPf(function () { exp(function () { pfDxf(pf, state); }); }); }, { k: 'dp' }), rbBig('dxf', 'DXF\nsecciones', function () { needPf(function () { exp(function () { psDxf(state, pfs, 'Ejes'); }); }); }, { k: 'ds' }), rbBig('excelin', 'Excel\nsecciones', function () { needPf(function () { exp(function () { psExcel(state, pfs, 'Ejes'); }); }); })])];
++  else if (tab === 'red') body = v3RedRibbon(props);
+   else body = [
+     rbGrp('Criterios y norma', [rbBig('gear', 'Configuración', function () { go(13); },{on:onCur(13)})]),
+     rbGrp('Apariencia', [rbCol(rbSel('Esquema de color:', state.theme || 'oceano', [['oceano', 'Océano'], ['grafito', 'Grafito'], ['cobre', 'Cobre']], function (v) { props.setState(function (p) { return Object.assign({}, p, { theme: v }); }); }, 130)), rbBig('vista', 'Vista\nclásica', function () { v3SetUiMode('clasica'); })]),
+diff --git a/client/v3/splash-claro.template.html b/client/v3/splash-claro.template.html
+index dc959ea..361a010 100644
+--- a/client/v3/splash-claro.template.html
++++ b/client/v3/splash-claro.template.html
+@@ -2,7 +2,7 @@
+ <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DrenIE — Inicio</title>
+ <style>
+ *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}body{background:#fff;font-family:'Segoe UI',sans-serif;color:#0b2d51}.cover{position:relative;height:100%;isolation:isolate;border:1px solid #d8e5ee;background:#fff url('@@BACKGROUND@@') center/cover no-repeat}.cover:before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#fffffffa 0%,#ffffffdd 30%,#ffffff15 57%,transparent 72%)}.copy{position:relative;padding:34px 0 0 34px;width:385px;z-index:2}.brand{display:flex;align-items:center;gap:13px}.logo{width:58px;height:58px;object-fit:contain;flex:none}.name{font-size:46px;font-weight:750;letter-spacing:-2px;line-height:1}.name span{color:#21ace6}.version{margin-top:8px;font-size:12px;color:#5d7692;letter-spacing:1.2px}h1{margin:29px 0 0;font-size:25px;line-height:1.3;font-weight:400;letter-spacing:-.5px}.accent{width:30px;height:3px;background:#27b6ec;margin-top:15px}.badges{display:flex;gap:9px;margin-top:23px}.badges span{font-size:11px;font-weight:600;padding:6px 10px;border:1px solid #c3d6e5;border-radius:5px;background:#ffffffb8}.credits{font-size:12px;font-weight:500;margin-top:22px;color:#355671;line-height:1.5}.edition{font-size:11px;color:#63829b;margin-top:3px;min-height:17px}.bottom{position:absolute;bottom:0;left:0;right:0;z-index:2;padding:16px 34px 17px;background:linear-gradient(0deg,#fff 65%,#fffffff2 85%,#ffffff00);padding-top:35px}.status{display:flex;align-items:center;gap:12px;font-size:12px;color:#476582}.spinner{width:22px;height:22px;border:3px solid #d8eff9;border-top-color:#27b6ec;border-right-color:#67cef2;border-radius:50%;animation:spin 1s linear infinite}.copyright{font-size:9px;color:#6d8397;margin-top:16px;letter-spacing:.05px}.rain{position:absolute;inset:0 0 42% 53%;overflow:hidden;pointer-events:none;z-index:1;mask-image:linear-gradient(#000 45%,transparent 100%)}.drop{position:absolute;top:-45px;width:1.5px;height:22px;border-radius:3px;background:linear-gradient(transparent,#30b9ed99);animation:rainfall var(--speed) linear infinite;animation-delay:var(--delay);transform:rotate(19deg)}@keyframes rainfall{from{translate:0 -30px;opacity:0}15%{opacity:.8}to{translate:-85px 300px;opacity:.2}}@keyframes spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.drop,.spinner{animation:none}.drop{top:40px;opacity:.3}}
+-</style></head><body><main class="cover"><div class="rain" aria-hidden="true" id="rain"></div><section class="copy"><div class="brand"><img class="logo" src="@@LOGO@@" alt="Logo original de DrenIE"><div><div class="name">Dren<span>IE</span></div><div class="version">VERSIÓN 3.0.0</div></div></div><h1>Diseño de drenaje<br>pluvial</h1><div class="accent"></div><div class="badges"><span>CE.040</span><span>E.060</span></div><div class="credits">Desarrollado por HIDROCONSULT E.I.R.L.</div><div class="edition" id="edition">Demo / Cliente</div></section><div class="bottom"><div class="status" role="status"><i class="spinner" aria-hidden="true"></i><span>Preparando componentes…</span></div><div class="copyright">© 2026 HIDROCONSULT E.I.R.L. Todos los derechos reservados.</div></div></main><script>
++</style></head><body><main class="cover"><div class="rain" aria-hidden="true" id="rain"></div><section class="copy"><div class="brand"><img class="logo" src="@@LOGO@@" alt="Logo original de DrenIE"><div><div class="name">Dren<span>IE</span></div><div class="version">VERSIÓN 3.1.0</div></div></div><h1>Diseño de drenaje<br>pluvial</h1><div class="accent"></div><div class="badges"><span>CE.040</span><span>E.060</span></div><div class="credits">Desarrollado por HIDROCONSULT E.I.R.L.</div><div class="edition" id="edition">Demo / Cliente</div></section><div class="bottom"><div class="status" role="status"><i class="spinner" aria-hidden="true"></i><span>Preparando componentes…</span></div><div class="copyright">© 2026 HIDROCONSULT E.I.R.L. Todos los derechos reservados.</div></div></main><script>
+ document.getElementById('edition').textContent=window.__DREN_OWNER__?'Propietario · Ing. José Pizarro':'Demo / Cliente';
+ var rain=document.getElementById('rain');for(var i=0;i<28;i++){var drop=document.createElement('i');drop.className='drop';drop.style.left=(5+(i*37)%108)+'%';drop.style.setProperty('--speed',(1.05+(i%7)*.13)+'s');drop.style.setProperty('--delay',(-i*.23)+'s');rain.appendChild(drop)}
+ // El mínimo de siete segundos empieza cuando las imágenes ya cargaron.
+diff --git a/client/v3/theme-v3.css b/client/v3/theme-v3.css
+index cbb482a..84e904d 100644
+--- a/client/v3/theme-v3.css
++++ b/client/v3/theme-v3.css
+@@ -404,3 +404,26 @@ body.ui-cinta .v3-steps{display:none!important}
+ @media print{.v3-dlg-overlay{display:none!important}}
+ 
+ .ws-settings>.page-head{display:block}
++
++/* ===== DrenIE 3.1.0 · Red de cunetas ===== */
++.rc-page.rc-con-visor{gap:10px}
++.rc-cab{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
++.rc-cab>div{flex:1;min-width:0}
++.rc-cab h1{margin:0;font-size:22px}
++.rc-ruta{display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;font-size:11px;color:var(--ink-soft)}
++.rc-chip{border-radius:99px;padding:4px 12px;font-weight:600;font-size:11px;background:#E0F2FE;color:#0B6FC0}
++.rc-chip.pend{background:#FCE7F3;color:#B0127F}
++.rc-chip.ok{background:#DCFCE7;color:#12784F}
++.rc-visor{padding:0!important;overflow:hidden}
++.rc-visor iframe{display:block;width:100%;height:calc(100vh - var(--ws-ribbon-h,166px) - 165px);min-height:460px;border:0;border-radius:18px;background:#fff}
++.rc-recientes{display:flex;flex-direction:column;gap:6px}
++.rc-reciente{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;text-align:left;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);padding:10px 14px;cursor:pointer;font-family:inherit;color:var(--ink)}
++.rc-reciente small{grid-column:1;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
++.rc-reciente em{grid-row:1/3;grid-column:2;align-self:center;font-style:normal;font-size:11px;color:var(--ink-soft)}
++.rc-reciente:hover{border-color:#9FD4FA;background:#E8F4FE}
++.rc-velo-caja{min-width:min(440px,90vw)}
++.rc-barra{height:4px;background:#E4ECF4;border-radius:2px;overflow:hidden;margin-top:12px}
++.rc-barra i{display:block;height:100%;width:40%;background:linear-gradient(90deg,#1EA7F2,#0B6FC0);animation:rcIr 1.3s ease-in-out infinite}
++@keyframes rcIr{from{transform:translateX(-100%)}to{transform:translateX(260%)}}
++@media (prefers-reduced-motion:reduce){.rc-barra i{animation:none;width:100%}}
++.ws-file-action svg{flex:none}
+diff --git a/tests/run_checks.py b/tests/run_checks.py
+index e05056a..f606f7a 100644
+--- a/tests/run_checks.py
++++ b/tests/run_checks.py
+@@ -31,7 +31,10 @@ for name in ('statistics.cjs', 'imports.cjs', 'project_io.cjs', 'hydraulics.cjs'
+ if args.browser:
+     commands.append(('extra20_datos.cjs', [node, str(root / 'tests/extra20_datos.cjs')]))
+     commands.append(('workspace_ui.cjs', [node, str(root / 'tests/workspace_ui.cjs')]))
+-report = {'version': '3.0.2', 'utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
++    # 3.1.0: página Red de cunetas con el motor real desde su código fuente.
++    child_env.update(DRENIE_MOTOR_DIR=str(root / 'motor_red'), DRENIE_RED_PLANO=str(root / 'motor_red/pruebas/sitios/S04/PLANO.dxf'), PYTHON=sys.executable)
++    commands.append(('red_cunetas_ui.cjs', [node, str(root / 'tests/red_cunetas_ui.cjs')]))
++report = {'version': '3.1.0', 'utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+           'scope': 'Funciones reales y formatos de datos; las comprobaciones opcionales de navegador usan un puente nativo simulado. No se ejecuta el instalador Windows.',
+           'browser_checks': 'requested' if args.browser else 'not_requested', 'checks': []}
+ for name, command in commands:
+diff --git a/tests/verify_sources.py b/tests/verify_sources.py
+index 763b9b2..3c1854d 100644
+--- a/tests/verify_sources.py
++++ b/tests/verify_sources.py
+@@ -14,7 +14,7 @@ if hasattr(sys.stdout, 'reconfigure'):
+ ROOT = Path(__file__).resolve().parent.parent
+ CLIENT = ROOT / 'client'
+ V3 = CLIENT / 'v3'
+-version = '3.0.2'
++version = '3.1.0'
+ assert json.loads((CLIENT / 'package.json').read_text(encoding='utf-8'))['version'] == version
+ assert json.loads((CLIENT / 'src-tauri/tauri.conf.json').read_text(encoding='utf-8'))['version'] == version
+ assert f"var V3_VERSION = '{version}';" in (V3 / 'app-v3.js').read_text(encoding='utf-8')

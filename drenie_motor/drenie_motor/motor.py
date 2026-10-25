@@ -142,8 +142,9 @@ def disenar(cfg_ruta):
     LL, Rh = _lluvia_diseno(cfg, base)
     # planteamiento de cunetas para edificaciones y losa deportiva: cada montante debe tener una cuneta a su alcance (planteamiento.py)
     modo_pl = cfg.get("planteamiento", "completar")
+    # automatico: no se usan las lineas de cuneta del plano, pero si las que el proyectista dibujo en el visor (mandan siempre)
+    if modo_pl == "automatico": ejes = [[tuple(p) for p in l] for l in cfg.get("ejes_lineas", [])]
     lineas_pl, plan_inf, plan_av = planteamiento.proponer(S, P, float(LL.get("I_mmh") or 0) or verificacion.intensidad(LL)[0], cfg, ejes)
-    if modo_pl == "automatico": ejes = []
     ejes = ejes + lineas_pl
     if not ejes: raise ValueError("No hay lineas de cuneta del usuario (capas.ejes o ejes_lineas) ni techos para plantearlas")
     # ancho libre adoptado por el proyectista: hoja DIMENSIONAMIENTO llenada, o {"EJE-01": 0.45} en el proyecto
@@ -413,8 +414,8 @@ def _ensayo(cfg, base, salida, dz):
     P, B, cur, rep_t, T, S, ejes = _preparar(c, base, salida)
     LL, Rh = _lluvia_diseno(c, base)
     I = float(LL.get("I_mmh") or 0) or verificacion.intensidad(LL)[0]
+    if c.get("planteamiento", "completar") == "automatico": ejes = [[tuple(p) for p in l] for l in c.get("ejes_lineas", [])]
     lin, _, _ = planteamiento.proponer(S, P, I, c, ejes)
-    if c.get("planteamiento", "completar") == "automatico": ejes = []
     ejes = ejes + lin
     if not ejes: return False
     recorte = {}
