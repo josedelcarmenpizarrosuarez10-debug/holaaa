@@ -649,3 +649,12 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   `herramientas/conocimiento_docx.py` -> `conocimiento/MANUAL_TECNICO_DRENAJE_PLUVIAL.docx` (≈159 páginas, índice automático).
 - Chat nuevo "PROGRAMA DRENIE" (rama `claude/programa-drenie`, parte de esta rama) para cargar el código del programa del usuario
   e integrar la base de conocimiento.
+
+## 26/10/2026 - Hogar de Refugio: índice de planos de ARQUITECTURA en Word
+- El usuario envió el índice de láminas de arquitectura en Excel (copia en `insumos/solange/INDICE_DE_LAMINAS_ARQUITECTURA_HOGAR_REFUGIO.xlsx`)
+  y pidió el Word con el estilo de los índices de drenaje. `herramientas/indice_arquitectura_refugio.py` (piezas de `indice_planos_refugio.py`)
+  -> `entregables/INDICE_DE_PLANOS_ARQUITECTURA_HOGAR_REFUGIO.docx`: 107 láminas en 6 grupos (I arquitectura 7, II desarrollo de módulos 34,
+  III obras complementarias 15, IV obras exteriores 12, V detalles de arquitectura 37, VI evacuación y señalización 2), 3 páginas.
+- Arreglos de forma: grupos I a VI en orden (el Excel tenía I, II, IV, IV, IV, III), numeración correlativa (el Excel salta el 51:
+  terminaba en 108), códigos sin espacios, tildes (EDIFICACIÓN, CIELORRASO, ...), y 6 códigos repetidos por copia tomados de su
+  descripción (A-06/03-04, A-06/04-04, A-08/02-04, A-08/03-04, A-08/04-04, OC-03/03-03). 44 láminas sin formato en el Excel: "—".
