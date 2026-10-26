@@ -160,3 +160,13 @@ Cambiados:
 - client\src-tauri\Cargo.toml                tauri-plugin-updater (TLS de Windows)
 - versiones 3.1.0                            package.json, Cargo.toml, Cargo.lock, app-v3.js, pruebas
 - PROBAR_Y_COMPILAR.ps1                      pasos del motor y firma de la actualización y firma de la actualización
+
+Claves privadas en el disco D: (para que sobrevivan a un formateo)
+-----------------------------------------------------------------
+MOVER_CLAVES_A_D.ps1 copia %USERPROFILE%\DrenIE_Propietario_PRIVADO y %USERPROFILE%\DrenIE_Actualizaciones_PRIVADO a
+D:\DrenIE_PRIVADO, comprueba que la copia sea idéntica (SHA256), deja permisos solo para su usuario y pone en C: un enlace
+de carpeta con el mismo nombre: el Administrador de licencias y la compilación siguen funcionando sin cambios. Los
+originales quedan como *_ANTIGUO_BORRAR hasta que usted compruebe que todo funciona.
+Después de formatear: powershell -ExecutionPolicy Bypass -File .\MOVER_CLAVES_A_D.ps1 -Restaurar, y en el Administrador
+«Restaurar respaldo…» con su .drenbackup (las licencias emitidas viven en %LOCALAPPDATA%, que también se borra).
+Guarde además una copia de D:\DrenIE_PRIVADO y del .drenbackup en una USB: D: está en el mismo disco físico que C:.
