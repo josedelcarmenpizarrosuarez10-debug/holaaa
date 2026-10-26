@@ -658,3 +658,13 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Arreglos de forma: grupos I a VI en orden (el Excel tenía I, II, IV, IV, IV, III), numeración correlativa (el Excel salta el 51:
   terminaba en 108), códigos sin espacios, tildes (EDIFICACIÓN, CIELORRASO, ...), y 6 códigos repetidos por copia tomados de su
   descripción (A-06/03-04, A-06/04-04, A-08/02-04, A-08/03-04, A-08/04-04, OC-03/03-03). 44 láminas sin formato en el Excel: "—".
+
+## 26/10/2026 - Hogar de Refugio: ACU aparte de las partidas resaltadas en amarillo
+- El usuario envió su metrado (copia en `insumos/metrados_vigentes/METRADO_DRENAJE_MUJERES_VIOLENTADAS_26-10-2026.xlsx`; respecto
+  del vigente con bancas cambian falsas columnas y boquillas 52 -> 63 y los dados) y pidió las ACU de las partidas con el NOMBRE
+  resaltado en amarillo en su RESUMEN (capturas): lloradero, tapa lateral 0.25x0.20, canaleta y tapa lateral de bancas OC-01
+  0.18x0.21, tapa de registro ciega, junta de dilatación del colector y junta con el cerco (no las que solo tienen la cantidad en amarillo).
+- `herramientas/acu_partidas_amarillas_refugio.py <metrado>` -> `entregables/ACU_PARTIDAS_RESALTADAS_HOGAR_REFUGIO.xlsx`: hoja
+  RESUMEN ACU (ítem, nombre, und, metrado del usuario, C.U. vinculado, parcial; total S/ 8,587.70 de costo directo), las ACU de la
+  planilla copiadas con su formato y fórmulas (referencias a otras hojas pasan a valor), COSTO HORA HOMBRE 2026, y ACU nuevas de
+  las bancas OC-01 (plancha de 0.50 mm, una pieza por techo; precio referencial por peso a partir de la plancha de 0.9 mm, por cotizar).
