@@ -141,9 +141,9 @@ def lamina(doc, codigo, ox, oy, U, cerco_xy, techos, cfg_u=None):
     if d is not None:
         peru = MultiPolygon([p for x in L["departamentos"] for p in _polis(x["geom"])])
         _mapa(lam, MAPAS[0], tit[0].split(": ", 1)[-1], [], ren(L["departamentos"]), peru, dep, colores, L["paises"])
-        vec_dep = [x for x in L["departamentos"] if x["u"] != dep["u"] and x["geom"].intersects(dep["geom"].buffer(0.2))]
+        vec_dep = [x for x in L["departamentos"] if x["u"] != dep["u"] and UBI.vecino(x["geom"], dep["geom"], 0.2)]
         _mapa(lam, MAPAS[1], tit[1].split(": ", 1)[-1], vec_dep, ren([x for x in L["provincias"] if x["u"][:2] == dep["u"]]), dep["geom"], prov, colores)
-        vec_prov = [x for x in L["provincias"] if x["u"] != prov["u"] and x["geom"].intersects(prov["geom"].buffer(0.05))]
+        vec_prov = [x for x in L["provincias"] if x["u"] != prov["u"] and UBI.vecino(x["geom"], prov["geom"], 0.05)]
         _mapa(lam, MAPAS[2], tit[2].split(": ", 1)[-1], vec_prov, ren([x for x in L["distritos"] if x["u"][:4] == prov["u"]]), prov["geom"], d, colores)
     # ---------------------------------------------------------------- el local a escala real
     mx, my = (lx0 + lx1) / 2, (ly0 + ly1) / 2 - 8

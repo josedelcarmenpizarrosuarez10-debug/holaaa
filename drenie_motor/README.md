@@ -302,7 +302,7 @@ la cámara se hace aparte con el hidrograma de la tormenta). La batería de prue
 Con el cerco del plano el motor ubica el proyecto solo: pasa el centro del cerco de UTM WGS 84 a latitud y longitud (prueba las zonas
 17S, 18S y 19S y se queda con la que cae dentro de un distrito; si caben varias, decide por el nombre del distrito escrito en el proyecto
 y deja la observación «Confirmar la zona UTM del plano») y busca el distrito, la provincia y el departamento en los límites del INEI
-(`limites_peru.json`: 25 departamentos y 195 provincias con la forma real del IGN —vía OCHA ROLAC y geoBoundaries, CC BY 3.0 IGO—, 1 826 distritos censales del INEI 2007 y países vecinos de Natural Earth; `herramientas_mapas/limites_ign.py` reemplaza las formas con las capas del IGN, también los distritos cuando se tengan). Si el plano no está en UTM
+(`limites_peru.json`: 1 892 distritos del Censo Nacional 2025 del INEI con su forma real —vía GEO GPS Perú—; las 196 provincias y los 25 departamentos se arman uniendo sus distritos, así los bordes coinciden; países vecinos de Natural Earth. Se rehace con `herramientas_mapas/limites_censo.py LIMITE_DISTRITAL.shp`; las geometrías van en texto compacto, enteros en 1e-5 grados con diferencias entre puntos, que leen `ubicacion.decodificar` y el visor). Si el plano no está en UTM
 se usa el distrito escrito en el proyecto o el elegido en el editor.
 
 Salidas en «Calcular todo»:
@@ -326,5 +326,4 @@ Lo que se puede cambiar (editor de Ubicación del visor, orden `ubicacion`, o a 
 
 El distrito elegido en el editor (`ubigeo`) manda sobre las coordenadas (queda un aviso si no coinciden). Orden de escritorio:
 `python -m drenie_motor ubicacion proyecto.json` con JSON por la entrada: `{"buscar": "Morales"}` lista distritos; `{"guardar": {...}}`
-guarda lo editado y rehace los 4 mapas (vista previa en JPEG dentro de la respuesta). Para rearmar los límites con un shapefile más
-reciente del INEI: `python herramientas_mapas/armar_limites.py departamentos.shp provincias.shp distritos.shp paises.shp --fuente "..."`.
+guarda lo editado y rehace los 4 mapas (vista previa en JPEG dentro de la respuesta). Para rearmar los límites con un límite distrital más reciente del INEI: `python herramientas_mapas/limites_censo.py distritos.shp`.

@@ -11,7 +11,19 @@ function wsuFuente() { var L = wsuDatos(); return (L && L.fuente_corta) || 'Lím
 var WSU_PAISES = [ [ 'ECUADOR', -78.6, -1.8 ], [ 'COLOMBIA', -72.5, -1.0 ], [ 'BRASIL', -68.6, -8.6 ], [ 'BOLIVIA', -66.9, -15.6 ], [ 'CHILE', -69.6, -19.3 ] ];
 
 function wsuDatos() { return typeof WS_LIMITES_PERU === 'object' && WS_LIMITES_PERU ? WS_LIMITES_PERU : null; }
-function wsuGeom(x) { if (!x._g) x._g = typeof x.g === 'string' ? JSON.parse(x.g) : (x.g || []); return x._g; }
+// geometría: lista de anillos, o texto compacto (enteros en 1e-5 grados, diferencia con el punto anterior; «;» anillos, «|» polígonos)
+function wsuDecodificar(g) {
+  if (typeof g !== 'string') return g || [];
+  if (g.charAt(0) === '[') return JSON.parse(g);
+  return g.split('|').map(function (poli) {
+    return poli.split(';').map(function (a) {
+      var v = a.split(','), x = 0, y = 0, r = [];
+      for (var i = 0; i + 1 < v.length; i += 2) { x += +v[i]; y += +v[i + 1]; r.push([x / 1e5, y / 1e5]); }
+      return r;
+    });
+  });
+}
+function wsuGeom(x) { if (!x._g) x._g = wsuDecodificar(x.g); return x._g; }
 function wsuNorm(t) { return String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/[^A-Z0-9]+/g, ' ').trim(); }
 function wsuLista(nivel, padre) {
   var L = wsuDatos(); if (!L) return [];

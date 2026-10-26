@@ -25,7 +25,8 @@ TOL = {"departamentos": 0.0015, "provincias": 0.0006, "distritos": 0.00025}     
 
 
 def _geom(g):
-    gg = json.loads(g) if isinstance(g, str) else g
+    from drenie_motor.ubicacion import decodificar
+    gg = decodificar(g)
     polis = [Polygon(a[0], a[1:]) for a in gg if len(a[0]) >= 4]
     return MultiPolygon(polis) if len(polis) > 1 else polis[0]
 

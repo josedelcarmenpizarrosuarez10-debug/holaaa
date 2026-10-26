@@ -55,7 +55,25 @@ def _norm(t):
 
 
 # ------------------------------------------------------------------ límites
+def decodificar(g):
+    """Geometría de limites_peru.json -> [[anillo exterior, huecos...], ...]. Acepta la lista de anillos o el texto compacto
+    (enteros en 1e-5 grados, cada punto como diferencia con el anterior; «;» separa anillos y «|» polígonos)."""
+    if not isinstance(g, str): return g
+    if g.startswith("["): return json.loads(g)
+    out = []
+    for poli in g.split("|"):
+        anillos = []
+        for a in poli.split(";"):
+            v = [int(t) for t in a.split(",")]; x = y = 0; r = []
+            for i in range(0, len(v) - 1, 2):
+                x += v[i]; y += v[i + 1]; r.append((x / 1e5, y / 1e5))
+            anillos.append(r)
+        out.append(anillos)
+    return out
+
+
 def _geom(anillos_lista):
+    anillos_lista = decodificar(anillos_lista)
     polis = [Polygon(a[0], a[1:]) for a in anillos_lista if len(a[0]) >= 4]
     return MultiPolygon(polis) if len(polis) > 1 else polis[0]
 
@@ -155,11 +173,18 @@ def _plt():
     return plt
 
 
+def vecino(a, b, d):
+    """True si las geometrías están a menos de d grados (primero por sus cajas: con contornos detallados es mucho más rápido)."""
+    ax0, ay0, ax1, ay1 = a.bounds; bx0, by0, bx1, by1 = b.bounds
+    if ax0 > bx1 + d or bx0 > ax1 + d or ay0 > by1 + d or by0 > ay1 + d: return False
+    return a.dwithin(b, d)
+
+
 def _colores(items):
     """Coloreo de vecinos con colores distintos (voraz)."""
     col = {}
     for i, x in enumerate(items):
-        usados = {col[y["u"]] for y in items[:i] if y["u"] in col and x["geom"].buffer(1e-4).intersects(y["geom"])}
+        usados = {col[y["u"]] for y in items[:i] if y["u"] in col and vecino(x["geom"], y["geom"], 1e-4)}
         col[x["u"]] = next(c for c in PASTEL + PASTEL if c not in usados) if len(usados) < len(PASTEL) else PASTEL[i % len(PASTEL)]
     return col
 
@@ -354,10 +379,10 @@ def generar(salida, cerco_xy, techos, cfg, bajar=None):
     U["mapas"].append(_mapa_division(os.path.join(carpeta, "MAPA_01_PERU.png"), U["titulos"][0], [], ren(L["departamentos"]),
                                      peru, dep, cfg_u, fte + "; países: Natural Earth", paises=L["paises"], mar=True))
     provs = ren([x for x in L["provincias"] if x["u"][:2] == dep["u"]])
-    vecinos = [x for x in L["departamentos"] if x["u"] != dep["u"] and x["geom"].intersects(dep["geom"].buffer(0.2))]
+    vecinos = [x for x in L["departamentos"] if x["u"] != dep["u"] and vecino(x["geom"], dep["geom"], 0.2)]
     U["mapas"].append(_mapa_division(os.path.join(carpeta, "MAPA_02_DEPARTAMENTO.png"), U["titulos"][1], vecinos, provs, dep["geom"], prov, cfg_u, fte))
     dists = ren([x for x in L["distritos"] if x["u"][:4] == prov["u"]])
-    vecinas = [x for x in L["provincias"] if x["u"] != prov["u"] and x["geom"].intersects(prov["geom"].buffer(0.05))]
+    vecinas = [x for x in L["provincias"] if x["u"] != prov["u"] and vecino(x["geom"], prov["geom"], 0.05)]
     U["mapas"].append(_mapa_division(os.path.join(carpeta, "MAPA_03_PROVINCIA.png"), U["titulos"][2], vecinas, dists, prov["geom"], dist, cfg_u, fte))
     ruta4, fondo, U["extension_local"] = _mapa_local(os.path.join(carpeta, "MAPA_04_LOCAL.png"), U["titulos"][3], U, cerco_xy, techos, cfg_u, salida, bajar)
     U["mapas"].append(ruta4); U["fondo_local"] = fondo
