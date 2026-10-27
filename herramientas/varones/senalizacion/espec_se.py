@@ -19,6 +19,8 @@ for d in (AQUI, VAR):
     sys.path.insert(0, d)
 import datos_se as D  # noqa: E402
 import caratulas_v as V  # noqa: E402
+import senales_img as SI  # noqa: E402
+SI_FIG = SI.FIG
 
 ESP = os.path.join(HER, 'especificaciones')
 JSON = os.path.join(ESP, '_json', 'varones_senalizacion.json')
@@ -216,17 +218,23 @@ def generalidades(P, pts):
 
 def construir():
     P = D.plano(); pts = D.partidas(P)
+    SI.generar()
     partidas = []
     for x in [dict(item='', desc='SEÑALIZACIÓN, EVACUACIÓN Y SEGURIDAD', und=None)] + pts:
         cod = '01' + ('.' + x['item'] if x['item'] else '')
         it = dict(codigo=cod, desc=x['desc'], und=x['und'] or '', nivel=len(cod.split('.')) - 1)
         if x['und']:
             d = x['desc']
+            ruta = os.path.join(SI_FIG, 'senal_%s.png' % SI.nombre(d))
             if d.startswith('ZONA DE REUNI'): it['secciones'] = zona_reunion(x)
             elif d.startswith('EXTINTOR'): it['secciones'] = extintor(x)
             elif d.startswith('UNIDAD DE LUCES'): it['secciones'] = luces(x)
             elif d.startswith('DETECTOR'): it['secciones'] = detector(x)
             else: it['secciones'] = senal(x)
+            if os.path.exists(ruta):                      # imagen de la señal al inicio de la descripción
+                from PIL import Image
+                w, h = Image.open(ruta).size; alto = 170 if h >= w else 120
+                it['secciones'][0][1].insert(0, ['i', ruta, int(alto * w / h), alto])
         partidas.append(it)
     from PIL import Image
     img = V.foto(); w, h = Image.open(img).size

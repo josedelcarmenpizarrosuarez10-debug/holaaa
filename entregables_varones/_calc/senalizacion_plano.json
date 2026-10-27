@@ -216,6 +216,128 @@
    1783.659
   ]
  },
+ "ambientes": {
+  "EXT": {
+   "TANQUE ELEVADO + CISTERNA": 1,
+   "ZONA DE POZO SÉPTICO": 1,
+   "AREA DE SEMRIOS": 1,
+   "CASETA DE CONTROL": 1,
+   "SS.HH": 1,
+   "INGRESO PRINCIPAL": 1
+  },
+  "E-05": {
+   "ALMACEN": 1,
+   "DORMITORIO": 2,
+   "CLOSET": 2,
+   "TERRAZA Y/O ESTAR": 1,
+   "OFICINA DE ENTREVISTA": 1,
+   "PASADIZO": 10,
+   "HALL": 1,
+   "DORMITORIO MADRE": 1,
+   "SS.HH": 5,
+   "SALON DE ESTUDIOS": 1,
+   "LAVANDERIA": 1
+  },
+  "E-06": {
+   "ALMACEN": 1,
+   "DORMITORIO": 2,
+   "CLOSET": 2,
+   "PASADIZO": 10,
+   "DORMITORIO MADRE": 1,
+   "SALON DE PSICOMOTRICIDAD": 1,
+   "TERRAZA Y/O ESTAR": 1,
+   "HALL": 1,
+   "OFICINA DE ENTREVISTA": 1,
+   "LAVANDERIA": 1,
+   "SS.HH": 5
+  },
+  "E-07": {
+   "ALMACEN": 1,
+   "SS.HH": 5,
+   "DORMITORIO": 2,
+   "CLOSET": 2,
+   "TERRAZA Y/O ESTAR": 1,
+   "OFICINA DE ENTREVISTA": 1,
+   "PASADIZO": 10,
+   "HALL": 1,
+   "DORMITORIO MADRE": 1,
+   "TALLER DE ARTE": 1,
+   "LAVANDERIA": 1
+  },
+  "E-01": {
+   "TRABAJADOR SOCIAL": 1,
+   "EDUCADOR": 1,
+   "SALA DE REUNIONES": 1,
+   "ASESORIA LEGAL": 1,
+   "INGRESO": 1,
+   "SECRETARÍA/ SALA DE ESPERA": 1,
+   "DIRECCIÓN GENERAL": 1,
+   "MONITOREO": 1,
+   "SALA DE PSICOLOGÍA": 1,
+   "HALL": 1,
+   "PASADIZO": 1,
+   "DATA CENTER": 1,
+   "CONSULTORIO DE NUTRUCION": 1,
+   "TOPICO": 1,
+   "SS.HH VARONES": 1,
+   "SS.HH MUJERES": 1,
+   "VEREDA": 8
+  },
+  "E-02": {
+   "VESTIDORES MUJERES": 1,
+   "VESTIDORES VARONES": 1,
+   "ALMACEN DE IMPLEMENTOS DEPORTIVOS": 1,
+   "CIRCULACIÓN": 6
+  },
+  "E-09": {
+   "VEREDA": 6,
+   "SS.HH MUJERES": 1,
+   "SS.HH HOMBRES": 1,
+   "SS.HH DISCAPACITADOS": 1
+  },
+  "E-03": {
+   "CIRCULACION": 6,
+   "LAVANDERIA": 1,
+   "DEPÓSITO": 1,
+   "SS.HH": 2,
+   "DORMITORIO": 1
+  },
+  "E-04": {
+   "ALMACEN": 1,
+   "DORMITORIO": 2,
+   "CLOSET": 2,
+   "TERRAZA Y/O ESTAR": 1,
+   "OFICINA DE ENTREVISTA": 1,
+   "PASADIZO": 10,
+   "HALL": 1,
+   "DORMITORIO MADRE": 1,
+   "SS.HH": 5,
+   "SALON DE ESTUDIOS": 1,
+   "LAVANDERIA": 1
+  },
+  "E-08": {
+   "ALMACEN GENERAL Y/O ALMACEN DE DONACIONES": 1,
+   "SUM Y/O COMEDOR": 1,
+   "LAVANDERIA DE COCINA": 1,
+   "COCINA": 2,
+   "INGRESO": 1,
+   "ALAMACEN DE COCINA": 1,
+   "GAS": 1,
+   "DEPÓSITO": 1,
+   "RESIDUOS SÓLIDOS": 1,
+   "DEPÓSITO DE SUM Y/O COMEDOR": 1,
+   "SSHH. PERSONAL": 1,
+   "CIRCULACION": 11
+  },
+  "E-10": {
+   "CUARTO ELECTRICO - GE": 1,
+   "CUARTO ELECTRICO - SUB ESTACION": 1,
+   "TABLERO GENERAL": 1,
+   "CTO. LIMPIEZA": 1,
+   "MAESTRANZA": 1,
+   "PASADIZO": 7
+  }
+ },
  "leyenda": [
   {
    "descripcion": "SALIDA CON BRAILLE",

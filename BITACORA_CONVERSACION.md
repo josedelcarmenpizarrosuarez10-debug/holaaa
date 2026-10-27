@@ -685,3 +685,13 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   a 1.20 m (los documentos usan 1.80 m sobre el equipo), SS.HH. PHD con otro bloque en la planta, zona de reunión 11 en la leyenda
   frente a 13 zonas S1-S13 dibujadas (el metrado usa 13), rótulo "RUTA 03 - 15.51ml" que es la ruta 02 (servicios generales),
   extintores CO2 en la cocina y E-09/E-10 sin extintor (P-09). Memoria con M-01..M-06: personal 22, 62 permanentes + 4 temporales = 66.
+- 27/10/2026 (2): el usuario dijo que la memoria era "muy pobre" y envió de ejemplo la memoria de evacuación y señalización del
+  Hogar de Refugio (copia en `insumos/katiuska/senalizacion/EJEMPLO_...docx`; mapas de ubicación en `.../mapas/`). `memoria_se.py`
+  rehecha con la estructura del ejemplo y ampliada (34 páginas): ubicación (UTM referencial E 345 749, N 9 282 885), accesos,
+  objetivos, normas, zonificación y ambientes de cada edificación leídos del plano (`lee_plano_se.ambientes`), peligros por
+  edificación, población y aforo con índices, ancho de puertas y pasajes (A.130, 0.005 m/persona), rutas y tiempos, zonas de
+  reunión con su capacidad, comité, director, mantenimiento, brigadas, personal, protocolos (sismo, incendio, lluvias, gas, corte
+  de energía), procedimiento de evacuación con directorio, extintores por edificación, clasificación NTP 399.010-1, tabla de
+  simbología con la imagen de cada señal y una ficha por señal, programa de mantenimiento y conclusiones. `senales_img.py` dibuja
+  cada señal a escala con su color, pictograma y placa en braille grado 1 real; las especificaciones muestran la imagen en cada
+  ficha (`docx_espec.js` acepta el bloque ["i", ruta, ancho, alto]).

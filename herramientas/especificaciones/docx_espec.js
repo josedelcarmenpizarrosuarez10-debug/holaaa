@@ -31,6 +31,8 @@ function bloques(lista) {
     if (b[0] === "p") out.push(par(b[1]));
     else if (b[0] === "l") for (const it of b[1]) out.push(new Paragraph({ children: [txt(it)], numbering: { reference: "vinetas", level: 0 }, alignment: AlignmentType.JUSTIFIED, spacing: { after: 60, line: 264 } }));
     else if (b[0] === "t") { out.push(tabla(b[1], b[2], b[3])); out.push(par("", { after: 60 })); }
+    else if (b[0] === "i") out.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 100 },   // imagen: ["i", ruta, ancho_px, alto_px]
+      children: [new ImageRun({ type: "png", data: fs.readFileSync(b[1]), transformation: { width: b[2], height: b[3] } })] }));
   }
   return out;
 }

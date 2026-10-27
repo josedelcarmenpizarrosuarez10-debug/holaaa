@@ -189,6 +189,34 @@ def ole():
     return n
 
 
+def ambientes(msp, cache, eds):
+    """Nombres de ambiente (capa 0_TEXTOS 2 de los bloques de la planta general) por edificación y en exteriores."""
+    tx = []
+
+    def ver(e, prof):
+        t = e.dxftype()
+        if t in ('TEXT', 'MTEXT'):
+            s = re.sub(r'\s+', ' ', e.dxf.text if t == 'TEXT' else e.plain_text()).strip(); p = e.dxf.insert
+            if e.dxf.layer == '0_TEXTOS 2' and dentro((p.x, p.y), PLANTA_S) and re.search('[A-ZÁÉÍÓÚ]{2}', s):
+                tx.append((s, p.x, p.y))
+        elif t == 'INSERT' and prof < 4:
+            try:
+                b = bbox.extents([e], cache=cache)
+                if not b.has_data or not (b.extmax.x > PLANTA_S[0] and b.extmin.x < PLANTA_S[2] and b.extmax.y > PLANTA_S[1] and b.extmin.y < PLANTA_S[3]):
+                    return
+                for v in e.virtual_entities():
+                    ver(v, prof + 1)
+            except Exception:
+                pass
+    for e in msp:
+        ver(e, 0)
+    out = {}
+    for s, x, y in tx:
+        cod = edificacion_de(x, y, eds, margen=0.0)
+        out.setdefault(cod, Counter())[s] += 1
+    return {k: dict(v) for k, v in out.items()}
+
+
 def leer():
     doc = abrir(); msp = doc.modelspace(); cache = bbox.Cache()
     syms = simbolos(msp, cache)
@@ -204,9 +232,10 @@ def leer():
     ev = evacuacion(msp)
     for a in ev['aforos']:
         a['edificacion'] = edificacion_de(a['x'], a['y'], eds, margen=0.0)
+    amb = ambientes(msp, cache, eds)
     rot = {t['texto']: [t['x'], t['y']] for t in textos(msp, PLANTA_S) if re.match(r'^(EDIFICACION \d\d|O\.(EXTERIOR|COMPLEMENTARIA) \d\d)$', t['texto'])}
     return dict(fuente=os.path.relpath(ZIP, RAIZ), laminas=rotulos(doc), edificaciones=eds, exterior=dict(codigo=EXTERIOR[0], nombre=EXTERIOR[1]),
-                rotulos_planta=rot, leyenda=ley, evacuacion=ev, ole_espacio_modelo=ole())
+                rotulos_planta=rot, ambientes=amb, leyenda=ley, evacuacion=ev, ole_espacio_modelo=ole())
 
 
 if __name__ == '__main__':
