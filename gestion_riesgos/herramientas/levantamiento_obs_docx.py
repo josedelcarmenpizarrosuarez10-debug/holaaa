@@ -421,6 +421,60 @@ def tabla_04(doc, titulo):
     par(doc, "LI: lado izquierdo; LD: lado derecho. Cuando el punto o sector es puntual no se indican coordenadas de fin.", 7.5, cur=True)
 
 
+def fijar_anchos(t, anchos):
+    """Anchos fijos de columna (cm), como en estudio_docx.tabla."""
+    tblPr = t._tbl.tblPr; lay = OxmlElement("w:tblLayout"); lay.set(qn("w:type"), "fixed"); tblPr.append(lay)
+    for e in tblPr.findall(qn("w:tblW")): tblPr.remove(e)
+    tw = OxmlElement("w:tblW"); tw.set(qn("w:w"), str(int(sum(anchos) * 567))); tw.set(qn("w:type"), "dxa"); tblPr.append(tw)
+    for gc, w in zip(t._tbl.tblGrid.findall(qn("w:gridCol")), anchos): gc.set(qn("w:w"), str(int(w * 567)))
+    for row in t.rows:
+        for c, w in zip(row.cells, anchos): c.width = Cm(w)
+
+
+def fichas_04(doc, titulo):
+    """Una ficha por punto o sector crítico: descripción y coordenadas a la izquierda, fotografía a la derecha."""
+    par(doc, titulo, 10, True, antes=6, despues=4).paragraph_format.keep_with_next = True
+    gris = lambda c: sombra(c, "F2F2F2")
+    for k, (prog, a, b, d, imgs) in enumerate(SECTORES, 1):
+        if imgs: fs = [(next(x for x in FOTOS if x["img"] == i), None) for i in imgs[:2]]
+        else:
+            x, dd = foto_sector(a, b); fs = [(x, dd)] if x else []
+        t = doc.add_table(rows=2, cols=2); t.style = "Table Grid"; t.alignment = WD_TABLE_ALIGNMENT.CENTER; t.autofit = False
+        fijar_anchos(t, [5.4, 11.6])
+        cab = t.cell(0, 0).merge(t.cell(0, 1)); cab.text = ""; sombra(cab, "1F4E79"); cab.paragraphs[0].paragraph_format.keep_with_next = True
+        fuente(cab.paragraphs[0].add_run("FICHA %02d - km %s - %s" % (k, prog, d)), 8.5, True, color=ED.RGBColor(255, 255, 255))
+        izq, der = t.cell(1, 0), t.cell(1, 1); gris(izq)
+        izq.vertical_alignment = der.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
+        e1, n1 = utm(a); p = izq.paragraphs[0]
+        fuente(p.add_run("Progresiva: "), 8, True); fuente(p.add_run(prog + "\n"), 8)
+        fuente(p.add_run("Descripción: "), 8, True); fuente(p.add_run(d + "\n\n"), 8)
+        fuente(p.add_run("Coordenadas UTM (WGS 84 - 18 S)\n"), 8, True)
+        fuente(p.add_run("Inicio:  E %s   N %s" % (e1, n1)), 8)
+        if b: e2, n2 = utm(b); fuente(p.add_run("\nFin:      E %s   N %s" % (e2, n2)), 8)
+        rr = sorted({c_ for c_, d_, a_, b_, im in UBIC if a_ == a})
+        if rr: fuente(p.add_run("\n\nRiesgos: "), 8, True); fuente(p.add_run(", ".join(rr)), 8)
+        q = der.paragraphs[0]; q.alignment = C
+        if fs:
+            ancho = 10.8 if len(fs) == 1 else 4.8
+            for x, dd in fs:
+                w, h = Image.open(x["ruta"]).size
+                if w >= h: q.add_run().add_picture(x["ruta"], width=Cm(ancho))
+                else: q.add_run().add_picture(x["ruta"], height=Cm(7.0 if len(fs) == 1 else 6.0))
+                q.add_run(" ")
+            r_ = der.add_paragraph(); r_.alignment = C
+            txt = "; ".join("Foto N.° %s - km %s - E %.0f  N %.0f - %s%s" % (x["id"], km(x["prog"]), x["e"], x["n"], x["fecha"],
+                                                                             "" if dd is None else " (vista del sector, a %.0f m)" % dd) for x, dd in fs)
+            if len(imgs) > 2: txt += ". Ver también: " + fotos_de(imgs[2:])
+            fuente(r_.add_run(txt), 7.5)
+        else:
+            q.paragraph_format.space_before = Pt(20); q.paragraph_format.space_after = Pt(20)
+            fuente(q.add_run("Registro documental del estudio de inventario vial, ubicado con las coordenadas del eje. Su registro fotográfico forma parte "
+                             "de la verificación de campo previa a la convocatoria (acción complementaria del plan de respuesta)."), 8, cur=True)
+        for row in t.rows:
+            trPr = row._tr.get_or_add_trPr(); cs = OxmlElement("w:cantSplit"); cs.set(qn("w:val"), "true"); trPr.append(cs)
+        par(doc, despues=4)
+
+
 def accion_verificacion(doc):
     par(doc, "Acción complementaria del plan de respuesta", 10, True, antes=6, despues=3)
     tabla(doc, ["RIESGOS", "ACCIÓN", "RESPONSABLE", "MOMENTO"],
@@ -542,6 +596,7 @@ def main():
                                          "restantes son registros documentales ubicados con las coordenadas del eje (Anexo 3, C)."
                                          % (len(SECTORES), len(con_foto), len(sec_asoc), RADIO, len(SECTORES) - len(con_foto) - len(sec_asoc)), False)])
     tabla_04(doc, "Tabla N.° 04: Puntos y sectores críticos del inventario vial (UTM WGS 84 - zona 18 S)")
+    fichas_04(doc, "Fichas de los puntos y sectores críticos de la Tabla N.° 04")
     accion_verificacion(doc)
 
     # ------------------------------------------------------------------ anexo 2 (horizontal)

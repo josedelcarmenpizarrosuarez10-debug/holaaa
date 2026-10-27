@@ -45,6 +45,7 @@ def main():
               "Los riesgos de gestión, contractuales, económicos, de permisos o de seguridad que abarcan todo el proyecto no tienen un punto físico y se indican "
               "como «No localizado»."]: vin(doc, t)
     LO.tabla_04(doc, T04 + ": Puntos y sectores críticos del inventario vial - coordenadas UTM (WGS 84 - zona 18 S) y fotografía")
+    LO.fichas_04(doc, "Fichas de los puntos y sectores críticos de la Tabla N.° 04")
     LO.tabla_08(doc, T08 + ": Riesgos identificados - coordenadas y fotografía")
     LO.tabla_08a(doc, T08A + ": Ubicación georreferenciada de los riesgos (UTM WGS 84 - zona 18 S)")
     LO.accion_verificacion(doc)
