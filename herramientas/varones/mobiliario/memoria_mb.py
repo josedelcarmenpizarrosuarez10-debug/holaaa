@@ -13,6 +13,8 @@ import os
 import sys
 from collections import OrderedDict
 
+from docx.enum.section import WD_ORIENT, WD_SECTION
+from docx.oxml.ns import qn
 from docx.shared import Cm
 
 AQUI = os.path.dirname(os.path.abspath(__file__)); VAR = os.path.dirname(AQUI); HER = os.path.dirname(VAR)
@@ -47,6 +49,55 @@ TEXTO_ED = {
     'E-09': 'Servicios higiénicos públicos, con cestos y dispensadores.',
     'E-10': 'Servicios generales: maestranza con contenedores de residuos.',
 }
+
+
+def nota_completa(cod, nota):
+    """Motivo de una corrección; los "Ídem" se reemplazan por el motivo completo del mismo código."""
+    if not nota.startswith('Ídem'):
+        return nota
+    for e, a, c, q, m in D.CORRECCIONES:
+        if c == cod and not m.startswith('Ídem'):
+            return m
+    return nota
+
+
+def prosa(its):
+    """Lista en texto de los ítems de un ambiente: cantidad, descripción y código."""
+    par = []
+    for it in its:
+        if it['grupo'] == 'S' or not it['cant']:
+            continue
+        par.append('%d %s (%s)' % (it['cant'], it['des'].lower().rstrip('.'), it['cod']))
+    return '; '.join(par) + '.' if par else 'sin equipamiento en el cuadro.'
+
+
+def pagina(M, apaisada):
+    """Nueva sección (salto de página) vertical u horizontal, con el mismo encabezado y numeración continua."""
+    sec = M.d.add_section(WD_SECTION.NEW_PAGE)
+    for pg in sec._sectPr.findall(qn('w:pgNumType')):             # la copia de la sección anterior reiniciaría la numeración
+        sec._sectPr.remove(pg)
+    a, b = Cm(21.0), Cm(29.7)
+    sec.orientation = WD_ORIENT.LANDSCAPE if apaisada else WD_ORIENT.PORTRAIT
+    sec.page_width, sec.page_height = (b, a) if apaisada else (a, b)
+    sec.left_margin, sec.right_margin, sec.top_margin, sec.bottom_margin = (Cm(2.0), Cm(2.0), Cm(2.0), Cm(1.6)) if apaisada else \
+        (Cm(3.0), Cm(2.0), Cm(2.5), Cm(2.0))
+    return sec
+
+
+def figura_planta(M, ed, lam):
+    ruta = os.path.join(FIG, 'planta_%s.png' % ed)
+    if not os.path.exists(ruta):
+        return
+    from PIL import Image
+    w, h = Image.open(ruta).size
+    tit = 'Planta de equipamiento y mobiliario de %s, con los códigos rotulados' % ed
+    fte = 'Fuente: Lámina %s de equipamiento y mobiliario.' % (', '.join(lam) or 'MB')
+    if w / h > 1.25:                                             # planta alargada: hoja horizontal a todo el ancho
+        pagina(M, True)
+        MS.figura(M, ruta, tit, min(25.5, 14.6 * w / h), fte)
+        pagina(M, False)
+    else:
+        MS.figura(M, ruta, tit, min(M.ancho, 21.5 * w / h), fte)
 
 
 def generar():
@@ -130,23 +181,41 @@ def generar():
     por_ed = OrderedDict()
     for ed, amb, its in A:
         por_ed.setdefault(ed, []).append((amb, its))
+    M.par('Para cada edificación se describe el equipamiento de cada ambiente con su código y su cantidad, tal como está rotulado en '
+          'la planta de la lámina; la tabla resume las cantidades del metrado y la figura muestra la planta con los códigos.')
     for ed, ambs in por_ed.items():
         M.t2('%s  %s' % (ed, D.EDIFICACIONES.get(ed, '')))
         M.par(TEXTO_ED.get(ed, ''))
-        filas = []
+        filas = []; notas = []
         for amb, its in ambs:
+            MS.etiq(M, amb.capitalize(), prosa(its))
             for it in its:
                 if it['grupo'] == 'S' or not it['cant']:
                     continue
-                filas.append([amb.capitalize(), it['cod'] if it['grupo'] in 'EM' else '', it['des'].capitalize()[:95], it['cant']])
+                filas.append([amb.capitalize(), it['cod'], it['des'].capitalize()[:95], it['cant']])
+                if it['nota']:
+                    n = '%s, %s: %s' % (amb.capitalize(), it['cod'], nota_completa(it['cod'], it['nota']))
+                    if n not in notas:
+                        notas.append(n)
         lam = [l['codigo'] for l in P['laminas'] if ed[-2:] in l['titulo']]
         MS.tabla(M, 'Equipamiento y mobiliario de %s (lámina %s)' % (ed, ', '.join(lam) or '—'), ['AMBIENTE', 'CÓD.', 'DESCRIPCIÓN', 'CANT.'],
                  filas, [3.6, 1.3, W - 6.3, 1.4], tam=8, izq=(0, 2))
-        MS.figura(M, os.path.join(FIG, 'planta_%s.png' % ed), 'Planta de equipamiento y mobiliario de %s' % ed, 15.5 if ed not in ('E-02', 'E-03', 'E-09', 'E-10') else 9.0,
-                  'Fuente: Lámina %s de equipamiento y mobiliario.' % (', '.join(lam) or 'MB'))
+        if notas:
+            MS.sub(M, 'Cantidades ajustadas a la planta de %s' % ed)
+            MS.vines(M, notas)
+        figura_planta(M, ed, lam)
 
     # ================================================================== 4
     M.t1('CARACTERÍSTICAS DE LOS EQUIPOS, EL MOBILIARIO Y LOS IMPLEMENTOS')
+    M.par('Cada partida se agrupa en su familia, con las características comunes de materiales y acabados; la tabla indica en qué '
+          'edificaciones va y su cantidad total. Las características de cada partida se detallan en las especificaciones técnicas.')
+    donde = OrderedDict()
+    for ed, amb, its in A:
+        for it in its:
+            if it['grupo'] != 'S' and it['cant']:
+                donde.setdefault(it['clave'], OrderedDict()).setdefault(ed, 0)
+                donde[it['clave']][ed] += it['cant']
+    donde = {k: ', '.join('%s (%d)' % (e, n) for e, n in v.items()) for k, v in donde.items()}
     fam = OrderedDict()
     for f in items:
         amb = f['desc'] if f['g'] == 'K' else ''
@@ -165,10 +234,29 @@ def generar():
         x = F.FAMILIAS[k]
         M.t2(x['nombre'])
         MS.vines(M, x['mat'])
-        MS.tabla(M, x['nombre'], ['CÓD.', 'DESCRIPCIÓN', 'CANT.'], [[f['cod'], f['desc'].capitalize(), f['total']] for f in fs],
-                 [1.4, W - 3.0, 1.6], tam=8.5, izq=(1,))
+        MS.tabla(M, x['nombre'], ['CÓD.', 'DESCRIPCIÓN', 'UBICACIÓN', 'CANT.'],
+                 [[f['cod'], f['desc'].capitalize(), donde.get(f['clave'], ''), f['total']] for f in fs],
+                 [1.3, W - 7.9, 5.2, 1.4], tam=8, izq=(1, 2))
 
     # ================================================================== 5
+    M.t1('COMPATIBILIZACIÓN DEL PLANO CON EL METRADO')
+    M.par('Las cantidades del metrado se obtuvieron de los cuadros de equipamiento de cada ambiente (láminas MB-01 a MB-09) y se '
+          'comprobaron contando, por edificación, cada código escrito en la planta: textos sueltos, directrices y textos dentro de bloques. '
+          'En equipos (E) y mobiliario (M) las cantidades adoptadas coinciden con lo rotulado en las diez edificaciones (%d und). En los '
+          'implementos (K) la planta rotula un solo ejemplar por tipo, por lo que rigen los cuadros.' % sum(
+              it['cant'] for ed, amb, its in A for it in its if it['grupo'] in 'EM'))
+    filas = []
+    for ed, amb, its in A:
+        for it in its:
+            if it['nota'] and it['grupo'] in 'EMK':
+                filas.append([ed, amb.capitalize(), it['cod'], it['cuadro'] or 0, it['cant'], nota_completa(it['cod'], it['nota'])])
+    MS.tabla(M, 'Cantidades ajustadas a lo dibujado y rotulado en la planta', ['EDIF.', 'AMBIENTE', 'CÓD.', 'CUADRO', 'METRADO', 'MOTIVO'],
+             filas, [1.3, 3.0, 1.2, 1.8, 2.0, W - 9.3], tam=8, izq=(1, 5))
+    M.t2('Observaciones al plano')
+    M.par('Se deben corregir en las láminas para que los cuadros digan lo mismo que la planta y el metrado:')
+    MS.vines(M, ['%s: %s' % (l, t) for l, t in D.OBS_PLANO])
+
+    # ================================================================== 6
     M.t1('RESUMEN GENERAL')
     filas = []
     for g, nombre in D.GRUPOS.items():
@@ -180,7 +268,7 @@ def generar():
     M.par('El detalle por partida, por edificación y por ambiente está en el metrado de equipamiento y mobiliario (hojas RESUMEN y '
           'METRADO POR AMBIENTE), y las condiciones de suministro de cada partida en las especificaciones técnicas.')
 
-    # ================================================================== 6
+    # ================================================================== 7
     M.t1('SUMINISTRO, INSTALACIÓN Y MANTENIMIENTO')
     MS.vines(M, ['Antes de la compra o fabricación, el contratista presenta a la Supervisión fichas técnicas, catálogos o muestras de cada '
                  'partida para su aprobación.',
