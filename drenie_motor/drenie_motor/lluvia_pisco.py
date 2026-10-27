@@ -10,12 +10,43 @@ from functools import lru_cache
 
 RUTA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "lluvia_pisco_mensual.npz")
 FUENTE = "PISCOp v3.0 (SENAMHI), precipitación diaria grillada 1981-2025; máxima en 24 h de cada mes"
-# factor estación / PISCO (promedio de las máximas anuales en los años comunes), por departamento (ubigeo de 2 dígitos)
-FACTORES = {
-    "22": (1.40, "San Martín: calibrado con las estaciones SENAMHI CO Tarapoto (1.35) y Pongo de Caynarachi (1.45)"),
-}
+# Factor estación / PISCO: promedio de las máximas anuales de la estación entre el promedio de las de PISCO en los mismos años.
+# Estaciones del SENAMHI de San Martín (solo el factor; las series no se reproducen). Ubicación: Tarapoto, la de su ficha; las demás,
+# el centro de su distrito (los archivos de descarga no traen coordenadas): APROXIMADA.
+ESTACIONES = [
+    # nombre, latitud, longitud, factor, años comunes con PISCO, ubicación exacta
+    ("CO Tarapoto", -6.467, -76.367, 1.35, 24, True),
+    ("Pongo de Caynarachi", -6.193, -76.317, 1.45, 25, False),
+    ("Chazuta", -6.637, -75.967, 1.22, 33, False),
+    ("Jepelacio", -6.170, -76.910, 1.33, 33, False),
+    ("Lamas", -6.396, -76.516, 1.38, 26, False),
+    ("Sauce", -6.709, -76.213, 1.33, 31, False),
+    ("San Pablo", -6.831, -76.600, 1.25, 32, False),
+    ("San Antonio", -6.397, -76.389, 1.04, 31, False),
+]
+ALCANCE_KM = 80.0          # más lejos de toda estación calibrada: factor 1.00 con aviso
+
+
+def _km(la1, lo1, la2, lo2):
+    import math
+    x = math.radians(lo2 - lo1) * math.cos(math.radians((la1 + la2) / 2)); y = math.radians(la2 - la1)
+    return 6371.0 * math.hypot(x, y)
+
+
+def factor_en(lat, lon):
+    """Factor estación / PISCO en el punto: inverso de la distancia al cuadrado entre las estaciones calibradas. (factor, detalle)."""
+    ds = sorted((_km(lat, lon, e[1], e[2]), e) for e in ESTACIONES)
+    if ds[0][0] > ALCANCE_KM: return 1.0, None
+    if ds[0][0] < 3.0: f = ds[0][1][3]
+    else:
+        w = [(1.0 / d ** 2, e[3]) for d, e in ds]; f = sum(a * b for a, b in w) / sum(a for a, _ in w)
+    cercanas = ", ".join("%s %.2f (%.0f km)" % (e[0], e[3], d) for d, e in ds[:3])
+    return round(f, 2), ("Factor interpolado con las estaciones SENAMHI calibradas más cercanas: %s; %d estaciones de San Martín, "
+                         "ubicación aproximada salvo Tarapoto" % (cercanas, len(ESTACIONES)))
+
+
 SIN_CALIBRAR = ("La lluvia de PISCO promedia ~10 x 10 km y suele dar máximas menores que una estación (en San Martín, 25 a 30 % "
-                "menos). En este departamento no hay factor calibrado: ingrese uno o use la serie de la estación más cercana.")
+                "menos). Lejos de las estaciones calibradas no hay factor: ingrese uno o use la serie de la estación más cercana.")
 
 
 def disponible():
@@ -60,8 +91,7 @@ def serie(lat=None, lon=None, ubigeo=None, factor=None):
     if lugar is None:
         d = UBI.distrito_en(lon, lat)
         lugar = UBI._jerarquia(d, {}) if d else None
-    dep = (lugar or {}).get("ubigeo", "")[:2]
-    f_def, detalle = FACTORES.get(dep, (1.0, None))
+    f_def, detalle = factor_en(lat, lon)
     f = float(factor) if factor not in (None, "") else f_def
     if not (0.5 <= f <= 3.0): raise ValueError("El factor de corrección debe estar entre 0.50 y 3.00.")
     D = _datos(); i, j = _celda(lat, lon)

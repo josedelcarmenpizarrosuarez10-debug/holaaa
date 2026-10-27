@@ -1,6 +1,6 @@
 /* DrenIE 3.1.0 · Lluvia PISCO-SENAMHI en la pestaña LLUVIA.
    Trae la precipitación máxima en 24 h de cada mes (1981-2025) del punto del proyecto, desde PISCOp v3.0 del SENAMHI (base que va
-   con el motor, sin internet), multiplicada por el factor estación / PISCO (San Martín 1.40, calibrado con estaciones del SENAMHI).
+   con el motor, sin internet), multiplicada por el factor estación / PISCO (en San Martín, interpolado entre 8 estaciones del SENAMHI).
    La serie entra en la misma tabla que «Importar Excel»: DrenIE calcula 1.13, distribuciones, Bell e IDF como siempre. */
 var wsPiscoBase = StatsStep;
 StatsStep = function (props) { return h(React.Fragment, null, h(WsPisco, props), h(wsPiscoBase, props)); };
@@ -55,7 +55,7 @@ function WsPisco(props) {
       wsField('Latitud (°)', lat[0], function (v) { lat[1](v); res[1](null); }, { placeholder: '−6.5116', inputMode: 'decimal' }),
       wsField('Longitud (°)', lon[0], function (v) { lon[1](v); res[1](null); }, { placeholder: '−76.3199', inputMode: 'decimal' })),
     h('div', { className: 'ws-actions', style: { alignItems: 'flex-end' } },
-      wsField('Factor estación / PISCO', factor[0], function (v) { factor[1](v); res[1](null); }, { placeholder: 'automático (San Martín 1.40)', inputMode: 'decimal' }),
+      wsField('Factor estación / PISCO', factor[0], function (v) { factor[1](v); res[1](null); }, { placeholder: 'automático (estaciones SENAMHI cercanas)', inputMode: 'decimal' }),
       h(Btn, { variant: 'primary', disabled: ocupado[0], onClick: pedir }, ocupado[0] ? 'Buscando…' : 'Traer serie')),
     d ? h('div', { className: 'ws-pisco-res' },
       h('p', null, h('strong', null, (d.ubicacion.distrito ? d.ubicacion.distrito + ', ' + d.ubicacion.provincia + ', ' + d.ubicacion.departamento : 'Punto ' + d.punto.lat + ', ' + d.punto.lon)),

@@ -327,3 +327,19 @@ Lo que se puede cambiar (editor de Ubicación del visor, orden `ubicacion`, o a 
 El distrito elegido en el editor (`ubigeo`) manda sobre las coordenadas (queda un aviso si no coinciden). Orden de escritorio:
 `python -m drenie_motor ubicacion proyecto.json` con JSON por la entrada: `{"buscar": "Morales"}` lista distritos; `{"guardar": {...}}`
 guarda lo editado y rehace los 4 mapas (vista previa en JPEG dentro de la respuesta). Para rearmar los límites con un límite distrital más reciente del INEI: `python herramientas_mapas/limites_censo.py distritos.shp`.
+
+## Lluvia PISCO-SENAMHI (`lluvia_pisco.py`, orden `pisco`)
+
+Serie de precipitación máxima en 24 h de cada mes (1981-2025) de cualquier punto del Perú, desde PISCOp v3.0 del SENAMHI
+(lluvia diaria grillada de 0.1°). La base `lluvia_pisco_mensual.npz` se arma en la PC con `herramientas_lluvia/reducir_pisco.py
+PISCOp_d.nc` (de https://doi.org/10.6084/m9.figshare.32411886) y va con el motor; no se sube a este repositorio.
+
+La lluvia grillada promedia ~10 × 10 km y subestima las máximas puntuales, por eso se multiplica por el factor estación / PISCO,
+interpolado (inverso de la distancia al cuadrado) entre 8 estaciones del SENAMHI de San Martín: CO Tarapoto 1.35, Pongo de
+Caynarachi 1.45, Chazuta 1.22, Jepelacio 1.33, Lamas 1.38, Sauce 1.33, San Pablo 1.25 y San Antonio 1.04 (ubicación aproximada en
+el centro de su distrito, salvo Tarapoto). A más de 80 km de toda estación el factor es 1.00 y se avisa. Solo se guardan los
+factores; las series de las estaciones no se reproducen. Comprobación: Tarapoto 75.0 mm de promedio de máximas anuales con PISCO
+corregido frente a 76.6 mm de la estación; Barranquita 106.1 mm frente a 110.3 mm de Pongo de Caynarachi.
+
+En DrenIE: pestaña LLUVIA → Análisis estadístico → «Lluvia PISCO-SENAMHI»: distrito o coordenadas, factor (automático o a mano),
+«Traer serie» y «Cargar en la tabla de lluvias». Orden: `echo '{"ubigeo":"220910"}' | python -m drenie_motor pisco`.
