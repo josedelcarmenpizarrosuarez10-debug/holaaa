@@ -720,3 +720,10 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   original. Resultado: en equipos y mobiliario (E y M) lo adoptado coincide con lo rotulado en todas las edificaciones (642 und,
   0 diferencias). Implementos K: el plano rotula un solo ejemplar por tipo, así que mandan los cuadros; los cojines K78 de
   psicomotricidad son 10 dibujados y 7 rotulados (se metran 10).
+- 27/10/2026 (4): el usuario observó que la memoria no mencionaba el M44 y que las imágenes de las plantas no se veían. Memoria
+  (`memoria_mb.py`, 40 p.): cada ambiente con su párrafo de código y cantidad (p. ej. "10 credenza de melamina... (M44)"),
+  cantidades ajustadas a la planta por edificación con su motivo completo, tabla de familias con columna UBICACIÓN y capítulo
+  nuevo "Compatibilización del plano con el metrado" (método, tabla de correcciones y observaciones al plano); las plantas
+  alargadas van en hoja horizontal sin reiniciar la numeración. Vistas (`vistas_mb.py`): caja por los muros de cada edificación
+  (capas MURO/A-WALL/COLUMNAS y bloques de módulo), dibujo con el motor de ezdxf solo con las entidades de la caja (muros
+  rellenos, aparatos, directrices); lo blanco se pasa a negro (las etiquetas de la capa 09 son blancas) sin tocar el negro.
