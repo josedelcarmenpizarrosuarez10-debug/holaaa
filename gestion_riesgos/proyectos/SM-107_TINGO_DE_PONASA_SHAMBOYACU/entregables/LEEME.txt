@@ -6,6 +6,7 @@ Entregables
   ESTUDIO_GESTION_RIESGOS_EJECUCION_OBRA_SM107.docx   Estudio (Word)
   MATRIZ_GESTION_RIESGOS_EJECUCION_OBRA_SM107.xlsx     Matriz de riesgos con formulas (celda amarilla = dato, verde = formula)
   PLANOS_GESTION_RIESGOS_SM107.dxf                     PR-01 ubicacion de riesgos 1/25,000 (UTM WGS 84 18 S) y PR-02 diagrama lineal
+  LEVANTAMIENTO_OBSERVACIONES_GESTION_RIESGOS_SM107.docx  Levantamiento de observaciones 1 a 3 (Anexo 2 matriz impresa, Tablas 04 y 08 con coordenadas, Anexo 3 panel fotografico)
   vistas_previas/                                      PNG de PR-01 y PR-02
 
 Marco: Ley N. 32069 y su Reglamento (D.S. N. 009-2025-EF), art. 156; Comunicado N. 016-2025-OECE.
@@ -20,3 +21,5 @@ Regenerar (desde gestion_riesgos/herramientas), en este orden:
   python3 plano_riesgos_dxf.py  (DXF) y dxf_render.py para las vistas previas
   python3 figuras_sm107.py      (figuras)
   python3 estudio_docx.py       (Word)
+  python3 fotos_sm107.py        (fotos georreferenciadas del inventario; requiere LibreOffice)
+  python3 levantamiento_obs_docx.py  (levantamiento de observaciones)
