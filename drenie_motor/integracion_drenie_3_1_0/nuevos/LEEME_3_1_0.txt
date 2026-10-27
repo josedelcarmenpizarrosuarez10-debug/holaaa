@@ -175,5 +175,5 @@ Lluvia PISCO-SENAMHI (pestaña LLUVIA → Análisis estadístico)
 ------------------------------------------------------------
 Trae la precipitación máxima en 24 h de cada mes (1981-2025) de cualquier distrito o coordenada del Perú, desde PISCOp v3.0 del
 SENAMHI (va dentro del programa, sin internet), corregida con el factor estación / PISCO interpolado entre 8 estaciones del
-SENAMHI de San Martín (1.04 a 1.45). «Cargar en la tabla de lluvias» la pone en la misma tabla que «Importar Excel» y DrenIE
+SENAMHI de San Martín (1.04 a 1.57; 5 con coordenadas exactas de su ficha). «Cargar en la tabla de lluvias» la pone en la misma tabla que «Importar Excel» y DrenIE
 calcula todo como siempre. Es una serie REFERENCIAL: para el expediente use la serie certificada de la estación más cercana.

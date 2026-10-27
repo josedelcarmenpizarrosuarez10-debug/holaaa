@@ -11,17 +11,18 @@ from functools import lru_cache
 RUTA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "lluvia_pisco_mensual.npz")
 FUENTE = "PISCOp v3.0 (SENAMHI), precipitación diaria grillada 1981-2025; máxima en 24 h de cada mes"
 # Factor estación / PISCO: promedio de las máximas anuales de la estación entre el promedio de las de PISCO en los mismos años.
-# Estaciones del SENAMHI de San Martín (solo el factor; las series no se reproducen). Ubicación: Tarapoto, la de su ficha; las demás,
-# el centro de su distrito (los archivos de descarga no traen coordenadas): APROXIMADA.
+# Estaciones del SENAMHI de San Martín (solo el factor; las series no se reproducen), en la celda PISCO de la estación. Ubicación
+# exacta (ficha de la estación del SENAMHI): Tarapoto, Pongo de Caynarachi, Chazuta, Lamas y San Pablo; las demás, el centro de su
+# distrito (los archivos de descarga no traen coordenadas): APROXIMADA.
 ESTACIONES = [
     # nombre, latitud, longitud, factor, años comunes con PISCO, ubicación exacta
     ("CO Tarapoto", -6.467, -76.367, 1.35, 24, True),
-    ("Pongo de Caynarachi", -6.193, -76.317, 1.45, 25, False),
-    ("Chazuta", -6.637, -75.967, 1.22, 33, False),
+    ("Pongo de Caynarachi", -6.3305, -76.2818, 1.28, 25, True),     # 003317, 187 msnm
+    ("Chazuta", -6.5712, -76.1315, 1.37, 33, True),                 # 153319, 203 msnm
+    ("Lamas", -6.4187, -76.5279, 1.57, 26, True),                   # 000383, 840 msnm
+    ("San Pablo", -6.8096, -76.5763, 1.26, 32, True),               # 153307, 270 msnm
     ("Jepelacio", -6.170, -76.910, 1.33, 33, False),
-    ("Lamas", -6.396, -76.516, 1.38, 26, False),
     ("Sauce", -6.709, -76.213, 1.33, 31, False),
-    ("San Pablo", -6.831, -76.600, 1.25, 32, False),
     ("San Antonio", -6.397, -76.389, 1.04, 31, False),
 ]
 ALCANCE_KM = 80.0          # más lejos de toda estación calibrada: factor 1.00 con aviso
@@ -42,7 +43,7 @@ def factor_en(lat, lon):
         w = [(1.0 / d ** 2, e[3]) for d, e in ds]; f = sum(a * b for a, b in w) / sum(a for a, _ in w)
     cercanas = ", ".join("%s %.2f (%.0f km)" % (e[0], e[3], d) for d, e in ds[:3])
     return round(f, 2), ("Factor interpolado con las estaciones SENAMHI calibradas más cercanas: %s; %d estaciones de San Martín, "
-                         "ubicación aproximada salvo Tarapoto" % (cercanas, len(ESTACIONES)))
+                         "%d con ubicación exacta" % (cercanas, len(ESTACIONES), sum(1 for e in ESTACIONES if e[5])))
 
 
 SIN_CALIBRAR = ("La lluvia de PISCO promedia ~10 x 10 km y suele dar máximas menores que una estación (en San Martín, 25 a 30 % "

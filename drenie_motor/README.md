@@ -335,11 +335,13 @@ Serie de precipitación máxima en 24 h de cada mes (1981-2025) de cualquier pun
 PISCOp_d.nc` (de https://doi.org/10.6084/m9.figshare.32411886) y va con el motor; no se sube a este repositorio.
 
 La lluvia grillada promedia ~10 × 10 km y subestima las máximas puntuales, por eso se multiplica por el factor estación / PISCO,
-interpolado (inverso de la distancia al cuadrado) entre 8 estaciones del SENAMHI de San Martín: CO Tarapoto 1.35, Pongo de
-Caynarachi 1.45, Chazuta 1.22, Jepelacio 1.33, Lamas 1.38, Sauce 1.33, San Pablo 1.25 y San Antonio 1.04 (ubicación aproximada en
-el centro de su distrito, salvo Tarapoto). A más de 80 km de toda estación el factor es 1.00 y se avisa. Solo se guardan los
-factores; las series de las estaciones no se reproducen. Comprobación: Tarapoto 75.0 mm de promedio de máximas anuales con PISCO
-corregido frente a 76.6 mm de la estación; Barranquita 106.1 mm frente a 110.3 mm de Pongo de Caynarachi.
+interpolado (inverso de la distancia al cuadrado) entre 8 estaciones del SENAMHI de San Martín, cada factor medido en la celda
+PISCO de la estación: CO Tarapoto 1.35, Pongo de Caynarachi 1.28, Chazuta 1.37, Lamas 1.57 y San Pablo 1.26 (coordenadas exactas
+de la ficha del SENAMHI); Jepelacio 1.33, Sauce 1.33 y San Antonio 1.04 (ubicación aproximada en el centro de su distrito). A más
+de 80 km de toda estación el factor es 1.00 y se avisa. Solo se guardan los factores; las series de las estaciones no se
+reproducen. Comprobación: Tarapoto 75.0 mm de promedio de máximas anuales con PISCO corregido frente a 76.6 mm de la estación;
+estimando el factor de cada estación solo con las demás, el error es de 0 a 6 % en 5 de las 8 y de 13 a 32 % en Tarapoto, Lamas
+y San Antonio (variación local de la lluvia).
 
 En DrenIE: pestaña LLUVIA → Análisis estadístico → «Lluvia PISCO-SENAMHI»: distrito o coordenadas, factor (automático o a mano),
 «Traer serie» y «Cargar en la tabla de lluvias». Orden: `echo '{"ubigeo":"220910"}' | python -m drenie_motor pisco`.
