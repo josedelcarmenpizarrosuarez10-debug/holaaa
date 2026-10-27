@@ -14,9 +14,9 @@ const par = (s, o = {}) => new Paragraph({ children: [txt(s, o)], alignment: o.a
 const borde = { style: BorderStyle.SINGLE, size: 4, color: "808080" };
 const bordes = { top: borde, bottom: borde, left: borde, right: borde };
 
-function tabla(cab, filas) {
+function tabla(cab, filas, propios) {
   const n = cab.length;
-  const pesos = n === 3 ? [26, 50, 24] : n === 5 ? [44, 8, 17, 15, 16] : Array(n).fill(100 / n);
+  const pesos = propios ? propios : n === 3 ? [26, 50, 24] : n === 5 ? [44, 8, 17, 15, 16] : Array(n).fill(100 / n);
   const cols = pesos.map(p => Math.round(ANCHO * p / 100)); cols[n - 1] = ANCHO - cols.slice(0, n - 1).reduce((a, b) => a + b, 0);
   const celda = (s, i, head) => new TableCell({ borders: bordes, width: { size: cols[i], type: WidthType.DXA },
     shading: head ? { fill: "D9E2F3", type: ShadingType.CLEAR, color: "auto" } : undefined, margins: { top: 60, bottom: 60, left: 90, right: 90 },
@@ -30,7 +30,7 @@ function bloques(lista) {
   for (const b of lista) {
     if (b[0] === "p") out.push(par(b[1]));
     else if (b[0] === "l") for (const it of b[1]) out.push(new Paragraph({ children: [txt(it)], numbering: { reference: "vinetas", level: 0 }, alignment: AlignmentType.JUSTIFIED, spacing: { after: 60, line: 264 } }));
-    else if (b[0] === "t") { out.push(tabla(b[1], b[2])); out.push(par("", { after: 60 })); }
+    else if (b[0] === "t") { out.push(tabla(b[1], b[2], b[3])); out.push(par("", { after: 60 })); }
   }
   return out;
 }
@@ -99,12 +99,12 @@ for (const it of J.partidas) {
 }
 
 const cab = new Header({ children: [new Paragraph({ border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: AZUL, space: 2 } }, tabStops: [{ type: TabStopType.RIGHT, position: ANCHO }],
-  children: [txt("ESPECIFICACIONES TÉCNICAS - DRENAJE PLUVIAL", { size: 15, bold: true, color: AZUL }), txt("\t" + J.corto + " - " + COD, { size: 15, color: AZUL })] })] });
+  children: [txt(J.cabecera || "ESPECIFICACIONES TÉCNICAS - DRENAJE PLUVIAL", { size: 15, bold: true, color: AZUL }), txt("\t" + J.corto + " - " + COD, { size: 15, color: AZUL })] })] });
 const pie = new Footer({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [txt("Página ", { size: 16 }), new TextRun({ children: [PageNumber.CURRENT], font: FUENTE, size: 16 }), txt(" de ", { size: 16 }), new TextRun({ children: [PageNumber.TOTAL_PAGES], font: FUENTE, size: 16 })] })] });
 const pagina = { size: { width: 11906, height: 16838 }, margin: { top: 1418, bottom: 1134, left: 1701, right: 1134, header: 567, footer: 567 } };
 
 const doc = new Document({
-  creator: "Proyectista", title: "Especificaciones técnicas - Drenaje pluvial - " + J.corto, features: { updateFields: true },
+  creator: "Proyectista", title: (J.titulo_doc || "Especificaciones técnicas - Drenaje pluvial") + " - " + J.corto, features: { updateFields: true },
   styles: {
     default: { document: { run: { font: FUENTE, size: 20 } } },
     paragraphStyles: [

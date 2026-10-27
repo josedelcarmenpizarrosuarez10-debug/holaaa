@@ -668,3 +668,20 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   RESUMEN ACU (ítem, nombre, und, metrado del usuario, C.U. vinculado, parcial; total S/ 8,587.70 de costo directo), las ACU de la
   planilla copiadas con su formato y fórmulas (referencias a otras hojas pasan a valor), COSTO HORA HOMBRE 2026, y ACU nuevas de
   las bancas OC-01 (plancha de 0.50 mm, una pieza por techo; precio referencial por peso a partir de la plancha de 0.9 mm, por cotizar).
+
+## 27/10/2026 - CAR Varones: evacuación y señalización (memoria descriptiva, metrado y especificaciones)
+- El usuario envió el plano final de la arquitecta (EVACUACION Y SEGURIDAD OK, láminas SE-S-01 y SE-E-01; copia comprimida en
+  `insumos/katiuska/senalizacion/`, con el documento de correcciones pendientes) y pidió la memoria descriptiva, el metrado final y
+  las especificaciones "todo corregido". Módulo nuevo `herramientas/varones/senalizacion/`:
+  `lee_plano_se.py` (DXF -> `entregables_varones/_calc/senalizacion_plano.json`: leyenda fila por fila, cada símbolo por la posición
+  del centro de su contorno y su edificación E-01..E-10/EXT, rutas, zonas seguras S1-S13, aforos, rótulos), `datos_se.py` (catálogo
+  de partidas, población, rutas, aforos: fuente única), `metrado_se.py` (Excel con fórmulas: RESUMEN, METRADO por edificación con
+  cotejo contra la leyenda, ZONAS DE REUNIÓN, RUTAS Y AFOROS, SEÑALES), `memoria_se.py` (Word, carátula granate del CAR Varones),
+  `espec_se.py` (motor `docx_espec.js`, ahora con `cabecera`, `titulo_doc` y anchos de tabla propios opcionales) y `vistas_se.py`
+  (PNG de las plantas con dibujo propio: el render de ezdxf supera 10 GB con este plano).
+- Revisión del plano final: las 16 señales con bloque coinciden planta = leyenda (salida 80, zona segura 62, ...); avisador sonoro,
+  riesgo eléctrico, riesgo de descarga y prohibido el ingreso son imágenes OLE sin posición en el DXF (vale la leyenda). Corregido
+  por la arquitecta: P-01..P-04, P-07 (radio 1.50 m), P-11 (rótulos). Quedan en el plano: "INCEDIOS" en la leyenda, señal de extintor
+  a 1.20 m (los documentos usan 1.80 m sobre el equipo), SS.HH. PHD con otro bloque en la planta, zona de reunión 11 en la leyenda
+  frente a 13 zonas S1-S13 dibujadas (el metrado usa 13), rótulo "RUTA 03 - 15.51ml" que es la ruta 02 (servicios generales),
+  extintores CO2 en la cocina y E-09/E-10 sin extintor (P-09). Memoria con M-01..M-06: personal 22, 62 permanentes + 4 temporales = 66.

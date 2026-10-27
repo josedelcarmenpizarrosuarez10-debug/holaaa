@@ -86,6 +86,7 @@ de lloraderos, DPL-41/42 bancas OC-01): `python3 herramientas/indice_planos_refu
 temáticos (códigos y títulos tal cual el rótulo). Metrado vigente: `insumos/metrados_vigentes/METRADO_DRENAJE_MUJERES_VIOLENTADAS_CON_BANCAS_OC-01.xlsx` (del usuario;
 `bancas_oc01_en_planilla_refugio.py` ya no lo pisa). Documentos: `memoria_docx.py` (hidrológica, láminas DPL, OC-01 y lloraderos),
 `especificaciones/espec.py refugio` + `node docx_espec.js`, `memoria_descriptiva_refugio.py` (nueva). Carátulas (7 en un Word, foto `insumos/solange/FOTO_PROYECTO_HOGAR_REFUGIO.jpg`): `caratulas_refugio.py` (motor de `varones/caratulas_v.py`).
+CAR Varones, evacuación y señalización (plano final SE-S-01/SE-E-01 de la arquitecta en `insumos/katiuska/senalizacion/`): `herramientas/varones/senalizacion/` (`lee_plano_se.py` -> `datos_se.py` -> `metrado_se.py`, `memoria_se.py`, `espec_se.py`, `vistas_se.py`), salidas `entregables_varones/*EVACUACION_Y_SENALIZACION*`.
 CAR Varones: `python3 herramientas/varones/planos_v.py`; plano DL-00 de ubicación de lloraderos (34 tramos, 226 und):
 `python3 herramientas/planos_ubicacion_lloraderos.py varones` (ejes en `insumos/katiuska/EJES_CUNETAS_VARONES.json`; sin `varones` = Refugio).
 Varones, juego de 44 láminas DPLV de la usuaria (`insumos/katiuska/PLANOS_DRENAJE_PLUVIAL_CAR_VARONES_LAMINAS.pdf`): índice
