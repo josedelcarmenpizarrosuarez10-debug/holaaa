@@ -727,3 +727,11 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   alargadas van en hoja horizontal sin reiniciar la numeración. Vistas (`vistas_mb.py`): caja por los muros de cada edificación
   (capas MURO/A-WALL/COLUMNAS y bloques de módulo), dibujo con el motor de ezdxf solo con las entidades de la caja (muros
   rellenos, aparatos, directrices); lo blanco se pasa a negro (las etiquetas de la capa 09 son blancas) sin tocar el negro.
+
+## 27/10/2026 - Hogar de Refugio: índice de planos de arquitectura con el plano topográfico
+- La usuaria envió el índice de láminas de arquitectura actualizado (copia en `insumos/solange/INDICE_DE_LAMINAS_ARQUITECTURA_HOGAR_REFUGIO_v2.xlsx`):
+  respecto del anterior solo agrega PT-01 Plano topográfico (A1) en el grupo I. `indice_arquitectura_refugio.py` lee la v2 ->
+  `entregables/INDICE_DE_PLANOS_ARQUITECTURA_HOGAR_REFUGIO.docx`: 108 láminas (I arquitectura 8, II módulos 34, III obras
+  complementarias 15, IV obras exteriores 12, V detalles 37, VI evacuación y señalización 2), 2 páginas. Mismos arreglos de forma
+  (grupos en orden, numeración correlativa, 6 códigos repetidos por copia), más espacios sueltos en descripciones
+  ("DEPORTIVA /01-05", "(PATIO DE DESCARGA )").

@@ -3,7 +3,8 @@
 drenaje pluvial (indice_planos_refugio.py): encabezado y pie, proyecto con CUI, título, especialidad, tabla con encabezado
 repetido y filas de grupo.
 
-Fuente: el índice en Excel de la usuaria (insumos/solange/INDICE_DE_LAMINAS_ARQUITECTURA_HOGAR_REFUGIO.xlsx, hoja ARQUITECTURA).
+Fuente: el índice en Excel de la usuaria, versión vigente con el plano topográfico PT-01
+(insumos/solange/INDICE_DE_LAMINAS_ARQUITECTURA_HOGAR_REFUGIO_v2.xlsx, hoja ARQUITECTURA; la anterior queda sin el PT-01).
 Se toma cada fila tal cual (grupo, descripción, lámina, formato, cantidad), con estos arreglos de forma:
   - grupos numerados en orden (I a VI) y láminas numeradas correlativas (el Excel salta el 51);
   - códigos sin espacios sueltos ("A-02 /01-03" -> "A-02/01-03", "CG- 01" -> "CG-01");
@@ -31,7 +32,7 @@ AQUI = os.path.dirname(os.path.abspath(__file__)); RAIZ = os.path.dirname(AQUI)
 sys.path.insert(0, AQUI)
 import indice_planos_refugio as I  # noqa: E402  (mismas piezas de formato)
 
-XLSX = os.path.join(RAIZ, 'insumos/solange/INDICE_DE_LAMINAS_ARQUITECTURA_HOGAR_REFUGIO.xlsx')
+XLSX = os.path.join(RAIZ, 'insumos/solange/INDICE_DE_LAMINAS_ARQUITECTURA_HOGAR_REFUGIO_v2.xlsx')
 SALIDA = os.path.join(RAIZ, 'entregables/INDICE_DE_PLANOS_ARQUITECTURA_HOGAR_REFUGIO.docx')
 ROMANOS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X']
 TILDES = [('EDIFICACION', 'EDIFICACIÓN'), ('PERIMETRICO', 'PERIMÉTRICO'), ('ZONIFICACION', 'ZONIFICACIÓN'),
@@ -47,6 +48,8 @@ def _limpio(t):
     t = re.sub(r'OC-\s+(\d)', r'OC-\1', t)
     t = re.sub(r'(\d)-\s+(\d)', r'\1-\2', t)                # "01- 02" -> "01-02"
     t = re.sub(r'DETALLE -(\S)', r'DETALLE - \1', t)
+    t = re.sub(r'\s*/\s*(\d\d-\d\d)\b', r'/\1', t)          # "DEPORTIVA /01-05", "JUEGOS/ 01-03" -> ".../01-05"
+    t = re.sub(r'\(\s+', '(', re.sub(r'\s+\)', ')', t))           # "(PATIO DE DESCARGA )" -> "(PATIO DE DESCARGA)"
     return t
 
 
@@ -79,7 +82,7 @@ def generar(grupos):
     d = docx.Document()
     s = d.sections[0]
     s.page_width, s.page_height = Cm(21.0), Cm(29.7); s.orientation = WD_ORIENT.PORTRAIT
-    s.left_margin, s.right_margin, s.top_margin, s.bottom_margin = Cm(2.0), Cm(1.6), Cm(2.0), Cm(1.6)
+    s.left_margin, s.right_margin, s.top_margin, s.bottom_margin = Cm(2.0), Cm(1.6), Cm(1.7), Cm(1.4)
     s.header_distance, s.footer_distance = Cm(0.9), Cm(0.8)
     st = d.styles['Normal']; st.font.name = 'Arial'; st.font.size = Pt(9)
     st.element.get_or_add_rPr().get_or_add_rFonts().set(qn('w:eastAsia'), 'Arial')
