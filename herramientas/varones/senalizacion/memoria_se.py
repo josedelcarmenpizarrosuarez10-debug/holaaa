@@ -78,13 +78,13 @@ DIRECTORIO = [('Cuerpo General de Bomberos Voluntarios del Perú', '116'), ('Pol
 
 
 # ---------------------------------------------------------------------------------------------- Word: piezas propias
-def encabezado(M):
+def encabezado(M, titulo='MEMORIA DESCRIPTIVA - EVACUACIÓN Y SEÑALIZACIÓN'):
     sec = M.d.add_section(WD_SECTION.NEW_PAGE)
     sec.left_margin, sec.right_margin, sec.top_margin, sec.bottom_margin = Cm(3.0), Cm(2.0), Cm(2.5), Cm(2.0)
     sec.header.is_linked_to_previous = False; sec.footer.is_linked_to_previous = False
     pg = OxmlElement('w:pgNumType'); pg.set(qn('w:start'), '1'); sec._sectPr.append(pg)
     h = sec.header.paragraphs[0]; h.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    M.run(h, 'MEMORIA DESCRIPTIVA - EVACUACIÓN Y SEÑALIZACIÓN', 8.5, True, color=R.GRANATE)
+    M.run(h, titulo, 8.5, True, color=R.GRANATE)
     M.run(h, '   |   %s - CUI N.° %s' % (D.CORTO, D.CUI), 8.5, color=R.GRANATE)
     b = OxmlElement('w:pBdr'); e = OxmlElement('w:bottom')
     for k, v in (('val', 'single'), ('sz', '8'), ('space', '2'), ('color', R.GRANATE)):
