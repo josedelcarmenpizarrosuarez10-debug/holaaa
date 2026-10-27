@@ -64,7 +64,8 @@ try {
   Write-Host "Moviendo las carpetas privadas a $Destino" -ForegroundColor Cyan
   New-Item -ItemType Directory -Force -Path $Destino | Out-Null
   # Permisos: solo el usuario actual y SYSTEM (sin herencia de la unidad D:)
-  & icacls $Destino /inheritance:r /grant:r "${env:USERNAME}:(OI)(CI)F" "*S-1-5-18:(OI)(CI)F" | Out-Null
+  $sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value      # su usuario, sin depender de espacios en el nombre
+  & icacls $Destino /inheritance:r /grant:r ('*' + $sid + ':(OI)(CI)F') '*S-1-5-18:(OI)(CI)F' | Out-Null
   if ($LASTEXITCODE -ne 0) { throw "No se pudieron fijar los permisos de $Destino (icacls $LASTEXITCODE)." }
   $movidas = 0
   foreach ($c in $carpetas) {
@@ -80,9 +81,13 @@ try {
     if ($a.Count -eq 0 -or $a.Count -ne $b.Count -or $distintos.Count) { throw "La copia de $c no es idéntica: no se cambió nada en C:. Revise $nuevo." }
     Write-Host "  Copia verificada: $($a.Count) archivo(s) idénticos (SHA256)." -ForegroundColor Green
     $antiguo = $origen + '_ANTIGUO_BORRAR'
-    if (Test-Path -LiteralPath $antiguo) { throw "Ya existe $antiguo: bórrelo o renómbrelo y vuelva a ejecutar." }
+    if (Test-Path -LiteralPath $antiguo) { throw "Ya existe ${antiguo}: bórrelo o renómbrelo y vuelva a ejecutar." }
     Rename-Item -LiteralPath $origen -NewName (Split-Path -Leaf $antiguo)
-    Enlazar $origen $nuevo
+    try { Enlazar $origen $nuevo }
+    catch {   # sin enlace, la carpeta original vuelve a su nombre: el Administrador y la compilación siguen como antes
+      Rename-Item -LiteralPath $antiguo -NewName $c
+      throw "No se pudo crear el enlace ($($_.Exception.Message)). La carpeta $c quedó como estaba."
+    }
     $movidas++
   }
   Write-Host ''
