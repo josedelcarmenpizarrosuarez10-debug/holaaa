@@ -16,6 +16,7 @@ gestion_riesgos/
 │   ├── estudio_docx.py           estudio (Word)
 │   ├── fotos_sm107.py            fotos georreferenciadas del inventario vial -> _calc/fotos/ (catálogo con coordenadas)
 │   ├── levantamiento_obs_docx.py levantamiento de observaciones (Word aparte)
+│   ├── anexos_estudio_docx.py    estudio presentado (insumos/estudio_presentado, sin cambios) + Anexos 3, 4 y 5 al final
 │   └── dxf_base.py, dxf_layouts.py, dxf_render.py   estilo de láminas, presentaciones y vista previa PNG
 └── proyectos/
     └── SM-107_TINGO_DE_PONASA_SHAMBOYACU/      Vía SM-107 Tingo de Ponasa – Shamboyacu (CUI 2673852)
@@ -33,6 +34,7 @@ python3 gestion_riesgos/herramientas/figuras_sm107.py
 python3 gestion_riesgos/herramientas/estudio_docx.py
 python3 gestion_riesgos/herramientas/fotos_sm107.py              # solo si cambian las fotos (requiere LibreOffice)
 python3 gestion_riesgos/herramientas/levantamiento_obs_docx.py
+python3 gestion_riesgos/herramientas/anexos_estudio_docx.py
 ```
 Vistas previas: `python3 gestion_riesgos/herramientas/dxf_render.py <dxf> <png> x0 y0 x1 y1 110 color`
 (cajas en `entregables/_calc/laminas_pr.json`).
