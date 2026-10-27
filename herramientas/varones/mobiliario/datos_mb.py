@@ -57,8 +57,14 @@ CORRECCIONES = [
     ('E-08', 'LAVANDER', 'S1', 0, 'Los extintores son partida de evacuación y señalización (lámina SE-S-01), no de mobiliario.'),
     ('E-08', 'SUM', 'S1', 0, 'Ídem.'),
     ('E-10', 'MAESTRANZA', 'M75', 2, 'En la planta hay 2 contenedores (M75); el cuadro dice 4.'),
+    ('E-07', 'DORMITORIO', 'M37', 0, 'En la planta del dormitorio de E-07 los muebles junto a cada cama están rotulados M44 (credenza), '
+                                    '10 en total; el cuadro dice 10 armarios M37. Se cuenta lo rotulado en planta.'),
 ]
-AGREGADOS = [('E-08', 'SUM/COMEDOR - DEPÓSITO', 'M73', 1, 'MOBILIARIO', 'La estación de servido (M73) está dibujada en el comedor y no figura en su cuadro.')]
+AGREGADOS = [('E-08', 'SUM/COMEDOR - DEPÓSITO', 'M73', 1, 'MOBILIARIO', 'La estación de servido (M73) está dibujada en el comedor y no figura en su cuadro.'),
+             ('E-07', 'DORMITORIO', 'M44', 10, 'MOBILIARIO', 'Credenzas M44 rotuladas en la planta del dormitorio de E-07 (una junto a cada cama); '
+                                                            'no figuran en el cuadro, que pone armarios M37.'),
+             ('E-01', 'SECRETARIA/SALA DE ESPERA', 'M62', 1, 'MOBILIARIO', 'La planta de E-01 tiene 11 cestos M62 rotulados y los cuadros suman 10; '
+                                                                          'el cuadro de secretaría y sala de espera no trae cesto.')]
 
 # descripción correcta del código cuando el cuadro trae la de otro mueble
 DESCRIPCIONES = {
@@ -69,6 +75,7 @@ DESCRIPCIONES = {
     'M73': 'ESTACIÓN DE SERVIDO CON TRES BANDEJAS, UNA PUERTA Y UNA CUBIERTA 1.20 x 0.70 x 0.90 m',
     'M16': 'MESA DE TRABAJO DE MADERA PARA ESTUDIANTES 0.90 x 1.80 x 0.56 m',
     'E13': 'COCINA INDUSTRIAL DE 2 HORNILLAS',
+    'M44': 'CREDENZA DE MELAMINA CON DOS PUERTAS, DOS DIVISIONES Y TRES GAVETAS 0.75 x 0.40 x 1.20 m',
 }
 DESC_MAL = {'M28': 'ESCRITORIO DE MELAMINA CON CREDENZA', 'M51': 'EXHIBIDOR DE LIBROS', 'M55': 'MUEBLE ALTO'}
 GRUPOS = OrderedDict([('E', 'EQUIPOS'), ('M', 'MOBILIARIO'), ('K', 'IMPLEMENTOS')])
@@ -201,7 +208,7 @@ def verificacion(P=None):
         if not any(f['clave'] == k for f in cat):
             out.append(dict(clave=k, desc=d.upper(), original=q, cuadros=0, planta=et.get(k, 0), adoptado=0,
                             obs='No figura en ningún cuadro ni en la planta del plano%s.' % (
-                                '; en la planta de E-07 los armarios del dormitorio están rotulados M44 por error (son M37)' if k == 'M44' else '')))
+                                '')))
     return out, imp, hojas
 
 
@@ -213,7 +220,8 @@ OBS_PLANO = [
     ('MB-04 a MB-07', 'El cuadro de la oficina de entrevista y estar pone 1 sofá de 2 cuerpos (M34); en planta hay 2.'),
     ('MB-04 a MB-07', 'Los cuadros de dormitorio describen el código M55 como "mueble alto de melamina"; M55 es la cama con cabecera (dibujada).'),
     ('MB-04, MB-05', 'El salón de estudios describe el código M28 como "escritorio con credenza móvil 1.50 x 0.80"; M28 es el escritorio con dos cajoneras 1.00 x 0.50 (dibujado).'),
-    ('MB-07', 'Los armarios del dormitorio de E-07 están rotulados M44 (credenza) en la planta; el cuadro dice M37.'),
+    ('MB-07', 'En el dormitorio de E-07 la planta rotula 10 credenzas M44 (una junto a cada cama) y el cuadro pone 10 armarios M37; se cuenta lo rotulado. Corregir el cuadro.'),
+    ('MB-04, MB-05, MB-01', 'Sin etiqueta en planta pero sí en su cuadro: las 5 computadoras E6 del salón de estudios (E-04 y E-05) y el rack M13 y la pizarra M69 de la sala de reuniones (E-01); se mantienen.'),
     ('MB-07', 'El cuadro del taller de arte pone 1 mueble para mochilas (M56); en planta hay 5.'),
     ('MB-02', 'El cuadro del almacén deportivo describe M51 como "exhibidor de libros"; M51 es el estante metálico ranurado.'),
     ('MB-01, MB-06', 'Los códigos de implementos K32 y K33 se usan para dos cosas distintas (tópico: bidón de oxígeno y tensiómetro; '

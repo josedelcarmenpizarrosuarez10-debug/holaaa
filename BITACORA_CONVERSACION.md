@@ -705,9 +705,13 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   METRADO POR AMBIENTE, VERIFICACIÓN, VERIF. IMPLEMENTOS, OBSERVACIONES), `fichas_mb.py` (características por familia),
   `memoria_mb.py` (26 p., tablas y planta por edificación), `espec_mb.py` (77 p.), `vistas_mb.py` (PNG por edificación).
 - Resultado: el metrado original está mal. Hoja1 es de otro proyecto (colegio de 55 aulas); en HR: computadoras 18 (son 27),
-  sillas M07 52 (80), escritorios M28 4 (32), armarios M37 25 (45), credenzas M44 20 (no existen: armarios de E-07 mal rotulados),
+  sillas M07 52 (80), escritorios M28 4 (32), armarios M37 25 (35), credenzas M44 20 (10, solo en el dormitorio de E-07),
   M63 como camilla 6 (es sofá de 3 cuerpos, 4; camillas M65 = 2), faltan M03 88, M04 16, M32 7, M14 2; implementos deportivos de
   otro proyecto; numeración con códigos repetidos y #REF!. Errores del plano: cuadros mal titulados (tópico de E-02 = almacén
   deportivo; "oficina de entrevista E-06" en MB-08 = almacén de cocina y gas), tópico de E-01 copiado de la sala de reuniones,
   dormitorio de la madre con 5 computadoras copiadas, descripciones cruzadas (M28, M51, M55), códigos K repetidos, extintores
   de 9 kg distintos de la lámina SE-S-01.
+- 27/10/2026 (2): el usuario aclaró (captura del dormitorio de E-07) que se cuenta por la etiqueta escrita en la planta: en E-07 hay
+  10 credenzas M44 junto a las camas (el cuadro decía armarios M37). Adoptado: M44 10, M37 35, M62 22 (cesto rotulado en
+  secretaría). Quedan en cuadro sin etiqueta en planta (se mantienen y se avisa): 5 computadoras por salón de estudios (E-04, E-05),
+  rack M13 y pizarra M69 de la sala de reuniones.

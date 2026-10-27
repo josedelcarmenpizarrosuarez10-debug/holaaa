@@ -123,7 +123,7 @@ POR_CODIGO = {
     'E1': 'informatica', 'E2': 'informatica', 'E3': 'informatica', 'E6': 'informatica', 'E7': 'informatica', 'E9': 'informatica',
     'E18': 'informatica', 'E4': 'electro', 'E5': 'electro', 'E13': 'electro', 'E16': 'electro', 'E17': 'electro', 'E19': 'electro',
     'E20': 'gas', 'M3': 'silla', 'M4': 'silla', 'M7': 'silla', 'M8': 'silla', 'M16': 'silla', 'M21': 'melamina', 'M28': 'melamina',
-    'M30': 'melamina', 'M31': 'melamina', 'M36': 'melamina', 'M37': 'melamina', 'M39': 'melamina', 'M42': 'melamina', 'M54': 'melamina',
+    'M30': 'melamina', 'M31': 'melamina', 'M36': 'melamina', 'M37': 'melamina', 'M39': 'melamina', 'M42': 'melamina', 'M44': 'melamina', 'M54': 'melamina',
     'M56': 'melamina', 'M57': 'melamina', 'M61': 'melamina', 'M13': 'metal', 'M51': 'metal', 'M64': 'metal', 'M26': 'inox',
     'M52': 'inox', 'M71': 'topico', 'M73': 'inox', 'M55': 'cama', 'M78': 'cama', 'M32': 'tapizado', 'M34': 'tapizado', 'M63': 'tapizado',
     'M69': 'pizarra', 'M60': 'higiene', 'M62': 'higiene', 'M75': 'higiene', 'M76': 'higiene', 'M77': 'higiene', 'M20': 'topico',

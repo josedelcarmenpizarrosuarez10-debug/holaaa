@@ -40,7 +40,7 @@ TEXTO_ED = {
     'E-06': 'Vivienda de niños de 3 a 5 años: oficina de entrevista y estar, salón de psicomotricidad con juegos y material blando, '
             'dormitorio de la madre, dormitorios, servicios higiénicos y lavandería.',
     'E-07': 'Vivienda de niños de 6 a 11 años: oficina de entrevista y estar, taller de arte con mesas y sillas regulables, proyector '
-            'interactivo y pizarra, dormitorio de la madre, dormitorios, servicios higiénicos y lavandería.',
+            'interactivo y pizarra, dormitorio de la madre, dormitorios con camas y credenzas, servicios higiénicos y lavandería.',
     'E-08': 'Sala de usos múltiples y comedor para toda la población del centro, con mesas de trabajo, sillas regulables, proyector y '
             'ecran; cocina con su lavandería, equipos y mobiliario de acero inoxidable; almacén de cocina y cuarto de gas; depósito y '
             'almacén general; residuos sólidos y servicios higiénicos de personal.',
