@@ -179,6 +179,13 @@ def ubicacion(ruta, d):
     return {"accion": "ubicacion", "guardado": guardado, "config": cfg.get("ubicacion") or {}, "ubicacion": UBI.resumen(U), "imagenes": imgs}
 
 
+def pisco(d):
+    """Serie de máximas en 24 h por mes de PISCOp v3.0 (SENAMHI) para la pestaña LLUVIA. d: {ubigeo} o {lat, lon}, y factor opcional."""
+    from . import lluvia_pisco
+    d = d if isinstance(d, dict) else {}
+    return lluvia_pisco.serie(d.get("lat"), d.get("lon"), d.get("ubigeo"), d.get("factor"))
+
+
 def _cargar(ruta):
     if not ruta or not os.path.exists(ruta): raise FileNotFoundError("No se encuentra el proyecto: %s" % ruta)
     cfg = json.load(open(ruta, encoding="utf-8"))

@@ -6,8 +6,8 @@ from PyInstaller.utils.hooks import collect_data_files, collect_dynamic_libs, co
 
 raiz = os.path.abspath(os.path.join(SPECPATH, ".."))
 datas = [(os.path.join(raiz, "visor", "visor.html"), "visor")]
-# archivos de datos del paquete (biblioteca de normas y fuentes)
-datas += [(os.path.join(raiz, "drenie_motor", f), "drenie_motor") for f in os.listdir(os.path.join(raiz, "drenie_motor")) if f.endswith(".json")]
+# archivos de datos del paquete (biblioteca de normas, límites del INEI y lluvias PISCO)
+datas += [(os.path.join(raiz, "drenie_motor", f), "drenie_motor") for f in os.listdir(os.path.join(raiz, "drenie_motor")) if f.endswith((".json", ".npz"))]
 for paquete in ("docx", "ezdxf", "openpyxl"):
     datas += collect_data_files(paquete)
 # python-docx busca sus plantillas como docx/parts/../templates: la carpeta parts debe existir junto a templates

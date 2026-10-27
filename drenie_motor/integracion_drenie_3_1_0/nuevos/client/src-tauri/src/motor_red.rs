@@ -33,6 +33,7 @@ const ORDENES: &[(&str, usize, usize, bool, &str)] = &[
     ("normas", 0, 0, false, DEMO),
     ("para_drenie", 1, 1, false, EXPORTAR),
     ("ubicacion", 1, 1, true, DEMO),
+    ("pisco", 0, 0, true, DEMO),
 ];
 
 fn permiso(app: &tauri::AppHandle, clase: &str) -> Result<(), String> {
@@ -137,6 +138,8 @@ mod tests {
         assert!(!ORDENES.iter().any(|o| o.0 == "lluvia" || o.0 == "cmd"));
         // editor de Ubicación: solo mapas de vista previa, recibe lo editado por la entrada estándar
         assert!(ORDENES.iter().any(|o| o.0 == "ubicacion" && o.1 == 1 && o.2 == 1 && o.3 && o.4 == DEMO));
+        // lluvia PISCO-SENAMHI de la pestaña LLUVIA: sin proyecto, recibe el lugar por la entrada estándar
+        assert!(ORDENES.iter().any(|o| o.0 == "pisco" && o.1 == 0 && o.2 == 0 && o.3 && o.4 == DEMO));
         assert!(!argumento_valido("--help") && !argumento_valido("") && argumento_valido("C:\\obra\\proyecto.json"));
     }
 }
