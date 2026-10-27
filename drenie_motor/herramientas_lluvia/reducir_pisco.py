@@ -50,17 +50,29 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("archivo", help="PISCOp_d.nc (lluvia diaria)")
     ap.add_argument("--salida", default="PISCO_MAX_DIARIA_ANUAL.npz")
+    ap.add_argument("--inicio", default="1981-01-01", help="primer día, solo si el archivo no trae fechas (PISCOp: 1981-01-01)")
     ap.add_argument("--punto", nargs=2, type=float, metavar=("LAT", "LON"), help="muestra la serie de máximas de un punto")
     a = ap.parse_args()
     nc, num2date = _abrir(a.archivo)
     v = _variable_lluvia(nc)
-    dt_, dy, dx = _eje(nc, v, ("t", "time")), _eje(nc, v, ("lat", "y")), _eje(nc, v, ("lon", "x"))
-    if not (dt_ and dy and dx): sys.exit("No se reconocieron las dimensiones %s de la variable %s." % (v.dimensions, v.name))
+    dy, dx = _eje(nc, v, ("lat", "y")), _eje(nc, v, ("lon", "x"))
+    resto = [d for d in v.dimensions if d not in (dy, dx)]
+    if not (dy and dx) or len(resto) != 1:
+        sys.exit("No se reconocieron las dimensiones %s de la variable %s." % (v.dimensions, v.name))
+    dt_ = resto[0]                                   # el eje de fechas: en PISCOp v3.0 se llama «Z1»
     orden = [v.dimensions.index(d) for d in (dt_, dy, dx)]
-    lat = np.asarray(nc.variables[dy][:], dtype="f8") if dy in nc.variables else None
-    lon = np.asarray(nc.variables[dx][:], dtype="f8") if dx in nc.variables else None
-    tv = nc.variables[dt_]
-    fechas = num2date(tv[:], tv.units, getattr(tv, "calendar", "standard"))
+    lat = np.asarray(nc.variables[dy][:], dtype="f8")
+    lon = np.asarray(nc.variables[dx][:], dtype="f8")
+    n = len(nc.dimensions[dt_])
+    tv = next((x for x in nc.variables.values() if x.dimensions == (dt_,) and "since" in str(getattr(x, "units", ""))), None)
+    if tv is not None:
+        fechas = num2date(tv[:], tv.units, getattr(tv, "calendar", "standard"))
+        fechas = [dt.date(f.year, f.month, f.day) for f in fechas]
+    else:                                            # sin fechas en el archivo: días seguidos desde --inicio
+        ini = dt.date.fromisoformat(a.inicio)
+        fechas = [ini + dt.timedelta(days=i) for i in range(n)]
+        print("AVISO: el archivo no trae fechas en «%s»; se asumen %d días seguidos desde %s (hasta %s). "
+              "Si PISCOp no empieza ese día, use --inicio AAAA-MM-DD." % (dt_, n, ini, fechas[-1]))
     anios = np.array([f.year for f in fechas])
     unidades = getattr(v, "units", "mm/day")
     print("Variable: %s %s, unidades %s" % (v.name, v.dimensions, unidades))
