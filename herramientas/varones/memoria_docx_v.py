@@ -21,6 +21,12 @@ FIG = os.path.join(dz.SAL, "_tmp", "fig")
 MEM = os.path.join(dz.SAL, "MEMORIA_CALCULO_COLECTOR_CAR_VARONES.xlsx")
 D = dz.D; DS_ = SOL.D
 NUM = MD.Numerador(22, 5); MD.NUM = NUM
+# metrado vigente de la usuaria y juego de laminas DPLV (varones/indice_planos_v.py)
+VIG = os.path.join(RAIZ, "insumos", "metrados_vigentes", "METRADO_DRENAJE_PLUVIAL_CAR_VARONES.xlsx")
+MD.PDF_DPL = os.path.join(RAIZ, "insumos", "katiuska", "PLANOS_DRENAJE_PLUVIAL_CAR_VARONES_LAMINAS.pdf")
+MD.INDICE = os.path.join(dz.SAL, "_calc", "indice_planos.json")
+MD.FIG = os.path.join(dz.SAL, "_tmp", "fig_dplv"); MD.PREV_OC = os.path.join(dz.SAL, "_sin_oc01")
+figura = MD.figura
 
 
 def recalculada():
@@ -121,12 +127,11 @@ def construir():
                  % (D["eje_desde_cerco"], D["NPT"], g["P_QUIEBRE"], g["P_FIN"], g["P_FIN"]))
     parrafo(doc, "El único cruce de circulación es el portón de camiones cisterna, de 5.78 m (progresivas 0+000.00 a 0+006.08 con la "
                  "transición de 0.30 m); en el resto del colector la losa superior sirve de vereda, con cargas peatonales. Las coordenadas UTM "
-                 "WGS84 18S de la lámina DP-01 están en el mismo sistema del tramo del Hogar de Refugio y son referenciales; el "
+                 "WGS84 18S de la lámina DPLV-17 están en el mismo sistema del tramo del Hogar de Refugio y son referenciales; el "
                  "trazo se replantea en obra desde la caja CL, el portón de camiones y las cunetas que llegan.")
     tabla(doc, ["ELEMENTO", "PROGRESIVA", "DESCRIPCIÓN"], [[r["nombre"], "0+%06.2f" % r["prog"], r["tipo"] + ": " + r["nota"]] for r in DJ["registros"]], anchos=[3.0, 3.0, 9.5])
     leyenda(doc, "%s: Registros y puntos singulares del tramo." % NUM.tabla()); fuente(doc)
-    if os.path.exists(os.path.join(FIG, "DP-01.png")):
-        imagen(doc, os.path.join(FIG, "DP-01.png"), 15.5, "%s: Planta general del colector frontal del CAR Varones (lámina DP-01)." % NUM.imagen())
+    figura(doc, "DPLV-17", "Planta del colector pluvial frontal del CAR Varones")
 
     # ------------------------------------------------------------------ 3. caudal
     titulo2(doc, "Caudal de diseño y su reparto entre las cunetas")
@@ -178,8 +183,7 @@ def construir():
               [[v[0], "%.1f" % (v[1] * 1000), f3(v[2]), f2(v[3]), f2(v[5]), f2(v[7]), str(v[11] or "")] for v in vel], tam=9, anchos=[5.6, 1.6, 1.6, 1.6, 1.8, 1.6, 2.2])
         leyenda(doc, "%s: Velocidades y esfuerzo tractivo por tramo (flujo uniforme con el caudal de cada tramo)." % NUM.tabla())
         fuente(doc, "Fuente: Elaboración propia. Hoja PERFIL_FLUJO de la memoria de cálculo del colector.")
-    if os.path.exists(os.path.join(FIG, "DP-02.png")):
-        imagen(doc, os.path.join(FIG, "DP-02.png"), 15.5, "%s: Perfil longitudinal del colector con el perfil de flujo (lámina DP-02)." % NUM.imagen())
+    figura(doc, "DPLV-18", "Perfil longitudinal general del colector")
 
     # ------------------------------------------------------------------ 5. cunetas
     titulo2(doc, "Llegada de las cunetas y acortamiento en el frente")
@@ -210,8 +214,7 @@ def construir():
            ["Cuneta Eje 01", "muro norte", "%.1f" % Qdir, f3(c01["NCF_fin"]), "0.40 × %.2f" % c01["H_ventana"], f2(c01["caida_libre"])],
            ["Total a la CL", "", "%.1f" % Qt, "", "poza: piso %.2f, NA %.3f" % (cl["z_piso"], cl["NA_CL"]), ""]], anchos=[3.6, 3.0, 1.8, 2.4, 2.8, 2.0])
     leyenda(doc, "%s: Llegadas a la caja CL del Hogar de Refugio." % NUM.tabla()); fuente(doc, "Fuente: Elaboración propia. Hoja EMPALME_CL de la memoria de cálculo del colector.")
-    if os.path.exists(os.path.join(FIG, "DP-07.png")):
-        imagen(doc, os.path.join(FIG, "DP-07.png"), 15.5, "%s: Empalme del colector con la caja CL (lámina DP-07)." % NUM.imagen())
+    figura(doc, "DPLV-25", "Empalme del colector con la caja de llegada CL del Hogar de Refugio")
 
     # ------------------------------------------------------------------ 7. estructural
     titulo2(doc, "Verificación estructural")
@@ -233,8 +236,7 @@ def construir():
         parrafo(doc, "La presión transmitida al suelo es de %.2f kg/cm² en el tramo normal y de %.2f kg/cm² bajo la rueda del camión en "
                      "el cruce (carga transitoria); ambos valores deben compararse con la capacidad portante del estudio de mecánica "
                      "de suelos del proyecto, que no estaba disponible al elaborar este capítulo." % (est["G"]["q"], est["G"].get("qc", 0)))
-    if os.path.exists(os.path.join(FIG, "DP-04A.png")):
-        imagen(doc, os.path.join(FIG, "DP-04A.png"), 15.5, "%s: Secciones del colector con su armadura (lámina DP-04A)." % NUM.imagen())
+    figura(doc, "DPLV-21", "Secciones transversales del colector")
 
     # ------------------------------------------------------------------ 8. normativa y criterios
     titulo2(doc, "Marco normativo del diseño")
@@ -249,10 +251,10 @@ def construir():
                 "tapa ciega de concreto armado de 0.68 × 0.68 × 0.08 m vaciada aparte en obra (parrilla de 3/8\" @0.10 y 2 asas de fierro liso de 1/2\" en cajuelas), "
                 "apoyada en un rebaje de concreto de 0.70 × 0.70 × 0.08 m de la losa, sin marco ni contramarco metálico; como el colector (0.60 m) es tan angosto como la "
                 "luz libre (0.60 m), en los lados largos el rebaje apoya en la cabeza de los muros y el borde engrosado de 0.15 × 0.10 m va solo en "
-                "los 2 lados transversales (láminas DP-06B, DP-06D, DD-01 y DD-02)." % D["NPT"])
+                "los 2 lados transversales (láminas DPLV-23, DPLV-26, DPLV-27 y DPLV-28)." % D["NPT"])
     vineta(doc, "Juntas de dilatación cada 4.00 m en toda la sección, con tecnopor de 1\" y sellador asfáltico de 1\" × 2\" (asfalto líquido RC-250 + arena gruesa; EG-2013 MTC, Sección 510); "
-                "junta de tecnopor de 1\" y sellador asfáltico en el contacto con la caja CL. A ambos lados del colector hay terreno natural: no lleva junta longitudinal (lámina DD-03).")
-    vineta(doc, "Empalme de cunetas por ventana de 0.40 × H en el muro del lado del predio, con caída al fondo, junta de 1\" y registro sobre el empalme (láminas DP-06C y DD-04).")
+                "junta de tecnopor de 1\" y sellador asfáltico en el contacto con la caja CL. A ambos lados del colector hay terreno natural: no lleva junta longitudinal (lámina DPLV-29).")
+    vineta(doc, "Empalme de cunetas por ventana de 0.40 × H en el muro del lado del predio, con caída al fondo, junta de 1\" y registro sobre el empalme (láminas DPLV-24 y DPLV-30).")
     vineta(doc, "Concreto f'c = 210 kg/cm² en colector y tapas; solado f'c = 100 kg/cm² de 0.05 m; acero fy = 4200 kg/cm²; recubrimiento de 4 cm; traslapes de 0.40 m (3/8\") y 0.50 m (1/2\").")
     vineta(doc, "Si la caja CL se construye antes que el colector, sus ventanas este y norte se dejan tapadas con muro de ladrillo pandereta sin mortero de unión a la caja, para retirarlo al empalmar; si se construye después, el colector termina en tapón provisional.")
 
@@ -265,7 +267,7 @@ def construir():
                  "REGISTROS Y TAPAS y JUNTAS Y EMPALMES de la misma planilla. Las cantidades principales son:")
     Rg = RM["registros"]
     import openpyxl
-    _ws = openpyxl.load_workbook(os.path.join(RAIZ, "entregables_varones", "METRADO_DRENAJE_PLUVIAL_CAR_VARONES_CON_COLECTOR.xlsx"), data_only=True)["RESUMEN"]
+    _ws = openpyxl.load_workbook(VIG, data_only=True)["RESUMEN"]
     PL = {str(_ws.cell(r, 1).value): _ws.cell(r, 4).value for r in range(1, _ws.max_row + 1) if _ws.cell(r, 1).value}   # metrados de la planilla (RESUMEN)
     filas = [["Excavación manual de zanjas p/colector (ancho 1.40 m)", "m³", f2(PL["01.04.04.02.01"])], ["Relleno compactado c/material propio seleccionado", "m³", f2(PL["01.04.04.02.03"])],
              ["Eliminación de material excedente D<1 km", "m³", f2(PL["01.04.04.02.04"])], ["Concreto f'c = 100 kg/cm² para solado e = 2\"", "m²", f2(PL["01.04.04.03.01"])],
@@ -294,7 +296,7 @@ def construir():
         leyenda(doc, "%s: Cuadro de cumplimiento normativo del colector pluvial frontal del CAR Varones." % NUM.tabla())
         fuente(doc, "Fuente: Elaboración propia. Hoja CUMPLIMIENTO de la memoria de cálculo del colector.")
         titulo2(doc, "Datos de otros expedientes y cómo quedan cubiertos")
-        for t in pend: vineta(doc, str(t))
+        for t in pend: vineta(doc, str(t).replace("DP-01", "DPLV-17"))      # codigo de la planta del colector en el juego DPLV
 
     # ------------------------------------------------------------------ 11. conclusiones
     titulo2(doc, "Conclusiones del tramo")
@@ -309,8 +311,41 @@ def construir():
     vineta(doc, "Las cunetas de los Ejes 09, 08, 06, 04 y 01 se acortan hasta la cara del muro del colector o de la CL; el descuento "
                 "está aplicado en la planilla de metrados del proyecto.")
     vineta(doc, "La capacidad portante del suelo debe confirmarse con el estudio de mecánica de suelos; la ubicación UTM del trazo se verifica en el replanteo.")
+    lloraderos(doc)
     doc.save(DEST)
     return n_par, n_tab
+
+
+def lloraderos(doc):
+    """Capitulo de lloraderos en las cunetas colindantes con area verde (hojas METRADO LLORADEROS y DESAGREGADO LLORADEROS)."""
+    wb = openpyxl.load_workbook(VIG, data_only=True)
+    ll = [list(r) for r in wb["METRADO LLORADEROS"].iter_rows(values_only=True)]
+    tramos = [r for r in ll if isinstance(r[0], (int, float)) and r[1]]
+    tot = [v for v in next(r for r in ll if isinstance(r[0], str) and r[0].upper().startswith("TOTAL DE LLORADEROS")) if v not in (None, "")]
+    de = [list(r) for r in wb["DESAGREGADO LLORADEROS"].iter_rows(values_only=True)]
+    i0 = next(k for k, r in enumerate(de) if isinstance(r[0], str) and r[0].startswith("C. COMPONENTES"))
+    comp = [r for r in de[i0 + 2:] if isinstance(r[0], (int, float))]
+    titulo1(doc, "DRENAJE COMPLEMENTARIO: LLORADEROS EN CUNETAS COLINDANTES CON ÁREA VERDE")
+    parrafo(doc, "En los tramos en que el muro de la cuneta colinda con un área verde, el agua que se infiltra en el jardín se acumula "
+                 "contra el muro y lo somete a empuje hidrostático y a humedad permanente. Para aliviarla se colocan lloraderos de tubería "
+                 "PVC-U de Ø 3\" de 0.30 m que atraviesan el muro a media altura cada 1.50 m, con pendiente de 0.5 % hacia la cuneta, con 8 "
+                 "perforaciones de Ø 3/8\" en el tramo dentro de un filtro localizado de grava de 20 a 40 mm de 0.30 × 0.30 × 0.30 m envuelto "
+                 "en geotextil no tejido, de modo que el agua del suelo pasa a la cuneta sin arrastrar finos. Los lloraderos no cambian el "
+                 "dimensionamiento de las cunetas: el agua infiltrada en el área verde ya está considerada en su coeficiente de escorrentía.")
+    tabla(doc, ["EJE", "PROGRESIVAS", "LADO", "LONGITUD (m)", "N.°"], [[r[1], r[2], r[3], f2(r[4]), "%d" % r[6]] for r in tramos]
+          + [["TOTAL", "", "", f2(tot[1]), "%d" % tot[2]]], anchos=[2.2, 4.4, 3.0, 2.6, 1.6], tam=9)
+    leyenda(doc, "%s: Tramos de cuneta con lloraderos de PVC Ø 3\" @ 1.50 m." % NUM.tabla())
+    fuente(doc, "Fuente: Planilla general de metrados del proyecto (hoja METRADO LLORADEROS).")
+    parrafo(doc, "Los materiales de la partida 01.04.03.04.03.04 se desagregan por lloradero en la hoja DESAGREGADO LLORADEROS de la planilla "
+                 "y se valorizan en la hoja ACU LLORADEROS:")
+    tabla(doc, ["COMPONENTE", "UND", "POR LLORADERO", "N.°", "TOTAL"],
+          [[str(r[1]), str(r[2]), ("%.4f" % r[3]).rstrip("0").rstrip("."), "%d" % r[4], f2(r[5]) if isinstance(r[5], float) else "%d" % r[5]] for r in comp],
+          anchos=[8.0, 1.3, 2.3, 1.4, 2.0], tam=9)
+    leyenda(doc, "%s: Desagregado de materiales de los lloraderos." % NUM.tabla())
+    fuente(doc, "Fuente: Planilla general de metrados del proyecto (hoja DESAGREGADO LLORADEROS).")
+    parrafo(doc, "La ubicación de los lloraderos está en la lámina DPLV-43, el detalle del lloradero con el tubo perforado y su desagregado "
+                 "en la lámina DPLV-35 y el isométrico de instalación en la lámina DPLV-34.")
+    figura(doc, "DPLV-35", "Detalle de lloradero: corte, tubo perforado y desagregado")
 
 
 def verificar(n_par, n_tab):
@@ -325,3 +360,6 @@ def verificar(n_par, n_tab):
 
 if __name__ == "__main__":
     n1, n2 = construir(); print(DEST); verificar(n1, n2)
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    import revision_hidrologia as RH                     # texto comun de intensidades y caudales de los tres proyectos
+    print("revision:", RH.revisar(DEST, DEST, "varones"))

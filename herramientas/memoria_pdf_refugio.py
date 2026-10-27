@@ -75,7 +75,7 @@ def perfil_svg(pts):
     while z <= zmax:
         g.append('<line x1="%d" x2="%d" y1="%.1f" y2="%.1f" class="gr"/><text x="%d" y="%.1f" class="ax" text-anchor="end">%.1f</text>'
                  % (ml, W - mr, Y(z), Y(z), ml - 6, Y(z) + 3, z)); z = round(z + 0.2, 1)
-    for x in range(0, 71, 10):
+    for x in range(int(-(-min(xs) // 10)) * 10, int(max(xs) + 0.5) + 1, 10):
         g.append('<line x1="%.1f" x2="%.1f" y1="%d" y2="%d" class="gr"/><text x="%.1f" y="%d" class="ax" text-anchor="middle">%s</text>'
                  % (X(x), X(x), mt, H - mb, X(x), H - mb + 14, "0+%03d" % x))
     return ('<svg viewBox="0 0 %d %d" class="perfil" xmlns="http://www.w3.org/2000/svg">%s'

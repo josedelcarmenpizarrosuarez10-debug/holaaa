@@ -32,13 +32,13 @@ def hoja_datos(wb, R):
     filas = [
         ("HIDROLOGIA (memoria de hidrologia y drenaje pluvial del CAR Varones)",),
         ("Periodo de retorno", D["TR"], "anos", "Estudio hidrologico del proyecto (RNE CE.040)", "TR"),
-        ("Intensidad de diseno para D = 10 min", D["I"], "mm/h", "Estudio hidrologico del CAR Varones (P10 = 35.163 mm)", "I"),
+        ("Intensidad de diseno para D = 10 min", D["I"], "mm/h", "Estudio hidrologico del CAR Varones (P10 = 35.163 mm): canaletas, montantes, sumideros y cunetas", "I"),
         ("Tiempo de concentracion", D["tc"], "min", "Estudio hidrologico: cunetas y colector del frente", "tc"),
         ("Factor de seguridad FS", D["FS"], "-", "Memoria HIDRO-CE040 del proyecto", "FS"),
         ("Area tributaria total del CAR Varones", D["A_total"], "m2", "Memoria de hidrologia del CAR Varones", "A"),
-        ("Coeficiente de escorrentia ponderado", D["C_pond"], "-", "Memoria de hidrologia del CAR Varones", "C"),
-        ("Caudal total del CAR Varones (dato de su memoria)", D["Q_total"], "L/s", "Q = C I A FS / 3.6e6 = 258.7 L/s; es el valor considerado como aporte en el expediente del Hogar de Refugio", "Qt"),
-        ("Caudal total recalculado (comprobacion)", "=ROUND(DATOS!$B${C}*DATOS!$B${I}*DATOS!$B${A}/3600000*DATOS!$B${FS}*1000,1)", "L/s", "Metodo racional con los datos de la fila anterior", "Qc"),
+        ("Coeficiente de escorrentia ponderado", D["C_pond"], "-", "Memoria de hidrologia del CAR Varones (Sum C.A / A = 5203.32 / 6752.03); C = 0.88 uniforme solo en canaletas, montantes y cunetas", "C"),
+        ("Caudal total del CAR Varones (dato de su memoria)", D["Q_total"], "L/s", "Q = Sum C.A x I x FS / 3600 con I = 155.66 mm/h (colector, tc = 15 min: P15 = 121.81 x (15/1440)^0.25 = 38.91 mm) = 258.7 L/s; es el valor considerado como aporte en el expediente del Hogar de Refugio", "Qt"),
+        ("Caudal total recalculado (comprobacion)", "=ROUND(5203.32*155.66*DATOS!$B${FS}/3600,1)", "L/s", "Metodo racional: Sum C.A = 5203.32 m2, I = 155.66 mm/h (tc = 15 min), FS de la fila de arriba", "Qc"),
         ("GEOMETRIA DEL COLECTOR (tramo CAR Varones)",),
         ("Ancho interior b", D["b"], "m", "Adoptado: llenado <= 85 %, regimen subcritico y seccion minima para limpieza (hoja PERFIL_FLUJO)", "b"),
         ("Espesor de muros", D["e_muro"], "m", "Muros de 0.70 a 1.17 m de altura interior (hoja ESTRUCTURAL)", "em"),
@@ -123,7 +123,7 @@ def hoja_cunetas(wb, R):
              fonts=[NEGRO, AZUL, AZUL, AZUL, AZUL, NEGRO, AZUL, NEGRO, NEGRO, VERDE, NEGRO, NEGRO], fmts=[None, "0.00", "0.00", "0.00", "0.00", "0.00", "0.00", "0.000", None, "0.000", "0.000"])
         r += 1
     ROW["cu_r0"] = r0; ROW["cu_r1"] = r - 1
-    celda(ws, f"A{r+1}", "NCF en el muro = NCF del extremo dibujado + 0.5 % x acortamiento (la cuneta termina antes, con su misma pendiente). Ventana 0.40 x H en el muro lado predio, con caida al fondo y registro encima (DP-06C, DD-04); la del Eje 01 entra a la CL por su muro norte (DP-07).", SUB)
+    celda(ws, f"A{r+1}", "NCF en el muro = NCF del extremo dibujado + 0.5 % x acortamiento (la cuneta termina antes, con su misma pendiente). Ventana 0.40 x H en el muro lado predio, con caida al fondo y registro encima (DPLV-24, DPLV-30); la del Eje 01 entra a la CL por su muro norte (DPLV-25).", SUB)
     return ws
 
 
@@ -438,7 +438,7 @@ def hoja_cumplimiento(wb, R, rlast):
               "2. Caudal: el colector conduce 221.7 L/s y la cuneta del Eje 01 entrega 37.0 L/s directamente a la CL; el total (258.7 L/s) es el dato de la memoria de hidrologia del CAR Varones y el aporte considerado por el Hogar de Refugio (560.6 L/s) y, aguas abajo, por el CAR Mujeres.",
               "3. Nivel de agua en la CL (259.606): resultado del perfil de flujo del tramo del Hogar de Refugio; el colector de Varones descarga en caida libre, por lo que un cambio moderado de ese nivel no altera este tramo.",
               "4. Capacidad portante: la presion transmitida es menor que 0.50 kg/cm2; el EMS del proyecto, exigido por la norma E.050, la confirma (no hay EMS disponible al elaborar esta memoria).",
-              "5. Coordenadas UTM: mismo sistema del tramo del Hogar de Refugio (R-01 del CAR Mujeres y azimut 49.54 del lindero); el trazo se replantea en obra desde la caja CL, el porton de camiones y las cunetas que llegan (cuadro de coordenadas de DP-01).",
+              "5. Coordenadas UTM: mismo sistema del tramo del Hogar de Refugio (R-01 del CAR Mujeres y azimut 49.54 del lindero); el trazo se replantea en obra desde la caja CL, el porton de camiones y las cunetas que llegan (planta del colector, lamina DPLV-17).",
               "6. Cotas de fondo de las cunetas: tomadas del plano PERFIL CAR VARONES (Ejes 01 a 09); todas caen libremente al colector o a la CL."]:
         celda(ws, f"A{r}", t, NEGRO); r += 1
     ws.freeze_panes = "A5"
@@ -452,11 +452,11 @@ def hoja_memoria(wb, R, rlast):
     txt = [
         ("1. OBJETO", "Dimensionar el colector pluvial frontal del Centro de Acogida Residencial - Varones (CUI 2705619) que recoge las cunetas de los Ejes 09, 08, 06 y 04 y las entrega a la caja de llegada CL del colector del Hogar de Refugio Temporal Mujeres Violentadas (CUI 2675514); la cuneta del Eje 01 entra directamente a la CL. Longitud %.2f m desde el poste derecho del porton de camiones (0+000) hasta la cara este de la CL." % dz.P_FIN),
         ("2. NORMATIVA", "RNE CE.040 Drenaje Pluvial (RM 126-2021-VIVIENDA); RNE E.020 Cargas; RNE E.060 Concreto Armado; RNE E.050 Suelos; AASHTO LRFD (rueda HL-93 en el cruce de camiones cisterna); Chow, Hidraulica de canales abiertos (paso estandar con caudal variable)."),
-        ("3. HIDROLOGIA", "Caudal total del CAR Varones 258.7 L/s (memoria de hidrologia del proyecto, TR = 25 anos, I = 210.98 mm/h, FS = 1.15), repartido entre las cinco cunetas que llegan al frente en proporcion al ancho de frente que drena cada una. Es el mismo caudal que el expediente del Hogar de Refugio considera como aporte de Varones."),
+        ("3. HIDROLOGIA", "Caudal total del CAR Varones 258.7 L/s (memoria de hidrologia del proyecto, TR = 25 anos, colector con tc = 15 min e I = 155.66 mm/h, C ponderado 0.771, FS = 1.15; las cunetas usan I = 210.98 mm/h de 10 min), repartido entre las cinco cunetas que llegan al frente en proporcion al ancho de frente que drena cada una. Es el mismo caudal que el expediente del Hogar de Refugio considera como aporte de Varones."),
         ("4. HIDRAULICA", "Colector cubierto de concreto armado b = 0.60 m, S = 0.30 %%, n = 0.015, fondo de 260.20 (0+000) a %.3f (CL). Altura interior 0.70 m en el cruce de camiones (losa e = 0.25) y hasta 1.17 m en la llegada; losa superior al ras del piso terminado +261.15 en todo el frente. Perfil de flujo gradualmente variado con caudal creciente en cada empalme; control: tirante critico en la caida libre a la CL (caida %.2f m sobre su nivel de agua). Flujo subcritico, llenado <= 35 %%, capacidad con llenado del 85 %% de 445 L/s." % (dz.fondo(dz.P_FIN), cl["caida_libre"])),
         ("5. ESTRUCTURAS", "Marco cerrado monolitico igual al del tramo del Hogar de Refugio: losa superior e = 0.10, muros e = 0.15 y losa de fondo e = 0.15 con un solo marco 3/8\" @0.20 en el eje de la seccion y longitudinales 3/8\" @0.25 (una capa; E.060 14.3.4); cruce de camiones cisterna con losas e = 0.25 y doble marco 1/2\" @0.15. Tapas de registro 0.68 x 0.68 x 0.08."),
         ("6. EMPALME", "La CL (expediente del Hogar de Refugio) queda del lado de Varones: su tapa se fija en +261.15 y recibe el colector por una ventana 0.60 x 1.17 en su muro este (sin dintel: techo de la CL = techo del colector = 261.05) y la cuneta del Eje 01 por una ventana 0.40 x 0.66 en su muro norte. Juntas de tecnopor 1\" en todo contacto entre estructuras de distinto expediente."),
-        ("7. RESULTADOS", "Ver cuadro resumen y la hoja CUMPLIMIENTO (requisito, norma, criterio, valor y resultado). Planta, perfil, secciones y detalles en las laminas DP-01, DP-02, DP-04A/B, DP-06B, DP-06C, DP-07, DP-08, DA-01 a DA-03 y DD-01 a DD-04."),
+        ("7. RESULTADOS", "Ver cuadro resumen y la hoja CUMPLIMIENTO (requisito, norma, criterio, valor y resultado). Planta, perfil, secciones y detalles en las laminas DPLV-17 a DPLV-30 (planta, perfiles, secciones, registro, empalmes y juntas)."),
     ]
     r = 4
     for a, b in txt:

@@ -125,3 +125,19 @@ abajo igual que los puntos que senalan, para que las lineas no se crucen.
   (entidades con insercion x ≥ 588 e y ≤ 92 y capas LAMINA/MEMBRETE).
 - Un cambio de detalle (tapa ciega) obliga a revisar todas las laminas donde aparece: DP-06B, DP-06D, DD-01, DD-02, DP-08,
   DP-09 (isometrico del registro), DA-03, DP-01 (nota) y las leyendas.
+
+## 14. Lecciones del planteamiento de cunetas de Barranquita (herramientas/barranquita/)
+- `iso3d.proy` y `dxf_base.iso` dibujan EN ESPEJO: pintan como si el observador estuviera en (+x, +y, +z) pero llevan +x a la
+  derecha. Para un isometrico de planta (orientacion real) intercambiar ejes al entrar: (x, y, z) -> (v, u, z), como `iso_b.Vista`.
+  Comprobar SIEMPRE con una rosa N/E dibujada con la misma transformacion (mirando desde el sur, el este va a la derecha).
+- Isometrico de un conjunto con bloques a 0 y 45 grados: girar la vista 22.5 grados (si no, los de 45 grados quedan de canto).
+- Planta con muchas capas: agrupar en bloques de AutoCAD por tema (ARQUITECTURA_BASE, CURVAS_DE_NIVEL, CUNETAS_SISTEMA_n,
+  ROTULOS_RED) con `EnBloque` (planos_b.py): geometria en coordenadas reales e insercion en (0, 0).
+- Cortes: rotulos en filas propias dentro de la franja del corte (no `lam.franja`, que manda al borde de la lamina lo que no
+  entra); unir rotulos del mismo punto; dibujar el relleno donde la cuneta pasa sobre una hondonada. Colocar cada rotulo en el
+  primer hueco libre por encima del corte (cajas de alto variable, `cortes_b.rotulos`): nunca filas fijas que se llenan y se pisan.
+- Isometrico "solo de cunetas": terreno en malla (rasante dentro del cerco, natural fuera), veredas +0.10, cuneta como canal real
+  (fondo, cara interior visible de los muros, corona del color del sistema), sin edificaciones. Cada cara en su capa (color con
+  4.o elemento = capa, `iso_b.dibujar`). Muros interiores: dibujar solo la cara que mira al observador (si no, tapa el fondo).
+- Respetar el limite de intervencion (cerco): nada de obra dibujado fuera; fuera del cerco solo el agua sobre el terreno.
+- Si un juego de laminas cambia de cantidad (perfiles), numerar las siguientes correlativas: nunca dejar un salto en el indice.

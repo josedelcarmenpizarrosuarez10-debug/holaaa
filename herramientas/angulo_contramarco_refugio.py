@@ -91,8 +91,10 @@ class Libro:
             t = m.group(2) + mv(m.group(3))
             if m.group(4): t += ":" + m.group(4) + mv(m.group(5))
             return t
-        def fx(m): return m.group(1) + TOK.sub(tok, m.group(2)) + m.group(3)
-        x = re.sub(r"(<f[^>]*>)(.*?)(</f>)", fx, x, flags=re.S)
+        def fx(m):                                               # formula y rango ref="..." de las formulas compartidas
+            f = re.sub(r'ref="([^"]+)"', lambda r: 'ref="%s"' % TOK.sub(tok, r.group(1)), m.group(1))
+            return f + TOK.sub(tok, m.group(2)) + m.group(3)
+        x = re.sub(r"(<f(?:\s[^>/]*)?>)(.*?)(</f>)", fx, x, flags=re.S)
         for r in range(hasta, desde - 1, -1):
             m = re.search(r'<row r="%d"[ >].*?</row>' % r, x, re.S)
             if not m: continue
@@ -174,7 +176,7 @@ def recalcular(f, hojas):
         for i in zi.infolist():
             b = zi.read(i.filename)
             if i.filename.startswith("xl/worksheets/sheet"):
-                b = re.sub(r"(<f[^>]*>.*?</f>)<v>.*?</v>", r"\1", b.decode(), flags=re.S).encode()
+                b = re.sub(r"(<f(?:\s[^>]*?)?(?:/>|>.*?</f>))<v>.*?</v>", r"\1", b.decode(), flags=re.S).encode()
             zo.writestr(i, b)
     subprocess.run(["soffice", "--headless", "--convert-to", "xlsx", "--outdir", tmp, src], check=True, capture_output=True)
     wv = openpyxl.load_workbook(os.path.join(tmp, os.path.basename(f)), data_only=True)
@@ -193,7 +195,7 @@ def recalcular(f, hojas):
                 attrs = re.sub(r' t="\w+"', "", attrs) + ' t="n"'; vv = repr(float(v))
             cambios_v += 1
             return '<c r="%s"%s>%s<v>%s</v></c>' % (ref, attrs, f_, vv)
-        L.x[nom] = re.sub(r'<c r="([A-Z]+\d+)"([^>]*)>(<f[^>]*>.*?</f>)(?:<v>.*?</v>)?</c>', rep, x, flags=re.S)
+        L.x[nom] = re.sub(r'<c r="([A-Z]+\d+)"([^>/]*)>(<f(?:\s[^>]*?)?(?:/>|>.*?</f>))(?:<v>.*?</v>)?</c>', rep, x, flags=re.S)
     L.guardar(f); shutil.rmtree(tmp)
     return cambios_v
 

@@ -24,6 +24,11 @@ MEM = os.path.join(RAIZ, "entregables", "MEMORIA_CALCULO_COLECTOR_HOGAR_REFUGIO.
 DJ = json.load(open(os.path.join(RAIZ, "entregables", "_calc", "diseno.json")))
 D = DJ["datos"]
 FUENTE = "Arial Narrow"
+# metrado vigente del usuario (con las bancas OC-01) y juego de laminas DPL (indice_planos_refugio.py)
+VIG = os.path.join(RAIZ, "insumos", "metrados_vigentes", "METRADO_DRENAJE_MUJERES_VIOLENTADAS_CON_BANCAS_OC-01.xlsx")
+PDF_DPL = os.path.join(RAIZ, "insumos", "solange", "PLANOS_DRENAJE_PLUVIAL_MUJERES_VIOLENTADAS_LAMINAS.pdf")
+INDICE = os.path.join(RAIZ, "entregables", "_calc", "indice_planos.json")
+PREV_OC = os.path.join(RAIZ, "entregables", "vistas_previas_oc01")
 
 
 # ----------------------------------------------------------------------------- utilidades de formato
@@ -97,7 +102,7 @@ def sombrear(celda, color):
     shd.set(qn("w:val"), "clear"); shd.set(qn("w:color"), "auto"); shd.set(qn("w:fill"), color); tcPr.append(shd)
 
 
-def tabla(doc, encabezado, filas, anchos=None, tam=10, alinear_num=True, color="1F4E79"):
+def tabla(doc, encabezado, filas, anchos=None, tam=10, alinear_num=True, color="1F4E79", junta=False):
     t = doc.add_table(rows=1, cols=len(encabezado)); t.style = doc.styles["Table Grid"]; t.alignment = WD_TABLE_ALIGNMENT.CENTER
     for j, h in enumerate(encabezado):
         c = t.rows[0].cells[j]; c.text = ""; p = c.paragraphs[0]; p.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -114,6 +119,10 @@ def tabla(doc, encabezado, filas, anchos=None, tam=10, alinear_num=True, color="
         for j, w in enumerate(anchos): t.columns[j].width = Cm(w)
         for fila in t.rows:
             for j, w in enumerate(anchos): fila.cells[j].width = Cm(w)
+    if junta:                                            # tabla corta: no se parte entre paginas
+        for fila in t.rows[:-1]:
+            for c in fila.cells:
+                for q in c.paragraphs: q.paragraph_format.keep_with_next = True
     doc.add_paragraph().paragraph_format.space_after = Pt(0)
     return t
 
@@ -123,6 +132,33 @@ def imagen(doc, archivo, ancho_cm, titulo, fuente_txt="Fuente: Elaboración prop
     p = doc.add_paragraph(); p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p.add_run().add_picture(archivo, width=Cm(ancho_cm))
     fuente(doc, fuente_txt)
+
+
+def lamina(cod):
+    """Imagen JPG de la lamina del juego en PDF del usuario (o vista previa PNG si la lamina no esta en el PDF)."""
+    pag = {p["codigo"]: p["pagina"] for p in json.load(open(INDICE, encoding="utf-8"))}.get(cod)
+    if not pag:
+        return os.path.join(PREV_OC, cod + ".png") if os.path.exists(os.path.join(PREV_OC, cod + ".png")) else None
+    os.makedirs(FIG, exist_ok=True); base = os.path.join(FIG, cod)
+    if not os.path.exists(base + ".jpg"):
+        subprocess.run(["pdftoppm", "-f", str(pag), "-l", str(pag), "-singlefile", "-jpeg", "-jpegopt", "quality=85",
+                        "-scale-to", "2200", PDF_DPL, base], check=True)
+    return base + ".jpg"
+
+
+def figura(doc, cod, texto):
+    f = lamina(cod)
+    if f: imagen(doc, f, 15.5, "%s: %s (lámina %s)." % (NUM.imagen(), texto, cod), "Fuente: Lámina %s del expediente de drenaje pluvial." % cod)
+
+
+def resumen_vigente():
+    """Filas (item, descripcion, und, total) del RESUMEN del metrado vigente del usuario."""
+    ws = openpyxl.load_workbook(VIG, data_only=True)["RESUMEN"]
+    return [(str(r[0]).strip(), str(r[1]).strip(), r[2], r[3]) for r in ws.iter_rows(min_row=9, max_col=4, values_only=True) if r[0]]
+
+
+def hoja_vigente(nombre):
+    return [[c for c in r] for r in openpyxl.load_workbook(VIG, data_only=True)[nombre].iter_rows(values_only=True)]
 
 
 def f2(x): return "%.2f" % x
@@ -241,13 +277,12 @@ def construir():
                  "(progresivas 0+026.32 a 0+031.33, incluyendo 0.30 m de transición a cada lado), por el que ingresan camiones "
                  "cisterna y vehículos de servicio, y el portón de motos de 1.77 m (progresivas 0+039.04 a 0+041.04). El resto "
                  "del colector funciona como vereda, con cargas peatonales. La ubicación en coordenadas UTM WGS84 18S de "
-                 "la lámina DP-01 se obtuvo a partir del registro R-01 del colector receptor y de la orientación del frente del "
+                 "la lámina DPL-06 se obtuvo a partir del registro R-01 del colector receptor y de la orientación del frente del "
                  "predio; es referencial y debe verificarse en campo durante el replanteo.")
     tabla(doc, ["ELEMENTO", "PROGRESIVA", "DESCRIPCIÓN"],
           [[r["nombre"], "0+%06.2f" % r["prog"], r["tipo"] + ": " + r["nota"]] for r in DJ["registros"]], anchos=[3.0, 3.0, 9.5])
     leyenda(doc, "%s: Registros, cajas y puntos singulares del tramo." % NUM.tabla()); fuente(doc)
-    if os.path.exists(os.path.join(FIG, "DP-01.png")):
-        imagen(doc, os.path.join(FIG, "DP-01.png"), 15.5, "%s: Planta general del colector frontal (lámina DP-01)." % NUM.imagen())
+    figura(doc, "DPL-06", "Red general del colector pluvial frontal")
 
     # ------------------------------------------------------------------ 3. caudal
     titulo2(doc, "Caudal de diseño del tramo")
@@ -325,8 +360,7 @@ def construir():
                  "del máximo admisible; con apenas el 5 %% del caudal de diseño el esfuerzo tractivo sigue siendo mayor que el "
                  "mínimo adoptado. La pendiente de 3 ‰ es, por tanto, suficiente para que el colector se mantenga limpio sin "
                  "necesidad de mayor desnivel, que obligaría a profundizar la caja de caída en la entrega." % Vn)
-    if os.path.exists(os.path.join(FIG, "DP-02.png")):
-        imagen(doc, os.path.join(FIG, "DP-02.png"), 15.5, "%s: Perfil longitudinal del colector con el perfil de flujo (lámina DP-02)." % NUM.imagen())
+    figura(doc, "DPL-07", "Perfil longitudinal general del colector")
 
     # ------------------------------------------------------------------ 5. empalme
     titulo2(doc, "Empalme con el colector receptor: caja de caída CC")
@@ -370,8 +404,7 @@ def construir():
                  "0.55 m respecto del piso de este tramo (+%.2f). El aporte cae en una poza de %.2f m de profundidad bajo la cota de fondo "
                  "del canal (piso %.2f msnm), que mantiene un colchón de agua de %.2f m con el nivel de agua del inicio del colector (%.3f msnm) "
                  "y amortigua el chorro antes de que el flujo ingrese al canal." % (D["CL_largo"], D["CL_ancho"], D["CF_varones_sup"], D["E01_NCF"], D["NPT_CL"], D["NPT"], D["CL_poza"], cl["z_piso"], cl["tirante_poza"], cl["NA_salida"]))
-    if os.path.exists(os.path.join(FIG, "DP-07.png")):
-        imagen(doc, os.path.join(FIG, "DP-07.png"), 15.5, "%s: Caja de llegada CL y caja de caída CC (lámina DP-07)." % NUM.imagen())
+    figura(doc, "DPL-26", "Caja de llegada CL y caja de caída CC con poza de disipación")
 
     # ------------------------------------------------------------------ 6. cunetas
     titulo2(doc, "Llegada de las cunetas del proyecto")
@@ -412,8 +445,7 @@ def construir():
     if "G" in est and est["G"].get("q") is not None:
         parrafo(doc, "La presión transmitida al suelo por la estructura llena y con sobrecarga es de %.2f kg/cm², valor bajo que "
                      "debe compararse con la capacidad portante del estudio de mecánica de suelos del proyecto." % est["G"]["q"])
-    if os.path.exists(os.path.join(FIG, "DP-06A.png")):
-        imagen(doc, os.path.join(FIG, "DP-06A.png"), 15.5, "%s: Secciones típicas del colector con su armadura (lámina DP-06A)." % NUM.imagen())
+    figura(doc, "DPL-14", "Secciones típicas del colector: tramo normal, cruce de motos y cruce de camiones")
 
     # ------------------------------------------------------------------ 8. criterios constructivos
     titulo2(doc, "Marco normativo del diseño")
@@ -441,11 +473,11 @@ def construir():
                 "recubrimiento de 4 cm; traslapes de 0.40 m.")
     vineta(doc, "Excavación con sobreancho de 0.25 m por lado, relleno lateral compactado con material propio seleccionado y "
                 "eliminación del excedente con esponjamiento de 20 %.")
-    vineta(doc, "Las láminas DD-01 a DD-04 desarrollan el detalle constructivo de cada una de estas partidas (rebaje de asiento y "
-                "tapa ciega, juntas y empalme de cuneta): despiece, dimensiones, procedimiento y cuadro de componentes por unidad para los "
-                "análisis de costos unitarios.")
-    if os.path.exists(os.path.join(FIG, "DP-10.png")):
-        imagen(doc, os.path.join(FIG, "DP-10.png"), 15.5, "%s: Isométrico general del colector frontal (lámina DP-10)." % NUM.imagen())
+    vineta(doc, "Las láminas DPL-24 y DPL-29 (registro de limpieza con tapa ciega y sus componentes), DPL-25 (empalme de cunetas al "
+                "colector) y DPL-28 (juntas e = 1\" con tecnopor y sellador asfáltico) desarrollan el detalle constructivo de estas "
+                "partidas: despiece, dimensiones, procedimiento y cuadro de componentes por unidad para los análisis de costos unitarios. "
+                "Las secciones de cada progresiva y sus isométricos están en las láminas DPL-10 a DPL-14, y el perfil detallado en DPL-08 y DPL-09.")
+    figura(doc, "DPL-27", "Isométricos constructivos del colector frontal")
 
     # ------------------------------------------------------------------ 9. metrado
     titulo2(doc, "Resumen de metrados del tramo")
@@ -455,18 +487,10 @@ def construir():
                  "hojas COLECTOR PARAMETROS, COLECTOR MOV. TIERRAS, COLECTOR CONCRETO, COLECTOR ENCOFRADO, COLECTOR ACERO, COLECTOR "
                  "REGISTROS Y TAPAS y COLECTOR JUNTAS Y EMPALMES de la misma planilla, con las dimensiones de las láminas y la fórmula "
                  "de cada medida a la vista. Las cantidades principales son:")
-    Rg = RM["registros"]
-    filas = [["Excavación manual de zanjas", "m³", f2(RM["excav_m3"])], ["Relleno compactado con material propio", "m³", f2(RM["relleno_m3"])],
-             ["Eliminación de material excedente", "m³", f2(RM["elimin_m3"])], ["Solado f'c = 100 kg/cm² e = 0.05 m", "m²", f2(RM["solado_m2"])],
-             ["Concreto f'c = 210 kg/cm² en losa de fondo", "m³", f2(RM["conc_fondo_m3"])], ["Concreto f'c = 210 kg/cm² en muros", "m³", f2(RM["conc_muros_m3"])],
-             ["Concreto f'c = 210 kg/cm² en losa superior", "m³", f2(RM["conc_losa_m3"])], ["Encofrado y desencofrado", "m²", f2(RM["encof_m2"])],
-             ["Acero de refuerzo fy = 4200 kg/cm² en colector y cajas", "kg", f2(RM["acero_colector_kg"])],
-             ["Acabado frotachado y bruñado de losa superior", "m²", f2(RM["acabado_m2"])], ["Curado de concreto", "m²", f2(RM["curado_m2"])],
-             ["Registros con tapa ciega de concreto armado 0.68 × 0.68 × 0.08 (sin marco metálico)", "und", "%d" % Rg["n"]],
-             ["Junta de dilatación e = 1\" con sello", "m", f2(RM["juntas"]["L_dilat"])], ["Empalmes de cunetas", "und", "%d" % RM["empalmes"]]]
-    tabla(doc, ["PARTIDA", "UND", "METRADO"], filas, anchos=[10.0, 2.0, 3.0])
+    filas = [[it, de, un, f2(to)] for it, de, un, to in resumen_vigente() if it.startswith("01.04.04.") and un]
+    tabla(doc, ["ÍTEM", "PARTIDA", "UND", "METRADO"], filas, anchos=[3.7, 8.5, 1.3, 2.1], tam=9)
     leyenda(doc, "%s: Metrados principales del colector pluvial frontal." % NUM.tabla())
-    fuente(doc, "Fuente: Elaboración propia. Planilla general de metrados del proyecto, partida 01.04.04.")
+    fuente(doc, "Fuente: Planilla general de metrados del proyecto (RESUMEN), partida 01.04.04.")
 
     # ------------------------------------------------------------------ 9b. cumplimiento normativo
     cump, pend = leer_cumplimiento()
@@ -514,8 +538,86 @@ def construir():
                 "proyecto, con el que este tramo queda coordinado (caja CL con tapa en +%.2f y ventanas este y norte); la ubicación UTM "
                 "del trazo debe verificarse en el replanteo." % (D["CF_varones_sup"], D["NPT_CL"]))
 
+    capitulo_complementario(doc)
     doc.save(DEST)
     return n_parrafos_orig, n_tablas_orig
+
+
+# ----------------------------------------------------------------------------- bancas OC-01 y lloraderos
+C_TECHO, I_TECHO, FS_T, N_CAN, S_CAN = 0.88, 210.98, 1.15, 0.013, 0.005    # criterios del estudio (canaletas y montantes)
+
+
+def manning_rect(Q, b, n, S):
+    """Tirante normal en canal rectangular (biseccion)."""
+    lo, hi = 1e-5, 2.0
+    for _ in range(80):
+        y = (lo + hi) / 2; A = b * y; R = A / (b + 2 * y)
+        if A * R ** (2 / 3) * S ** 0.5 / n < Q: lo = y
+        else: hi = y
+    return y
+
+
+def capitulo_complementario(doc):
+    sys.path.insert(0, os.path.join(RAIZ, "herramientas", "techo"))
+    import planos_oc01_refugio as OC
+    res = {it: (de, un, to) for it, de, un, to in resumen_vigente()}
+    b, h = OC.CB, OC.CH
+    titulo1(doc, "DRENAJE COMPLEMENTARIO: TECHOS DE LAS BANCAS CON PÉRGOLA (OC-01) Y LLORADEROS EN CUNETAS")
+    titulo2(doc, "Techos de las bancas con pérgola (OC-01)")
+    parrafo(doc, "La obra complementaria OC-01 (jardinera + banca + pérgola) se repite tres veces en el proyecto; cada juego tiene "
+                 "tres techos a una agua de cobertura de panel aluzinc, de %.2f, %.2f y %.2f m de largo por %.2f m de fondo, de modo "
+                 "que las nueve bancas suman nueve techos. Cada techo descarga en una canaleta de plancha de acero galvanizado de "
+                 "e = 0.50 mm, de sección interior %.2f m de ancho por %.2f m de alto, con pendiente de %.1f %% hacia una boquilla "
+                 "de plancha galvanizada que entrega a la bajada de PVC de Ø 4\" adosada a la columna de la pérgola; la bajada "
+                 "llega a la falsa columna de drenaje pluvial y de allí al sistema de cunetas. El sumidero tipo cúpula del plano "
+                 "de la OC-01 se reemplaza por la boquilla." % (OC.TECHOS[0]["L"], OC.TECHOS[1]["L"], OC.TECHOS[2]["L"], OC.FONDO, b, h, OC.S_CAN))
+    parrafo(doc, "Los caudales se calculan con el mismo método racional y los mismos parámetros del estudio para canaletas y "
+                 "montantes: intensidad de %.2f mm/h, coeficiente de escorrentía de techo C = %.2f y factor de seguridad %.2f. "
+                 "La canaleta se verifica con la ecuación de Manning (n = %.3f, S = %.3f) y la bajada con la ecuación de Wyly-Eaton "
+                 "(rs = 0.250), igual que los montantes de las edificaciones." % (I_TECHO, C_TECHO, FS_T, N_CAN, S_CAN))
+    formula(doc, "Q = C · I · A · FS ;      Q = (1/n) · Ah · R^(2/3) · S^(1/2) ;      Q (L/s) = 1.754 · rs^(5/3) · D^(8/3)  (D en pulgadas)")
+    filas = []; ymax = 0; dmax = 0
+    for R in OC.TECHOS:
+        A = R["L"] * OC.FONDO; Q = C_TECHO * I_TECHO / 3.6e6 * A * FS_T
+        y = manning_rect(Q, b, N_CAN, S_CAN); V = Q / (b * y); F = V / (9.81 * y) ** 0.5
+        D = (Q * 1000 / (1.754 * 0.25 ** (5 / 3))) ** (3 / 8); ymax = max(ymax, y); dmax = max(dmax, D)
+        filas.append([R["n"], f2(R["L"]), f2(A), "%.3f" % (Q * 1000), f3(y), f2(V), f2(F), f3(h - y), "%.2f\"" % D, "4\""])
+    tabla(doc, ["TECHO", "L (m)", "ÁREA (m²)", "Q (L/s)", "y (m)", "V (m/s)", "FROUDE", "BORDE LIBRE (m)", "D REQ.", "D ADOPT."], filas, tam=9,
+          anchos=[1.4, 1.3, 1.6, 1.5, 1.4, 1.5, 1.5, 1.9, 1.5, 1.5], junta=True)
+    leyenda(doc, "%s: Verificación hidráulica de la canaleta %.2f × %.2f m y de la bajada de los techos de la OC-01." % (NUM.tabla(), b, h))
+    fuente(doc, "Fuente: Elaboración propia. Geometría de las láminas DPL-41 y DPL-42.")
+    Qcap = (b * (h - 0.05)) * ((b * (h - 0.05)) / (b + 2 * (h - 0.05))) ** (2 / 3) * S_CAN ** 0.5 / N_CAN
+    parrafo(doc, "El tirante máximo en la canaleta es de %.3f m, muy por debajo de la altura de %.2f m; con un borde libre de 0.05 m "
+                 "la canaleta conduce %.1f L/s, varias veces el caudal del techo mayor. La bajada requiere un diámetro de %.2f\" y se "
+                 "adopta Ø 4\", el mismo de los montantes del proyecto y mayor que el mínimo de la norma CE.040. La sección de "
+                 "%.2f × %.2f m queda definida por la geometría de la cobertura y por la limpieza de hojas de la pérgola, no por la "
+                 "capacidad hidráulica." % (ymax, h, Qcap * 1000, dmax, b, h))
+    filas = [[it, res[it][0], res[it][1], f2(res[it][2]) if res[it][1] == "m" else "%d" % res[it][2]]
+             for it in sorted(res) if it.startswith("01.04.03.05.04.")]
+    tabla(doc, ["ÍTEM", "PARTIDA", "UND", "METRADO"], filas, anchos=[3.7, 8.5, 1.3, 2.1], tam=9, junta=True)
+    leyenda(doc, "%s: Metrado de la red de recolección de los techos de las bancas OC-01 (3 juegos, 9 techos)." % NUM.tabla())
+    fuente(doc, "Fuente: Planilla general de metrados del proyecto (RESUMEN y hoja METRADO CANALETA BANCAS).")
+    figura(doc, "DPL-41", "Isométrico del drenaje pluvial de la OC-01 y planta de techos")
+    figura(doc, "DPL-42", "Detalle isométrico de la salida de la canaleta de la OC-01")
+
+    titulo2(doc, "Lloraderos en cunetas colindantes con área verde")
+    ll = hoja_vigente("METRADO LLORADEROS")
+    tramos = [r for r in ll if isinstance(r[0], (int, float)) and r[1]]
+    tot = next(r for r in ll if isinstance(r[0], str) and r[0].upper().startswith("TOTAL DE LLORADEROS"))
+    tot = [v for v in tot if v not in (None, "")]
+    parrafo(doc, "En los tramos en que el muro de la cuneta queda junto a un área verde, el agua que se infiltra en el jardín se "
+                 "acumula contra el muro y lo somete a empuje hidrostático y a humedad permanente. Para aliviarla se colocan "
+                 "lloraderos de tubería PVC de Ø 3\" que atraviesan el muro de la cuneta cada 1.50 m, con su boca interior protegida por "
+                 "un filtro de grava envuelto en geotextil, de modo que el agua del suelo pasa a la cuneta sin arrastrar finos. "
+                 "Los lloraderos no aportan un caudal que cambie el dimensionamiento de las cunetas: el agua infiltrada en el área "
+                 "verde ya está considerada en el coeficiente de escorrentía de esas superficies.")
+    tabla(doc, ["EJE", "PROGRESIVAS", "LADO", "LONGITUD (m)", "N.°"], [[r[1], r[2], r[3], f2(r[4]), "%d" % r[6]] for r in tramos]
+          + [["TOTAL", "", "", f2(tot[1]), "%d" % tot[2]]], anchos=[2.2, 4.4, 3.0, 2.6, 1.6], tam=9)
+    leyenda(doc, "%s: Tramos de cuneta con lloraderos de PVC Ø 3\" @ 1.50 m." % NUM.tabla())
+    fuente(doc, "Fuente: Planilla general de metrados del proyecto (hoja METRADO LLORADEROS).")
+    parrafo(doc, "La ubicación de los lloraderos está en la lámina DPL-40, el corte del lloradero con el tubo perforado y su "
+                 "desagregado en la lámina DPL-38 y el isométrico de instalación en la lámina DPL-37 (isométrico de instalación de lloraderos en cunetas).")
+    figura(doc, "DPL-38", "Detalle de lloradero: corte, tubo perforado y desagregado")
 
 
 def verificar(n_par, n_tab):
@@ -536,3 +638,5 @@ if __name__ == "__main__":
     n_par, n_tab = construir()
     print(DEST)
     verificar(n_par, n_tab)
+    import revision_hidrologia as RH                     # texto comun de intensidades y caudales de los tres proyectos
+    print("revision:", RH.revisar(DEST, DEST, "refugio"))

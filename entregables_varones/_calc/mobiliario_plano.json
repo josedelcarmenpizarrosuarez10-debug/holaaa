@@ -1,0 +1,2295 @@
+{
+ "fuente": "insumos/katiuska/mobiliario/EQUIPAMIENTO_Y_MOBILIARIO_CAR_VARONES.zip",
+ "laminas": [
+  {
+   "codigo": "MB-01",
+   "titulo": "EQUIPAMIENTO Y MOBILIARIO EDIFICACIÓN 01",
+   "escala": "1/150",
+   "fecha": "Setiembre-2026"
+  },
+  {
+   "codigo": "MB-02",
+   "titulo": "EQUIPAMIENTO Y MOBILIARIO EDIFICACIÓN 02 Y EDIFICACIÓN 10",
+   "escala": "1/150",
+   "fecha": "Setiembre-2026"
+  },
+  {
+   "codigo": "MB-03",
+   "titulo": "EQUIPAMIENTO Y MOBILIARIO EDIFICACIÓN 03",
+   "escala": "1/150",
+   "fecha": "Setiembre-2026"
+  },
+  {
+   "codigo": "MB-04",
+   "titulo": "EQUIPAMIENTO Y MOBILIARIO EDIFICACIÓN 04",
+   "escala": "1/150",
+   "fecha": "Setiembre-2026"
+  },
+  {
+   "codigo": "MB-05",
+   "titulo": "EQUIPAMIENTO Y MOBILIARIO EDIFICACIÓN 05",
+   "escala": "1/150",
+   "fecha": "Setiembre-2026"
+  },
+  {
+   "codigo": "MB-06",
+   "titulo": "EQUIPAMIENTO Y MOBILIARIO EDIFICACIÓN 06",
+   "escala": "1/150",
+   "fecha": "Setiembre-2026"
+  },
+  {
+   "codigo": "MB-07",
+   "titulo": "EQUIPAMIENTO Y MOBILIARIO EDIFICACIÓN 07",
+   "escala": "1/150",
+   "fecha": "Setiembre-2026"
+  },
+  {
+   "codigo": "MB-08",
+   "titulo": "EQUIPAMIENTO Y MOBILIARIO EDIFICACIÓN 08",
+   "escala": "1/150",
+   "fecha": "Setiembre-2026"
+  },
+  {
+   "codigo": "MB-09",
+   "titulo": "EQUIPAMIENTO Y MOBILIARIO EDIFICACIÓN 09",
+   "escala": "1/150",
+   "fecha": "Setiembre-2026"
+  }
+ ],
+ "plantas": [
+  {
+   "edificacion": "E-01",
+   "nombre": "",
+   "x": 2569.806,
+   "y": 783.69
+  },
+  {
+   "edificacion": "E-02",
+   "nombre": "",
+   "x": 2570.396,
+   "y": 753.825
+  },
+  {
+   "edificacion": "E-10",
+   "nombre": "",
+   "x": 2584.555,
+   "y": 753.825
+  },
+  {
+   "edificacion": "E-03",
+   "nombre": "",
+   "x": 2571.076,
+   "y": 732.56
+  },
+  {
+   "edificacion": "E-04",
+   "nombre": "",
+   "x": 2633.78,
+   "y": 782.942
+  },
+  {
+   "edificacion": "E-05",
+   "nombre": "",
+   "x": 2633.78,
+   "y": 754.084
+  },
+  {
+   "edificacion": "E-06",
+   "nombre": "",
+   "x": 2682.722,
+   "y": 782.942
+  },
+  {
+   "edificacion": "E-07",
+   "nombre": "",
+   "x": 2682.279,
+   "y": 754.084
+  },
+  {
+   "edificacion": "E-08",
+   "nombre": "",
+   "x": 2733.975,
+   "y": 755.254
+  },
+  {
+   "edificacion": "E-09",
+   "nombre": "PRIMER NIVEL (EDIFICACION 09) ESC: 1/50",
+   "x": 2769.022,
+   "y": 772.729
+  }
+ ],
+ "cuadros": [
+  {
+   "titulo": "TRABAJADOR SOCIAL EDIFICACION 1 - PRIMER NIVEL",
+   "ambiente": "TRABAJADOR SOCIAL",
+   "edificacion": "E-01",
+   "x": 2601.457,
+   "y": 795.545,
+   "items": [
+    {
+     "cod": "E6",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA I5 ESTACIONARIA",
+     "cant": 1
+    },
+    {
+     "cod": "E9",
+     "seccion": "EQUIPO",
+     "des": "IMPRESORA MULTIFUNCIONAL",
+     "cant": 1
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA Y METAL 0.45 x 0.40 x 0.36 m.",
+     "cant": 3
+    },
+    {
+     "cod": "M31",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINA CON CREDENZA MOVIL 1.50 x 0.80 x 0.75 m.",
+     "cant": 1
+    },
+    {
+     "cod": "M34",
+     "seccion": "MOBILIARIO",
+     "des": "SOFA DE 2 CUERPOS 0.55X1.00X0.44M",
+     "cant": 1
+    },
+    {
+     "cod": "M39",
+     "seccion": "MOBILIARIO",
+     "des": "ARCHIVADOR DE MELAMINA CON TRES GAVETAS 0.60 X 0.46 X 1.20 M.",
+     "cant": 1
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "ASESORIA LEGAL EDIFICACION 1 - PRIMER NIVEL",
+   "ambiente": "ASESORIA LEGAL",
+   "edificacion": "E-01",
+   "x": 2601.457,
+   "y": 791.342,
+   "items": [
+    {
+     "cod": "E6",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA I5 ESTACIONARIA",
+     "cant": 1
+    },
+    {
+     "cod": "E9",
+     "seccion": "EQUIPO",
+     "des": "IMPRESORA MULTIFUNCIONAL",
+     "cant": 1
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA Y METAL 0.45 x 0.40 x 0.36 m.",
+     "cant": 3
+    },
+    {
+     "cod": "M31",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINA CON CREDENZA MOVIL 1.50 x 0.80 x 0.75 m.",
+     "cant": 1
+    },
+    {
+     "cod": "M34",
+     "seccion": "MOBILIARIO",
+     "des": "SOFA DE 2 CUERPOS 0.55X1.00X0.44M",
+     "cant": 1
+    },
+    {
+     "cod": "M39",
+     "seccion": "MOBILIARIO",
+     "des": "ARCHIVADOR DE MELAMINA CON TRES GAVETAS 0.60 X 0.46 X 1.20 M.",
+     "cant": 1
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "EDUCADOR EDIFICACION 1 - PRIMER NIVEL",
+   "ambiente": "EDUCADOR",
+   "edificacion": "E-01",
+   "x": 2601.457,
+   "y": 787.524,
+   "items": [
+    {
+     "cod": "E6",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA I5 ESTACIONARIA",
+     "cant": 1
+    },
+    {
+     "cod": "E9",
+     "seccion": "EQUIPO",
+     "des": "IMPRESORA MULTIFUNCIONAL",
+     "cant": 1
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA Y METAL 0.45 x 0.40 x 0.36 m.",
+     "cant": 3
+    },
+    {
+     "cod": "M31",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINA CON CREDENZA MOVIL 1.50 x 0.80 x 0.75 m.",
+     "cant": 1
+    },
+    {
+     "cod": "M36",
+     "seccion": "MOBILIARIO",
+     "des": "ARMARIO PARA DOCENTE DE MELAMINA CON 2 PUERTAS 4 NIVELES 0.90 X 0.45 X 1.80 M.",
+     "cant": 1
+    },
+    {
+     "cod": "M39",
+     "seccion": "MOBILIARIO",
+     "des": "ARCHIVADOR DE MELAMINA CON TRES GAVETAS 0.60 X 0.46 X 1.20 M.",
+     "cant": 1
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "SECRETARIA/SALA DE ESPERA EDIFICACION 1 - PRIMER NIVEL",
+   "ambiente": "SECRETARIA/SALA DE ESPERA",
+   "edificacion": "E-01",
+   "x": 2601.457,
+   "y": 783.707,
+   "items": [
+    {
+     "cod": "E6",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA I5 ESTACIONARIA",
+     "cant": 1
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA Y METAL 0.45 x 0.40 x 0.36 m.",
+     "cant": 3
+    },
+    {
+     "cod": "M14",
+     "seccion": "MOBILIARIO",
+     "des": "MACETERO 0.32 x 0.32 x 0.56 m",
+     "cant": 2
+    },
+    {
+     "cod": "M31",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINA CON CREDENZA MOVIL 1.50 x 0.80 x 0.75 m.",
+     "cant": 1
+    },
+    {
+     "cod": "M32",
+     "seccion": "MOBILIARIO",
+     "des": "SILLON PARA ACOPLAR 0.44 X 0.55 X 0.60 M.",
+     "cant": 3
+    }
+   ]
+  },
+  {
+   "titulo": "DIRECCIÓN GENERAL EDIFICACION 1 - PRIMER NIVEL",
+   "ambiente": "DIRECCIÓN GENERAL",
+   "edificacion": "E-01",
+   "x": 2601.457,
+   "y": 780.145,
+   "items": [
+    {
+     "cod": "E6",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA I5 ESTACIONARIA",
+     "cant": 1
+    },
+    {
+     "cod": "E9",
+     "seccion": "EQUIPO",
+     "des": "IMPRESORA MULTIFUNCIONAL",
+     "cant": 1
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA Y METAL 0.45 x 0.40 x 0.36 m.",
+     "cant": 3
+    },
+    {
+     "cod": "M31",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINA CON CREDENZA MOVIL 1.50 x 0.80 x 0.75 m.",
+     "cant": 1
+    },
+    {
+     "cod": "M34",
+     "seccion": "MOBILIARIO",
+     "des": "SOFA DE 2 CUERPOS 0.55X1.00X0.44M",
+     "cant": 1
+    },
+    {
+     "cod": "M39",
+     "seccion": "MOBILIARIO",
+     "des": "ARCHIVADOR DE MELAMINA CON TRES GAVETAS 0.60 X 0.46 X 1.20 M.",
+     "cant": 1
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "MONITOREO EDIFICACION 1 - PRIMER NIVEL",
+   "ambiente": "MONITOREO",
+   "edificacion": "E-01",
+   "x": 2611.215,
+   "y": 791.342,
+   "items": [
+    {
+     "cod": "E6",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA I5 ESTACIONARIA",
+     "cant": 2
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA Y METAL 0.45 x 0.40 x 0.36 m.",
+     "cant": 2
+    },
+    {
+     "cod": "M31",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINA CON CREDENZA MOVIL 1.50 x 0.80 x 0.75 m.",
+     "cant": 2
+    },
+    {
+     "cod": "M36",
+     "seccion": "MOBILIARIO",
+     "des": "ARMARIO PARA DOCENTE DE MELAMINA CON 2 PUERTAS 4 NIVELES 0.90 X 0.45 X 1.80 M.",
+     "cant": 1
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "cant": 2
+    }
+   ]
+  },
+  {
+   "titulo": "SALA DE PSICOLOGIA EDIFICACION 1 - PRIMER NIVEL",
+   "ambiente": "SALA DE PSICOLOGIA",
+   "edificacion": "E-01",
+   "x": 2611.215,
+   "y": 787.946,
+   "items": [
+    {
+     "cod": "E6",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA I5 ESTACIONARIA",
+     "cant": 1
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA Y METAL 0.45 x 0.40 x 0.36 m.",
+     "cant": 1
+    },
+    {
+     "cod": "M31",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINA CON CREDENZA MOVIL 1.50 x 0.80 x 0.75 m.",
+     "cant": 1
+    },
+    {
+     "cod": "M36",
+     "seccion": "MOBILIARIO",
+     "des": "ARMARIO PARA DOCENTE DE MELAMINA CON 2 PUERTAS 4 NIVELES 0.90 X 0.45 X 1.80 M.",
+     "cant": 1
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "SALA DE REUNIONES EDIFICACION 1 - PRIMER NIVEL",
+   "ambiente": "SALA DE REUNIONES",
+   "edificacion": "E-01",
+   "x": 2611.215,
+   "y": 784.681,
+   "items": [
+    {
+     "cod": "E7",
+     "seccion": "EQUIPO",
+     "des": "PROYECTOR MULTIMEDIA",
+     "cant": 1
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA Y METAL 0.45 x 0.40 x 0.36 m.",
+     "cant": 10
+    },
+    {
+     "cod": "M13",
+     "seccion": "MOBILIARIO",
+     "des": "RACK DE SOPORTE METALICO PARA PROYECTOR EN TECHO",
+     "cant": 1
+    },
+    {
+     "cod": "M21",
+     "seccion": "MOBILIARIO",
+     "des": "MESA DE REUNIONES DE MADERA Y MELAMINA 2.40 X 1.00 X 0.75 M.",
+     "cant": 1
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "cant": 1
+    },
+    {
+     "cod": "M69",
+     "seccion": "MOBILIARIO",
+     "des": "PIZARRA ACRILICA 4.20X1.20 INC. ACCESORIOS DE FIJACION",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "TOPICO EDIFICACION 1 - PRIMER NIVEL",
+   "ambiente": "TOPICO",
+   "edificacion": "E-01",
+   "x": 2611.215,
+   "y": 781.207,
+   "items": [
+    {
+     "cod": "E7",
+     "seccion": "EQUIPO",
+     "des": "PROYECTOR MULTIMEDIA",
+     "cant": 1
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA Y METAL 0.45 x 0.40 x 0.36 m.",
+     "cant": 10
+    },
+    {
+     "cod": "M20",
+     "seccion": "MOBILIARIO",
+     "des": "BIOMBO METALICO DE 3 CUERPOS",
+     "cant": 1
+    },
+    {
+     "cod": "M27",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DE RUEDAS",
+     "cant": 1
+    },
+    {
+     "cod": "M28",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINA CON DOS CAJONERAS 1.00 X 0.50 X 0.75 M.",
+     "cant": 1
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "cant": 1
+    },
+    {
+     "cod": "M65",
+     "seccion": "MOBILIARIO",
+     "des": "CAMILLA METALICA RECLINABLE CON RESPALDO Y RUEDAS 1.80 X 0.60 X 0.70 M.",
+     "cant": 1
+    },
+    {
+     "cod": "M67",
+     "seccion": "MOBILIARIO",
+     "des": "ESCALERA METÁLICA CON DOS PELDAÑOS 0.40 X 0.40 X 0.36 M.",
+     "cant": 1
+    },
+    {
+     "cod": "M68",
+     "seccion": "MOBILIARIO",
+     "des": "PARIHUELA DE MADERA 0.90 X 0.50 X 0.20 M.",
+     "cant": 1
+    },
+    {
+     "cod": "M70",
+     "seccion": "MOBILIARIO",
+     "des": "BOTIQUIN DE MADERA CON DOS DIVISIONES UNA PUERTA Y UNA MANIJA DE 0.30 X 0.15 X 0.40 M PARA PRIMEROS AUXILIOS INC. MEDICAMENTOS",
+     "cant": 1
+    },
+    {
+     "cod": "M71",
+     "seccion": "MOBILIARIO",
+     "des": "COCHE MULTIUSOS MOVIL DE ACERO INOXIDABLE 0.80 X 0.40 X 0.90 M.",
+     "cant": 1
+    },
+    {
+     "cod": "K32",
+     "seccion": "IMPLEMENTOS",
+     "des": "BIDON DE OXIGENO MEDICINAL",
+     "cant": 1
+    },
+    {
+     "cod": "K33",
+     "seccion": "IMPLEMENTOS",
+     "des": "TENSIOMETRO",
+     "cant": 1
+    },
+    {
+     "cod": "K34",
+     "seccion": "IMPLEMENTOS",
+     "des": "TERMOMETRO DIGITAL",
+     "cant": 1
+    },
+    {
+     "cod": "K35",
+     "seccion": "IMPLEMENTOS",
+     "des": "ESTETOSCOPIO",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "CONSULTORIO DE NUTRICION EDIFICACION 1 - PRIMER NIVEL",
+   "ambiente": "CONSULTORIO DE NUTRICION",
+   "edificacion": "E-01",
+   "x": 2611.215,
+   "y": 795.545,
+   "items": [
+    {
+     "cod": "E7",
+     "seccion": "EQUIPO",
+     "des": "PROYECTOR MULTIMEDIA",
+     "cant": 1
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA Y METAL 0.45 x 0.40 x 0.36 m.",
+     "cant": 3
+    },
+    {
+     "cod": "M28",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINA CON DOS CAJONERAS 1.00 X 0.50 X 0.75 M.",
+     "cant": 1
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "cant": 1
+    },
+    {
+     "cod": "M65",
+     "seccion": "MOBILIARIO",
+     "des": "CAMILLA METALICA RECLINABLE CON RESPALDO Y RUEDAS 1.80 X 0.60 X 0.70 M.",
+     "cant": 1
+    },
+    {
+     "cod": "M67",
+     "seccion": "MOBILIARIO",
+     "des": "ESCALERA METÁLICA CON DOS PELDAÑOS 0.40 X 0.40 X 0.36 M.",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "SS.HH VARONES Y SS.HH MUJERES EDIFICACION 1 - PRIMER NIVEL",
+   "ambiente": "SS.HH VARONES Y SS.HH MUJERES",
+   "edificacion": "E-01",
+   "x": 2601.457,
+   "y": 775.972,
+   "items": [
+    {
+     "cod": "M60",
+     "seccion": "MOBILIARIO",
+     "des": "PAPELERA DE PLASTICO CON PEDAL",
+     "cant": 2
+    },
+    {
+     "cod": "M76",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL HIGIÉNICO DE 0.10 X 0.14 X 0.12 M",
+     "cant": 2
+    },
+    {
+     "cod": "M77",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL TOALLA INTERFOLIADO DE 0.26 X 0.28 X 0.10 M",
+     "cant": 2
+    }
+   ]
+  },
+  {
+   "titulo": "VESTIDORES VARONES Y MUJERES EDIFICACION 2 - PRIMER NIVEL",
+   "ambiente": "VESTIDORES VARONES Y MUJERES",
+   "edificacion": "E-02",
+   "x": 2601.457,
+   "y": 767.779,
+   "items": [
+    {
+     "cod": "M60",
+     "seccion": "MOBILIARIO",
+     "des": "PAPELERA DE PLASTICO CON PEDAL",
+     "cant": 2
+    },
+    {
+     "cod": "M76",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL HIGIÉNICO DE 0.10 X 0.14 X 0.12 M",
+     "cant": 2
+    },
+    {
+     "cod": "M77",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL TOALLA INTERFOLIADO DE 0.26 X 0.28 X 0.10 M",
+     "cant": 6
+    }
+   ]
+  },
+  {
+   "titulo": "TOPICO EDIFICACION 2 - PRIMER NIVEL",
+   "ambiente": "TOPICO",
+   "edificacion": "E-02",
+   "x": 2601.457,
+   "y": 764.154,
+   "items": [
+    {
+     "cod": "M51",
+     "seccion": "MOBILIARIO",
+     "des": "EXHIBIDOR DE LIBROS DE MELAMINA CON DIVISIONES ESCALONADAS 0.85 X 0.40 X 1.20 M.",
+     "cant": 3
+    },
+    {
+     "cod": "M64",
+     "seccion": "MOBILIARIO",
+     "des": "CANASTILLA MOVIL CON RUEDAS 1.00 X 0.80 X 1.00",
+     "cant": 1
+    },
+    {
+     "cod": "K37",
+     "seccion": "IMPLEMENTOS",
+     "des": "PELOTAS DE BASKET #6",
+     "cant": 4
+    },
+    {
+     "cod": "K38",
+     "seccion": "IMPLEMENTOS",
+     "des": "PELOTAS DE BASKET #7",
+     "cant": 4
+    },
+    {
+     "cod": "K40",
+     "seccion": "IMPLEMENTOS",
+     "des": "PELOTAS DE FUTBOL #5",
+     "cant": 4
+    },
+    {
+     "cod": "K41",
+     "seccion": "IMPLEMENTOS",
+     "des": "PELOTAS DE VOLEY #4",
+     "cant": 4
+    },
+    {
+     "cod": "K43",
+     "seccion": "IMPLEMENTOS",
+     "des": "TABURETE DE MADERA PARA GIMNASIA",
+     "cant": 4
+    },
+    {
+     "cod": "K44",
+     "seccion": "IMPLEMENTOS",
+     "des": "INFLADOR DE PIE PARA PELOTAS",
+     "cant": 2
+    },
+    {
+     "cod": "K45",
+     "seccion": "IMPLEMENTOS",
+     "des": "RIEL DE EQUILIBRIO",
+     "cant": 2
+    },
+    {
+     "cod": "K46",
+     "seccion": "IMPLEMENTOS",
+     "des": "AROS DE ALUMINIO",
+     "cant": 30
+    },
+    {
+     "cod": "K47",
+     "seccion": "IMPLEMENTOS",
+     "des": "DISCO DE GOMA DE 1 KG",
+     "cant": 4
+    },
+    {
+     "cod": "K48",
+     "seccion": "IMPLEMENTOS",
+     "des": "BALA DE 1KG",
+     "cant": 4
+    },
+    {
+     "cod": "K49",
+     "seccion": "IMPLEMENTOS",
+     "des": "JABALINA DE 600 GR",
+     "cant": 4
+    },
+    {
+     "cod": "K50",
+     "seccion": "IMPLEMENTOS",
+     "des": "JABALINA DE 700 GR",
+     "cant": 4
+    },
+    {
+     "cod": "K51",
+     "seccion": "IMPLEMENTOS",
+     "des": "VALLAS DE OBSTACULO REGULABLE",
+     "cant": 5
+    },
+    {
+     "cod": "K52",
+     "seccion": "IMPLEMENTOS",
+     "des": "TESTIMONIO DE RELEVO DE PVC",
+     "cant": 5
+    },
+    {
+     "cod": "K53",
+     "seccion": "IMPLEMENTOS",
+     "des": "COLCHONETAS SIMPLES FORRADO CON CUERO 1.50X0.50",
+     "cant": 30
+    },
+    {
+     "cod": "K73",
+     "seccion": "IMPLEMENTOS",
+     "des": "KIT DE VOLEY INC/ NET Y PARANTES TELESCOPICOS",
+     "cant": 1
+    },
+    {
+     "cod": "K74",
+     "seccion": "IMPLEMENTOS",
+     "des": "GUANTES DE ENTRENAMIENTO",
+     "cant": 6
+    },
+    {
+     "cod": "K75",
+     "seccion": "IMPLEMENTOS",
+     "des": "SACO DE BOXEO, RELLENO DE TELA PRENSADA",
+     "cant": 1
+    },
+    {
+     "cod": "K76",
+     "seccion": "IMPLEMENTOS",
+     "des": "PERA DE BOX",
+     "cant": 1
+    },
+    {
+     "cod": "K77",
+     "seccion": "IMPLEMENTOS",
+     "des": "SOPORTE METALICO PARA PERA",
+     "cant": 1
+    },
+    {
+     "cod": "K78",
+     "seccion": "IMPLEMENTOS",
+     "des": "PISO ENCASTRABLE DE GOMA 25 MM",
+     "cant": 50
+    },
+    {
+     "cod": "K79",
+     "seccion": "IMPLEMENTOS",
+     "des": "MICA PROTECTORA EN POLICARBONATO",
+     "cant": 12
+    },
+    {
+     "cod": "K81",
+     "seccion": "IMPLEMENTOS",
+     "des": "CODERA ESPUMA ERGONOMETRICA",
+     "cant": 30
+    },
+    {
+     "cod": "K82",
+     "seccion": "IMPLEMENTOS",
+     "des": "GUANTES DE ESPUMA DE ALTO IMPACTO",
+     "cant": 30
+    }
+   ]
+  },
+  {
+   "titulo": "MAESTRANZA EDIFICACION 10 - PRIMER NIVEL",
+   "ambiente": "MAESTRANZA",
+   "edificacion": "E-10",
+   "x": 2612.369,
+   "y": 767.779,
+   "items": [
+    {
+     "cod": "M75",
+     "seccion": "MOBILIARIO",
+     "des": "CONTENEDOR CON TAPA PARA RESIDUOS SOLIDOS 0.80X1.00X1.00 M.",
+     "cant": 4
+    }
+   ]
+  },
+  {
+   "titulo": "LAVANDERIA Y DEPOSITO EDIFICACION 3 - PRIMER NIVEL",
+   "ambiente": "LAVANDERIA Y DEPOSITO",
+   "edificacion": "E-03",
+   "x": 2585.928,
+   "y": 747.797,
+   "items": [
+    {
+     "cod": "E5",
+     "seccion": "EQUIPO",
+     "des": "LAVADORA DE 20KG DE CARGA SUPERIOR",
+     "cant": 2
+    },
+    {
+     "cod": "M51",
+     "seccion": "MOBILIARIO",
+     "des": "ESTANTE METALICO RANURADO CON CUATRO DIVISIONES 0.90X0.45X1.80M",
+     "cant": 5
+    }
+   ]
+  },
+  {
+   "titulo": "DORMITORIO EDIFICACION 3 - PRIMER NIVEL",
+   "ambiente": "DORMITORIO",
+   "edificacion": "E-03",
+   "x": 2585.928,
+   "y": 745.255,
+   "items": [
+    {
+     "cod": "M37",
+     "seccion": "MOBILIARIO",
+     "des": "ARMARIO PARA ALMACENAR MATERIAL DE MELAMINA CON 2 PUERTAS Y 5 DIVISIONES 0.90 X 0.60 X 1.80 M.",
+     "cant": 5
+    },
+    {
+     "cod": "M55",
+     "seccion": "MOBILIARIO",
+     "des": "MUEBLE ALTO DE MELAMINA CON 2 DIVISIONES Y 2 PUERTAS 0.90 X 0.40 X 0.55 M",
+     "cant": 5
+    }
+   ]
+  },
+  {
+   "titulo": "SSHH EDIFICACION 3 - PRIMER NIVEL",
+   "ambiente": "SSHH",
+   "edificacion": "E-03",
+   "x": 2585.928,
+   "y": 743.163,
+   "items": [
+    {
+     "cod": "M60",
+     "seccion": "MOBILIARIO",
+     "des": "PAPELERA DE PLASTICO CON PEDAL",
+     "cant": 2
+    },
+    {
+     "cod": "M76",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL HIGIÉNICO DE 0.10 X 0.14 X 0.12 M",
+     "cant": 2
+    },
+    {
+     "cod": "M77",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL TOALLA INTERFOLIADO DE 0.26 X 0.28 X 0.10 M",
+     "cant": 2
+    }
+   ]
+  },
+  {
+   "titulo": "OFICINA DE ENTREVISTA Y ESTAR EDIFICACION 4 - PRIMER NIVEL",
+   "ambiente": "OFICINA DE ENTREVISTA Y ESTAR",
+   "edificacion": "E-04",
+   "x": 2667.978,
+   "y": 795.545,
+   "items": [
+    {
+     "cod": "E6",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA I5 ESTACIONARIA",
+     "cant": 1
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA Y METAL 0.45 x 0.40 x 0.36 m.",
+     "cant": 1
+    },
+    {
+     "cod": "M31",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINA CON CREDENZA MOVIL 1.50 x 0.80 x 0.75 m.",
+     "cant": 1
+    },
+    {
+     "cod": "M32",
+     "seccion": "MOBILIARIO",
+     "des": "SILLON PARA ACOPLAR 0.44 X 0.55 X 0.60 M.",
+     "cant": 1
+    },
+    {
+     "cod": "M34",
+     "seccion": "MOBILIARIO",
+     "des": "SOFA DE 2 CUERPOS 0.55X1.00X0.44M",
+     "cant": 1
+    },
+    {
+     "cod": "M63",
+     "seccion": "MOBILIARIO",
+     "des": "SOFA DE 3 CUERPOS 0.55X1.00X0.44M/Sofá A2",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "SALON DE ESTUDIOS EDIFICACION 4 - PRIMER NIVEL",
+   "ambiente": "SALON DE ESTUDIOS",
+   "edificacion": "E-04",
+   "x": 2667.978,
+   "y": 791.685,
+   "items": [
+    {
+     "cod": "E6",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA I5 ESTACIONARIA",
+     "cant": 5
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA Y METAL 0.45 x 0.40 x 0.36 m.",
+     "cant": 13
+    },
+    {
+     "cod": "M28",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINA CON CREDENZA MOVIL 1.50 x 0.80 x 0.75 m.",
+     "cant": 13
+    }
+   ]
+  },
+  {
+   "titulo": "DORMITORIO MADRE Y SS.HH EDIFICACION 4 - PRIMER NIVEL",
+   "ambiente": "DORMITORIO MADRE Y SS.HH",
+   "edificacion": "E-04",
+   "x": 2667.978,
+   "y": 788.884,
+   "items": [
+    {
+     "cod": "E6",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA I5 ESTACIONARIA",
+     "cant": 5
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA Y METAL 0.45 x 0.40 x 0.36 m.",
+     "cant": 1
+    },
+    {
+     "cod": "M31",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINA CON CREDENZA MOVIL 1.50 x 0.80 x 0.75 m.",
+     "cant": 1
+    },
+    {
+     "cod": "M60",
+     "seccion": "MOBILIARIO",
+     "des": "PAPELERA DE PLASTICO CON PEDAL",
+     "cant": 1
+    },
+    {
+     "cod": "M61",
+     "seccion": "MOBILIARIO",
+     "des": "VELADOR DE 1 GAVETA 0.40x0.50x0.60m.",
+     "cant": 2
+    },
+    {
+     "cod": "M76",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL HIGIÉNICO DE 0.10 X 0.14 X 0.12 M",
+     "cant": 1
+    },
+    {
+     "cod": "M77",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL TOALLA INTERFOLIADO DE 0.26 X 0.28 X 0.10 M",
+     "cant": 1
+    },
+    {
+     "cod": "M78",
+     "seccion": "MOBILIARIO",
+     "des": "CAMA DE DOS PLAZAS (INCLUYE TARIMA)",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "LAVANDERIA Y DEPOSITO EDIFICACION 4 - PRIMER NIVEL",
+   "ambiente": "LAVANDERIA Y DEPOSITO",
+   "edificacion": "E-04",
+   "x": 2667.978,
+   "y": 784.6,
+   "items": [
+    {
+     "cod": "E5",
+     "seccion": "EQUIPO",
+     "des": "LAVADORA DE 20KG DE CARGA SUPERIOR",
+     "cant": 2
+    },
+    {
+     "cod": "M51",
+     "seccion": "MOBILIARIO",
+     "des": "ESTANTE METALICO RANURADO CON CUATRO DIVISIONES 0.90X0.45X1.80M",
+     "cant": 5
+    }
+   ]
+  },
+  {
+   "titulo": "DORMITORIO EDIFICACION 4 - PRIMER NIVEL",
+   "ambiente": "DORMITORIO",
+   "edificacion": "E-04",
+   "x": 2667.978,
+   "y": 782.249,
+   "items": [
+    {
+     "cod": "M37",
+     "seccion": "MOBILIARIO",
+     "des": "ARMARIO PARA ALMACENAR MATERIAL DE MELAMINA CON 2 PUERTAS Y 5 DIVISIONES 0.90 X 0.60 X 1.80 M.",
+     "cant": 10
+    },
+    {
+     "cod": "M55",
+     "seccion": "MOBILIARIO",
+     "des": "MUEBLE ALTO DE MELAMINA CON 2 DIVISIONES Y 2 PUERTAS 0.90 X 0.40 X 0.55 M",
+     "cant": 10
+    }
+   ]
+  },
+  {
+   "titulo": "SSHH EDIFICACION 4 - PRIMER NIVEL",
+   "ambiente": "SSHH",
+   "edificacion": "E-04",
+   "x": 2667.978,
+   "y": 780.157,
+   "items": [
+    {
+     "cod": "M60",
+     "seccion": "MOBILIARIO",
+     "des": "PAPELERA DE PLASTICO CON PEDAL",
+     "cant": 4
+    },
+    {
+     "cod": "M76",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL HIGIÉNICO DE 0.10 X 0.14 X 0.12 M",
+     "cant": 4
+    },
+    {
+     "cod": "M77",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL TOALLA INTERFOLIADO DE 0.26 X 0.28 X 0.10 M",
+     "cant": 4
+    }
+   ]
+  },
+  {
+   "titulo": "OFICINA DE ENTREVISTA Y ESTAR EDIFICACION 5 - PRIMER NIVEL",
+   "ambiente": "OFICINA DE ENTREVISTA Y ESTAR",
+   "edificacion": "E-05",
+   "x": 2667.978,
+   "y": 766.687,
+   "items": [
+    {
+     "cod": "E6",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA I5 ESTACIONARIA",
+     "cant": 1
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA Y METAL 0.45 x 0.40 x 0.36 m.",
+     "cant": 1
+    },
+    {
+     "cod": "M31",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINA CON CREDENZA MOVIL 1.50 x 0.80 x 0.75 m.",
+     "cant": 1
+    },
+    {
+     "cod": "M32",
+     "seccion": "MOBILIARIO",
+     "des": "SILLON PARA ACOPLAR 0.44 X 0.55 X 0.60 M.",
+     "cant": 1
+    },
+    {
+     "cod": "M34",
+     "seccion": "MOBILIARIO",
+     "des": "SOFA DE 2 CUERPOS 0.55X1.00X0.44M",
+     "cant": 1
+    },
+    {
+     "cod": "M63",
+     "seccion": "MOBILIARIO",
+     "des": "SOFA DE 3 CUERPOS 0.55X1.00X0.44M/Sofá A2",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "SALON DE ESTUDIOS EDIFICACION 5 - PRIMER NIVEL",
+   "ambiente": "SALON DE ESTUDIOS",
+   "edificacion": "E-05",
+   "x": 2667.978,
+   "y": 762.827,
+   "items": [
+    {
+     "cod": "E6",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA I5 ESTACIONARIA",
+     "cant": 5
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA Y METAL 0.45 x 0.40 x 0.36 m.",
+     "cant": 13
+    },
+    {
+     "cod": "M28",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINA CON CREDENZA MOVIL 1.50 x 0.80 x 0.75 m.",
+     "cant": 13
+    }
+   ]
+  },
+  {
+   "titulo": "DORMITORIO MADRE Y SS.HH EDIFICACION 5 - PRIMER NIVEL",
+   "ambiente": "DORMITORIO MADRE Y SS.HH",
+   "edificacion": "E-05",
+   "x": 2667.978,
+   "y": 760.026,
+   "items": [
+    {
+     "cod": "E6",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA I5 ESTACIONARIA",
+     "cant": 5
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA Y METAL 0.45 x 0.40 x 0.36 m.",
+     "cant": 1
+    },
+    {
+     "cod": "M31",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINA CON CREDENZA MOVIL 1.50 x 0.80 x 0.75 m.",
+     "cant": 1
+    },
+    {
+     "cod": "M60",
+     "seccion": "MOBILIARIO",
+     "des": "PAPELERA DE PLASTICO CON PEDAL",
+     "cant": 1
+    },
+    {
+     "cod": "M61",
+     "seccion": "MOBILIARIO",
+     "des": "VELADOR DE 1 GAVETA 0.40x0.50x0.60m.",
+     "cant": 2
+    },
+    {
+     "cod": "M76",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL HIGIÉNICO DE 0.10 X 0.14 X 0.12 M",
+     "cant": 1
+    },
+    {
+     "cod": "M77",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL TOALLA INTERFOLIADO DE 0.26 X 0.28 X 0.10 M",
+     "cant": 1
+    },
+    {
+     "cod": "M78",
+     "seccion": "MOBILIARIO",
+     "des": "CAMA DE DOS PLAZAS (INCLUYE TARIMA)",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "LAVANDERIA Y DEPOSITO EDIFICACION 5 - PRIMER NIVEL",
+   "ambiente": "LAVANDERIA Y DEPOSITO",
+   "edificacion": "E-05",
+   "x": 2667.978,
+   "y": 755.742,
+   "items": [
+    {
+     "cod": "E5",
+     "seccion": "EQUIPO",
+     "des": "LAVADORA DE 20KG DE CARGA SUPERIOR",
+     "cant": 2
+    },
+    {
+     "cod": "M51",
+     "seccion": "MOBILIARIO",
+     "des": "ESTANTE METALICO RANURADO CON CUATRO DIVISIONES 0.90X0.45X1.80M",
+     "cant": 5
+    }
+   ]
+  },
+  {
+   "titulo": "DORMITORIO EDIFICACION 5 - PRIMER NIVEL",
+   "ambiente": "DORMITORIO",
+   "edificacion": "E-05",
+   "x": 2667.978,
+   "y": 753.392,
+   "items": [
+    {
+     "cod": "M37",
+     "seccion": "MOBILIARIO",
+     "des": "ARMARIO PARA ALMACENAR MATERIAL DE MELAMINA CON 2 PUERTAS Y 5 DIVISIONES 0.90 X 0.60 X 1.80 M.",
+     "cant": 10
+    },
+    {
+     "cod": "M55",
+     "seccion": "MOBILIARIO",
+     "des": "MUEBLE ALTO DE MELAMINA CON 2 DIVISIONES Y 2 PUERTAS 0.90 X 0.40 X 0.55 M",
+     "cant": 10
+    }
+   ]
+  },
+  {
+   "titulo": "SSHH EDIFICACION 5 - PRIMER NIVEL",
+   "ambiente": "SSHH",
+   "edificacion": "E-05",
+   "x": 2667.978,
+   "y": 751.299,
+   "items": [
+    {
+     "cod": "M60",
+     "seccion": "MOBILIARIO",
+     "des": "PAPELERA DE PLASTICO CON PEDAL",
+     "cant": 4
+    },
+    {
+     "cod": "M76",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL HIGIÉNICO DE 0.10 X 0.14 X 0.12 M",
+     "cant": 4
+    },
+    {
+     "cod": "M77",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL TOALLA INTERFOLIADO DE 0.26 X 0.28 X 0.10 M",
+     "cant": 4
+    }
+   ]
+  },
+  {
+   "titulo": "OFICINA DE ENTREVISTA Y ESTAR EDIFICACION 6 - PRIMER NIVEL",
+   "ambiente": "OFICINA DE ENTREVISTA Y ESTAR",
+   "edificacion": "E-06",
+   "x": 2715.809,
+   "y": 795.545,
+   "items": [
+    {
+     "cod": "E6",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA I5 ESTACIONARIA",
+     "cant": 1
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA Y METAL 0.45 x 0.40 x 0.36 m.",
+     "cant": 3
+    },
+    {
+     "cod": "M28",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINA CON CREDENZA MOVIL 1.50 x 0.80 x 0.75 m.",
+     "cant": 2
+    },
+    {
+     "cod": "M31",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINA CON CREDENZA MOVIL 1.50 x 0.80 x 0.75 m.",
+     "cant": 1
+    },
+    {
+     "cod": "M32",
+     "seccion": "MOBILIARIO",
+     "des": "SILLON PARA ACOPLAR 0.44 X 0.55 X 0.60 M.",
+     "cant": 1
+    },
+    {
+     "cod": "M34",
+     "seccion": "MOBILIARIO",
+     "des": "SOFA DE 2 CUERPOS 0.55X1.00X0.44M",
+     "cant": 1
+    },
+    {
+     "cod": "M63",
+     "seccion": "MOBILIARIO",
+     "des": "SOFA DE 3 CUERPOS 0.55X1.00X0.44M/Sofá A2",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "SALON DE PSICOMOTRICIDAD EDIFICACION 6 - PRIMER NIVEL",
+   "ambiente": "SALON DE PSICOMOTRICIDAD",
+   "edificacion": "E-06",
+   "x": 2715.809,
+   "y": 791.595,
+   "items": [
+    {
+     "cod": "M15",
+     "seccion": "MOBILIARIO",
+     "des": "ATRIL DE MESA PARA DIBUJO Y PINTURA",
+     "cant": 1
+    },
+    {
+     "cod": "M54",
+     "seccion": "MOBILIARIO",
+     "des": "EXHIBIDOR DE LIBROS DE MELAMINA CON DIVISIONES ESCALONADAS 0.85 X 0.40 X 1.20 M.",
+     "cant": 1
+    },
+    {
+     "cod": "M57",
+     "seccion": "MOBILIARIO",
+     "des": "MUEBLE BAJO DE MELAMINA CON 2 PUERTAS DOS DIVISIONES HORIZONTALES 0.60 X 1.20X 1.00 M.",
+     "cant": 1
+    },
+    {
+     "cod": "K20",
+     "seccion": "IMPLEMENTOS",
+     "des": "COJINES",
+     "cant": 4
+    },
+    {
+     "cod": "K29",
+     "seccion": "IMPLEMENTOS",
+     "des": "JUEGO DE LAVANDERIA",
+     "cant": 1
+    },
+    {
+     "cod": "K30",
+     "seccion": "IMPLEMENTOS",
+     "des": "JUEGO DE COCINA",
+     "cant": 1
+    },
+    {
+     "cod": "K31",
+     "seccion": "IMPLEMENTOS",
+     "des": "TOBOGAN CON ESCALADOR",
+     "cant": 1
+    },
+    {
+     "cod": "K32",
+     "seccion": "IMPLEMENTOS",
+     "des": "PISCINA DE PELOTAS 150X33CM",
+     "cant": 1
+    },
+    {
+     "cod": "K33",
+     "seccion": "IMPLEMENTOS",
+     "des": "JUEGO DE TEATRO PARA NIÑOS",
+     "cant": 1
+    },
+    {
+     "cod": "K78",
+     "seccion": "IMPLEMENTOS",
+     "des": "COJINES CUADRADOS",
+     "cant": 10
+    }
+   ]
+  },
+  {
+   "titulo": "DORMITORIO MADRE Y SS.HH EDIFICACION 6 - PRIMER NIVEL",
+   "ambiente": "DORMITORIO MADRE Y SS.HH",
+   "edificacion": "E-06",
+   "x": 2715.813,
+   "y": 786.768,
+   "items": [
+    {
+     "cod": "E6",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA I5 ESTACIONARIA",
+     "cant": 5
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA Y METAL 0.45 x 0.40 x 0.36 m.",
+     "cant": 1
+    },
+    {
+     "cod": "M31",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINA CON CREDENZA MOVIL 1.50 x 0.80 x 0.75 m.",
+     "cant": 1
+    },
+    {
+     "cod": "M60",
+     "seccion": "MOBILIARIO",
+     "des": "PAPELERA DE PLASTICO CON PEDAL",
+     "cant": 1
+    },
+    {
+     "cod": "M61",
+     "seccion": "MOBILIARIO",
+     "des": "VELADOR DE 1 GAVETA 0.40x0.50x0.60m.",
+     "cant": 2
+    },
+    {
+     "cod": "M76",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL HIGIÉNICO DE 0.10 X 0.14 X 0.12 M",
+     "cant": 1
+    },
+    {
+     "cod": "M77",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL TOALLA INTERFOLIADO DE 0.26 X 0.28 X 0.10 M",
+     "cant": 1
+    },
+    {
+     "cod": "M78",
+     "seccion": "MOBILIARIO",
+     "des": "CAMA DE DOS PLAZAS (INCLUYE TARIMA)",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "LAVANDERIA Y DEPOSITO EDIFICACION 6 - PRIMER NIVEL",
+   "ambiente": "LAVANDERIA Y DEPOSITO",
+   "edificacion": "E-06",
+   "x": 2715.813,
+   "y": 782.485,
+   "items": [
+    {
+     "cod": "E5",
+     "seccion": "EQUIPO",
+     "des": "LAVADORA DE 20KG DE CARGA SUPERIOR",
+     "cant": 2
+    },
+    {
+     "cod": "M51",
+     "seccion": "MOBILIARIO",
+     "des": "ESTANTE METALICO RANURADO CON CUATRO DIVISIONES 0.90X0.45X1.80M",
+     "cant": 5
+    }
+   ]
+  },
+  {
+   "titulo": "DORMITORIO EDIFICACION 6 - PRIMER NIVEL",
+   "ambiente": "DORMITORIO",
+   "edificacion": "E-06",
+   "x": 2715.813,
+   "y": 780.134,
+   "items": [
+    {
+     "cod": "M37",
+     "seccion": "MOBILIARIO",
+     "des": "ARMARIO PARA ALMACENAR MATERIAL DE MELAMINA CON 2 PUERTAS Y 5 DIVISIONES 0.90 X 0.60 X 1.80 M.",
+     "cant": 10
+    },
+    {
+     "cod": "M55",
+     "seccion": "MOBILIARIO",
+     "des": "MUEBLE ALTO DE MELAMINA CON 2 DIVISIONES Y 2 PUERTAS 0.90 X 0.40 X 0.55 M",
+     "cant": 10
+    }
+   ]
+  },
+  {
+   "titulo": "SSHH EDIFICACION 6 - PRIMER NIVEL",
+   "ambiente": "SSHH",
+   "edificacion": "E-06",
+   "x": 2715.813,
+   "y": 778.041,
+   "items": [
+    {
+     "cod": "M60",
+     "seccion": "MOBILIARIO",
+     "des": "PAPELERA DE PLASTICO CON PEDAL",
+     "cant": 4
+    },
+    {
+     "cod": "M76",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL HIGIÉNICO DE 0.10 X 0.14 X 0.12 M",
+     "cant": 4
+    },
+    {
+     "cod": "M77",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL TOALLA INTERFOLIADO DE 0.26 X 0.28 X 0.10 M",
+     "cant": 4
+    }
+   ]
+  },
+  {
+   "titulo": "TALLER DE ARTE EDIFICACION 7 - PRIMER NIVEL",
+   "ambiente": "TALLER DE ARTE",
+   "edificacion": "E-07",
+   "x": 2715.813,
+   "y": 762.827,
+   "items": [
+    {
+     "cod": "E1",
+     "seccion": "EQUIPO",
+     "des": "PROYECTOR INTERACTIVO",
+     "cant": 1
+    },
+    {
+     "cod": "E2",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA PORTATIL I5",
+     "cant": 1
+    },
+    {
+     "cod": "E3",
+     "seccion": "EQUIPO",
+     "des": "PRESENTADOR INALAMBRICO CON PUNTERO LASER",
+     "cant": 1
+    },
+    {
+     "cod": "M3",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA REGULABLE DE ESTUDIANTE DE MADERA Y METAL 0.30 x 0.27 x 0.32 m.",
+     "cant": 16
+    },
+    {
+     "cod": "M4",
+     "seccion": "MOBILIARIO",
+     "des": "MESA REGULABLE DE MADERA Y METAL 0.56 x 0.50 x 0.60 m.",
+     "cant": 16
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA Y METAL 0.45 x 0.40 x 0.36 m.",
+     "cant": 1
+    },
+    {
+     "cod": "M8",
+     "seccion": "MOBILIARIO",
+     "des": "MESA PARA EL PROFESOR DE MADERA Y METAL 1.00 X 0.50 X 0.75 M.",
+     "cant": 1
+    },
+    {
+     "cod": "M36",
+     "seccion": "MOBILIARIO",
+     "des": "ARMARIO PARA DOCENTE DE MELAMINA CON 2 PUERTAS 4 NIVELES 0.90 X 0.45 X 1.80 M.",
+     "cant": 1
+    },
+    {
+     "cod": "M56",
+     "seccion": "MOBILIARIO",
+     "des": "MUEBLE BAJO DE MELAMINA PARA EL GUARDADO DE MOCHILA CON 2 DIVISIONES 0.60 X 0.40 X 1.00 M.",
+     "cant": 1
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "cant": 1
+    },
+    {
+     "cod": "M69",
+     "seccion": "MOBILIARIO",
+     "des": "PIZARRA ACRILICA 4.20X1.20 INC. ACCESORIOS DE FIJACION",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "DORMITORIO MADRE Y SS.HH EDIFICACION 7 - PRIMER NIVEL",
+   "ambiente": "DORMITORIO MADRE Y SS.HH",
+   "edificacion": "E-07",
+   "x": 2715.813,
+   "y": 757.335,
+   "items": [
+    {
+     "cod": "E6",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA I5 ESTACIONARIA",
+     "cant": 5
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA Y METAL 0.45 x 0.40 x 0.36 m.",
+     "cant": 1
+    },
+    {
+     "cod": "M31",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINA CON CREDENZA MOVIL 1.50 x 0.80 x 0.75 m.",
+     "cant": 1
+    },
+    {
+     "cod": "M60",
+     "seccion": "MOBILIARIO",
+     "des": "PAPELERA DE PLASTICO CON PEDAL",
+     "cant": 1
+    },
+    {
+     "cod": "M61",
+     "seccion": "MOBILIARIO",
+     "des": "VELADOR DE 1 GAVETA 0.40x0.50x0.60m.",
+     "cant": 2
+    },
+    {
+     "cod": "M76",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL HIGIÉNICO DE 0.10 X 0.14 X 0.12 M",
+     "cant": 1
+    },
+    {
+     "cod": "M77",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL TOALLA INTERFOLIADO DE 0.26 X 0.28 X 0.10 M",
+     "cant": 1
+    },
+    {
+     "cod": "M78",
+     "seccion": "MOBILIARIO",
+     "des": "CAMA DE DOS PLAZAS (INCLUYE TARIMA)",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "LAVANDERIA Y DEPOSITO EDIFICACION 7 - PRIMER NIVEL",
+   "ambiente": "LAVANDERIA Y DEPOSITO",
+   "edificacion": "E-07",
+   "x": 2715.813,
+   "y": 753.051,
+   "items": [
+    {
+     "cod": "E5",
+     "seccion": "EQUIPO",
+     "des": "LAVADORA DE 20KG DE CARGA SUPERIOR",
+     "cant": 2
+    },
+    {
+     "cod": "M51",
+     "seccion": "MOBILIARIO",
+     "des": "ESTANTE METALICO RANURADO CON CUATRO DIVISIONES 0.90X0.45X1.80M",
+     "cant": 5
+    }
+   ]
+  },
+  {
+   "titulo": "DORMITORIO EDIFICACION 7 - PRIMER NIVEL",
+   "ambiente": "DORMITORIO",
+   "edificacion": "E-07",
+   "x": 2715.813,
+   "y": 750.7,
+   "items": [
+    {
+     "cod": "M37",
+     "seccion": "MOBILIARIO",
+     "des": "ARMARIO PARA ALMACENAR MATERIAL DE MELAMINA CON 2 PUERTAS Y 5 DIVISIONES 0.90 X 0.60 X 1.80 M.",
+     "cant": 10
+    },
+    {
+     "cod": "M55",
+     "seccion": "MOBILIARIO",
+     "des": "MUEBLE ALTO DE MELAMINA CON 2 DIVISIONES Y 2 PUERTAS 0.90 X 0.40 X 0.55 M",
+     "cant": 10
+    }
+   ]
+  },
+  {
+   "titulo": "SSHH EDIFICACION 7 - PRIMER NIVEL",
+   "ambiente": "SSHH",
+   "edificacion": "E-07",
+   "x": 2715.813,
+   "y": 748.608,
+   "items": [
+    {
+     "cod": "M60",
+     "seccion": "MOBILIARIO",
+     "des": "PAPELERA DE PLASTICO CON PEDAL",
+     "cant": 4
+    },
+    {
+     "cod": "M76",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL HIGIÉNICO DE 0.10 X 0.14 X 0.12 M",
+     "cant": 4
+    },
+    {
+     "cod": "M77",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL TOALLA INTERFOLIADO DE 0.26 X 0.28 X 0.10 M",
+     "cant": 4
+    }
+   ]
+  },
+  {
+   "titulo": "OFICINA DE ENTREVISTA Y ESTAR EDIFICACION 7 - PRIMER NIVEL",
+   "ambiente": "OFICINA DE ENTREVISTA Y ESTAR",
+   "edificacion": "E-07",
+   "x": 2715.809,
+   "y": 766.687,
+   "items": [
+    {
+     "cod": "E6",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA I5 ESTACIONARIA",
+     "cant": 1
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA Y METAL 0.45 x 0.40 x 0.36 m.",
+     "cant": 3
+    },
+    {
+     "cod": "M28",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINA CON CREDENZA MOVIL 1.50 x 0.80 x 0.75 m.",
+     "cant": 2
+    },
+    {
+     "cod": "M31",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINA CON CREDENZA MOVIL 1.50 x 0.80 x 0.75 m.",
+     "cant": 1
+    },
+    {
+     "cod": "M32",
+     "seccion": "MOBILIARIO",
+     "des": "SILLON PARA ACOPLAR 0.44 X 0.55 X 0.60 M.",
+     "cant": 1
+    },
+    {
+     "cod": "M34",
+     "seccion": "MOBILIARIO",
+     "des": "SOFA DE 2 CUERPOS 0.55X1.00X0.44M",
+     "cant": 1
+    },
+    {
+     "cod": "M63",
+     "seccion": "MOBILIARIO",
+     "des": "SOFA DE 3 CUERPOS 0.55X1.00X0.44M/Sofá A2",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "SUM/COMEDOR - DEPÓSITO EDIFICACION 8 - PRIMER NIVEL",
+   "ambiente": "SUM/COMEDOR - DEPÓSITO",
+   "edificacion": "E-08",
+   "x": 2756.693,
+   "y": 788.987,
+   "items": [
+    {
+     "cod": "E3",
+     "seccion": "EQUIPO",
+     "des": "PRESENTADOR INALAMBRICO CON PUNTERO LASER",
+     "cant": 1
+    },
+    {
+     "cod": "E4",
+     "seccion": "EQUIPO",
+     "des": "RELOJ PARA ADOSAR A PARED",
+     "cant": 1
+    },
+    {
+     "cod": "E6",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA I5 ESTACIONARIA",
+     "cant": 1
+    },
+    {
+     "cod": "E7",
+     "seccion": "EQUIPO",
+     "des": "PROYECTOR MULTIMEDIA",
+     "cant": 1
+    },
+    {
+     "cod": "E18",
+     "seccion": "EQUIPO",
+     "des": "ECRAN",
+     "cant": 1
+    },
+    {
+     "cod": "M3",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA REGULABLE DE ESTUDIANTE DE MADERA Y METAL 0.30 x 0.27 x 0.32 m.(primaria)",
+     "cant": 72
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA Y METAL 0.45 x 0.40 x 0.36 m.",
+     "cant": 3
+    },
+    {
+     "cod": "M13",
+     "seccion": "MOBILIARIO",
+     "des": "RACK DE SOPORTE METALICO PARA PROYECTOR EN TECHO",
+     "cant": 1
+    },
+    {
+     "cod": "M16",
+     "seccion": "MOBILIARIO",
+     "des": "MESA DE TRABAJO DE MADERA PARA ESTUDIANTES 0.90 x 1.80 x 0.56 m.",
+     "cant": 12
+    },
+    {
+     "cod": "M30",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO PARA COMPUTADORA DE MELAMINE 1.00 X 0.60 X 0.75 M.",
+     "cant": 1
+    },
+    {
+     "cod": "M36",
+     "seccion": "MOBILIARIO",
+     "des": "ARMARIO PARA DOCENTE DE MELAMINA CON 2 PUERTAS 4 NIVELES 0.90 X 0.45 X 1.80 M.",
+     "cant": 2
+    },
+    {
+     "cod": "M51",
+     "seccion": "MOBILIARIO",
+     "des": "ESTANTE METALICO RANURADO CON CUATRO DIVISIONES 0.90 X 0.45 X 1.80 M.",
+     "cant": 3
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "cant": 2
+    },
+    {
+     "cod": "M70",
+     "seccion": "MOBILIARIO",
+     "des": "BOTIQUIN DE MADERA CON DOS DIVISIONES UNA PUERTA Y UNA MANIJA DE 0.30 X 0.15 X 0.40 M PARA PRIMEROS AUXILIOS INC. MEDICAMENTOS",
+     "cant": 1
+    },
+    {
+     "cod": "S1",
+     "seccion": "SEGURIDAD",
+     "des": "EXTINTOR DE 9 KG",
+     "cant": 4
+    }
+   ]
+  },
+  {
+   "titulo": "LAVANDERÍA DE COCINA Y COCINA EDIFICACION 8 - PRIMER NIVEL",
+   "ambiente": "LAVANDERÍA DE COCINA Y COCINA",
+   "edificacion": "E-08",
+   "x": 2756.693,
+   "y": 781.784,
+   "items": [
+    {
+     "cod": "E13",
+     "seccion": "EQUIPO",
+     "des": "COCINA INDUSTRIAL 2 HORNILLAS",
+     "cant": 2
+    },
+    {
+     "cod": "E16",
+     "seccion": "EQUIPO",
+     "des": "HORNO MICROONDAS DE 31 LITROS",
+     "cant": 1
+    },
+    {
+     "cod": "E17",
+     "seccion": "EQUIPO",
+     "des": "LICUADORA DE 1.5 LITROS",
+     "cant": 1
+    },
+    {
+     "cod": "E19",
+     "seccion": "EQUIPO",
+     "des": "REFRIGERADORA 315 LITROS",
+     "cant": 1
+    },
+    {
+     "cod": "M26",
+     "seccion": "MOBILIARIO",
+     "des": "MESA DE TRABAJO DE ACERO INOXIDABLE 0.90 X 0.60 X 0.90 M.",
+     "cant": 3
+    },
+    {
+     "cod": "M42",
+     "seccion": "MOBILIARIO",
+     "des": "CASILLERO DE MELAMINE Y METAL 0.40X0.45X1.60 M. CAP 12 ESPACIOS (4 casilleros por nivel)",
+     "cant": 7
+    },
+    {
+     "cod": "M52",
+     "seccion": "MOBILIARIO",
+     "des": "ESTANTE DE ACERO INOXIDABLE CON CUATRO DIVISIONES CON BANDEJA 0.60 X 0.60 X 1.80 M.",
+     "cant": 4
+    },
+    {
+     "cod": "S1",
+     "seccion": "SEGURIDAD",
+     "des": "EXTINTOR DE 9 KG",
+     "cant": 2
+    }
+   ]
+  },
+  {
+   "titulo": "SS.HH PERSONAL EDIFICACION 8 - PRIMER NIVEL",
+   "ambiente": "SS.HH PERSONAL",
+   "edificacion": "E-08",
+   "x": 2756.693,
+   "y": 774.032,
+   "items": [
+    {
+     "cod": "M60",
+     "seccion": "MOBILIARIO",
+     "des": "PAPELERA DE PLASTICO CON PEDAL",
+     "cant": 1
+    },
+    {
+     "cod": "M76",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL HIGIÉNICO DE 0.10 X 0.14 X 0.12 M",
+     "cant": 1
+    },
+    {
+     "cod": "M77",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL TOALLA INTERFOLIADO DE 0.26 X 0.28 X 0.10 M",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "OFICINA DE ENTREVISTA Y ESTAR EDIFICACION 6 - PRIMER NIVEL",
+   "ambiente": "OFICINA DE ENTREVISTA Y ESTAR",
+   "edificacion": "E-06",
+   "x": 2756.693,
+   "y": 776.877,
+   "items": [
+    {
+     "cod": "E20",
+     "seccion": "EQUIPO",
+     "des": "BALON DE GAS",
+     "cant": 2
+    },
+    {
+     "cod": "M68",
+     "seccion": "MOBILIARIO",
+     "des": "PARIHUELA DE MADERA 0.90 X 0.50 X 0.20 M.",
+     "cant": 9
+    }
+   ]
+  },
+  {
+   "titulo": "RESIDUOS SOLIDOS EDIFICACION 8 - PRIMER NIVEL",
+   "ambiente": "RESIDUOS SOLIDOS",
+   "edificacion": "E-08",
+   "x": 2756.693,
+   "y": 771.68,
+   "items": [
+    {
+     "cod": "M75",
+     "seccion": "MOBILIARIO",
+     "des": "CONTENEDOR CON TAPA PARA RESIDUOS SOLIDOS 0.80X1.00X1.00 M.",
+     "cant": 3
+    }
+   ]
+  },
+  {
+   "titulo": "DEPÓSITO Y ALMACEN GENERAL EDIFICACION 8 - PRIMER NIVEL",
+   "ambiente": "DEPÓSITO Y ALMACEN GENERAL",
+   "edificacion": "E-08",
+   "x": 2756.693,
+   "y": 769.978,
+   "items": [
+    {
+     "cod": "M51",
+     "seccion": "MOBILIARIO",
+     "des": "ESTANTE METALICO RANURADO CON CUATRO DIVISIONES 0.90 X 0.45 X 1.80 M.",
+     "cant": 4
+    }
+   ]
+  },
+  {
+   "titulo": "SS.HH PUBLICOS EDIFICACION 9 - PRIMER NIVEL",
+   "ambiente": "SS.HH PUBLICOS",
+   "edificacion": "E-09",
+   "x": 2785.415,
+   "y": 780.391,
+   "items": [
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "cant": 8
+    },
+    {
+     "cod": "M76",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL HIGIÉNICO DE 0.10 X 0.14 X 0.12 M",
+     "cant": 6
+    },
+    {
+     "cod": "M77",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSADOR DE PAPEL TOALLA INTERFOLIADO DE 0.26 X 0.28 X 0.10 M",
+     "cant": 4
+    }
+   ]
+  }
+ ],
+ "etiquetas": {
+  "E-01": {
+   "M27": 1,
+   "M65": 2,
+   "M28": 2,
+   "M7": 38,
+   "M62": 11,
+   "M67": 2,
+   "M70": 1,
+   "M71": 1,
+   "M31": 8,
+   "M34": 3,
+   "M36": 3,
+   "M32": 3,
+   "M14": 2,
+   "M68": 1,
+   "K35": 1,
+   "K33": 1,
+   "K34": 1,
+   "K32": 1,
+   "M20": 1,
+   "M69": 1,
+   "E7": 3,
+   "M13": 1,
+   "M21": 1,
+   "E6": 8,
+   "E9": 4,
+   "M39": 4,
+   "M60": 2,
+   "M76": 2,
+   "M77": 2
+  },
+  "E-02": {
+   "K40": 1,
+   "K41": 1,
+   "K37": 1,
+   "K38": 1,
+   "K44": 1,
+   "K52": 1,
+   "M51": 3,
+   "K53": 1,
+   "K78": 1,
+   "M60": 2,
+   "M76": 2,
+   "M77": 6,
+   "M64": 1,
+   "K45": 1,
+   "K73": 1,
+   "K49": 1,
+   "K50": 1,
+   "K77": 1,
+   "K76": 1,
+   "K75": 1,
+   "K51": 1,
+   "K81": 1,
+   "K82": 1,
+   "K79": 1,
+   "K48": 1,
+   "K47": 1,
+   "K74": 1,
+   "K46": 1,
+   "K43": 1
+  },
+  "E-03": {
+   "M37": 5,
+   "M55": 5,
+   "M51": 5,
+   "E5": 2,
+   "M76": 2,
+   "M60": 2,
+   "M77": 2
+  },
+  "E-04": {
+   "M32": 1,
+   "M63": 1,
+   "M34": 2,
+   "M37": 10,
+   "M55": 10,
+   "M7": 15,
+   "M31": 2,
+   "M78": 1,
+   "M61": 2,
+   "M51": 5,
+   "M76": 5,
+   "E6": 7,
+   "E5": 2,
+   "M60": 5,
+   "M28": 13,
+   "M77": 5
+  },
+  "E-05": {
+   "M32": 1,
+   "M63": 1,
+   "M34": 2,
+   "M37": 10,
+   "M55": 10,
+   "M7": 15,
+   "M31": 2,
+   "M78": 1,
+   "M61": 2,
+   "M51": 5,
+   "M76": 5,
+   "E6": 7,
+   "E5": 2,
+   "M60": 5,
+   "M28": 13,
+   "M77": 5
+  },
+  "E-06": {
+   "K78": 7,
+   "M15": 1,
+   "M54": 1,
+   "M57": 1,
+   "M37": 10,
+   "M55": 10,
+   "M51": 5,
+   "M32": 1,
+   "M63": 1,
+   "M34": 2,
+   "M7": 4,
+   "M31": 2,
+   "K31": 1,
+   "K32": 1,
+   "K33": 1,
+   "M78": 1,
+   "M61": 2,
+   "K20": 1,
+   "E5": 2,
+   "E6": 2,
+   "M28": 2,
+   "K30": 1,
+   "K29": 1,
+   "M76": 5,
+   "M60": 5,
+   "M77": 5
+  },
+  "E-07": {
+   "M44": 10,
+   "M55": 10,
+   "M51": 5,
+   "M32": 1,
+   "M63": 1,
+   "M34": 2,
+   "M7": 5,
+   "M31": 2,
+   "M78": 1,
+   "M61": 2,
+   "M3": 16,
+   "M4": 16,
+   "M8": 1,
+   "M36": 1,
+   "M56": 5,
+   "E5": 2,
+   "E6": 2,
+   "M28": 2,
+   "E3": 1,
+   "E2": 1,
+   "M62": 1,
+   "E1": 1,
+   "M69": 1,
+   "M76": 5,
+   "M60": 5,
+   "M77": 5
+  },
+  "E-08": {
+   "M73": 1,
+   "E19": 1,
+   "M16": 12,
+   "M3": 72,
+   "M30": 1,
+   "M7": 3,
+   "M36": 2,
+   "M70": 1,
+   "M51": 7,
+   "M52": 4,
+   "E16": 1,
+   "M26": 3,
+   "M68": 9,
+   "M42": 4,
+   "M75": 3,
+   "E3": 1,
+   "E4": 1,
+   "E6": 1,
+   "M13": 1,
+   "E7": 1,
+   "E18": 1,
+   "M62": 2,
+   "S1": 5,
+   "E13": 2,
+   "E17": 1,
+   "M60": 1,
+   "E20": 2,
+   "M76": 1,
+   "M77": 1
+  },
+  "E-09": {
+   "M62": 8,
+   "M76": 6,
+   "M77": 4
+  },
+  "E-10": {
+   "M75": 2
+  }
+ }
+}
