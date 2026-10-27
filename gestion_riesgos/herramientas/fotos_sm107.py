@@ -11,7 +11,7 @@ FOTO = os.path.join(RS.CALC, "fotos")
 INV = os.path.join(os.path.dirname(RS.ENT), "insumos", "INFORME_INVENTARIO_VIAL_SM107.doc")
 EJE = json.load(open(os.path.join(RS.CALC, "eje_terreno.json")))["eje"]
 
-# imagen del inventario (word/media/imageN.jpeg), Este, Norte, fecha y hora del sello, descripción, riesgos relacionados
+# imagen del inventario (word/media/imageN.jpeg o .png), Este, Norte, fecha y hora del sello, descripción, riesgos relacionados
 CATALOGO = [
     (6, 361552, 9233392, "25/09/2026 13:59", "Inicio del tramo en estudio (km 19+343.39) en la localidad de Tingo de Ponasa; vía afirmada con viviendas a ambos lados.", ["R-10", "R-13", "R-20", "R-27"]),
     (7, 361559, 9233353, "25/09/2026 14:39", "Medición del ancho de la plataforma en Tingo de Ponasa; vegetación y viviendas junto al borde de la vía.", ["R-10"]),
@@ -23,6 +23,8 @@ CATALOGO = [
     (16, 360944, 9230789, "26/09/2026 11:28", "Intersección con vía vecinal en el sector de Aypena; calzada con fisuras y bermas de tierra.", ["R-20", "R-27"]),
     (17, 361620, 9227828, "26/09/2026 15:44", "Señal de ingreso al caserío Nuevo América.", ["R-10", "R-13"]),
     (18, 363161, 9227178, "26/09/2026 16:52", "Señal de ingreso al centro poblado Leoncio Prado.", ["R-10", "R-13"]),
+    (19, 365824, 9226267, "27/09/2026 09:22", "Señal de ingreso al centro poblado San Antonio.", ["R-10", "R-13"]),
+    (40, 365835, 9226263, "27/09/2026 09:25", "Medición en el borde de la calzada en el sector de San Antonio; plataforma sin berma y con material suelto.", ["R-10", "R-20"]),
     (20, 367783, 9225324, "27/09/2026 11:54", "Localidad de Huañipo frente a la plaza de armas: viviendas y postes junto a la vía.", ["R-10", "R-11", "R-13", "R-20"]),
     (47, 368289, 9225322, "27/09/2026 12:39", "Plataforma angosta en afirmado, en ladera, con vegetación en ambos bordes.", ["R-04", "R-05", "R-07", "R-11"]),
     (48, 368293, 9225342, "27/09/2026 12:43", "Empozamiento y huellas de rodadura sobre la calzada afirmada.", ["R-01", "R-05", "R-06"]),
@@ -79,7 +81,8 @@ def extraer():
     docx = glob.glob(os.path.join(tmp, "*.docx"))[0]
     with zipfile.ZipFile(docx) as z:
         for img, *_ in CATALOGO:
-            with z.open("word/media/image%d.jpeg" % img) as f:
+            nom = [n for n in z.namelist() if n.startswith("word/media/image%d." % img)][0]
+            with z.open(nom) as f:
                 im = Image.open(f).convert("RGB"); im.thumbnail((1280, 1280))
                 im.save(os.path.join(FOTO, "inv_%02d.jpg" % img), quality=82)
     shutil.rmtree(tmp)
