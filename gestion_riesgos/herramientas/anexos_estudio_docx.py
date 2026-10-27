@@ -48,6 +48,7 @@ def main():
     LO.fichas_04(doc, "Fichas de los puntos y sectores críticos de la Tabla N.° 04")
     LO.tabla_08(doc, T08 + ": Riesgos identificados - coordenadas y fotografía")
     LO.tabla_08a(doc, T08A + ": Ubicación georreferenciada de los riesgos (UTM WGS 84 - zona 18 S)")
+    LO.fichas_08(doc, "Fichas de los riesgos identificados de la Tabla N.° 08")
     LO.accion_verificacion(doc)
 
     # ------------------------------------------------------------------ anexo 5
