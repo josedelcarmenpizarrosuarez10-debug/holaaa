@@ -713,5 +713,10 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   de 9 kg distintos de la lámina SE-S-01.
 - 27/10/2026 (2): el usuario aclaró (captura del dormitorio de E-07) que se cuenta por la etiqueta escrita en la planta: en E-07 hay
   10 credenzas M44 junto a las camas (el cuadro decía armarios M37). Adoptado: M44 10, M37 35, M62 22 (cesto rotulado en
-  secretaría). Quedan en cuadro sin etiqueta en planta (se mantienen y se avisa): 5 computadoras por salón de estudios (E-04, E-05),
-  rack M13 y pizarra M69 de la sala de reuniones.
+  secretaría).
+- 27/10/2026 (3): nueva verificación por texto. `lee_plano_mb.etiquetas` ahora lee también las directrices múltiples que están dentro
+  de bloques (hasta 6 niveles): aparecen las etiquetas de las 5 computadoras E6 por salón de estudios (E-04, E-05), del rack M13,
+  la pizarra M69 y un tercer proyector E7 de E-01 (el del tópico). Se quitó la corrección "E7 del tópico = 0": E7 = 4, igual al
+  original. Resultado: en equipos y mobiliario (E y M) lo adoptado coincide con lo rotulado en todas las edificaciones (642 und,
+  0 diferencias). Implementos K: el plano rotula un solo ejemplar por tipo, así que mandan los cuadros; los cojines K78 de
+  psicomotricidad son 10 dibujados y 7 rotulados (se metran 10).

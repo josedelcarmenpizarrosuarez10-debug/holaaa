@@ -61,7 +61,8 @@ def textos(msp):
 
 
 def etiquetas(msp, T):
-    """Etiquetas de código sobre el dibujo: textos sueltos, textos dentro de bloques y directrices múltiples."""
+    """Etiquetas de código sobre el dibujo: textos sueltos y directrices múltiples, también las que están dentro de bloques
+    (hasta 6 niveles de anidamiento)."""
     out = [(x, y, s) for x, y, l, s in T if l in CAPAS_ETIQ]
 
     def ver(e, prof):
@@ -70,7 +71,13 @@ def etiquetas(msp, T):
             s = e.dxf.text if t != 'MTEXT' else e.plain_text()
             if re.fullmatch(r'\s*[MEKS]\s*-?\d{1,3}\s*(,\s*[MEKS]\d{1,3}\s*)*', s):
                 out.append((e.dxf.insert.x, e.dxf.insert.y, s))
-        elif t == 'INSERT' and prof < 5:
+        elif t == 'MULTILEADER':
+            try:
+                out.append((e.context.mtext.insert.x, e.context.mtext.insert.y,
+                            re.sub(r'\\[A-Za-z][^;]*;|[{}]', '', e.context.mtext.default_content)))
+            except Exception:
+                pass
+        elif t == 'INSERT' and prof < 6:
             try:
                 for a in e.attribs:
                     ver(a, prof)
@@ -78,13 +85,8 @@ def etiquetas(msp, T):
                     ver(v, prof + 1)
             except Exception:
                 pass
-    for e in msp.query('INSERT'):
+    for e in msp.query('INSERT MULTILEADER'):
         ver(e, 0)
-    for e in msp.query('MULTILEADER'):
-        try:
-            out.append((e.context.mtext.insert.x, e.context.mtext.insert.y, re.sub(r'\\[A-Za-z][^;]*;|[{}]', '', e.context.mtext.default_content)))
-        except Exception:
-            pass
     return out
 
 

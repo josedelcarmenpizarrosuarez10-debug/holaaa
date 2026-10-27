@@ -41,9 +41,8 @@ RETITULOS = {('E-06', 'OFICINA DE ENTREVISTA Y ESTAR', 2756.693): ('E-08', 'ALMA
 
 # correcciones de cantidad: (edificación, ambiente contiene, código) -> (cantidad, motivo)
 CORRECCIONES = [
-    ('E-01', 'TOPICO', 'E7', 0, 'El cuadro del tópico repite el de la sala de reuniones (proyector y 10 sillas); en la planta de E-01 hay 2 '
-                               'proyectores (nutrición y sala de reuniones) y 38 sillas M07, no 41.'),
-    ('E-01', 'TOPICO', 'M7', 7, 'Ídem: se ajusta el tópico para que E-01 sume las 38 sillas M07 dibujadas.'),
+    ('E-01', 'TOPICO', 'M7', 7, 'El cuadro del tópico repite las 10 sillas de la sala de reuniones; se ajusta para que E-01 sume las 38 '
+                               'sillas M07 rotuladas en la planta, no 41. El proyector E7 del tópico sí está rotulado.'),
     ('E-04', 'DORMITORIO MADRE', 'E6', 1, 'El cuadro repite las 5 computadoras del salón de estudios; en la planta hay 1 (escritorio de la madre).'),
     ('E-05', 'DORMITORIO MADRE', 'E6', 1, 'Ídem E-04.'),
     ('E-06', 'DORMITORIO MADRE', 'E6', 1, 'Ídem E-04.'),
@@ -215,14 +214,14 @@ def verificacion(P=None):
 OBS_PLANO = [
     ('MB-02', 'El cuadro del almacén de implementos deportivos de E-02 está titulado "TÓPICO - EDIFICACIÓN 2".'),
     ('MB-08', 'El cuadro del almacén de cocina y cuarto de gas (balones de gas y parihuelas) está titulado "OFICINA DE ENTREVISTA Y ESTAR - EDIFICACIÓN 6".'),
-    ('MB-01', 'El cuadro del tópico repite el de la sala de reuniones: proyector multimedia y 10 sillas.'),
+    ('MB-01', 'El cuadro del tópico repite las 10 sillas de la sala de reuniones; la planta de E-01 rotula 38 sillas M07 en total, no 41.'),
     ('MB-04 a MB-07', 'El cuadro del dormitorio de la madre repite las 5 computadoras del salón de estudios (en planta hay 1).'),
     ('MB-04 a MB-07', 'El cuadro de la oficina de entrevista y estar pone 1 sofá de 2 cuerpos (M34); en planta hay 2.'),
     ('MB-04 a MB-07', 'Los cuadros de dormitorio describen el código M55 como "mueble alto de melamina"; M55 es la cama con cabecera (dibujada).'),
     ('MB-04, MB-05', 'El salón de estudios describe el código M28 como "escritorio con credenza móvil 1.50 x 0.80"; M28 es el escritorio con dos cajoneras 1.00 x 0.50 (dibujado).'),
     ('MB-07', 'En el dormitorio de E-07 la planta rotula 10 credenzas M44 (una junto a cada cama) y el cuadro pone 10 armarios M37; se cuenta lo rotulado. Corregir el cuadro.'),
-    ('MB-04, MB-05, MB-01', 'Sin etiqueta en planta pero sí en su cuadro: las 5 computadoras E6 del salón de estudios (E-04 y E-05) y el rack M13 y la pizarra M69 de la sala de reuniones (E-01); se mantienen.'),
     ('MB-07', 'El cuadro del taller de arte pone 1 mueble para mochilas (M56); en planta hay 5.'),
+    ('MB-06', 'En el salón de psicomotricidad de E-06 hay 10 cojines cuadrados (K78) dibujados y solo 7 rotulados; se metran los 10 del cuadro.'),
     ('MB-02', 'El cuadro del almacén deportivo describe M51 como "exhibidor de libros"; M51 es el estante metálico ranurado.'),
     ('MB-01, MB-06', 'Los códigos de implementos K32 y K33 se usan para dos cosas distintas (tópico: bidón de oxígeno y tensiómetro; '
                      'psicomotricidad: piscina de pelotas y juego de teatro) y K78 para cojines cuadrados y piso encastrable.'),
