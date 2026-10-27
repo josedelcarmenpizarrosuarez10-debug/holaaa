@@ -5,7 +5,7 @@ y panel fotográfico georreferenciado (Anexo 3).
 Uso: python3 levantamiento_obs_docx.py   (antes: riesgos_sm107.py, figuras_sm107.py y fotos_sm107.py)"""
 import os, sys, collections
 from docx import Document
-from docx.shared import Pt, Cm, RGBColor
+from docx.shared import Pt, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT, WD_CELL_VERTICAL_ALIGNMENT
 from docx.oxml.ns import qn
@@ -118,8 +118,25 @@ NO_LOC = {"R-08": "Cantera de río y accesos: se georreferencian con la ubicaci�
           "R-25": "DME: se georreferencian con la ubicación aprobada en el estudio ambiental."}
 
 
+RADIO = 500                                             # m: foto del mismo sector para un punto sin foto propia
+
+
 def fotos_de(imgs):
     return ", ".join(FID[i] for i in imgs)
+
+
+def foto_sector(a, b):
+    """Foto más cercana (por progresiva) a un punto o sector sin foto propia, si está a menos de RADIO."""
+    b = b or a
+    d = lambda x: 0 if a <= x["prog"] <= b else min(abs(x["prog"] - a), abs(x["prog"] - b))
+    x = min(FOTOS, key=d)
+    return (x, d(x)) if d(x) <= RADIO else (None, d(x))
+
+
+def celda_fotos(imgs, a, b):
+    if imgs: return fotos_de(imgs)
+    x, dd = foto_sector(a, b)
+    return "%s (vista del sector, a %.0f m)" % (x["id"], dd) if x else "Verificación en campo"
 
 
 def utm(prog):
@@ -144,13 +161,6 @@ def h1(doc, texto):
 
 def h2(doc, texto):
     p = par(doc, texto, 10.5, True, L_, antes=8, despues=4, color=AZUL); p.paragraph_format.keep_with_next = True; return p
-
-
-def bordes_celda(c, color="808080"):
-    tcPr = c._tc.get_or_add_tcPr(); b = OxmlElement("w:tcBorders")
-    for k in ("top", "left", "bottom", "right"):
-        e = OxmlElement("w:" + k); e.set(qn("w:val"), "dashed"); e.set(qn("w:sz"), "6"); e.set(qn("w:color"), color); b.append(e)
-    tcPr.append(b)
 
 
 # ------------------------------------------------------------------ anexo 2: matriz impresa
@@ -332,15 +342,8 @@ def celda_foto(c, x):
     fuente(q.add_run("Fecha y hora: %s\nRiesgos relacionados: %s" % (x["fecha"], ", ".join(x["riesgos"]))), 7.5)
     sec = [s[0] for s in SECTORES if x["img"] in s[4]]
     if sec: fuente(q.add_run("\nSector crítico (Tabla N.° 04): %s" % "; ".join(sec)), 7.5)
-
-
-def celda_pendiente(c, d):
-    c.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.TOP
-    p = c.paragraphs[0]; p.alignment = C; p.paragraph_format.space_before = Pt(30); p.paragraph_format.space_after = Pt(30)
-    fuente(p.add_run("FOTOGRAFÍA POR INCORPORAR"), 9, True, color=RGBColor(0x80, 0x80, 0x80))
-    q = c.add_paragraph(); q.alignment = C; fuente(q.add_run("km %s - %s" % (d["prog"], d["desc"])), 8.5, True, color=AZUL)
-    q = c.add_paragraph(); q.alignment = L_
-    fuente(q.add_run("Punto a fotografiar (eje), UTM WGS 84 - 18 S:  E %s   N %s\nRelacionado con: %s" % (d["e"], d["n"], d["ref"])), 7.5)
+    vis = ["km %s (a %.0f m)" % (d["prog"], d["dist"]) for d in PUNTOS if d["foto"] is x]
+    if vis: fuente(q.add_run("\nVista del sector para: %s" % "; ".join(vis)), 7.5, True)
 
 
 def grilla(doc, items, fn):
@@ -349,24 +352,27 @@ def grilla(doc, items, fn):
         for j in range(2):
             c = t.rows[0].cells[j]; c.width = Cm(8.2)
             if k + j < len(items): fn(c, items[k + j])
-            if fn is celda_pendiente and k + j < len(items): bordes_celda(c)
         tr = t.rows[0]._tr; trPr = tr.get_or_add_trPr(); cs = OxmlElement("w:cantSplit"); cs.set(qn("w:val"), "true"); trPr.append(cs)
         doc.add_paragraph().paragraph_format.space_after = Pt(0)
 
 
-def pendientes():
-    """Puntos de la Tabla N.° 04 y de la Tabla N.° 08-A que aún no tienen fotografía, sin repetir progresivas."""
+def sin_foto_propia():
+    """Puntos de la Tabla N.° 04 y de la Tabla N.° 08-A sin fotografía propia, sin repetir progresivas, con la foto del sector si la hay."""
     vis = collections.OrderedDict()
     for prog, a, b, d, imgs in SECTORES:
-        if not imgs: vis.setdefault(a, dict(prog=prog, desc=d, ref=["Tabla N.° 04"]))
+        if not imgs: vis.setdefault(a, dict(prog=prog, a=a, b=b, desc=d, ref=["Tabla N.° 04"]))
     for cod, d, a, b, imgs in UBIC:
         if imgs: continue
-        e = vis.setdefault(a, dict(prog=km(a) + (" a " + km(b) if b else ""), desc=d, ref=[]))
+        e = vis.setdefault(a, dict(prog=km(a) + (" a " + km(b) if b else ""), a=a, b=b, desc=d, ref=[]))
         if cod not in e["ref"]: e["ref"].append(cod)
     L = []
     for a, d in sorted(vis.items()):
-        d["e"], d["n"] = utm(a); d["ref"] = ", ".join(d["ref"]); L.append(d)
+        d["e"], d["n"] = utm(a); d["ref"] = ", ".join(d["ref"]); d["foto"], d["dist"] = foto_sector(d["a"], d["b"]); L.append(d)
     return L
+
+
+PUNTOS = sin_foto_propia()
+ASOC = [d for d in PUNTOS if d["foto"]]; VERIF = [d for d in PUNTOS if not d["foto"]]
 
 
 # ------------------------------------------------------------------ documento
@@ -375,8 +381,8 @@ def main():
     st = doc.styles["Normal"]; st.font.name = ED.FT; st.font.size = Pt(10)
     s0 = doc.sections[0]; s0.page_width, s0.page_height = Cm(21.0), Cm(29.7)
     s0.left_margin = s0.right_margin = Cm(2.5); s0.top_margin = Cm(2.5); s0.bottom_margin = Cm(2.0)
-    PEND = pendientes()
     con_foto = [s for s in SECTORES if s[4]]
+    sec_asoc = [s for s in SECTORES if not s[4] and foto_sector(s[1], s[2])[0]]
 
     par(doc, "GOBIERNO REGIONAL SAN MARTÍN", 12, True, C, despues=2, color=AZUL)
     par(doc, "DIRECCIÓN REGIONAL DE TRANSPORTES Y COMUNICACIONES", 10.5, True, C, despues=16, color=AZUL)
@@ -396,7 +402,8 @@ def main():
             "coordenadas UTM) y el Anexo 3, panel fotográfico georreferenciado (%d fotografías con fecha y coordenadas)." % len(FOTOS),
             "Capítulo 5 y Anexo 3"],
            ["3", "Tabla N.° 04 Puntos y sectores críticos del inventario vial: adjuntar fotografías con coordenadas de acuerdo con la descripción del sector crítico.",
-            "La Tabla N.° 04 incorpora las coordenadas UTM de inicio y fin de cada sector y el número de fotografía; las fotografías están en el Anexo 3.",
+            "La Tabla N.° 04 incorpora las coordenadas UTM de inicio y fin de cada sector y el número de la fotografía del sector; las fotografías están en "
+            "el Anexo 3. Los puntos sin fotografía a menos de %d m se verifican en campo antes de la convocatoria." % RADIO,
             "Capítulo 3 y Anexo 3"]],
           [1.0, 4.6, 7.6, 2.8], tam=8, alinear=[C, L_, L_, C])
 
@@ -434,6 +441,10 @@ def main():
               "Progresiva de cada fotografía: punto más cercano del eje georreferenciado del estudio (plano clave PC-01); %d de las %d fotografías están a menos de "
               "20 m del eje." % (sum(x["dist"] < 20 for x in FOTOS), len(FOTOS)),
               "Coordenadas de cada riesgo (Tabla N.° 08-A): punto del eje en la progresiva de inicio y de fin del sector.",
+              "Puntos sin fotografía propia: se asocian a la fotografía georreferenciada más cercana del mismo tramo, a no más de %d m, como vista del sector; "
+              "en la tabla se indica la distancia. Las coordenadas del punto son las de la tabla, no las de la fotografía." % RADIO,
+              "Puntos sin fotografía a menos de %d m (%d): son registros documentales del estudio de inventario vial; su registro fotográfico se obtiene en la "
+              "verificación de campo previa a la convocatoria (Anexo 3, C), que se incorpora como acción del plan de respuesta." % (RADIO, len(VERIF)),
               "Los riesgos de gestión, contractuales, económicos, de permisos o de seguridad que abarcan todo el proyecto no tienen un punto físico; en la Tabla N.° 08 "
               "se indican como «No localizado»."]: vin(doc, t)
     par(doc, "La Tabla N.° 08 queda así:", antes=4)
@@ -444,7 +455,8 @@ def main():
     def ref(r):
         if r["cod"] in cods_ubic:
             f = sorted(set(loc[r["cod"]]))
-            return "Tabla N.° 08-A. Fotos: " + (", ".join(f) if f else "por incorporar")
+            f += sorted({foto_sector(a, b)[0]["id"] for c_, d_, a, b, im in UBIC if c_ == r["cod"] and not im and foto_sector(a, b)[0]} - set(f))
+            return "Tabla N.° 08-A. Fotos: " + (", ".join(f) if f else "verificación en campo")
         if r["cod"] in NO_LOC: return "Ubicación por definir"
         return "No localizado"
     ctab(doc, "Tabla N.° 08: Riesgos identificados")
@@ -458,7 +470,7 @@ def main():
         e1, n1 = utm(a)
         if b: e2, n2 = utm(b); pr = "%s\n%s" % (km(a), km(b)); e = "%s\n%s" % (e1, e2); n = "%s\n%s" % (n1, n2)
         else: pr, e, n = km(a), e1, n1
-        filas.append([cod, d, pr, e, n, fotos_de(imgs) if imgs else "Por incorporar"])
+        filas.append([cod, d, pr, e, n, celda_fotos(imgs, a, b)])
     tabla(doc, ["COD.", "UBICACIÓN", "PROGRESIVA (inicio / fin)", "ESTE (m)", "NORTE (m)", "FOTO N.°"], filas, [1.2, 5.4, 2.4, 2.0, 2.2, 2.8], tam=7,
           alinear=[C, L_, C, C, C, C])
 
@@ -468,17 +480,24 @@ def main():
          "Se ubican los sectores críticos por progresivas; sin embargo, es necesario adjuntar fotografías con coordenadas de acuerdo con la descripción del "
          "sector crítico.")
     mixto(doc, [("Absolución: ", True), ("se agregan a la Tabla N.° 04 las coordenadas UTM de inicio y fin de cada punto o sector crítico, tomadas del eje "
-                                         "georreferenciado en la progresiva del inventario, y el número de la fotografía del Anexo 3 que lo registra. %d de los %d puntos "
-                                         "y sectores tienen fotografía con coordenadas; los demás se completan con el registro fotográfico indicado en el Anexo 3 (B)."
-                                         % (len(con_foto), len(SECTORES)), False)])
+                                         "georreferenciado en la progresiva del inventario, y el número de la fotografía del Anexo 3. De los %d puntos y sectores, %d tienen "
+                                         "fotografía propia y %d se registran con la fotografía georreferenciada de su sector (a no más de %d m, distancia indicada); los %d "
+                                         "restantes se verifican con fotografía en campo antes de la convocatoria (Anexo 3, C)."
+                                         % (len(SECTORES), len(con_foto), len(sec_asoc), RADIO, len(SECTORES) - len(con_foto) - len(sec_asoc)), False)])
     ctab(doc, "Tabla N.° 04: Puntos y sectores críticos del inventario vial (UTM WGS 84 - zona 18 S)")
     filas = []
     for prog, a, b, d, imgs in SECTORES:
         e1, n1 = utm(a); e2, n2 = utm(b) if b else ("—", "—")
-        filas.append([prog, d, e1, n1, e2, n2, fotos_de(imgs) if imgs else "Por incorporar"])
+        filas.append([prog, d, e1, n1, e2, n2, celda_fotos(imgs, a, b)])
     tabla(doc, ["PROGRESIVA", "DESCRIPCIÓN", "ESTE INICIO", "NORTE INICIO", "ESTE FIN", "NORTE FIN", "FOTO N.°"], filas,
-          [2.6, 4.6, 1.6, 1.9, 1.6, 1.9, 1.8], tam=7, alinear=[L_, L_, C, C, C, C, C])
+          [2.4, 4.2, 1.6, 1.9, 1.6, 1.9, 2.4], tam=7, alinear=[L_, L_, C, C, C, C, C])
     par(doc, "LI: lado izquierdo; LD: lado derecho. Cuando el punto o sector es puntual no se indican coordenadas de fin.", 7.5, cur=True)
+    par(doc, "Acción complementaria del plan de respuesta", 10, True, antes=6, despues=3)
+    tabla(doc, ["RIESGOS", "ACCIÓN", "RESPONSABLE", "MOMENTO"],
+          [[", ".join(sorted({c for d in VERIF for c in d["ref"].split(", ") if c.startswith("R-")})),
+            "Verificación de campo de los %d puntos del Anexo 3 (C), con fotografía georreferenciada (fecha y coordenadas UTM impresas) y descripción del estado "
+            "actual; actualización de la Tabla N.° 04, de la Tabla N.° 08-A y de la matriz de riesgos con el resultado." % len(VERIF),
+            "Entidad (DRTC San Martín)", "Antes de la convocatoria"]], [2.6, 8.4, 2.6, 2.4], tam=7.5, alinear=[C, L_, L_, C])
 
     # ------------------------------------------------------------------ anexo 2 (horizontal)
     sa = seccion(doc, True)
@@ -496,16 +515,21 @@ def main():
             "; ".join(s[0] for s in SECTORES if x["img"] in s[4]) or "—"] for x in FOTOS],
           [1.4, 1.8, 1.8, 2.0, 2.6, 4.0, 3.4], tam=7, alinear=[C, C, C, C, C, L_, L_])
     grilla(doc, FOTOS, celda_foto)
-    h2(doc, "B. Registro fotográfico por incorporar")
-    par(doc, "Puntos de la Tabla N.° 04 y de la Tabla N.° 08-A sin fotografía en el panel del inventario vial. Para cada uno se indica el punto del eje que se "
-             "debe fotografiar con la misma cámara (fecha y coordenadas UTM impresas) en la verificación de campo.", 8.5)
-    tabla(doc, ["N.°", "PROGRESIVA", "DESCRIPCIÓN", "ESTE (m)", "NORTE (m)", "RELACIONADO CON"],
-          [["%d" % i, d["prog"], d["desc"], d["e"], d["n"], d["ref"]] for i, d in enumerate(PEND, 1)], [0.8, 3.0, 5.2, 1.8, 2.0, 4.2], tam=7,
-          alinear=[C, C, L_, C, C, L_])
-    grilla(doc, PEND, celda_pendiente)
+    h2(doc, "B. Puntos registrados con la fotografía de su sector")
+    par(doc, "Puntos de la Tabla N.° 04 y de la Tabla N.° 08-A sin fotografía propia, registrados con la fotografía georreferenciada más cercana del mismo "
+             "tramo (a no más de %d m). Las coordenadas son las del punto en el eje." % RADIO, 8.5)
+    tabla(doc, ["N.°", "PROGRESIVA", "DESCRIPCIÓN", "ESTE (m)", "NORTE (m)", "RELACIONADO CON", "FOTO DEL SECTOR"],
+          [["%d" % i, d["prog"], d["desc"], d["e"], d["n"], d["ref"], "%s (km %s, a %.0f m)" % (d["foto"]["id"], km(d["foto"]["prog"]), d["dist"])]
+           for i, d in enumerate(ASOC, 1)], [0.9, 2.4, 4.1, 1.5, 1.7, 2.8, 3.6], tam=7, alinear=[C, C, L_, C, C, L_, C])
+    h2(doc, "C. Puntos a verificar con fotografía en campo antes de la convocatoria")
+    par(doc, "Registros documentales del estudio de inventario vial sin fotografía georreferenciada a menos de %d m. Se fotografían en la verificación de campo "
+             "(acción complementaria del plan de respuesta) con cámara que imprima la fecha y las coordenadas UTM." % RADIO, 8.5)
+    tabla(doc, ["N.°", "PROGRESIVA", "DESCRIPCIÓN", "ESTE (m)", "NORTE (m)", "RELACIONADO CON", "FOTO MÁS CERCANA"],
+          [["%d" % i, d["prog"], d["desc"], d["e"], d["n"], d["ref"], "a %.0f m" % d["dist"]] for i, d in enumerate(VERIF, 1)],
+          [0.9, 2.4, 4.1, 1.5, 1.7, 3.6, 2.8], tam=7, alinear=[C, C, L_, C, C, L_, C])
 
     for s in doc.sections: pie(s, "Levantamiento de observaciones - Estudio de gestión de riesgos en la ejecución de obra - SM-107 - CUI N.° %s" % P["cui"])
-    doc.save(SAL); print(SAL, "fotos", len(FOTOS), "pendientes", len(PEND))
+    doc.save(SAL); print(SAL, "fotos", len(FOTOS), "con foto del sector", len(ASOC), "a verificar", len(VERIF))
 
 
 if __name__ == "__main__":
