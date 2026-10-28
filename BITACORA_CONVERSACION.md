@@ -768,3 +768,14 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Arreglos de forma: numeración correlativa (el Excel no numeraba UL-02, PT-01 ni DT-09/00-03), códigos sin espacios, tildes y erratas,
   ED-02.2/2 "02 / 02 - 04" -> "02 / 02 - 02", DT-01/07-8 y 08-8 -> 07-08 y 08-08, SE-E-01 = evacuación y SE-S-01 = señalización (como los
   rótulos; el Excel las tenía cruzadas), MB-01 a MB-09 con el título de su rótulo. Formato no indicado en el Excel: "—".
+
+### 28-10-2026 – Hogar de Refugio (CUI 2675514): análisis de incompatibilidades de ubicación
+- Base: borrador de la arquitecta (`insumos/solange/sustento_normativo/ANALISIS_INCOMPATIBILIDADES_UBICACION_BORRADOR.docx`), 18 incompatibilidades
+  del cuadro de la R.V.M. 010-2022-MINEDU, todas CUMPLE (se conservan). Generador `herramientas/incompatibilidades_refugio.py`.
+- Expediente: `entregables/ANALISIS_INCOMPATIBILIDADES_UBICACION_HOGAR_REFUGIO.docx` (generalidades, colindantes CAR Varones/CAR Mujeres,
+  marco normativo A.090 art. 3 y A.040 art. 7 b, metodología del área de influencia 50/100/150/200 m, cuadro apaisado, conclusiones) y
+  `MATRIZ_INCOMPATIBILIDADES_UBICACION_HOGAR_REFUGIO.xlsx` (fórmulas: estado, área de influencia, resumen).
+- Ajustes: "I.E."/"UP" -> predio del hogar; D.L. 25884 -> 25844; "Municipales" -> Municipalidades; aeródromo con la distancia al aeropuerto de
+  Tarapoto (~3.5 km desde la UTM referencial, al costado de la pista 17/35); derecho de vía con el colector dentro del lindero.
+- Nota interna (`entregables/revision_interna/INCOMPATIBILIDADES_CORREGIDO_Y_POR_REVISAR_HOGAR_REFUGIO.docx`): vigencia R.V.M. 010-2022 frente a
+  R.V.M. 068-2025-MINEDU, líneas de MT en la carretera Oasis, PTAR propia (152 m²), nombre y distancia del establecimiento de salud, sustento gráfico.
