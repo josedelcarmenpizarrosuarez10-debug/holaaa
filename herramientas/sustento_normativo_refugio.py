@@ -8,7 +8,8 @@ sin modificarla) y sustenta cada ambiente con:
     Comunales (D.S. N.° 011-2006-VIVIENDA) y la R.V.M. N.° 104-2019-MINEDU (nivel Inicial);
   - los Lineamientos arquitectónicos para refugios de ONU-Habitat / CONAVIM (2016), referencia de buena práctica (superficies
     sugeridas de las fichas técnicas del capítulo III y criterios de los capítulos II y IV).
-La R.V.M. N.° 208-2019-MINEDU (primaria y secundaria) se cita con los índices de la programación (texto no entregado).
+  - la R.V.M. N.° 208-2019-MINEDU (primaria y secundaria), texto entregado por la usuaria (PDF escaneado, 111 páginas; datos tomados:
+    cuadros 12, 20, 21, 22, 23, 29, 31 y 40, numerales 11.4.1, 11.5.8, 11.6.3, 12.2.1, 12.2.4 y 12.3, anexo 4).
 El sustento es para el expediente: cada ambiente con la norma que le corresponde y su cálculo (EXP). Los criterios de revisión
 (FILAS, FALTANTES) van solo a la nota interna para la arquitecta, que no forma parte del expediente.
 
@@ -75,8 +76,8 @@ NORMAS = [
      'Educación Inicial"', 'Arts. 10, 12 y 13; cuadros 7, 16, 18, 19, 21 y 22',
      'Módulo infantil, módulo de enseñanza, ambientes administrativos, tópico, archivo, almacén y servicios generales.'),
     ('Normas del MINEDU', 'R.V.M. N.° 208-2019-MINEDU, Norma Técnica "Criterios de diseño para locales educativos de primaria y '
-     'secundaria"', 'Programación arquitectónica', 'Índices citados en la programación para cocina, comedor/SUM, lavandería, '
-     'patios, losa y servicios generales (texto no entregado: cotejar).'),
+     'secundaria"', 'Arts. 11 y 12; cuadros 12, 20, 22, 23, 29 y 40', 'Módulo de enseñanza, talleres, comedor/SUM, losa '
+     'multiuso, archivo, depósitos, caseta de control, lavandería, almacenes y servicios generales.'),
     ('Referencia internacional', 'Lineamientos arquitectónicos para el diseño y construcción de refugios especializados para '
      'mujeres, sus hijas e hijos, víctimas de violencia extrema, familiar y/o de género (ONU-Habitat / CONAVIM, México, 2016)',
      'Capítulos I a IV', 'Buena práctica: programa funcional en ocho áreas, superficies sugeridas por ambiente, seguridad, '
@@ -101,6 +102,13 @@ IDX = {
     'R104ext': (2.00, 'R.V.M. 104-2019 num. 11.3', 'Espacio exterior: I.O. de 2.00 m² por niño(a) del aula o aulas a la que sirve.'),
     'R104adm': (9.50, 'R.V.M. 104-2019 cuadro 21', 'Espacios independientes para el personal: I.O. por usuario = 9.50 m² por persona.'),
     'R104reu': (1.50, 'R.V.M. 104-2019 num. 13.1.4', 'Sala de reuniones: I.O. de 1.50 m² por personal docente; no menor de 12.00 m².'),
+    'R208aula': (2.00, 'R.V.M. 208-2019 cuadro 12', 'Aula: capacidad 30 estudiantes, I.O. 2.00 m², área 60.00 m².'),
+    'R208tal': (3.00, 'R.V.M. 208-2019 cuadro 20', 'Taller creativo / taller de arte: capacidad 30 estudiantes, I.O. 3.00 m², área 90.00 m² '
+                '(incluye depósito de aprox. 15 % del área).'),
+    'R208sum': (1.00, 'R.V.M. 208-2019 cuadro 22', 'Sala de usos múltiples: I.O. 1.00 m²; con 5 o más secciones el área no debe ser mayor a 300 m².'),
+    'R208lav': (3.00, 'R.V.M. 208-2019 num. 12.2.1 i', 'Lavandería: I.O. de 3.00 m² por 1/2 de la cantidad total de usuarios que hacen uso de '
+                'este espacio; puede reducirse si se cuenta con máquinas lavadoras.'),
+    'R208cas': (3.00, 'R.V.M. 208-2019 cuadro 40', 'Vigilancia / caseta de control: área 3.00 m², I.O. 3.00 m², 01 usuario.'),
 }
 
 
@@ -166,8 +174,8 @@ FILAS = {
           'de cada usuaria.'),
     29: dict(idx='A090of', ref='A.090 art. 11; R.V.M. 104-2019 cuadro 22', lin=L(9, 14, 'Consultorio de atención médica/enfermería'),
           ver='CUMPLE', obs='Supera el tópico de la R.V.M. 104-2019 (7.00 m²) y la superficie sugerida (9/14 m²). Medicamentos bajo llave.'),
-    30: dict(idx=None, ref='R.V.M. 208-2019 (cotejar); lineamientos 2.4 y 2.5', lin=None, ver='CUMPLE', obs='Índice de 3.00 m²/persona de la '
-          'programación (R.V.M. 208-2019, por cotejar): 4 x 3.00 = 12.00 m² < 15.00 m². Los lineamientos piden cámaras en accesos, '
+    30: dict(idx=None, ref='R.V.M. 208-2019 num. 12.3.3 y cuadro 40; lineamientos 2.4 y 2.5', lin=None, ver='CUMPLE', obs='Índice de 3.00 m²/persona de la '
+          'caseta de control (R.V.M. 208-2019 cuadro 40): 4 x 3.00 = 12.00 m² < 15.00 m². Los lineamientos piden cámaras en accesos, '
           'perímetro y áreas comunes, con pantallas en la caseta y en la oficina de la dirección.'),
     31: dict(idx=None, ref='EM.010; lineamientos 2.8', lin=None, ver='NO APLICA', obs='Sin índice de ocupación.'),
     32: dict(idx=None, ref='R.V.M. 104-2019 cuadro 21', lin=None, ver='CUMPLE', obs='R.V.M. 104-2019: archivo de 6.00 m², contiguo al área '
@@ -220,7 +228,7 @@ FILAS = {
           'dos camas para acompañantes, puertas de 1.00 m libres, 1.50 m entre muebles). La A.030 art. 4 pide ubicar las habitaciones '
           'accesibles en el piso de ingreso.'),
     57: dict(idx=None, ref='A.120; lineamientos 3.3.3', lin=L(6, None, 'Baño accesible de la habitación especial'), ver='CUMPLE', obs='', area_min=2.5),
-    59: dict(idx=None, ref='R.V.M. 208-2019 (cotejar); lineamientos 3.2', lin=L(10, 16, 'Cocina para 30/40 residentes (0.40 m² por residente)'),
+    59: dict(idx=None, ref='R.V.M. 208-2019 num. 12.2.4 y anexo 4; lineamientos 3.2', lin=L(10, 16, 'Cocina para 30/40 residentes (0.40 m² por residente)'),
           ver='OBSERVAR', obs='Lineamientos: 0.40 m² por residente: 80 comensales x 0.40 = 32.00 m² (cumple); 113 residentes x 0.40 = 45.20 m² '
           '(no cumple si comen todas a la vez). Sin vidrio, punzocortantes bajo llave y reja para impedir el ingreso de niñas y niños.'),
     60: dict(idx=None, ref='Lineamientos 3.2', lin=L(9, 12, 'Despensa'), ver='OBSERVAR', obs='Menor que la superficie sugerida (9/12 m²); '
@@ -229,11 +237,11 @@ FILAS = {
     62: dict(idx='A040sum', ref='A.040 art. 13; R.V.M. 104-2019 num. 12.2.1', lin=L(113, None, 'Comedor: 1.00 m² por residente, con todas las residentes a la vez'),
           ver='CUMPLE', obs='El área (240.00 m²) cubre a las 113 plazas de la zona residencial (1.00 m² por residente), pero la capacidad '
           'declarada (80) es menor: declarar la capacidad del comedor igual al total de residentes.'),
-    63: dict(idx=None, ref='R.V.M. 208-2019 (cotejar); lineamientos 3.4', lin=None, ver='CUMPLE', obs='Los lineamientos piden al menos 2 '
+    63: dict(idx=None, ref='R.V.M. 208-2019 num. 12.2.1 i; lineamientos 3.4', lin=None, ver='CUMPLE', obs='Los lineamientos piden al menos 2 '
           'lavadoras, 2 secadoras, 4 fregaderos y 2 mesas de planchado, y tendido al aire libre y cubierto (temporada de lluvias).'),
     64: dict(idx=None, ref='R.V.M. 104-2019 num. 12.4.1; lineamientos 3.9', lin=None, ver='CUMPLE', obs='Huertos previstos en los '
           'lineamientos (3.9) y como ecotecnia (4.4).'),
-    65: dict(idx=None, ref='R.V.M. 208-2019 (cotejar)', lin=None, ver='CUMPLE', obs='Área exterior de recreación; no debe ser visible '
+    65: dict(idx=None, ref='R.V.M. 208-2019 num. 11.6.3', lin=None, ver='CUMPLE', obs='Área exterior de recreación; no debe ser visible '
           'desde el exterior (lineamientos 3.9).'),
     66: dict(idx=None, ref='R.V.M. 104-2019 num. 11.3; lineamientos 3.9', lin=None, ver='CUMPLE', obs='Con unas 75 niñas y niños (2/3 de '
           '113 residentes, lineamientos 1.6) y 2.00 m² por niño(a) se requieren 150.00 m²; el patio de juegos (138.95 m²) con el patio '
@@ -244,14 +252,15 @@ FILAS = {
     68: dict(idx=None, ref='Lineamientos 3.9', lin=L(420, None, 'Cancha de básquet 15 x 28 m (voleibol 9 x 18 m)'), ver='CUMPLE', obs=''),
     69: dict(idx=None, ref='A.040 art. 20', lin=None, ver='CUMPLE', obs='La programación cita "capítulo 4" de la A.040 (dotación de servicios, '
           'art. 20).'),
-    70: dict(idx=None, ref='R.V.M. 208-2019 (cotejar)', lin=None, ver='CUMPLE', obs=''),
+    70: dict(idx=None, ref='R.V.M. 208-2019 num. 11.5.8', lin=None, ver='CUMPLE', obs=''),
     72: dict(idx=None, ref='Lineamientos 3.4', lin=None, ver='CUMPLE', obs='Los lineamientos piden separar artículos nuevos y usados, '
           'anaqueles por tallas y acceso solo del personal.'),
     73: dict(idx=None, ref='R.V.M. 104-2019 num. 13.3.1; lineamientos 3.4', lin=None, ver='OBSERVAR', obs='El índice de 8.80 m²/persona '
           'de la R.V.M. 104-2019 es el del dormitorio del alojamiento temporal docente (num. 13.2.2), no de un almacén: corregir. El '
           'almacén general pide 1.50 m² por aula y no menos de 10.00 m² (cumple). Los lineamientos piden separar los productos de '
           'limpieza, bajo llave, de los artículos para las familias.', area_min=10.0),
-    74: dict(idx=None, ref='R.V.M. 208-2019 (cotejar)', lin=None, ver='CUMPLE', obs='4 x 3.00 = 12.00 m² < 15.00 m².', area_min=12.0),
+    74: dict(idx=None, ref='R.V.M. 208-2019 num. 12.3.2', lin=None, ver='OBSERVAR', obs='La R.V.M. 208-2019 (cuadro 40) da 40.00 m² a la '
+          'maestranza de un local educativo; el índice de 3.00 m²/persona no figura en la norma.'),
     75: dict(idx=None, ref='A.080 art. 23; R.V.M. 104-2019 num. 13.3.4', lin=None, ver='CUMPLE', obs='Ambiente con punto de agua y sumidero, '
           'sin contenedores en espacios exteriores (R.V.M. 104-2019); en el zaguán de servicio, con acceso desde el exterior y tres '
           'contenedores (lineamientos 3.4).', area_min=6.0),
@@ -333,8 +342,9 @@ EXP = {
     7: E(ref='Lineamientos 2.6', sus='Zona de carga y descarga de proveedores (zaguán de servicio), con acceso a almacenes, despensa y '
          'residuos, separada de los espacios de las residentes (lineamientos 2.6).'),
     8: E(ref='A.090 art. 17', sus='Estacionamiento del personal dentro del predio (A.090 art. 17).'),
-    9: E(idx='PROG', ref='R.V.M. 208-2019; lineamientos 2.4', sus='Caseta de vigilancia en el acceso principal, con servicio higiénico '
-         'para el personal de guardia, comunicación interna y control de los accesos (lineamientos 2.4 y 2.6; R.V.M. 104-2019 num. 13.3.2).'),
+    9: E('R208cas', 'R.V.M. 208-2019 cuadro 40; lineamientos 2.4', sus='Caseta de control junto al ingreso principal con servicio '
+         'higiénico de 01 lavadero y 01 inodoro para el personal de guardia (R.V.M. 208-2019 num. 12.3.3), comunicación interna y control '
+         'de los accesos (lineamientos 2.4 y 2.6).'),
     10: E(ref='IS.010; lineamientos 2.8', sus='Almacenamiento de agua potable (lineamientos 2.8; A.030, anexos).'),
     11: E(ref='IS.020; A.030 anexos', sus='Tratamiento de las aguas residuales del local, previsto por la A.030 cuando no existe red '
           'pública de alcantarillado.'),
@@ -350,25 +360,33 @@ EXP = {
     22: E(ref='A.090 art. 15', sus='A.090 art. 15, de 7 a 25 empleados: hombres 1 lavatorio, 1 urinario y 1 inodoro.'),
     23: E(ref='A.090 art. 16; A.120', sus='Servicio para personas con discapacidad adicional a los aparatos exigibles (A.090 art. 16), '
           'con las dimensiones de la A.120.'),
-    24: E(ref='R.V.M. 104-2019 num. 13.3.5', sus='Guardado de implementos de limpieza, con lavadero y sumidero (R.V.M. 104-2019 num. 13.3.5).'),
+    24: E(ref='R.V.M. 208-2019 num. 12.3.6 y cuadro 40', amin=1.5, sus='Guardado de implementos de limpieza con lavadero (R.V.M. 208-2019 '
+          'num. 12.3.6; R.V.M. 104-2019 num. 13.3.5).'),
     25: E('A080', 'A.080 art. 6', sus='Junto al ingreso y separada de las áreas privadas, para la confidencialidad de las usuarias '
           '(lineamientos 2.6).'),
     26: E('A090of', 'A.090 art. 11', L(9, 13), sus='Atención individual con privacidad acústica (lineamientos 3.5).'),
     27: E('A090of', 'A.090 art. 11', L(6, 10)),
     28: E('A090of', 'A.090 art. 11', L(6, 10)),
-    29: E('A090of', 'A.090 art. 11', L(9, 14), sus='Mayor que el tópico de la R.V.M. 104-2019 (7.00 m², cuadro 22).'),
-    30: E(idx='PROG', ref='R.V.M. 208-2019; lineamientos 2.4', sus='Monitoreo del circuito cerrado de accesos, perímetro y áreas comunes '
-          '(lineamientos 2.4 y 2.5).'),
+    29: E('A090of', 'A.090 art. 11', L(9, 14), sus='Mayor que el tópico de la R.V.M. 104-2019 (7.00 m², cuadro 22) y que el de la R.V.M. '
+          '208-2019 (9.00 m² con personal fijo, cuadro 31).'),
+    30: E('R208cas', 'R.V.M. 208-2019 num. 12.3.3 y cuadro 40; lineamientos 2.4', sus='Monitoreo del circuito cerrado de vigilancia '
+          '(R.V.M. 208-2019 num. 12.3.3 c) de accesos, perímetro y áreas comunes (lineamientos 2.4 y 2.5), con el índice de la caseta de control.'),
     31: E(ref='EM.010; lineamientos 2.8', sus='Equipos de comunicaciones e internet (lineamientos 2.8).'),
-    32: E(ref='R.V.M. 104-2019 cuadro 21', amin=6.0, sus='R.V.M. 104-2019: archivo de 6.00 m², contiguo a las oficinas.'),
-    33: E(ref='R.V.M. 104-2019 num. 13.3.1', amin=10.0, sus='R.V.M. 104-2019: almacén o depósito no menor de 10.00 m².'),
-    35: E('A040tal', 'A.040 art. 13', L(45), sus='Taller productivo para la autonomía económica de las usuarias (lineamientos 3.7).'),
-    36: E('A040tal', 'A.040 art. 13', L(45), sus='Taller productivo para la autonomía económica de las usuarias (lineamientos 3.7).'),
-    37: E('A040tal', 'A.040 art. 13', L(45), sus='Taller productivo para la autonomía económica de las usuarias (lineamientos 3.7).'),
+    32: E(ref='R.V.M. 208-2019 cuadro 29', amin=6.0, sus='Archivo de 6.00 m², contiguo o integrado al área de oficinas (R.V.M. 208-2019 '
+          'cuadro 29; R.V.M. 104-2019 cuadro 21).'),
+    33: E(ref='R.V.M. 208-2019 cuadro 29', amin=4.0, sus='Depósito de materiales de oficina de 4.00 m², contiguo o integrado al área de '
+          'oficinas (R.V.M. 208-2019 cuadro 29).'),
+    35: E('R208tal', 'R.V.M. 208-2019 cuadro 20; A.040 art. 13', L(45), sus='Taller productivo para la autonomía económica de las usuarias '
+          '(lineamientos 3.7); el índice coincide con el de talleres de la A.040 (3.0 m²/persona).'),
+    36: E('R208tal', 'R.V.M. 208-2019 cuadro 20; A.040 art. 13', L(45), sus='Taller productivo para la autonomía económica de las usuarias '
+          '(lineamientos 3.7); el índice coincide con el de talleres de la A.040 (3.0 m²/persona).'),
+    37: E('R208tal', 'R.V.M. 208-2019 cuadro 20; A.040 art. 13', L(45), sus='Taller productivo para la autonomía económica de las usuarias '
+          '(lineamientos 3.7); el índice coincide con el de talleres de la A.040 (3.0 m²/persona).'),
     38: E('A090of', 'A.090 art. 11', L(15, 21), sus='Sesiones grupales con buena iluminación y ventilación natural (lineamientos 3.5).'),
     39: E('R104psi', 'R.V.M. 104-2019 cuadro 18', L(25, 30), sus='Espacio de juego y aprendizaje para niñas y niños, acompañados por personal '
           'del hogar (lineamientos 3.2, ludoteca).'),
-    40: E('R104aula', 'R.V.M. 104-2019 cuadro 16', L(16, 21), sus='Continuidad educativa de niñas y niños (lineamientos 3.5).'),
+    40: E('R208aula', 'R.V.M. 208-2019 cuadro 12', L(16, 21), sus='Continuidad educativa de niñas y niños (lineamientos 3.5). Cumple '
+          'también el aula de inicial de la R.V.M. 104-2019 (cuadro 16, 2.40 m²: 36.00 m²).'),
     41: E(ref='A.040 art. 20 (cuadro 8)', sus='A.040 cuadro 8: mujeres 1 inodoro cada 30 y 1 lavatorio cada 30.'),
     42: E(ref='A.040 art. 20 (cuadro 8)', sus='A.040 cuadro 8: hombres 1 inodoro cada 60, 1 lavatorio cada 30 y 1 urinario cada 60.'),
     43: E(ref='A.040 art. 20.2; A.120', sus='A.040 art. 20.2: al menos un lavatorio, un inodoro y un urinario por piso para personas '
@@ -388,32 +406,41 @@ EXP = {
     56: E('A030alb', 'A.030 arts. 4 y 5; A.120', sus='Habitación accesible para casos especiales; según la A.030 art. 4 las habitaciones '
           'accesibles se ubican en el nivel de ingreso, con las condiciones de la A.120.'),
     57: E(ref='A.030 art. 6; A.120', amin=2.5, sus='Baño accesible de la habitación especial (A.120).'),
-    59: E(idx='PROG', ref='R.V.M. 208-2019; lineamientos 3.2', sus='Supera los 0.40 m² por comensal de los lineamientos (80 x 0.40 = '
-          '32.00 m²); acceso restringido a niñas y niños.'),
-    60: E(idx='PROG', ref='R.V.M. 208-2019; lineamientos 3.2', sus='Con la alacena (9.00 m²) suma 15.00 m² de almacenamiento de alimentos, '
+    59: E(ref='Lineamientos 3.2; R.V.M. 208-2019 anexo 4', amin=32.0, sus='La R.V.M. 208-2019 remite el dimensionamiento de la cocina a la '
+          'normativa que la regula (anexo 4, cocina escolar); con 0.40 m² por comensal (lineamientos 3.2) los 80 comensales requieren '
+          '32.00 m². Acceso restringido a niñas y niños.'),
+    60: E(ref='Lineamientos 3.2; R.V.M. 208-2019 anexo 4', sus='Con la alacena (9.00 m²) suma 15.00 m² de almacenamiento de alimentos, '
           'por encima de la superficie sugerida para la despensa (9/12 m², lineamientos 3.2).'),
-    61: E(idx='PROG', ref='R.V.M. 208-2019', sus='Complementa la despensa.'),
-    62: E('A040sum', 'A.040 art. 13', sus='Con 1.00 m² por residente (lineamientos 3.2), sus 240.00 m² permiten atender a la totalidad de '
-          'las residentes en un solo turno.'),
-    63: E(idx='PROG', ref='R.V.M. 208-2019; lineamientos 3.4', sus='Lavado, secado y planchado con tendido al aire libre y cubierto '
-          '(lineamientos 3.4).'),
+    61: E(ref='Lineamientos 3.2; R.V.M. 208-2019 anexo 4', sus='Complementa la despensa.'),
+    62: E('R208sum', 'R.V.M. 208-2019 cuadro 22; A.040 art. 13', sus='La R.V.M. 208-2019 (num. 11.4.1 e) admite las actividades de '
+          'alimentación en la SUM. Con 1.00 m² por residente (lineamientos 3.2), sus 240.00 m² permiten atender a la totalidad de las '
+          'residentes en un solo turno, por debajo del máximo de 300 m² de la norma.'),
+    63: E('R208lav', 'R.V.M. 208-2019 num. 12.2.1 i; lineamientos 3.4', sus='El índice se aplica a la mitad de las usuarias del espacio y el '
+          'área puede reducirse con máquinas lavadoras (R.V.M. 208-2019 num. 12.2.1 i). Lavado, secado y planchado con tendido al aire '
+          'libre y cubierto (lineamientos 3.4).'),
     64: E(ref='R.V.M. 104-2019 num. 12.4.1; lineamientos 3.9', sus='Huertos previstos en los lineamientos (3.9 y 4.4).'),
-    65: E(ref='R.V.M. 208-2019', sus='Área exterior de reunión y recreación (lineamientos 3.9).'),
+    65: E(ref='R.V.M. 208-2019 num. 11.6.3', sus='Espacio exterior de socialización y recreación (R.V.M. 208-2019 num. 11.6.3; '
+          'lineamientos 3.9).'),
     66: E(ref='R.V.M. 104-2019 num. 11.3; lineamientos 3.9', sus='Con unas 75 niñas y niños (2/3 de las residentes, lineamientos 1.6) y '
           '2.00 m² por niño(a) (R.V.M. 104-2019) se requieren 150.00 m², cubiertos por el patio de juegos y el patio cívico (361.70 m²).'),
     67: E('A090reu', 'A.090 art. 11; lineamientos 3.9', sus='Área sombreada con pérgola y bancos (lineamientos 3.9).'),
-    68: E(ref='Lineamientos 3.9', lin=L(420), sus='Permite canchas de básquet (15 x 28 m) y voleibol (9 x 18 m) (lineamientos 3.9).'),
+    68: E(ref='R.V.M. 208-2019 cuadro 23', amin=800.0, sus='Losa multiuso tipo II de la R.V.M. 208-2019 (20 x 40 m, 800 m²), que permite '
+          'fútbol sala, básquet y vóley (lineamientos 3.9).'),
     69: E(ref='A.040 art. 20', sus='Servicios de la losa multiuso (A.040 art. 20).'),
-    70: E(ref='R.V.M. 208-2019', sus='Guardado de implementos deportivos.'),
+    70: E(ref='R.V.M. 208-2019 num. 11.5.8 y cuadro 40', amin=16.0, sus='Depósito de implementos deportivos del tipo I de la R.V.M. '
+          '208-2019 (16.00 m²), ventilado y con estantes.'),
     72: E(ref='Lineamientos 3.4', sus='Almacén de donativos en especie, de acceso solo del personal (lineamientos 3.4).'),
-    73: E(ref='R.V.M. 104-2019 num. 13.3.1', amin=10.0, sus='R.V.M. 104-2019: almacén general no menor de 10.00 m²; productos de limpieza '
-          'bajo llave (lineamientos 2.5).'),
-    74: E(idx='PROG', ref='R.V.M. 208-2019', sus='Mantenimiento del local.'),
-    75: E(ref='A.080 art. 23; R.V.M. 104-2019 num. 13.3.4', amin=6.0, sus='Ambiente cerrado con punto de agua y sumidero (R.V.M. 104-2019), '
+    73: E(ref='R.V.M. 208-2019 num. 12.3.1', amin=10.0, sus='Almacén general no menor de 10.00 m² (R.V.M. 208-2019 num. 12.3.1; R.V.M. '
+          '104-2019 num. 13.3.1); productos de limpieza bajo llave (lineamientos 2.5).'),
+    74: E(ref='R.V.M. 208-2019 num. 12.3.2', sus='Taller de mantenimiento del local (R.V.M. 208-2019 num. 12.3.2), dimensionado para el '
+          'personal y el equipo de mantenimiento del hogar.'),
+    75: E(ref='A.080 art. 23; R.V.M. 208-2019 num. 12.3.5', amin=6.0, sus='Ambiente cerrado con punto de agua y sumidero (R.V.M. 104-2019), '
           'con acceso desde el zaguán de servicio y contenedores diferenciados (lineamientos 3.4).'),
-    76: E(ref='EM.010; R.V.M. 104-2019 num. 13.3.6', sus='Fuera del alcance de niñas y niños (R.V.M. 104-2019 num. 13.3.6).'),
-    77: E(ref='R.V.M. 104-2019 num. 13.3.3', sus='Acceso solo del personal autorizado.'),
-    78: E(idx='PROG', ref='R.V.M. 208-2019; lineamientos 2.4', sus='Caseta de control de los accesos de servicio (lineamientos 2.4).'),
+    76: E(ref='EM.010; R.V.M. 208-2019 num. 12.3.7', sus='Sobre el nivel del suelo, ventilado y de acceso restringido; área según la carga '
+          'instalada (R.V.M. 208-2019 num. 12.3.7), fuera del alcance de niñas y niños.'),
+    77: E(ref='R.V.M. 208-2019 num. 12.3.4', sus='Sobre el nivel del suelo, ventilado y de acceso solo del personal de mantenimiento '
+          '(R.V.M. 208-2019 num. 12.3.4).'),
+    78: E('R208cas', 'R.V.M. 208-2019 cuadro 40; lineamientos 2.4', sus='Caseta de control de los accesos de servicio (lineamientos 2.4).'),
     79: E(ref='EM.010; Código Nacional de Electricidad', sus='Suministro eléctrico del local.'),
     80: E(ref='EM.010; A.030 anexos', sus='Energía de respaldo en ambiente separado (A.030, anexos).'),
     82: E(ref='A.030 art. 4; A.130', sus='Pasajes y escaleras de 1.20 m de ancho libre mínimo (A.030 art. 4) y evacuación según la A.130.'),
@@ -706,12 +733,11 @@ def generar_interno(A, tot, RS):
     M.par('El sustento ya usa la cita correcta; solo falta actualizar la columna "SEGÚN NORMATIVA" de la programación.', despues=4)
     M.tabla('Citas normativas corregidas', ['FILA', 'AMBIENTE', 'CITA EN LA PROGRAMACIÓN', 'CITA EN EL SUSTENTO'], [
         ['17', 'Sala de reuniones (1.00 m²/persona)', 'RNE A.080 art. 6', 'RNE A.090 art. 11 (ambientes de reunión, 1.0 m²/persona)'],
-        ['24', 'Cuarto de limpieza', 'RNE A.090 art. 15 (servicios higiénicos)', 'R.V.M. 104-2019-MINEDU num. 13.3.5'],
+        ['24', 'Cuarto de limpieza', 'RNE A.090 art. 15 (servicios higiénicos)', 'R.V.M. 208-2019 num. 12.3.6 y cuadro 40 (1.50 m²)'],
         ['67', 'Área de descanso (banca + pérgola)', 'RNE A.030 art. 5', 'RNE A.090 art. 11 y lineamientos 3.9'],
-        ['73', 'Almacén general y de limpieza', 'R.V.M. 208-2019, 8.80 m²/persona (es el dormitorio docente de la R.V.M. 104)',
-         'R.V.M. 104-2019 num. 13.3.1 (no menor de 10.00 m²; tiene 17.60 m²)'],
+        ['73', 'Almacén general y de limpieza', 'R.V.M. 208-2019, 8.80 m²/persona (es el dormitorio del docente, no un almacén)',
+         'R.V.M. 208-2019 num. 12.3.1 (no menor de 10.00 m²; tiene 17.60 m²)'],
         ['54', 'Habitaciones triple tipo II', 'RNE A.030 Anexo 1 (hoteles)', 'RNE A.030 art. 5 (albergue), como las demás habitaciones'],
-        ['40', 'Módulo de enseñanza', '2.00 m²/persona', 'R.V.M. 104-2019 cuadro 16 (aula, 2.40 m²/niño): 15 x 2.40 = 36.00 m² (tiene 39.00 m²)'],
         ['39', 'Módulo infantil', 'R.V.M. 104-2019', 'R.V.M. 104-2019 cuadro 18 (sala de psicomotricidad, 2.00 m²/niño)'],
     ], [1.25, 3.7, 5.3, W - 10.25], tam=8.5, izq=(1, 2, 3))
     M.par('También quedó resuelto en el sustento: la despensa se sustenta junto con la alacena (15.00 m²) y el comedor/SUM con 1.00 m² '
@@ -734,11 +760,53 @@ def generar_interno(A, tot, RS):
         ['38', 'Terapia grupal', 'Capacidad 5 con el índice de oficinas.', 'Puede declarar 10 participantes.'],
         ['85-86', 'Totales', 'El área construida (%.2f m²) incluye exteriores, patios y losa; "circulación + 15 %% muros" (%.2f m²) '
          'está digitado.' % (tot['construida'], tot['circ_muros']), 'Separar área techada y libre; indicar la base del 15 %.'],
-        ['—', 'Índices de la R.V.M. 208-2019', 'Cocina, despensa, comedor, lavandería, garita, cámaras y maestranza.',
-         'Confirmar cada índice con el texto de la norma.'],
     ]
     M.tabla('Puntos para revisar en la programación', ['FILA', 'AMBIENTE', 'QUÉ SE ENCONTRÓ', 'QUÉ HACER'], filas,
             [1.3, 3.6, 6.4, W - 11.3], tam=8.5, izq=(1, 2, 3))
+    sec('3. COTEJO DE LOS ÍNDICES CON LA R.V.M. N.° 208-2019-MINEDU')
+    M.par('Con el texto de la norma se verificó cada fila que la cita. Las citas confirmadas quedan igual en el sustento; las demás se '
+          'sustentan con el numeral que sí corresponde.', despues=4)
+    M.tabla('Índices de la programación frente a la R.V.M. 208-2019', ['FILA', 'AMBIENTE', 'EN LA PROGRAMACIÓN', 'LO QUE DICE LA NORMA',
+                                                                        'RESULTADO'], [
+        ['9 y 78', 'Garita + SS.HH.', '3.00 m²/persona', 'Caseta de control 3.00 m², I.O. 3.00, 01 usuario (cuadro 40); SS.HH. con 01 '
+         'lavadero y 01 inodoro (12.3.3)', 'Confirmado'],
+        ['35 a 37', 'Talleres', '3.00 m²/persona', 'Taller creativo o de arte: I.O. 3.00 m² (cuadro 20)', 'Confirmado'],
+        ['40', 'Módulo de enseñanza', '2.00 m²/persona', 'Aula: I.O. 2.00 m², 30 estudiantes, 60.00 m² (cuadro 12)',
+         'Confirmado (el sustento vuelve a esta cita)'],
+        ['63', 'Lavandería general', '3.00 m²/persona', '3.00 m² por la mitad de los usuarios; se reduce con lavadoras (12.2.1 i)',
+         'Confirmado'],
+        ['68', 'Losa multiuso', 'Según su uso', 'Losa tipo II: 20 x 40 m = 800 m² (cuadro 23); tiene 809.00 m²', 'Confirmado'],
+        ['70', 'Almacén de implementos deportivos', 'Según su uso', 'Depósito tipo I 16.00 m², II 30.00, III 60.00 (11.5.8)',
+         'Confirmado (tipo I)'],
+        ['32 y 33', 'Archivo y depósito', 'No aplica', 'Archivo 6.00 m²; depósito de materiales de oficina 4.00 m² (cuadro 29)',
+         'Cumplen'],
+        ['30', 'Cuarto de cámaras', '3.00 m²/persona', 'No tiene índice; el circuito cerrado es parte de la vigilancia (12.3.3 c)',
+         'Se sustenta con el índice de la caseta'],
+        ['59 a 61', 'Cocina, despensa y alacena', '6.00 m²/persona', 'No da índice: la cocina escolar "responde a la normativa vigente" '
+         '(anexo 4) y el comedor "según marco normativo vigente" (cuadro 40)', 'Cambiar la cita a los lineamientos 3.2'],
+        ['62', 'Comedor/SUM', '3.00 m²/persona', 'SUM: I.O. 1.00 m², máximo 300 m² (cuadro 22); admite alimentación (11.4.1 e)',
+         'Cambiar el índice a 1.00 m²'],
+        ['74', 'Maestranza', '3.00 m²/persona (15.00 m²)', 'Maestranza de 40.00 m² en el programa general de un colegio (cuadro 40)',
+         'Revisar (ver abajo)'],
+        ['73', 'Almacén general y de limpieza', '8.80 m²/persona', 'Almacén general 1.50 m² por sección, mínimo 10.00 m² (12.3.1)',
+         'Cambiar la cita (ya en el sustento)'],
+    ], [1.2, 2.8, 3.0, W - 9.9, 2.9], tam=8, izq=(1, 2, 3, 4))
+    M.par('Puntos que conviene decidir a partir de la R.V.M. 208-2019:', 10, True, antes=6, despues=3)
+    for e, t in (
+        ('Maestranza (fila 74)', 'el programa general del cuadro 40 le da 40.00 m² en un local educativo; en el hogar tiene 15.00 m². '
+         'El sustento la presenta como taller de mantenimiento según el equipo del hogar (num. 12.3.2), sin índice. Si se prefiere '
+         'seguir el cuadro 40, ampliarla.'),
+        ('Talleres de repostería y costura (filas 36 y 37)', 'si se consideran talleres de Educación para el Trabajo (productivos), la '
+         'norma usa 3.50 m² (cuadro 21): 20 x 3.50 = 70.00 m² frente a 60.00 m². Con el índice del taller de arte (3.00 m²), que es el '
+         'de la programación, cumplen.'),
+        ('Almacén de ropa de cama y limpieza (fila 73)', 'en una residencia la norma pide 1.00 m² por dormitorio, mínimo 5.00 m² '
+         '(num. 12.2.1 k): con %d habitaciones serían %.2f m² (tiene 17.60 m²). El almacén de donaciones (25.00 m²) puede completar '
+         'ese guardado si así se organiza.' % (RS['n_hab'], RS['n_hab'] * 1.0)),
+        ('Lavandería (fila 63)', 'en residencias cada lavandería atiende hasta 4 dormitorios (num. 12.2.1 i); el hogar tiene una '
+         'lavandería general de 36.00 m², válida para 24 usuarias o menos si cuenta con lavadoras. Confirmar el equipamiento.'),
+    ):
+        etiq(M, e, t)
+
     M.par('Sugerencias opcionales de los lineamientos internacionales (no son obligatorias ni aparecen en el sustento):', 10, True,
           antes=6, despues=3)
     for e, t in (

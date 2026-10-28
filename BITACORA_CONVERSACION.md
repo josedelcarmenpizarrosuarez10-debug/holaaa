@@ -779,3 +779,14 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   Tarapoto (~3.5 km desde la UTM referencial, al costado de la pista 17/35); derecho de vía con el colector dentro del lindero.
 - Nota interna (`entregables/revision_interna/INCOMPATIBILIDADES_CORREGIDO_Y_POR_REVISAR_HOGAR_REFUGIO.docx`): vigencia R.V.M. 010-2022 frente a
   R.V.M. 068-2025-MINEDU, líneas de MT en la carretera Oasis, PTAR propia (152 m²), nombre y distancia del establecimiento de salud, sustento gráfico.
+
+### 28-10-2026 – Hogar de Refugio: cotejo con la R.V.M. N.° 208-2019-MINEDU (texto entregado)
+- La usuaria envió la R.V.M. 208-2019 (primaria y secundaria; PDF escaneado de 115 p. en zip dividido; no se versiona, ver LEEME).
+  Leída por imágenes: cuadros 12 (aula 2.00), 20 (taller de arte 3.00), 21 (EpT 3.50), 22 (SUM 1.00, máx. 300 m²), 23 (losa tipo II 800 m²),
+  29 (archivo 6.00, depósito 4.00, sala de reuniones 1.50), 31 (tópico 9.00), 40 (caseta 3.00, maestranza 40.00, cuarto de limpieza 1.50,
+  almacén general 1.50/sección mín. 10, depósito deportivo 16/30/60), num. 12.2.1 i (lavandería 3.00 m² x 1/2 usuarios), 12.2.1 k (almacén de
+  ropa de cama 1.00 m² x dormitorio), anexo 4 (cocina escolar según normativa vigente).
+- Sustento (`sustento_normativo_refugio.py`): citas 208 con numeral y cuadro; módulo de enseñanza vuelve a la cita de la arquitecta (cuadro 12);
+  cocina por lineamientos (32 m²), despensa/alacena/maestranza CONFORME; resultado igual: 71 ambientes, 44 CUMPLE, 27 CONFORME.
+- Nota interna: nueva sección 3 con el cotejo fila por fila y 4 puntos a decidir (maestranza 40 m², talleres EpT 3.50, almacén de ropa de cama
+  23 m², lavandería). Incompatibilidades: se añade la R.V.M. 208 art. 8 c (selección del terreno según la N.T. Criterios Generales).

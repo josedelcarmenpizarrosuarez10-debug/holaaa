@@ -108,6 +108,8 @@ NORMAS = [
      'ambientes educativos del hogar (módulo infantil y módulo de enseñanza).'),
     ('%s, Norma Técnica "Criterios Generales de Diseño para Infraestructura Educativa"' % RVM, 'Cuadro de incompatibilidades de uso '
      'del terreno, que reúne los dispositivos legales sectoriales y sus distancias; se adopta como lista de verificación.'),
+    ('R.V.M. N.° 208-2019-MINEDU, art. 8 c)', 'Para la adecuada selección del terreno se deben tomar en cuenta las condiciones del '
+     'terreno, así como su disponibilidad, establecidas en la N.T. Criterios Generales.'),
     ('Lineamientos ONU-Habitat / CONAVIM (2016), numeral 2.1', 'Ubicación en una zona tranquila, no aislada, con servicios e '
      'instituciones de apoyo cercanos, alumbrado público, transporte público y accesos alternativos.'),
 ]
