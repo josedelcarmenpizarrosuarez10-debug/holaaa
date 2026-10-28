@@ -50,7 +50,8 @@ CUADRO = [
     ('Establecimientos de salud', 'R.M. N.° 045-2015/MINSA, NTS N.° 113-MINSA/DGIEM-V.01 "Infraestructura y equipamiento de los '
      'establecimientos de salud del Primer Nivel de Atención", y R.M. N.° 862-2015/MINSA, NTS N.° 119-MINSA/DGIEM-V.01 '
      '"Infraestructura y equipamiento de los establecimientos de salud del Tercer Nivel de Atención"', 100, '',
-     'El establecimiento de salud de la localidad se encuentra a más de 100 m del predio.'),
+     'El establecimiento de salud de la localidad se encuentra a más de 100 m del predio y forma parte de los servicios de apoyo '
+     'cercanos que requiere el hogar.'),
     ('Plantas envasadoras de gas licuado de petróleo (GLP)', 'D.S. N.° 027-94-EM, Reglamento de Seguridad para Instalaciones y '
      'Transporte de Gas Licuado de Petróleo', 100, '', 'No existen plantas envasadoras de GLP en el entorno del predio.'),
     ('Estaciones de servicio, puestos de venta de combustibles (grifos), gasocentros y establecimientos de venta al público de GNV',
@@ -59,7 +60,8 @@ CUADRO = [
      'No existen estaciones de servicio, grifos ni gasocentros a menos de 50 m del predio.'),
     ('Locales de comercialización y consumo de bebidas alcohólicas', 'Ley N.° 28681, Ley que regula la comercialización, consumo y '
      'publicidad de bebidas alcohólicas, y su Reglamento (D.S. N.° 012-2009-SA)', 100, '',
-     'No existen locales de venta y consumo de bebidas alcohólicas a menos de 100 m del predio.'),
+     'No existen locales de venta y consumo de bebidas alcohólicas a menos de 100 m del predio, lo que favorece la tranquilidad y '
+     'la seguridad de las residentes.'),
     ('Plantas de abastecimiento de combustibles líquidos y otros productos derivados de los hidrocarburos', 'D.S. N.° 045-2001-EM, '
      'Reglamento para la Comercialización de Combustibles Líquidos y otros Productos Derivados de los Hidrocarburos', 100, '',
      'No existen plantas de abastecimiento de combustibles ni de derivados de hidrocarburos.'),
@@ -97,12 +99,18 @@ CUADRO = [
      'No existen casinos ni salas de máquinas tragamonedas en el entorno del predio.'),
     ('Hostales, peñas, discotecas, video-pubs, bingos y salas de billar', 'Ley N.° 27972, Ley Orgánica de Municipalidades, art. 79 '
      '(organización del espacio físico y uso del suelo)', None, 'Zonificación y licencias municipales',
-     'No existen hostales, peñas, discotecas, video-pubs, bingos ni salas de billar en el entorno del predio.'),
+     'No existen hostales, peñas, discotecas, video-pubs, bingos ni salas de billar en el entorno del predio; el entorno es '
+     'tranquilo, como lo requiere un hogar de refugio.'),
 ]
 
 NORMAS = [
+    ('Ley N.° 30364 y su Reglamento (D.S. N.° 009-2016-MIMP y modificatorias)', 'Marco del servicio de Hogares de Refugio '
+     'Temporal: protección, albergue y atención de mujeres víctimas de violencia y de sus hijas e hijos.'),
+    ('R.M. N.° 150-2016-MIMP', 'Lineamientos para la atención y funcionamiento de los Hogares de Refugio Temporal.'),
     ('RNE, Norma A.090 Servicios Comunales, art. 3', 'Las edificaciones de servicios comunales se ubicarán en los lugares señalados '
      'en los Planes de Desarrollo Urbano, o en zonas compatibles con la zonificación vigente.'),
+    ('RNE, Norma A.090, art. 4', 'Los proyectos que supongan una concentración de público de más de 500 personas deberán contar con '
+     'un estudio de impacto vial.'),
     ('RNE, Norma A.040 Educación (R.M. N.° 068-2020-VIVIENDA), art. 7 b)', 'Ubicación evitando las incompatibilidades de uso '
      'establecidas en la normativa vigente y/o adoptar las alternativas de solución, respecto de su ubicación. Se aplica a los '
      'ambientes educativos del hogar (módulo infantil y módulo de enseñanza).'),
@@ -111,7 +119,35 @@ NORMAS = [
     ('R.V.M. N.° 208-2019-MINEDU, art. 8 c)', 'Para la adecuada selección del terreno se deben tomar en cuenta las condiciones del '
      'terreno, así como su disponibilidad, establecidas en la N.T. Criterios Generales.'),
     ('Lineamientos ONU-Habitat / CONAVIM (2016), numeral 2.1', 'Ubicación en una zona tranquila, no aislada, con servicios e '
-     'instituciones de apoyo cercanos, alumbrado público, transporte público y accesos alternativos.'),
+     'instituciones de apoyo cercanos, alumbrado público, transporte público y accesos alternativos; numerales 2.2 a 2.8: '
+     'recinto cercado, reserva del uso, seguridad, accesos y servicios básicos.'),
+]
+
+# Condiciones de ubicación propias de un Hogar de Refugio Temporal: (condición, fuente, cómo la cumple el predio o el proyecto)
+CONDICIONES = [
+    ('Ubicación en zona compatible con la zonificación vigente', 'RNE A.090, art. 3',
+     'Predio rural Los Mangos, de propiedad del Gobierno Regional, destinado a servicios de protección social del Estado junto con el '
+     'CAR Varones y el CAR Mujeres.'),
+    ('Zona tranquila y no aislada', 'Lineamientos ONU-Habitat / CONAVIM, num. 2.1',
+     'Entorno urbano de Morales y Tarapoto, con frente a la carretera Oasis y colindante con otros servicios de protección; sin bares, '
+     'discotecas ni casinos en el entorno (Cuadro N.° 1, filas 5, 17 y 18).'),
+    ('Servicios e instituciones de apoyo cercanos (salud, seguridad y justicia)', 'Lineamientos, num. 2.1',
+     'Servicios de salud, seguridad y justicia del distrito de Morales y de la ciudad de Tarapoto en el entorno urbano; el '
+     'establecimiento de salud de la localidad está a más de 100 m (Cuadro N.° 1, fila 2).'),
+    ('Accesos vehicular y peatonal, sin estudio de impacto vial', 'Lineamientos, num. 2.1 y 2.6; RNE A.090, art. 4',
+     'Acceso por la carretera Oasis, con ingreso principal y de servicio controlados. La población del hogar es menor de 500 personas, '
+     'por lo que la A.090 (art. 4) no exige estudio de impacto vial.'),
+    ('Seguridad frente a agresiones externas', 'Lineamientos, num. 2.4',
+     'Recinto con cerco perimétrico, caseta de control en los accesos y cuarto de cámaras del circuito cerrado de vigilancia.'),
+    ('Reserva del uso y privacidad de las residentes', 'Lineamientos, num. 2.2 y 2.3',
+     'Conjunto de edificaciones dentro de un recinto cercado, sin anuncios que revelen el uso; los predios colindantes son servicios '
+     'del Estado de acceso restringido.'),
+    ('Servicios básicos', 'Lineamientos, num. 2.8; RNE A.040, art. 7 d)',
+     'El proyecto contempla cisterna y tanque elevado, tratamiento de aguas residuales, subestación eléctrica, grupo electrógeno y '
+     'drenaje pluvial.'),
+    ('Protección frente a lluvias intensas', 'RNE OS.060 (drenaje pluvial urbano)',
+     'Drenaje pluvial del predio con colector frontal y cunetas, dimensionado con la hidrología del expediente; las obras quedan dentro '
+     'del lindero.'),
 ]
 
 COLINDANTES = [
@@ -152,9 +188,15 @@ def generar_docx():
 
     M.t1('GENERALIDADES')
     M.t2('Objeto')
-    M.par('El presente análisis verifica que el terreno del proyecto “%s”, con CUI N.° %s, no presenta incompatibilidades de uso por '
-          'cercanía a actividades, instalaciones o servidumbres reguladas por la normativa vigente, de modo que su ubicación es apta '
-          'para el Hogar de Refugio Temporal.' % (R.CR_PROY, CUI))
+    M.par('El presente análisis verifica que el terreno del proyecto “%s”, con CUI N.° %s, es apto para un Hogar de Refugio Temporal: '
+          'que no presenta incompatibilidades de uso por cercanía a actividades, instalaciones o servidumbres reguladas por la normativa '
+          'vigente, y que reúne las condiciones de ubicación que requiere este servicio de protección.' % (R.CR_PROY, CUI))
+    M.t2('El servicio y sus exigencias de ubicación')
+    M.par('El Hogar de Refugio Temporal brinda protección, albergue, alimentación y atención multidisciplinaria a mujeres víctimas de '
+          'violencia en situación de riesgo de feminicidio, y a sus hijas e hijos, en el marco de la Ley N.° 30364 y su Reglamento. Por '
+          'la naturaleza del servicio, su ubicación debe garantizar la seguridad de las residentes, la reserva del uso, un entorno '
+          'tranquilo y no aislado, y la cercanía a los servicios de salud, seguridad y justicia. Al residir en él niñas y niños, debe '
+          'además evitar las actividades e instalaciones que la normativa sectorial considera incompatibles con su permanencia.')
     M.t2('Ubicación del predio')
     M.par(R.UBIC + ', con frente a la carretera Oasis y en el entorno urbano de Morales y Tarapoto. Coordenadas UTM referenciales '
           '(WGS84, zona 18 Sur): E 345 749, N 9 282 885.')
@@ -164,44 +206,56 @@ def generar_docx():
           'Mujeres), usos de la misma naturaleza y compatibles entre sí.')
 
     M.t1('MARCO NORMATIVO')
-    M.par('El Hogar de Refugio Temporal es una edificación de protección social (Norma A.090) que incluye ambientes educativos; por ello '
-          'se verifica su ubicación con las disposiciones siguientes:')
+    M.par('La ubicación del Hogar de Refugio Temporal se verifica con las normas asignadas al proyecto:')
     M.tabla('Normas que rigen la ubicación del proyecto', ['NORMA', 'DISPOSICIÓN'], [list(n) for n in NORMAS], [5.6, W - 5.6], tam=8.5,
             izq=(0, 1))
-    M.par('El cuadro de incompatibilidades de la %s es el instrumento sectorial que reúne, para una edificación con permanencia de '
-          'niñas y niños, las distancias y restricciones de los dispositivos legales de cada sector (salud, energía y minas, '
-          'transportes, recursos hídricos y gobiernos locales); por ello se adopta para el Hogar de Refugio Temporal, que alberga a '
-          'mujeres con sus hijas e hijos.' % RVM)
+    M.par('No existe una relación de incompatibilidades de uso propia de los hogares de refugio. Por ello se toma la relación de '
+          'dispositivos legales sectoriales que reúne la N.T. Criterios Generales de Diseño (%s), a la que remiten la Norma A.040 y la '
+          'R.V.M. N.° 208-2019-MINEDU para los locales con permanencia de niñas y niños, y se complementa con las condiciones de '
+          'ubicación que los lineamientos para refugios establecen para este servicio.' % RVM)
 
     M.t1('METODOLOGÍA')
-    for t in ('Se define el área de influencia del predio como la franja medida desde el lindero con la distancia que fija cada '
-              'dispositivo legal: 50 m (estaciones de servicio), 100 m (establecimientos de salud, GLP, bebidas alcohólicas y plantas '
-              'de combustibles), 150 m (velatorios y cementerios) y 200 m (ductos de hidrocarburos).',
-              'Para las incompatibilidades sin distancia fija (fajas marginales, servidumbres eléctricas, aeródromos, vías, '
+    for t in ('Incompatibilidades por cercanía (Cuadro N.° 1): se define el área de influencia del predio como la franja medida desde '
+              'el lindero con la distancia que fija cada dispositivo legal: 50 m (estaciones de servicio), 100 m (establecimientos de '
+              'salud, GLP, bebidas alcohólicas y plantas de combustibles), 150 m (velatorios y cementerios) y 200 m (ductos de '
+              'hidrocarburos). Para las que no tienen distancia fija (fajas marginales, servidumbres eléctricas, aeródromos, vías, '
               'restricciones radioeléctricas y usos regulados por la municipalidad) se verifica que la restricción no alcance al predio.',
+              'Condiciones propias del hogar (Cuadro N.° 2): se verifica cada condición de ubicación de los lineamientos y del RNE con las '
+              'características del predio y del programa arquitectónico.',
               'Se reconoce el entorno del predio y se revisa la cartografía y las imágenes satelitales de la zona.',
-              'Cada incompatibilidad se califica como CUMPLE cuando la actividad o restricción no existe dentro del área de influencia.'):
+              'Cada punto se califica como CUMPLE cuando la actividad o restricción no existe dentro del área de influencia, o cuando el '
+              'predio y el proyecto satisfacen la condición.'):
         M.vin(t)
 
-    seccion(M, apaisada=True); W2 = M.ancho                        # cuadro en hoja horizontal
-    M.t1('CUADRO DE INCOMPATIBILIDADES DE UBICACIÓN')
+    seccion(M, apaisada=True); W2 = M.ancho                        # cuadros en hoja horizontal
+    M.t1('INCOMPATIBILIDADES DE UBICACIÓN POR CERCANÍA')
     filas = [[str(k), x[0], x[1], dist(x), x[4], 'CUMPLE'] for k, x in enumerate(CUADRO, 1)]
-    M.tabla('Cuadro N.° 1: incompatibilidades de uso del terreno, según la %s - Hogar de Refugio Temporal' % RVM,
+    M.tabla('Cuadro N.° 1: incompatibilidades de uso del terreno por cercanía - Hogar de Refugio Temporal (relación de la %s)' % RVM,
             ['N.°', 'INCOMPATIBILIDAD POR CERCANÍA', 'DISPOSITIVO LEGAL', 'DISTANCIA O CRITERIO', 'CONDICIÓN DEL PREDIO', 'ESTADO'],
             filas, [0.9, 5.0, 7.6, 3.0, W2 - 18.2, 1.7], tam=8, izq=(1, 2, 3, 4))
+    for fila in M.d.tables[-1].rows:
+        fila._tr.get_or_add_trPr().append(OxmlElement('w:cantSplit'))
+    M.t1('CONDICIONES DE UBICACIÓN PROPIAS DEL HOGAR DE REFUGIO')
+    filas = [[str(k), c[0], c[1], c[2], 'CUMPLE'] for k, c in enumerate(CONDICIONES, 1)]
+    M.tabla('Cuadro N.° 2: condiciones de ubicación del Hogar de Refugio Temporal (lineamientos para refugios y RNE)',
+            ['N.°', 'CONDICIÓN DE UBICACIÓN', 'FUENTE', 'CÓMO LA CUMPLE EL PREDIO O EL PROYECTO', 'ESTADO'],
+            filas, [0.9, 5.4, 4.6, W2 - 12.6, 1.7], tam=8, izq=(1, 2, 3))
     for fila in M.d.tables[-1].rows:
         fila._tr.get_or_add_trPr().append(OxmlElement('w:cantSplit'))
     seccion(M, apaisada=False)
 
     M.t1('CONCLUSIONES')
-    for t in ('El predio cumple las %d condiciones del cuadro de incompatibilidades de uso: no existen dentro de su área de influencia '
-              'las actividades, instalaciones ni servidumbres que restringen la ubicación del Hogar de Refugio Temporal.' % len(CUADRO),
-              'La ubicación cumple la Norma A.090 (art. 3) y la Norma A.040 (art. 7 b): el hogar se emplaza en una zona compatible y sin '
-              'incompatibilidades de uso.',
+    for t in ('El predio cumple las %d condiciones del Cuadro N.° 1: no existen dentro de su área de influencia las actividades, '
+              'instalaciones ni servidumbres que la normativa sectorial considera incompatibles con la permanencia de mujeres, niñas '
+              'y niños.' % len(CUADRO),
+              'El predio y el proyecto cumplen las %d condiciones de ubicación propias del Hogar de Refugio Temporal (Cuadro N.° 2): '
+              'zona compatible, tranquila y no aislada, con servicios de apoyo cercanos, accesos controlados, seguridad perimetral, '
+              'reserva del uso, servicios básicos y drenaje pluvial.' % len(CONDICIONES),
+              'La ubicación cumple la Norma A.090 (arts. 3 y 4) y la Norma A.040 (art. 7 b): el hogar se emplaza en una zona compatible, '
+              'sin incompatibilidades de uso y sin necesidad de estudio de impacto vial.',
               'Los colindantes (CAR Varones y CAR Mujeres) son servicios de protección de la misma naturaleza, y la carretera Oasis da '
               'acceso al predio sin que las obras ocupen su faja.',
-              'La ubicación responde además a los lineamientos para refugios: zona tranquila, no aislada, con servicios cercanos y '
-              'acceso vehicular.'):
+              'Por lo expuesto, el terreno es apto para el Hogar de Refugio Temporal para mujeres víctimas de violencia.'):
         M.vin(t)
     M.d.core_properties.author = ''
     M.d.core_properties.title = 'Análisis de incompatibilidades de ubicación - Hogar de Refugio Temporal'
@@ -256,17 +310,34 @@ def generar_xlsx():
     for j in (1, 2, 3):
         w2.cell(r, j).font = nf; w2.cell(r, j).border = B; w2.cell(r, j).alignment = ac if j < 3 else al
 
+    w4 = wb.create_sheet('CONDICIONES HOGAR')
+    titulo(w4, 'CONDICIONES DE UBICACIÓN PROPIAS DEL HOGAR DE REFUGIO TEMPORAL')
+    cab(w4, 4, ['N.°', 'CONDICIÓN DE UBICACIÓN', 'FUENTE', '¿EL PREDIO O EL PROYECTO LA SATISFACE?', 'CÓMO LA CUMPLE', 'ESTADO'],
+        [5, 40, 30, 14, 70, 11])
+    q0 = 5
+    for k, c_ in enumerate(CONDICIONES):
+        r = q0 + k
+        for j, v in enumerate([k + 1, c_[0], c_[1], 'SÍ', c_[2]], 1):
+            c = w4.cell(r, j, v); c.font = nf; c.border = B; c.alignment = ac if j in (1, 4) else al
+        c = w4.cell(r, 6, '=IF(D%d="SÍ","CUMPLE","NO CUMPLE")' % r); c.font = bf; c.border = B; c.alignment = ac
+    q1 = q0 + len(CONDICIONES) - 1
+
     w3 = wb.create_sheet('RESUMEN')
-    titulo(w3, 'RESUMEN DEL ANÁLISIS DE INCOMPATIBILIDADES')
-    cab(w3, 4, ['CONCEPTO', 'CANTIDAD'], [50, 14])
-    for i, (t, f) in enumerate((('Incompatibilidades evaluadas', '=COUNTA(MATRIZ!B%d:B%d)' % (r0, r1)),
-                                ('CUMPLE', '=COUNTIF(MATRIZ!H%d:H%d,"CUMPLE")' % (r0, r1)),
-                                ('NO CUMPLE', '=COUNTIF(MATRIZ!H%d:H%d,"NO CUMPLE")' % (r0, r1)))):
-        w3.cell(5 + i, 1, t).font = nf; c = w3.cell(5 + i, 2, f); c.font = bf; c.alignment = ac
-        w3.cell(5 + i, 1).border = B; c.border = B
-    w3.cell(9, 1, 'RESULTADO').font = bf
-    c = w3.cell(9, 2, '=IF(B7=0,"UBICACIÓN APTA","REVISAR")'); c.font = bf; c.alignment = ac
-    w3.cell(9, 1).border = B; c.border = B
+    titulo(w3, 'RESUMEN DEL ANÁLISIS DE UBICACIÓN')
+    cab(w3, 4, ['CONCEPTO', 'EVALUADOS', 'CUMPLE', 'NO CUMPLE'], [58, 12, 12, 12])
+    for i, (t, h, a, b, col) in enumerate((('Cuadro N.° 1: incompatibilidades por cercanía', 'MATRIZ', r0, r1, 'H'),
+                                           ('Cuadro N.° 2: condiciones propias del hogar', "'CONDICIONES HOGAR'", q0, q1, 'F'))):
+        r = 5 + i
+        w3.cell(r, 1, t).font = nf
+        w3.cell(r, 2, '=COUNTA(%s!B%d:B%d)' % (h, a, b)); w3.cell(r, 3, '=COUNTIF(%s!%s%d:%s%d,"CUMPLE")' % (h, col, a, col, b))
+        w3.cell(r, 4, '=COUNTIF(%s!%s%d:%s%d,"NO CUMPLE")' % (h, col, a, col, b))
+        for j in range(1, 5):
+            w3.cell(r, j).border = B
+            if j > 1:
+                w3.cell(r, j).font = bf; w3.cell(r, j).alignment = ac
+    w3.cell(8, 1, 'RESULTADO').font = bf
+    c = w3.cell(8, 2, '=IF(SUM(D5:D6)=0,"TERRENO APTO PARA EL HOGAR DE REFUGIO","REVISAR")'); c.font = bf
+    w3.merge_cells('B8:D8'); w3.cell(8, 1).border = B; c.border = B
     wb.properties.creator = ''; wb.properties.title = 'Matriz de incompatibilidades de ubicación - Hogar de Refugio Temporal'
     wb.save(SALIDA_X)
     with tempfile.TemporaryDirectory() as tmp:                     # recalcular las fórmulas con LibreOffice
@@ -293,8 +364,9 @@ def generar_interno():
     M.par('INCOMPATIBILIDADES DE UBICACIÓN: CORREGIDO Y PUNTOS PARA CONFIRMAR', 12.5, True, color=R.GRANATE, centro=True, despues=2)
     M.par('Hogar de Refugio Temporal - CUI N.° %s  |  Documento de trabajo, no forma parte del expediente' % CUI, 9, color=R.GRIS,
           centro=True, despues=10)
-    M.par('Las 18 incompatibilidades del cuadro quedan en CUMPLE, como en el borrador. Este documento indica lo que ya quedó ajustado '
-          'en el análisis y lo que conviene confirmar antes de cerrar el expediente.')
+    M.par('El borrador era el cuadro de incompatibilidades de un local educativo. El análisis se rehízo para el Hogar de Refugio: '
+          'las 18 incompatibilidades por cercanía quedan en CUMPLE, como en el borrador, y se agregó un segundo cuadro con las '
+          'condiciones de ubicación propias de un hogar de refugio. Este documento indica lo ajustado y lo que conviene confirmar.')
 
     def sec(t):
         M.par(t, 11, True, color=R.GRANATE, antes=8, despues=4)
@@ -312,8 +384,11 @@ def generar_interno():
          'lindero, sin ocupar la faja de la carretera Oasis'],
         ['Todos', 'Distancia dentro del texto del dispositivo', 'Columna aparte "DISTANCIA O CRITERIO"'],
     ], [2.6, 6.0, W - 8.6], tam=8.5, izq=(1, 2))
-    M.par('Se añadieron el marco normativo del proyecto (A.090 art. 3 y A.040 art. 7 b), la metodología del área de influencia, los '
-          'usos colindantes (CAR Varones y CAR Mujeres) y las conclusiones.', despues=4)
+    M.par('Se añadieron: la descripción del servicio y sus exigencias de ubicación; el marco normativo del proyecto (Ley N.° 30364 y '
+          'su Reglamento, R.M. N.° 150-2016-MIMP, A.090 arts. 3 y 4, A.040 art. 7 b, R.V.M. N.° 208-2019 art. 8 c y lineamientos para '
+          'refugios); el Cuadro N.° 2 con %d condiciones propias del hogar (zona compatible, tranquila y no aislada, servicios de '
+          'apoyo, accesos, seguridad, reserva del uso, servicios básicos y drenaje); los usos colindantes y las conclusiones.'
+          % len(CONDICIONES), despues=4)
 
     sec('2. PARA CONFIRMAR')
     M.tabla('Puntos para confirmar', ['TEMA', 'QUÉ CONFIRMAR', 'POR QUÉ'], [
@@ -330,6 +405,13 @@ def generar_interno():
          'El cuadro trata de plantas de terceros; un evaluador puede preguntar por la propia.'],
         ['Establecimiento de salud (fila 2)', 'Nombre y distancia del puesto o centro de salud más cercano.',
          'Dar la distancia medida refuerza el CUMPLE.'],
+        ['Zonificación (Cuadro 2, fila 1)', 'Certificado de zonificación y vías o de parámetros urbanísticos de la Municipalidad '
+         'Distrital de Morales que indique que el uso es compatible.', 'Es el documento que acredita la A.090 art. 3.'],
+        ['Servicios de apoyo (Cuadro 2, fila 3)', 'Nombre y distancia de la comisaría, el Centro Emergencia Mujer, la fiscalía o el '
+         'juzgado y el centro de salud más cercanos; paradero de transporte público y alumbrado en la carretera Oasis.',
+         'El cuadro los menciona en general; con nombres y distancias el sustento es más sólido.'],
+        ['Privacidad (Cuadro 2, fila 6)', 'Altura de las edificaciones colindantes (CAR Varones y CAR Mujeres) y si alguna permite '
+         'ver el interior del hogar.', 'Los lineamientos piden evitar edificaciones altas desde donde se observe el interior.'],
         ['Sustento gráfico', 'Adjuntar una imagen satelital o un plano con el área de influencia de 50, 100, 150 y 200 m desde el lindero.',
          'Es el respaldo habitual del cuadro; se puede preparar en DXF sobre la planta general.'],
     ], [3.2, 7.4, W - 10.6], tam=8.5, izq=(0, 1, 2))

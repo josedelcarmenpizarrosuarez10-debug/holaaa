@@ -790,3 +790,11 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   cocina por lineamientos (32 m²), despensa/alacena/maestranza CONFORME; resultado igual: 71 ambientes, 44 CUMPLE, 27 CONFORME.
 - Nota interna: nueva sección 3 con el cotejo fila por fila y 4 puntos a decidir (maestranza 40 m², talleres EpT 3.50, almacén de ropa de cama
   23 m², lavandería). Incompatibilidades: se añade la R.V.M. 208 art. 8 c (selección del terreno según la N.T. Criterios Generales).
+
+### 28-10-2026 – Hogar de Refugio: análisis de ubicación rehecho para el hogar (ya no de colegio)
+- El borrador de la usuaria era el cuadro de un local educativo. `incompatibilidades_refugio.py` ahora: servicio y exigencias de ubicación
+  (Ley 30364), marco normativo del proyecto (Ley 30364 y D.S. 009-2016-MIMP, R.M. 150-2016-MIMP, A.090 arts. 3 y 4, A.040 art. 7 b,
+  R.V.M. 010-2022 como relación sectorial, R.V.M. 208 art. 8 c, lineamientos 2.1 a 2.8), Cuadro N.° 1 (18 incompatibilidades por cercanía,
+  textos con la mirada del hogar) y Cuadro N.° 2 nuevo (8 condiciones propias del hogar: zonificación, zona tranquila no aislada, servicios
+  de apoyo, accesos sin estudio de impacto vial (< 500 personas), seguridad, reserva del uso, servicios básicos, drenaje). Excel con hoja
+  CONDICIONES HOGAR y RESUMEN de ambos cuadros. Nota interna: certificado de zonificación, servicios de apoyo con nombre y distancia, altura de colindantes.
