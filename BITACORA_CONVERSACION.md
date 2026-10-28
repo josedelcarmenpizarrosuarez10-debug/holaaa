@@ -735,3 +735,22 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   complementarias 15, IV obras exteriores 12, V detalles 37, VI evacuación y señalización 2), 2 páginas. Mismos arreglos de forma
   (grupos en orden, numeración correlativa, 6 códigos repetidos por copia), más espacios sueltos en descripciones
   ("DEPORTIVA /01-05", "(PATIO DE DESCARGA )").
+
+## 28/10/2026 - Hogar de Refugio: sustento normativo del programa arquitectónico (pedido de Solange)
+- Insumos: programación de áreas del 27-10-2026 y lista de normas (copias en `insumos/solange/sustento_normativo/`), textos de
+  las normas A.030 (R.M. 005-2019-VIVIENDA), A.040 (R.M. 068-2020-VIVIENDA), A.080 y A.090 (D.S. 011-2006-VIVIENDA), R.V.M.
+  104-2019-MINEDU (escaneada, leída como imagen) y los Lineamientos arquitectónicos para refugios de ONU-Habitat / CONAVIM (2016).
+  La R.V.M. 208-2019-MINEDU no fue entregada: sus índices quedan "por cotejar".
+- `herramientas/sustento_normativo_refugio.py` -> `entregables/SUSTENTO_NORMATIVO_PROGRAMA_ARQUITECTONICO_HOGAR_REFUGIO.docx`
+  (17 p.: marco normativo, índices transcritos de cada artículo, población, sustento por zona y ambiente con área requerida /
+  proyecto / superficie sugerida, criterios cualitativos, ambientes faltantes, observaciones y conclusiones) y
+  `entregables/MATRIZ_SUSTENTO_NORMATIVO_PROGRAMA_ARQUITECTONICO_HOGAR_REFUGIO.xlsx` (MATRIZ con fórmulas, RESIDENCIAL, INDICES,
+  NORMAS, AMBIENTES FALTANTES, RESUMEN con COUNTIFS/SUMIF). La programación de la usuaria no se modifica.
+- Resultado: 71 ambientes, ninguno bajo el área de su norma; 10 a observar. Correcciones de cita: sala de reuniones (1.0 m² es
+  A.090 art. 11), cuarto de limpieza, área de descanso, almacén general (8.80 m² es el dormitorio docente de la R.V.M. 104),
+  triple tipo II. Garita contada dos veces; totales digitados en estacionamientos y patio de descarga. Habitación especial
+  12 m² (lineamientos 28 m² + baño 6), despensa 6 m² (9/12), cocina 36 m² (0.40 x 113 = 45.2), baños compartidos 7 frente a
+  13 juegos con el criterio de albergue (A.030 Anexo 4). 113 plazas en 23 habitaciones frente a ~35 residentes de los
+  lineamientos: organizar en pabellones. Faltan cuarto del personal nocturno, sala del personal, sala para adolescentes,
+  taller de cómputo y sala multiuso.
+

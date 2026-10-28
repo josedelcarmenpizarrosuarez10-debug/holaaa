@@ -80,6 +80,7 @@ python3 herramientas/memoria_xlsx.py      # memoria de cálculo
 python3 herramientas/planos_dxf.py        # juego de planos DP/DA/DD
 python3 herramientas/dxf_render.py <dxf> <png> x0 y0 x1 y1 110 color   # vista previa (caja de entregables/_calc/laminas.json)
 ```
+Refugio, sustento normativo del programa arquitectónico (RNE A.030/A.040/A.080/A.090, R.V.M. 104-2019-MINEDU y lineamientos ONU-Habitat/CONAVIM): `python3 herramientas/sustento_normativo_refugio.py` (Word + matriz Excel con fórmulas; insumos en `insumos/solange/sustento_normativo/`).
 Refugio, juego de láminas DPL que imprime la usuaria (`insumos/solange/PLANOS_DRENAJE_PLUVIAL_MUJERES_VIOLENTADAS_LAMINAS.pdf`, 42 láminas
 DPL-01 a DPL-42, sin códigos repetidos; DPL-37 isométrico de lloraderos, DPL-38 detalle de lloradero, DPL-39 falsa columna, DPL-40 planta
 de lloraderos, DPL-41/42 bancas OC-01): `python3 herramientas/indice_planos_refugio.py` -> índice Word de la DPL-01 a la DPL-42 con grupos

@@ -1,0 +1,9 @@
+Insumos del sustento normativo del programa arquitectónico - Hogar de Refugio Temporal (CUI 2675514), 28-10-2026.
+- PROGRAMACION_DE_AREAS_HOGAR_REFUGIO_27-10-2026.xlsx: programación de áreas de la usuaria (no se edita).
+- NORMAS_CITADAS_PROGRAMACION.docx: lista de normas citadas en la programación.
+- RNE_A030, A040, A080, A090: textos de las normas técnicas entregados por la usuaria.
+No se versionan por su tamaño (entregados en la conversación, leídos completos):
+- Lineamientos arquitectónicos para el diseño y construcción de refugios especializados para mujeres, sus hijas e hijos,
+  víctimas de violencia extrema, familiar y/o de género (ONU-Habitat / CONAVIM, México, 2016), en 3 partes (22 MB).
+- R.V.M. N.° 104-2019-MINEDU, Norma Técnica "Criterios de diseño para locales educativos del nivel de Educación Inicial"
+  (PDF escaneado, 24 MB); datos tomados: cuadros 7, 16, 18, 19, 21, 22 y numerales 13.1 a 13.4.
