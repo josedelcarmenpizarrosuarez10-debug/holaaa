@@ -757,5 +757,5 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   sustento (Word 15 p. y matriz) solo sustenta, cada ambiente con la norma que le corresponde y su cálculo (dict EXP: sala de
   reuniones con A.090 art. 11, almacén general con R.V.M. 104 num. 13.3.1, despensa con la alacena, etc.), resultados CUMPLE /
   CONFORME, sin capítulo de observaciones; las observaciones y sugerencias pasan a una nota interna para la arquitecta
-  (`entregables/revision_interna/NOTA_REVISION_PROGRAMACION_AREAS_HOGAR_REFUGIO.docx`, no forma parte del expediente).
+  (`entregables/revision_interna/PROGRAMACION_CORREGIDO_Y_POR_REVISAR_HOGAR_REFUGIO.docx`: 1) lo ya corregido en el sustento, 2) lo que ella debe revisar; no forma parte del expediente).
 
