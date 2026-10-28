@@ -807,3 +807,9 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   matriz): Word con poligonal P1-P4 (6,999.98 m²), colindantes, usos dentro de 100 m, marco (D.Leg. 1297, A.090, A.040 art. 7, R.V.M. 068-2025,
   R.V.M. 208 art. 8), Cuadro 1 y Cuadro 2 (8 condiciones), Excel y revisión interna (fajas marginales vs "aguas de drenaje" de la memoria,
   comercio vecinal vs bebidas alcohólicas, acceso F.B.T. vs carretera Oasis, R.M. 377-2024-MIMP sin verificar, zonificación, pozo séptico).
+- Corrección pedida de la memoria descriptiva de arquitectura y la programación de Katiuska (`varones/corrige_memoria_arquitectura_v.py`, copias
+  en `entregables_varones/arquitectura/`): cuadro de incompatibilidades (Cuadro N.° 4; filas 4, 5, 7, 10, 12, 13, 14, 15, 17, 18), acceso F.B.T. +
+  carretera Oasis, titular GORE (antes Aldea Infantil), "1. %", TOLERANCIAS CATASTRALES, imágenes 1 a 9, SENAMHI, R.V.M., EM.110 (no A.030),
+  drenaje del proyecto (no "cunetas existentes"), A.090 en la normativa, subtotal mal rotulado (1,103.81 sin cerco en ml) y total 4,281.52
+  (antes 4,205.30: valor viejo sin el estacionamiento), listado de planos "(POR DEFINIR)" -> 89 láminas del índice. Excel: fórmulas I103/I125,
+  #REF! fuera, Nutrición m2, erratas. 30 imágenes conservadas.
