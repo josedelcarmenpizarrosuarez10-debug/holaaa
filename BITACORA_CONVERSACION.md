@@ -759,3 +759,12 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   CONFORME, sin capítulo de observaciones; las observaciones y sugerencias pasan a una nota interna para la arquitecta
   (`entregables/revision_interna/PROGRAMACION_CORREGIDO_Y_POR_REVISAR_HOGAR_REFUGIO.docx`: 1) lo ya corregido en el sustento, 2) lo que ella debe revisar; no forma parte del expediente).
 
+
+### 28-10-2026 – CAR Varones (CUI 2705619): índices de arquitectura en Word
+- Fuente: índice en Excel de la usuaria (`insumos/katiuska/INDICE_DE_LAMINAS_ARQUITECTURA_CAR_VARONES.xlsx`). Generador
+  `herramientas/varones/indice_arquitectura_v.py` (mismo estilo que los índices del Refugio).
+- `INDICE_GENERAL_EXPEDIENTE_ARQUITECTURA_CAR_VARONES.docx`: resumen por tomo + detalle (Tomo I: 9 documentos D-01 a D-09; Tomos II a V: 89 láminas).
+- `INDICE_DE_PLANOS_ARQUITECTURA_CAR_VARONES.docx`: solo las 89 láminas en 7 grupos, numeradas 01 a 89, 2 copias cada una.
+- Arreglos de forma: numeración correlativa (el Excel no numeraba UL-02, PT-01 ni DT-09/00-03), códigos sin espacios, tildes y erratas,
+  ED-02.2/2 "02 / 02 - 04" -> "02 / 02 - 02", DT-01/07-8 y 08-8 -> 07-08 y 08-08, SE-E-01 = evacuación y SE-S-01 = señalización (como los
+  rótulos; el Excel las tenía cruzadas), MB-01 a MB-09 con el título de su rótulo. Formato no indicado en el Excel: "—".
