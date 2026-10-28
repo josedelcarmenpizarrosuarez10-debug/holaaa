@@ -39,6 +39,8 @@ SALIDA_X = os.path.join(RAIZ, 'entregables/MATRIZ_INCOMPATIBILIDADES_UBICACION_H
 SALIDA_N = os.path.join(RAIZ, 'entregables/revision_interna/INCOMPATIBILIDADES_CORREGIDO_Y_POR_REVISAR_HOGAR_REFUGIO.docx')
 CUI = R.CUI
 RVM = 'R.V.M. N.° 010-2022-MINEDU'
+# nombres del servicio en la matriz Excel (el CAR Varones los cambia en varones/incompatibilidades_v.py)
+SERV, SERV_CORTO, HOJA2, RES2 = 'HOGAR DE REFUGIO TEMPORAL', 'HOGAR DE REFUGIO', 'CONDICIONES HOGAR', 'condiciones propias del hogar'
 
 # Aeropuerto de Tarapoto: distancia desde la ubicación UTM referencial del predio (E 345 749, N 9 282 885, WGS84 18S)
 AERO_KM, AERO_OESTE_KM = 3.5, 2.4
@@ -310,8 +312,8 @@ def generar_xlsx():
     for j in (1, 2, 3):
         w2.cell(r, j).font = nf; w2.cell(r, j).border = B; w2.cell(r, j).alignment = ac if j < 3 else al
 
-    w4 = wb.create_sheet('CONDICIONES HOGAR')
-    titulo(w4, 'CONDICIONES DE UBICACIÓN PROPIAS DEL HOGAR DE REFUGIO TEMPORAL')
+    w4 = wb.create_sheet(HOJA2)
+    titulo(w4, 'CONDICIONES DE UBICACIÓN PROPIAS DEL ' + SERV)
     cab(w4, 4, ['N.°', 'CONDICIÓN DE UBICACIÓN', 'FUENTE', '¿EL PREDIO O EL PROYECTO LA SATISFACE?', 'CÓMO LA CUMPLE', 'ESTADO'],
         [5, 40, 30, 14, 70, 11])
     q0 = 5
@@ -326,7 +328,7 @@ def generar_xlsx():
     titulo(w3, 'RESUMEN DEL ANÁLISIS DE UBICACIÓN')
     cab(w3, 4, ['CONCEPTO', 'EVALUADOS', 'CUMPLE', 'NO CUMPLE'], [58, 12, 12, 12])
     for i, (t, h, a, b, col) in enumerate((('Cuadro N.° 1: incompatibilidades por cercanía', 'MATRIZ', r0, r1, 'H'),
-                                           ('Cuadro N.° 2: condiciones propias del hogar', "'CONDICIONES HOGAR'", q0, q1, 'F'))):
+                                           ('Cuadro N.° 2: ' + RES2, "'%s'" % HOJA2, q0, q1, 'F'))):
         r = 5 + i
         w3.cell(r, 1, t).font = nf
         w3.cell(r, 2, '=COUNTA(%s!B%d:B%d)' % (h, a, b)); w3.cell(r, 3, '=COUNTIF(%s!%s%d:%s%d,"CUMPLE")' % (h, col, a, col, b))
@@ -336,9 +338,9 @@ def generar_xlsx():
             if j > 1:
                 w3.cell(r, j).font = bf; w3.cell(r, j).alignment = ac
     w3.cell(8, 1, 'RESULTADO').font = bf
-    c = w3.cell(8, 2, '=IF(SUM(D5:D6)=0,"TERRENO APTO PARA EL HOGAR DE REFUGIO","REVISAR")'); c.font = bf
+    c = w3.cell(8, 2, '=IF(SUM(D5:D6)=0,"TERRENO APTO PARA EL %s","REVISAR")' % SERV_CORTO); c.font = bf
     w3.merge_cells('B8:D8'); w3.cell(8, 1).border = B; c.border = B
-    wb.properties.creator = ''; wb.properties.title = 'Matriz de incompatibilidades de ubicación - Hogar de Refugio Temporal'
+    wb.properties.creator = ''; wb.properties.title = 'Matriz de incompatibilidades de ubicación - ' + SERV.capitalize()
     wb.save(SALIDA_X)
     with tempfile.TemporaryDirectory() as tmp:                     # recalcular las fórmulas con LibreOffice
         subprocess.run(['soffice', '--headless', '--convert-to', 'xlsx', '--outdir', tmp, SALIDA_X],

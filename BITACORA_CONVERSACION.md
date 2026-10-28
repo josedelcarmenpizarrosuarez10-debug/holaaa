@@ -798,3 +798,12 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   textos con la mirada del hogar) y Cuadro N.° 2 nuevo (8 condiciones propias del hogar: zonificación, zona tranquila no aislada, servicios
   de apoyo, accesos sin estudio de impacto vial (< 500 personas), seguridad, reserva del uso, servicios básicos, drenaje). Excel con hoja
   CONDICIONES HOGAR y RESUMEN de ambos cuadros. Nota interna: certificado de zonificación, servicios de apoyo con nombre y distancia, altura de colindantes.
+
+### 28-10-2026 – CAR Varones (CUI 2705619): revisión y análisis de incompatibilidades de ubicación
+- Insumos de Katiuska en `insumos/katiuska/arquitectura/` (memoria descriptiva de arquitectura y programación). Su cuadro (18 dispositivos,
+  R.V.M. 068-2025-MINEDU, todos CUMPLE) está completo y con la norma vigente; tiene los mismos errores de copia del colegio: D.L. 25884 (es 25844),
+  "Ley Orgánica de Municipales", fila 13 "Institución Educativa", "área definida para la UP", aeródromo sin mencionar el aeropuerto (~3.5 km).
+- `herramientas/varones/incompatibilidades_v.py` (usa el motor del Refugio; `incompatibilidades_refugio.py` ahora parametriza SERV/HOJA2 en la
+  matriz): Word con poligonal P1-P4 (6,999.98 m²), colindantes, usos dentro de 100 m, marco (D.Leg. 1297, A.090, A.040 art. 7, R.V.M. 068-2025,
+  R.V.M. 208 art. 8), Cuadro 1 y Cuadro 2 (8 condiciones), Excel y revisión interna (fajas marginales vs "aguas de drenaje" de la memoria,
+  comercio vecinal vs bebidas alcohólicas, acceso F.B.T. vs carretera Oasis, R.M. 377-2024-MIMP sin verificar, zonificación, pozo séptico).
