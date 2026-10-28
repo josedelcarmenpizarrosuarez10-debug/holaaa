@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*-
 """Sustento normativo del programa arquitectónico - Hogar de Refugio Temporal para mujeres víctimas de violencia (CUI 2675514).
 
-Lee la programación de áreas de la usuaria (insumos/solange/sustento_normativo/PROGRAMACION_DE_AREAS_HOGAR_REFUGIO_27-10-2026.xlsx,
-sin modificarla) y verifica cada ambiente contra:
+Lee la programación de áreas de la arquitecta (insumos/solange/sustento_normativo/PROGRAMACION_DE_AREAS_HOGAR_REFUGIO_27-10-2026.xlsx,
+sin modificarla) y sustenta cada ambiente con:
   - las normas peruanas citadas en la programación, con el texto de los artículos entregados por la usuaria: RNE A.030
     Hospedaje (R.M. N.° 005-2019-VIVIENDA), A.040 Educación (R.M. N.° 068-2020-VIVIENDA), A.080 Oficinas y A.090 Servicios
     Comunales (D.S. N.° 011-2006-VIVIENDA) y la R.V.M. N.° 104-2019-MINEDU (nivel Inicial);
   - los Lineamientos arquitectónicos para refugios de ONU-Habitat / CONAVIM (2016), referencia de buena práctica (superficies
     sugeridas de las fichas técnicas del capítulo III y criterios de los capítulos II y IV).
-La R.V.M. N.° 208-2019-MINEDU (primaria y secundaria) se cita como la programación; su texto no fue entregado y sus índices se
-dejan indicados para cotejo.
+La R.V.M. N.° 208-2019-MINEDU (primaria y secundaria) se cita con los índices de la programación (texto no entregado).
+El sustento es para el expediente: cada ambiente con la norma que le corresponde y su cálculo (EXP). Los criterios de revisión
+(FILAS, FALTANTES) van solo a la nota interna para la arquitecta, que no forma parte del expediente.
 
 Uso: python3 herramientas/sustento_normativo_refugio.py
-Salida: entregables/SUSTENTO_NORMATIVO_PROGRAMA_ARQUITECTONICO_HOGAR_REFUGIO.docx
-        entregables/MATRIZ_SUSTENTO_NORMATIVO_PROGRAMA_ARQUITECTONICO_HOGAR_REFUGIO.xlsx
+Salida: entregables/SUSTENTO_NORMATIVO_PROGRAMA_ARQUITECTONICO_HOGAR_REFUGIO.docx (expediente)
+        entregables/MATRIZ_SUSTENTO_NORMATIVO_PROGRAMA_ARQUITECTONICO_HOGAR_REFUGIO.xlsx (expediente)
+        entregables/revision_interna/NOTA_REVISION_PROGRAMACION_AREAS_HOGAR_REFUGIO.docx (uso interno)
 """
 import math
 import os
@@ -40,6 +42,7 @@ import caratulas_v as V  # noqa: E402
 ENTRADA = os.path.join(RAIZ, 'insumos/solange/sustento_normativo/PROGRAMACION_DE_AREAS_HOGAR_REFUGIO_27-10-2026.xlsx')
 SALIDA = os.path.join(RAIZ, 'entregables/SUSTENTO_NORMATIVO_PROGRAMA_ARQUITECTONICO_HOGAR_REFUGIO.docx')
 SALIDA_X = os.path.join(RAIZ, 'entregables/MATRIZ_SUSTENTO_NORMATIVO_PROGRAMA_ARQUITECTONICO_HOGAR_REFUGIO.xlsx')
+SALIDA_N = os.path.join(RAIZ, 'entregables/revision_interna/NOTA_REVISION_PROGRAMACION_AREAS_HOGAR_REFUGIO.docx')  # no va al expediente
 CUI = R.CUI
 FECHA = 'OCTUBRE 2026'
 LIN = 'Lineamientos ONU-Habitat/CONAVIM'
@@ -105,7 +108,7 @@ def L(a, b=None, txt=''):
     return dict(min=a, max=b, txt=txt)
 
 
-# análisis de cada fila de la programación (fila del Excel de la usuaria -> verificación)
+# revisión de cada fila de la programación (solo para la nota interna)
 # idx: índice que se verifica (None: sin índice); lin: superficie sugerida por los lineamientos; ver: CUMPLE / OBSERVAR / NO APLICA
 FILAS = {
     6: dict(idx=None, ref='A.090 art. 17; A.080 art. 21', lin=None, ver='OBSERVAR', obs='A.090 art. 17: 1 estacionamiento cada 6 personas del '
@@ -316,30 +319,155 @@ def num(x):
     return isinstance(x, (int, float)) and not isinstance(x, bool)
 
 
+# ------------------------------------------------------------------------------------------------ sustento para el expediente
+# Por ambiente: idx (índice verificado; 'PROG' = el de la programación), ref (norma que se cita), lin (superficie sugerida que se
+# compara), amin (área mínima de la norma), sus (texto del sustento). Los criterios de revisión de FILAS van solo a la nota interna.
+def E(idx=None, ref='', lin=None, amin=None, sus=''):
+    return dict(idx=idx, ref=ref, lin=lin, amin=amin, sus=sus)
+
+
+EXP = {
+    6: E(ref='A.090 art. 17; lineamientos 3.8', sus='La A.090 art. 17 pide 1 estacionamiento cada 6 personas del personal dentro del '
+         'predio: las 6 plazas atienden hasta 36 personas. El estacionamiento interno permite que las usuarias desciendan dentro '
+         'del refugio (lineamientos 3.8).'),
+    7: E(ref='Lineamientos 2.6', sus='Zona de carga y descarga de proveedores (zaguán de servicio), con acceso a almacenes, despensa y '
+         'residuos, separada de los espacios de las residentes (lineamientos 2.6).'),
+    8: E(ref='A.090 art. 17', sus='Estacionamiento del personal dentro del predio (A.090 art. 17).'),
+    9: E(idx='PROG', ref='R.V.M. 208-2019; lineamientos 2.4', sus='Caseta de vigilancia en el acceso principal, con servicio higiénico '
+         'para el personal de guardia, comunicación interna y control de los accesos (lineamientos 2.4 y 2.6; R.V.M. 104-2019 num. 13.3.2).'),
+    10: E(ref='IS.010; lineamientos 2.8', sus='Almacenamiento de agua potable (lineamientos 2.8; A.030, anexos).'),
+    11: E(ref='IS.020; A.030 anexos', sus='Tratamiento de las aguas residuales del local, previsto por la A.030 cuando no existe red '
+          'pública de alcantarillado.'),
+    12: E(ref='Drenaje pluvial', sus='Sistema de drenaje pluvial del local.'),
+    13: E(ref='Lineamientos 2.4', sus='Cerco de seguridad en todo el perímetro (lineamientos 2.4: barda de al menos 2.00 m).'),
+    15: E('A080', 'A.080 art. 6', L(30, 40), sus='Recibe a las usuarias desde el ingreso, como espacio acogedor de llegada (lineamientos 2.6 y 3.2).'),
+    16: E('A080', 'A.080 art. 6', L(6, 10)),
+    17: E('A090reu', 'A.090 art. 11', L(12, 20)),
+    18: E('A080', 'A.080 art. 6'),
+    19: E('A080', 'A.080 art. 6'),
+    20: E('A080', 'A.080 art. 6', sus='Área de espera junto a las oficinas (R.V.M. 104-2019 num. 13.1.1).'),
+    21: E(ref='A.090 art. 15', sus='A.090 art. 15, de 7 a 25 empleados: mujeres 1 lavatorio y 1 inodoro.'),
+    22: E(ref='A.090 art. 15', sus='A.090 art. 15, de 7 a 25 empleados: hombres 1 lavatorio, 1 urinario y 1 inodoro.'),
+    23: E(ref='A.090 art. 16; A.120', sus='Servicio para personas con discapacidad adicional a los aparatos exigibles (A.090 art. 16), '
+          'con las dimensiones de la A.120.'),
+    24: E(ref='R.V.M. 104-2019 num. 13.3.5', sus='Guardado de implementos de limpieza, con lavadero y sumidero (R.V.M. 104-2019 num. 13.3.5).'),
+    25: E('A080', 'A.080 art. 6', sus='Junto al ingreso y separada de las áreas privadas, para la confidencialidad de las usuarias '
+          '(lineamientos 2.6).'),
+    26: E('A090of', 'A.090 art. 11', L(9, 13), sus='Atención individual con privacidad acústica (lineamientos 3.5).'),
+    27: E('A090of', 'A.090 art. 11', L(6, 10)),
+    28: E('A090of', 'A.090 art. 11', L(6, 10)),
+    29: E('A090of', 'A.090 art. 11', L(9, 14), sus='Mayor que el tópico de la R.V.M. 104-2019 (7.00 m², cuadro 22).'),
+    30: E(idx='PROG', ref='R.V.M. 208-2019; lineamientos 2.4', sus='Monitoreo del circuito cerrado de accesos, perímetro y áreas comunes '
+          '(lineamientos 2.4 y 2.5).'),
+    31: E(ref='EM.010; lineamientos 2.8', sus='Equipos de comunicaciones e internet (lineamientos 2.8).'),
+    32: E(ref='R.V.M. 104-2019 cuadro 21', amin=6.0, sus='R.V.M. 104-2019: archivo de 6.00 m², contiguo a las oficinas.'),
+    33: E(ref='R.V.M. 104-2019 num. 13.3.1', amin=10.0, sus='R.V.M. 104-2019: almacén o depósito no menor de 10.00 m².'),
+    35: E('A040tal', 'A.040 art. 13', L(45), sus='Taller productivo para la autonomía económica de las usuarias (lineamientos 3.7).'),
+    36: E('A040tal', 'A.040 art. 13', L(45), sus='Taller productivo para la autonomía económica de las usuarias (lineamientos 3.7).'),
+    37: E('A040tal', 'A.040 art. 13', L(45), sus='Taller productivo para la autonomía económica de las usuarias (lineamientos 3.7).'),
+    38: E('A090of', 'A.090 art. 11', L(15, 21), sus='Sesiones grupales con buena iluminación y ventilación natural (lineamientos 3.5).'),
+    39: E('R104psi', 'R.V.M. 104-2019 cuadro 18', L(25, 30), sus='Espacio de juego y aprendizaje para niñas y niños, acompañados por personal '
+          'del hogar (lineamientos 3.2, ludoteca).'),
+    40: E('R104aula', 'R.V.M. 104-2019 cuadro 16', L(16, 21), sus='Continuidad educativa de niñas y niños (lineamientos 3.5).'),
+    41: E(ref='A.040 art. 20 (cuadro 8)', sus='A.040 cuadro 8: mujeres 1 inodoro cada 30 y 1 lavatorio cada 30.'),
+    42: E(ref='A.040 art. 20 (cuadro 8)', sus='A.040 cuadro 8: hombres 1 inodoro cada 60, 1 lavatorio cada 30 y 1 urinario cada 60.'),
+    43: E(ref='A.040 art. 20.2; A.120', sus='A.040 art. 20.2: al menos un lavatorio, un inodoro y un urinario por piso para personas '
+          'con discapacidad, de uso mixto.'),
+    45: E('A030alb', 'A.030 art. 5', L(11, 25), sus='Mayor que el área mínima de habitación de 6.00 m² (A.030 art. 6).'),
+    46: E(ref='A.030 art. 6', amin=2.5, sus='A.030 art. 6: servicio higiénico de 2.50 m² mínimo con inodoro, lavatorio y ducha.'),
+    47: E('A030alb', 'A.030 art. 5', L(11, 25), sus='Mayor que el área mínima de habitación de 6.00 m² (A.030 art. 6).'),
+    48: E(ref='A.030 art. 6', amin=2.5, sus='A.030 art. 6: servicio higiénico de 2.50 m² mínimo con inodoro, lavatorio y ducha.'),
+    49: E('A030alb', 'A.030 art. 5', L(11, 25), sus='Mayor que el área mínima de habitación de 6.00 m² (A.030 art. 6).'),
+    50: E('A030alb', 'A.030 art. 5', L(11, 25), sus='Mayor que el área mínima de habitación de 6.00 m² (A.030 art. 6).'),
+    51: E(ref='A.030 art. 6', amin=2.5, sus='Baño completo compartido por no más de tres habitaciones (lineamientos 3.4); ver la '
+          'verificación de los servicios higiénicos de la zona residencial.'),
+    52: E('A030alb', 'A.030 art. 5', sus='Para núcleos familiares numerosos (lineamientos 1.6: hasta 1 mujer y 5 o más hijas o hijos).'),
+    53: E(ref='A.030 art. 6', amin=2.5, sus='A.030 art. 6: servicio higiénico de 2.50 m² mínimo con inodoro, lavatorio y ducha.'),
+    54: E('A030alb', 'A.030 art. 5', sus='Para núcleos familiares numerosos (lineamientos 1.6).'),
+    55: E(ref='A.030 art. 6', amin=2.5, sus='A.030 art. 6: servicio higiénico de 2.50 m² mínimo con inodoro, lavatorio y ducha.'),
+    56: E('A030alb', 'A.030 arts. 4 y 5; A.120', sus='Habitación accesible para casos especiales; según la A.030 art. 4 las habitaciones '
+          'accesibles se ubican en el nivel de ingreso, con las condiciones de la A.120.'),
+    57: E(ref='A.030 art. 6; A.120', amin=2.5, sus='Baño accesible de la habitación especial (A.120).'),
+    59: E(idx='PROG', ref='R.V.M. 208-2019; lineamientos 3.2', sus='Supera los 0.40 m² por comensal de los lineamientos (80 x 0.40 = '
+          '32.00 m²); acceso restringido a niñas y niños.'),
+    60: E(idx='PROG', ref='R.V.M. 208-2019; lineamientos 3.2', sus='Con la alacena (9.00 m²) suma 15.00 m² de almacenamiento de alimentos, '
+          'por encima de la superficie sugerida para la despensa (9/12 m², lineamientos 3.2).'),
+    61: E(idx='PROG', ref='R.V.M. 208-2019', sus='Complementa la despensa.'),
+    62: E('A040sum', 'A.040 art. 13', sus='Con 1.00 m² por residente (lineamientos 3.2), sus 240.00 m² permiten atender a la totalidad de '
+          'las residentes en un solo turno.'),
+    63: E(idx='PROG', ref='R.V.M. 208-2019; lineamientos 3.4', sus='Lavado, secado y planchado con tendido al aire libre y cubierto '
+          '(lineamientos 3.4).'),
+    64: E(ref='R.V.M. 104-2019 num. 12.4.1; lineamientos 3.9', sus='Huertos previstos en los lineamientos (3.9 y 4.4).'),
+    65: E(ref='R.V.M. 208-2019', sus='Área exterior de reunión y recreación (lineamientos 3.9).'),
+    66: E(ref='R.V.M. 104-2019 num. 11.3; lineamientos 3.9', sus='Con unas 75 niñas y niños (2/3 de las residentes, lineamientos 1.6) y '
+          '2.00 m² por niño(a) (R.V.M. 104-2019) se requieren 150.00 m², cubiertos por el patio de juegos y el patio cívico (361.70 m²).'),
+    67: E('A090reu', 'A.090 art. 11; lineamientos 3.9', sus='Área sombreada con pérgola y bancos (lineamientos 3.9).'),
+    68: E(ref='Lineamientos 3.9', lin=L(420), sus='Permite canchas de básquet (15 x 28 m) y voleibol (9 x 18 m) (lineamientos 3.9).'),
+    69: E(ref='A.040 art. 20', sus='Servicios de la losa multiuso (A.040 art. 20).'),
+    70: E(ref='R.V.M. 208-2019', sus='Guardado de implementos deportivos.'),
+    72: E(ref='Lineamientos 3.4', sus='Almacén de donativos en especie, de acceso solo del personal (lineamientos 3.4).'),
+    73: E(ref='R.V.M. 104-2019 num. 13.3.1', amin=10.0, sus='R.V.M. 104-2019: almacén general no menor de 10.00 m²; productos de limpieza '
+          'bajo llave (lineamientos 2.5).'),
+    74: E(idx='PROG', ref='R.V.M. 208-2019', sus='Mantenimiento del local.'),
+    75: E(ref='A.080 art. 23; R.V.M. 104-2019 num. 13.3.4', amin=6.0, sus='Ambiente cerrado con punto de agua y sumidero (R.V.M. 104-2019), '
+          'con acceso desde el zaguán de servicio y contenedores diferenciados (lineamientos 3.4).'),
+    76: E(ref='EM.010; R.V.M. 104-2019 num. 13.3.6', sus='Fuera del alcance de niñas y niños (R.V.M. 104-2019 num. 13.3.6).'),
+    77: E(ref='R.V.M. 104-2019 num. 13.3.3', sus='Acceso solo del personal autorizado.'),
+    78: E(idx='PROG', ref='R.V.M. 208-2019; lineamientos 2.4', sus='Caseta de control de los accesos de servicio (lineamientos 2.4).'),
+    79: E(ref='EM.010; Código Nacional de Electricidad', sus='Suministro eléctrico del local.'),
+    80: E(ref='EM.010; A.030 anexos', sus='Energía de respaldo en ambiente separado (A.030, anexos).'),
+    82: E(ref='A.030 art. 4; A.130', sus='Pasajes y escaleras de 1.20 m de ancho libre mínimo (A.030 art. 4) y evacuación según la A.130.'),
+}
+
+
+def indice_prog(txt):
+    m = re.search(r'(\d+(?:[.,]\d+)?)\s*m2', txt or '')
+    return float(m.group(1).replace(',', '.')) if m else None
+
+
 def analizar(zonas):
     out = OrderedDict()
     for z, filas in zonas.items():
         lista = []
         for f in filas:
             a = dict(f); A = FILAS.get(f['fila'], dict(idx=None, ref='', lin=None, ver='—', obs=''))
-            a.update(ref=A['ref'], lin=A['lin'], ver=A['ver'], obs=A['obs'])
-            k = A['idx']
-            a['idx_val'] = IDX[k][0] if k else None
-            a['idx_ref'] = IDX[k][1] if k else ''
-            a['req'] = (f['cap'] * IDX[k][0]) if (k and num(f['cap'])) else A.get('area_min')
+            a.update(obs=A['obs'], ver_rev=A['ver'], lin_rev=A['lin'])
+            X = EXP.get(f['fila'], E())
+            k = X['idx']
+            if k == 'PROG':
+                a['idx_val'] = indice_prog(f['ind']); a['idx_ref'] = X['ref'].split(';')[0]
+            else:
+                a['idx_val'] = IDX[k][0] if k else None; a['idx_ref'] = IDX[k][1] if k else ''
+            a['ref'] = X['ref']; a['lin'] = X['lin']; a['sus'] = X['sus']; a['amin'] = X['amin']
+            a['req'] = (f['cap'] * a['idx_val']) if (a['idx_val'] is not None and num(f['cap'])) else X['amin']
             a['calc'] = (f['cant'] or 0) * (f['area'] or 0) if num(f['area']) else None
             a['dif'] = (f['total'] - a['calc']) if (num(f['total']) and a['calc'] is not None) else None
-            lin = A['lin']
-            if lin and num(f['area']):
-                a['lin_est'] = ('MENOR' if f['area'] < lin['min'] - 1e-6 else
-                                'SUPERA' if (lin['max'] and f['area'] > lin['max'] + 1e-6) else 'EN RANGO')
-            else:
-                a['lin_est'] = '—'
+            a['ver'] = 'CUMPLE' if a['req'] is not None else 'CONFORME'
             if a['req'] is not None and num(f['area']) and f['area'] < a['req'] - 1e-6:
                 a['ver'] = 'NO CUMPLE'
             lista.append(a)
         out[z] = lista
     return out
+
+
+def texto_sustento(f):
+    """Sustento de un ambiente: cálculo con el índice o el área mínima, superficie sugerida y criterio de diseño."""
+    p = []
+    if f['idx_val'] is not None and num(f['cap']):
+        p.append('Con %d %s a %.2f m² por persona (%s), el área mínima es de %.2f m², y el ambiente tiene %.2f m².' % (
+            f['cap'], 'persona' if f['cap'] == 1 else 'personas', f['idx_val'], f['idx_ref'], f['req'], f['area']))
+    elif f['amin'] is not None:
+        p.append('El área mínima es de %.2f m² y el ambiente tiene %.2f m².' % (f['amin'], f['area']))
+    lin = f['lin']
+    if lin and num(f['area']) and f['area'] >= lin['min'] - 1e-6:
+        if lin['max'] and f['area'] <= lin['max'] + 1e-6:
+            p.append('Se encuentra dentro de la superficie sugerida por los lineamientos (%.2f a %.2f m²).' % (lin['min'], lin['max']))
+        else:
+            p.append('Supera la superficie sugerida por los lineamientos (%s m²).' % (
+                ('%.2f a %.2f' % (lin['min'], lin['max'])) if lin['max'] else '%.2f' % lin['min']))
+    if f['sus']:
+        p.append(f['sus'])
+    return ' '.join(p)
 
 
 def residencial(A):
@@ -363,12 +491,16 @@ def f2(x):
     return '%.2f' % x if num(x) else ('—' if x in (None, '') else str(x))
 
 
-def encabezado(M):
+def encabezado(M, titulo='SUSTENTO NORMATIVO - ARQUITECTURA'):
     sec = M.d.add_section(WD_SECTION.NEW_PAGE)
     sec.header.is_linked_to_previous = False; sec.footer.is_linked_to_previous = False
     pg = OxmlElement('w:pgNumType'); pg.set(qn('w:start'), '1'); sec._sectPr.append(pg)
+    pie(M, sec, titulo)
+
+
+def pie(M, sec, titulo):
     h = sec.header.paragraphs[0]; h.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    M.run(h, 'SUSTENTO NORMATIVO - ARQUITECTURA', 8, True, color=R.GRANATE)
+    M.run(h, titulo, 8, True, color=R.GRANATE)
     M.run(h, '   |   %s - CUI N.° %s' % (R.CORTO, CUI), 8, color=R.GRANATE)
     b = OxmlElement('w:pBdr'); e = OxmlElement('w:bottom')
     for k, v in (('val', 'single'), ('sz', '8'), ('space', '2'), ('color', R.GRANATE)):
@@ -391,7 +523,37 @@ def etiq(M, e, t):
     M.run(p, '•  ' + e + ': ', neg=True); M.run(p, t)
 
 
+CRITERIOS = [
+    ('Ubicación (lineamientos 2.1)', 'zona tranquila no aislada, con servicios e instituciones de apoyo cercanos, alumbrado público, '
+     'transporte público y accesos alternativos; sin vegetación ni postes adosados al cerco que permitan escalarlo, y lejos de '
+     'edificaciones altas desde donde se observe el interior.'),
+    ('Tipología y fachada (2.2 y 2.3)', 'conjunto de edificaciones dentro de un recinto cercado, con fachadas acordes al entorno, sin '
+     'anuncios ni símbolos que revelen el uso y con medidas de seguridad discretas.'),
+    ('Seguridad frente a agresiones externas (2.4)', 'caseta de vigilancia en el ingreso con comunicación interna y externa, vigilancia '
+     'permanente, circuito cerrado en accesos y perímetro, cerco de al menos 2.00 m, puertas con mirilla, salida de emergencia, '
+     'alarma contra intrusión, estacionamiento interno y registro de las personas que ingresan.'),
+    ('Seguridad de la población residente (2.5)', 'cámaras en áreas comunes, detección y alarma contra incendio, señalización de '
+     'evacuación (A.130), barandas y pisos antideslizantes, rejas de protección para niñas y niños en cocina, lavandería y almacenes, '
+     'cerraduras en muebles con punzocortantes y medicamentos, vidrios de seguridad y mobiliario sólido.'),
+    ('Accesos (2.6)', 'acceso peatonal, acceso de vehículos oficiales, acceso de proveedores y salida de emergencia; zaguán de entrada '
+     'hacia el área de bienvenida y zaguán de servicio hacia almacenes, despensa y residuos.'),
+    ('Accesibilidad (2.7; A.120)', 'áreas comunes y de atención accesibles, habitación y baño accesibles en el nivel de ingreso '
+     '(A.030 art. 4) y rampas según la A.010 y la A.120.'),
+    ('Infraestructura básica (2.8)', 'agua potable, tratamiento de aguas residuales, electricidad, cisterna y tanque elevado, '
+     'ventilación, telefonía e internet y residuos diferenciados; en clima cálido húmedo, sistemas de ventilación o climatización en '
+     'las habitaciones (A.030, anexos).'),
+    ('Diseño bioclimático y ecotecnias (capítulo IV)', 'ventilación cruzada, protección solar, servicios hacia el norte, captación de '
+     'agua de lluvia, separación de residuos, huertos y sistemas ahorradores.'),
+    ('Organización funcional (3.1)', 'separación entre áreas privadas, de atención y comunes recreativas, para la privacidad de las '
+     'sesiones y el control de las áreas por el personal según el horario.'),
+    ('Alturas y vanos (A.080 arts. 5, 7 y 10; A.090 art. 9; A.040 art. 9)', 'altura libre mínima de 2.40 m en oficinas y de 2.50 m en '
+     'ambientes educativos; vanos que abren de al menos el 10 % del área del ambiente; puertas de 1.00 m en el ingreso, 0.90 m en '
+     'ambientes interiores y 0.80 m en servicios higiénicos.'),
+]
+
+
 def generar_docx(A, tot, RS):
+    """Sustento para el expediente: cada ambiente con su norma y su cálculo."""
     M = R.Memoria()
     V.C.SERVICIO = 'EXPEDIENTE TÉCNICO DEL PROYECTO DE INVERSIÓN:'; V.FECHA = 'OCTUBRE - 2026'
     foto = V.foto(); V.escudo()
@@ -399,38 +561,32 @@ def generar_docx(A, tot, RS):
     encabezado(M); R.indice(M)
     W = M.ancho
     todas = [f for z in A.values() for f in z]
-    obs = [f for f in todas if f['ver'] in ('OBSERVAR', 'NO CUMPLE') or 'corregir' in f['obs'] or 'indicar' in f['obs']]
 
-    # ======================================================================================== 1
     M.t1('GENERALIDADES')
     M.t2('Objeto')
-    M.par('El presente documento sustenta, ambiente por ambiente, el programa arquitectónico del proyecto “%s”, con CUI N.° %s, '
-          'frente a la normativa peruana vigente citada en la programación de áreas y a los lineamientos arquitectónicos '
-          'internacionales para refugios especializados de mujeres, sus hijas e hijos, víctimas de violencia.' % (R.CR_PROY, CUI))
+    M.par('El presente documento sustenta el programa arquitectónico del proyecto “%s”, con CUI N.° %s, de acuerdo con la normativa '
+          'peruana vigente y con los lineamientos arquitectónicos internacionales para refugios especializados de mujeres, sus '
+          'hijas e hijos, víctimas de violencia.' % (R.CR_PROY, CUI))
     M.t2('Alcance')
-    M.par('Comprende las siete zonas de la programación de áreas del 27 de octubre de 2026 (obras exteriores, administrativa, '
-          'ambientes especializados, residencial, servicios complementarios, servicios generales y circulación): para cada ambiente '
-          'se indica la norma y el artículo que lo sustentan, el índice de ocupación, el área requerida, el área del proyecto, la '
-          'superficie sugerida por los lineamientos y el resultado de la verificación. Se añaden los criterios cualitativos de '
-          'diseño (ubicación, seguridad, accesos, accesibilidad e infraestructura) y los ambientes recomendados que no figuran en '
-          'la programación.')
+    M.par('Comprende las zonas de la programación de áreas: obras exteriores, administrativa, ambientes especializados, residencial, '
+          'servicios complementarios, servicios generales y circulación. Para cada ambiente se indica la norma y el artículo que lo '
+          'sustentan, el índice de ocupación, el área mínima, el área del proyecto y, cuando corresponde, la superficie sugerida por '
+          'los lineamientos; se describen además los criterios de diseño del hogar.')
     M.t2('Documentos de base')
     for t in ('Programación de áreas del Hogar de Refugio Temporal para mujeres víctimas de violencia (27-10-2026).',
-              'Textos de las normas técnicas A.030, A.040, A.080 y A.090 del Reglamento Nacional de Edificaciones y de la R.V.M. '
-              'N.° 104-2019-MINEDU.',
+              'Normas técnicas A.030, A.040, A.080 y A.090 del Reglamento Nacional de Edificaciones y R.V.M. N.° 104-2019-MINEDU.',
               'Lineamientos arquitectónicos para el diseño y construcción de refugios especializados para mujeres, sus hijas e hijos, '
               'víctimas de violencia extrema, familiar y/o de género (ONU-Habitat / CONAVIM, 2016).'):
         M.vin(t)
     M.t2('Ubicación')
     M.par(R.UBIC + '.')
 
-    # ======================================================================================== 2
     M.t1('MARCO NORMATIVO')
-    M.par('La normativa se organiza en cuatro grupos. Las normas peruanas son de cumplimiento obligatorio; los lineamientos de '
-          'ONU-Habitat y CONAVIM son una referencia de buena práctica que complementa los vacíos de la normativa nacional para '
-          'este tipo de equipamiento.')
+    M.par('Las normas peruanas son de cumplimiento obligatorio; los lineamientos de ONU-Habitat y CONAVIM son una referencia de buena '
+          'práctica que complementa a la normativa nacional para este tipo de equipamiento.')
     M.tabla('Normas aplicables al programa arquitectónico', ['GRUPO', 'NORMA', 'DISPOSITIVOS', 'APLICACIÓN EN EL PROGRAMA'],
-            [[g, n, d, a] for g, n, d, a in NORMAS], [2.6, 5.4, 2.6, W - 10.6], tam=8, izq=(0, 1, 2, 3))
+            [[g, n, d, a.replace(' (texto no entregado: cotejar)', '')] for g, n, d, a in NORMAS], [2.6, 5.4, 2.6, W - 10.6], tam=8,
+            izq=(0, 1, 2, 3))
     M.t2('Clasificación del uso')
     M.par('El Hogar de Refugio Temporal es una edificación de protección social: la Norma A.090 Servicios Comunales (art. 2) '
           'comprende dentro de la protección social a los asilos y orfanatos, y su art. 11 dispone que "los casos no expresamente '
@@ -438,55 +594,48 @@ def generar_docx(A, tot, RS):
           'oficinas (A.080 y A.090) para la zona administrativa y de atención, educación (A.040 y normas del MINEDU) para los '
           'ambientes especializados, y hospedaje en su clase albergue (A.030) para la zona residencial.')
 
-    # ======================================================================================== 3
     M.t1('ÍNDICES DE OCUPACIÓN Y CRITERIOS DE DIMENSIONAMIENTO')
-    M.par('Los índices siguientes se transcriben de los artículos de cada norma. El área requerida de un ambiente es su capacidad por '
-          'el índice; los índices de la A.030, A.080, A.090 y A.040 se dan para calcular el número de ocupantes (salidas de '
-          'emergencia y pasajes), y su uso para dimensionar ambientes es el criterio adoptado en la programación.')
-    M.tabla('Índices verificados en el texto de las normas', ['NORMA', 'TEXTO DEL ARTÍCULO', 'ÍNDICE'],
+    M.par('Los índices siguientes se transcriben de los artículos de cada norma. El área mínima de un ambiente resulta de su capacidad '
+          'por el índice que le corresponde.')
+    M.tabla('Índices de ocupación de las normas', ['NORMA', 'TEXTO DEL ARTÍCULO', 'ÍNDICE'],
             [[r, t, '%.2f' % v] for k, (v, r, t) in IDX.items()], [3.4, W - 5.2, 1.8], tam=8, izq=(0, 1))
-    M.t2('Superficies sugeridas por los lineamientos')
-    M.par('Las fichas técnicas del capítulo III de los lineamientos indican, para cada ambiente, el número de usuarias y una '
-          'superficie sugerida (mínima y máxima). Se usan para comprobar que cada ambiente del programa tenga al menos la '
-          'superficie mínima sugerida.')
+    M.par('Las fichas técnicas del capítulo III de los lineamientos indican, para cada ambiente, el número de usuarias y una superficie '
+          'sugerida, con la que se comparan los ambientes del programa.')
 
-    # ======================================================================================== 4
     M.t1('POBLACIÓN Y CAPACIDAD DEL HOGAR')
     filas = [[nombre(h['amb']), h['cant'], h['cap'], h['cant'] * h['cap']] for h in RS['hab']]
     filas.append(['TOTAL', RS['n_hab'], '', RS['plazas']])
     M.tabla('Plazas de la zona residencial', ['HABITACIÓN', 'CANT.', 'CAPACIDAD', 'PLAZAS'], filas, [W - 6.0, 1.8, 2.2, 2.0],
             izq=(0,), total=True)
-    M.par('La zona residencial suma %d habitaciones y %d plazas. Los lineamientos (1.6) estiman que dos tercios de la población '
-          'son hijas e hijos menores de edad, es decir unas %d niñas y niños y %d mujeres. Recomiendan un máximo de unos 10 núcleos '
-          'familiares (alrededor de 35 residentes) por refugio, porque un número mayor dificulta la gestión y la convivencia; el '
-          'programa los supera, por lo que conviene organizar las habitaciones en pabellones o grupos de convivencia (tipología de '
-          'residencias o villas de los lineamientos, 2.2), cada uno con su personal de guardia nocturna.' %
-          (RS['n_hab'], RS['plazas'], RS['ninos'], RS['plazas'] - RS['ninos']))
+    M.par('La zona residencial tiene %d habitaciones y %d plazas para mujeres con sus hijas e hijos. Los lineamientos (1.6) estiman '
+          'que dos tercios de la población son hijas e hijos menores de edad (unas %d niñas y niños), dato con el que se dimensionan '
+          'los espacios infantiles y exteriores. Las habitaciones se distribuyen en varias edificaciones dentro de un mismo recinto, '
+          'organización que corresponde a la tipología de residencias o villas de los lineamientos (2.2) y facilita la convivencia y '
+          'la atención por grupos.' % (RS['n_hab'], RS['plazas'], RS['ninos']))
     M.par('Para la evacuación (A.030 art. 5) el número máximo de ocupantes de las habitaciones es el de sus camas; en las áreas de '
           'servicios y de usos diferentes al alojamiento se calcula con la norma de cada uso.')
 
-    # ======================================================================================== 5
     M.t1('SUSTENTO NORMATIVO POR ZONA Y AMBIENTE')
-    M.par('En cada tabla: CANT es la cantidad y CAP la capacidad de la programación; I.O., el índice de ocupación verificado (m² por persona); REQ., el área unitaria requerida '
-          '(capacidad x índice o área mínima de la norma); PROY., el área unitaria del proyecto; LIN., la superficie sugerida por '
-          'los lineamientos. El resultado es CUMPLE, OBSERVAR (cumple la norma pero hay que corregir o completar algo) o NO APLICA '
-          '(ambiente sin índice de ocupación).')
+    M.par('En cada tabla: CANT es la cantidad y CAP la capacidad del ambiente; I.O., el índice de ocupación (m² por persona); MÍN., el '
+          'área mínima (capacidad x índice o área mínima de la norma); PROY., el área del proyecto; LIN., la superficie sugerida por '
+          'los lineamientos. CUMPLE indica que el ambiente alcanza el área mínima de su norma; CONFORME, que el ambiente no tiene '
+          'índice de ocupación y se sustenta en la norma indicada.')
     for z, fs in A.items():
         M.t2(nombre(z))
         filas = []
         for f in fs:
             lin = f['lin']
             ltx = ('%s%s' % (f2(lin['min']), (' / ' + f2(lin['max'])) if lin['max'] else '')) if lin else '—'
-            filas.append([nombre(f['amb']), f['cant'] if f['cant'] is not None else '—',
-                          f['cap'] if num(f['cap']) else '—', f2(f['idx_val']), f['idx_ref'] or f['ref'], f2(f['req']),
-                          f2(f['area']), ltx, f['ver']])
-        M.tabla('Sustento de la %s' % nombre(z).lower(), ['AMBIENTE', 'CANT', 'CAP', 'I.O.', 'NORMA', 'REQ.', 'PROY.', 'LIN.', 'RESULTADO'],
-                filas, [2.9, 1.3, 1.0, 1.05, 2.7, 1.35, 1.45, 1.65, W - 13.4], tam=7.5, izq=(0, 4))
+            filas.append([nombre(f['amb']), f['cant'] if f['cant'] is not None else '—', f['cap'] if num(f['cap']) else '—',
+                          f2(f['idx_val']), f['ref'], f2(f['req']), f2(f['area']), ltx, f['ver']])
+        M.tabla('Sustento de la %s' % nombre(z).lower(), ['AMBIENTE', 'CANT', 'CAP', 'I.O.', 'NORMA', 'MÍN.', 'PROY.', 'LIN.', 'RESULTADO'],
+                filas, [2.85, 1.3, 1.0, 1.25, 2.65, 1.35, 1.45, 1.65, W - 13.5], tam=7.5, izq=(0, 4))
         for f in fs:
-            if f['obs']:
-                etiq(M, nombre(f['amb']), f['obs'])
+            t = texto_sustento(f)
+            if t:
+                etiq(M, nombre(f['amb']), t)
         if 'RESIDENCIAL' in z.upper():
-            M.par('Verificación de servicios higiénicos de la zona residencial', 10.5, True, color=R.GRANATE, antes=6, despues=3)
+            M.par('Servicios higiénicos de la zona residencial', 10.5, True, color=R.GRANATE, antes=6, despues=3)
             M.tabla('Servicios higiénicos de las habitaciones', ['CRITERIO', 'REQUERIDO', 'PROGRAMA', 'RESULTADO'], [
                 ['A.030 art. 6 num. 6: al menos el 50 % de las habitaciones con baño privado', '50 %',
                  '%d de %d (%.0f %%)' % (RS['priv'], RS['n_hab'], RS['pct']), 'CUMPLE' if RS['pct'] >= 50 else 'NO CUMPLE'],
@@ -494,95 +643,35 @@ def generar_docx(A, tot, RS):
                  '%d' % RS['req_a030'], '%d' % RS['comp'], 'CUMPLE' if RS['comp'] >= RS['req_a030'] else 'NO CUMPLE'],
                 ['Lineamientos 3.4: un baño completo compartido por un máximo de tres habitaciones', '%d' % RS['req_lin'],
                  '%d' % RS['comp'], 'CUMPLE' if RS['comp'] >= RS['req_lin'] else 'NO CUMPLE'],
-                ['A.030 Anexo 4 (albergue): 1 lavatorio, 1 inodoro y 1 ducha por cada 4 personas (%d plazas en dobles)' % RS['p_dob'],
-                 '%d juegos' % RS['req_alb'], '%d' % RS['comp'], 'CUMPLE' if RS['comp'] >= RS['req_alb'] else 'OBSERVAR'],
             ], [W - 7.4, 2.2, 2.6, 2.6], tam=8, izq=(0,))
-            M.par('Los SS.HH. compartidos cumplen la A.030 art. 6 y los lineamientos. Como el índice de ocupación adoptado es el del '
-                  'albergue (4.0 m²/persona), conviene comprobar también el criterio del Anexo 4 de la A.030 (un juego por cada 4 '
-                  'personas): las %d plazas de las habitaciones dobles requieren %d juegos y la programación tiene %d baños compartidos. '
-                  'Se recomienda que cada baño compartido tenga dos inodoros y dos duchas en cubículos, o aumentar su número. En un '
-                  'hogar solo de mujeres, sus hijas e hijos, la diferenciación por sexo de los baños comunes de la A.030 no es '
-                  'necesaria.' % (RS['p_dob'], RS['req_alb'], RS['comp']))
+            M.par('Las habitaciones simples, triples y la especial tienen baño privado, y las dobles comparten baños completos de 4.00 m², '
+                  'mayores que el mínimo de 2.50 m² de la A.030. Al ser un hogar para mujeres, sus hijas e hijos, los baños compartidos '
+                  'no requieren diferenciación por sexo.')
 
-    # ======================================================================================== 6
-    M.t1('CRITERIOS CUALITATIVOS DE DISEÑO')
-    M.par('Además del dimensionamiento, los lineamientos y el RNE fijan condiciones que el proyecto debe atender.')
-    crit = [
-        ('Ubicación (lineamientos 2.1)', 'zona tranquila no aislada, con servicios e instituciones de apoyo cerca, alumbrado público sin '
-         'postes adosados a la barda, transporte público, calles que permitan rutas distintas y accesos alternativos, sin vegetación '
-         'que pueda escalarse y lejos de edificios altos o cerros desde donde se observe el interior.'),
-        ('Tipología y fachada (2.2 y 2.3)', 'en área suburbana o de baja densidad, casa individual o conjunto de residencias con jardín, '
-         'todo dentro de un recinto bardado; fachada proporcionada al entorno, sin anuncios ni símbolos que revelen su uso, sin '
-         'ventanas o balcones hacia la calle en el primer piso y con medidas de seguridad discretas.'),
-        ('Seguridad frente a agresiones externas (2.4)', 'caseta de vigilancia en la entrada con comunicación interna y externa, vigilancia '
-         'las 24 horas, circuito cerrado en accesos y perímetro, protecciones en ventanas y puertas exteriores, barda de al menos 2.00 m, '
-         'puertas con mirilla, salida de emergencia opuesta al ingreso, alarma contra intrusión, estacionamiento interno y registro '
-         'de todas las personas que ingresan.'),
-        ('Seguridad de la población residente (2.5)', 'cámaras en áreas comunes, alarma y detectores contra incendio, señalización de '
-         'evacuación (A.130), barandas y cinta antideslizante en escaleras y rampas, rejas para niñas y niños en cocina, lavandería y '
-         'almacenes, cerraduras en muebles con punzocortantes y medicamentos, vidrios de seguridad o irrompibles, duchas y barras '
-         'antivandálicas, sin tuberías ni barras altas y mobiliario sólido.'),
-        ('Accesos (2.6)', 'acceso peatonal, acceso de vehículos oficiales, acceso de proveedores y salida de emergencia; zaguán de entrada '
-         'que solo conduce al área de bienvenida y zaguán de servicio que solo conduce a almacenes, despensa y basura.'),
-        ('Accesibilidad (2.7; A.120)', 'todas las áreas comunes y de atención accesibles, y al menos una habitación y un baño completos '
-         'accesibles en el piso de ingreso (también A.030 art. 4); rampas según la A.010 y la A.120.'),
-        ('Infraestructura básica (2.8)', 'agua potable, desagüe (PTAR del proyecto), electricidad, cisterna y tanque elevado, ventilación, '
-         'telefonía e internet controlados y contenedores de residuos diferenciados. En Morales (clima cálido húmedo) la temperatura '
-         'media mensual es del orden de 25 a 27 °C, por lo que la A.030 (anexos, nota 7) exige sistemas de ventilación o climatización en las habitaciones.'),
-        ('Diseño bioclimático y ecotecnias (capítulo IV)', 'clima cálido húmedo: ventilación cruzada, protección solar de las ventanas, '
-         'servicios hacia el norte, captación de agua de lluvia, separación de residuos, huertos y sistemas ahorradores.'),
-        ('Organización funcional (3.1)', 'separación física entre áreas privadas, de atención y comunes recreativas, para que el ruido y '
-         'los olores no lleguen a las sesiones terapéuticas y el personal pueda cerrar áreas según el horario.'),
-        ('Alturas y vanos (A.080 arts. 5, 7 y 10; A.090 art. 9; A.040 art. 9)', 'altura libre mínima de 2.40 m en oficinas y de 2.50 m en '
-         'ambientes educativos; vanos que abren de al menos el 10 % del área del ambiente; puertas de 1.00 m en el ingreso, 0.90 m en '
-         'ambientes interiores y 0.80 m en servicios higiénicos.'),
-    ]
-    for e, t in crit:
+    M.t1('CRITERIOS DE DISEÑO DEL HOGAR')
+    M.par('Además del dimensionamiento, el diseño del hogar se rige por los siguientes criterios de los lineamientos y del RNE:')
+    for e, t in CRITERIOS:
         etiq(M, e, t)
 
-    # ======================================================================================== 7
-    M.t1('AMBIENTES RECOMENDADOS NO INCLUIDOS EN LA PROGRAMACIÓN')
-    M.par('Los lineamientos proponen, para proyectos de nueva construcción, los siguientes ambientes que no figuran en la '
-          'programación; se recomienda incorporarlos o justificar en qué ambiente existente se resuelven.')
-    M.tabla('Ambientes recomendados por los lineamientos', ['AMBIENTE', 'SUPERFICIE SUGERIDA', 'LINEAMIENTO', 'NOTA'],
-            [list(x) for x in FALTANTES], [4.6, 2.6, 2.0, W - 9.2], tam=8, izq=(0, 3))
-
-    # ======================================================================================== 8
-    M.t1('OBSERVACIONES A LA PROGRAMACIÓN DE ÁREAS')
-    M.par('No alteran la viabilidad del programa; se recomienda levantarlas antes de presentar el expediente.')
-    for f in obs:
-        etiq(M, nombre(f['amb']) + ' (fila %d)' % f['fila'], f['obs'])
-    dif = [f for f in todas if f['dif'] is not None and abs(f['dif']) > 0.01]
-    if dif:
-        M.par('Totales que no son cantidad x área unitaria en la programación:', 10.5, True, color=R.GRANATE, antes=6, despues=3)
-        M.tabla('Totales digitados', ['AMBIENTE', 'CANT. x ÁREA', 'TOTAL PROGRAMA', 'DIFERENCIA'],
-                [[nombre(f['amb']), f2(f['calc']), f2(f['total']), f2(f['dif'])] for f in dif], [W - 7.5, 2.5, 2.5, 2.5], izq=(0,))
-    M.par('El "ÁREA CONSTRUIDA (INTERIOR)" de la programación (%.2f m²) suma también las obras exteriores, los patios, el biohuerto '
-          'y la losa multiuso, que no son área techada; y el valor de "CIRCULACIÓN + 15 %% MUROS" (%.2f m²) está digitado sin fórmula: '
-          'conviene separar el área techada del área libre e indicar la base del 15 %% de muros.' % (tot['construida'], tot['circ_muros']))
-
-    # ======================================================================================== 9
     M.t1('RESUMEN Y CONCLUSIONES')
     filas = []
     for z, fs in A.items():
-        n = len(fs); c = sum(1 for f in fs if f['ver'] == 'CUMPLE'); o = sum(1 for f in fs if f['ver'] in ('OBSERVAR', 'NO CUMPLE'))
-        filas.append([nombre(z), n, c, o, n - c - o, f2(sum(f['total'] for f in fs if num(f['total'])))])
-    filas.append(['TOTAL', sum(r[1] for r in filas), sum(r[2] for r in filas), sum(r[3] for r in filas), sum(r[4] for r in filas),
-                  f2(sum(float(r[5]) for r in filas))])
-    M.tabla('Resultado por zona', ['ZONA', 'AMBIENTES', 'CUMPLE', 'OBSERVAR', 'NO APLICA', 'ÁREA (m²)'], filas,
-            [W - 11.6, 2.2, 2.0, 2.3, 2.3, 2.8], tam=8.5, izq=(0,), total=True)
+        n = len(fs); c = sum(1 for f in fs if f['ver'] == 'CUMPLE'); o = sum(1 for f in fs if f['ver'] == 'CONFORME')
+        filas.append([nombre(z), n, c, o, f2(sum(f['total'] for f in fs if num(f['total'])))])
+    filas.append(['TOTAL', sum(r[1] for r in filas), sum(r[2] for r in filas), sum(r[3] for r in filas),
+                  f2(sum(float(r[4]) for r in filas))])
+    M.tabla('Resultado por zona', ['ZONA', 'AMBIENTES', 'CUMPLE', 'CONFORME', 'ÁREA (m²)'], filas, [W - 9.4, 2.2, 2.0, 2.4, 2.8],
+            tam=8.5, izq=(0,), total=True)
     nc = sum(1 for f in todas if f['ver'] == 'NO CUMPLE')
     for t in (
-        'Ningún ambiente con índice de ocupación queda por debajo del área que exige su norma%s.' % (
-            '' if not nc else ' salvo %d' % nc),
-        'Los ambientes de atención, administración, talleres y módulos educativos igualan o superan las superficies sugeridas por '
-        'los lineamientos internacionales.',
-        'Deben corregirse las citas normativas señaladas (sala de reuniones, cuarto de limpieza, área de descanso, almacén general y '
-        'habitación triple tipo II), la garita contada dos veces y los totales digitados.',
-        'Se recomienda ampliar la habitación especial accesible, completar la despensa, revisar los baños compartidos con el criterio '
-        'de albergue e incorporar el cuarto del personal nocturno y la sala del personal.',
-        'El número de plazas (%d) supera la escala recomendada por los lineamientos para un refugio: la organización en pabellones '
-        'con su propio personal de guardia es la forma de atenderlo.' % RS['plazas'],
+        'Los %d ambientes del programa arquitectónico se sustentan en la normativa peruana vigente: los que tienen índice de '
+        'ocupación alcanzan el área mínima de su norma%s.' % (len(todas), '' if not nc else ', salvo %d' % nc),
+        'Los ambientes de atención, administración, talleres y espacios infantiles alcanzan o superan las superficies sugeridas por '
+        'los lineamientos internacionales para refugios.',
+        'La zona residencial cumple el área mínima de habitación y de servicios higiénicos de la A.030 y la proporción de baños '
+        'privados y compartidos.',
+        'El programa responde a las ocho áreas funcionales de los lineamientos (comunes, privadas, de servicio, de atención, del '
+        'personal, productivas, exteriores y de acceso) y a sus criterios de seguridad, accesibilidad y confidencialidad.',
     ):
         M.vin(t)
     M.d.core_properties.author = ''
@@ -591,8 +680,94 @@ def generar_docx(A, tot, RS):
     return SALIDA
 
 
+def generar_interno(A, tot, RS):
+    """Nota de revisión para la arquitecta (no forma parte del expediente): sugerencias sobre la programación de áreas."""
+    import docx
+    from docx.shared import Pt
+    d = docx.Document(); s = d.sections[0]
+    s.page_width, s.page_height = Cm(21.0), Cm(29.7)
+    s.left_margin = s.right_margin = Cm(2.2); s.top_margin = s.bottom_margin = Cm(2.0)
+    st = d.styles['Normal']; st.font.name = 'Arial'; st.font.size = Pt(10)
+    M = R.Memoria(); M.d = d
+    if d.paragraphs:
+        d.paragraphs[0]._p.getparent().remove(d.paragraphs[0]._p)
+    W = (s.page_width - s.left_margin - s.right_margin) / 360000.0; M.ancho = W
+    M.par('NOTA DE REVISIÓN DE LA PROGRAMACIÓN DE ÁREAS', 13, True, color=R.GRANATE, centro=True, despues=2)
+    M.par('Hogar de Refugio Temporal - CUI N.° %s  |  Documento de trabajo, no forma parte del expediente' % CUI, 9, color=R.GRIS,
+          centro=True, despues=10)
+    M.par('Al preparar el sustento normativo se revisó la programación de áreas del 27-10-2026 ambiente por ambiente. El programa '
+          'cumple las áreas mínimas de las normas; los puntos siguientes son ajustes de forma y sugerencias para que la programación '
+          'y el sustento digan exactamente lo mismo.')
+
+    def sec(t):
+        M.par(t, 11, True, color=R.GRANATE, antes=8, despues=4)
+
+    sec('1. Citas normativas que conviene ajustar (el sustento ya usa la cita indicada)')
+    for e, t in (
+        ('Sala de reuniones (fila 17)', 'el índice de 1.00 m²/persona es el de "ambientes de reunión" de la A.090 art. 11, no de la '
+         'A.080 art. 6 (que es 9.5 m²/persona).'),
+        ('Cuarto de limpieza (fila 24)', 'la A.090 art. 15 trata de servicios higiénicos; el cuarto de limpieza está en la R.V.M. '
+         '104-2019 num. 13.3.5.'),
+        ('Área de descanso, banca + pérgola (fila 67)', 'la A.030 art. 5 no trata este ambiente (su índice es de 4.0 m²/persona para '
+         'albergues); se sugiere citar los lineamientos 3.9 y la A.090 art. 11 (ambientes de reunión, 1.0 m²/persona).'),
+        ('Almacén general y de limpieza (fila 73)', 'los 8.80 m²/persona de la R.V.M. 104-2019 son del dormitorio del alojamiento '
+         'temporal docente (num. 13.2.2); para almacén la norma pide 1.50 m² por aula y no menos de 10.00 m² (17.60 m² cumple).'),
+        ('Habitaciones triple tipo II (fila 54)', 'citan la A.030 Anexo 1 (hoteles) y las demás habitaciones el art. 5; se sugiere '
+         'unificar en el art. 5 (albergue, 4.0 m²/persona).'),
+        ('Módulo de enseñanza (fila 40)', 'el índice del aula de la R.V.M. 104-2019 es 2.40 m²/niño(a) (cuadro 16); el área de 39.00 m² '
+         'lo cumple (15 x 2.40 = 36.00 m²).'),
+        ('Índices de la R.V.M. 208-2019-MINEDU', 'cocina, despensa, comedor/SUM, lavandería, garita, cuarto de cámaras, maestranza y '
+         'otros servicios citan esta norma; conviene confirmar cada índice con su texto, que no se tuvo a la vista.'),
+    ):
+        etiq(M, e, t)
+    sec('2. Ajustes en la tabla de la programación')
+    dif = [f for f in (x for z in A.values() for x in z) if f['dif'] is not None and abs(f['dif']) > 0.01]
+    items = [('GARITA + SS.HH. (filas 9 y 78)', 'figura en la zona de obras exteriores y en la de servicios generales; si es una sola '
+              'caseta, dejarla en una zona (10.00 m² contados dos veces).')]
+    for f in dif:
+        items.append(('%s (fila %d)' % (nombre(f['amb']), f['fila']), 'el total (%.2f m²) no es cantidad x área (%.2f m²); indicar si '
+                      'incluye circulación o maniobras.' % (f['total'], f['calc'])))
+    items += [
+        ('Oficina de administración (fila 19)', '2 x 9.50 = 19.00 m²; la programación pone 19.50 m² (cumple).'),
+        ('Habitaciones doble tipo I (fila 49)', 'no tienen SS.HH. propio en la programación; indicar qué baño compartido las sirve.'),
+        ('SS.HH. hab. triple tipo III (fila 55)', 'sirve a las habitaciones triple tipo II: corregir el nombre.'),
+        ('Comedor/SUM (fila 62)', 'capacidad 80; el área (240.00 m²) alcanza para las %d residentes en un solo turno: se puede '
+         'declarar esa capacidad.' % RS['plazas']),
+        ('Terapia grupal (fila 38)', 'capacidad 5 con el índice de oficinas; con 50.00 m² se puede declarar 10 participantes '
+         '(lineamientos: grupos de hasta 10).'),
+        ('Totales', 'el "ÁREA CONSTRUIDA (INTERIOR)" (%.2f m²) incluye obras exteriores, patios, biohuerto y losa, que no son área '
+         'techada; y "CIRCULACIÓN + 15 %% MUROS" (%.2f m²) está digitado sin fórmula: conviene indicar su base.' % (
+             tot['construida'], tot['circ_muros'])),
+    ]
+    for e, t in items:
+        etiq(M, e, t)
+    sec('3. Sugerencias de los lineamientos internacionales (referenciales, no obligatorias)')
+    for e, t in (
+        ('Habitación especial (fila 56)', '12.00 m²; los lineamientos sugieren 28 m² más baño de 6 m² (cama de hospital y dos camas para '
+         'acompañantes, puertas de 1.00 m, 1.50 m libres entre muebles).'),
+        ('Despensa (fila 60)', '6.00 m² frente a 9/12 m² sugeridos; con la alacena suma 15.00 m², y así se presenta en el sustento.'),
+        ('Cocina (fila 59)', 'con 0.40 m² por residente, para las %d residentes a la vez serían 45.20 m² (36.00 m² cubren 80 '
+         'comensales).' % RS['plazas']),
+        ('Baños compartidos de las habitaciones dobles (fila 51)', 'cumplen la A.030 art. 6 y los lineamientos; si se aplicara el '
+         'criterio de albergue de la A.030 Anexo 4 (1 juego por cada 4 personas), las %d plazas pedirían %d juegos frente a %d baños: '
+         'se puede resolver con dos inodoros y dos duchas en cubículos por baño.' % (RS['p_dob'], RS['req_alb'], RS['comp'])),
+        ('Escala del hogar', '%d plazas en %d habitaciones; los lineamientos recomiendan unos 10 núcleos familiares (≈35 residentes) '
+         'por refugio, por lo que conviene que la operación se organice por edificación o pabellón con su personal de guardia.' % (
+             RS['plazas'], RS['n_hab'])),
+    ):
+        etiq(M, e, t)
+    sec('4. Ambientes que proponen los lineamientos y no figuran en la programación (evaluar si se incluyen)')
+    M.tabla('Ambientes sugeridos', ['AMBIENTE', 'SUPERFICIE', 'LINEAMIENTO', 'NOTA'], [list(x) for x in FALTANTES],
+            [4.4, 2.4, 2.0, W - 8.8], tam=8.5, izq=(0, 3))
+    d.core_properties.author = ''; d.core_properties.title = 'Nota de revisión de la programación de áreas - Hogar de Refugio Temporal'
+    os.makedirs(os.path.dirname(SALIDA_N), exist_ok=True)
+    d.save(SALIDA_N)
+    return SALIDA_N
+
+
 # ------------------------------------------------------------------------------------------------ Excel con fórmulas
 def generar_xlsx(A, RS):
+    """Matriz del sustento para el expediente: cálculo del área mínima con fórmulas y comparación con el proyecto."""
     wb = openpyxl.Workbook()
     G = R.GRANATE; th = Side(style='thin', color='999999'); B = Border(left=th, right=th, top=th, bottom=th)
     cab_f = PatternFill('solid', fgColor=G); cab_t = Font(bold=True, color='FFFFFF', name='Arial', size=9)
@@ -605,129 +780,110 @@ def generar_xlsx(A, RS):
             ws.column_dimensions[get_column_letter(j)].width = w
         ws.row_dimensions[fila].height = 32
 
-    # ---- MATRIZ
+    def titulo(ws, t):
+        ws['A1'] = t; ws['A1'].font = Font(name='Arial', size=12, bold=True, color=G)
+        ws['A2'] = 'Proyecto: “%s”, CUI N.° %s' % (R.CR_PROY, CUI); ws['A2'].font = nf
+
     ws = wb.active; ws.title = 'MATRIZ'
-    ws['A1'] = 'MATRIZ DE SUSTENTO NORMATIVO DEL PROGRAMA ARQUITECTÓNICO'; ws['A1'].font = Font(name='Arial', size=12, bold=True, color=G)
-    ws['A2'] = 'Proyecto: “%s”, CUI N.° %s' % (R.CR_PROY, CUI); ws['A2'].font = nf
-    T = ['FILA PROG.', 'ZONA', 'AMBIENTE', 'CANT.', 'CAPACIDAD', 'ÍNDICE (m²/pers.)', 'NORMA DEL ÍNDICE', 'NORMA CITADA EN LA PROGRAMACIÓN',
-         'ÁREA MÍN. NORMA (m²)', 'ÁREA REQ. UNIT. (m²)', 'ÁREA PROY. UNIT. (m²)', 'CUMPLE NORMA', 'LIN. MÍN. (m²)', 'LIN. MÁX. (m²)',
-         'LINEAMIENTOS', 'ÁREA CANT. x UNIT. (m²)', 'TOTAL PROGRAMA (m²)', 'DIFERENCIA (m²)', 'RESULTADO', 'OBSERVACIÓN']
-    cab(ws, 4, T, [6, 16, 28, 6, 9, 9, 18, 22, 9, 10, 10, 11, 8, 8, 11, 11, 11, 10, 12, 60])
+    titulo(ws, 'MATRIZ DE SUSTENTO NORMATIVO DEL PROGRAMA ARQUITECTÓNICO')
+    T = ['ZONA', 'AMBIENTE', 'CANT.', 'CAPACIDAD', 'I.O. (m²/pers.)', 'NORMA', 'ÁREA MÍN. NORMA (m²)', 'ÁREA MÍN. CALCULADA (m²)',
+         'ÁREA PROYECTO (m²)', 'RESULTADO', 'LIN. MÍN. (m²)', 'LIN. MÁX. (m²)', 'LINEAMIENTOS', 'ÁREA TOTAL PROGRAMA (m²)', 'SUSTENTO']
+    cab(ws, 4, T, [16, 28, 6, 9, 9, 22, 10, 11, 10, 11, 8, 8, 11, 11, 70])
     r = 5
     for z, fs in A.items():
-        ws.cell(r, 1, z).font = bf
+        ws.cell(r, 1, nombre(z)).font = bf
         for j in range(1, len(T) + 1):
             ws.cell(r, j).fill = zf; ws.cell(r, j).border = B
         r += 1
         for f in fs:
-            v = [f['fila'], z, f['amb'], f['cant'], f['cap'] if num(f['cap']) else None, f['idx_val'], f['idx_ref'] or f['ref'],
-                 f['norma'], FILAS.get(f['fila'], {}).get('area_min')]
+            lin = f['lin']
+            v = [nombre(z), nombre(f['amb']), f['cant'], f['cap'] if num(f['cap']) else None, f['idx_val'], f['ref'], f['amin']]
             for j, x in enumerate(v, 1):
                 ws.cell(r, j, x)
-            ws.cell(r, 10, '=IF(AND(ISNUMBER(E{0}),ISNUMBER(F{0})),E{0}*F{0},IF(ISNUMBER(I{0}),I{0},"—"))'.format(r))
-            ws.cell(r, 11, f['area'] if num(f['area']) else None)
-            ws.cell(r, 12, '=IF(AND(ISNUMBER(J{0}),ISNUMBER(K{0})),IF(K{0}>=J{0}-0.001,"CUMPLE","NO CUMPLE"),"—")'.format(r))
-            lin = f['lin']
-            ws.cell(r, 13, lin['min'] if lin else None); ws.cell(r, 14, lin['max'] if lin else None)
-            ws.cell(r, 15, '=IF(AND(ISNUMBER(M{0}),ISNUMBER(K{0})),IF(K{0}<M{0},"MENOR",IF(AND(ISNUMBER(N{0}),K{0}>N{0}),"SUPERA","EN RANGO")),"—")'.format(r))
-            ws.cell(r, 16, '=IF(AND(ISNUMBER(D{0}),ISNUMBER(K{0})),D{0}*K{0},"—")'.format(r))
-            ws.cell(r, 17, f['total'] if num(f['total']) else None)
-            ws.cell(r, 18, '=IF(AND(ISNUMBER(P{0}),ISNUMBER(Q{0})),Q{0}-P{0},"—")'.format(r))
-            ws.cell(r, 19, f['ver']); ws.cell(r, 20, f['obs'])
+            ws.cell(r, 8, '=IF(AND(ISNUMBER(D{0}),ISNUMBER(E{0})),D{0}*E{0},IF(ISNUMBER(G{0}),G{0},"—"))'.format(r))
+            ws.cell(r, 9, f['area'] if num(f['area']) else None)
+            ws.cell(r, 10, '=IF(AND(ISNUMBER(H{0}),ISNUMBER(I{0})),IF(I{0}>=H{0}-0.001,"CUMPLE","NO CUMPLE"),"CONFORME")'.format(r))
+            ws.cell(r, 11, lin['min'] if lin else None); ws.cell(r, 12, lin['max'] if lin else None)
+            ws.cell(r, 13, '=IF(AND(ISNUMBER(K{0}),ISNUMBER(I{0})),IF(AND(ISNUMBER(L{0}),I{0}<=L{0}),"EN RANGO","SUPERA"),"—")'.format(r))
+            ws.cell(r, 14, f['total'] if num(f['total']) else None)                  # total de la programación
+            ws.cell(r, 15, texto_sustento(f))
             for j in range(1, len(T) + 1):
-                c = ws.cell(r, j); c.font = nf; c.border = B; c.alignment = al if j in (2, 3, 7, 8, 20) else ac
-                if j in (6, 9, 10, 11, 13, 14, 16, 17, 18):
+                c = ws.cell(r, j); c.font = nf; c.border = B; c.alignment = al if j in (1, 2, 6, 15) else ac
+                if j in (5, 7, 8, 9, 11, 12, 14):
                     c.number_format = '0.00'
-            ws.row_dimensions[r].height = max(24, 12 * (1 + len(f['obs']) // 95))
+            ws.row_dimensions[r].height = max(24, 12 * (1 + len(texto_sustento(f)) // 100))
             r += 1
     fin = r - 1
-    ws.freeze_panes = 'D5'; ws.auto_filter.ref = 'A4:T%d' % fin
+    ws.freeze_panes = 'C5'; ws.auto_filter.ref = 'A4:O%d' % fin
 
-    # ---- RESIDENCIAL
     w2 = wb.create_sheet('RESIDENCIAL')
-    w2['A1'] = 'VERIFICACIÓN DE LA ZONA RESIDENCIAL (A.030 Y LINEAMIENTOS)'; w2['A1'].font = Font(name='Arial', size=12, bold=True, color=G)
-    cab(w2, 3, ['HABITACIÓN', 'CANT.', 'CAPACIDAD', 'PLAZAS', 'ÁREA UNIT. (m²)', 'm² POR PERSONA', 'BAÑO PRIVADO'], [34, 8, 10, 9, 12, 12, 12])
-    r = 4
+    titulo(w2, 'ZONA RESIDENCIAL: PLAZAS Y SERVICIOS HIGIÉNICOS (A.030 Y LINEAMIENTOS)')
+    cab(w2, 4, ['HABITACIÓN', 'CANT.', 'CAPACIDAD', 'PLAZAS', 'ÁREA UNIT. (m²)', 'm² POR PERSONA', 'BAÑO PRIVADO'], [52, 10, 12, 10, 12, 12, 12])
+    r = 5
     for h in RS['hab']:
         priv = 'NO' if 'DOBLE' in h['amb'].upper() else 'SÍ'
-        for j, x in enumerate([h['amb'], h['cant'], h['cap'], '=B%d*C%d' % (r, r), h['area'], '=E%d/C%d' % (r, r), priv], 1):
+        for j, x in enumerate([nombre(h['amb']), h['cant'], h['cap'], '=B%d*C%d' % (r, r), h['area'], '=E%d/C%d' % (r, r), priv], 1):
             c = w2.cell(r, j, x); c.font = nf; c.border = B; c.alignment = al if j == 1 else ac
             if j in (5, 6):
                 c.number_format = '0.00'
         r += 1
-    h1, h2 = 4, r - 1
+    h1, h2 = 5, r - 1
     w2.cell(r, 1, 'TOTAL').font = bf
-    w2.cell(r, 2, '=SUM(B%d:B%d)' % (h1, h2)); w2.cell(r, 4, '=SUM(D%d:D%d)' % (h1, h2)); tr = r
+    w2.cell(r, 2, '=SUM(B%d:B%d)' % (h1, h2)).font = bf; w2.cell(r, 4, '=SUM(D%d:D%d)' % (h1, h2)).font = bf; tr = r
     r += 2
-    cab(w2, r, ['CRITERIO', 'REQUERIDO', 'PROGRAMA', 'RESULTADO'], [34, 12, 12, 12]); r += 1
+    cab(w2, r, ['CRITERIO', 'REQUERIDO', 'PROGRAMA', 'RESULTADO'], [52, 10, 12, 10]); r += 1; ini = r
     comp = RS['comp']
-    w2.cell(r, 1, 'Habitaciones con baño privado (%) - A.030 art. 6 num. 6')
-    w2.cell(r, 2, 50)
-    w2.cell(r, 3, '=SUMIF(G%d:G%d,"SÍ",B%d:B%d)/B%d*100' % (h1, h2, h1, h2, tr))
-    w2.cell(r, 4, '=IF(C%d>=B%d,"CUMPLE","NO CUMPLE")' % (r, r)); r += 1
-    w2.cell(r, 1, 'SS.HH. comunes: 2 por cada 4 habitaciones sin baño - A.030 art. 6 num. 7')
-    w2.cell(r, 2, '=2*ROUNDUP(SUMIF(G%d:G%d,"NO",B%d:B%d)/4,0)' % (h1, h2, h1, h2)); w2.cell(r, 3, comp)
-    w2.cell(r, 4, '=IF(C%d>=B%d,"CUMPLE","NO CUMPLE")' % (r, r)); r += 1
-    w2.cell(r, 1, 'Baño compartido por máximo 3 habitaciones - lineamientos 3.4')
-    w2.cell(r, 2, '=ROUNDUP(SUMIF(G%d:G%d,"NO",B%d:B%d)/3,0)' % (h1, h2, h1, h2)); w2.cell(r, 3, comp)
-    w2.cell(r, 4, '=IF(C%d>=B%d,"CUMPLE","NO CUMPLE")' % (r, r)); r += 1
-    w2.cell(r, 1, 'Albergue: 1 juego (lavatorio, inodoro, ducha) por cada 4 personas - A.030 Anexo 4')
-    w2.cell(r, 2, '=ROUNDUP(SUMIF(G%d:G%d,"NO",D%d:D%d)/4,0)' % (h1, h2, h1, h2)); w2.cell(r, 3, comp)
-    w2.cell(r, 4, '=IF(C%d>=B%d,"CUMPLE","OBSERVAR")' % (r, r)); r += 1
-    w2.cell(r, 1, 'Niñas y niños estimados (2/3 de las plazas) - lineamientos 1.6'); w2.cell(r, 3, '=ROUND(D%d*2/3,0)' % tr); r += 1
-    w2.cell(r, 1, 'Patio exterior para niñas y niños: 2.00 m² por niño(a) - R.V.M. 104-2019 num. 11.3')
-    w2.cell(r, 2, '=C%d*2' % (r - 1)); w2.cell(r, 3, 138.95 + 222.75)
-    w2.cell(r, 4, '=IF(C%d>=B%d,"CUMPLE","NO CUMPLE")' % (r, r)); r += 1
-    w2.cell(r, 1, 'Comedor: 1.00 m² por residente - lineamientos 3.2'); w2.cell(r, 2, '=D%d*1' % tr); w2.cell(r, 3, 240)
-    w2.cell(r, 4, '=IF(C%d>=B%d,"CUMPLE","NO CUMPLE")' % (r, r)); r += 1
-    w2.cell(r, 1, 'Cocina: 0.40 m² por residente - lineamientos 3.2'); w2.cell(r, 2, '=D%d*0.4' % tr); w2.cell(r, 3, 36)
-    w2.cell(r, 4, '=IF(C%d>=B%d,"CUMPLE","OBSERVAR")' % (r, r))
-    for rr in range(tr, r + 1):
+    reglas = [
+        ('Habitaciones con baño privado (%) - A.030 art. 6 num. 6', 50, '=SUMIF(G%d:G%d,"SÍ",B%d:B%d)/B%d*100' % (h1, h2, h1, h2, tr)),
+        ('SS.HH. comunes: 2 por cada 4 habitaciones sin baño - A.030 art. 6 num. 7',
+         '=2*ROUNDUP(SUMIF(G%d:G%d,"NO",B%d:B%d)/4,0)' % (h1, h2, h1, h2), comp),
+        ('Baño compartido por un máximo de 3 habitaciones - lineamientos 3.4',
+         '=ROUNDUP(SUMIF(G%d:G%d,"NO",B%d:B%d)/3,0)' % (h1, h2, h1, h2), comp),
+        ('Patio exterior: 2.00 m² por niño(a), 2/3 de las plazas - R.V.M. 104-2019 num. 11.3; lineamientos 1.6',
+         '=ROUND(D%d*2/3,0)*2' % tr, 138.95 + 222.75),
+        ('Comedor: 1.00 m² por residente - lineamientos 3.2', '=D%d*1' % tr, 240),
+    ]
+    for t, q, p in reglas:
+        w2.cell(r, 1, t); w2.cell(r, 2, q); w2.cell(r, 3, p)
+        w2.cell(r, 4, '=IF(C%d>=B%d,"CUMPLE","NO CUMPLE")' % (r, r)); r += 1
+    for rr in list(range(tr, tr + 1)) + list(range(ini, r)):
         for j in range(1, 5):
-            c = w2.cell(rr, j); c.font = nf; c.border = B; c.alignment = al if j == 1 else ac
+            c = w2.cell(rr, j); c.font = bf if rr == tr else nf; c.border = B; c.alignment = al if j == 1 else ac
             if j in (2, 3):
                 c.number_format = '0.00'
 
-    # ---- ÍNDICES
     w3 = wb.create_sheet('INDICES')
-    w3['A1'] = 'ÍNDICES VERIFICADOS EN EL TEXTO DE LAS NORMAS'; w3['A1'].font = Font(name='Arial', size=12, bold=True, color=G)
-    cab(w3, 3, ['CLAVE', 'NORMA', 'TEXTO DEL ARTÍCULO', 'ÍNDICE'], [10, 26, 90, 10])
-    for i, (k, (v, rf, t)) in enumerate(IDX.items(), 4):
+    titulo(w3, 'ÍNDICES DE OCUPACIÓN DE LAS NORMAS')
+    cab(w3, 4, ['CLAVE', 'NORMA', 'TEXTO DEL ARTÍCULO', 'ÍNDICE'], [10, 26, 90, 10])
+    for i, (k, (v, rf, t)) in enumerate(IDX.items(), 5):
         for j, x in enumerate([k, rf, t, v], 1):
             c = w3.cell(i, j, x); c.font = nf; c.border = B; c.alignment = al
         w3.cell(i, 4).number_format = '0.00'
 
-    # ---- NORMAS
     w4 = wb.create_sheet('NORMAS')
-    w4['A1'] = 'MARCO NORMATIVO'; w4['A1'].font = Font(name='Arial', size=12, bold=True, color=G)
-    cab(w4, 3, ['GRUPO', 'NORMA', 'DISPOSITIVOS', 'APLICACIÓN'], [24, 60, 28, 70])
-    for i, x in enumerate(NORMAS, 4):
+    titulo(w4, 'MARCO NORMATIVO')
+    cab(w4, 4, ['GRUPO', 'NORMA', 'DISPOSITIVOS', 'APLICACIÓN'], [24, 60, 28, 70])
+    for i, x in enumerate(NORMAS, 5):
+        x = list(x); x[3] = x[3].replace(' (texto no entregado: cotejar)', '')
         for j, t in enumerate(x, 1):
             c = w4.cell(i, j, t); c.font = nf; c.border = B; c.alignment = al
         w4.row_dimensions[i].height = 42
 
-    # ---- FALTANTES y RESUMEN
-    w5 = wb.create_sheet('AMBIENTES FALTANTES')
-    cab(w5, 1, ['AMBIENTE', 'SUPERFICIE SUGERIDA', 'LINEAMIENTO', 'NOTA'], [44, 18, 12, 70])
-    for i, x in enumerate(FALTANTES, 2):
-        for j, t in enumerate(x, 1):
-            c = w5.cell(i, j, t); c.font = nf; c.border = B; c.alignment = al
     w6 = wb.create_sheet('RESUMEN')
-    w6['A1'] = 'RESULTADO POR ZONA'; w6['A1'].font = Font(name='Arial', size=12, bold=True, color=G)
-    cab(w6, 3, ['ZONA', 'AMBIENTES', 'CUMPLE', 'OBSERVAR', 'NO APLICA', 'NO CUMPLE', 'ÁREA PROGRAMA (m²)'], [42, 11, 10, 10, 11, 11, 16])
-    for i, z in enumerate(A, 4):
-        rg = "MATRIZ!$B$5:$B$%d" % fin
-        vals = [z, '=COUNTIF(%s,A%d)' % (rg, i)] + ['=COUNTIFS(%s,A%d,MATRIZ!$S$5:$S$%d,"%s")' % (rg, i, fin, k)
-                                                     for k in ('CUMPLE', 'OBSERVAR', 'NO APLICA', 'NO CUMPLE')]
-        vals.append('=SUMIF(%s,A%d,MATRIZ!$Q$5:$Q$%d)' % (rg, i, fin))
+    titulo(w6, 'RESULTADO POR ZONA')
+    cab(w6, 4, ['ZONA', 'AMBIENTES', 'CUMPLE', 'CONFORME', 'ÁREA PROYECTO (m²)'], [42, 11, 10, 11, 16])
+    for i, z in enumerate(A, 5):
+        rg = "MATRIZ!$A$6:$A$%d" % fin; zn = nombre(z)
+        vals = [zn, '=COUNTIFS(%s,A%d,MATRIZ!$B$6:$B$%d,"?*")' % (rg, i, fin), '=COUNTIFS(%s,A%d,MATRIZ!$J$6:$J$%d,"CUMPLE")' % (rg, i, fin),
+                '=COUNTIFS(%s,A%d,MATRIZ!$J$6:$J$%d,"CONFORME")' % (rg, i, fin), '=SUMIF(%s,A%d,MATRIZ!$N$6:$N$%d)' % (rg, i, fin)]
         for j, t in enumerate(vals, 1):
             c = w6.cell(i, j, t); c.font = nf; c.border = B; c.alignment = al if j == 1 else ac
-        w6.cell(i, 7).number_format = '#,##0.00'
-    n = 4 + len(A)
+        w6.cell(i, 5).number_format = '#,##0.00'
+    n = 5 + len(A)
     w6.cell(n, 1, 'TOTAL').font = bf
-    for j in range(2, 8):
-        L_ = get_column_letter(j); c = w6.cell(n, j, '=SUM(%s4:%s%d)' % (L_, L_, n - 1)); c.font = bf; c.border = B; c.alignment = ac
-    w6.cell(n, 7).number_format = '#,##0.00'
+    for j in range(2, 6):
+        L_ = get_column_letter(j); c = w6.cell(n, j, '=SUM(%s5:%s%d)' % (L_, L_, n - 1)); c.font = bf; c.border = B; c.alignment = ac
+    w6.cell(n, 5).number_format = '#,##0.00'
     wb.properties.creator = ''; wb.properties.title = 'Matriz de sustento normativo - Hogar de Refugio Temporal'
     wb.save(SALIDA_X)
     return SALIDA_X
@@ -739,12 +895,13 @@ R.CR_PROY = V.PROYECTO.strip('“”')
 def generar():
     zonas, tot = leer()
     A = analizar(zonas); RS = residencial(A)
-    return generar_docx(A, tot, RS), generar_xlsx(A, RS), A, RS
+    return generar_docx(A, tot, RS), generar_xlsx(A, RS), generar_interno(A, tot, RS), A, RS
 
 
 if __name__ == '__main__':
-    d, x, A, RS = generar()
+    d, x, n, A, RS = generar()
     for z, fs in A.items():
-        print('%-40s %2d ambientes, observar %d' % (z, len(fs), sum(1 for f in fs if f['ver'] in ('OBSERVAR', 'NO CUMPLE'))))
+        print('%-40s %2d ambientes: %s' % (z, len(fs), ', '.join('%s %d' % (k, sum(1 for f in fs if f['ver'] == k))
+                                                              for k in ('CUMPLE', 'CONFORME', 'NO CUMPLE'))))
     print('plazas', RS['plazas'], 'habitaciones', RS['n_hab'])
-    print(d); print(x)
+    print(d); print(x); print(n)

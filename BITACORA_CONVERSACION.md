@@ -753,4 +753,9 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   13 juegos con el criterio de albergue (A.030 Anexo 4). 113 plazas en 23 habitaciones frente a ~35 residentes de los
   lineamientos: organizar en pabellones. Faltan cuarto del personal nocturno, sala del personal, sala para adolescentes,
   taller de cómputo y sala multiuso.
+- 28/10/2026 (2): el usuario pidió que el sustento proteja el trabajo de la arquitecta (es para el expediente). Se separó: el
+  sustento (Word 15 p. y matriz) solo sustenta, cada ambiente con la norma que le corresponde y su cálculo (dict EXP: sala de
+  reuniones con A.090 art. 11, almacén general con R.V.M. 104 num. 13.3.1, despensa con la alacena, etc.), resultados CUMPLE /
+  CONFORME, sin capítulo de observaciones; las observaciones y sugerencias pasan a una nota interna para la arquitecta
+  (`entregables/revision_interna/NOTA_REVISION_PROGRAMACION_AREAS_HOGAR_REFUGIO.docx`, no forma parte del expediente).
 
