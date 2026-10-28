@@ -813,3 +813,7 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   drenaje del proyecto (no "cunetas existentes"), A.090 en la normativa, subtotal mal rotulado (1,103.81 sin cerco en ml) y total 4,281.52
   (antes 4,205.30: valor viejo sin el estacionamiento), listado de planos "(POR DEFINIR)" -> 89 láminas del índice. Excel: fórmulas I103/I125,
   #REF! fuera, Nutrición m2, erratas. 30 imágenes conservadas.
+- Memoria de arquitectura del CAR Varones (pedido de la arquitecta): análisis de ubicación dentro del numeral 2.3 (2.3.1 método + Cuadro N.° 4;
+  2.3.2 Cuadro N.° 5 con las 8 condiciones de `incompatibilidades_v.CONDICIONES` + conclusión), "INCOMPATILIDAD" corregido, e índice nuevo en la
+  página 2 (campo TOC de Word con `updateFields`, 39 títulos con nivel de esquema, páginas calculadas con LibreOffice usando una fuente de
+  paginación tipo Arial Narrow: `varones/fuente_paginacion.py`, solo para paginar). 43 páginas.

@@ -13,7 +13,10 @@ Memoria descriptiva:
     confort (A.030 -> EM.110) y "aulas", drenaje pluvial del proyecto (no "cunetas existentes"), A.090 en la normativa;
   - programa: fila de subtotal mal rotulada ("OBRAS EXTERIORES") y total que no suma (4,205.30): el cerco se mide en ml y no suma área;
     se agrega el estacionamiento que la fórmula del Excel omitía;
-  - listado de planos "(POR DEFINIR)" reemplazado por las 89 láminas del índice de la arquitecta (indice_arquitectura_v.py).
+  - listado de planos "(POR DEFINIR)" reemplazado por las 89 láminas del índice de la arquitecta (indice_arquitectura_v.py);
+  - análisis de ubicación dentro del numeral 2.3: 2.3.1 (método + Cuadro N.° 4) y 2.3.2 (Cuadro N.° 5 con las condiciones de
+    ubicación de incompatibilidades_v.py) con su conclusión;
+  - índice (campo TOC de Word, se actualiza al abrir) con el número de página de cada título.
 Programación (Excel): mismas correcciones del subtotal y del total, #REF! eliminado, unidad de Nutrición y erratas.
 
 Uso: python3 herramientas/varones/corrige_memoria_arquitectura_v.py
@@ -184,10 +187,177 @@ def corregir_memoria():
     for p in viejos:
         p._p.getparent().remove(p._p)
     CAMBIOS.append(('listado de planos (por definir)', '89 láminas del índice de arquitectura'))
+    reemplazar(buscar('COLINDANCIA E INCOMPATILIDAD'), 'INCOMPATILIDAD', 'INCOMPATIBILIDAD')
+    agregar_analisis(d)
+    preparar_indice(d)
     d.core_properties.author = ''
     os.makedirs(SAL, exist_ok=True)
     d.save(MEM_C)
+    paginar_indice()
     return MEM_C, total
+
+
+# --------------------------------------------------------------------------- análisis de ubicación dentro del numeral 2.3
+METODO = ('El análisis verifica que el terreno no presenta incompatibilidades de uso por cercanía a actividades, instalaciones o '
+          'servidumbres reguladas por la normativa vigente (RNE, Norma A.040, art. 7 b; R.V.M. N° 208-2019-MINEDU, art. 8 c). Para '
+          'cada dispositivo legal se define el área de influencia como la franja medida desde el lindero con la distancia que fija: '
+          '50 m (estaciones de servicio), 100 m (establecimientos de salud, GLP, bebidas alcohólicas y plantas de combustibles), '
+          '150 m (velatorios y cementerios) y 200 m (ductos de hidrocarburos); para los que no fijan distancia se verifica que la '
+          'restricción no alcance al terreno. Se reconoció el entorno y se revisó la cartografía y las imágenes satelitales de la zona.')
+CONDIC_INTRO = ('Además de las incompatibilidades por cercanía, el terreno y el proyecto cumplen las condiciones de ubicación que el '
+                'Reglamento Nacional de Edificaciones y la R.V.M. N° 208-2019-MINEDU establecen para el Centro de Acogida Residencial:')
+CONCLUSION = ('Conclusión: el terreno cumple las 18 condiciones del Cuadro N° 4 y las %d del Cuadro N° 5; no existen dentro de su área '
+              'de influencia actividades, instalaciones ni servidumbres incompatibles con la permanencia de niños y adolescentes, y su '
+              'ubicación cumple el RNE (A.090, arts. 3 y 4; A.040, art. 7) y la R.V.M. N° 208-2019-MINEDU (art. 8). Por lo tanto, el '
+              'terreno es apto para el Centro de Acogida Residencial – Varones.')
+
+
+def _copia(modelo, despues, texto):
+    """Párrafo nuevo con el formato del modelo, insertado después de 'despues' (elemento XML)."""
+    e = copy.deepcopy(modelo._p); despues.addnext(e)
+    q = docx.text.paragraph.Paragraph(e, modelo._parent); poner(q.runs, [texto] if q.runs else [])
+    if not q.runs:
+        q.add_run(texto)
+    return e
+
+
+def agregar_analisis(d):
+    import incompatibilidades_v as IV                      # condiciones de ubicación del CAR (Cuadro N.° 2 del análisis)
+    P = d.paragraphs
+    titulo = next(p for p in P if p.text.strip() == 'ANÁLISIS DE INCOMPATIBILIDADES DE UBICACIÓN EN EL PROYECTO')
+    sub = next(p for p in P if p.text.strip() == 'TOLERANCIAS CATASTRALES')         # título numerado de tercer nivel (2.x.y)
+    cuerpo = next(p for p in P if p.text.startswith('Dentro del radio de 100 metros'))
+    # 2.3.1: el título del análisis pasa a ser numerado, con el método debajo (antes del Cuadro N.° 4)
+    e = _copia(sub, titulo._p, 'ANÁLISIS DE INCOMPATIBILIDADES DE UBICACIÓN EN EL PROYECTO')
+    titulo._p.getparent().remove(titulo._p)
+    m = _copia(cuerpo, e, '')
+    m = _copia(cuerpo, m, METODO)
+    _copia(cuerpo, m, '')
+    # después del Cuadro N.° 4: 2.3.2 condiciones de ubicación y Cuadro N.° 5
+    t4 = next(t for t in d.tables if 'incompatibilidades de uso de terreno' in t.rows[0].cells[0].text)
+    ancla = t4._tbl
+    for txt, mod in (('', cuerpo), ('CONDICIONES DE UBICACIÓN DEL CENTRO DE ACOGIDA RESIDENCIAL', sub), ('', cuerpo),
+                     (CONDIC_INTRO, cuerpo), ('', cuerpo)):
+        ancla = _copia(mod, ancla, txt)
+    t5 = copy.deepcopy(t4._tbl); ancla.addnext(t5)
+    T = docx.table.Table(t5, t4._parent)
+    for r in T.rows[2 + len(IV.CONDICIONES):]:
+        t5.remove(r._tr)
+    cab = [r for q in T.rows[0].cells[0].paragraphs for r in q.runs]
+    poner(cab, ['Cuadro ', 'N°', ' 5:', ' Condiciones de ubicación del Centro de Acogida Residencial - Varones, según el Reglamento '
+                'Nacional de Edificaciones y la R.V.M. ', 'N°', ' 208-2019-MINEDU.'])
+    celda(T.rows[1].cells[0], 'CONDICIÓN DE UBICACIÓN DEL CAR')
+    celda(T.rows[1].cells[2], 'FUENTE NORMATIVA')
+    for k, (cond, fuente, como) in enumerate(IV.CONDICIONES):
+        f = T.rows[2 + k]
+        celda(f.cells[0], str(k + 1)); celda(f.cells[1], cond); celda(f.cells[2], fuente)
+        celda_estado(f.cells[3], como)
+    for f in T.rows[:2]:                                     # el título del cuadro no se separa de la tabla
+        for c in f.cells:
+            for q in c.paragraphs:
+                q.paragraph_format.keep_with_next = True
+    ancla = _copia(cuerpo, t5, '')
+    _copia(cuerpo, ancla, CONCLUSION % len(IV.CONDICIONES))
+    CAMBIOS.append(('2.3 Colindancia', '2.3.1 análisis (método + Cuadro N° 4), 2.3.2 condiciones (Cuadro N° 5) y conclusión'))
+
+
+# --------------------------------------------------------------------------- índice (tabla de contenido)
+def _titulos(d):
+    """(párrafo, nivel) de los títulos numerados de la memoria y del listado de planos."""
+    out = []
+    for p in d.paragraphs:
+        pPr = p._p.pPr; t = p.text.strip()
+        if not t:
+            continue
+        num = pPr.numPr if pPr is not None else None
+        if num is not None and num.numId is not None and num.numId.val in (1, 2, 8):
+            lv = num.ilvl.val if num.ilvl is not None else 0
+            if lv <= 2 and (num.numId.val != 1 or lv == 1):
+                out.append((p, lv))
+        elif t == 'LISTADO DE PLANOS':
+            out.append((p, 0))
+    return out
+
+
+def _numeros(tit):
+    c = [0, 0, 0]; res = []
+    for p, lv in tit:
+        if p.text.strip() == 'LISTADO DE PLANOS':
+            res.append(''); continue
+        c[lv] += 1
+        for k in range(lv + 1, 3):
+            c[k] = 0
+        res.append('%d.0.' % c[0] if lv == 0 else '.'.join(str(x) for x in c[:lv + 1]) + '.')
+    return res
+
+
+def preparar_indice(d):
+    """Índice con campo TOC de Word (se actualiza al abrir) y entradas ya escritas; las páginas se llenan en paginar_indice."""
+    from docx.oxml import OxmlElement
+    from docx.oxml.ns import qn
+    from docx.shared import Pt
+    tit = _titulos(d)
+    for p, lv in tit:                                          # nivel de esquema para el campo TOC \u
+        o = p._p.get_or_add_pPr().find(qn('w:outlineLvl'))
+        if o is None:
+            o = OxmlElement('w:outlineLvl'); p._p.get_or_add_pPr().append(o)
+        o.set(qn('w:val'), str(lv))
+    s = d.sections[0]; ancho = int((s.page_width - s.left_margin - s.right_margin) / 635)
+    gen = tit[0][0]
+    gen._p.get_or_add_pPr().insert(0, OxmlElement('w:pageBreakBefore'))
+    cab = d.add_paragraph(); gen._p.addprevious(cab._p)
+    cab.alignment = 1; cab.paragraph_format.page_break_before = True; cab.paragraph_format.space_after = Pt(12)
+    r = cab.add_run('ÍNDICE'); r.bold = True; r.font.size = Pt(14); r.font.name = 'Arial Narrow'
+    nums = _numeros(tit)
+    for k, ((p, lv), n) in enumerate(zip(tit, nums)):
+        q = d.add_paragraph(); gen._p.addprevious(q._p)
+        pf = q.paragraph_format; pf.left_indent = Pt(14 * lv); pf.space_after = Pt(2); pf.space_before = Pt(6 if lv == 0 else 0)
+        tabs = OxmlElement('w:tabs'); tb = OxmlElement('w:tab')
+        tb.set(qn('w:val'), 'right'); tb.set(qn('w:leader'), 'dot'); tb.set(qn('w:pos'), str(ancho)); tabs.append(tb)
+        q._p.get_or_add_pPr().append(tabs)
+        if k == 0:
+            for tipo, txt in (('begin', None), (None, 'TOC \\o "1-3" \\h \\z \\u'), ('separate', None)):
+                rr = q.add_run()
+                if tipo:
+                    fc = OxmlElement('w:fldChar'); fc.set(qn('w:fldCharType'), tipo); rr._r.append(fc)
+                else:
+                    it = OxmlElement('w:instrText'); it.set(qn('xml:space'), 'preserve'); it.text = txt; rr._r.append(it)
+        texto = (n + ' ' if n else '') + ' '.join(p.text.split()).rstrip(':')
+        r1 = q.add_run(texto); r1.bold = lv == 0; r1.font.size = Pt(11); r1.font.name = 'Arial Narrow'
+        r2 = q.add_run('\t#'); r2.font.size = Pt(11); r2.font.name = 'Arial Narrow'
+        if k == len(tit) - 1:
+            rr = q.add_run(); fc = OxmlElement('w:fldChar'); fc.set(qn('w:fldCharType'), 'end'); rr._r.append(fc)
+    upd = OxmlElement('w:updateFields'); upd.set(qn('w:val'), 'true'); d.settings.element.append(upd)
+    CAMBIOS.append(('(sin índice)', 'índice de %d títulos con número de página' % len(tit)))
+
+
+def paginar_indice():
+    """Escribe el número de página de cada entrada del índice según la paginación del documento (LibreOffice)."""
+    import re
+    if 'Arial Narrow' not in subprocess.run(['fc-match', 'Arial Narrow'], capture_output=True, text=True).stdout:
+        subprocess.run([sys.executable, os.path.join(AQUI, 'fuente_paginacion.py')], check=False)   # paginar como Word
+    with tempfile.TemporaryDirectory() as tmp:
+        subprocess.run(['soffice', '--headless', '--convert-to', 'pdf', '--outdir', tmp, MEM_C],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
+        pdf = os.path.join(tmp, os.path.basename(MEM_C)[:-5] + '.pdf')
+        txt = subprocess.run(['pdftotext', '-layout', pdf, '-'], capture_output=True, text=True).stdout.split('\f')
+    norm = lambda x: re.sub(r'\s+', ' ', x).strip().upper()          # noqa: E731
+    paginas = [norm(t) for t in txt]
+    d = docx.Document(MEM_C)
+    tit = _titulos(d)
+    entradas = [p for p in d.paragraphs if p.text.endswith('\t#')]
+    ini = next(i for i, t in enumerate(paginas) if 'ÍNDICE' in t) + 1
+    while ini < len(paginas) and '#' in paginas[ini] and '1.0. GENERALIDADES' not in paginas[ini].split('#')[-1]:
+        ini += 1
+    pag = ini
+    for (p, lv), q in zip(tit, entradas):
+        clave = norm(p.text).rstrip(':')[:45]
+        while pag < len(paginas) and clave not in paginas[pag]:
+            pag += 1
+        if pag >= len(paginas):
+            raise ValueError('no se encontró en el PDF: ' + clave)
+        q.runs[-2 if q.runs[-1].text == '' else -1].text = '\t%d' % (pag + 1)
+    d.save(MEM_C)
 
 
 def corregir_programacion():
