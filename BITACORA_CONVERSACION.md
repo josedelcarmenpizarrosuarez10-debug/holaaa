@@ -900,3 +900,9 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   EDIF. 01-09: E-01 8, E-02 2, E-03 2, E-04 5, E-05 3, E-06 6, E-07 6, E-08 6, E-09 1 (igual al metrado de la usuaria). Comprobación
   independiente con las palabras del PDF: zona segura 209, aforo 55, extintor 33, discapacitados 3 (coinciden con el DXF); PDF de
   evacuación: 84 rutas, máx. 39.67 m, 13 zonas con el 10 repetido, sin leyenda. Figura de conteo con las 39 señales.
+
+### 29-10-2026 – Refugio, evacuación y señalización: metrado listo para imprimir
+- `metrado_sr.py`: el metrado queda solo con lo del expediente (hojas RESUMEN, METRADO, ZONAS DE EVACUACIÓN, RUTAS DE EVACUACIÓN,
+  POBLACIÓN, SEÑALES). Sin columnas LEYENDA/DIFERENCIA/SIN UBICAR, sin hoja LEYENDA ni "altura en la leyenda"; fuentes y notas como
+  referencias neutras a las láminas SE-S-02 y SE-E-01. El cotejo con la leyenda queda solo en `revision_interna/`. Cantidades sin cambio
+  (14 partidas; zonas 25.42 m²).

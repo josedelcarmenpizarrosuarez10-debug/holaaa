@@ -2,12 +2,13 @@
 """Metrado de evacuación y señalización - Hogar de Refugio Temporal "Mujeres Violentadas" (CUI 2675514), en Excel con fórmulas.
 
 Cantidades del plano de señalización de la arquitecta (datos_sr.py / lee_plano_sr.py): cada señal y equipo contado en la
-planta de la lámina SE-S-02 y repartido por edificación (E-01 a E-09 y exteriores), cotejado con la columna CANTIDAD de su
-leyenda; la señal de atención riesgo eléctrico, que en el DXF es una imagen pegada sin ubicación, ubicada en el PDF de la lámina.
+planta de la lámina SE-S-02 y repartido por edificación (E-01 a E-09 y exteriores); la señal de atención riesgo eléctrico,
+que en el DXF es una imagen pegada sin ubicación, ubicada en el PDF de la lámina. Sin contenido de revisión: el cotejo con la
+leyenda del plano está en la nota de observaciones (revision_interna/).
 
-Hojas: RESUMEN (partidas y metrado, enlazado), METRADO (por edificación, total = suma, cotejo con la leyenda),
+Hojas: RESUMEN (partidas y metrado, enlazado), METRADO (por edificación, total = suma),
 ZONAS DE EVACUACIÓN (las 13 zonas de la lámina SE-E-01, área del anillo con fórmula), RUTAS DE EVACUACIÓN (84 rutas de SE-E-01,
-longitud, tiempo y verificación con la A.130), LEYENDA (cada fila de la leyenda del plano con lo dibujado en la planta),
+longitud, tiempo y verificación con la A.130),
 POBLACIÓN (ocupantes del hogar), SEÑALES (dimensiones, material y altura de cada partida). Formato del metrado de evacuación y
 señalización del CAR Varones.
 
@@ -32,19 +33,29 @@ GRANATE, ROSA, GRIS, IZQ = MS.GRANATE, MS.ROSA, MS.GRIS, MS.IZQ
 SALIDA = os.path.join(D.SAL, 'METRADO_EVACUACION_Y_SENALIZACION_HOGAR_REFUGIO.xlsx')
 
 
+def fuente(p):
+    """Referencia de la cantidad a la lámina."""
+    if p['bloques'] == 'ZONAS':
+        return 'Lámina %s: %d zonas de evacuación (hoja ZONAS DE EVACUACIÓN)' % (D.LAMINA_E[0], len(D.zonas()))
+    if p['desc'].startswith('EXTINTOR DE'):
+        return 'Lámina %s: un extintor por cada señal de ubicación de extintor' % D.LS
+    if 'MUJER' in p['desc']:
+        return 'Lámina %s: SS.HH. de las edificaciones, habitaciones, tópico, vestidores y garita' % D.LS
+    return 'Lámina %s: señales dibujadas en la planta' % D.LS
+
+
 def hoja_metrado(wb, P, pts):
     ws = wb.create_sheet('METRADO')
     eds = D.edificaciones(P)
     n_e = len(eds)
-    c_sin = 4 + n_e; c_tot = c_sin + 1; c_ley = c_tot + 1; c_dif = c_ley + 1; c_fue = c_dif + 1
+    c_tot = 4 + n_e; c_fue = c_tot + 1
     r = cabecera(ws, 'METRADO DE EVACUACIÓN Y SEÑALIZACIÓN POR EDIFICACIÓN', c_fue)
-    cab = ['ITEM', 'DESCRIPCIÓN', 'UND'] + [c for c, _ in eds] + ['SIN UBICAR', 'TOTAL', 'LEYENDA %s' % D.LS, 'DIFERENCIA',
-                                                                 'FUENTE DE LA CANTIDAD']
+    cab = ['ITEM', 'DESCRIPCIÓN', 'UND'] + [c for c, _ in eds] + ['TOTAL', 'FUENTE DE LA CANTIDAD']
     for k, v in enumerate(cab, 1):
         celda(ws, r, k, v, True, GRANATE, 'FFFFFF')
     for k, (_, nombre) in enumerate(eds, 4):
         celda(ws, r + 1, k, nombre, False, ROSA, size=7)
-    for k in list(range(1, 4)) + list(range(c_sin, c_fue + 1)):
+    for k in list(range(1, 4)) + [c_tot, c_fue]:
         ws.merge_cells(start_row=r, start_column=k, end_row=r + 1, end_column=k)
     ws.row_dimensions[r + 1].height = 60
     r += 2; filas = {}; r0 = r
@@ -61,74 +72,51 @@ def hoja_metrado(wb, P, pts):
             celda(ws, r, k, v if v else None, fmt=fm)
         if p['bloques'] == 'ZONAS':                       # el área sale de la hoja ZONAS DE EVACUACIÓN (fórmula)
             ws._zona = (r, 4 + [c for c, _ in eds].index('EXT'))
-        celda(ws, r, c_sin, p['sin_ubicar'] or None, fmt=fm)
-        celda(ws, r, c_tot, '=SUM(%s%d:%s%d)' % (L(4), r, L(c_sin), r), True, ROSA, fmt=fm)
-        celda(ws, r, c_ley, p['leyenda'], fmt=fm)
-        celda(ws, r, c_dif, '=%s%d-%s%d' % (L(c_tot), r, L(c_ley), r), fmt=('+0.00;-0.00;"conforme"' if m2 else '+0;-0;"conforme"'))
-        celda(ws, r, c_fue, p['fuente'], al=IZQ, size=8)
+        celda(ws, r, c_tot, '=SUM(%s%d:%s%d)' % (L(4), r, L(c_tot - 1), r), True, ROSA, fmt=fm)
+        celda(ws, r, c_fue, fuente(p), al=IZQ, size=8)
         filas[p['item']] = r; r += 1
     celda(ws, r, 2, 'TOTAL DE SEÑALES Y EQUIPOS (und)', True, ROSA, al=IZQ)
     for c in range(4, c_tot + 1):
         celda(ws, r, c, '=SUMIF($C$%d:$C$%d,"und",%s%d:%s%d)' % (r0, r - 1, L(c), r0, L(c), r - 1), True, ROSA, fmt='0')
-    for c in (1, 3, c_ley, c_dif, c_fue): celda(ws, r, c, None, fondo=ROSA)
+    for c in (1, 3, c_fue): celda(ws, r, c, None, fondo=ROSA)
     r += 2
     notas = ['Notas:',
-             '1. Cantidad por edificación: cada símbolo de la planta de la lámina %s se asigna a la edificación donde está (contorno del '
-             'bloque de la planta general, con 0.60 m de margen para las señales de fachada; donde los contornos se traslapan en los '
-             'aleros, la edificación que lo contiene con más holgura); EXT = exteriores (garita de control, patios, estacionamientos, '
-             'puntos ecológicos y circulaciones). No se metran las copias de símbolos que están fuera del terreno.' % D.LS,
-             '2. Atención riesgo eléctrico: en el DXF es una imagen pegada (OLE) que no guarda su ubicación; las 39 imágenes de la '
-             'planta (la leyenda indica 38) se ubicaron una por una en el PDF de la lámina y se asignaron a su edificación.',
-             '3. Unidad de luces de emergencia: los bloques "LE" (77) y "A$C7A2016C2" (38) son el mismo símbolo de la leyenda '
-             '(el primero contiene al segundo); se suman los dos: 115 und. La leyenda indica 77.',
-             '4. Extintores: uno por cada señal de ubicación de extintor de la planta (33), PQS tipo ABC de 9 kg.',
-             '5. DIFERENCIA = metrado - leyenda: las filas distintas de "conforme" son correcciones a la leyenda del plano '
-             '(nota de observaciones de señalización).',
-             '6. Unidades de luces de emergencia y detectores de humo: su conexión y circuitos son de instalaciones eléctricas.',
-             '7. Zonas de evacuación en caso de emergencia: las 13 de la lámina %s (anillo pintado de 4.30 m de diámetro exterior y '
-             '0.15 m de ancho); el área sale de la hoja ZONAS DE EVACUACIÓN. La leyenda de %s tiene la fila "zona de reuniones" en 00.'
-             % (D.LAMINA_E[0], D.LS)]
+             '1. Cantidad por edificación: cada señal y equipo de la planta de la lámina %s se asigna a la edificación donde está '
+             'instalado; EXT = exteriores (garita de control, patios, estacionamientos, puntos ecológicos y circulaciones).' % D.LS,
+             '2. Señal de atención riesgo eléctrico: en los tableros y equipos eléctricos de cada edificación.',
+             '3. Extintores: uno por cada señal de ubicación de extintor de la planta, PQS tipo ABC de 9 kg.',
+             '4. Unidades de luces de emergencia y detectores de humo: su conexión y circuitos son de instalaciones eléctricas.',
+             '5. Zonas de evacuación en caso de emergencia: las de la lámina %s (anillo pintado de 4.30 m de diámetro exterior y '
+             '0.15 m de ancho); el área sale de la hoja ZONAS DE EVACUACIÓN.' % D.LAMINA_E[0]]
     for t in notas:
         ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=c_fue)
         celda(ws, r, 1, t, t == 'Notas:', al=IZQ, borde=False, size=8); ws.row_dimensions[r].height = 12 if t == 'Notas:' else 26; r += 1
-    for c, w in zip(range(1, c_fue + 1), [7, 46, 5] + [7] * n_e + [7.5, 7.5, 8.5, 9, 44]):
+    for c, w in zip(range(1, c_fue + 1), [7, 46, 5] + [7] * n_e + [7.5, 44]):
         ws.column_dimensions[L(c)].width = w
     ws.freeze_panes = ws.cell(10, 4)
     impresion(ws, c_fue, r)
-    return filas, c_tot, c_ley, ws
+    return filas, c_tot, None, ws
 
 
-def hoja_leyenda(wb, P):
-    """Cada fila de la leyenda del plano, con la cantidad dibujada en la planta y la que se metra."""
-    ws = wb.create_sheet('LEYENDA')
-    r = cabecera(ws, 'COTEJO DE LA LEYENDA DE LA LÁMINA %s CON LA PLANTA' % D.LS, 7)
-    for k, v in enumerate(['N.°', 'FILA DE LA LEYENDA (TEXTO DEL PLANO)', 'ALTURA EN LA LEYENDA', 'CANTIDAD EN LA LEYENDA',
-                           'DIBUJADO EN LA PLANTA', 'DIFERENCIA', 'OBSERVACIÓN'], 1):
+def hoja_senales(wb, pts):
+    """Dimensiones, material, altura de instalación y función de cada partida."""
+    ws = wb.create_sheet('SEÑALES')
+    r = cabecera(ws, 'CARACTERÍSTICAS DE LAS SEÑALES Y EQUIPOS (NTP 399.010-1, RNE A.120 Y A.130)', 6)
+    for k, v in enumerate(['ITEM', 'PARTIDA', 'DIMENSIONES', 'MATERIAL', 'ALTURA DE INSTALACIÓN', 'FUNCIÓN Y UBICACIÓN'], 1):
         celda(ws, r, k, v, True, GRANATE, 'FFFFFF')
-    r += 1; r0 = r
-    pts = {p['clave']: p for p in D.partidas(P) if p['und'] and not p['desc'].startswith('EXTINTOR DE')}
-    for n, f in enumerate(P['leyenda'], 1):
-        p = next((x for k, x in pts.items() if f['descripcion'].upper().startswith(k.upper())), None)
-        dib = p['total'] if p else 0
-        if p is None:
-            obs = 'Sin símbolos en la planta; no se metra.' if not f['cantidad'] else 'Revisar.'
-        elif p['bloques'] is None:
-            obs = 'Imagen pegada (OLE): %d imágenes en la planta, ubicadas en el PDF de la lámina; corregir la leyenda a %d.' % (dib, dib)
-        elif dib == (f['cantidad'] or 0):
-            obs = 'Conforme.'
+    r += 1
+    for p in pts:
+        if p['und'] is None:
+            celda(ws, r, 1, p['item'], True, GRIS); ws.merge_cells(start_row=r, start_column=2, end_row=r, end_column=6)
+            celda(ws, r, 2, p['desc'], True, GRIS, al=IZQ)
+            for c in range(3, 7): ws.cell(r, c).border = MS.BORDE
         else:
-            obs = 'Corregir la leyenda a %d (lo dibujado).' % dib
-        celda(ws, r, 1, n); celda(ws, r, 2, f['descripcion'], al=IZQ); celda(ws, r, 3, f['altura'] or '—')
-        celda(ws, r, 4, f['cantidad'] or 0, fmt='0'); celda(ws, r, 5, dib, fmt='0')
-        celda(ws, r, 6, '=E%d-D%d' % (r, r), fmt='+0;-0;"conforme"'); celda(ws, r, 7, obs, al=IZQ, size=8)
+            for k, v in enumerate([p['item'], p['desc'], p['dim'], p['material'], p['altura'], p['uso']], 1):
+                celda(ws, r, k, v, al=IZQ if k in (2, 4, 6) else MS.CENTRO, size=8)
         r += 1
-    celda(ws, r, 2, 'TOTAL', True, ROSA, al=IZQ)
-    for c in (4, 5, 6):
-        celda(ws, r, c, '=SUM(%s%d:%s%d)' % (L(c), r0, L(c), r - 1), True, ROSA, fmt='0')
-    for c in (1, 3, 7): celda(ws, r, c, None, fondo=ROSA)
-    for c, w in zip(range(1, 8), [5, 50, 10, 11, 11, 11, 48]):
+    for c, w in zip(range(1, 7), [7, 40, 18, 40, 12, 48]):
         ws.column_dimensions[L(c)].width = w
-    impresion(ws, 7, r, horizontal=False)
+    impresion(ws, 6, r - 1)
 
 
 def hoja_zonas(wb):
@@ -145,7 +133,7 @@ def hoja_zonas(wb):
         celda(ws, r, k, v, True, GRANATE, 'FFFFFF')
     r += 1; r0 = r
     for k, z in enumerate(D.zonas(), 1):
-        celda(ws, r, 1, k); celda(ws, r, 2, z['numero'] + (' (10)' if z.get('numero_plano') else '')); celda(ws, r, 3, z['cerca'])
+        celda(ws, r, 1, k); celda(ws, r, 2, z['numero']); celda(ws, r, 3, z['cerca'])
         celda(ws, r, 4, z['x'], fmt='0.00'); celda(ws, r, 5, z['y'], fmt='0.00'); celda(ws, r, 6, z['aforo'], fmt='0')
         celda(ws, r, 7, '=PI()*($B$%d^2-$D$%d^2)' % (rr, rr), fmt='0.0000')
         celda(ws, r, 8, '=PI()*$D$%d^2' % rr, fmt='0.00'); celda(ws, r, 9, '=H%d/F%d' % (r, r), fmt='0.00'); r += 1
@@ -156,7 +144,7 @@ def hoja_zonas(wb):
     for c in (3, 4, 5, 8, 9): celda(ws, r, c, None, fondo=ROSA)
     rt = r; r += 2
     for t in ['Fuente: lámina %s (bloques de zona de 4.30 m de diámetro con anillo de 0.15 m y rótulos "ZONA DE EVACUACIÓN EN CASO DE '
-              'EMERGENCIA nn"). La zona 13 figura en la lámina con el número 10, que está repetido.' % D.LAMINA_E[0]]:
+              'EMERGENCIA nn" y aforo de cada zona).' % D.LAMINA_E[0]]:
         ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=9)
         celda(ws, r, 1, t, al=IZQ, borde=False, size=8); ws.row_dimensions[r].height = 26
     for c, w in zip(range(1, 10), [6, 12, 14, 12, 13, 13, 13, 13, 11]):
@@ -240,7 +228,7 @@ def generar():
     if hasattr(wm, '_zona'):
         rz, cz = wm._zona
         celda(wm, rz, cz, "='ZONAS DE EVACUACIÓN'!G%d" % rt, fmt='0.00')
-    hoja_rutas(wb); hoja_leyenda(wb, P); hoja_poblacion(wb); MS.hoja_senales(wb, pts)
+    hoja_rutas(wb); hoja_poblacion(wb); hoja_senales(wb, pts)
     r = cabecera(ws, 'RESUMEN DE METRADOS - EVACUACIÓN Y SEÑALIZACIÓN', 4)
     for k, v in enumerate(['ITEM', 'DESCRIPCIÓN', 'UND', 'METRADO'], 1):
         celda(ws, r, k, v, True, GRANATE, 'FFFFFF')
