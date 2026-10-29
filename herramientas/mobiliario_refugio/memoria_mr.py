@@ -55,8 +55,8 @@ TEXTO_ED = {
 
 
 def prosa(its):
-    """Lista en texto de los ítems de un ambiente: cantidad, descripción y código."""
-    par = ['%d %s (%s)' % (it['cant'], it['des'].lower().rstrip('.'), it['cod']) for it in its if it['cant']]
+    """Lista en texto de los ítems de un ambiente: descripción, código y cantidad."""
+    par = ['%s (%s), %d und' % (it['des'].lower().rstrip('.'), it['cod'], it['cant']) for it in its if it['cant']]
     return '; '.join(par) + '.' if par else 'sin equipamiento.'
 
 
