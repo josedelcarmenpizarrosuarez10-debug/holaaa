@@ -855,3 +855,14 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   (formatos de registros ATS, PETAR, visitas, EPP, inspección y reporte, con campos de firma) con `herramientas/mujeres/psst_sin_anexo09_m.py`;
   el ANEXO 10 (presupuesto) pasa a ANEXO 09; se ajustaron la lista de anexos, el índice (8 entradas menos, páginas -3), los numerales 4.4,
   8.9, el texto de los PETS, la fuente del cuadro de presupuesto y la matriz de requisitos legales. Salida `entregables_mujeres/PLAN_DE_SST_CAR_MUJERES_2026.docx`.
+- Hogar de Refugio, señalización y seguridad (pedido: análisis profundo, memoria, metrado, especificaciones y observaciones aparte; la
+  usuaria advirtió que "atención riesgo eléctrico" no es bloque). DXF de la arquitecta (292 MB, en `insumos/solange/senalizacion/`
+  comprimido). `herramientas/senalizacion_refugio/`: `lee_plano_sr.py` (leyenda = bloque "assas", 27 filas; símbolos de la planta por
+  edificación con el contorno de los bloques de la planta general E-01 a E-09; OLE; rótulo), `datos_sr.py` (fuente única), `metrado_sr.py`,
+  `senales_sr.py`, `espec_sr.py`, `memoria_sr.py`, `vistas_sr.py`, `nota_sr.py`. Lámina = SE-S-02 (índice de arquitectura; el rótulo es de
+  la I.E. 292 Banda de Shilcayo). Metrado = lo dibujado: salida 49, dirección de evacuación 63, zona segura 209 (leyenda 210), aforo 55
+  (sin número), extintor PQS 33 (leyenda 44; 9 kg según la memoria de evacuación de arquitectura), riesgo eléctrico 39 imágenes OLE sin
+  posición (leyenda 38), SS.HH. 3/20/3/3, punto ecológico 4 (leyenda 00), luces 115 ("LE" 77 + "A$C7A2016C2" 38, mismo símbolo; leyenda
+  77), detectores 67 (leyenda 68: copia suelta fuera del terreno). Población: 113 plazas (programa) + 62 personal + 130 temporales = 305.
+  Observaciones (16) y puntos a confirmar en `entregables/revision_interna/REVISION_SENALIZACION_Y_SEGURIDAD_HOGAR_REFUGIO.docx`.
+  Falta la lámina SE-E-01 (rutas y zonas de reunión).
