@@ -77,6 +77,8 @@ def generar():
         ['Extintores', 'Los extintores (S1) de los cuadros "Pasadizo" no se metran en mobiliario: están en evacuación y señalización.'],
         ['Implementos del almacén deportivo', 'K53, K73, K74 y K79, rotulados en la planta y ausentes del cuadro, se metran 1 de cada uno.'],
         ['Nombres', 'E-06, E-07 y E-08 se llaman "Habitaciones (1) a (3)", como en el plano y en el programa de arquitectura.'],
+        ['Capacidad del SUM-comedor', 'Manda el plano: 24 mesas M16 y 192 sillas M3 (8 por mesa), contadas en la planta de EM-04. No se '
+         'usan las 384 sillas del cuadro ni las 80 personas de la memoria de arquitectura.'],
     ]
     MS.tabla(M, 'Otras observaciones subsanadas en los documentos', ['TEMA', 'CÓMO QUEDÓ EN LOS DOCUMENTOS'], otros, [3.6, W - 3.6],
              tam=8.5, izq=(0, 1))
@@ -99,14 +101,14 @@ def generar():
             filas.append([lam.get(e, ''), e, 'Cuadro %s: retirar la fila %s (no está en la planta).' % (D.cap(a), cod)])
     for l, t in D.observaciones_plano():
         filas.append([l, '', t])
+    filas.append(['Memoria de arquitectura', 'E-05', 'La memoria descriptiva de arquitectura considera el SUM-comedor para 80 personas; '
+                  'la planta de EM-04 tiene 24 mesas y 192 sillas. Ajustar la capacidad de la memoria a la planta (192).'])
     MS.tabla(M, 'Correcciones pendientes en las láminas', ['N.°', 'LÁMINA', 'EDIF.', 'CORRECCIÓN'],
              [[k] + f for k, f in enumerate(filas, 1)], [0.9, 1.9, 1.3, W - 4.1], tam=8, izq=(3,))
 
     # ------------------------------------------------------------------ 3 decisiones
     sec('3. DECISIONES QUE CAMBIARÍAN LOS DOCUMENTOS (CONFIRMAR CON LA ARQUITECTA)')
     MS.tabla(M, 'Decisiones por confirmar', ['TEMA', 'SITUACIÓN EN LOS DOCUMENTOS', 'SI LA ARQUITECTA LO CAMBIA'], [
-        ['Capacidad del SUM-comedor', 'Se metran 24 mesas M16 y 192 sillas M3, como en la planta; la memoria de arquitectura dice 80 '
-         'personas.', 'Si se reduce (por ejemplo a 10 mesas y 80 sillas), cambian las partidas de M16 y M3.'],
         ['Sillas del comedor', 'El comedor usa la silla regulable de estudiante M3.', 'Si se cambia por silla de adulto, cambia el código '
          'y la partida.'],
         ['Máquinas del taller de costura', 'E10 = "máquina de corte textil" (10 und), descripción del plano.',
@@ -117,7 +119,7 @@ def generar():
          'en las láminas, hay que pasar los nuevos códigos al metrado, la memoria y las especificaciones.'],
         ['Mesas M19 y M22', 'Ambas son mesa de madera 1.00 x 1.80 x 0.75 m, en partidas separadas.', 'Si se unifican, se suman en una partida.'],
         ['Sala de reuniones', 'Se metran la refrigeradora E19 y el microondas E16 dibujados.', 'Si no van, se retiran.'],
-    ], [3.2, 6.4, W - 9.6], tam=8.5, izq=(0, 1, 2), colores={(i, 0): AMBAR for i in range(7)})
+    ], [3.2, 6.4, W - 9.6], tam=8.5, izq=(0, 1, 2), colores={(i, 0): AMBAR for i in range(6)})
     M.par('Cuando la arquitecta entregue las láminas corregidas (DXF), se leen de nuevo y se comparan con el metrado: si coinciden, los '
           'documentos quedan como están; si no, se regeneran con las cantidades del plano corregido.', despues=4)
     d.core_properties.author = ''
