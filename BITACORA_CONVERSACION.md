@@ -890,3 +890,8 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Refugio, mobiliario: `subsanacion_mr.py` -> `entregables/revision_interna/OBSERVACIONES_SUBSANADAS_Y_PENDIENTES_MOBILIARIO_HOGAR_REFUGIO.docx`
   (1: 24 cantidades corregidas + descripciones, cuadros mal titulados, cuadro repetido, códigos dobles, extintores, nombres; 2: 40
   correcciones para la arquitecta en EM-01 a EM-07; 3: 7 decisiones que cambiarían los documentos).
+- Refugio, evacuación y señalización (pedido: manda el plano; SS.HH. "mixto" no va, el hogar es solo para mujeres; leer todos los
+  símbolos): barrido completo del DXF (bloques anidados en los de cada edificación, dibujos sueltos de líneas, sombreados y textos):
+  no hay señales fuera de los bloques ya contados; las únicas sin posición son las 39 imágenes OLE de riesgo eléctrico (el DXF solo guarda
+  su tamaño; para ubicarlas hace falta el PDF de la lámina). SS.HH. mujeres = 3 + 20 "mixto" = 23 (sin partida de mixto).
+  `subsanacion_sr.py` -> `entregables/revision_interna/OBSERVACIONES_SUBSANADAS_Y_PENDIENTES_EVACUACION_Y_SENALIZACION_HOGAR_REFUGIO.docx`.

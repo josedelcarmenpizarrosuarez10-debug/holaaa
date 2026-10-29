@@ -84,10 +84,10 @@ CATALOGO = [
      'Advierte la presencia de tableros y equipos eléctricos; en la puerta o el frente del tablero.', None),
     ('SEÑALES DE SERVICIOS HIGIENICOS PHD', '04', 'SEÑAL DE SERVICIOS HIGIÉNICOS PARA PERSONAS CON DISCAPACIDAD CON BRAILLE', 'und',
      '0.20 x 0.30 m', VINIL, '1.80 m', 'Identifica el servicio higiénico accesible.', ['sdsadsa']),
-    ('SEÑALES DE SERVICIOS HIGIENICOS MIXTO', '04', 'SEÑAL DE SERVICIOS HIGIÉNICOS MIXTO CON BRAILLE', 'und', '0.20 x 0.30 m', VINIL,
-     '1.80 m', 'Identifica el servicio higiénico de uso mixto (habitaciones, tópico y vestidores).', ['*U2820']),
-    ('SEÑALES DE SERVICIOS HIGIENICOS MUJER', '04', 'SEÑAL DE SERVICIOS HIGIÉNICOS MUJER CON BRAILLE', 'und', '0.20 x 0.30 m', VINIL,
-     '1.80 m', 'Identifica el servicio higiénico de mujeres.', ['sshhmujeres']),
+    # el hogar es solo para mujeres: las señales de SS.HH. "mixto" del plano (*U2820) son de SS.HH. mujeres
+    ('SEÑALES DE SERVICIOS HIGIENICOS MUJER', '04', 'SEÑAL DE SERVICIOS HIGIÉNICOS MUJERES CON BRAILLE', 'und', '0.20 x 0.30 m', VINIL,
+     '1.80 m', 'Identifica el servicio higiénico de mujeres (habitaciones, tópico, vestidores, garita y SS.HH. de las edificaciones).',
+     ['sshhmujeres', '*U2820']),
     ('SEÑALES DE SERVICIOS HIGIENICOS VAR', '04', 'SEÑAL DE SERVICIOS HIGIÉNICOS VARÓN CON BRAILLE', 'und', '0.20 x 0.30 m', VINIL,
      '1.80 m', 'Identifica el servicio higiénico de varones.', ['sshhhombres']),
     ('PUNTO ECOL', '04', 'SEÑAL DE PUNTO ECOLÓGICO CON BRAILLE', 'und', '0.30 x 0.20 m', VINIL, '1.80 m',
@@ -176,7 +176,10 @@ def partidas(P=None):
                 tot = sum(P['bloques'][b]['cantidad'] for b in bloques)
                 fuera = sum(len(P['bloques'][b]['fuera_del_terreno']) for b in bloques)
                 txt = 'Planta de %s: símbolos dibujados' % LS
-                if len(bloques) > 1:
+                if bloques == ['sshhmujeres', '*U2820']:
+                    txt += ' (%d de mujeres + %d de "mixto", que en un hogar solo para mujeres son de mujeres)' % (
+                        P['bloques']['sshhmujeres']['cantidad'], P['bloques']['*U2820']['cantidad'])
+                elif len(bloques) > 1:
                     txt += ' (%s)' % ' + '.join('%d "%s"' % (P['bloques'][b]['cantidad'], b) for b in bloques)
                 if fuera:
                     txt += '; %d copia fuera del terreno no se metra' % fuera

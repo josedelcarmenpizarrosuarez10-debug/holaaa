@@ -43,6 +43,11 @@ def observaciones(P):
         ('Código de lámina', 'La memoria de evacuación de arquitectura cita “lámina SE-S-01” para evacuación y “lámina SE-E-02” para '
          'señalización; el índice de planos de arquitectura dice %s %s y %s %s.' % (D.LAMINA_E[0], D.LAMINA_E[1], LS, D.LAMINA_S[1]),
          'Usar en el rótulo y en la memoria los códigos del índice (%s evacuación, %s señalización).' % (D.LAMINA_E[0], LS)),
+        ('SS.HH. mixto', 'La planta tiene %d señales de SS.HH. “mixto” (%s; EXT = garita de control), pero el hogar es solo para '
+         'mujeres víctimas de violencia: no hay servicios higiénicos mixtos.' % (
+             P['bloques']['*U2820']['cantidad'], ', '.join('%s: %d' % kv for kv in sorted(P['bloques']['*U2820']['por_edificacion'].items()))),
+         'Cambiar las %d señales por la de SS.HH. mujeres y la leyenda: SS.HH. mujeres %d, sin fila de mixto (así están el metrado, '
+         'la memoria y las especificaciones).' % (P['bloques']['*U2820']['cantidad'], pts['SEÑALES DE SERVICIOS HIGIENICOS MUJER']['total'])),
         ('Zona segura en caso de sismo', 'La leyenda indica 210; en la planta hay %d señales.' % pts['ZONA SEGURA EN']['total'],
          'Corregir la leyenda a %d.' % pts['ZONA SEGURA EN']['total']),
         ('Extintor PQS', 'La leyenda indica 44 señales de ubicación de extintor PQS; en la planta hay %d (bloque “extintor1”, que '
@@ -162,7 +167,7 @@ def generar():
     filas = []
     for x in res:
         k = CM.clave(x['desc'])
-        pl = pts_c[k]['total'] if k else 0
+        pl = pts_c[k]['total'] if k in pts_c else 0
         hd = det.get(x['item'], {}).get('total')
         ok = abs(x['total'] - pl) < 0.1 and hd is not None and abs(hd - pl) < 0.1
         t = x['desc'].replace('SUMINISTRO Y COLOCACION DE ', '').capitalize()
@@ -178,10 +183,11 @@ def generar():
              colores={(i, 5): ('E2EFDA' if f_[5] == 'bien' else 'F8CBAD') for i, f_ in enumerate(filas)})
     M.par('Están bien (total y reparto por edificación iguales a la planta): salida, zona segura, dirección de evacuación, aforo, '
           'pintura de zonas de evacuación, '
-          'señal de extintor y extintor PQS de 9 kg, luces de emergencia, SS.HH. hombres y mujeres, y riesgo eléctrico (total igual a '
+          'señal de extintor y extintor PQS de 9 kg, luces de emergencia, SS.HH. hombres, y riesgo eléctrico (total igual a '
           'las 39 imágenes; su reparto no se puede comprobar en el DXF y se toma el de ese metrado). Hay que corregir:', despues=3)
-    MS.vines(M, ['SS.HH. mixtos: en HR sale 0 porque la celda E26 enlaza a HD!K107 (vacía) en vez de HD!K112; además el desagregado '
-                 'suma 19 y en el plano hay 20 (falta la de la garita de control, junto al ingreso).',
+    MS.vines(M, ['SS.HH. mixtos y mujeres: el hogar es solo para mujeres, así que no hay SS.HH. mixtos; las 20 señales "mixto" del plano '
+                 '(en HD 19: falta la de la garita) van en SS.HH. mujeres, que suma 3 + 20 = 23. Además, en HR los mixtos salen 0 porque la '
+                 'celda E26 enlaza a HD!K107 (vacía) en vez de HD!K112.',
                  'Detector de humo: 66; en el plano hay 67 (falta el de la garita de control).',
                  'SS.HH. discapacitados: el total (3) está bien, pero la tercera señal está en E-06 (junto al baño accesible de las '
                  'habitaciones), no en E-05.',

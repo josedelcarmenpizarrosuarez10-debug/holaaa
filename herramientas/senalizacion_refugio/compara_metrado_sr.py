@@ -34,7 +34,7 @@ EQUIV = [('PINTURA ZONA SEGURA', 'ZONA DE REUNI'), ('SEÑAL DE SALIDA', 'SALIDA 
          ('RIESGO ELECTRICO', 'ATENCIÓN RIESGO'), ('LUCES DE EMERGENCIA', 'UNIDAD DE LUCES'), ('AFORO', 'LETRERO DE AFORO'),
          ('SEÑAL DE EXTINTOR', 'SEÑAL DE UBICACIÓN DE EXTINTOR PQS'), ('BOTIQUIN', None),
          ('SS.HH HOMBRES', 'SEÑALES DE SERVICIOS HIGIENICOS VAR'), ('SS.HH MUJERES', 'SEÑALES DE SERVICIOS HIGIENICOS MUJER'),
-         ('SS.HH MIXTOS', 'SEÑALES DE SERVICIOS HIGIENICOS MIXTO'), ('SS.HH DISCAPACITADOS', 'SEÑALES DE SERVICIOS HIGIENICOS PHD'),
+         ('SS.HH MIXTOS', 'MIXTO'), ('SS.HH DISCAPACITADOS', 'SEÑALES DE SERVICIOS HIGIENICOS PHD'),
          ('DETECTOR DE HUMO', 'DETECTOR DE HUMO'), ('EXTINTOR PQS 9', 'EXTINTOR')]
 
 
@@ -112,7 +112,9 @@ def generar():
                            '(equipo); en este, "señal de luces de emergencia": definir si el equipo va en instalaciones eléctricas.',
         'LETRERO DE AFORO': 'Conforme con el plano.',
         'SEÑAL DE UBICACIÓN DE EXTINTOR PQS': 'Conforme con el plano.',
-        'SEÑALES DE SERVICIOS HIGIENICOS VAR': 'Conforme con el plano.', 'SEÑALES DE SERVICIOS HIGIENICOS MUJER': 'Conforme con el plano.',
+        'SEÑALES DE SERVICIOS HIGIENICOS VAR': 'Conforme con el plano.',
+        'SEÑALES DE SERVICIOS HIGIENICOS MUJER': 'El hogar es solo para mujeres: las 20 señales de SS.HH. "mixto" del plano (19 en HD + '
+                                                 'la de la garita de control) son de SS.HH. mujeres. Total: 3 + 20 = 23.',
         'SEÑALES DE SERVICIOS HIGIENICOS MIXTO': 'Falta la señal de la garita de control (SS.HH. del ingreso): son 20. Además, en HR '
                                                  'sale 0 por un error de fórmula (ver hoja ERRORES DEL ARCHIVO).',
         'SEÑALES DE SERVICIOS HIGIENICOS PHD': 'Total conforme, pero la tercera señal está en E-06 (junto al baño accesible de las '
@@ -133,7 +135,10 @@ def generar():
     r += 1; r0 = r; usadas = set()
     for x in resumen:
         k = clave(x['desc']); usadas.add(k)
-        if k is None:
+        if k == 'MIXTO':
+            plano, obs = 0, ('No corresponde: el hogar es solo para mujeres. Las 20 señales "mixto" del plano (en HD 19; falta la de la '
+                             'garita) pasan a la partida de SS.HH. mujeres. Además, en HR sale 0 por un error de fórmula (HR!E26).')
+        elif k is None:
             plano, obs = 0, ('El plano no tiene señales de botiquín (la fila de la leyenda está en 00). Si se quieren las 9 (una por '
                              'edificación), hay que dibujarlas en la planta; si no, retirar la partida.')
         else:
@@ -170,7 +175,7 @@ def generar():
     r += 1
     for x in resumen:
         k = clave(x['desc'])
-        if k in (None, 'ZONA DE REUNI') or x['item'] not in det:
+        if k in (None, 'ZONA DE REUNI', 'MIXTO') or x['item'] not in det:
             continue
         p = pts[k]
         fu = det[x['item']]['por']
