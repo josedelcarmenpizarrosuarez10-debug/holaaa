@@ -1,0 +1,9454 @@
+{
+ "fuente": "insumos/solange/mobiliario/EQUIPAMIENTO_Y_MOBILIARIO_HOGAR_REFUGIO.zip",
+ "laminas": [
+  {
+   "codigo": "EM-01",
+   "titulo": "EQUIPAMIENTO Y MOBILIARIO: EDIFICACION 01",
+   "caja": [
+    348073.414,
+    9281757.003,
+    348114.964,
+    9281787.041
+   ],
+   "escala": "1/50",
+   "fecha": "SEPTIEMBRE-2026"
+  },
+  {
+   "codigo": "EM-02",
+   "titulo": "EQUIPAMIENTO Y MOBILIARIO: EDIFICACION 02 Y 03",
+   "caja": [
+    348138.737,
+    9281757.716,
+    348180.287,
+    9281787.754
+   ],
+   "escala": "1/50",
+   "fecha": "SEPTIEMBRE-2026"
+  },
+  {
+   "codigo": "EM-03",
+   "titulo": "EQUIPAMIENTO Y MOBILIARIO: EDIFICACION 04",
+   "caja": [
+    348190.306,
+    9281752.199,
+    348220.344,
+    9281793.749
+   ],
+   "escala": "1/50",
+   "fecha": "SEPTIEMBRE-2026"
+  },
+  {
+   "codigo": "EM-04",
+   "titulo": "EQUIPAMIENTO Y MOBILIARIO: EDIFICACION 05",
+   "caja": [
+    348226.378,
+    9281752.199,
+    348256.415,
+    9281793.749
+   ],
+   "escala": "1/50",
+   "fecha": "SEPTIEMBRE-2026"
+  },
+  {
+   "codigo": "EM-05",
+   "titulo": "EQUIPAMIENTO Y MOBILIARIO: EDIFICACION 06",
+   "caja": [
+    348075.013,
+    9281702.709,
+    348116.563,
+    9281732.747
+   ],
+   "escala": "1/50",
+   "fecha": "SEPTIEMBRE-2026"
+  },
+  {
+   "codigo": "EM-06",
+   "titulo": "EQUIPAMIENTO Y MOBILIARIO: EDIFICACION 07",
+   "caja": [
+    348136.186,
+    9281687.206,
+    348166.223,
+    9281728.756
+   ],
+   "escala": "1/50",
+   "fecha": "SEPTIEMBRE-2026"
+  },
+  {
+   "codigo": "EM-07",
+   "titulo": "EQUIPAMIENTO Y MOBILIARIO: EDIFICACION 08 Y 09",
+   "caja": [
+    348176.979,
+    9281699.969,
+    348218.529,
+    9281730.006
+   ],
+   "escala": "1/50",
+   "fecha": "SEPTIEMBRE-2026"
+  }
+ ],
+ "plantas": [
+  {
+   "edificacion": "E-02",
+   "nombre": "ALMACEN DE DONACIONES - TOPICO",
+   "x": 348142.718,
+   "y": 9281771.767,
+   "lamina": "EM-02"
+  },
+  {
+   "edificacion": "E-03",
+   "nombre": "MANTENIMIENTO",
+   "x": 348142.434,
+   "y": 9281760.109,
+   "lamina": "EM-02"
+  },
+  {
+   "edificacion": "E-01",
+   "nombre": "ADMINISTRACION",
+   "x": 348075.911,
+   "y": 9281760.583,
+   "lamina": "EM-01"
+  },
+  {
+   "edificacion": "E-04",
+   "nombre": "TALLERES",
+   "x": 348191.727,
+   "y": 9281754.202,
+   "lamina": "EM-03"
+  },
+  {
+   "edificacion": "E-05",
+   "nombre": "SUM-COMEDOR",
+   "x": 348227.995,
+   "y": 9281756.677,
+   "lamina": "EM-04"
+  },
+  {
+   "edificacion": "E-06",
+   "nombre": "DORMITORIOS",
+   "x": 348077.362,
+   "y": 9281712.435,
+   "lamina": "EM-05"
+  },
+  {
+   "edificacion": "E-07",
+   "nombre": "DORMITORIOS",
+   "x": 348137.21,
+   "y": 9281688.783,
+   "lamina": "EM-06"
+  },
+  {
+   "edificacion": "E-08",
+   "nombre": "DORMITORIOS",
+   "x": 348179.807,
+   "y": 9281712.768,
+   "lamina": "EM-07"
+  },
+  {
+   "edificacion": "E-09",
+   "nombre": "VESTIDORES Y ALMACEN DE IMPLEMENTOS DEPORTIVOS",
+   "x": 348204.339,
+   "y": 9281712.896,
+   "lamina": "EM-07"
+  }
+ ],
+ "cuadros": [
+  {
+   "titulo": "SALA DE ESPERA Y SALA DE VISITA - EDIFICACION 1 - PRIMER NIVEL",
+   "ambiente": "SALA DE ESPERA Y SALA DE VISITA",
+   "edificacion_titulo": "E-01",
+   "lamina": "EM-01",
+   "x": 348109.148,
+   "y": 9281785.677,
+   "items": [
+    {
+     "cod": "E4",
+     "seccion": "EQUIPO",
+     "des": "RELOJ PARA ADOSAR A PARED",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 2
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA, MELAMINA Y METAL 0.45 X 0.40 X 0.36 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 9
+    },
+    {
+     "cod": "M15",
+     "seccion": "MOBILIARIO",
+     "des": "ATRIL DE MESA DE DIBUJO Y PINTURA",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M32",
+     "seccion": "MOBILIARIO",
+     "des": "SILLON PARA ACOPLAR 0.44 X 0.55 X 0.60 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 2
+    },
+    {
+     "cod": "M34",
+     "seccion": "MOBILIARIO",
+     "des": "SOFA DE MADERA DE 2 CUERPOS 0.44 x 0.55 x 1.00 m.",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 3
+    },
+    {
+     "cod": "M54",
+     "seccion": "MOBILIARIO",
+     "des": "EXHIBIDOR DE LIBROS DE MELAMINA CON DIVISIONES ESCALONADAS 1.20x0.40x0.85 m.",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M57",
+     "seccion": "MOBILIARIO",
+     "des": "MUEBLE BAJO DE MELAMINA CON DOS PUERTAS CON DOS DIVISIONES HORIZONTALES 0.60 X 1.20 X 1.00 M.",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M63",
+     "seccion": "MOBILIARIO",
+     "des": "SOFA DE 3 CUERPOS 0.55x1.50x0.44m./Sofá A2",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 2
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "K20",
+     "seccion": "IMPLEMENTOS",
+     "des": "COJINES",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 4
+    },
+    {
+     "cod": "K78",
+     "seccion": "IMPLEMENTOS",
+     "des": "PISO ENCASTRABLE DE GOMA 25 MM",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 3
+    }
+   ]
+  },
+  {
+   "titulo": "ASISTENCIA SOCIAL EDIFICACION 1 - PRIMER NIVEL",
+   "ambiente": "ASISTENCIA SOCIAL",
+   "edificacion_titulo": "E-01",
+   "lamina": "EM-01",
+   "x": 348100.864,
+   "y": 9281785.648,
+   "items": [
+    {
+     "cod": "E4",
+     "seccion": "EQUIPO",
+     "des": "RELOJ PARA ADOSAR A PARED",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "E6",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA I5 ESTACIONARIA",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 3
+    },
+    {
+     "cod": "E9",
+     "seccion": "EQUIPO",
+     "des": "IMPRESORA MULTIFUNCIONAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA, MELAMINA Y METAL 0.45 X 0.40 X 0.36 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 6
+    },
+    {
+     "cod": "M31",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINE CON CREDENZA MOVIL 1.50 X 0.80 X 0.75 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 3
+    },
+    {
+     "cod": "M36",
+     "seccion": "MOBILIARIO",
+     "des": "ARMARIO DE MELAMINA CON 2 PUERTAS 4 NIVELES 0.90 X 0.45 X 1.80 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 6
+    },
+    {
+     "cod": "M39",
+     "seccion": "MOBILIARIO",
+     "des": "ARCHIVADOR DE MELAMINA CON TRES GAVETAS 0.60 X 0.46 X 1.20 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 2
+    },
+    {
+     "cod": "M63",
+     "seccion": "MOBILIARIO",
+     "des": "SOFA DE 3 CUERPOS 0.55x1.50x0.44m./Sofá A2",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 2
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "PSICOLOGIA, AREA LEGAL, OFICINA DE MONITOREO Y ADMINISTRACION - EDIFICACION 1 - PRIMER NIVEL",
+   "ambiente": "PSICOLOGIA, AREA LEGAL, OFICINA DE MONITOREO Y ADMINISTRACION",
+   "edificacion_titulo": "E-01",
+   "lamina": "EM-01",
+   "x": 348100.793,
+   "y": 9281780.111,
+   "items": [
+    {
+     "cod": "E4",
+     "seccion": "EQUIPO",
+     "des": "RELOJ PARA ADOSAR A PARED",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 4
+    },
+    {
+     "cod": "E6",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA I5 ESTACIONARIA",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 5
+    },
+    {
+     "cod": "E9",
+     "seccion": "EQUIPO",
+     "des": "IMPRESORA MULTIFUNCIONAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 3
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA, MELAMINA Y METAL 0.45 X 0.40 X 0.36 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 15
+    },
+    {
+     "cod": "M31",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINE CON CREDENZA MOVIL 1.50 X 0.80 X 0.75 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 5
+    },
+    {
+     "cod": "M36",
+     "seccion": "MOBILIARIO",
+     "des": "ARMARIO DE MELAMINA CON 2 PUERTAS, 4 NIVELES 0.90 X 0.45 X 1.80 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 10
+    },
+    {
+     "cod": "M63",
+     "seccion": "MOBILIARIO",
+     "des": "SOFA DE 3 CUERPOS 0.55x1.50x0.44m./Sofá A2",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 3
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 4
+    }
+   ]
+  },
+  {
+   "titulo": "SALA DE REUNIONES - EDIFICACION 1 - PRIMER NIVEL",
+   "ambiente": "SALA DE REUNIONES",
+   "edificacion_titulo": "E-01",
+   "lamina": "EM-01",
+   "x": 348109.151,
+   "y": 9281779.19,
+   "items": [
+    {
+     "cod": "E2",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA PORTATIL I5",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "E3",
+     "seccion": "EQUIPO",
+     "des": "PRESENTADOR INALAMBRICO CON PUNTERO LASER",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "E7",
+     "seccion": "EQUIPO",
+     "des": "PROYECTOR MULTIMEDIA",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "E9",
+     "seccion": "EQUIPO",
+     "des": "PROYECTOR MULTIMEDIA",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "E16",
+     "seccion": "EQUIPO",
+     "des": "HORNO MICROONDAS DE 31 LITROS",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "E18",
+     "seccion": "EQUIPO",
+     "des": "ECRAN",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "E19",
+     "seccion": "EQUIPO",
+     "des": "REFRIGERADORA 315 LITROS",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA, MELAMINA Y METAL 0.45 X 0.40 X 0.36 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 14
+    },
+    {
+     "cod": "M13",
+     "seccion": "MOBILIARIO",
+     "des": "RACK DE SOPORTE METALICO PARA PROYECTOR EN TECHO",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M21",
+     "seccion": "MOBILIARIO",
+     "des": "MESA DE REUNIONES DE MADERA Y MELAMINA 2.40 X 1.00 X 0.75 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M36",
+     "seccion": "MOBILIARIO",
+     "des": "ARMARIO DE MELAMINA CON 2 PUERTAS, 4 NIVELES 0.90 X 0.45 X 1.80 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 2
+    },
+    {
+     "cod": "M39",
+     "seccion": "MOBILIARIO",
+     "des": "ARCHIVADOR DE MELAMINA CON TRES GAVETAS 0.60 X 0.46 X 1.20 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M69",
+     "seccion": "MOBILIARIO",
+     "des": "PIZARRA ACRILICA 4.20X1.20 INC. ACCESORIOS DE FIJACION",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "SECRETARIA Y AREA DE BIENVENIDA -EDIFICACION 1 - PRIMER NIVEL",
+   "ambiente": "SECRETARIA Y AREA DE BIENVENIDA",
+   "edificacion_titulo": "E-01",
+   "lamina": "EM-01",
+   "x": 348100.793,
+   "y": 9281774.869,
+   "items": [
+    {
+     "cod": "E4",
+     "seccion": "EQUIPO",
+     "des": "RELOJ PARA ADOSAR A PARED",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "E6",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA I5 ESTACIONARIA",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "E9",
+     "seccion": "EQUIPO",
+     "des": "IMPRESORA MULTIFUNCIONAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA, MELAMINA Y METAL 0.45 X 0.40 X 0.36 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 10
+    },
+    {
+     "cod": "M15",
+     "seccion": "MOBILIARIO",
+     "des": "ATRIL DE MESA DE DIBUJO Y PINTURA",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M54",
+     "seccion": "MOBILIARIO",
+     "des": "EXHIBIDOR DE LIBROS DE MELAMINA CON DIVISIONES ESCALONADAS 1.20x0.40x0.85 m.",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M57",
+     "seccion": "MOBILIARIO",
+     "des": "MUEBLE BAJO DE MELAMINA CON DOS PUERTAS CON DOS DIVISIONES HORIZONTALES 0.60 X 1.20 X 1.00 M.",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M31",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINE CON CREDENZA MOVIL 1.50 X 0.80 X 0.75 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M32",
+     "seccion": "MOBILIARIO",
+     "des": "SILLON PARA ACOPLAR 0.44 X 0.55 X 0.60 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M34",
+     "seccion": "MOBILIARIO",
+     "des": "SOFA DE MADERA DE 2 CUERPOS 0.44 x 0.55 x 1.00 m.",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M36",
+     "seccion": "MOBILIARIO",
+     "des": "ARMARIO DE MELAMINA CON 2 PUERTAS, 4 NIVELES 0.90 X 0.45 X 1.80 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 3
+    },
+    {
+     "cod": "M63",
+     "seccion": "MOBILIARIO",
+     "des": "SOFA DE 3 CUERPOS 0.55x1.50x0.44m./Sofá A2",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 2
+    },
+    {
+     "cod": "K20",
+     "seccion": "IMPLEMENTOS",
+     "des": "COJINES",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 4
+    },
+    {
+     "cod": "K78",
+     "seccion": "IMPLEMENTOS",
+     "des": "PISO ENCASTRABLE DE GOMA 25 MM",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 3
+    }
+   ]
+  },
+  {
+   "titulo": "DIRECCION GENERAL Y SS.HH - EDIFICACION 1 - PRIMER NIVEL",
+   "ambiente": "DIRECCION GENERAL Y SS.HH",
+   "edificacion_titulo": "E-01",
+   "lamina": "EM-01",
+   "x": 348109.151,
+   "y": 9281770.976,
+   "items": [
+    {
+     "cod": "E4",
+     "seccion": "EQUIPO",
+     "des": "RELOJ PARA ADOSAR A PARED",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "E6",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA I5 ESTACIONARIA",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "E9",
+     "seccion": "EQUIPO",
+     "des": "IMPRESORA MULTIFUNCIONAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA, MELAMINA Y METAL 0.45 X 0.40 X 0.36 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 3
+    },
+    {
+     "cod": "M31",
+     "seccion": "MOBILIARIO",
+     "des": "RACK DE SOPORTE METALICO PARA PROYECTOR EN TECHO",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M32",
+     "seccion": "MOBILIARIO",
+     "des": "MESA DE REUNIONES DE MADERA Y MELAMINA 2.40 X 1.00 X 0.75 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M36",
+     "seccion": "MOBILIARIO",
+     "des": "CREDENZA DE MELAMINA CON DOS PUERTAS, DOS DIVISIONES Y TRES GAVETAS 0.75 X 0.40 X 1.20 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 2
+    },
+    {
+     "cod": "M39",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M60",
+     "seccion": "MOBILIARIO",
+     "des": "PAPELERA DE PLASTICO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M63",
+     "seccion": "MOBILIARIO",
+     "des": "SOFA DE 3 CUERPOS 0.55x1.50x0.44m./Sofá A2",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M76",
+     "seccion": "MOBILIARIO",
+     "des": "PORTA PAPEL HIGIENICO",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "SS.HH PERSONAL Y SS.HH DISCAPACITADOS - EDIFICACION 1 - PRIMER NIVEL",
+   "ambiente": "SS.HH PERSONAL Y SS.HH DISCAPACITADOS",
+   "edificacion_titulo": "E-01",
+   "lamina": "EM-01",
+   "x": 348100.864,
+   "y": 9281766.707,
+   "items": [
+    {
+     "cod": "M60",
+     "seccion": "MOBILIARIO",
+     "des": "PAPELERA DE PLASTICO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 3
+    },
+    {
+     "cod": "M76",
+     "seccion": "MOBILIARIO",
+     "des": "PORTA PAPEL HIGIENICO",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 3
+    }
+   ]
+  },
+  {
+   "titulo": "PASADIZO - EDIFICACION 1 - PRIMER NIVEL",
+   "ambiente": "PASADIZO",
+   "edificacion_titulo": "E-01",
+   "lamina": "EM-01",
+   "x": 348100.864,
+   "y": 9281764.962,
+   "items": [
+    {
+     "cod": "S1",
+     "seccion": "SEGURIDAD",
+     "des": "EXTINTOR DE 9 KG",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "SALA DE ESPERA Y SALA DE VISITA - EDIFICACION 2 - PRIMER NIVEL",
+   "ambiente": "SALA DE ESPERA Y SALA DE VISITA",
+   "edificacion_titulo": "E-02",
+   "lamina": "EM-02",
+   "x": 348161.345,
+   "y": 9281781.956,
+   "items": [
+    {
+     "cod": "E2",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA PORTATIL I5",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "E4",
+     "seccion": "EQUIPO",
+     "des": "RELOJ PARA ADOSAR A PARED",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA, MELAMINA Y METAL 0.45 X 0.40 X 0.36 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 3
+    },
+    {
+     "cod": "M20",
+     "seccion": "MOBILIARIO",
+     "des": "BIOMBO METALICO DE 3 CUERPOS",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M27",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DE RUEDAS",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M28",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINA CON DOS CAJONERAS 1.00 X 0.50 X 0.75 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 3
+    },
+    {
+     "cod": "M32",
+     "seccion": "MOBILIARIO",
+     "des": "SILLON PARA ACOPLAR 0.44 X 0.55 X 0.60 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M36",
+     "seccion": "MOBILIARIO",
+     "des": "ARMARIO DE MELAMINA CON 2 PUERTAS 4 NIVELES 0.90 X 0.45 X 1.80 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 6
+    },
+    {
+     "cod": "M51",
+     "seccion": "MOBILIARIO",
+     "des": "ESTANTE METALICO RANURADO CON CUATRO DIVISIONES 0.90X0.45X1.80M",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 9
+    },
+    {
+     "cod": "M60",
+     "seccion": "MOBILIARIO",
+     "des": "PAPELERA DE PLASTICO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M63",
+     "seccion": "MOBILIARIO",
+     "des": "SOFA DE 3 CUERPOS 0.55x1.50x0.44m./Sofá A2",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M65",
+     "seccion": "MOBILIARIO",
+     "des": "CAMILLA METALICA RECLINABLE CON RESPALDO Y RUEDAS 1.80 X 0.60 X 0.70 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M67",
+     "seccion": "MOBILIARIO",
+     "des": "ESCALERA METÁLICA CON DOS PELDAÑOS 0.40 X 0.40 X 0.36 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M70",
+     "seccion": "MOBILIARIO",
+     "des": "BOTIQUIN DE MADERA CON DOS DIVISIONES UNA PUERTA Y UNA MANIJA DE 0.30 X 0.15 X 0.40 M PARA PRIMEROS AUXILIOS INC. MEDICAMENTOS",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M71",
+     "seccion": "MOBILIARIO",
+     "des": "COCHE MULTIUSOS MOVIL DE ACERO INOXIDABLE 0.80 X 0.40 X 0.90 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "K32",
+     "seccion": "IMPLEMENTOS",
+     "des": "BIDON DE OXIGENO MEDICINAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "K33",
+     "seccion": "IMPLEMENTOS",
+     "des": "TENSIOMETRO",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "K34",
+     "seccion": "IMPLEMENTOS",
+     "des": "TERMOMETRO DIGITAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "K35",
+     "seccion": "IMPLEMENTOS",
+     "des": "ESTETOSCOPIO",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "TOPICO - EDIFICACION 3 - PRIMER NIVEL",
+   "ambiente": "TOPICO",
+   "edificacion_titulo": "E-03",
+   "lamina": "EM-02",
+   "x": 348170.536,
+   "y": 9281778.351,
+   "items": [
+    {
+     "cod": "K32",
+     "seccion": "IMPLEMENTOS",
+     "des": "BIDON DE OXIGENO MEDICINAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "K33",
+     "seccion": "IMPLEMENTOS",
+     "des": "TENSIOMETRO",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "K34",
+     "seccion": "IMPLEMENTOS",
+     "des": "TERMOMETRO DIGITAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "K35",
+     "seccion": "IMPLEMENTOS",
+     "des": "ESTETOSCOPIO",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA Y METAL 0.45 X 0.40 X 0.36 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M20",
+     "seccion": "MOBILIARIO",
+     "des": "BIOMBO METALICO DE 3 CUERPOS",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M27",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DE RUEDAS",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M28",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINA CON DOS CAJONERAS 1.00 X 0.50 X 0.75 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M63",
+     "seccion": "MOBILIARIO",
+     "des": "CAMILLA METALICA RECLINABLE CON RESPALDO Y RUEDAS 1.80 X 0.60 X 0.70 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M67",
+     "seccion": "MOBILIARIO",
+     "des": "ESCALERA METÁLICA CON DOS PELDAÑOS 0.40 X 0.40 X 0.36 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M70",
+     "seccion": "MOBILIARIO",
+     "des": "BOTIQUIN DE MADERA CON DOS DIVISIONES UNA PUERTA Y UNA MANIJA DE 0.30 X 0.15 X 0.40 M PARA PRIMEROS AUXILIOS INC. MEDICAMENTOS",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M71",
+     "seccion": "MOBILIARIO",
+     "des": "COCHE MULTIUSOS MOVIL DE ACERO INOXIDABLE 0.80 X 0.40 X 0.90 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "MANTENIMIENTO EDIFICACION 3 - PRIMER NIVEL",
+   "ambiente": "MANTENIMIENTO",
+   "edificacion_titulo": "E-03",
+   "lamina": "EM-02",
+   "x": 348165.208,
+   "y": 9281767.457,
+   "items": [
+    {
+     "cod": "M51",
+     "seccion": "MOBILIARIO",
+     "des": "ESTANTE METALICO RANURADO CON CUATRO DIVISIONES 0.90 X 0.45 X 1.80 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 15
+    },
+    {
+     "cod": "M75",
+     "seccion": "MOBILIARIO",
+     "des": "CONTENEDOR CON TAPA PARA RESIDUOS SOLIDOS 0.80X1.00X1.00 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 5
+    }
+   ]
+  },
+  {
+   "titulo": "TALLER DE COSTURA EDIFICACION 4 - PRIMER NIVEL",
+   "ambiente": "TALLER DE COSTURA",
+   "edificacion_titulo": "E-04",
+   "lamina": "EM-03",
+   "x": 348211.523,
+   "y": 9281789.118,
+   "items": [
+    {
+     "cod": "E10",
+     "seccion": "EQUIPO",
+     "des": "MAQUINA DE CORTE TEXTIL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 10
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA, MELAMINA Y METAL 0.45 X 0.40 X 0.36 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 10
+    },
+    {
+     "cod": "M9",
+     "seccion": "MOBILIARIO",
+     "des": "MANIQUI DE COSTURA PARA CONFECCIÓN TEXTIL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 5
+    },
+    {
+     "cod": "M16",
+     "seccion": "MOBILIARIO",
+     "des": "MESA DE CORTE TEXTIL 0.80X1.50X.75",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 10
+    },
+    {
+     "cod": "M36",
+     "seccion": "MOBILIARIO",
+     "des": "ARMARIO DE MELAMINA CON 2 PUERTAS 4 NIVELES 0.90 X 0.45 X 1.80 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 5
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "TALLER DE BISUTERIA EDIFICACION 4 - PRIMER NIVEL",
+   "ambiente": "TALLER DE BISUTERIA",
+   "edificacion_titulo": "E-04",
+   "lamina": "EM-03",
+   "x": 348211.523,
+   "y": 9281783.983,
+   "items": [
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA, MELAMINA Y METAL 0.45 X 0.40 X 0.36 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 24
+    },
+    {
+     "cod": "M23",
+     "seccion": "MOBILIARIO",
+     "des": "MESA DE MADERA1.00 X 2.00 X 0.75 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 8
+    },
+    {
+     "cod": "M36",
+     "seccion": "MOBILIARIO",
+     "des": "ARMARIO DE MELAMINA CON 2 PUERTAS 4 NIVELES 0.90 X 0.45 X 1.80 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 5
+    },
+    {
+     "cod": "M37",
+     "seccion": "MOBILIARIO",
+     "des": "ARCHIVADOR DE MELAMINA CON TRES GAVETAS 0.60 X 0.46 X 1.20 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 5
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "SS.HH VARONES, SS.HH MUJERES, DISCAPACITADOS Y CUARTO DE LIMPIEZA - EDIFICACION 4 - PRIMER NIVEL",
+   "ambiente": "SS.HH VARONES, SS.HH MUJERES, DISCAPACITADOS Y CUARTO DE LIMPIEZA",
+   "edificacion_titulo": "E-04",
+   "lamina": "EM-03",
+   "x": 348211.528,
+   "y": 9281777.993,
+   "items": [
+    {
+     "cod": "M60",
+     "seccion": "MOBILIARIO",
+     "des": "PAPELERA DE PLASTICO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 8
+    },
+    {
+     "cod": "M76",
+     "seccion": "MOBILIARIO",
+     "des": "PORTA PAPEL HIGIENICO",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 6
+    },
+    {
+     "cod": "M77",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSANDOR DE PAPEL TOALLA",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 3
+    }
+   ]
+  },
+  {
+   "titulo": "PASADIZO - EDIFICACION 2 - PRIMER NIVEL",
+   "ambiente": "PASADIZO",
+   "edificacion_titulo": "E-02",
+   "lamina": "EM-03",
+   "x": 348211.528,
+   "y": 9281775.804,
+   "items": [
+    {
+     "cod": "S1",
+     "seccion": "SEGURIDAD",
+     "des": "EXTINTOR DE 9 KG",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "TALLER DE REPOSTERIA EDIFICACION 4 - PRIMER NIVEL",
+   "ambiente": "TALLER DE REPOSTERIA",
+   "edificacion_titulo": "E-04",
+   "lamina": "EM-03",
+   "x": 348211.523,
+   "y": 9281772.421,
+   "items": [
+    {
+     "cod": "E13",
+     "seccion": "EQUIPO",
+     "des": "COCINA INDUSTRIAL 2 HORNILLAS",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 2
+    },
+    {
+     "cod": "E16",
+     "seccion": "EQUIPO",
+     "des": "HORNO MICROONDAS DE 31 LITROS",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 2
+    },
+    {
+     "cod": "E17",
+     "seccion": "EQUIPO",
+     "des": "LICUADORA DE 1.5 LITROS",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "E19",
+     "seccion": "EQUIPO",
+     "des": "REFRIGERADORA 315 LITROS",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA, MELAMINA Y METAL 0.45 X 0.40 X 0.36 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 12
+    },
+    {
+     "cod": "M22",
+     "seccion": "MOBILIARIO",
+     "des": "MESA DE MADERA1.00 X 1.80 X 0.75 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 8
+    },
+    {
+     "cod": "M26",
+     "seccion": "MOBILIARIO",
+     "des": "MESA DE ACERO INOXIDABLE DE 0.90 x 0.60 x 0. 90 m.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M52",
+     "seccion": "MOBILIARIO",
+     "des": "ESTANTE DE ACERO INOXIDABLE CON CUATRO DIVISIONES, CON BANDEJA 0.60 x 0.60 x 1.80 m.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "TERAPIA GRUPAL EDIFICACION 4 - PRIMER NIVEL",
+   "ambiente": "TERAPIA GRUPAL",
+   "edificacion_titulo": "E-04",
+   "lamina": "EM-03",
+   "x": 348211.523,
+   "y": 9281766.426,
+   "items": [
+    {
+     "cod": "E4",
+     "seccion": "EQUIPO",
+     "des": "RELOJ PARA ADOSAR A PARED",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA, MELAMINA Y METAL 0.45 X 0.40 X 0.36 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 12
+    },
+    {
+     "cod": "M19",
+     "seccion": "MOBILIARIO",
+     "des": "MESA DE MADERA 1.00 X 1.80 X 0.75 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 2
+    },
+    {
+     "cod": "M35",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA TIPO TABURETE REGULABLE DE MADERA Y METAL 0.15 x 0.30 x 0.60 x 0.75 m.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 2
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "K78",
+     "seccion": "IMPLEMENTOS",
+     "des": "PISO ENCASTRABLE DE GOMA 25 MM",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 15
+    }
+   ]
+  },
+  {
+   "titulo": "CUARTO DE CAMARAS DE VIDEOVIGILANCIA, ARCHIVO Y DEPOSITO EDIFICACION 4 - PRIMER NIVEL",
+   "ambiente": "CUARTO DE CAMARAS DE VIDEOVIGILANCIA, ARCHIVO Y DEPOSITO",
+   "edificacion_titulo": "E-04",
+   "lamina": "EM-03",
+   "x": 348211.523,
+   "y": 9281761.434,
+   "items": [
+    {
+     "cod": "E4",
+     "seccion": "EQUIPO",
+     "des": "RELOJ PARA ADOSAR A PARED",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA, MELAMINA Y METAL 0.45 X 0.40 X 0.36 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 6
+    },
+    {
+     "cod": "M28",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINE CON DOS CAJONERAS 1.00 x 0.50 x 0.75 m.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 6
+    },
+    {
+     "cod": "M39",
+     "seccion": "MOBILIARIO",
+     "des": "ARCHIVADOR DE MELAMINA CON TRES GAVETAS 0.60x0.46x1.20",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 14
+    },
+    {
+     "cod": "M51",
+     "seccion": "MOBILIARIO",
+     "des": "ESTANTE METÁLICO RANURADO CON CUATRO DIVISIONES 0.90 x 0.45 x 1.80 m.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 12
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "MODULO DE ENSEÑANZA EDIFICACION 5 - PRIMER NIVEL",
+   "ambiente": "MODULO DE ENSEÑANZA",
+   "edificacion_titulo": "E-05",
+   "lamina": "EM-04",
+   "x": 348250.502,
+   "y": 9281785.378,
+   "items": [
+    {
+     "cod": "E1",
+     "seccion": "EQUIPO",
+     "des": "PROYECTOR INTERACTIVO",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "E2",
+     "seccion": "EQUIPO",
+     "des": "COMPUTADORA PORTATIL I5",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "E3",
+     "seccion": "EQUIPO",
+     "des": "PRESENTADOR INALAMBRICO CON PUNTERO LASER",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M3",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA REGULABLE DE ESTUDIANTE DE MADERA Y METAL 0.30 x 0.27 x 0.32m",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 12
+    },
+    {
+     "cod": "M4",
+     "seccion": "MOBILIARIO",
+     "des": "MESA REGULABLE DE MADERA Y METAL 0.56 x 0.50 x 0.60m",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 12
+    },
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA, MELAMINA Y METAL 0.45 X 0.40 X 0.36 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M8",
+     "seccion": "MOBILIARIO",
+     "des": "MESA PARA EL PROFESOR DE MADERA Y METAL 1.00 x 0.50 x 0.75",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M13",
+     "seccion": "MOBILIARIO",
+     "des": "RACK DE SOPORTE METÁLICO PARA PROYECTOR EN TECHO",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M36",
+     "seccion": "MOBILIARIO",
+     "des": "ARMARIO DE MELAMINA CON 2 PUERTAS 4 NIVELES 0.90 X 0.45 X 1.80 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 4
+    },
+    {
+     "cod": "M56",
+     "seccion": "MOBILIARIO",
+     "des": "MUEBLE BAJO DE MELAMINE PARA EL GUARDADO DE MOCHILAS CON DOS DIVISIONES 0.60x0.40x1.00 m.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 5
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M69",
+     "seccion": "MOBILIARIO",
+     "des": "PIZARRA ACRÍLICA 4.20X1.20 INC. ACCESORIOS DE FIJACIÓN",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "MODULO DE LAVANDERIA EDIFICACION 5 - PRIMER NIVEL",
+   "ambiente": "MODULO DE LAVANDERIA",
+   "edificacion_titulo": "E-05",
+   "lamina": "EM-04",
+   "x": 348250.507,
+   "y": 9281778.441,
+   "items": [
+    {
+     "cod": "E5",
+     "seccion": "EQUIPO",
+     "des": "LAVADORA DE 20KG DE CARGA SUPERIOR",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 4
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "SUM-COMEDOR EDIFICACION 5 - PRIMER NIVEL",
+   "ambiente": "SUM-COMEDOR",
+   "edificacion_titulo": "E-05",
+   "lamina": "EM-04",
+   "x": 348250.507,
+   "y": 9281775.114,
+   "items": [
+    {
+     "cod": "M3",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA REGULABLE DE ESTUDIANTE DE MADERA Y METAL 0.30 x 0.27 x 0.32 m.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 384
+    },
+    {
+     "cod": "M16",
+     "seccion": "MOBILIARIO",
+     "des": "MESA DE TRABAJO DE MADERA PARA ESTUDIANTES 0.90 x 1.80 x 0.56 m.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 24
+    },
+    {
+     "cod": "M62",
+     "seccion": "MOBILIARIO",
+     "des": "CESTO BOTA PAPELES DE ACERO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 4
+    }
+   ]
+  },
+  {
+   "titulo": "COCINA, ALACENA Y DESPENSA EDIFICACION 5 - PRIMER NIVEL",
+   "ambiente": "COCINA, ALACENA Y DESPENSA",
+   "edificacion_titulo": "E-05",
+   "lamina": "EM-04",
+   "x": 348250.502,
+   "y": 9281771.71,
+   "items": [
+    {
+     "cod": "E13",
+     "seccion": "EQUIPO",
+     "des": "COCINA INDUSTRIAL 2 HORNILLAS",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 2
+    },
+    {
+     "cod": "E16",
+     "seccion": "EQUIPO",
+     "des": "HORNO MICROONDAS DE 31 LITROS",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "E17",
+     "seccion": "EQUIPO",
+     "des": "LICUADORA DE 1.5 LITROS",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "E19",
+     "seccion": "EQUIPO",
+     "des": "REFRIGERADORA 315 LITROS",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M51",
+     "seccion": "MOBILIARIO",
+     "des": "ESTANTE METALICO RANURADO CON CUATRO DIVISIONES 0.90X0.45X1.80M",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 5
+    },
+    {
+     "cod": "M52",
+     "seccion": "MOBILIARIO",
+     "des": "ESTANTE DE ACERO INOXIDABLE CON CUATRO DIVISIONES, CON BANDEJA 0.60 x 0.60 x 1.80 m.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 2
+    },
+    {
+     "cod": "M68",
+     "seccion": "MOBILIARIO",
+     "des": "PARIHUELA DE MADERA 0.90 x 0.50 x 0.20 m.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 4
+    },
+    {
+     "cod": "M73",
+     "seccion": "MOBILIARIO",
+     "des": "ESTACION DE SERVIDO CON TRES BANDEJAS, UNA PUERTA Y UNA CUBIERTA 1.20 X 0.70 X 0.90 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "MODULO INFANTIL EDIFICACION 5 - PRIMER NIVEL",
+   "ambiente": "MODULO INFANTIL",
+   "edificacion_titulo": "E-05",
+   "lamina": "EM-04",
+   "x": 348250.502,
+   "y": 9281765.88,
+   "items": [
+    {
+     "cod": "M15",
+     "seccion": null,
+     "des": "ATRIL DE MESA PARA DIBUJO Y PINTURA.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M54",
+     "seccion": null,
+     "des": "EXHIBIDOR DE LIBROS DE MELAMINA CON DIVISIONES ESCALONADAS 1.20x0.40x0.85 m.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M57",
+     "seccion": null,
+     "des": "MUEBLE BAJO DE MELAMINA CON DOS PUERTAS CON DOS DIVISIONES HORIZONTALES 0.60 x 1.20 x 1.00 m.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "K20",
+     "seccion": "IMPLEMENTOS",
+     "des": "COJINES",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 4
+    },
+    {
+     "cod": "K31",
+     "seccion": "IMPLEMENTOS",
+     "des": "PISCINA DE PELOTAS 150X33CM",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "K32",
+     "seccion": "IMPLEMENTOS",
+     "des": "TOBOGAN CON ESCALADOR",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "K33",
+     "seccion": "IMPLEMENTOS",
+     "des": "JUEGO DE TEATRO PARA NIÑOS",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "K78",
+     "seccion": "IMPLEMENTOS",
+     "des": "PISO ENCASTRABLE DE GOMA 25 MM",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    }
+   ]
+  },
+  {
+   "titulo": "HABITACION ESPECIAL, DOBLE Y SIMPLE - EDIFICACION 6 - PRIMER NIVEL",
+   "ambiente": "HABITACION ESPECIAL, DOBLE Y SIMPLE",
+   "edificacion_titulo": "E-06",
+   "lamina": "EM-05",
+   "x": 348105.617,
+   "y": 9281725.173,
+   "items": [
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA, MELAMINA Y METAL 0.45 X 0.40 X 0.36 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 11
+    },
+    {
+     "cod": "M28",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINE CON DOS CAJONERAS 1.00 x 0.50 x 0.75 m.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 11
+    },
+    {
+     "cod": "M37",
+     "seccion": "MOBILIARIO",
+     "des": "ARMARIO PARA ALMACENAR MATERIAL DE MELAMINA CON 2 PUERTAS Y 5 DIVISIONES 0.90X0.60X1.80 M.",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 11
+    },
+    {
+     "cod": "M61",
+     "seccion": "MOBILIARIO",
+     "des": "VELADOR DE MADERA 0.45X0.50M",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 10
+    },
+    {
+     "cod": "M64",
+     "seccion": "MOBILIARIO",
+     "des": "CAMAROTE DE UNA PLAZA Y MEDIA. INCLUYE COLCHON",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 8
+    },
+    {
+     "cod": "M78",
+     "seccion": "MOBILIARIO",
+     "des": "CAMA DE DOS PLAZAS, INCLUYE COLCHON",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 3
+    }
+   ]
+  },
+  {
+   "titulo": "SS.HH PERSONAL EDIFICACION 1 - PRIMER NIVEL",
+   "ambiente": "SS.HH PERSONAL",
+   "edificacion_titulo": "E-01",
+   "lamina": "EM-05",
+   "x": 348105.691,
+   "y": 9281721.26,
+   "items": [
+    {
+     "cod": "M60",
+     "seccion": "MOBILIARIO",
+     "des": "PAPELERA DE PLASTICO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 4
+    },
+    {
+     "cod": "M76",
+     "seccion": "MOBILIARIO",
+     "des": "PORTA PAPEL HIGIENICO",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 4
+    },
+    {
+     "cod": "M77",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSANDOR DE PAPEL TOALLA",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 4
+    }
+   ]
+  },
+  {
+   "titulo": "HABITACION ESPECIAL, DOBLE Y SIMPLE - EDIFICACION 7 - PRIMER NIVEL",
+   "ambiente": "HABITACION ESPECIAL, DOBLE Y SIMPLE",
+   "edificacion_titulo": "E-07",
+   "lamina": "EM-06",
+   "x": 348157.244,
+   "y": 9281717.276,
+   "items": [
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA, MELAMINA Y METAL 0.45 X 0.40 X 0.36 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 23
+    },
+    {
+     "cod": "M28",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINE CON DOS CAJONERAS 1.00 x 0.50 x 0.75 m.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 23
+    },
+    {
+     "cod": "M37",
+     "seccion": "MOBILIARIO",
+     "des": "ARMARIO PARA ALMACENAR MATERIAL DE MELAMINA CON 2 PUERTAS Y 5 DIVISIONES 0.90X0.60X1.80 M.",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 28
+    },
+    {
+     "cod": "M61",
+     "seccion": "MOBILIARIO",
+     "des": "VELADOR DE MADERA 0.45X0.50M",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 17
+    },
+    {
+     "cod": "M64",
+     "seccion": "MOBILIARIO",
+     "des": "CAMAROTE DE UNA PLAZA Y MEDIA. INCLUYE COLCHON",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 19
+    },
+    {
+     "cod": "M78",
+     "seccion": "MOBILIARIO",
+     "des": "CAMA DE DOS PLAZAS, INCLUYE COLCHON",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 5
+    },
+    {
+     "cod": "M79",
+     "seccion": "MOBILIARIO",
+     "des": "CAMA CUNA DE UNA PLAZA, INCLUYE COLCHON",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 3
+    }
+   ]
+  },
+  {
+   "titulo": "SS.HH PERSONAL EDIFICACION 7 - PRIMER NIVEL",
+   "ambiente": "SS.HH PERSONAL",
+   "edificacion_titulo": "E-07",
+   "lamina": "EM-06",
+   "x": 348157.317,
+   "y": 9281712.877,
+   "items": [
+    {
+     "cod": "M60",
+     "seccion": "MOBILIARIO",
+     "des": "PAPELERA DE PLASTICO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 11
+    },
+    {
+     "cod": "M76",
+     "seccion": "MOBILIARIO",
+     "des": "PORTA PAPEL HIGIENICO",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 11
+    },
+    {
+     "cod": "M77",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSANDOR DE PAPEL TOALLA",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 11
+    }
+   ]
+  },
+  {
+   "titulo": "VESTIDORES EDIFICACION 1 - PRIMER NIVEL",
+   "ambiente": "VESTIDORES",
+   "edificacion_titulo": "E-01",
+   "lamina": "EM-07",
+   "x": 348208.175,
+   "y": 9281711.187,
+   "items": [
+    {
+     "cod": "M60",
+     "seccion": "MOBILIARIO",
+     "des": "PAPELERA DE PLASTICO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 2
+    },
+    {
+     "cod": "M76",
+     "seccion": "MOBILIARIO",
+     "des": "PORTA PAPEL HIGIENICO",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 2
+    },
+    {
+     "cod": "M77",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSANDOR DE PAPEL TOALLA",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 6
+    }
+   ]
+  },
+  {
+   "titulo": "HABITACION ESPECIAL, DOBLE Y SIMPLE - EDIFICACION 8 - PRIMER NIVEL",
+   "ambiente": "HABITACION ESPECIAL, DOBLE Y SIMPLE",
+   "edificacion_titulo": "E-08",
+   "lamina": "EM-07",
+   "x": 348189.047,
+   "y": 9281711.173,
+   "items": [
+    {
+     "cod": "M7",
+     "seccion": "MOBILIARIO",
+     "des": "SILLA DEL PROFESOR DE MADERA, MELAMINA Y METAL 0.45 X 0.40 X 0.36 M.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 12
+    },
+    {
+     "cod": "M28",
+     "seccion": "MOBILIARIO",
+     "des": "ESCRITORIO DE MELAMINE CON DOS CAJONERAS 1.00 x 0.50 x 0.75 m.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 12
+    },
+    {
+     "cod": "M37",
+     "seccion": "MOBILIARIO",
+     "des": "ARMARIO PARA ALMACENAR MATERIAL DE MELAMINA CON 2 PUERTAS Y 5 DIVISIONES 0.90X0.60X1.80 M.",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 13
+    },
+    {
+     "cod": "M61",
+     "seccion": "MOBILIARIO",
+     "des": "VELADOR DE MADERA 0.45X0.50M",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 10
+    },
+    {
+     "cod": "M64",
+     "seccion": "MOBILIARIO",
+     "des": "CAMAROTE DE UNA PLAZA Y MEDIA. INCLUYE COLCHON",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 9
+    },
+    {
+     "cod": "M78",
+     "seccion": "MOBILIARIO",
+     "des": "CAMA DE DOS PLAZAS, INCLUYE COLCHON",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 3
+    }
+   ]
+  },
+  {
+   "titulo": "MODULO INFANTIL EDIFICACION 5 - PRIMER NIVEL",
+   "ambiente": "MODULO INFANTIL",
+   "edificacion_titulo": "E-05",
+   "lamina": "EM-07",
+   "x": 348198.739,
+   "y": 9281711.158,
+   "items": [
+    {
+     "cod": "M51",
+     "seccion": null,
+     "des": "ATRIL DE MESA PARA DIBUJO Y PINTURA.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M52",
+     "seccion": null,
+     "des": "EXHIBIDOR DE LIBROS DE MELAMINA CON DIVISIONES ESCALONADAS 1.20x0.40x0.85 m.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "M64",
+     "seccion": null,
+     "des": "MUEBLE BAJO DE MELAMINA CON DOS PUERTAS CON DOS DIVISIONES HORIZONTALES 0.60 x 1.20 x 1.00 m.",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "K37",
+     "seccion": "IMPLEMENTOS",
+     "des": "PELOTAS DE BASKET #6",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 4
+    },
+    {
+     "cod": "K38",
+     "seccion": "IMPLEMENTOS",
+     "des": "PELOTAS DE BASKET #7",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 4
+    },
+    {
+     "cod": "K40",
+     "seccion": "IMPLEMENTOS",
+     "des": "PELOTAS DE FUTBOL #5",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 4
+    },
+    {
+     "cod": "K41",
+     "seccion": "IMPLEMENTOS",
+     "des": "PELOTAS DE VOLEY #4",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 4
+    },
+    {
+     "cod": "K43",
+     "seccion": "IMPLEMENTOS",
+     "des": "TABURETE DE MADERA PARA GIMNASIA",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 4
+    },
+    {
+     "cod": "K44",
+     "seccion": "IMPLEMENTOS",
+     "des": "INFLADOR DE PIE PARA PELOTAS",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 2
+    },
+    {
+     "cod": "K45",
+     "seccion": "IMPLEMENTOS",
+     "des": "RIEL DE EQUILIBRIO",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 2
+    },
+    {
+     "cod": "K46",
+     "seccion": "IMPLEMENTOS",
+     "des": "AROS DE ALUMINIO",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 30
+    },
+    {
+     "cod": "K47",
+     "seccion": "IMPLEMENTOS",
+     "des": "DISCO DE GOMA DE 1 KG",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 4
+    },
+    {
+     "cod": "K48",
+     "seccion": "IMPLEMENTOS",
+     "des": "BALA DE 1KG",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 4
+    },
+    {
+     "cod": "K49",
+     "seccion": "IMPLEMENTOS",
+     "des": "JABALINA DE 600 GR",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 4
+    },
+    {
+     "cod": "K50",
+     "seccion": "IMPLEMENTOS",
+     "des": "JABALINA DE 700 GR",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 4
+    },
+    {
+     "cod": "K51",
+     "seccion": "IMPLEMENTOS",
+     "des": "VALLAS DE OBSTACULO REGULABLE",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 5
+    },
+    {
+     "cod": "K52",
+     "seccion": "IMPLEMENTOS",
+     "des": "TESTIMONIO DE RELEVO DE PVC",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 5
+    },
+    {
+     "cod": "K75",
+     "seccion": "IMPLEMENTOS",
+     "des": "SACO DE BOXEO, RELLENO DE TELA PRENSADA",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "K76",
+     "seccion": "IMPLEMENTOS",
+     "des": "PERA DE BOX",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "K77",
+     "seccion": "IMPLEMENTOS",
+     "des": "SOPORTE METALICO PARA PERA",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 1
+    },
+    {
+     "cod": "K78",
+     "seccion": "IMPLEMENTOS",
+     "des": "PISO ENCASTRABLE DE GOMA 25 MM",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 50
+    },
+    {
+     "cod": "K81",
+     "seccion": "IMPLEMENTOS",
+     "des": "CODERA ESPUMA ERGONOMETRICA",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 30
+    },
+    {
+     "cod": "K82",
+     "seccion": "IMPLEMENTOS",
+     "des": "GUANTES DE ESPUMA DE ALTO IMPACTO",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 30
+    }
+   ]
+  },
+  {
+   "titulo": "SS.HH PERSONAL EDIFICACION 8 - PRIMER NIVEL",
+   "ambiente": "SS.HH PERSONAL",
+   "edificacion_titulo": "E-08",
+   "lamina": "EM-07",
+   "x": 348189.12,
+   "y": 9281707.26,
+   "items": [
+    {
+     "cod": "M60",
+     "seccion": "MOBILIARIO",
+     "des": "PAPELERA DE PLASTICO CON PEDAL",
+     "capa_des": "13.-ALE_PRESENTACION",
+     "und": "Und.",
+     "cant": 4
+    },
+    {
+     "cod": "M76",
+     "seccion": "MOBILIARIO",
+     "des": "PORTA PAPEL HIGIENICO",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 4
+    },
+    {
+     "cod": "M77",
+     "seccion": "MOBILIARIO",
+     "des": "DISPENSANDOR DE PAPEL TOALLA",
+     "capa_des": "0",
+     "und": "Und.",
+     "cant": 4
+    }
+   ]
+  }
+ ],
+ "ambientes_planta": [
+  {
+   "nombre": "LAVANDERÍA",
+   "x": 348240.344,
+   "y": 9281785.267
+  },
+  {
+   "nombre": "COCINA",
+   "x": 348237.223,
+   "y": 9281763.232
+  },
+  {
+   "nombre": "ALACENA",
+   "x": 348241.854,
+   "y": 9281763.42
+  },
+  {
+   "nombre": "DESPENSA",
+   "x": 348241.901,
+   "y": 9281760.607
+  },
+  {
+   "nombre": "SUM/COMEDOR",
+   "x": 348236.471,
+   "y": 9281774.415
+  },
+  {
+   "nombre": "MÓDULO INFANTIL",
+   "x": 348231.849,
+   "y": 9281761.948
+  },
+  {
+   "nombre": "MÓDULO DE ENSEÑANZA",
+   "x": 348232.838,
+   "y": 9281785.355
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348231.704,
+   "y": 9281758.07
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348240.204,
+   "y": 9281758.07
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348232.593,
+   "y": 9281788.634
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348238.173,
+   "y": 9281788.634
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348084.279,
+   "y": 9281761.745
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348075.628,
+   "y": 9281779.803
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348094.73,
+   "y": 9281779.803
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348075.628,
+   "y": 9281764.804
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348094.73,
+   "y": 9281764.804
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348147.961,
+   "y": 9281785.246
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348142.86,
+   "y": 9281780.011
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348147.985,
+   "y": 9281772.934
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348151.485,
+   "y": 9281780.088
+  },
+  {
+   "nombre": "ALMACEN DE DONACIONES",
+   "x": 348148.062,
+   "y": 9281776.612
+  },
+  {
+   "nombre": "TÓPICO",
+   "x": 348148.062,
+   "y": 9281782.118
+  },
+  {
+   "nombre": "SS.HH",
+   "x": 348150.363,
+   "y": 9281780.127
+  },
+  {
+   "nombre": "ALMACEN GENERAL Y LIMPIEZA",
+   "x": 348145.732,
+   "y": 9281764.619
+  },
+  {
+   "nombre": "MAESTRANZA",
+   "x": 348149.191,
+   "y": 9281764.619
+  },
+  {
+   "nombre": "ALMACENAMIENTO DE RESIDUOS SOLIDOS",
+   "x": 348152.715,
+   "y": 9281766.625
+  },
+  {
+   "nombre": "TABLERO ELÉCTRICO",
+   "x": 348152.715,
+   "y": 9281763.312
+  },
+  {
+   "nombre": "SUB ESTACIÓN",
+   "x": 348156.188,
+   "y": 9281766.25
+  },
+  {
+   "nombre": "GRUPO ELECTRÓGENO",
+   "x": 348156.188,
+   "y": 9281763.382
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348148.708,
+   "y": 9281768.264
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348148.76,
+   "y": 9281761.284
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348158.906,
+   "y": 9281765.55
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348143.092,
+   "y": 9281765.55
+  },
+  {
+   "nombre": "ASISTENCIA SOCIAL",
+   "x": 348079.394,
+   "y": 9281780.202
+  },
+  {
+   "nombre": "SALA DE ESPERA",
+   "x": 348086.793,
+   "y": 9281781.514
+  },
+  {
+   "nombre": "SALA DE VISITA",
+   "x": 348091.991,
+   "y": 9281780.784
+  },
+  {
+   "nombre": "SS.HH MUJERES",
+   "x": 348077.882,
+   "y": 9281775.703
+  },
+  {
+   "nombre": "SS.HH VARONES",
+   "x": 348077.745,
+   "y": 9281774.508
+  },
+  {
+   "nombre": "DATA CENTER",
+   "x": 348081.539,
+   "y": 9281774.508
+  },
+  {
+   "nombre": "HALL",
+   "x": 348081.539,
+   "y": 9281777.417
+  },
+  {
+   "nombre": "PSICOLOGÍA",
+   "x": 348089.659,
+   "y": 9281777.029
+  },
+  {
+   "nombre": "ÁREA LEGAL",
+   "x": 348089.647,
+   "y": 9281774.628
+  },
+  {
+   "nombre": "OFICINA DE MONITOREO",
+   "x": 348088.626,
+   "y": 9281770.381
+  },
+  {
+   "nombre": "ADMINISTRACIÓN",
+   "x": 348092.343,
+   "y": 9281769.443
+  },
+  {
+   "nombre": "AREA DE BIENVENIDA",
+   "x": 348090.192,
+   "y": 9281765.127
+  },
+  {
+   "nombre": "SALA DE REUNIONES",
+   "x": 348079.822,
+   "y": 9281770.819
+  },
+  {
+   "nombre": "DIRECCIÓN GENERAL",
+   "x": 348079.981,
+   "y": 9281765.258
+  },
+  {
+   "nombre": "SECRETARIA",
+   "x": 348085.136,
+   "y": 9281763.446
+  },
+  {
+   "nombre": "PASADIZO",
+   "x": 348085.027,
+   "y": 9281773.982
+  },
+  {
+   "nombre": "SS.HH",
+   "x": 348077.399,
+   "y": 9281767.039
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348193.662,
+   "y": 9281791.734
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348200.388,
+   "y": 9281791.734
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348191.521,
+   "y": 9281786.967
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348191.521,
+   "y": 9281775.776
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348191.521,
+   "y": 9281766.754
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348191.521,
+   "y": 9281757.708
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348203.623,
+   "y": 9281786.417
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348203.623,
+   "y": 9281774.545
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348203.623,
+   "y": 9281765.535
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348203.623,
+   "y": 9281757.392
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348195.005,
+   "y": 9281755.404
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348201.313,
+   "y": 9281755.404
+  },
+  {
+   "nombre": "TALLER DE COSTURA",
+   "x": 348199.013,
+   "y": 9281787.364
+  },
+  {
+   "nombre": "TALLER DE BISUTERÍA",
+   "x": 348199.013,
+   "y": 9281783.851
+  },
+  {
+   "nombre": "SS.HH VARONES",
+   "x": 348196.241,
+   "y": 9281778.267
+  },
+  {
+   "nombre": "SS.HH MUJERES",
+   "x": 348196.241,
+   "y": 9281775.372
+  },
+  {
+   "nombre": "CUARTO DE LIMPIEZA",
+   "x": 348199.901,
+   "y": 9281774.456
+  },
+  {
+   "nombre": "SS.HH DISCP.",
+   "x": 348202.756,
+   "y": 9281774.578
+  },
+  {
+   "nombre": "HALL",
+   "x": 348201.16,
+   "y": 9281777.529
+  },
+  {
+   "nombre": "TALLER DE REPOSTERÍA",
+   "x": 348199.013,
+   "y": 9281772.057
+  },
+  {
+   "nombre": "TERAPIA GRUPAL",
+   "x": 348199.013,
+   "y": 9281764.936
+  },
+  {
+   "nombre": "CUARTO DE CÁMARAS DE VIDEOVIGILANCIA",
+   "x": 348194.386,
+   "y": 9281759.264
+  },
+  {
+   "nombre": "ARCHIVO",
+   "x": 348198.194,
+   "y": 9281759.264
+  },
+  {
+   "nombre": "DEPÓSITO",
+   "x": 348201.738,
+   "y": 9281759.264
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348082.042,
+   "y": 9281726.194
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348091.301,
+   "y": 9281726.194
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348082.042,
+   "y": 9281713.907
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348091.301,
+   "y": 9281713.907
+  },
+  {
+   "nombre": "HABITACIÓN DOBLE TIPO 2",
+   "x": 348081.065,
+   "y": 9281722.661
+  },
+  {
+   "nombre": "HABITACIÓN DOBLE TIPO 2",
+   "x": 348081.065,
+   "y": 9281717.006
+  },
+  {
+   "nombre": "HABITACIÓN SIMPLE TIPO 2",
+   "x": 348087.442,
+   "y": 9281723.532
+  },
+  {
+   "nombre": "HABITACIÓN ESPECIAL",
+   "x": 348088.284,
+   "y": 9281718.524
+  },
+  {
+   "nombre": "HABITACIÓN DOBLE TIPO 2",
+   "x": 348093.883,
+   "y": 9281722.661
+  },
+  {
+   "nombre": "HABITACIÓN DOBLE TIPO 1",
+   "x": 348093.883,
+   "y": 9281717.19
+  },
+  {
+   "nombre": "SS.HH",
+   "x": 348080.399,
+   "y": 9281719.427
+  },
+  {
+   "nombre": "SS.HH",
+   "x": 348085.743,
+   "y": 9281724.313
+  },
+  {
+   "nombre": "SS.HH",
+   "x": 348094.274,
+   "y": 9281719.649
+  },
+  {
+   "nombre": "SS.HH DISC.",
+   "x": 348085.796,
+   "y": 9281716.721
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348139.495,
+   "y": 9281726.797
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348146.221,
+   "y": 9281726.797
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348137.354,
+   "y": 9281722.896
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348137.354,
+   "y": 9281710.839
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348137.354,
+   "y": 9281701.817
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348137.354,
+   "y": 9281692.771
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348149.456,
+   "y": 9281721.48
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348149.456,
+   "y": 9281709.608
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348149.456,
+   "y": 9281700.598
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348149.456,
+   "y": 9281692.454
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348140.838,
+   "y": 9281690.467
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348147.146,
+   "y": 9281690.467
+  },
+  {
+   "nombre": "HABITACIÓN DOBLE TIPO 1",
+   "x": 348141.287,
+   "y": 9281723.547
+  },
+  {
+   "nombre": "HABITACIÓN DOBLE TIPO 2",
+   "x": 348147.027,
+   "y": 9281723.547
+  },
+  {
+   "nombre": "HABITACIÓN TRIPLE TIPO 1",
+   "x": 348141.865,
+   "y": 9281716.989
+  },
+  {
+   "nombre": "HABITACIÓN SIMPLE TIPO 1",
+   "x": 348148.169,
+   "y": 9281716.989
+  },
+  {
+   "nombre": "HABITACIÓN TRIPLE TIPO 1",
+   "x": 348141.865,
+   "y": 9281711.966
+  },
+  {
+   "nombre": "HABITACIÓN SIMPLE TIPO 2",
+   "x": 348147.481,
+   "y": 9281711.966
+  },
+  {
+   "nombre": "HABITACIÓN TRIPLE TIPO 2",
+   "x": 348141.981,
+   "y": 9281704.986
+  },
+  {
+   "nombre": "HABITACIÓN SIMPLE TIPO 2",
+   "x": 348147.974,
+   "y": 9281704.993
+  },
+  {
+   "nombre": "HABITACIÓN TRIPLE TIPO 2",
+   "x": 348146.485,
+   "y": 9281700.195
+  },
+  {
+   "nombre": "HABITACIÓN SIMPLE TIPO 1",
+   "x": 348140.454,
+   "y": 9281700.195
+  },
+  {
+   "nombre": "HABITACIÓN SIMPLE TIPO 2",
+   "x": 348140.742,
+   "y": 9281693.495
+  },
+  {
+   "nombre": "HABITACIÓN TRIPLE TIPO 1",
+   "x": 348146.485,
+   "y": 9281693.495
+  },
+  {
+   "nombre": "SS.HH",
+   "x": 348144.093,
+   "y": 9281724.346
+  },
+  {
+   "nombre": "SS.HH",
+   "x": 348140.739,
+   "y": 9281718.897
+  },
+  {
+   "nombre": "SS.HH",
+   "x": 348148.574,
+   "y": 9281718.783
+  },
+  {
+   "nombre": "SS.HH",
+   "x": 348140.739,
+   "y": 9281710.074
+  },
+  {
+   "nombre": "SS.HH",
+   "x": 348140.739,
+   "y": 9281707.143
+  },
+  {
+   "nombre": "SS.HH",
+   "x": 348140.165,
+   "y": 9281697.8
+  },
+  {
+   "nombre": "SS.HH",
+   "x": 348140.165,
+   "y": 9281696.317
+  },
+  {
+   "nombre": "SS.HH",
+   "x": 348148.574,
+   "y": 9281710.21
+  },
+  {
+   "nombre": "SS.HH",
+   "x": 348148.574,
+   "y": 9281707.011
+  },
+  {
+   "nombre": "SS.HH",
+   "x": 348147.94,
+   "y": 9281698.483
+  },
+  {
+   "nombre": "SS.HH",
+   "x": 348147.94,
+   "y": 9281695.543
+  },
+  {
+   "nombre": "HABITACIÓN DOBLE TIPO 2",
+   "x": 348183.953,
+   "y": 9281723.077
+  },
+  {
+   "nombre": "HABITACIÓN DOBLE TIPO 2",
+   "x": 348183.953,
+   "y": 9281717.422
+  },
+  {
+   "nombre": "HABITACIÓN SIMPLE TIPO 2",
+   "x": 348190.33,
+   "y": 9281723.947
+  },
+  {
+   "nombre": "HABITACIÓN TRIPLE TIPO 2",
+   "x": 348190.804,
+   "y": 9281718.825
+  },
+  {
+   "nombre": "HABITACIÓN DOBLE TIPO 2",
+   "x": 348196.771,
+   "y": 9281723.077
+  },
+  {
+   "nombre": "HABITACIÓN DOBLE TIPO 1",
+   "x": 348196.771,
+   "y": 9281717.606
+  },
+  {
+   "nombre": "SS.HH",
+   "x": 348183.287,
+   "y": 9281719.843
+  },
+  {
+   "nombre": "SS.HH",
+   "x": 348188.63,
+   "y": 9281724.729
+  },
+  {
+   "nombre": "SS.HH",
+   "x": 348197.054,
+   "y": 9281719.949
+  },
+  {
+   "nombre": "SS.HH",
+   "x": 348188.718,
+   "y": 9281716.949
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348184.929,
+   "y": 9281726.61
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348194.188,
+   "y": 9281726.61
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348184.929,
+   "y": 9281714.323
+  },
+  {
+   "nombre": "VEREDA",
+   "x": 348194.188,
+   "y": 9281714.323
+  },
+  {
+   "nombre": "VESTIDORES MUJERES",
+   "x": 348208.39,
+   "y": 9281725.865
+  },
+  {
+   "nombre": "VESTIDORES VARONES",
+   "x": 348208.501,
+   "y": 9281720.257
+  },
+  {
+   "nombre": "ALMACEN DE IMPLEMENTOS DEPORTIVOS",
+   "x": 348209.537,
+   "y": 9281717.53
+  },
+  {
+   "nombre": "CIRCULACIÓN",
+   "x": 348204.197,
+   "y": 9281725.667
+  },
+  {
+   "nombre": "CIRCULACIÓN",
+   "x": 348204.183,
+   "y": 9281721.93
+  },
+  {
+   "nombre": "CIRCULACIÓN",
+   "x": 348204.135,
+   "y": 9281716.452
+  },
+  {
+   "nombre": "CIRCULACIÓN",
+   "x": 348211.586,
+   "y": 9281716.76
+  },
+  {
+   "nombre": "CIRCULACIÓN",
+   "x": 348211.55,
+   "y": 9281721.591
+  },
+  {
+   "nombre": "CIRCULACIÓN",
+   "x": 348211.567,
+   "y": 9281725.864
+  }
+ ],
+ "etiquetas": [
+  {
+   "cod": "M7",
+   "x": 348078.257,
+   "y": 9281771.7,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348079.008,
+   "y": 9281771.839,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348079.63,
+   "y": 9281771.895,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348080.265,
+   "y": 9281771.895,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348080.964,
+   "y": 9281771.839,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348081.683,
+   "y": 9281771.71,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348082.186,
+   "y": 9281770.936,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348077.786,
+   "y": 9281770.936,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348078.237,
+   "y": 9281770.153,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348078.962,
+   "y": 9281770.015,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348079.62,
+   "y": 9281769.976,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348080.276,
+   "y": 9281769.956,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348081.01,
+   "y": 9281770.015,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348081.766,
+   "y": 9281770.15,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348079.922,
+   "y": 9281782.736,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348077.298,
+   "y": 9281782.771,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348082.654,
+   "y": 9281782.772,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348079.838,
+   "y": 9281781.149,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348077.325,
+   "y": 9281781.149,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348082.564,
+   "y": 9281781.149,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348087.381,
+   "y": 9281779.326,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348087.831,
+   "y": 9281779.326,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348088.281,
+   "y": 9281779.325,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348088.731,
+   "y": 9281779.327,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348089.181,
+   "y": 9281779.329,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348092.174,
+   "y": 9281782.629,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348091.375,
+   "y": 9281781.987,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348092.94,
+   "y": 9281781.995,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348092.211,
+   "y": 9281781.494,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348093.766,
+   "y": 9281774.473,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348093.758,
+   "y": 9281775.399,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M63",
+   "x": 348088.092,
+   "y": 9281775.602,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M63",
+   "x": 348092.126,
+   "y": 9281779.398,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M63",
+   "x": 348088.092,
+   "y": 9281776.6,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M63",
+   "x": 348085.474,
+   "y": 9281783.926,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M63",
+   "x": 348077.559,
+   "y": 9281779.423,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M63",
+   "x": 348081.17,
+   "y": 9281779.365,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M63",
+   "x": 348083.056,
+   "y": 9281764.994,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M63",
+   "x": 348089.068,
+   "y": 9281762.958,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M63",
+   "x": 348092.742,
+   "y": 9281768.447,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348093.766,
+   "y": 9281777.02,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348093.758,
+   "y": 9281777.945,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348077.974,
+   "y": 9281768.17,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348077.152,
+   "y": 9281768.147,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348092.124,
+   "y": 9281773.095,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348091.302,
+   "y": 9281773.073,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348093.024,
+   "y": 9281773.095,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348088.633,
+   "y": 9281773.095,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348087.81,
+   "y": 9281773.073,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348089.533,
+   "y": 9281773.095,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348092.728,
+   "y": 9281777.064,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348091.352,
+   "y": 9281777.42,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348091.352,
+   "y": 9281776.666,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M31",
+   "x": 348092.117,
+   "y": 9281777.491,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348086.519,
+   "y": 9281771.3,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348086.519,
+   "y": 9281770.85,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348086.519,
+   "y": 9281770.4,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348086.519,
+   "y": 9281769.95,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348091.689,
+   "y": 9281767.46,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348092.139,
+   "y": 9281767.461,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348092.589,
+   "y": 9281767.461,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348093.039,
+   "y": 9281767.461,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "K78",
+   "x": 348090.637,
+   "y": 9281783.618,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "K78",
+   "x": 348091.59,
+   "y": 9281783.628,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "K78",
+   "x": 348092.581,
+   "y": 9281783.284,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M15",
+   "x": 348091.839,
+   "y": 9281783.984,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M54",
+   "x": 348090.875,
+   "y": 9281784.164,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M57",
+   "x": 348092.574,
+   "y": 9281784.14,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M15",
+   "x": 348088.764,
+   "y": 9281767.431,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M54",
+   "x": 348087.799,
+   "y": 9281767.611,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M57",
+   "x": 348089.498,
+   "y": 9281767.587,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "K78",
+   "x": 348087.594,
+   "y": 9281767.023,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "K78",
+   "x": 348088.547,
+   "y": 9281767.032,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "K78",
+   "x": 348089.538,
+   "y": 9281766.689,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E19",
+   "x": 348079.414,
+   "y": 9281768.081,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E16",
+   "x": 348080.518,
+   "y": 9281768.0,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348093.666,
+   "y": 9281764.177,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348093.661,
+   "y": 9281763.716,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348093.674,
+   "y": 9281763.283,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348081.008,
+   "y": 9281767.557,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348080.186,
+   "y": 9281767.535,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348081.908,
+   "y": 9281767.557,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348079.15,
+   "y": 9281763.816,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M31",
+   "x": 348078.334,
+   "y": 9281763.073,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348079.15,
+   "y": 9281763.066,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348077.853,
+   "y": 9281763.441,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348076.728,
+   "y": 9281765.101,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348076.728,
+   "y": 9281764.229,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348079.39,
+   "y": 9281779.178,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348081.448,
+   "y": 9281784.169,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348080.548,
+   "y": 9281784.169,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348079.648,
+   "y": 9281784.169,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348078.748,
+   "y": 9281784.169,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348077.848,
+   "y": 9281784.169,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M32",
+   "x": 348090.945,
+   "y": 9281780.264,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M34",
+   "x": 348093.478,
+   "y": 9281780.427,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M32",
+   "x": 348086.786,
+   "y": 9281783.037,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M34",
+   "x": 348084.149,
+   "y": 9281782.738,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M32",
+   "x": 348089.395,
+   "y": 9281777.507,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M32",
+   "x": 348090.29,
+   "y": 9281763.509,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M34",
+   "x": 348087.632,
+   "y": 9281763.817,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M32",
+   "x": 348081.368,
+   "y": 9281765.634,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M32",
+   "x": 348081.447,
+   "y": 9281763.401,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M32",
+   "x": 348092.125,
+   "y": 9281781.859,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348085.286,
+   "y": 9281765.208,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M31",
+   "x": 348084.47,
+   "y": 9281764.465,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348085.286,
+   "y": 9281764.458,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348083.989,
+   "y": 9281764.833,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348086.132,
+   "y": 9281762.682,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348085.236,
+   "y": 9281762.664,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M36",
+   "x": 348084.336,
+   "y": 9281762.664,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M65",
+   "x": 348150.405,
+   "y": 9281784.479,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M67",
+   "x": 348150.059,
+   "y": 9281783.918,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M28",
+   "x": 348146.867,
+   "y": 9281783.924,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M7",
+   "x": 348146.7,
+   "y": 9281783.281,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M7",
+   "x": 348147.278,
+   "y": 9281783.278,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M7",
+   "x": 348146.978,
+   "y": 9281784.365,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M27",
+   "x": 348144.994,
+   "y": 9281782.509,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M63",
+   "x": 348146.57,
+   "y": 9281780.037,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M32",
+   "x": 348147.658,
+   "y": 9281780.952,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M70",
+   "x": 348146.182,
+   "y": 9281784.707,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M71",
+   "x": 348151.215,
+   "y": 9281782.367,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M36",
+   "x": 348150.059,
+   "y": 9281779.14,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M36",
+   "x": 348149.237,
+   "y": 9281779.118,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M36",
+   "x": 348150.959,
+   "y": 9281779.14,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M36",
+   "x": 348146.504,
+   "y": 9281779.14,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M36",
+   "x": 348145.682,
+   "y": 9281779.118,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M36",
+   "x": 348147.404,
+   "y": 9281779.14,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M51",
+   "x": 348145.016,
+   "y": 9281777.869,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M51",
+   "x": 348145.016,
+   "y": 9281776.878,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M51",
+   "x": 348145.016,
+   "y": 9281775.879,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M51",
+   "x": 348145.016,
+   "y": 9281774.875,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M51",
+   "x": 348145.7,
+   "y": 9281774.107,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M51",
+   "x": 348146.656,
+   "y": 9281774.107,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M51",
+   "x": 348147.6,
+   "y": 9281774.107,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M51",
+   "x": 348148.975,
+   "y": 9281774.107,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M51",
+   "x": 348149.93,
+   "y": 9281774.107,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M75",
+   "x": 348151.403,
+   "y": 9281765.461,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M75",
+   "x": 348152.484,
+   "y": 9281765.461,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M75",
+   "x": 348153.542,
+   "y": 9281765.461,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M51",
+   "x": 348144.442,
+   "y": 9281764.84,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M51",
+   "x": 348144.442,
+   "y": 9281763.849,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M51",
+   "x": 348144.442,
+   "y": 9281762.85,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M51",
+   "x": 348147.285,
+   "y": 9281764.84,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M51",
+   "x": 348147.285,
+   "y": 9281763.849,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M51",
+   "x": 348147.285,
+   "y": 9281762.85,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M16",
+   "x": 348194.389,
+   "y": 9281788.243,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M16",
+   "x": 348196.083,
+   "y": 9281788.243,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M16",
+   "x": 348197.853,
+   "y": 9281788.243,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M16",
+   "x": 348199.652,
+   "y": 9281788.243,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M16",
+   "x": 348201.478,
+   "y": 9281788.243,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M16",
+   "x": 348194.389,
+   "y": 9281785.931,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M16",
+   "x": 348196.083,
+   "y": 9281785.931,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M16",
+   "x": 348197.853,
+   "y": 9281785.931,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M16",
+   "x": 348199.652,
+   "y": 9281785.931,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M16",
+   "x": 348201.478,
+   "y": 9281785.931,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M36",
+   "x": 348195.178,
+   "y": 9281790.928,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M36",
+   "x": 348194.254,
+   "y": 9281790.905,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M36",
+   "x": 348196.078,
+   "y": 9281790.928,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M36",
+   "x": 348196.978,
+   "y": 9281790.928,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M36",
+   "x": 348197.878,
+   "y": 9281790.928,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M36",
+   "x": 348195.042,
+   "y": 9281785.128,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M36",
+   "x": 348194.118,
+   "y": 9281785.105,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M36",
+   "x": 348195.942,
+   "y": 9281785.128,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M36",
+   "x": 348196.842,
+   "y": 9281785.128,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M36",
+   "x": 348197.742,
+   "y": 9281785.128,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M37",
+   "x": 348199.446,
+   "y": 9281785.043,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M37",
+   "x": 348200.346,
+   "y": 9281785.043,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M37",
+   "x": 348201.246,
+   "y": 9281785.043,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M37",
+   "x": 348202.146,
+   "y": 9281785.043,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M37",
+   "x": 348203.046,
+   "y": 9281785.043,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M23",
+   "x": 348195.126,
+   "y": 9281782.745,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M23",
+   "x": 348195.126,
+   "y": 9281780.745,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M23",
+   "x": 348197.136,
+   "y": 9281782.745,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M23",
+   "x": 348197.136,
+   "y": 9281780.745,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M23",
+   "x": 348199.736,
+   "y": 9281782.745,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M23",
+   "x": 348199.736,
+   "y": 9281780.745,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M23",
+   "x": 348202.336,
+   "y": 9281782.745,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M23",
+   "x": 348202.336,
+   "y": 9281780.745,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348193.806,
+   "y": 9281788.304,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348195.506,
+   "y": 9281788.304,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348197.306,
+   "y": 9281788.304,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348199.106,
+   "y": 9281788.304,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348200.905,
+   "y": 9281788.304,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348193.806,
+   "y": 9281786.003,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348195.506,
+   "y": 9281786.003,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348197.306,
+   "y": 9281786.003,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348199.106,
+   "y": 9281786.003,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348200.905,
+   "y": 9281786.003,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348194.041,
+   "y": 9281782.885,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348194.041,
+   "y": 9281782.119,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348194.041,
+   "y": 9281780.885,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348194.041,
+   "y": 9281780.119,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348196.051,
+   "y": 9281782.885,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348196.051,
+   "y": 9281782.119,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348196.051,
+   "y": 9281780.885,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348196.051,
+   "y": 9281780.119,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348197.451,
+   "y": 9281782.885,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348197.451,
+   "y": 9281782.119,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348197.451,
+   "y": 9281780.885,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348197.451,
+   "y": 9281780.119,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348198.651,
+   "y": 9281782.885,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348198.651,
+   "y": 9281782.119,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348198.651,
+   "y": 9281780.885,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348198.651,
+   "y": 9281780.119,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348200.051,
+   "y": 9281782.885,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348200.051,
+   "y": 9281782.119,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348200.051,
+   "y": 9281780.885,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348200.051,
+   "y": 9281780.119,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348201.251,
+   "y": 9281782.885,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348201.251,
+   "y": 9281782.119,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348201.251,
+   "y": 9281780.885,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348201.251,
+   "y": 9281780.119,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M22",
+   "x": 348195.087,
+   "y": 9281770.703,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M22",
+   "x": 348195.073,
+   "y": 9281768.878,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M22",
+   "x": 348197.097,
+   "y": 9281770.713,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M22",
+   "x": 348197.083,
+   "y": 9281768.889,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M22",
+   "x": 348199.697,
+   "y": 9281770.713,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M22",
+   "x": 348199.683,
+   "y": 9281768.889,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M22",
+   "x": 348202.297,
+   "y": 9281770.703,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M22",
+   "x": 348202.283,
+   "y": 9281768.878,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348194.041,
+   "y": 9281770.482,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348194.041,
+   "y": 9281768.682,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348196.051,
+   "y": 9281770.493,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348196.051,
+   "y": 9281768.693,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348197.439,
+   "y": 9281768.693,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348197.439,
+   "y": 9281770.493,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348198.651,
+   "y": 9281770.493,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348198.651,
+   "y": 9281768.693,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348200.039,
+   "y": 9281770.493,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348200.039,
+   "y": 9281768.693,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348201.251,
+   "y": 9281770.482,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348201.251,
+   "y": 9281768.682,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "K78",
+   "x": 348193.48,
+   "y": 9281766.99,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "K78",
+   "x": 348194.48,
+   "y": 9281766.99,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "K78",
+   "x": 348195.48,
+   "y": 9281766.99,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "K78",
+   "x": 348193.48,
+   "y": 9281765.949,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "K78",
+   "x": 348194.48,
+   "y": 9281765.949,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "K78",
+   "x": 348195.48,
+   "y": 9281765.949,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "K78",
+   "x": 348193.48,
+   "y": 9281764.943,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "K78",
+   "x": 348194.48,
+   "y": 9281764.943,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "K78",
+   "x": 348195.48,
+   "y": 9281764.943,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "K78",
+   "x": 348193.48,
+   "y": 9281763.915,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "K78",
+   "x": 348194.48,
+   "y": 9281763.915,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "K78",
+   "x": 348195.48,
+   "y": 9281763.915,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "K78",
+   "x": 348193.48,
+   "y": 9281762.944,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "K78",
+   "x": 348194.48,
+   "y": 9281762.944,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "K78",
+   "x": 348195.48,
+   "y": 9281762.944,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M19",
+   "x": 348202.831,
+   "y": 9281766.757,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M19",
+   "x": 348202.831,
+   "y": 9281765.155,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M35",
+   "x": 348202.188,
+   "y": 9281766.792,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M35",
+   "x": 348202.188,
+   "y": 9281765.19,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348198.713,
+   "y": 9281766.634,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348197.844,
+   "y": 9281766.423,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348199.63,
+   "y": 9281766.412,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348200.28,
+   "y": 9281765.777,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348200.538,
+   "y": 9281764.834,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348200.293,
+   "y": 9281763.964,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348199.634,
+   "y": 9281763.317,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348198.711,
+   "y": 9281763.09,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348197.836,
+   "y": 9281763.351,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348197.191,
+   "y": 9281763.982,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348196.958,
+   "y": 9281764.893,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348197.199,
+   "y": 9281765.772,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "E19",
+   "x": 348199.058,
+   "y": 9281772.916,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M52",
+   "x": 348197.334,
+   "y": 9281772.908,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M26",
+   "x": 348198.471,
+   "y": 9281773.029,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "E16",
+   "x": 348193.426,
+   "y": 9281772.952,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "E16",
+   "x": 348203.044,
+   "y": 9281772.932,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M39",
+   "x": 348199.01,
+   "y": 9281761.6,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M39",
+   "x": 348198.381,
+   "y": 9281761.6,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M39",
+   "x": 348197.367,
+   "y": 9281761.6,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M39",
+   "x": 348196.743,
+   "y": 9281761.6,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M39",
+   "x": 348196.667,
+   "y": 9281760.277,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M39",
+   "x": 348196.667,
+   "y": 9281759.653,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M39",
+   "x": 348196.667,
+   "y": 9281758.973,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M39",
+   "x": 348196.667,
+   "y": 9281758.349,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M39",
+   "x": 348196.667,
+   "y": 9281757.622,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M39",
+   "x": 348196.667,
+   "y": 9281756.998,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M39",
+   "x": 348199.22,
+   "y": 9281760.277,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M39",
+   "x": 348199.22,
+   "y": 9281759.653,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M39",
+   "x": 348199.22,
+   "y": 9281758.973,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M39",
+   "x": 348199.22,
+   "y": 9281758.349,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M51",
+   "x": 348200.445,
+   "y": 9281761.755,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M51",
+   "x": 348201.345,
+   "y": 9281761.755,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M51",
+   "x": 348202.245,
+   "y": 9281761.755,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M51",
+   "x": 348203.145,
+   "y": 9281761.755,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M51",
+   "x": 348200.192,
+   "y": 9281760.439,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M51",
+   "x": 348200.192,
+   "y": 9281759.539,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M51",
+   "x": 348200.192,
+   "y": 9281758.639,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M51",
+   "x": 348200.192,
+   "y": 9281757.739,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M51",
+   "x": 348200.192,
+   "y": 9281756.839,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M51",
+   "x": 348203.618,
+   "y": 9281760.439,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M51",
+   "x": 348203.618,
+   "y": 9281759.539,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M51",
+   "x": 348203.618,
+   "y": 9281758.639,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.053,
+   "y": 9281780.677,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348232.146,
+   "y": 9281779.997,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.582,
+   "y": 9281780.677,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.053,
+   "y": 9281780.2,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.582,
+   "y": 9281780.2,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.053,
+   "y": 9281779.678,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.582,
+   "y": 9281779.678,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.053,
+   "y": 9281779.201,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.582,
+   "y": 9281779.201,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.023,
+   "y": 9281780.677,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348235.117,
+   "y": 9281779.997,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.552,
+   "y": 9281780.677,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.023,
+   "y": 9281780.2,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.552,
+   "y": 9281780.2,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.023,
+   "y": 9281779.678,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.552,
+   "y": 9281779.678,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.023,
+   "y": 9281779.201,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.552,
+   "y": 9281779.201,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348236.993,
+   "y": 9281780.677,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348238.087,
+   "y": 9281779.997,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.523,
+   "y": 9281780.677,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348236.993,
+   "y": 9281780.2,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.523,
+   "y": 9281780.2,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348236.993,
+   "y": 9281779.678,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.523,
+   "y": 9281779.678,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348236.993,
+   "y": 9281779.201,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.523,
+   "y": 9281779.201,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.964,
+   "y": 9281780.677,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348241.057,
+   "y": 9281779.997,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.493,
+   "y": 9281780.677,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.964,
+   "y": 9281780.2,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.493,
+   "y": 9281780.2,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.964,
+   "y": 9281779.678,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.493,
+   "y": 9281779.678,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.964,
+   "y": 9281779.201,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.493,
+   "y": 9281779.201,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.053,
+   "y": 9281778.677,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348232.146,
+   "y": 9281777.997,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.582,
+   "y": 9281778.677,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.053,
+   "y": 9281778.2,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.582,
+   "y": 9281778.2,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.053,
+   "y": 9281777.678,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.582,
+   "y": 9281777.678,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.053,
+   "y": 9281777.201,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.582,
+   "y": 9281777.201,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.023,
+   "y": 9281778.677,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348235.117,
+   "y": 9281777.997,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.552,
+   "y": 9281778.677,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.023,
+   "y": 9281778.2,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.552,
+   "y": 9281778.2,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.023,
+   "y": 9281777.678,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.552,
+   "y": 9281777.678,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.023,
+   "y": 9281777.201,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.552,
+   "y": 9281777.201,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348236.993,
+   "y": 9281778.677,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348238.087,
+   "y": 9281777.997,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.523,
+   "y": 9281778.677,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348236.993,
+   "y": 9281778.2,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.523,
+   "y": 9281778.2,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348236.993,
+   "y": 9281777.678,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.523,
+   "y": 9281777.678,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348236.993,
+   "y": 9281777.201,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.523,
+   "y": 9281777.201,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.964,
+   "y": 9281778.677,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348241.057,
+   "y": 9281777.997,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.493,
+   "y": 9281778.677,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.964,
+   "y": 9281778.2,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.493,
+   "y": 9281778.2,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.964,
+   "y": 9281777.678,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.493,
+   "y": 9281777.678,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.964,
+   "y": 9281777.201,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.493,
+   "y": 9281777.201,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.069,
+   "y": 9281775.377,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348232.162,
+   "y": 9281774.697,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.598,
+   "y": 9281775.377,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.069,
+   "y": 9281774.9,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.598,
+   "y": 9281774.9,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.069,
+   "y": 9281774.378,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.598,
+   "y": 9281774.378,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.069,
+   "y": 9281773.901,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.598,
+   "y": 9281773.901,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.069,
+   "y": 9281773.377,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348232.162,
+   "y": 9281772.697,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.598,
+   "y": 9281773.377,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.069,
+   "y": 9281772.9,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.598,
+   "y": 9281772.9,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.069,
+   "y": 9281772.378,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.598,
+   "y": 9281772.378,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.069,
+   "y": 9281771.901,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.598,
+   "y": 9281771.901,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.039,
+   "y": 9281775.377,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348235.132,
+   "y": 9281774.697,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.568,
+   "y": 9281775.377,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.039,
+   "y": 9281774.9,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.568,
+   "y": 9281774.9,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.039,
+   "y": 9281774.378,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.568,
+   "y": 9281774.378,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.039,
+   "y": 9281773.901,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.568,
+   "y": 9281773.901,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.039,
+   "y": 9281773.377,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348235.132,
+   "y": 9281772.697,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.568,
+   "y": 9281773.377,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.039,
+   "y": 9281772.9,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.568,
+   "y": 9281772.9,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.039,
+   "y": 9281772.378,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.568,
+   "y": 9281772.378,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.039,
+   "y": 9281771.901,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.568,
+   "y": 9281771.901,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348237.009,
+   "y": 9281775.377,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348238.103,
+   "y": 9281774.697,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.539,
+   "y": 9281775.377,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348237.009,
+   "y": 9281774.9,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.539,
+   "y": 9281774.9,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348237.009,
+   "y": 9281774.378,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.539,
+   "y": 9281774.378,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348237.009,
+   "y": 9281773.901,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.539,
+   "y": 9281773.901,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348237.009,
+   "y": 9281773.377,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348238.103,
+   "y": 9281772.697,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.539,
+   "y": 9281773.377,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348237.009,
+   "y": 9281772.9,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.539,
+   "y": 9281772.9,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348237.009,
+   "y": 9281772.378,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.539,
+   "y": 9281772.378,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348237.009,
+   "y": 9281771.901,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.539,
+   "y": 9281771.901,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.98,
+   "y": 9281775.377,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348241.073,
+   "y": 9281774.697,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.509,
+   "y": 9281775.377,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.98,
+   "y": 9281774.9,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.509,
+   "y": 9281774.9,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.98,
+   "y": 9281774.378,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.509,
+   "y": 9281774.378,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.98,
+   "y": 9281773.901,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.509,
+   "y": 9281773.901,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.98,
+   "y": 9281773.377,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348241.073,
+   "y": 9281772.697,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.509,
+   "y": 9281773.377,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.98,
+   "y": 9281772.9,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.509,
+   "y": 9281772.9,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.98,
+   "y": 9281772.378,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.509,
+   "y": 9281772.378,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.98,
+   "y": 9281771.901,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.509,
+   "y": 9281771.901,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.069,
+   "y": 9281770.082,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348232.162,
+   "y": 9281769.402,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.598,
+   "y": 9281770.082,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.069,
+   "y": 9281769.605,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.598,
+   "y": 9281769.605,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.069,
+   "y": 9281769.083,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.598,
+   "y": 9281769.083,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.069,
+   "y": 9281768.606,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.598,
+   "y": 9281768.606,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.069,
+   "y": 9281768.082,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348232.162,
+   "y": 9281767.402,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.598,
+   "y": 9281768.082,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.069,
+   "y": 9281767.605,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.598,
+   "y": 9281767.605,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.069,
+   "y": 9281767.083,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.598,
+   "y": 9281767.083,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348231.069,
+   "y": 9281766.606,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.598,
+   "y": 9281766.606,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.039,
+   "y": 9281770.082,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348235.132,
+   "y": 9281769.402,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.568,
+   "y": 9281770.082,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.039,
+   "y": 9281769.605,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.568,
+   "y": 9281769.605,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.039,
+   "y": 9281769.083,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.568,
+   "y": 9281769.083,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.039,
+   "y": 9281768.606,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.568,
+   "y": 9281768.606,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.039,
+   "y": 9281768.082,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348235.132,
+   "y": 9281767.402,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.568,
+   "y": 9281768.082,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.039,
+   "y": 9281767.605,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.568,
+   "y": 9281767.605,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.039,
+   "y": 9281767.083,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.568,
+   "y": 9281767.083,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.039,
+   "y": 9281766.606,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348235.568,
+   "y": 9281766.606,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348237.009,
+   "y": 9281770.082,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348238.103,
+   "y": 9281769.402,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.539,
+   "y": 9281770.082,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348237.009,
+   "y": 9281769.605,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.539,
+   "y": 9281769.605,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348237.009,
+   "y": 9281769.083,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.539,
+   "y": 9281769.083,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348237.009,
+   "y": 9281768.606,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.539,
+   "y": 9281768.606,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348237.009,
+   "y": 9281768.082,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348238.103,
+   "y": 9281767.402,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.539,
+   "y": 9281768.082,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348237.009,
+   "y": 9281767.605,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.539,
+   "y": 9281767.605,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348237.009,
+   "y": 9281767.083,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.539,
+   "y": 9281767.083,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348237.009,
+   "y": 9281766.606,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348238.539,
+   "y": 9281766.606,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.98,
+   "y": 9281770.082,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348241.073,
+   "y": 9281769.402,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.509,
+   "y": 9281770.082,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.98,
+   "y": 9281769.605,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.509,
+   "y": 9281769.605,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.98,
+   "y": 9281769.083,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.509,
+   "y": 9281769.083,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.98,
+   "y": 9281768.606,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.509,
+   "y": 9281768.606,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.98,
+   "y": 9281768.082,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M16",
+   "x": 348241.073,
+   "y": 9281767.402,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.509,
+   "y": 9281768.082,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.98,
+   "y": 9281767.605,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.509,
+   "y": 9281767.605,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.98,
+   "y": 9281767.083,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.509,
+   "y": 9281767.083,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348239.98,
+   "y": 9281766.606,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348241.509,
+   "y": 9281766.606,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.404,
+   "y": 9281786.649,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M4",
+   "x": 348234.583,
+   "y": 9281786.645,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.424,
+   "y": 9281786.046,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M4",
+   "x": 348234.602,
+   "y": 9281786.042,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.404,
+   "y": 9281784.549,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M4",
+   "x": 348234.583,
+   "y": 9281784.545,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348234.424,
+   "y": 9281783.946,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M4",
+   "x": 348234.602,
+   "y": 9281783.942,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.554,
+   "y": 9281784.549,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M4",
+   "x": 348232.733,
+   "y": 9281784.545,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.574,
+   "y": 9281783.946,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M4",
+   "x": 348232.753,
+   "y": 9281783.942,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.554,
+   "y": 9281786.649,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M4",
+   "x": 348232.733,
+   "y": 9281786.645,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348232.574,
+   "y": 9281786.046,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M4",
+   "x": 348232.753,
+   "y": 9281786.042,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348230.704,
+   "y": 9281786.649,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M4",
+   "x": 348230.883,
+   "y": 9281786.645,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348230.724,
+   "y": 9281786.046,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M4",
+   "x": 348230.903,
+   "y": 9281786.042,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348230.704,
+   "y": 9281784.549,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M4",
+   "x": 348230.883,
+   "y": 9281784.545,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M3",
+   "x": 348230.724,
+   "y": 9281783.946,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M4",
+   "x": 348230.903,
+   "y": 9281783.942,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M7",
+   "x": 348236.388,
+   "y": 9281787.08,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M8",
+   "x": 348235.932,
+   "y": 9281786.851,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M56",
+   "x": 348229.854,
+   "y": 9281783.793,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M56",
+   "x": 348229.854,
+   "y": 9281784.393,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M56",
+   "x": 348229.854,
+   "y": 9281784.993,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M56",
+   "x": 348229.854,
+   "y": 9281785.593,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M56",
+   "x": 348229.854,
+   "y": 9281786.193,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M36",
+   "x": 348235.383,
+   "y": 9281782.375,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "K78",
+   "x": 348231.258,
+   "y": 9281763.885,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "K78",
+   "x": 348232.247,
+   "y": 9281763.883,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "K78",
+   "x": 348231.306,
+   "y": 9281762.911,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "K78",
+   "x": 348232.292,
+   "y": 9281762.925,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "K78",
+   "x": 348232.257,
+   "y": 9281761.157,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "K78",
+   "x": 348233.092,
+   "y": 9281761.529,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "K78",
+   "x": 348232.251,
+   "y": 9281760.205,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "K78",
+   "x": 348233.021,
+   "y": 9281759.868,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "K33",
+   "x": 348233.007,
+   "y": 9281763.616,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "K32",
+   "x": 348231.474,
+   "y": 9281761.379,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M57",
+   "x": 348233.517,
+   "y": 9281759.43,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M54",
+   "x": 348233.539,
+   "y": 9281761.096,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M15",
+   "x": 348233.545,
+   "y": 9281759.997,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "E16",
+   "x": 348237.775,
+   "y": 9281758.933,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M73",
+   "x": 348238.4,
+   "y": 9281765.012,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M68",
+   "x": 348242.996,
+   "y": 9281760.759,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M68",
+   "x": 348242.996,
+   "y": 9281759.859,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M68",
+   "x": 348241.336,
+   "y": 9281761.64,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M68",
+   "x": 348242.236,
+   "y": 9281761.64,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M51",
+   "x": 348240.371,
+   "y": 9281764.332,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M51",
+   "x": 348241.274,
+   "y": 9281764.332,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M51",
+   "x": 348242.174,
+   "y": 9281764.332,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M51",
+   "x": 348243.052,
+   "y": 9281763.357,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M51",
+   "x": 348243.046,
+   "y": 9281762.492,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M52",
+   "x": 348241.875,
+   "y": 9281759.015,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M52",
+   "x": 348241.225,
+   "y": 9281759.015,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M78",
+   "x": 348089.209,
+   "y": 9281723.138,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M28",
+   "x": 348079.339,
+   "y": 9281724.736,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M7",
+   "x": 348079.347,
+   "y": 9281724.339,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M28",
+   "x": 348080.59,
+   "y": 9281724.736,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M7",
+   "x": 348080.598,
+   "y": 9281724.339,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M28",
+   "x": 348093.424,
+   "y": 9281724.736,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M7",
+   "x": 348093.432,
+   "y": 9281724.339,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M28",
+   "x": 348094.68,
+   "y": 9281724.736,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M7",
+   "x": 348094.688,
+   "y": 9281724.339,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M28",
+   "x": 348079.339,
+   "y": 9281714.955,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M7",
+   "x": 348079.347,
+   "y": 9281715.5,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M28",
+   "x": 348080.59,
+   "y": 9281714.955,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M7",
+   "x": 348080.598,
+   "y": 9281715.5,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M28",
+   "x": 348093.424,
+   "y": 9281714.955,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M7",
+   "x": 348093.432,
+   "y": 9281715.5,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M28",
+   "x": 348094.68,
+   "y": 9281714.955,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M7",
+   "x": 348094.688,
+   "y": 9281715.5,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M37",
+   "x": 348092.244,
+   "y": 9281720.398,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M37",
+   "x": 348091.206,
+   "y": 9281720.398,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M37",
+   "x": 348092.244,
+   "y": 9281719.606,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M37",
+   "x": 348091.206,
+   "y": 9281719.606,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M37",
+   "x": 348083.492,
+   "y": 9281720.416,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M37",
+   "x": 348082.453,
+   "y": 9281720.416,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M37",
+   "x": 348083.492,
+   "y": 9281719.606,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M37",
+   "x": 348082.453,
+   "y": 9281719.606,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M28",
+   "x": 348086.607,
+   "y": 9281721.819,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M7",
+   "x": 348086.615,
+   "y": 9281722.365,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M37",
+   "x": 348084.979,
+   "y": 9281722.644,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M78",
+   "x": 348085.524,
+   "y": 9281719.998,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M78",
+   "x": 348091.758,
+   "y": 9281715.572,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M64",
+   "x": 348083.22,
+   "y": 9281724.607,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M64",
+   "x": 348083.2,
+   "y": 9281722.904,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M64",
+   "x": 348087.97,
+   "y": 9281720.542,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M64",
+   "x": 348083.309,
+   "y": 9281717.115,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M64",
+   "x": 348083.309,
+   "y": 9281715.483,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M64",
+   "x": 348091.574,
+   "y": 9281717.813,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M64",
+   "x": 348091.382,
+   "y": 9281722.92,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M64",
+   "x": 348091.352,
+   "y": 9281724.545,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M37",
+   "x": 348089.833,
+   "y": 9281719.431,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M37",
+   "x": 348089.833,
+   "y": 9281718.473,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M61",
+   "x": 348090.634,
+   "y": 9281716.775,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M61",
+   "x": 348090.616,
+   "y": 9281718.431,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M61",
+   "x": 348084.136,
+   "y": 9281717.73,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M61",
+   "x": 348084.229,
+   "y": 9281716.153,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M61",
+   "x": 348086.684,
+   "y": 9281721.193,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M61",
+   "x": 348084.231,
+   "y": 9281723.511,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M61",
+   "x": 348090.52,
+   "y": 9281723.549,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M61",
+   "x": 348090.636,
+   "y": 9281721.908,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M28",
+   "x": 348087.326,
+   "y": 9281714.826,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M7",
+   "x": 348087.335,
+   "y": 9281715.372,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M28",
+   "x": 348089.49,
+   "y": 9281720.611,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M7",
+   "x": 348089.024,
+   "y": 9281720.609,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M28",
+   "x": 348148.928,
+   "y": 9281725.061,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M7",
+   "x": 348148.462,
+   "y": 9281725.059,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M28",
+   "x": 348148.928,
+   "y": 9281723.961,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M7",
+   "x": 348148.462,
+   "y": 9281723.959,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M28",
+   "x": 348139.206,
+   "y": 9281725.061,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M7",
+   "x": 348140.01,
+   "y": 9281725.059,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M28",
+   "x": 348139.206,
+   "y": 9281723.961,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M7",
+   "x": 348140.01,
+   "y": 9281723.959,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M64",
+   "x": 348142.145,
+   "y": 9281721.507,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M64",
+   "x": 348147.315,
+   "y": 9281721.584,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M64",
+   "x": 348148.962,
+   "y": 9281721.576,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M78",
+   "x": 348140.151,
+   "y": 9281721.498,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348144.055,
+   "y": 9281722.184,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348144.055,
+   "y": 9281721.227,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348144.418,
+   "y": 9281722.184,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348144.418,
+   "y": 9281721.227,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M61",
+   "x": 348141.301,
+   "y": 9281720.459,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M61",
+   "x": 348142.961,
+   "y": 9281720.459,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M61",
+   "x": 348146.42,
+   "y": 9281720.459,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M61",
+   "x": 348148.129,
+   "y": 9281720.459,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M64",
+   "x": 348144.852,
+   "y": 9281719.689,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M64",
+   "x": 348144.852,
+   "y": 9281717.979,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M64",
+   "x": 348144.852,
+   "y": 9281716.268,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M28",
+   "x": 348139.195,
+   "y": 9281716.162,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M7",
+   "x": 348140.0,
+   "y": 9281716.16,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M28",
+   "x": 348139.195,
+   "y": 9281715.062,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M7",
+   "x": 348140.0,
+   "y": 9281715.06,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M28",
+   "x": 348140.849,
+   "y": 9281714.593,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M7",
+   "x": 348140.858,
+   "y": 9281715.138,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348142.581,
+   "y": 9281719.645,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348142.581,
+   "y": 9281718.687,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348141.783,
+   "y": 9281717.939,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348146.688,
+   "y": 9281719.909,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M28",
+   "x": 348146.098,
+   "y": 9281717.013,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M7",
+   "x": 348146.903,
+   "y": 9281717.012,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M78",
+   "x": 348147.692,
+   "y": 9281715.34,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M64",
+   "x": 348147.403,
+   "y": 9281713.714,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M64",
+   "x": 348144.794,
+   "y": 9281712.709,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M64",
+   "x": 348144.787,
+   "y": 9281710.884,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M64",
+   "x": 348144.83,
+   "y": 9281709.152,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M64",
+   "x": 348144.795,
+   "y": 9281707.887,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M64",
+   "x": 348144.798,
+   "y": 9281706.069,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M64",
+   "x": 348147.354,
+   "y": 9281703.517,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M64",
+   "x": 348143.963,
+   "y": 9281699.389,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M64",
+   "x": 348143.982,
+   "y": 9281697.574,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M64",
+   "x": 348143.972,
+   "y": 9281696.275,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M64",
+   "x": 348143.948,
+   "y": 9281694.639,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M64",
+   "x": 348143.963,
+   "y": 9281692.916,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M64",
+   "x": 348141.531,
+   "y": 9281691.869,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M78",
+   "x": 348144.499,
+   "y": 9281703.725,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M61",
+   "x": 348145.751,
+   "y": 9281718.61,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M61",
+   "x": 348145.752,
+   "y": 9281716.909,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M61",
+   "x": 348145.727,
+   "y": 9281711.567,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M61",
+   "x": 348145.734,
+   "y": 9281709.877,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M61",
+   "x": 348145.725,
+   "y": 9281706.796,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M61",
+   "x": 348145.725,
+   "y": 9281704.875,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M61",
+   "x": 348146.464,
+   "y": 9281704.254,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M61",
+   "x": 348146.471,
+   "y": 9281712.671,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M61",
+   "x": 348143.114,
+   "y": 9281700.191,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M61",
+   "x": 348143.114,
+   "y": 9281698.271,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M61",
+   "x": 348143.105,
+   "y": 9281695.264,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M61",
+   "x": 348143.105,
+   "y": 9281693.587,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M61",
+   "x": 348142.368,
+   "y": 9281692.54,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M78",
+   "x": 348144.329,
+   "y": 9281701.324,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M78",
+   "x": 348141.228,
+   "y": 9281701.61,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M28",
+   "x": 348139.195,
+   "y": 9281704.682,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M7",
+   "x": 348140.0,
+   "y": 9281704.68,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M28",
+   "x": 348139.195,
+   "y": 9281703.582,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M7",
+   "x": 348140.0,
+   "y": 9281703.58,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M28",
+   "x": 348140.849,
+   "y": 9281703.113,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M7",
+   "x": 348140.858,
+   "y": 9281703.658,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348142.87,
+   "y": 9281713.926,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348142.101,
+   "y": 9281710.901,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348142.592,
+   "y": 9281710.138,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348142.592,
+   "y": 9281709.18,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348142.596,
+   "y": 9281707.993,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348142.596,
+   "y": 9281707.035,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348141.981,
+   "y": 9281698.544,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348141.981,
+   "y": 9281697.587,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M28",
+   "x": 348142.045,
+   "y": 9281699.683,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M7",
+   "x": 348141.579,
+   "y": 9281699.681,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348141.981,
+   "y": 9281696.37,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348141.981,
+   "y": 9281695.413,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348145.474,
+   "y": 9281696.37,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348145.474,
+   "y": 9281695.413,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348145.474,
+   "y": 9281698.545,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348145.474,
+   "y": 9281697.588,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348146.276,
+   "y": 9281699.313,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348146.276,
+   "y": 9281694.57,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348146.406,
+   "y": 9281708.157,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348146.08,
+   "y": 9281710.138,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348146.08,
+   "y": 9281709.18,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M28",
+   "x": 348139.195,
+   "y": 9281713.534,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M7",
+   "x": 348140.0,
+   "y": 9281713.533,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M28",
+   "x": 348139.195,
+   "y": 9281712.434,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M7",
+   "x": 348140.0,
+   "y": 9281712.433,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M7",
+   "x": 348141.713,
+   "y": 9281713.307,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M28",
+   "x": 348141.366,
+   "y": 9281713.84,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M28",
+   "x": 348149.025,
+   "y": 9281713.5,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M7",
+   "x": 348148.559,
+   "y": 9281713.498,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M28",
+   "x": 348146.098,
+   "y": 9281705.467,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M7",
+   "x": 348146.903,
+   "y": 9281705.466,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M28",
+   "x": 348148.938,
+   "y": 9281701.932,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M7",
+   "x": 348148.472,
+   "y": 9281701.93,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M28",
+   "x": 348148.938,
+   "y": 9281700.819,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M7",
+   "x": 348148.472,
+   "y": 9281700.817,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M28",
+   "x": 348148.938,
+   "y": 9281693.145,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M28",
+   "x": 348148.938,
+   "y": 9281692.032,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M7",
+   "x": 348148.472,
+   "y": 9281692.03,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M28",
+   "x": 348147.11,
+   "y": 9281691.393,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M7",
+   "x": 348147.118,
+   "y": 9281691.938,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M7",
+   "x": 348148.472,
+   "y": 9281693.143,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M28",
+   "x": 348142.058,
+   "y": 9281693.789,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M7",
+   "x": 348141.592,
+   "y": 9281693.787,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M37",
+   "x": 348141.729,
+   "y": 9281706.182,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M28",
+   "x": 348182.336,
+   "y": 9281725.109,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M28",
+   "x": 348183.488,
+   "y": 9281725.113,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M7",
+   "x": 348183.512,
+   "y": 9281724.616,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M7",
+   "x": 348182.409,
+   "y": 9281724.615,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M28",
+   "x": 348196.226,
+   "y": 9281725.109,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M28",
+   "x": 348197.378,
+   "y": 9281725.113,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M7",
+   "x": 348197.402,
+   "y": 9281724.616,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M7",
+   "x": 348196.3,
+   "y": 9281724.615,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M37",
+   "x": 348185.039,
+   "y": 9281720.848,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M37",
+   "x": 348186.118,
+   "y": 9281720.848,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M37",
+   "x": 348193.708,
+   "y": 9281720.848,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M37",
+   "x": 348194.787,
+   "y": 9281720.848,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M64",
+   "x": 348186.271,
+   "y": 9281724.981,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M64",
+   "x": 348186.246,
+   "y": 9281723.306,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M64",
+   "x": 348194.298,
+   "y": 9281724.961,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M64",
+   "x": 348194.31,
+   "y": 9281723.341,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M61",
+   "x": 348187.118,
+   "y": 9281723.927,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M61",
+   "x": 348187.022,
+   "y": 9281722.314,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M61",
+   "x": 348193.424,
+   "y": 9281723.927,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M61",
+   "x": 348193.52,
+   "y": 9281722.314,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M28",
+   "x": 348189.668,
+   "y": 9281722.278,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M7",
+   "x": 348189.671,
+   "y": 9281722.73,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M37",
+   "x": 348187.453,
+   "y": 9281722.907,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M28",
+   "x": 348182.336,
+   "y": 9281715.393,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M28",
+   "x": 348183.488,
+   "y": 9281715.39,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M7",
+   "x": 348183.512,
+   "y": 9281716.035,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M7",
+   "x": 348182.409,
+   "y": 9281716.035,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M37",
+   "x": 348185.039,
+   "y": 9281719.803,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M37",
+   "x": 348186.118,
+   "y": 9281719.803,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M64",
+   "x": 348186.247,
+   "y": 9281717.529,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M64",
+   "x": 348186.28,
+   "y": 9281715.87,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M61",
+   "x": 348187.022,
+   "y": 9281718.134,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M61",
+   "x": 348187.118,
+   "y": 9281716.521,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M64",
+   "x": 348188.122,
+   "y": 9281720.982,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M64",
+   "x": 348189.916,
+   "y": 9281720.982,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M61",
+   "x": 348189.007,
+   "y": 9281721.54,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M61",
+   "x": 348190.927,
+   "y": 9281721.54,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M37",
+   "x": 348187.694,
+   "y": 9281718.765,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M37",
+   "x": 348188.632,
+   "y": 9281718.765,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M37",
+   "x": 348189.443,
+   "y": 9281717.988,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M37",
+   "x": 348193.708,
+   "y": 9281720.03,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M37",
+   "x": 348194.787,
+   "y": 9281720.03,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M64",
+   "x": 348194.355,
+   "y": 9281718.224,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M61",
+   "x": 348193.52,
+   "y": 9281718.835,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M61",
+   "x": 348193.424,
+   "y": 9281717.167,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M78",
+   "x": 348194.589,
+   "y": 9281716.019,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M78",
+   "x": 348192.099,
+   "y": 9281720.277,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M78",
+   "x": 348192.094,
+   "y": 9281723.436,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M37",
+   "x": 348192.333,
+   "y": 9281718.677,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M28",
+   "x": 348196.37,
+   "y": 9281715.393,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M28",
+   "x": 348197.522,
+   "y": 9281715.39,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M7",
+   "x": 348197.546,
+   "y": 9281716.035,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M7",
+   "x": 348196.443,
+   "y": 9281716.035,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M28",
+   "x": 348190.887,
+   "y": 9281715.393,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M28",
+   "x": 348192.039,
+   "y": 9281715.39,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M7",
+   "x": 348192.063,
+   "y": 9281716.035,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M7",
+   "x": 348190.96,
+   "y": 9281716.035,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M28",
+   "x": 348192.418,
+   "y": 9281717.393,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M7",
+   "x": 348191.91,
+   "y": 9281717.518,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K40",
+   "x": 348210.783,
+   "y": 9281715.885,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K41",
+   "x": 348210.783,
+   "y": 9281715.643,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K37",
+   "x": 348210.269,
+   "y": 9281715.898,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K38",
+   "x": 348210.269,
+   "y": 9281715.653,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K44",
+   "x": 348207.502,
+   "y": 9281717.055,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K52",
+   "x": 348206.648,
+   "y": 9281717.999,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M51",
+   "x": 348207.951,
+   "y": 9281718.897,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M51",
+   "x": 348208.793,
+   "y": 9281718.926,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M51",
+   "x": 348209.711,
+   "y": 9281718.946,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K53",
+   "x": 348209.433,
+   "y": 9281716.477,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K78",
+   "x": 348208.48,
+   "y": 9281716.536,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M7",
+   "x": 348092.728,
+   "y": 9281774.314,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348091.352,
+   "y": 9281774.67,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348091.352,
+   "y": 9281773.917,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M31",
+   "x": 348092.117,
+   "y": 9281774.741,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M31",
+   "x": 348077.511,
+   "y": 9281781.825,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M31",
+   "x": 348080.184,
+   "y": 9281781.819,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M31",
+   "x": 348082.914,
+   "y": 9281781.807,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348086.541,
+   "y": 9281776.878,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348086.544,
+   "y": 9281776.427,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348086.522,
+   "y": 9281775.956,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348086.541,
+   "y": 9281775.55,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E19",
+   "x": 348234.24,
+   "y": 9281764.009,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M21",
+   "x": 348079.141,
+   "y": 9281770.936,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M61",
+   "x": 348084.132,
+   "y": 9281721.903,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M36",
+   "x": 348234.483,
+   "y": 9281782.375,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M36",
+   "x": 348233.583,
+   "y": 9281782.375,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M36",
+   "x": 348232.683,
+   "y": 9281782.375,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M79",
+   "x": 348145.183,
+   "y": 9281714.933,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M79",
+   "x": 348145.173,
+   "y": 9281713.808,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M79",
+   "x": 348143.574,
+   "y": 9281691.643,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "K31",
+   "x": 348230.446,
+   "y": 9281762.305,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M61",
+   "x": 348088.085,
+   "y": 9281721.847,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M7",
+   "x": 348092.031,
+   "y": 9281772.213,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348091.618,
+   "y": 9281770.879,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348092.396,
+   "y": 9281770.855,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M31",
+   "x": 348091.608,
+   "y": 9281771.651,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E6",
+   "x": 348092.416,
+   "y": 9281772.388,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348089.549,
+   "y": 9281771.525,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348088.173,
+   "y": 9281771.881,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348088.173,
+   "y": 9281771.128,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M31",
+   "x": 348088.938,
+   "y": 9281771.952,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E6",
+   "x": 348089.354,
+   "y": 9281771.966,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348089.549,
+   "y": 9281769.184,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348088.173,
+   "y": 9281769.54,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M7",
+   "x": 348088.173,
+   "y": 9281768.786,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M31",
+   "x": 348088.938,
+   "y": 9281769.611,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E6",
+   "x": 348089.354,
+   "y": 9281769.625,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E6",
+   "x": 348092.533,
+   "y": 9281777.505,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M20",
+   "x": 348148.617,
+   "y": 9281783.82,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "K20",
+   "x": 348091.227,
+   "y": 9281783.156,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "K20",
+   "x": 348088.184,
+   "y": 9281766.561,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E2",
+   "x": 348081.092,
+   "y": 9281771.262,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M13",
+   "x": 348080.217,
+   "y": 9281770.476,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M62",
+   "x": 348082.955,
+   "y": 9281779.732,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M62",
+   "x": 348093.573,
+   "y": 9281783.05,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M62",
+   "x": 348089.859,
+   "y": 9281779.714,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M62",
+   "x": 348090.153,
+   "y": 9281776.925,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M62",
+   "x": 348089.944,
+   "y": 9281774.143,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M62",
+   "x": 348093.583,
+   "y": 9281770.705,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M62",
+   "x": 348089.914,
+   "y": 9281768.587,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M62",
+   "x": 348090.381,
+   "y": 9281763.03,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M62",
+   "x": 348080.292,
+   "y": 9281763.088,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M69",
+   "x": 348079.949,
+   "y": 9281773.164,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E6",
+   "x": 348078.537,
+   "y": 9281764.617,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M60",
+   "x": 348076.845,
+   "y": 9281766.567,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E6",
+   "x": 348084.674,
+   "y": 9281766.009,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M62",
+   "x": 348083.721,
+   "y": 9281763.725,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M62",
+   "x": 348089.914,
+   "y": 9281770.875,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M62",
+   "x": 348076.588,
+   "y": 9281773.094,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M76",
+   "x": 348077.174,
+   "y": 9281767.449,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M76",
+   "x": 348076.678,
+   "y": 9281774.595,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M60",
+   "x": 348077.596,
+   "y": 9281774.201,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M60",
+   "x": 348076.856,
+   "y": 9281775.628,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M76",
+   "x": 348077.271,
+   "y": 9281776.239,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M60",
+   "x": 348077.081,
+   "y": 9281778.322,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M76",
+   "x": 348076.68,
+   "y": 9281777.884,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E2",
+   "x": 348147.793,
+   "y": 9281783.8,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "K35",
+   "x": 348150.9,
+   "y": 9281782.019,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "K33",
+   "x": 348150.886,
+   "y": 9281782.775,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "K34",
+   "x": 348150.899,
+   "y": 9281781.739,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "K32",
+   "x": 348150.935,
+   "y": 9281783.049,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M60",
+   "x": 348151.334,
+   "y": 9281780.326,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M76",
+   "x": 348150.26,
+   "y": 9281779.904,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M9",
+   "x": 348198.533,
+   "y": 9281790.245,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M9",
+   "x": 348199.676,
+   "y": 9281790.259,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M9",
+   "x": 348200.84,
+   "y": 9281790.266,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M9",
+   "x": 348201.792,
+   "y": 9281790.271,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M9",
+   "x": 348202.706,
+   "y": 9281790.27,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M60",
+   "x": 348193.865,
+   "y": 9281777.576,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M76",
+   "x": 348193.13,
+   "y": 9281778.103,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M60",
+   "x": 348194.925,
+   "y": 9281777.576,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M76",
+   "x": 348194.19,
+   "y": 9281778.103,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M77",
+   "x": 348198.019,
+   "y": 9281777.55,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M77",
+   "x": 348198.021,
+   "y": 9281774.39,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M60",
+   "x": 348194.854,
+   "y": 9281776.362,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M60",
+   "x": 348194.854,
+   "y": 9281775.299,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M60",
+   "x": 348194.854,
+   "y": 9281774.119,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M76",
+   "x": 348193.141,
+   "y": 9281776.223,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M76",
+   "x": 348193.141,
+   "y": 9281775.163,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M76",
+   "x": 348193.141,
+   "y": 9281773.983,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M60",
+   "x": 348195.994,
+   "y": 9281774.119,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M60",
+   "x": 348197.695,
+   "y": 9281778.532,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M60",
+   "x": 348201.923,
+   "y": 9281775.01,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M76",
+   "x": 348201.634,
+   "y": 9281774.01,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M77",
+   "x": 348203.222,
+   "y": 9281774.312,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "E13",
+   "x": 348201.818,
+   "y": 9281772.574,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "E13",
+   "x": 348195.564,
+   "y": 9281772.574,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "E17",
+   "x": 348197.857,
+   "y": 9281773.268,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M28",
+   "x": 348196.041,
+   "y": 9281757.711,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348195.541,
+   "y": 9281757.871,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M28",
+   "x": 348196.041,
+   "y": 9281758.711,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348195.541,
+   "y": 9281758.871,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M28",
+   "x": 348196.041,
+   "y": 9281759.711,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348195.541,
+   "y": 9281759.871,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M28",
+   "x": 348196.041,
+   "y": 9281760.711,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348195.541,
+   "y": 9281760.871,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M28",
+   "x": 348193.56,
+   "y": 9281761.532,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348193.565,
+   "y": 9281761.178,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M28",
+   "x": 348194.56,
+   "y": 9281761.532,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M7",
+   "x": 348194.565,
+   "y": 9281761.178,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "E3",
+   "x": 348235.142,
+   "y": 9281787.247,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "E2",
+   "x": 348235.198,
+   "y": 9281786.5,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M62",
+   "x": 348234.724,
+   "y": 9281787.554,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "E1",
+   "x": 348235.122,
+   "y": 9281784.762,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M69",
+   "x": 348235.56,
+   "y": 9281784.237,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "E5",
+   "x": 348237.882,
+   "y": 9281783.937,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "E5",
+   "x": 348237.938,
+   "y": 9281784.896,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "E5",
+   "x": 348237.938,
+   "y": 9281785.645,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "E5",
+   "x": 348237.938,
+   "y": 9281786.492,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "E13",
+   "x": 348235.438,
+   "y": 9281763.474,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "E13",
+   "x": 348235.44,
+   "y": 9281761.927,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "K20",
+   "x": 348232.646,
+   "y": 9281760.695,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M60",
+   "x": 348094.239,
+   "y": 9281720.546,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M77",
+   "x": 348094.08,
+   "y": 9281718.596,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M76",
+   "x": 348094.081,
+   "y": 9281719.562,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M60",
+   "x": 348080.168,
+   "y": 9281720.546,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M77",
+   "x": 348080.327,
+   "y": 9281718.596,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M76",
+   "x": 348080.326,
+   "y": 9281719.562,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M60",
+   "x": 348085.613,
+   "y": 9281723.725,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M76",
+   "x": 348085.321,
+   "y": 9281724.272,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M77",
+   "x": 348086.35,
+   "y": 9281725.052,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M77",
+   "x": 348085.32,
+   "y": 9281716.076,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M76",
+   "x": 348085.321,
+   "y": 9281717.136,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M60",
+   "x": 348086.705,
+   "y": 9281718.027,
+   "lamina": "EM-05"
+  },
+  {
+   "cod": "M60",
+   "x": 348145.465,
+   "y": 9281723.556,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M76",
+   "x": 348144.355,
+   "y": 9281723.797,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M77",
+   "x": 348143.465,
+   "y": 9281723.794,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M60",
+   "x": 348139.726,
+   "y": 9281719.072,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M77",
+   "x": 348140.893,
+   "y": 9281719.876,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M76",
+   "x": 348139.833,
+   "y": 9281719.835,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M60",
+   "x": 348148.483,
+   "y": 9281719.108,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M76",
+   "x": 348148.588,
+   "y": 9281719.872,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M60",
+   "x": 348139.791,
+   "y": 9281709.672,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M77",
+   "x": 348140.893,
+   "y": 9281708.748,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M76",
+   "x": 348139.833,
+   "y": 9281708.976,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M60",
+   "x": 348148.47,
+   "y": 9281709.519,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M76",
+   "x": 348148.588,
+   "y": 9281708.755,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M60",
+   "x": 348139.789,
+   "y": 9281707.355,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M77",
+   "x": 348140.893,
+   "y": 9281708.276,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M76",
+   "x": 348139.833,
+   "y": 9281708.051,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M60",
+   "x": 348148.469,
+   "y": 9281707.508,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M76",
+   "x": 348148.588,
+   "y": 9281708.272,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M60",
+   "x": 348141.26,
+   "y": 9281698.567,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M76",
+   "x": 348139.881,
+   "y": 9281698.788,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M77",
+   "x": 348139.833,
+   "y": 9281697.252,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M60",
+   "x": 348141.259,
+   "y": 9281695.26,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M76",
+   "x": 348139.881,
+   "y": 9281695.04,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M77",
+   "x": 348139.833,
+   "y": 9281696.573,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M60",
+   "x": 348149.416,
+   "y": 9281695.822,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M77",
+   "x": 348148.063,
+   "y": 9281696.603,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M76",
+   "x": 348148.639,
+   "y": 9281696.449,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M60",
+   "x": 348149.417,
+   "y": 9281698.005,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M77",
+   "x": 348148.063,
+   "y": 9281697.221,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M76",
+   "x": 348148.639,
+   "y": 9281697.378,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M77",
+   "x": 348148.64,
+   "y": 9281707.301,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M77",
+   "x": 348148.64,
+   "y": 9281709.818,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "M60",
+   "x": 348183.313,
+   "y": 9281720.966,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M76",
+   "x": 348183.21,
+   "y": 9281720.708,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M77",
+   "x": 348183.214,
+   "y": 9281718.979,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M60",
+   "x": 348189.046,
+   "y": 9281715.562,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M76",
+   "x": 348188.67,
+   "y": 9281715.876,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M77",
+   "x": 348188.208,
+   "y": 9281716.395,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M60",
+   "x": 348189.01,
+   "y": 9281724.289,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M76",
+   "x": 348188.178,
+   "y": 9281724.254,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M77",
+   "x": 348188.475,
+   "y": 9281725.344,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M60",
+   "x": 348196.968,
+   "y": 9281721.108,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M76",
+   "x": 348196.919,
+   "y": 9281720.215,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M77",
+   "x": 348196.968,
+   "y": 9281718.986,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M60",
+   "x": 348205.998,
+   "y": 9281722.434,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M76",
+   "x": 348207.97,
+   "y": 9281722.716,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M77",
+   "x": 348210.856,
+   "y": 9281722.714,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M60",
+   "x": 348205.997,
+   "y": 9281723.723,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M76",
+   "x": 348207.97,
+   "y": 9281723.441,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M77",
+   "x": 348210.856,
+   "y": 9281723.439,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M77",
+   "x": 348210.164,
+   "y": 9281719.56,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M77",
+   "x": 348210.206,
+   "y": 9281726.584,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M77",
+   "x": 348207.218,
+   "y": 9281719.56,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M77",
+   "x": 348207.248,
+   "y": 9281726.584,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "M64",
+   "x": 348210.61,
+   "y": 9281716.766,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K45",
+   "x": 348208.12,
+   "y": 9281715.621,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K73",
+   "x": 348207.844,
+   "y": 9281717.774,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K49",
+   "x": 348208.019,
+   "y": 9281716.661,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K50",
+   "x": 348208.078,
+   "y": 9281716.921,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K77",
+   "x": 348206.4,
+   "y": 9281717.382,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K76",
+   "x": 348206.407,
+   "y": 9281717.664,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K75",
+   "x": 348206.394,
+   "y": 9281717.03,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K51",
+   "x": 348206.732,
+   "y": 9281716.617,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K81",
+   "x": 348210.927,
+   "y": 9281718.626,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K82",
+   "x": 348210.927,
+   "y": 9281718.626,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K79",
+   "x": 348208.257,
+   "y": 9281718.418,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K48",
+   "x": 348208.257,
+   "y": 9281718.418,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K47",
+   "x": 348208.895,
+   "y": 9281718.198,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K74",
+   "x": 348209.477,
+   "y": 9281718.399,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K46",
+   "x": 348209.477,
+   "y": 9281718.399,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "K43",
+   "x": 348210.202,
+   "y": 9281718.419,
+   "lamina": "EM-07"
+  },
+  {
+   "cod": "E6",
+   "x": 348092.533,
+   "y": 9281774.755,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E6",
+   "x": 348078.021,
+   "y": 9281782.678,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E6",
+   "x": 348080.644,
+   "y": 9281782.678,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E6",
+   "x": 348083.034,
+   "y": 9281782.761,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E10",
+   "x": 348194.999,
+   "y": 9281789.532,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "E10",
+   "x": 348196.685,
+   "y": 9281789.557,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "E10",
+   "x": 348198.489,
+   "y": 9281789.57,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "E10",
+   "x": 348200.292,
+   "y": 9281789.547,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "E10",
+   "x": 348202.085,
+   "y": 9281789.572,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "E10",
+   "x": 348194.989,
+   "y": 9281787.271,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "E10",
+   "x": 348196.682,
+   "y": 9281787.269,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "E10",
+   "x": 348198.495,
+   "y": 9281787.226,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "E10",
+   "x": 348200.301,
+   "y": 9281787.252,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "E10",
+   "x": 348202.096,
+   "y": 9281787.286,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "E3",
+   "x": 348081.324,
+   "y": 9281770.787,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E7",
+   "x": 348079.172,
+   "y": 9281770.474,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E9",
+   "x": 348093.166,
+   "y": 9281772.371,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M39",
+   "x": 348093.346,
+   "y": 9281771.804,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E9",
+   "x": 348077.091,
+   "y": 9281762.855,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M39",
+   "x": 348076.762,
+   "y": 9281763.368,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E9",
+   "x": 348082.384,
+   "y": 9281773.124,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M39",
+   "x": 348082.563,
+   "y": 9281772.556,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E9",
+   "x": 348082.377,
+   "y": 9281784.111,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M39",
+   "x": 348082.557,
+   "y": 9281783.543,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E9",
+   "x": 348092.221,
+   "y": 9281775.873,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M39",
+   "x": 348092.637,
+   "y": 9281775.339,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E9",
+   "x": 348092.174,
+   "y": 9281778.661,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M39",
+   "x": 348092.59,
+   "y": 9281778.126,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E17",
+   "x": 348236.549,
+   "y": 9281759.271,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "E18",
+   "x": 348078.83,
+   "y": 9281773.198,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M13",
+   "x": 348235.896,
+   "y": 9281785.393,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M62",
+   "x": 348144.922,
+   "y": 9281784.359,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "M62",
+   "x": 348193.468,
+   "y": 9281790.41,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M62",
+   "x": 348193.456,
+   "y": 9281784.499,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M62",
+   "x": 348193.334,
+   "y": 9281769.604,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M62",
+   "x": 348196.735,
+   "y": 9281762.95,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M62",
+   "x": 348193.542,
+   "y": 9281757.191,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "M62",
+   "x": 348229.9,
+   "y": 9281765.639,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M62",
+   "x": 348229.841,
+   "y": 9281777.299,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M62",
+   "x": 348229.871,
+   "y": 9281782.992,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M62",
+   "x": 348237.147,
+   "y": 9281782.809,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M62",
+   "x": 348242.897,
+   "y": 9281765.607,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M62",
+   "x": 348243.013,
+   "y": 9281777.267,
+   "lamina": "EM-04"
+  },
+  {
+   "cod": "M77",
+   "x": 348148.64,
+   "y": 9281719.085,
+   "lamina": "EM-06"
+  },
+  {
+   "cod": "E4",
+   "x": 348079.916,
+   "y": 9281779.175,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E4",
+   "x": 348089.724,
+   "y": 9281783.318,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E4",
+   "x": 348093.394,
+   "y": 9281779.885,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E4",
+   "x": 348089.376,
+   "y": 9281776.51,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E4",
+   "x": 348088.843,
+   "y": 9281773.725,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E4",
+   "x": 348078.181,
+   "y": 9281762.675,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E4",
+   "x": 348087.324,
+   "y": 9281763.564,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E4",
+   "x": 348090.654,
+   "y": 9281771.177,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E4",
+   "x": 348089.724,
+   "y": 9281771.177,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E9",
+   "x": 348086.37,
+   "y": 9281763.714,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "M39",
+   "x": 348086.126,
+   "y": 9281763.25,
+   "lamina": "EM-01"
+  },
+  {
+   "cod": "E4",
+   "x": 348147.713,
+   "y": 9281779.758,
+   "lamina": "EM-02"
+  },
+  {
+   "cod": "E4",
+   "x": 348199.862,
+   "y": 9281762.387,
+   "lamina": "EM-03"
+  },
+  {
+   "cod": "E4",
+   "x": 348195.898,
+   "y": 9281761.74,
+   "lamina": "EM-03"
+  }
+ ]
+}

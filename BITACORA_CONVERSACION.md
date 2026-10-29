@@ -835,3 +835,11 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   `herramientas/caratulas_opciones_refugio.py` (datos de `caratulas_refugio.py`, servicio y especialidad de arquitectura, para su memoria
   descriptiva de arquitectura); salida en `entregables/arquitectura/OPCIONES_CARATULA_GUINDA_MEMORIA_ARQUITECTURA_HOGAR_REFUGIO.docx`.
   Se retiró la versión de Varones.
+- Hogar de Refugio, equipamiento y mobiliario (pedido: metrado, memoria descriptiva y especificaciones). DXF de Solange (77 MB, en
+  `insumos/solange/mobiliario/` comprimido): 7 láminas EM-01 a EM-07 en el modelo (marcos capa "M ARCO"), 31 cuadros (230 filas), 1069
+  etiquetas de código en planta. `herramientas/mobiliario_refugio/`: E y M del metrado = lo rotulado en planta en las 9 edificaciones
+  (comprobado por código); K = cuadro salvo que la planta rotule más. Ajustes: E-01 (M32, M34, M36, M39, M62, 8 sillas M07 en pasadizo),
+  E-02 (cuadro del tópico repetido y mal titulado, M28 3->1, M76), E-03 (M51 15->6, M75 5->3), E-05 (SUM 384->192 sillas M3, K78 1->8,
+  M62), E-09 (cuadro "módulo infantil" = almacén deportivo, M51 3, M52 0, M64 = canastilla, K53/K73/K74/K79 agregados). Códigos dobles
+  M16 (mesa de corte textil / mesa de trabajo) y M64 (camarote / canastilla) como partidas separadas. Extintores S1 fuera (señalización).
+  99 partidas, 1251 und. Para confirmar con Solange: SUM 192 asientos vs 80 del programa, sillas de estudiante en el comedor, E10.
