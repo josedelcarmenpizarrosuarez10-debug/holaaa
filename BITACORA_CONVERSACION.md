@@ -846,3 +846,8 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Carátulas de arquitectura (Word del usuario con 18 carátulas del CAR Varones: memorias, especificaciones, metrados y planos de
   arquitectura, evacuación y señalización, mobiliario) pasadas al Hogar de Refugio con `herramientas/caratulas_arquitectura_refugio.py`:
   nombre del proyecto, CUI 2675514, leyenda y foto de la usuaria (mismo tamaño 1600x900, mismo encuadre); el resto del formato igual.
+- Índice de planos de arquitectura del Hogar de Refugio con el Excel v3 de la usuaria (`indice_arquitectura_refugio.py`): formatos A1,
+  DT-35 a DT-37 mesa de trabajo y DT-38 luminaria, SE-E-01 evacuación y SE-S-02 señalización (tal cual), grupo VII equipamiento y
+  mobiliario. El Excel trae EM-01 a EM-09 con EM-03 y EM-04 repitiendo las edificaciones 01 y 02-03; el DXF de mobiliario tiene 7 láminas
+  (EM-01 a EM-07), que son las del metrado y la memoria: el índice toma las del plano (a confirmar con Solange). 116 láminas. Se regeneró
+  la memoria de arquitectura corregida (su listado de planos sale de este índice).

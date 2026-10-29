@@ -3,13 +3,16 @@
 drenaje pluvial (indice_planos_refugio.py): encabezado y pie, proyecto con CUI, título, especialidad, tabla con encabezado
 repetido y filas de grupo.
 
-Fuente: el índice en Excel de la usuaria, versión vigente con el plano topográfico PT-01
-(insumos/solange/INDICE_DE_LAMINAS_ARQUITECTURA_HOGAR_REFUGIO_v2.xlsx, hoja ARQUITECTURA; la anterior queda sin el PT-01).
+Fuente: el índice en Excel de la usuaria, versión vigente (insumos/solange/INDICE_DE_LAMINAS_ARQUITECTURA_HOGAR_REFUGIO_v3.xlsx,
+hoja ARQUITECTURA: siete grupos, con el equipamiento y mobiliario; las versiones anteriores quedan como antecedente).
 Se toma cada fila tal cual (grupo, descripción, lámina, formato, cantidad), con estos arreglos de forma:
   - grupos numerados en orden (I a VI) y láminas numeradas correlativas (el Excel salta el 51);
   - códigos sin espacios sueltos ("A-02 /01-03" -> "A-02/01-03", "CG- 01" -> "CG-01");
   - tildes en las descripciones (EDIFICACIÓN, ZONIFICACIÓN, CIELORRASO, ...);
   - lámina repetida por copia en el Excel: se toma la hoja de su descripción (EDIFICACIÓN 06 / 03 - 04 -> A-06/03-04).
+  - equipamiento y mobiliario: las láminas EM y su título según los rótulos del plano de la arquitectura (EM-01 a EM-07,
+    entregables/_calc/mobiliario_plano.json, de mobiliario_refugio/lee_plano_mr.py), las mismas del metrado y la memoria; el
+    Excel trae EM-01 a EM-09 con EM-03 y EM-04 repitiendo las edificaciones 01 y 02-03.
 Las notas sueltas de la columna S del Excel (cartas y anexos de obra) no son láminas y no se incluyen.
 
 Uso: python3 herramientas/indice_arquitectura_refugio.py
@@ -32,7 +35,8 @@ AQUI = os.path.dirname(os.path.abspath(__file__)); RAIZ = os.path.dirname(AQUI)
 sys.path.insert(0, AQUI)
 import indice_planos_refugio as I  # noqa: E402  (mismas piezas de formato)
 
-XLSX = os.path.join(RAIZ, 'insumos/solange/INDICE_DE_LAMINAS_ARQUITECTURA_HOGAR_REFUGIO_v2.xlsx')
+XLSX = os.path.join(RAIZ, 'insumos/solange/INDICE_DE_LAMINAS_ARQUITECTURA_HOGAR_REFUGIO_v3.xlsx')
+EM_JSON = os.path.join(RAIZ, 'entregables/_calc/mobiliario_plano.json')
 SALIDA = os.path.join(RAIZ, 'entregables/INDICE_DE_PLANOS_ARQUITECTURA_HOGAR_REFUGIO.docx')
 ROMANOS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X']
 TILDES = [('EDIFICACION', 'EDIFICACIÓN'), ('PERIMETRICO', 'PERIMÉTRICO'), ('ZONIFICACION', 'ZONIFICACIÓN'),
@@ -75,7 +79,28 @@ def leer():
         if m and d and (m.group(2), m.group(3)) != d.groups():
             nuevo = '%s/%s-%s' % (m.group(1), d.group(1), d.group(2)); cambios.append((cod, nuevo, desc)); cod = nuevo
         act[1].append(dict(codigo=cod, descripcion=desc, formato=(str(h).strip() if h else '—'), cantidad=c or 1, n_excel=a))
+    em = _laminas_em()
+    for g in grupos:
+        if 'MOBILIARIO' in g[0] and em:
+            cambios.append(('%d láminas EM del Excel' % len(g[1]), '%d láminas EM del plano' % len(em), ', '.join(x['codigo'] for x in em)))
+            g[1] = em
     return grupos, cambios
+
+
+def _laminas_em():
+    """Láminas de equipamiento y mobiliario según los rótulos del plano (código, título, formato A1 por el marco a 1/50)."""
+    import json
+    try:
+        lam = json.load(open(EM_JSON, encoding='utf-8'))['laminas']
+    except (OSError, KeyError, ValueError):
+        return []
+    out = []
+    for l in lam:
+        t = _limpio(l['titulo'].replace(':', ''))
+        ancho = (l['caja'][2] - l['caja'][0]) * 1000 / int(l['escala'].split('/')[1])
+        out.append(dict(codigo=l['codigo'], descripcion=t, formato='A1' if 820 < max(ancho, 600) < 860 or 580 < ancho < 610 else '—',
+                        cantidad=1, n_excel=None))
+    return out
 
 
 def generar(grupos):

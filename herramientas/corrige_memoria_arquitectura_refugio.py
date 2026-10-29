@@ -14,7 +14,7 @@ toman las piezas de edición, el índice y la paginación):
   - drenaje pluvial del proyecto (no "cunetas existentes");
   - sustento normativo pegado: numeración dentro del numeral 3.2 y tablas renumeradas;
   - programa arquitectónico: citas normativas iguales a las del sustento (sin cambiar áreas) y erratas;
-  - listado de planos con las 108 láminas del índice de arquitectura de la arquitecta (indice_arquitectura_refugio.py);
+  - listado de planos con las láminas del índice de arquitectura de la arquitecta (indice_arquitectura_refugio.py);
   - índice (campo TOC de Word) con el número de página de cada título.
 
 Uso: python3 herramientas/corrige_memoria_arquitectura_refugio.py
@@ -502,7 +502,7 @@ def generar_nota():
          'comedor/SUM con 3.00 m²/pers., "SS.HH HAB.TRIPLE-TIPO III")',
          'Citas iguales al sustento (A.090 art. 11, R.V.M. 208 cuadro 22, etc.) y "TIPO II"; áreas sin cambio'],
         ['Listado de planos', 'U-01, PZ-01 rotulado "PLANO TOPOGRÁFICO" (repetido con PT-01), A1 a A9 y DT sin el índice',
-         'Las 108 láminas del índice de arquitectura, con sus códigos y títulos'],
+         'Las %d láminas del índice de arquitectura, con sus códigos y títulos' % sum(len(f) for _, f in IAR.leer()[0])],
         ['Índice', 'No tenía', 'Índice automático de Word con número de página (se actualiza al abrir)'],
         ['Redacción', 'protege, relaciones, MATRÍZ, CATAS, INCOMPATILIDAD, ESTRATÉGIAS, SEMAMHI, ambientes públicas, Ss.hh, '
          'Almacen, maquinas, R.V.N', 'proteger, relacionadas, MATRIZ, CATASTRALES, INCOMPATIBILIDAD, ESTRATEGIAS, SENAMHI, '
