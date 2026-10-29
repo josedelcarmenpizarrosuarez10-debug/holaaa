@@ -54,10 +54,29 @@ def poner(runs, textos):
 
 def reemplazar(p, viejo, nuevo):
     """Reemplaza un texto dentro de un párrafo aunque esté repartido en varios runs (el resultado queda en el primer run)."""
-    if viejo not in p.text:
+    runs = p.runs                                   # sin los runs de hipervínculos, que se dejan como están
+    t = ''.join(r.text for r in runs)
+    i = t.find(viejo)
+    if i < 0:
         raise ValueError('no está: ' + viejo)
-    t = p.text.replace(viejo, nuevo)
-    poner(p.runs, [t]); CAMBIOS.append((viejo, nuevo))
+    while i >= 0:                                   # solo se tocan los runs que contienen el texto viejo
+        pos = 0
+        for a, r in enumerate(runs):
+            if pos + len(r.text) > i:
+                break
+            pos += len(r.text)
+        ini = pos; fin = i + len(viejo); pos2 = ini
+        for b in range(a, len(runs)):
+            pos2 += len(runs[b].text)
+            if pos2 >= fin:
+                break
+        cola = t[fin:pos2]
+        runs[a].text = t[ini:i] + nuevo + cola
+        for r in runs[a + 1:b + 1]:
+            r.text = ''
+        t = ''.join(r.text for r in runs)
+        i = t.find(viejo, ini + len(nuevo)) if viejo not in nuevo else -1
+    CAMBIOS.append((viejo, nuevo))
 
 
 def celda_estado(c, texto):

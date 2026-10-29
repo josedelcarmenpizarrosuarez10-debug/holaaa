@@ -817,3 +817,14 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   2.3.2 Cuadro N.° 5 con las 8 condiciones de `incompatibilidades_v.CONDICIONES` + conclusión), "INCOMPATILIDAD" corregido, e índice nuevo en la
   página 2 (campo TOC de Word con `updateFields`, 39 títulos con nivel de esquema, páginas calculadas con LibreOffice usando una fuente de
   paginación tipo Arial Narrow: `varones/fuente_paginacion.py`, solo para paginar). 43 páginas.
+- Revisión a fondo de la memoria descriptiva de arquitectura "culminada" del Hogar de Refugio (Solange, CUI 2675514), copia en
+  `insumos/solange/arquitectura/`. `herramientas/corrige_memoria_arquitectura_refugio.py` -> copia corregida en `entregables/arquitectura/`
+  (60 págs., 32 imágenes conservadas, áreas del programa sin cambio) y nota interna `entregables/revision_interna/REVISION_MEMORIA_...`.
+  Corregido: texto de colegio (Institución Educativa, aulas, aprendizaje, NTIE 001-2017, R.V.M. 307-2019), titular GORE (no Aldea Infantil),
+  0.085562 -> 0.85562 ha, unidades, imágenes 1 a 9, Cuadro N°3, usos a 100 m (no el propio hogar), análisis 2.3 vacío -> 2.3.1 Cuadro N° 4 (18)
+  y 2.3.2 Cuadro N° 5 (8), fuente del terreno tipo II = R.V.M. 208 cuadro 2, normativa (Ley 30364, R.M. 150-2016-MIMP, R.V.M. 104/208, Ley
+  30102), drenaje del proyecto, EM.110, Cuadro N°06 en demanda, sustento pegado renumerado 3.2.1-3.2.11 y Tablas 02-12, citas del programa =
+  sustento, listado de 108 láminas, índice con páginas. Para confirmar con ella: garita repetida, totales de estacionamientos/patio de descarga,
+  circulación + 15 % muros (2,803.64 vs 2,607.97), rótulo "área construida (interior)", 7 SS.HH. para 10 habitaciones dobles, R.V.M. 010-2022
+  vs 068-2025, Polvoraico/Polvorico, zonificación, servicios de apoyo, fecha de imágenes.
+  `CV.reemplazar` ahora solo toca los runs del texto cambiado (antes duplicaba el texto de hipervínculos); Varones regenerado, texto idéntico.
