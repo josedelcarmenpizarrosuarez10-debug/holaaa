@@ -335,3 +335,27 @@ def abrir(ruta, nombre=None):
     elif sys.platform == "darwin": subprocess.Popen(["open", r])
     else: subprocess.Popen(["xdg-open", r], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     return {"accion": "abrir", "abierto": r}
+
+
+def vial(d, carpeta=None):
+    """Drenaje vial (Manual de Hidrología, Hidráulica y Drenaje del MTC): cunetas, alcantarillas de alivio y de paso, badenes.
+    Con CARPETA escribe ahí la memoria de cálculo en Excel y el resultado en JSON. {"plantilla": ruta} lee los datos de la
+    plantilla Excel (la lluvia de DrenIE, si viene, manda); {"crear_plantilla": true} solo escribe la plantilla en CARPETA."""
+    from . import vial as V, vial_excel, vial_plantilla
+    if d.get("crear_plantilla"):
+        if not carpeta: raise ValueError("Indique la carpeta donde guardar la plantilla.")
+        os.makedirs(carpeta, exist_ok=True)
+        return {"accion": "vial", "archivos": [vial_plantilla.crear(os.path.join(carpeta, "DATOS_DRENAJE_VIAL.xlsx"), d.get("datos"))]}
+    if d.get("plantilla"):
+        x = vial_plantilla.leer(d["plantilla"])
+        if d.get("lluvia"): x["lluvia"] = d["lluvia"]
+        if d.get("proyecto"): x["proyecto"] = {**x["proyecto"], **d["proyecto"]}
+        d = x
+    R = V.calcular(d, carpeta or ".")
+    if carpeta:
+        os.makedirs(carpeta, exist_ok=True)
+        R["archivos"] = [vial_excel.libro(os.path.join(carpeta, "MEMORIA_CALCULO_DRENAJE_VIAL.xlsx"), R)]
+        ruta = os.path.join(carpeta, "resultado_vial.json")
+        json.dump(R, open(ruta, "w", encoding="utf-8"), ensure_ascii=False, indent=1, default=str); R["archivos"].append(ruta)
+    return R
+

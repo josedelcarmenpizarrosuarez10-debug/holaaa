@@ -1,5 +1,5 @@
 {
- "version": "2026-10-25",
+ "version": "2026-10-29",
  "nota": "Cada dato con su fuente. Verificado = cotejado con el texto oficial (PDF en insumos/normas/, 25-10-2026); por verificar = falta el documento oficial o es una referencia técnica sin texto a la mano.",
  "normas": {
   "CE040": {
@@ -658,6 +658,210 @@
    "ref": "informe del EMS, «Nivel de la Napa Freática»",
    "consideracion": "El estudio de mecánica de suelos indica la napa con su fecha de medición; con napa alta la infraestructura debe ser compatible con el subdrenaje (CE.040, artículo 9).",
    "estado": "verificado"
+  },
+  {
+   "id": "vial_racional",
+   "grupo": "Drenaje vial",
+   "texto": "Caudal por el método racional",
+   "valor": "Q = 0.278 C I A",
+   "unidad": "m³/s",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 3.12.2, ecuación 28",
+   "consideracion": "Muy usado para cuencas de A < 10 km²; la duración de la lluvia es igual al tiempo de concentración. I en mm/h y A en km².",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_racional_mod",
+   "grupo": "Drenaje vial",
+   "texto": "Método racional modificado (Témez)",
+   "valor": "Q = 0.278 C I A K",
+   "unidad": "m³/s",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 3.12.2.1, ecuaciones 29 a 35",
+   "consideracion": "Cuencas naturales de menos de 770 km² y Tc de 0.25 a 24 h: Tc = 0.3 (L/S^0.25)^0.76; K = 1 + Tc^1.25/(Tc^1.25 + 14); kA = 1 − log10(A)/15; P = kA·Pd; I = (P/24)·11^((28^0.1 − Tc^0.1)/(28^0.1 − 1)); C = (Pd − Po)(Pd + 23 Po)/(Pd + 11 Po)²; Po = 5000/CN − 50.",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_cuneta_pendiente",
+   "grupo": "Drenaje vial",
+   "texto": "Pendiente longitudinal de la cuneta",
+   "valor": "0.5 % < i < 2 %",
+   "unidad": "",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 4.1.2, literal c)",
+   "consideracion": "Entre la condición de autolimpieza y la que produciría velocidades erosivas; fuera de ese rango se verifica la velocidad con la Tabla N.° 33.",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_cuneta_longitud",
+   "grupo": "Drenaje vial",
+   "texto": "Longitud máxima de cuneta hasta su alcantarilla de alivio",
+   "valor": "250 / 200",
+   "unidad": "m",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 4.1.2.1, literal d)",
+   "consideracion": "Región seca o poco lluviosa: 250 m como máximo (recorridos mayores se justifican técnicamente); región muy lluviosa: se recomienda reducirla a 200 m. Se adopta 200 m desde 1600 mm/año (región muy lluviosa de la Tabla N.° 34).",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_cuneta_revestimiento",
+   "grupo": "Drenaje vial",
+   "texto": "Revestimiento de la cuneta",
+   "valor": "f'c = 175 kg/cm², e = 0.075 m",
+   "unidad": "",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 4.1.2.1, literal e)",
+   "consideracion": "Se reviste cuando la velocidad supera los límites de la Tabla N.° 33 o el terreno es muy permeable.",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_cuneta_berma",
+   "grupo": "Drenaje vial",
+   "texto": "Berma exterior de recepción entre la cuneta y el pie del talud",
+   "valor": 0.6,
+   "unidad": "m",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 4.1.2.1, literal c)",
+   "consideracion": "Ancho mínimo; recibe la caída de materiales del talud superior.",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_cuneta_h",
+   "grupo": "Drenaje vial",
+   "texto": "Altura de la cuneta triangular en el procedimiento de cálculo",
+   "valor": "< 0.60",
+   "unidad": "m",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 4.1.2.1, literal a)",
+   "consideracion": "En el procedimiento de cálculo: «elijo una altura H, que sea menor a 0.60 m».",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_alc_dmin",
+   "grupo": "Drenaje vial",
+   "texto": "Sección mínima de alcantarilla",
+   "valor": 0.9,
+   "unidad": "m",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 4.1.1.3.4, literal a)",
+   "consideracion": "En carreteras de alto volumen de tránsito, por limpieza y mantenimiento: circular de 0.90 m (36\") o su equivalente; salvo cruces de canales de riego.",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_alc_selva",
+   "grupo": "Drenaje vial",
+   "texto": "Diámetro mínimo de TMC en selva alta",
+   "valor": "48",
+   "unidad": "pulg",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 4.1.1.3.7, literal a)",
+   "consideracion": "Cauces encajonados en V, pendientes de 5 % a 60 %, taludes y lecho granulares erosionables y vegetación arbustiva: flujos de barro con caudal sólido de al menos 2 veces el líquido; diámetro mínimo TMC Ø 48\".",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_alc_borde",
+   "grupo": "Drenaje vial",
+   "texto": "Borde libre de la alcantarilla",
+   "valor": 25,
+   "unidad": "% de la altura",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 4.1.1.3.7, literal b)",
+   "consideracion": "No se diseña a sección llena; como mínimo el 25 % de la altura, diámetro o flecha (tirante ≤ 75 %).",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_alc_vmin",
+   "grupo": "Drenaje vial",
+   "texto": "Velocidad mínima en la alcantarilla",
+   "valor": 0.25,
+   "unidad": "m/s",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 4.1.1.3.6",
+   "consideracion": "Para que no haya sedimentación que reduzca su capacidad hidráulica.",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_alc_manning",
+   "grupo": "Drenaje vial",
+   "texto": "Diseño hidráulico de la alcantarilla",
+   "valor": "V = R^(2/3) S^(1/2) / n",
+   "unidad": "m/s",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 4.1.1.3.6, ecuación 47",
+   "consideracion": "Régimen uniforme (Manning) con el n de la Tabla N.° 09.",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_laushey",
+   "grupo": "Drenaje vial",
+   "texto": "Protección a la salida de la alcantarilla (Laushey)",
+   "valor": "d50 = V² / (3.1 g)",
+   "unidad": "m",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 4.1.1.3.7, literal c), ecuación 49",
+   "consideracion": "Diámetro medio del enrocado de protección según la velocidad a la salida.",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_alc_separacion",
+   "grupo": "Drenaje vial",
+   "texto": "Separación entre tubos de alcantarillas múltiples",
+   "valor": "D/2 (0.40 a 1.00)",
+   "unidad": "m",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 4.1.1.3.4, literal a)",
+   "consideracion": "Medida entre superficies externas: la mitad del diámetro, con 1.0 m como máximo y 0.4 m como mínimo.",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_baden_bl",
+   "grupo": "Drenaje vial",
+   "texto": "Borde libre del badén",
+   "valor": "0.30 a 0.50",
+   "unidad": "m",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 4.1.1.4.1, literal e)",
+   "consideracion": "Entre el nivel del flujo máximo esperado y la superficie de rodadura.",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_baden_pt",
+   "grupo": "Drenaje vial",
+   "texto": "Pendiente transversal del badén",
+   "valor": "2 a 3",
+   "unidad": "%",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 4.1.1.4.1, literal d)",
+   "consideracion": "Para evacuar el material de arrastre; el badén se idealiza como canal trapezoidal en régimen uniforme (4.1.1.4.2).",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_bordillo",
+   "grupo": "Drenaje vial",
+   "texto": "Bordillo en terraplenes",
+   "valor": "base 0.20, corona 0.15, altura 0.40",
+   "unidad": "m",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 4.1.2.5",
+   "consideracion": "En terraplenes de más de 1.5 m; sobresale 0.15 m de la rodadura; aliviaderos cada 50 a 100 m en tangente.",
+   "estado": "verificado"
   }
  ],
  "cuadros": [
@@ -1027,6 +1231,539 @@
     ]
    ],
    "consideracion": "Tabla para efluentes de tanque séptico; para agua de lluvia se toma como mínimo prudente.",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_riesgo_tabla02",
+   "grupo": "Drenaje vial",
+   "titulo": "Valores máximos recomendados de riesgo admisible de obras de drenaje",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 3.6, Tabla N.° 02",
+   "columnas": [
+    "Tipo de obra",
+    "Riesgo admisible (%)",
+    "Vida útil n (años)"
+   ],
+   "filas": [
+    [
+     "Puentes",
+     25,
+     40
+    ],
+    [
+     "Alcantarillas de paso de quebradas importantes y badenes",
+     30,
+     25
+    ],
+    [
+     "Alcantarillas de paso de quebradas menores y descarga de agua de cunetas",
+     35,
+     15
+    ],
+    [
+     "Drenaje de la plataforma (a nivel longitudinal)",
+     40,
+     15
+    ],
+    [
+     "Subdrenes",
+     40,
+     15
+    ],
+    [
+     "Defensas ribereñas",
+     25,
+     40
+    ]
+   ],
+   "consideracion": "T = 1 / (1 − (1 − R)^(1/n)) (ecuación 1). El propietario de la obra define el riesgo admisible y la vida útil.",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_tc_tabla05",
+   "grupo": "Drenaje vial",
+   "titulo": "Fórmulas para el tiempo de concentración",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 3.9, Tabla N.° 05",
+   "columnas": [
+    "Método",
+    "tc (min)",
+    "Datos"
+   ],
+   "filas": [
+    [
+     "Kirpich (1940)",
+     "0.01947 L^0.77 S^−0.385",
+     "L longitud del canal (m); S pendiente media (m/m)"
+    ],
+    [
+     "California Culverts Practice (1942)",
+     "0.0195 (L³/H)^0.385",
+     "L curso más largo (m); H desnivel divisoria-salida (m)"
+    ],
+    [
+     "Federal Aviation Administration (1970)",
+     "0.7035 (1.1 − C) L^0.50 / S^0.333",
+     "C racional; L flujo superficial (m); S (m/m)"
+    ],
+    [
+     "Retardo SCS (1973)",
+     "0.0136 L^0.8 (1000/CN − 9)^0.7 / S^0.5",
+     "L longitud hidráulica (m); CN; S (m/m)"
+    ],
+    [
+     "Témez (numeral 3.12.2.1)",
+     "60 · 0.3 (L/S^0.25)^0.76",
+     "L cauce mayor (km); S (m/m)"
+    ]
+   ],
+   "consideracion": "Kirpich: para flujo superficial en concreto o asfalto se multiplica tc por 0.4 y para canales de concreto por 0.2; sin ajuste para suelo descubierto o cunetas. California es esencialmente la ecuación de Kirpich.",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_C_tabla08",
+   "grupo": "Drenaje vial",
+   "titulo": "Coeficientes de escorrentía, método racional",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 3.12.2, Tabla N.° 08",
+   "columnas": [
+    "Cobertura vegetal",
+    "Tipo de suelo",
+    "> 50 %",
+    "> 20 %",
+    "> 5 %",
+    "> 1 %",
+    "< 1 %"
+   ],
+   "filas": [
+    [
+     "Sin vegetación",
+     "Impermeable",
+     0.8,
+     0.75,
+     0.7,
+     0.65,
+     0.6
+    ],
+    [
+     "Sin vegetación",
+     "Semipermeable",
+     0.7,
+     0.65,
+     0.6,
+     0.55,
+     0.5
+    ],
+    [
+     "Sin vegetación",
+     "Permeable",
+     0.5,
+     0.45,
+     0.4,
+     0.35,
+     0.3
+    ],
+    [
+     "Cultivos",
+     "Impermeable",
+     0.7,
+     0.65,
+     0.6,
+     0.55,
+     0.5
+    ],
+    [
+     "Cultivos",
+     "Semipermeable",
+     0.6,
+     0.55,
+     0.5,
+     0.45,
+     0.4
+    ],
+    [
+     "Cultivos",
+     "Permeable",
+     0.4,
+     0.35,
+     0.3,
+     0.25,
+     0.2
+    ],
+    [
+     "Pastos, vegetación ligera",
+     "Impermeable",
+     0.65,
+     0.6,
+     0.55,
+     0.5,
+     0.45
+    ],
+    [
+     "Pastos, vegetación ligera",
+     "Semipermeable",
+     0.55,
+     0.5,
+     0.45,
+     0.4,
+     0.35
+    ],
+    [
+     "Pastos, vegetación ligera",
+     "Permeable",
+     0.35,
+     0.3,
+     0.25,
+     0.2,
+     0.15
+    ],
+    [
+     "Hierba, grama",
+     "Impermeable",
+     0.6,
+     0.55,
+     0.5,
+     0.45,
+     0.4
+    ],
+    [
+     "Hierba, grama",
+     "Semipermeable",
+     0.5,
+     0.45,
+     0.4,
+     0.35,
+     0.3
+    ],
+    [
+     "Hierba, grama",
+     "Permeable",
+     0.3,
+     0.25,
+     0.2,
+     0.15,
+     0.1
+    ],
+    [
+     "Bosques, densa vegetación",
+     "Impermeable",
+     0.55,
+     0.5,
+     0.45,
+     0.4,
+     0.35
+    ],
+    [
+     "Bosques, densa vegetación",
+     "Semipermeable",
+     0.45,
+     0.4,
+     0.35,
+     0.3,
+     0.25
+    ],
+    [
+     "Bosques, densa vegetación",
+     "Permeable",
+     0.25,
+     0.2,
+     0.15,
+     0.1,
+     0.05
+    ]
+   ],
+   "consideracion": "Columnas por pendiente del terreno: pronunciada (> 50 %), alta (> 20 %), media (> 5 %), suave (> 1 %) y despreciable (< 1 %).",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_n_tabla09",
+   "grupo": "Drenaje vial",
+   "titulo": "Coeficiente de rugosidad de Manning (valores normales usados)",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 4.1.1.3.6, Tabla N.° 09",
+   "columnas": [
+    "Superficie",
+    "n mínimo",
+    "n normal",
+    "n máximo"
+   ],
+   "filas": [
+    [
+     "Metal corrugado, dren para aguas lluvias (TMC)",
+     0.021,
+     0.024,
+     0.03
+    ],
+    [
+     "Concreto, tubo recto y libre de basuras",
+     0.01,
+     0.011,
+     0.013
+    ],
+    [
+     "Canal revestido de concreto afinado con plana",
+     0.011,
+     0.013,
+     0.015
+    ],
+    [
+     "Albañilería de piedra con mortero",
+     0.017,
+     0.025,
+     0.03
+    ],
+    [
+     "Tierra, recto y uniforme, nuevo",
+     0.016,
+     0.018,
+     0.02
+    ]
+   ],
+   "consideracion": "Fuente citada por el MTC: Hidráulica de Canales Abiertos, Ven Te Chow, 1983.",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_K_tabla32",
+   "grupo": "Drenaje vial",
+   "titulo": "Coeficiente de Strickler K (= 1/n) más usado en cunetas",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 4.1.2.1, Tabla N.° 32",
+   "columnas": [
+    "Cuneta",
+    "K",
+    "n = 1/K"
+   ],
+   "filas": [
+    [
+     "Excavada en el terreno",
+     33,
+     0.03
+    ],
+    [
+     "En roca",
+     25,
+     0.04
+    ],
+    [
+     "De concreto",
+     67,
+     0.015
+    ]
+   ],
+   "consideracion": "Fuente citada por el MTC: Ingeniería Vial I, Hugo Morales Sosa.",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_vel_tabla33",
+   "grupo": "Drenaje vial",
+   "titulo": "Velocidades límites admisibles en cunetas",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 4.1.2.1, Tabla N.° 33",
+   "columnas": [
+    "Tipo de superficie",
+    "V mínima del rango (m/s)",
+    "V máxima del rango (m/s)"
+   ],
+   "filas": [
+    [
+     "Arena fina o limo (poca o ninguna arcilla)",
+     0.2,
+     0.6
+    ],
+    [
+     "Arena arcillosa dura, margas duras",
+     0.6,
+     0.9
+    ],
+    [
+     "Terreno parcialmente cubierto de vegetación",
+     0.6,
+     1.2
+    ],
+    [
+     "Arcilla, grava, pizarras blandas con cubierta vegetal",
+     1.2,
+     1.5
+    ],
+    [
+     "Hierba",
+     1.2,
+     1.8
+    ],
+    [
+     "Conglomerado, pizarras duras, rocas blandas",
+     1.4,
+     2.4
+    ],
+    [
+     "Mampostería, rocas duras",
+     3.0,
+     4.5
+    ],
+    [
+     "Concreto",
+     4.5,
+     6.0
+    ]
+   ],
+   "consideracion": "Mampostería y concreto: para flujos de muy corta duración. Se adopta el límite inferior de cada rango, del lado seguro.",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_cuneta_tabla34",
+   "grupo": "Drenaje vial",
+   "titulo": "Dimensiones mínimas de la cuneta triangular",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 4.1.2.1, literal c), Tabla N.° 34",
+   "columnas": [
+    "Región",
+    "Precipitación anual (mm)",
+    "Profundidad d (m)",
+    "Ancho a (m)"
+   ],
+   "filas": [
+    [
+     "Seca",
+     "< 400",
+     0.2,
+     0.5
+    ],
+    [
+     "Lluviosa",
+     "400 a < 1600",
+     0.3,
+     0.75
+    ],
+    [
+     "Muy lluviosa",
+     "1600 a < 3000",
+     0.4,
+     1.2
+    ],
+    [
+     "Muy lluviosa",
+     "> 3000",
+     "0.30 (trapezoidal, fondo ≥ 0.30)",
+     1.2
+    ]
+   ],
+   "consideracion": "El ancho se mide desde el borde de la rasante hasta la vertical del vértice inferior y la profundidad desde el borde de la rasante al fondo (Figura N.° 27).",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_talud_304_12",
+   "grupo": "Drenaje vial",
+   "titulo": "Inclinación máxima del talud interior de la cuneta (V:H)",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 4.1.2.1 (Tabla N.° 304.12 del Manual de Diseño Geométrico DG-2001)",
+   "columnas": [
+    "Velocidad de diseño",
+    "IMDA < 750 veh/día",
+    "IMDA > 750 veh/día"
+   ],
+   "filas": [
+    [
+     "< 70 km/h",
+     "1:2 – 1:3 (*)",
+     "1:3"
+    ],
+    [
+     "> 70 km/h",
+     "1:3",
+     "1:4"
+    ]
+   ],
+   "consideracion": "(*) Sólo en casos muy especiales (en la tabla la nota está junto a 1:2 y 1:3). El talud exterior sigue la inclinación del talud de corte.",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_vel_tabla11",
+   "grupo": "Drenaje vial",
+   "titulo": "Velocidades máximas admisibles en canales no revestidos",
+   "clase": "norma",
+   "fuente": "MTC_HHD",
+   "ref": "numeral 4.1.1.3.6, Tabla N.° 11",
+   "columnas": [
+    "Tipo de terreno",
+    "Flujo intermitente (m/s)",
+    "Flujo permanente (m/s)"
+   ],
+   "filas": [
+    [
+     "Arena fina (no coloidal)",
+     0.75,
+     0.75
+    ],
+    [
+     "Arcilla arenosa (no coloidal)",
+     0.75,
+     0.75
+    ],
+    [
+     "Arcilla limosa (no coloidal)",
+     0.9,
+     0.9
+    ],
+    [
+     "Arcilla fina",
+     1.0,
+     1.0
+    ],
+    [
+     "Ceniza volcánica",
+     1.2,
+     1.0
+    ],
+    [
+     "Grava fina",
+     1.5,
+     1.2
+    ],
+    [
+     "Arcilla dura (coloidal)",
+     1.8,
+     1.4
+    ],
+    [
+     "Material graduado desde arcilla a grava",
+     2.0,
+     1.5
+    ],
+    [
+     "Material graduado desde limo a grava",
+     2.1,
+     1.7
+    ],
+    [
+     "Grava",
+     2.3,
+     1.8
+    ],
+    [
+     "Grava gruesa",
+     2.4,
+     2.0
+    ],
+    [
+     "Desde grava a piedras (< 15 cm)",
+     2.7,
+     2.1
+    ],
+    [
+     "Desde grava a piedras (> 20 cm)",
+     3.0,
+     2.4
+    ]
+   ],
+   "consideracion": "Para la velocidad a la salida de la alcantarilla sobre el cauce natural. Fuente citada por el MTC: Manual de Carreteras de California.",
    "estado": "verificado"
   }
  ]

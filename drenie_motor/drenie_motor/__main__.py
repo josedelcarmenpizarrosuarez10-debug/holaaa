@@ -7,6 +7,7 @@
     python -m drenie_motor capas plano.dxf | crear (JSON por stdin) | vista proyecto.json | ediciones proyecto.json (JSON por stdin)
                            | datos proyecto.json (JSON por stdin) | entregables proyecto.json | abrir proyecto.json [ARCHIVO]
                            (ordenes de la pagina Red de cunetas)
+    python -m drenie_motor ubicacion proyecto.json | pisco | vial [CARPETA]   (JSON por stdin; vial = drenaje vial MTC)
 
 Escribe lectura.json o resultado.json en la carpeta de salida del proyecto y un resumen JSON en la salida estandar.
 Codigo de salida: 0 bien, 2 error de datos, 3 error interno (mensaje en espanol en "error"; el detalle tecnico queda en
@@ -49,7 +50,7 @@ def _entrada():
     return json.loads(datos) if datos else {}
 
 
-ESCRITORIO = {"capas": (1, 1), "crear": (0, 0), "vista": (1, 1), "ediciones": (1, 1), "datos": (1, 1), "entregables": (1, 1), "abrir": (1, 2), "normas": (0, 0), "para_drenie": (1, 1), "ubicacion": (1, 1), "pisco": (0, 0)}
+ESCRITORIO = {"capas": (1, 1), "crear": (0, 0), "vista": (1, 1), "ediciones": (1, 1), "datos": (1, 1), "entregables": (1, 1), "abrir": (1, 2), "normas": (0, 0), "para_drenie": (1, 1), "ubicacion": (1, 1), "pisco": (0, 0), "vial": (0, 1)}
 
 
 def _registrar(cfg_ruta, accion):
@@ -130,6 +131,7 @@ def _escritorio(argv):
         elif a == "para_drenie": out = escritorio.para_drenie(argv[1])
         elif a == "ubicacion": out = escritorio.ubicacion(argv[1], _entrada())
         elif a == "pisco": out = escritorio.pisco(_entrada())
+        elif a == "vial": out = escritorio.vial(_entrada(), argv[1] if len(argv) > 1 else None)
         else: out = escritorio.abrir(argv[1], argv[2] if len(argv) > 2 else None)
     except (ValueError, FileNotFoundError, KeyError) as e:
         _emitir({"error": str(e).strip("'\"") or type(e).__name__, "tipo": "datos"}); return 2
