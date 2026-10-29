@@ -9,9 +9,13 @@ var DV_ICONS = {
   vial_excel: '<rect x="4" y="4" width="20" height="24" rx="2" fill="#DCFCE7" stroke="#0B2545" stroke-width="1.5"/><path d="M9 11l7 9M16 11l-7 9" stroke="#16A34A" stroke-width="2.2"/><path d="M20 22l5 5M25 22v5h-5" stroke="#0B6FC0" stroke-width="1.8"/>'
 };
 Object.keys(DV_ICONS).forEach(function (k) { V3_RIB_ICONS[k] = DV_ICONS[k]; });
-V3_RIB_TABS.splice(V3_RIB_TABS.findIndex(function (t) { return t[0] === 'red'; }) + 1, 0, ['vial', 'DRENAJE VIAL']);
-V3_STEP_TAB[16] = 'vial';
-V3_NAV.splice(V3_NAV.findIndex(function (n) { return n[0] === 15; }) + 1, 0, [16, 'Drenaje vial', 'V', 'profile']);
+// Interruptor: la pestaña queda oculta hasta que el propietario la habilite (cambiar a true y compilar).
+var DV_ACTIVO = false;
+if (DV_ACTIVO) {
+  V3_RIB_TABS.splice(V3_RIB_TABS.findIndex(function (t) { return t[0] === 'red'; }) + 1, 0, ['vial', 'DRENAJE VIAL']);
+  V3_STEP_TAB[16] = 'vial';
+  V3_NAV.splice(V3_NAV.findIndex(function (n) { return n[0] === 15; }) + 1, 0, [16, 'Drenaje vial', 'V', 'profile']);
+}
 (function () {
   var css = '.dv-tabla input,.dv-tabla select{width:100%;min-width:52px;box-sizing:border-box;font:inherit;padding:2px 4px}.dv-tabla select{min-width:104px}' +
     '.dv-tabla td{padding:2px 3px}.dv-tabla th{font-size:11px;white-space:normal}.dv-ok{color:#15803D;font-weight:600}.dv-mal{color:#B91C1C;font-weight:600}' +

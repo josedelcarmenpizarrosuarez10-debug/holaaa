@@ -178,8 +178,10 @@ SENAMHI (va dentro del programa, sin internet), corregida con el factor estació
 SENAMHI de San Martín (1.04 a 1.57; 5 con coordenadas exactas de su ficha). «Cargar en la tabla de lluvias» la pone en la misma tabla que «Importar Excel» y DrenIE
 calcula todo como siempre. Es una serie REFERENCIAL: para el expediente use la serie certificada de la estación más cercana.
 
-Drenaje vial MTC (pestaña DRENAJE VIAL, página 16)
---------------------------------------------------
+Drenaje vial MTC (pestaña DRENAJE VIAL, página 16) – OCULTA POR AHORA
+--------------------------------------------------------------------
+Está programada y probada, pero no se muestra: para habilitarla, en client/v3/mod-zzzg-drenaje-vial.js cambiar
+var DV_ACTIVO = false; a true y volver a compilar.
 Cunetas de carretera, alcantarillas de alivio y de paso de quebradas (TMC o marco de concreto) y badenes según el Manual de
 Hidrología, Hidráulica y Drenaje del MTC (R.D. N.° 20-2011-MTC/14), con la serie de lluvias de la pestaña LLUVIA. Período de
 retorno por riesgo admisible y vida útil (Tabla 02), C de la Tabla 08, tiempos de concentración de la Tabla 05, racional o Témez,
