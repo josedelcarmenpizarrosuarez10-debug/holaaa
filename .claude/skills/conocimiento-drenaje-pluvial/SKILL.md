@@ -23,7 +23,8 @@ capítulo tiene su tabla de correcciones.
 | `conocimiento/08_documentos_del_expediente.md` | Memorias hidrológica, descriptiva y de cálculo (Excel y PDF), análisis estadístico, índice de planos, carátulas, estilos Word | Documentos |
 
 Skills específicos que complementan: `diseno-colector-pluvial`, `planteamiento-cunetas-terreno`, `planos-ordenados`,
-`metrado-cunetas`, `psst-iperc`. La bitácora (`BITACORA_CONVERSACION.md`) sigue siendo el registro fechado; cuando se aprenda
+`metrado-cunetas`, `psst-iperc`, `revision-planos-arquitectura`. Los criterios del motor de DRENIE agregados después del 24-10
+están en `drenie_motor/README.md`. La bitácora (`BITACORA_CONVERSACION.md`) sigue siendo el registro fechado; cuando se aprenda
 algo nuevo, anotarlo en la bitácora **y** en el capítulo que corresponda, y regenerar el manual Word:
 `python3 herramientas/conocimiento_docx.py` -> `conocimiento/MANUAL_TECNICO_DRENAJE_PLUVIAL.docx`.
 

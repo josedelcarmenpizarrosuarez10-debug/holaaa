@@ -39,6 +39,13 @@ Fuentes: `conocimiento/_fuentes/mensajes_usuario.txt` (todos los mensajes del us
 | R21 | Estudios de gestión de riesgos de obra: sin montos en soles ni "observaciones" a documentos ajenos; efectos en % del presupuesto | 16-10 | "esto solo es un estudio de gestión de riesgos durante la ejecución" |
 | R22 | PSST y gestión de riesgos siempre con su matriz (IPERC o matriz de riesgos) en Excel con fórmulas y un Word ordenado con tablas y gráficos; método estándar para cualquier obra en el Perú; cada tema en su carpeta | 17-10 | "debe ser algo estándar para cualquier tipo de proyecto en Perú" |
 | R23 | Revisar a fondo antes de presentar ("revísalo unas 10 veces") y no dejar errores | 03-10, 08-10, 20-10 | "no quiero errores así nuevamente", "ya no quiero estar haciendo el mismo proceso" |
+| R24 | Entidad: Gobierno Regional San Martín – **Gerencia Territorial Bajo Mayo (GTBM)** – Tarapoto. Nunca "Proyecto Especial Huallaga Central y Bajo Mayo" ni "PEHCBM": si aparece en un documento, se borra de todo | 28-10 | "no es el Proyecto Especial Huallaga… eso borra de todo, la entidad es la Gerencia Territorial Bajo Mayo, GTBM" |
+| R25 | El presupuesto de obra lo hace el ingeniero en **Delphin** (no en S10) | 28-10 | "no usa S10, usa Delphin" |
+| R26 | Antes de usar datos (horas-hombre, insumos, metrados, precios) confirmar de qué proyecto son; nunca meter datos de una obra en el archivo de otra | 28-10 | Horas-hombre del CAR Mujeres puestas por error en el PSST de Sauce |
+| R27 | Quitar o cambiar solo lo pedido también en Word y PDF (un encabezado, un pie de página, una frase) y comprobar que el resto quedó idéntico | 28-10 | "no era para que borres todo, solo eso donde salía la fecha… veo que borraste el título" |
+| R28 | Excel para el usuario: sin hojas protegidas, con los decimales completos a la vista, todo con fórmulas y con formato ordenado (amarillo = datos, gris = cálculo, verde = resultado) | 28-10 | "¿por qué el Excel está protegido todo? me redondea decimales"; "está feo el formato… necesito todo con un buen formato" |
+| R29 | Al revisar o corregir un documento, comprobar que nombre, CUI, ubicación y entidad sean de ese proyecto y que no queden textos copiados de otro proyecto | 26-10 | "recuerda, esta memoria es de Refugio Mujeres Violentadas, CUI que termina en 14"; "varios dicen institución educativa… cambia todo" |
+| R30 | Los archivos terminados se adjuntan en el chat para descargarlos; los archivos del usuario en `D:\GTBM\...` se editan en su sitio solo cuando él lo pide | 26-10 | "pásame aquí todos los archivos, no lo copies en carpetas, dame aquí, yo descargo" |
 
 El detalle de cada regla, con sus casos, está en las secciones 2 a 6.
 
@@ -57,7 +64,9 @@ El detalle de cada regla, con sus casos, está en las secciones 2 a 6.
 - Cuando el usuario pide un texto para un tercero (el ingeniero de presupuesto que trabaja en Delphin, la arquitecta),
   entregar **un párrafo corto, claro, en lenguaje sencillo**, listo para copiar ("dame el texto para escribirle al ingeniero
   así en un párrafo, idioma entendible fácil", 06-10; "dame un texto pequeño, párrafo, para mandarle a la arquitecta", 19-10;
-  "dame texto para explicarle bien justificado un precio aproximado para el ing. de presupuesto", 09-10).
+  "dame texto para explicarle bien justificado un precio aproximado para el ing. de presupuesto", 09-10). El 28-10 lo precisó:
+  "en un solo párrafo, tono amigable"; "no le preguntes, solo dile lo que necesitas" → el mensaje pide lo que hace falta, sin
+  preguntas ni explicaciones que el destinatario ya conoce.
 - Preguntas del usuario tipo "¿ya está todo ok sin errores?", "¿todo coincide al milímetro?": responder con la verificación
   hecha (qué se comparó y con qué resultado), no con una afirmación vacía.
 - Responder lo que se pregunta: si pide "analízalo y dime si lo puedes hacer, sí o no; solo eso" (21-10), contestar eso y
@@ -335,6 +344,11 @@ El detalle de cada regla, con sus casos, está en las secciones 2 a 6.
   ELABORACION DE PSST, una general para todo tipo de proyecto". → la carpeta guarda solo el programa general, sin proyectos de
   ejemplo; un PSST de obra se genera solo cuando el usuario lo pide.
 - Detalle del método IPERC en el skill `psst-iperc` y en `PROGRAMA DE ELABORACION DE PSST/README.md`.
+- Presupuesto del PSST de una obra (28-10, PSST del CAR Mujeres): el número de obreros sale de las horas-hombre del presupuesto
+  de obra (Delphin) ÷ (8 h × días por mes × meses del cronograma) y manda sobre el número provisional del presupuesto ("61 es un
+  número de trabajadores asumido provisional… ahora ya tenemos oficial, que es 78"). Solo obreros, EPP uno por obrero, solo
+  insumos que ya están en el presupuesto de obra, cantidades en und / jgo / rll / par y cada cantidad y precio con su sustento.
+  Criterios completos en el skill `psst-iperc` (sección "Presupuesto del PSST").
 
 ---
 
@@ -349,6 +363,16 @@ El detalle de cada regla, con sus casos, está en las secciones 2 a 6.
 | I.E. N.° 0590 Barranquita (Lamas) – planteamiento preliminar de cunetas | – | C.I. N.° 468901 (confirmar si es el CUI) | cunetas 0.60 (muros 0.10, libre 0.40), h inicial 0.30, S 0.5 % | `entregables_barranquita/` | `herramientas/barranquita/` | Planos DC-01 a DC-19 impresos (no regenerar) |
 | Vía SM-107 Tingo de Ponasa – Shamboyacu | – | CUI 2673852 | estudio de gestión de riesgos de obra | `gestion_riesgos/proyectos/SM-107_TINGO_DE_PONASA_SHAMBOYACU/` | `gestion_riesgos/herramientas/` | Entregado (Word, matriz Excel, PR-01/PR-02) |
 | Programa de elaboración de PSST | – | (general) | PSST con matriz IPERC para cualquier obra | `PROGRAMA DE ELABORACION DE PSST/proyectos/<obra>/` | `PROGRAMA DE ELABORACION DE PSST/herramientas/` | Programa general, sin proyectos de ejemplo |
+
+Otros proyectos del usuario cuyos archivos están fuera del repositorio (en `D:\GTBM\...`). Se trabajan sobre sus archivos y sin
+mezclarlos con los de la tabla:
+
+| Proyecto | Código | Archivos del usuario | Trabajo hecho |
+|---|---|---|---|
+| I.E. N.° 292 Ciudad Satélite, La Banda de Shilcayo | CUI 2684251 | `D:\GTBM\SATELITE\Drenaje Pluvial\` (metrado de drenaje); planos de arquitectura en `D:\PROGRAMAS\Conversor_DWG_DXF\DXF_convertidos` | 26-10: hoja METRADO DE TARRAJEO en su metrado (interior de cunetas con rejilla y tapadas, muros y fondo; partida 01.04.03.04.02.05); 28-10: revisión de 42 planos de arquitectura con las 14 indicaciones (skill `revision-planos-arquitectura`) |
+| I.E. N.° 0603 Sauce | CUI 2647660 | `D:\GTBM\SAUCE\DRENAJE FINAL SAUCE\ESTUDIO DE SEGURIDAD Y SALUD EN EL TRABAJO\` | 28-10: explicación de su hoja de cálculo de personal (horas-hombre ÷ 8 h ÷ meses ÷ días por mes, 48 obreros) y Excel aparte "CALCULO DE PERSONAL EN OBRA - SAUCE"; su Excel de seguridad quedó igual al original (se le habían puesto por error las horas del CAR Mujeres y se devolvió) |
+| PSST del CAR Mujeres | CUI 2717013 | `D:\GTBM\ALDEA INFANTIL\WILMA\PLAN DE SEGURIDAD Y SALUD EN EL TRABAJO - MUJERES\` | 28-10: 78 obreros, 10 meses, solo insumos del presupuesto de obra con precios nuevos; total S/ 45,167.72 (Excel, Word del plan y especificaciones iguales) |
+| Evacuación y señalización del CAR Varones y del Hogar de Refugio | CUI 2705619 / 2675514 | `D:\GTBM\ALDEA INFANTIL\KATIUSKA\` y `...\SOLANGE\evacuacion\` | 26-10: metrado desde el DXF, especificaciones, informe de inconsistencias para la arquitecta y memoria del Refugio corregida |
 
 ### 3.2 Nombres oficiales completos (como van en carátulas)
 - **CAR Varones (CUI 2705619)**: "CREACIÓN DEL SERVICIO DE PROTECCIÓN INTEGRAL A NIÑAS, NIÑOS Y ADOLESCENTES SIN CUIDADOS
@@ -792,6 +816,38 @@ Formato: fecha — lo que dijo (resumido, en sus palabras cuando es útil) → l
     caudal, propuestos por el programa, con opción de que el proyectista proponga su dimensionamiento y el programa lo verifique.
     Todo debe ser constructivo: nada de cunetas de 0.20 × 0.20 que no se pueden encofrar ni acabar.
 
+### 26-10 a 28-10-2026 (evacuación y señalización, PSST del CAR Mujeres, revisión de planos de arquitectura)
+- Evacuación y señalización del CAR Varones (26-10): "para las señales sin símbolo en planta, metra con las cantidades de la
+  leyenda del plano". Después: "dame lista de inconsistencias" → "no te estoy diciendo de Satélite, estoy diciéndote de
+  señalización y evacuación" → responder sobre el tema que el usuario está tratando, no sobre otro trabajo del mismo chat.
+  "Pásame eso en un Word entendible para entregarle a la arquitecta" → informe en Word sencillo para un tercero.
+- Archivos (26-10): "pásame aquí todos los archivos, no lo copies en carpetas, dame aquí, yo descargo" (R30). Cuando el archivo
+  del usuario está abierto en Excel no se puede escribir: avisar, esperar a que lo cierre ("ya cerré el Excel, copia los cambios
+  a mi archivo") y aplicar los cambios sobre su versión guardada, con respaldo previo.
+- Memoria de evacuación del Hogar de Refugio (26-10): "recuerda, esta memoria es de Refugio Mujeres Violentadas, CUI que termina
+  en 14"; "varios dicen institución educativa… cambia todo, ya me autorizó la arquitecta, ponle todo según el proyecto" (R29). Se
+  corrigió con control de cambios para que la arquitecta vea cada cambio.
+- PSST (28-10): "no usa S10, usa Delphin" (R25); "¿por qué el Excel está protegido todo? me redondea decimales" (R28); "solo deben
+  salir 78 obreros según las horas… esto manda"; "solo haz para el personal de la imagen, no metas más" (sin personal técnico ni
+  visitas); "¿por qué dos por obrero? ¿quién dice eso?" (EPP uno por obrero, sin reposiciones supuestas); "¿de dónde sacaste estos
+  insumos?… el ing. de presupuesto me preguntará de dónde saqué eso" (cada insumo con sustento); "solo algunas podrías aumentar, no
+  todo, porque el ing. otra vez actualizará su presupuesto"; "borra eso que dice por mes en cantidad, conserva lo que dice jgo o
+  und"; "no compraré esos dos, es muy caro solo para usar de vez en cuando, bórralos"; "no solo es colector, también las
+  edificaciones, todo el proyecto en general" (las cantidades de protección colectiva se sustentan por frente de trabajo de toda la
+  obra); "quita todo insumo nuevo, conserva solo los que ya están en el presupuesto y sus nuevos precios".
+- Entidad (28-10): "no es el Proyecto Especial Huallaga… eso borra de todo, la entidad es la Gerencia Territorial Bajo Mayo, GTBM";
+  "sigue saliendo PEHCBM, borra de todo referencia al proyecto Huallaga" (R24). Revisar también resaltados que queden en el Word
+  ("¿por qué sigue resaltado de amarillo en el Word?").
+- PDF de la memoria de cálculo del CAR Mujeres (28-10): "borra ese encabezado y pie de página que dice Wilma" → "lo hiciste mal,
+  no era para que borres todo, solo eso donde salía la fecha… borraste el título" (R27): se borran solo las líneas pedidas y se
+  compara el texto de todas las páginas con el original.
+- Mensajes para terceros (28-10): "en un solo párrafo, tono amigable"; "no le preguntes, solo dile lo que necesitas".
+- ACU suelto en Excel (28-10, panel de policarbonato del CAR Varones): todo con fórmulas como el Delphin (cuadrilla × 8 h ÷
+  rendimiento, herramientas 5 % de la mano de obra, parciales a 2 decimales) y, si pide "precios reales en Perú", hoja de
+  cotización con tienda, enlace, fecha y precio con IGV y sin IGV (÷ 1.18).
+- Revisión de planos de arquitectura (28-10, I.E. 292 Satélite): el usuario dio acceso a su carpeta de DXF y pegó 14 indicaciones
+  de revisión → skill `revision-planos-arquitectura`.
+
 ---
 
 ## 6. Técnicas de trabajo verificadas
@@ -901,6 +957,8 @@ dejar hojas vacías al abrir en Excel y reescribe estilos. Solución: editar el 
 10. ¿Se informó el impacto en el metrado y en los proyectos vecinos?
 11. ¿Se entregaron todos los archivos afectados (Word, Excel, DXF, PNG) y se actualizó la bitácora?
 12. ¿Commit y push en la rama de trabajo?
+13. ¿Nombre, CUI, ubicación y entidad (GTBM, nunca PEHCBM) son los del proyecto, sin textos que queden de otro proyecto?
+14. ¿Los datos usados (horas-hombre, insumos, precios) son del mismo proyecto del archivo que se entrega?
 
 ---
 
