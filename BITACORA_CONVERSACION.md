@@ -843,3 +843,6 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   M62), E-09 (cuadro "módulo infantil" = almacén deportivo, M51 3, M52 0, M64 = canastilla, K53/K73/K74/K79 agregados). Códigos dobles
   M16 (mesa de corte textil / mesa de trabajo) y M64 (camarote / canastilla) como partidas separadas. Extintores S1 fuera (señalización).
   99 partidas, 1251 und. Para confirmar con Solange: SUM 192 asientos vs 80 del programa, sillas de estudiante en el comedor, E10.
+- Carátulas de arquitectura (Word del usuario con 18 carátulas del CAR Varones: memorias, especificaciones, metrados y planos de
+  arquitectura, evacuación y señalización, mobiliario) pasadas al Hogar de Refugio con `herramientas/caratulas_arquitectura_refugio.py`:
+  nombre del proyecto, CUI 2675514, leyenda y foto de la usuaria (mismo tamaño 1600x900, mismo encuadre); el resto del formato igual.
