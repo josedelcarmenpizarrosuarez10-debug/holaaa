@@ -8,7 +8,8 @@ Cantidades: del plano de señalización de la arquitecta (lee_plano_sr.py -> ent
   - unidad de luces de emergencia: los bloques "LE" y "A$C7A2016C2" son el mismo símbolo ("LE" contiene a "A$C7A2016C2",
     que es el símbolo de la leyenda); se suman los dos;
   - atención riesgo eléctrico: en el DXF es una imagen pegada (OLE) sin ubicación; se metran las 39 imágenes de igual tamaño
-    (0.90 x 1.36 m) del espacio modelo, en la columna "sin ubicar" (la leyenda indica 38).
+    (0.90 x 1.36 m) del espacio modelo (la leyenda indica 38); su reparto por edificación es el del metrado de evacuación de
+    arquitectura (hoja HD), que suma lo mismo; si no sumara igual, van a la columna "sin ubicar".
 Datos que el plano no define y se adoptan aquí (nota de observaciones): extintor PQS tipo ABC de 9 kg (memoria de evacuación
 de arquitectura: 33 extintores PQS de 9 kg), señal de extintor sobre el equipo a 1.80 m, punto ecológico a 1.80 m.
 """
@@ -18,6 +19,8 @@ from collections import OrderedDict
 
 AQUI = os.path.dirname(os.path.abspath(__file__)); RAIZ = os.path.dirname(os.path.dirname(AQUI))
 PLANO = os.path.join(RAIZ, 'entregables/_calc/senalizacion_plano.json')
+# metrado de evacuación de arquitectura (Excel de la usuaria): solo para el reparto por edificación de la señal de riesgo eléctrico
+METRADO_ARQ = os.path.join(RAIZ, 'insumos/solange/senalizacion/METRADOS_EVACUACION_REFUGIO_MUJERES_ok.xlsx')
 SAL = os.path.join(RAIZ, 'entregables')
 
 PROYECTO = ('CREACIÓN DEL SERVICIO DE PROTECCIÓN A MUJERES VÍCTIMAS DE VIOLENCIA EN SITUACIÓN DE RIESGO DE FEMINICIDIO O PELIGRE '
@@ -117,6 +120,22 @@ def ole_senal(P=None):
     return [o for o in P['ole'] if o['propietario'] == '1F' and abs((o['ancho'] or 0) - 0.904) < 0.01 and abs((o['alto'] or 0) - 1.356) < 0.01]
 
 
+def riesgo_por_edificacion():
+    """Reparto por edificación de la señal de riesgo eléctrico en la hoja HD del metrado de arquitectura (partida 03.14.01.04)."""
+    import openpyxl
+    import re
+    if not os.path.exists(METRADO_ARQ):
+        return {}
+    ws = openpyxl.load_workbook(METRADO_ARQ, data_only=True)['HD']; out = {}; dentro_p = False
+    for r in range(14, ws.max_row + 1):
+        b, c = ws.cell(r, 2).value, ws.cell(r, 3).value
+        if b:
+            dentro_p = 'RIESGO ELECTRICO' in str(c).upper()
+        elif dentro_p and isinstance(c, str) and c.upper().startswith('EDIFICACION'):
+            out['E-%02d' % int(re.search(r'\d+', c).group())] = (ws.cell(r, 5).value or 1) * (ws.cell(r, 6).value or 0)
+    return out
+
+
 def partidas(P=None):
     """Partidas en orden, con cantidad por edificación (o sin ubicar), cantidad de la leyenda, diferencia y fuente."""
     P = P or plano()
@@ -134,9 +153,14 @@ def partidas(P=None):
             if g == '05' and clave.startswith('SEÑAL DE UBICACIÓN'):
                 reg['altura_leyenda'] = None                 # la altura de la leyenda es la de la señal, no la del equipo
             if bloques is None:
-                n = len(ole_senal(P))
-                reg.update(por={}, sin_ubicar=n, total=n,
-                           fuente='Imagen pegada en el DXF (sin ubicación): %d imágenes en el espacio modelo; leyenda: %d' % (n, f['cantidad']))
+                n = len(ole_senal(P)); rp = riesgo_por_edificacion()
+                if rp and sum(rp.values()) == n:                 # reparto del metrado de arquitectura con el mismo total
+                    reg.update(por={e: rp.get(e, 0) for e in eds}, sin_ubicar=0, total=n,
+                               fuente='Imagen pegada en el DXF (sin ubicación): %d imágenes en el espacio modelo; reparto por '
+                                      'edificación del metrado de evacuación de arquitectura; leyenda: %d' % (n, f['cantidad']))
+                else:
+                    reg.update(por={}, sin_ubicar=n, total=n,
+                               fuente='Imagen pegada en el DXF (sin ubicación): %d imágenes en el espacio modelo; leyenda: %d' % (n, f['cantidad']))
             else:
                 por = {e: sum(P['bloques'][b]['por_edificacion'].get(e, 0) for b in bloques) for e in eds}
                 tot = sum(P['bloques'][b]['cantidad'] for b in bloques)

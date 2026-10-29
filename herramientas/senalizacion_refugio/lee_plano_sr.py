@@ -7,8 +7,9 @@ tarda 1 a 2 minutos.
 
 Qué se lee (todo del espacio modelo, a escala real, coordenadas UTM):
   - la leyenda (bloque "assas"): símbolo, descripción, altura de instalación y cantidad de cada fila;
-  - cada símbolo de señal dibujado en la planta (posición = centro de su contorno) y la edificación donde cae (contorno del
-    bloque de la planta general de cada edificación, con 0.60 m de margen para las señales de fachada);
+  - cada símbolo de señal dibujado en la planta (posición = centro de su dibujo sin textos) y la edificación donde cae (contorno
+    del bloque de la planta general de cada edificación, con 0.60 m de margen para las señales de fachada; donde los contornos se
+    traslapan en los aleros, la edificación que lo contiene con más holgura);
   - los símbolos de señal que están fuera del terreno (copias sueltas que no se metran);
   - las imágenes pegadas (OLE2FRAME): el DXF solo trae su tamaño, no su posición ni su contenido;
   - el rótulo de la lámina (bloque "WOLSWOSLWOSL") y las presentaciones;
@@ -95,8 +96,34 @@ def anidados(doc, nombres):
     return out
 
 
+def contorno_sin_texto(e, prof=0):
+    """Contorno del dibujo de un bloque sin sus textos (el contorno de un MTEXT se estima ancho y desplaza el centro)."""
+    xs, ys = [], []
+    try:
+        ves = list(e.virtual_entities())
+    except Exception:
+        return None
+    for v in ves:
+        t = v.dxftype()
+        if t in ('TEXT', 'MTEXT', 'ATTRIB', 'ATTDEF'):
+            continue
+        if t == 'INSERT' and prof < 4:
+            c = contorno_sin_texto(v, prof + 1)
+            if c:
+                xs += [c[0], c[2]]; ys += [c[1], c[3]]
+            continue
+        try:
+            b = bbox.extents([v])
+        except Exception:
+            continue
+        if b.has_data:
+            xs += [b.extmin.x, b.extmax.x]; ys += [b.extmin.y, b.extmax.y]
+    return (min(xs), min(ys), max(xs), max(ys)) if xs else None
+
+
 def planta(msp, cache):
-    """Inserciones de tamaño de señal (< 6 m): dentro del terreno y fuera de él."""
+    """Inserciones de tamaño de señal (< 6 m): dentro del terreno y fuera de él. Para los bloques de señal, la posición es el
+    centro del dibujo sin sus textos."""
     dentro_s, fuera = [], []
     for e in msp.query('INSERT'):
         try:
@@ -105,8 +132,11 @@ def planta(msp, cache):
             continue
         if not b.has_data or max(b.size.x, b.size.y) >= 6:
             continue
-        r = dict(bloque=e.dxf.name, capa=e.dxf.layer, x=round(b.center.x, 3), y=round(b.center.y, 3),
-                 w=round(b.size.x, 3), h=round(b.size.y, 3), handle=e.dxf.handle)
+        c = (b.extmin.x, b.extmin.y, b.extmax.x, b.extmax.y)
+        if e.dxf.name in SENALES:
+            c = contorno_sin_texto(e) or c
+        r = dict(bloque=e.dxf.name, capa=e.dxf.layer, x=round((c[0] + c[2]) / 2, 3), y=round((c[1] + c[3]) / 2, 3),
+                 w=round(c[2] - c[0], 3), h=round(c[3] - c[1], 3), handle=e.dxf.handle)
         (dentro_s if dentro((r['x'], r['y']), SITIO) else fuera).append(r)
     return dentro_s, fuera
 
@@ -121,10 +151,15 @@ def edificios(msp, cache):
 
 
 def edificacion_de(x, y, eds, margen=0.60):
-    cand = [e for e in eds if dentro((x, y), e['caja'], margen)]
+    """Edificación cuyo contorno (con un margen para las señales de fachada) contiene el punto. Los contornos de los bloques se
+    traslapan en los aleros: entre varias, la que lo contiene con más holgura (mayor distancia del punto a sus bordes)."""
+    def holgura(e):
+        c = e['caja']
+        return min(x - c[0], c[2] - x, y - c[1], c[3] - y)
+    cand = [e for e in eds if holgura(e) >= -margen]
     if not cand:
         return EXTERIOR
-    return min(cand, key=lambda e: (e['caja'][2] - e['caja'][0]) * (e['caja'][3] - e['caja'][1]))['codigo']
+    return max(cand, key=holgura)['codigo']
 
 
 def ambientes(msp, eds):

@@ -866,3 +866,12 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   77), detectores 67 (leyenda 68: copia suelta fuera del terreno). Población: 113 plazas (programa) + 62 personal + 130 temporales = 305.
   Observaciones (16) y puntos a confirmar en `entregables/revision_interna/REVISION_SENALIZACION_Y_SEGURIDAD_HOGAR_REFUGIO.docx`.
   Falta la lámina SE-E-01 (rutas y zonas de reunión).
+- Señalización Refugio: comparación con el metrado de evacuación de arquitectura de la usuaria (copia en `insumos/solange/senalizacion/
+  METRADOS_EVACUACION_REFUGIO_MUJERES_ok.xlsx`), `herramientas/senalizacion_refugio/compara_metrado_sr.py` ->
+  `entregables/revision_interna/COMPARACION_METRADO_SENALIZACION_HOGAR_REFUGIO.xlsx` (y sección 2 de la nota). Lector corregido: posición =
+  centro del dibujo sin textos (el MTEXT del letrero de aforo desplazaba el centro) y, donde los contornos se traslapan en aleros, la
+  edificación con más holgura; con eso el reparto por edificación de luces, aforo y extintores coincide con el de la usuaria. Bien: salida,
+  zona segura, dirección, riesgo eléctrico (39; su reparto por edificación se toma del metrado de la usuaria), luces 115, aforo, extintor y
+  señal, SS.HH. H/M. Mal: SS.HH. mixtos (HR!E26 enlaza HD!K107 en vez de K112 -> 0; HD 19, plano 20 con la garita), detector 66 (plano 67,
+  garita), SS.HH. discapacitados (3, pero la tercera es E-06, no E-05), botiquín 9 (no está en el plano), pintura zona segura 13 x 1.96 m²
+  (sin sustento en SE-S-02; falta SE-E-01), falta punto ecológico (4); título repetido HD 134-135, fechas 2025/2026, Hoja1 de otro proyecto.

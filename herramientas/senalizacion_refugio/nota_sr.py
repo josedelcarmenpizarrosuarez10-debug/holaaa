@@ -50,8 +50,9 @@ def observaciones(P):
          'superior a no más de 1.50 m (NTP 350.043-1) y la señal va encima del equipo, de modo que a 1.20 m quedaría tapada.',
          'Corregir la altura a 1.80 m (borde inferior de la señal), la adoptada en el metrado y las especificaciones.'),
         ('Unidad de luces de emergencia', 'La leyenda indica 77, que son los bloques “LE”; además hay 38 bloques “A$C7A2016C2” con el '
-         'mismo dibujo (es el símbolo de la leyenda y el bloque “LE” lo contiene), casi todos en las habitaciones (E-06: 10, E-07: '
-         '15, E-08: 10, E-05: 2, E-02: 1). Total dibujado: %d.' % pts['UNIDAD DE LUCES']['total'],
+         'mismo dibujo (es el símbolo de la leyenda y el bloque “LE” lo contiene), casi todos en las habitaciones (%s). Total '
+         'dibujado: %d.' % (', '.join('%s: %d' % kv for kv in sorted(P['bloques']['A$C7A2016C2']['por_edificacion'].items())),
+                            pts['UNIDAD DE LUCES']['total']),
          'Corregir la leyenda a %d (se metran todas las dibujadas) y usar un solo nombre de bloque.' % pts['UNIDAD DE LUCES']['total']),
         ('Detector de humo', 'La leyenda indica 68; dentro del terreno hay %d. La copia restante está suelta fuera del dibujo, en '
          'E %.1f N %.1f (coordenadas del doble de las del terreno), y no se metra.' % (pts['DETECTOR DE HUMO']['total'], dt[0][0], dt[0][1]),
@@ -108,8 +109,9 @@ def generar():
           9, color=R.GRIS, centro=True, despues=10)
     n_ole = len(D.ole_senal(P))
     M.par('Se leyó el DXF del plano de señalización de la arquitecta (292 MB): la leyenda de 27 filas, cada símbolo de señal dibujado '
-          'en la planta (posición = centro de su contorno) y la edificación donde cae (contorno del bloque de cada edificación de la '
-          'planta general, con 0.60 m de margen), los símbolos fuera del terreno, las imágenes pegadas (%d de la señal de riesgo '
+          'en la planta (posición = centro de su dibujo sin textos) y la edificación donde cae (contorno del bloque de cada '
+          'edificación de la planta general, con 0.60 m de margen; donde los contornos se traslapan en los aleros, la que lo '
+          'contiene con más holgura), los símbolos fuera del terreno, las imágenes pegadas (%d de la señal de riesgo '
           'eléctrico) y el rótulo. Se revisó que no hubiera símbolos superpuestos (ninguno a menos de 0.10 m de otro igual) y que la '
           'presentación A1 muestre la planta a escala 1/150. El metrado toma lo dibujado en la planta; donde la leyenda no coincide, '
           'se corrige la leyenda.' % n_ole)
@@ -133,12 +135,50 @@ def generar():
           'temperatura, pozo a tierra, central y panel de alarma y zona de reuniones) están en 00 y no tienen símbolos en la planta: '
           'no se metran.', despues=4)
 
-    sec('2. OBSERVACIONES QUE SE DEBEN CORREGIR EN EL PLANO')
+    sec('2. COMPARACIÓN CON EL METRADO DE EVACUACIÓN DE ARQUITECTURA')
+    import compara_metrado_sr as CM
+    _, res, det, errs = CM.generar()
+    pts_c = {p['clave']: p for p in pts if p['und']}
+    pts_c['EXTINTOR'] = next(p for p in pts if p['und'] and p['desc'].startswith('EXTINTOR DE'))
+    filas = []
+    for x in res:
+        k = CM.clave(x['desc'])
+        pl = pts_c[k]['total'] if k else 0
+        hd = det.get(x['item'], {}).get('total')
+        ok = (x['total'] == pl and hd == pl)
+        t = x['desc'].replace('SUMINISTRO Y COLOCACION DE ', '').capitalize()
+        for a, b in (('ss.hh', 'SS.HH.'), ('pqs', 'PQS'), ('kg', 'kg'), ('e=10cm', 'e = 10 cm'), ('electrico', 'eléctrico'),
+                     ('botiquin', 'botiquín')):
+            t = t.replace(a, b)
+        reparto = k == 'SEÑALES DE SERVICIOS HIGIENICOS PHD'
+        filas.append([x['item'], t, x['total'], hd, pl, 'revisar reparto' if (ok and reparto) else ('bien' if ok else 'revisar')])
+    filas.append(['—', '(no está) Señal de punto ecológico', 0, 0, pts_c['PUNTO ECOL']['total'], 'revisar'])
+    MS.tabla(M, 'Metrado de evacuación de arquitectura (HR y HD) y plano', ['ITEM', 'PARTIDA', 'HR', 'HD', 'PLANO', 'RESULTADO'], filas,
+             [2.2, W - 10.2, 1.8, 1.8, 2.0, 2.4], tam=8, izq=(1,),
+             colores={(i, 5): ('E2EFDA' if f_[5] == 'bien' else 'F8CBAD') for i, f_ in enumerate(filas)})
+    M.par('Están bien (total y reparto por edificación iguales a la planta): salida, zona segura, dirección de evacuación, aforo, '
+          'señal de extintor y extintor PQS de 9 kg, luces de emergencia, SS.HH. hombres y mujeres, y riesgo eléctrico (total igual a '
+          'las 39 imágenes; su reparto no se puede comprobar en el DXF y se toma el de ese metrado). Hay que corregir:', despues=3)
+    MS.vines(M, ['SS.HH. mixtos: en HR sale 0 porque la celda E26 enlaza a HD!K107 (vacía) en vez de HD!K112; además el desagregado '
+                 'suma 19 y en el plano hay 20 (falta la de la garita de control, junto al ingreso).',
+                 'Detector de humo: 66; en el plano hay 67 (falta el de la garita de control).',
+                 'SS.HH. discapacitados: el total (3) está bien, pero la tercera señal está en E-06 (junto al baño accesible de las '
+                 'habitaciones), no en E-05.',
+                 'Señal de botiquín: 9 (una por edificación), pero el plano no tiene ninguna (fila de la leyenda en 00): o se dibujan en la '
+                 'planta o se retira la partida.',
+                 'Pintura de zona segura: 13 zonas de 1.96 m² (círculo de 4.30 m de diámetro con línea de 0.15 m) = 25.48 m²; el plano de '
+                 'señalización no tiene zonas de reunión: el número de zonas debe salir de la lámina %s, que no se ha recibido.' % D.LAMINA_E[0],
+                 'Falta la partida de la señal de punto ecológico: 4 en los exteriores.',
+                 'Del archivo: título “PINTADO DE ZONA SEGURA” repetido (HD filas 134 y 135); fechas distintas (HR 01/09/2026, HD '
+                 '01/09/2025); “SEÑAL DEDIRECCIÓN”; la hoja “Hoja1” es un cuadro de equipamiento de aulas de otro proyecto.'])
+    M.par('El detalle por partida y por edificación, con fórmulas, está en el Excel de comparación de esta misma carpeta.', despues=4)
+
+    sec('3. OBSERVACIONES QUE SE DEBEN CORREGIR EN EL PLANO')
     MS.tabla(M, 'Observaciones al plano de señalización', ['N.°', 'TEMA', 'OBSERVACIÓN', 'CORRECCIÓN'],
              [[k, a, b, c] for k, (a, b, c) in enumerate(observaciones(P), 1)], [0.9, 2.8, (W - 3.7) * 0.55, (W - 3.7) * 0.45],
              tam=8, izq=(1, 2, 3))
 
-    sec('3. PARA CONFIRMAR CON LA ARQUITECTA')
+    sec('4. PARA CONFIRMAR CON LA ARQUITECTA')
     MS.tabla(M, 'Puntos para confirmar', ['TEMA', 'QUÉ CONFIRMAR', 'POR QUÉ'], [
         ['Extintor de la cocina', 'La cocina (E-05) solo tiene extintores PQS; la leyenda tiene la fila de extintor clase K en 00.',
          'Para fuegos de aceites y grasas de cocina conviene un extintor clase K; si se agrega, dibujarlo y metrarlo.'],
@@ -146,14 +186,15 @@ def generar():
          'conviene señalizarlo.'],
         ['Braille en señales altas', 'Salida, dirección de evacuación y aforo van a 2.10 m, fuera del alcance de la mano.',
          'Para que el braille sea útil, su placa puede ir en el muro junto a la puerta, a una altura accesible.'],
-        ['Garita', 'En exteriores, al sur de la administración, hay una señal de SS.HH. mixto y un detector de humo.',
-         'Se asumen en la garita de control con su SS.HH.; confirmar.'],
+        ['Luces de emergencia', 'El metrado de evacuación de arquitectura las mide como “señal de luces de emergencia”; el metrado '
+         'de señalización, como unidad de luces de emergencia (equipo).', 'Definir si el equipo va en instalaciones eléctricas, para '
+         'no duplicarlo ni dejarlo sin metrar.'],
         ['Habitaciones', 'Los rótulos de ambientes de la planta suman 24 habitaciones (4 “simple tipo 2”); el programa tiene 23 (3 '
          'simples tipo II).', 'Revisar si un rótulo está repetido; la población se tomó del programa (113 plazas).'],
     ], [3.0, 7.2, W - 10.2], tam=8.5, izq=(0, 1, 2))
 
     d.add_page_break()
-    sec('4. SÍMBOLOS CONTADOS EN LA PLANTA')
+    sec('5. SÍMBOLOS CONTADOS EN LA PLANTA')
     M.par('Cada círculo de color marca un símbolo contado en el metrado (las señales de riesgo eléctrico no se pueden marcar porque '
           'el DXF no trae su posición):', despues=4)
     MS.figura(M, os.path.join(FIG, 'conteo.png'), 'Símbolos contados en la planta de la lámina %s' % LS, 14.5, 'Fuente: plano de señalización de la arquitecta.')
