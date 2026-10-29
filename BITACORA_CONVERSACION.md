@@ -828,3 +828,6 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   circulación + 15 % muros (2,803.64 vs 2,607.97), rótulo "área construida (interior)", 7 SS.HH. para 10 habitaciones dobles, R.V.M. 010-2022
   vs 068-2025, Polvoraico/Polvorico, zonificación, servicios de apoyo, fecha de imágenes.
   `CV.reemplazar` ahora solo toca los runs del texto cambiado (antes duplicaba el texto de hipervínculos); Varones regenerado, texto idéntico.
+- Pedido: carátula en guinda con otra forma, 4 opciones en un Word con vista previa. `herramientas/varones/caratulas_opciones_v.py` (contenido de
+  `caratulas_v.py`, ejemplo "MEMORIA DESCRIPTIVA"): 1 banda lateral guinda, 2 franjas superior e inferior, 3 marco clásico (borde de página doble),
+  4 bloques; página 1 con el mosaico (render LibreOffice) y PNG por opción en `entregables_varones/figuras_caratula/`. Falta que elija una.
