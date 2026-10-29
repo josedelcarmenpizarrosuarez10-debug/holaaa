@@ -4,7 +4,7 @@ el plano de señalización del Hogar de Refugio Temporal (CUI 2675514) y con el 
 
 Lee el Excel de la usuaria sin modificarlo (insumos/solange/senalizacion/METRADOS_EVACUACION_REFUGIO_MUJERES_ok.xlsx): partidas
 de la hoja HR (total que pasa al presupuesto, con la celda que enlaza), desagregado por edificación de la hoja HD y fórmulas.
-Salida (documento de trabajo): entregables/revision_interna/COMPARACION_METRADO_SENALIZACION_HOGAR_REFUGIO.xlsx con las hojas
+Salida (documento de trabajo): entregables/revision_interna/COMPARACION_METRADO_EVACUACION_Y_SENALIZACION_HOGAR_REFUGIO.xlsx con las hojas
 COMPARACIÓN (por partida, con fórmulas de diferencia), POR EDIFICACIÓN y ERRORES DEL ARCHIVO.
 
 Uso: python3 herramientas/senalizacion_refugio/compara_metrado_sr.py
@@ -26,11 +26,11 @@ MS.D = D
 celda, cabecera, impresion = MS.celda, MS.cabecera, MS.impresion
 GRANATE, ROSA, GRIS, IZQ = MS.GRANATE, MS.ROSA, MS.GRIS, MS.IZQ
 ENT = os.path.join(RAIZ, 'insumos/solange/senalizacion/METRADOS_EVACUACION_REFUGIO_MUJERES_ok.xlsx')
-SALIDA = os.path.join(D.SAL, 'revision_interna/COMPARACION_METRADO_SENALIZACION_HOGAR_REFUGIO.xlsx')
+SALIDA = os.path.join(D.SAL, 'revision_interna/COMPARACION_METRADO_EVACUACION_Y_SENALIZACION_HOGAR_REFUGIO.xlsx')
 VERDE, ROJO = 'E2EFDA', 'F8CBAD'
 
 # palabra de la partida de la usuaria -> clave de la partida propia (None = no está en el plano)
-EQUIV = [('PINTURA ZONA SEGURA', None), ('SEÑAL DE SALIDA', 'SALIDA CON'), ('ZONA SEGURA', 'ZONA SEGURA EN'), ('DIRECCIÓN', 'DIRECCIÓN DE EVACUACIÓN'),
+EQUIV = [('PINTURA ZONA SEGURA', 'ZONA DE REUNI'), ('SEÑAL DE SALIDA', 'SALIDA CON'), ('ZONA SEGURA', 'ZONA SEGURA EN'), ('DIRECCIÓN', 'DIRECCIÓN DE EVACUACIÓN'),
          ('RIESGO ELECTRICO', 'ATENCIÓN RIESGO'), ('LUCES DE EMERGENCIA', 'UNIDAD DE LUCES'), ('AFORO', 'LETRERO DE AFORO'),
          ('SEÑAL DE EXTINTOR', 'SEÑAL DE UBICACIÓN DE EXTINTOR PQS'), ('BOTIQUIN', None),
          ('SS.HH HOMBRES', 'SEÑALES DE SERVICIOS HIGIENICOS VAR'), ('SS.HH MUJERES', 'SEÑALES DE SERVICIOS HIGIENICOS MUJER'),
@@ -89,6 +89,10 @@ def errores(resumen, det, v, f):
             t = next((c.value for row in ws.iter_rows(max_row=10) for c in row if isinstance(c.value, str) and len(c.value) > 20), '')
             out.append(('Hoja %s' % ws.title, 'Hoja de otro proyecto: “%s...”.' % t[:90], 'Retirar la hoja del metrado del hogar.'))
     for x in resumen:
+        if re.search(r'E\s*=\s*10\s*CM', x['desc'].upper()):
+            out.append(('HR!C%d' % x['fila'], 'La partida “%s” indica una línea de 10 cm, pero el plano de evacuación tiene una línea de '
+                        '0.15 m (anillo de 2.15 a 2.00 m de radio) y el área usada, 1.96 m² por zona, es la de 0.15 m.' % x['desc'],
+                        'Corregir la descripción a E = 15 cm.'))
         if 'DEDIRECCI' in x['desc'].replace(' ', '') and 'DE DIRECCI' not in x['desc']:
             out.append(('HR!C%d' % x['fila'], 'Texto “%s”.' % x['desc'], 'Corregir a “SEÑAL DE DIRECCIÓN DE EVACUACIÓN”.'))
     return out
@@ -115,6 +119,10 @@ def generar():
                                                'habitaciones), no en E-05 (hoja POR EDIFICACIÓN).',
         'DETECTOR DE HUMO': 'Falta el detector de la garita de control: son 67 (la leyenda dice 68 por una copia suelta fuera del dibujo).',
         'EXTINTOR': 'Conforme: un extintor PQS de 9 kg por cada señal de extintor.',
+        'ZONA DE REUNI': 'Conforme con la lámina SE-E-01: 13 zonas de 4.30 m de diámetro con anillo de 0.15 m. El área exacta de cada '
+                         'anillo es π x (2.15² - 2.00²) = 1.9556 m² y 13 x 1.9556 = 25.42 m²; con el área redondeada a 1.96 m² sale '
+                         '25.48 m² (0.06 m² más, solo por redondeo). La descripción dice "E=10CM", pero el plano y el área de 1.96 m² '
+                         'son de una línea de 0.15 m (con 0.10 m serían 1.32 m² por zona): corregir a E = 15 cm.',
         None: '',
     }
     wb = openpyxl.Workbook(); ws = wb.active; ws.title = 'COMPARACIÓN'
@@ -125,11 +133,7 @@ def generar():
     r += 1; r0 = r; usadas = set()
     for x in resumen:
         k = clave(x['desc']); usadas.add(k)
-        if k is None and 'PINTURA' in x['desc'].upper():
-            plano, obs = 0, ('El plano %s no tiene zonas de reunión (la fila "zona de reuniones" de la leyenda está en 00). Las 13 zonas '
-                             'de 1.96 m² (círculo de 4.30 m de diámetro y línea de 0.15 m: π x (2.15² - 2.00²) = 1.96 m²) no tienen sustento '
-                             'en los planos recibidos: se necesita la lámina %s.' % (D.LS, D.LAMINA_E[0]))
-        elif k is None:
+        if k is None:
             plano, obs = 0, ('El plano no tiene señales de botiquín (la fila de la leyenda está en 00). Si se quieren las 9 (una por '
                              'edificación), hay que dibujarlas en la planta; si no, retirar la partida.')
         else:
@@ -139,7 +143,7 @@ def generar():
         celda(ws, r, 5, det.get(x['item'], {}).get('total'), fmt='0.00' if x['und'].upper() == 'M2' else '0')
         celda(ws, r, 6, plano, True, ROSA, fmt='0.00' if x['und'].upper() == 'M2' else '0')
         celda(ws, r, 7, '=F%d-D%d' % (r, r), fmt='+0.00;-0.00;0' if x['und'].upper() == 'M2' else '+0;-0;0')
-        celda(ws, r, 8, '=IF(AND(D%d=F%d,E%d=F%d),"BIEN","REVISAR")' % (r, r, r, r), True)
+        celda(ws, r, 8, '=IF(AND(ABS(D%d-F%d)<0.1,ABS(E%d-F%d)<0.1),"BIEN","REVISAR")' % (r, r, r, r), True)
         celda(ws, r, 9, obs, al=IZQ, size=8)
         ws.row_dimensions[r].height = max(24, 12 * (len(obs) // 70 + 1))
         r += 1
@@ -166,7 +170,7 @@ def generar():
     r += 1
     for x in resumen:
         k = clave(x['desc'])
-        if k is None or x['item'] not in det:
+        if k in (None, 'ZONA DE REUNI') or x['item'] not in det:
             continue
         p = pts[k]
         fu = det[x['item']]['por']

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Memoria descriptiva de señalización y seguridad - Hogar de Refugio Temporal "Mujeres Violentadas" (CUI 2675514), en Word.
+"""Memoria descriptiva de evacuación y señalización - Hogar de Refugio Temporal "Mujeres Violentadas" (CUI 2675514), en Word.
 
 Estructura de la memoria de evacuación y señalización de arquitectura del hogar y de la del CAR Varones (memoria_se.py), con
 los datos de este hogar: generalidades, descripción del hogar con los ambientes de cada edificación leídos del plano, componentes
@@ -13,7 +13,7 @@ Datos: plano de señalización de la arquitecta (lee_plano_sr.py), cantidades de
 señales (senales_sr.py) y vistas de la planta (vistas_sr.py).
 
 Uso: python3 herramientas/senalizacion_refugio/memoria_sr.py
-Salida: entregables/MEMORIA_DESCRIPTIVA_SENALIZACION_Y_SEGURIDAD_HOGAR_REFUGIO.docx
+Salida: entregables/MEMORIA_DESCRIPTIVA_EVACUACION_Y_SENALIZACION_HOGAR_REFUGIO.docx
 """
 import os
 import re
@@ -37,7 +37,7 @@ import memoria_se as MS  # noqa: E402  (tablas, figuras, viñetas y encabezado d
 V = CR.V
 MS.D = D                                                     # encabezado con el nombre y el CUI del hogar
 tabla, figura, sub, vines, etiq = MS.tabla, MS.figura, MS.sub, MS.vines, MS.etiq
-SALIDA = os.path.join(D.SAL, 'MEMORIA_DESCRIPTIVA_SENALIZACION_Y_SEGURIDAD_HOGAR_REFUGIO.docx')
+SALIDA = os.path.join(D.SAL, 'MEMORIA_DESCRIPTIVA_EVACUACION_Y_SENALIZACION_HOGAR_REFUGIO.docx')
 FIG = os.path.join(D.SAL, 'figuras_senalizacion')
 MAPAS = os.path.join(RAIZ, 'insumos/katiuska/senalizacion/mapas')      # mapas de ubicación del Perú, la región y la provincia
 UTM = (345690, 9282804)                      # frente del predio (UTM WGS 84 18 S, referencial; memoria de evacuación de arquitectura)
@@ -135,7 +135,7 @@ def generar():
     V.FECHA = 'OCTUBRE - 2026'                                   # la del plano de señalización (y de las especificaciones)
     foto = V.foto(); V.escudo()
     V.caratula(M.d, foto, 'MEMORIA DESCRIPTIVA', D.ESPECIALIDAD)
-    MS.encabezado(M, 'MEMORIA DESCRIPTIVA - SEÑALIZACIÓN Y SEGURIDAD')
+    MS.encabezado(M, 'MEMORIA DESCRIPTIVA - EVACUACIÓN Y SEÑALIZACIÓN')
     R.indice(M)
     W = M.ancho
 
@@ -215,7 +215,7 @@ def generar():
               '(código de seguridad humana).'])
     M.t2('Alcance y documentos')
     M.par('Comprende las nueve edificaciones del hogar (E-01 a E-09) y los exteriores (garita de control, patios, estacionamientos y '
-          'circulaciones). Las cantidades son las del metrado de señalización y seguridad, que cuenta cada símbolo dibujado en la '
+          'circulaciones). Las cantidades son las del metrado de evacuación y señalización, que cuenta cada símbolo dibujado en la '
           'planta de la lámina %s; las características de cada partida se detallan en las especificaciones técnicas de la '
           'especialidad.' % LS)
 
@@ -292,9 +292,9 @@ def generar():
     M.t2('Planos del sistema de seguridad')
     vines(M, ['Lámina %s, %s (escala %s): ubicación de cada señal y equipo de seguridad en las nueve edificaciones y en exteriores, '
               'con la leyenda de símbolos, alturas y cantidades.' % (LS, D.LAMINA_S[1].lower(), D.LAMINA_S[2]),
-              'Lámina %s, %s (escala %s): rutas de evacuación, zonas de reunión exteriores e instrucciones en caso de evacuación.' % D.LAMINA_E])
-    M.par('Forman parte de este plan la población y la ocupación del hogar, el metrado y las especificaciones técnicas de señalización '
-          'y seguridad.')
+              'Lámina %s, %s (escala %s): %d rutas de evacuación con su longitud y %d zonas de evacuación exteriores con su aforo.' % (D.LAMINA_E + (len(D.rutas()), len(D.zonas())))])
+    M.par('Forman parte de este plan la población y la ocupación del hogar, el metrado y las especificaciones técnicas de evacuación '
+          'y señalización.')
 
     # ================================================================== 4 OCUPACIÓN
     M.t1('DENSIDAD DE OCUPACIÓN Y AFORO')
@@ -348,7 +348,7 @@ def generar():
     M.t2('Criterios de diseño')
     vines(M, ['Evacuación horizontal: todas las edificaciones son de un nivel y cada ambiente sale directamente al exterior.',
               'Las rutas van por las circulaciones exteriores y los patios, sin cruzar zonas de riesgo (cocina, subestación, grupo '
-              'electrógeno, tanque elevado ni PTAR), y terminan en las zonas de reunión exteriores de la lámina %s.' % D.LAMINA_E[0],
+              'electrógeno, tanque elevado ni PTAR), y terminan en las zonas de evacuación exteriores de la lámina %s.' % D.LAMINA_E[0],
               'El recorrido desde la puerta más alejada hasta un lugar seguro no supera %.0f m, distancia máxima de recorrido en '
               'edificaciones sin rociadores (Norma A.130).' % D.D_MAX,
               'Las puertas de los ambientes de mayor ocupación abren en el sentido de la evacuación y no se cierran con llave mientras '
@@ -365,17 +365,49 @@ def generar():
     vines(M, ['Habitaciones de las residentes: puerta de acceso y salida de 1.20 m; puertas de servicios higiénicos de 1.00 m.',
               'Zona administrativa: puertas de acceso de 1.00 m, incluidas las de los servicios higiénicos para personas con discapacidad.',
               'Pasajes de circulación: 1.20 m de ancho libre como mínimo.'])
+    M.t2('Rutas de evacuación')
+    rts = D.rutas(); E = D.evac()
+    from collections import Counter
+    cr = Counter(r['ed'] for r in rts)
+    M.par('La lámina %s define %d rutas de evacuación, numeradas de la RUTA 01 a la RUTA %02d, cada una con su longitud, desde la puerta '
+          'de cada ambiente (punto de partida señalado en la planta) hasta una zona de evacuación exterior. Todas son horizontales, '
+          'por las circulaciones exteriores techadas y los patios, y miden entre %.2f m y %.2f m: ninguna supera el recorrido máximo de '
+          '%.0f m de la Norma A.130.' % (D.LAMINA_E[0], len(rts), len(rts), min(r['L'] for r in rts), max(r['L'] for r in rts), D.D_MAX))
+    filas = []
+    for cod, nombre in eds:
+        rr = [r for r in rts if r['ed'] == cod]
+        if rr:
+            filas.append([cod, nombre, len(rr), '%.2f' % min(r['L'] for r in rr), '%.2f' % max(r['L'] for r in rr)])
+    filas.append(['TOTAL', '', len(rts), '%.2f' % min(r['L'] for r in rts), '%.2f' % max(r['L'] for r in rts)])
+    tabla(M, 'Rutas de evacuación por edificación (lámina %s)' % D.LAMINA_E[0], ['CÓDIGO', 'EDIFICACIÓN', 'RUTAS', 'L MÍN. (m)', 'L MÁX. (m)'],
+          filas, [1.8, W - 9.0, 2.2, 2.5, 2.5], izq=(1,), colores={(len(filas) - 1, k): ROSA for k in range(5)})
     M.t2('Tiempos de evacuación')
-    M.par('Conforme al artículo 25 de la Norma A.130, el cálculo del tiempo de evacuación es referencial. Con un recorrido máximo de '
-          '%.0f m y una velocidad de marcha de 0.60 m/s, propia de grupos con niñas y niños pequeños o personas con movilidad reducida, '
-          'el desplazamiento hasta un lugar seguro toma alrededor de %.0f s.' % (D.D_MAX, D.D_MAX / 0.60))
+    M.par('Conforme al artículo 25 de la Norma A.130, el cálculo del tiempo de evacuación es referencial. El tiempo de desplazamiento '
+          'es la longitud de la ruta entre la velocidad de marcha: %.2f m/s para grupos con niñas y niños pequeños o personas con '
+          'movilidad reducida y %.2f m/s para adultos. La ruta más larga, de %.2f m, se recorre en %.0f s a la velocidad más baja: toda la '
+          'población puede alcanzar una zona de evacuación en poco más de un minuto.' % (D.V_EVAC[0], D.V_EVAC[1], max(r['L'] for r in rts),
+                                                                                        max(r['L'] for r in rts) / D.V_EVAC[0]))
+    filas = [['RUTA %02d' % r['n'], r['ed'], '%.2f' % r['L'], '%.0f' % r['t1'], '%.0f' % r['t2'], 'cumple' if r['cumple'] else 'no cumple']
+             for r in rts]
+    tabla(M, 'Rutas de evacuación: longitud y tiempo de desplazamiento (referencial)', ['RUTA', 'ORIGEN', 'L (m)',
+          't a %.2f m/s (s)' % D.V_EVAC[0], 't a %.2f m/s (s)' % D.V_EVAC[1], 'L ≤ 45 m'], filas, [2.4, 2.2, 2.2, 3.0, 3.0, W - 12.8], tam=8)
     M.t2('Zonas seguras internas')
     M.par('Dentro de los ambientes se señalizan %d zonas seguras en caso de sismo (junto a columnas y muros estructurales, lejos de '
           'ventanas y de mobiliario que pueda caer), para el repliegue durante el movimiento cuando no es posible salir de inmediato.'
           % q['ZONA SEGURA EN'])
-    M.t2('Zonas de reunión exteriores')
-    M.par('Al final de las rutas, las personas se concentran en las zonas de reunión exteriores de la lámina %s, en los patios y áreas '
-          'abiertas del predio, lejos de fachadas, cables, árboles, del tanque elevado y de elementos que puedan caer.' % D.LAMINA_E[0])
+    M.t2('Zonas de evacuación exteriores')
+    zs = D.zonas(); re_, ri_ = D.radios(); a = D.area_zona()
+    M.par('Al final de las rutas se ubican %d zonas de evacuación en caso de emergencia, pintadas en el piso de concreto de los patios y '
+          'áreas abiertas como un anillo amarillo de %.2f m de diámetro exterior y %.2f m de ancho, lejos de fachadas, cables, árboles, '
+          'del tanque elevado y de elementos que puedan caer. La lámina %s indica el aforo de cada zona; en conjunto reciben %d '
+          'personas.' % (len(zs), 2 * re_, re_ - ri_, D.LAMINA_E[0], sum(z['aforo'] for z in zs)))
+    tabla(M, 'Zonas de evacuación en caso de emergencia (lámina %s)' % D.LAMINA_E[0], ['ZONA', 'UBICACIÓN (edificación más cercana)',
+          'AFORO (personas)', 'ÁREA PINTADA (m²)'],
+          [[z['numero'], '%s %s' % (z['cerca'], D.EDIFICACIONES[z['cerca']]), z['aforo'], '%.2f' % a] for z in zs] +
+          [['TOTAL', '', sum(z['aforo'] for z in zs), '%.2f' % (len(zs) * a)]], [1.6, W - 8.2, 3.2, 3.4], tam=8.5, izq=(1,),
+          colores={(len(zs), k): ROSA for k in range(4)})
+    figura(M, os.path.join(FIG, 'planta_evacuacion.png'), 'Planta general de evacuación (lámina %s)' % D.LAMINA_E[0], 12.5,
+           'Fuente: Lámina %s del expediente de arquitectura.' % D.LAMINA_E[0])
 
     # ================================================================== 6 ORGANIZACIÓN PARA EMERGENCIAS
     M.t1('ORGANIZACIÓN PARA EMERGENCIAS')
@@ -445,12 +477,12 @@ def generar():
         ['Primeros auxilios', 'Personal del tópico, psicología y asistencia social', 'Botiquín, camilla, directorio telefónico',
          'Brindar primeros auxilios y contención emocional; trasladar heridos graves; llamar a SAMU, bomberos y policía.'],
         ['Evacuación', 'Personal de atención y de vigilancia de cada edificación', 'Silbato, chaleco, linterna, lista de residentes',
-         'Conducir a las residentes y a sus hijas e hijos a las zonas de reunión; abrir las puertas de salida; contar a las personas; '
+         'Conducir a las residentes y a sus hijas e hijos a las zonas de evacuación; abrir las puertas de salida; contar a las personas; '
          'verificar que nadie quede en los ambientes.']], [3.2, 3.6, 3.2, W - 10.0], tam=8.5, izq=(0, 1, 2, 3))
     sub(M, 'Brigada de evacuación')
-    vines(M, ['Conocer la distribución de los ambientes, las salidas, las zonas seguras internas y las zonas de reunión de la lámina %s.' % D.LAMINA_E[0],
+    vines(M, ['Conocer la distribución de los ambientes, las salidas, las zonas seguras internas y las zonas de evacuación de la lámina %s.' % D.LAMINA_E[0],
               'Ayudar primero a las mujeres con niñas y niños pequeños, gestantes o con discapacidad.',
-              'Llevar la lista de residentes de su edificación y hacer el conteo en la zona de reunión.',
+              'Llevar la lista de residentes de su edificación y hacer el conteo en la zona de evacuación.',
               'Revisar habitaciones, servicios higiénicos y depósitos antes de salir y ser los últimos en abandonar la edificación.',
               'Brindar contención emocional durante y después de la evacuación.'])
     M.t2('Responsabilidades del personal')
@@ -465,7 +497,7 @@ def generar():
     M.t1('PROTOCOLOS DE ACTUACIÓN')
     M.t2('Ante sismos')
     sub(M, 'Antes (fase preventiva)')
-    vines(M, ['Conocer las salidas, las zonas seguras internas y las zonas de reunión de cada edificación.',
+    vines(M, ['Conocer las salidas, las zonas seguras internas y las zonas de evacuación de cada edificación.',
               'Fijar a los muros los armarios, estantes, archivadores y camarotes; no colocar objetos pesados en alto.',
               'Identificar la ubicación del tablero eléctrico, de la llave de agua y de la llave general del gas.',
               'Mantener libres pasadizos, circulaciones y salidas; realizar simulacros periódicos, también nocturnos.'])
@@ -474,7 +506,7 @@ def generar():
               'Si no es posible salir de inmediato, replegarse en las zonas seguras internas señalizadas, lejos de ventanas.',
               'En exteriores, alejarse de fachadas, del cerco, de postes, del tanque elevado y de árboles.'])
     sub(M, 'Después (fase de rehabilitación)')
-    vines(M, ['Evacuar por las salidas señaladas hacia las zonas de reunión, sin correr, sin empujar y sin gritar.',
+    vines(M, ['Evacuar por las salidas señaladas hacia las zonas de evacuación, sin correr, sin empujar y sin gritar.',
               'Contar a las residentes, a sus hijas e hijos y al personal; reportar ausencias.',
               'Inspeccionar daños en estructuras e instalaciones eléctricas, sanitarias y de gas antes de reingresar.',
               'Atender a los heridos y brindar contención emocional.'])
@@ -522,7 +554,7 @@ def generar():
               'Las niñas y los niños pequeños salen tomados de la mano de su madre o de un adulto del personal.',
               'Los responsables son los últimos en salir, después de revisar habitaciones, servicios higiénicos, depósitos y oficinas.',
               'Controlar el tránsito de vehículos en el patio de maniobras y los estacionamientos.',
-              'En la zona de reunión, contar a todas las personas con la lista de residentes y de personal.'])
+              'En la zona de evacuación, contar a todas las personas con la lista de residentes y de personal.'])
     M.t2('Llamadas de emergencia')
     M.par('Asegurada la evacuación, se llama a los servicios de emergencia con calma y brevedad, indicando la ubicación (predio rural Los '
           'Mangos, frente a la carretera Oasis, Morales) y lo ocurrido, sin dar datos de las residentes.')
@@ -615,7 +647,7 @@ def generar():
     M.par('Además, %d señales de atención riesgo eléctrico en los tableros y ambientes eléctricos y %d señales de punto ecológico en '
           'exteriores. El detalle de todas las partidas por edificación está en la hoja METRADO del metrado de señalización y '
           'seguridad.' % (q['ATENCIÓN RIESGO'], q['PUNTO ECOL']))
-    figura(M, os.path.join(FIG, 'planta_general.png'), 'Planta general de señalización (lámina %s)' % LS, 15.0,
+    figura(M, os.path.join(FIG, 'planta_general.png'), 'Planta general de señalización (lámina %s)' % LS, 13.0,
            'Fuente: Lámina %s del expediente de arquitectura.' % LS)
     from PIL import Image
     for cod, nombre in eds:
@@ -644,6 +676,8 @@ def generar():
     n_sen = sum(p['total'] for p in pts if p['und'] and p['item'][:2] in ('01', '02', '03', '04'))
     vines(M, ['Todas las edificaciones del hogar son de un nivel y evacúan en forma horizontal y directa al exterior, por %d salidas '
               'señalizadas, con %d señales de dirección de evacuación.' % (q['SALIDA CON'], q['DIRECCIÓN DE EVACUACIÓN']),
+              'Las %d rutas de evacuación de la lámina %s miden como máximo %.2f m, por debajo de los %.0f m de la Norma A.130, y terminan '
+              'en %d zonas de evacuación exteriores.' % (len(D.rutas()), D.LAMINA_E[0], max(r['L'] for r in D.rutas()), D.D_MAX, len(D.zonas())),
               'La capacidad máxima simultánea del hogar es de %d personas (%d residentes, %d de personal y %d temporales).' % (
                   Pb['maxima'], Pb['residentes'], Pb['personal'], Pb['temporales']),
               'El proyecto cuenta con %d señales de seguridad, %d extintores PQS de 9 kg, %d detectores de humo y %d unidades de luces de '
@@ -657,9 +691,9 @@ def generar():
     M.t1('LÁMINAS Y DOCUMENTOS')
     tabla(M, 'Láminas de evacuación y señalización', ['LÁMINA', 'DESCRIPCIÓN', 'ESCALA'], [[a, b, c] for a, b, c in D.LAMINAS],
           [3.0, W - 5.4, 2.4], izq=(1,))
-    M.par('Forman parte de la especialidad, con las mismas cantidades y características: el metrado de señalización y seguridad '
-          '(Excel) y las especificaciones técnicas de señalización y seguridad (Word).')
-    M.d.core_properties.author = ''; M.d.core_properties.title = 'Memoria descriptiva - Señalización y seguridad - Hogar de Refugio Temporal'
+    M.par('Forman parte de la especialidad, con las mismas cantidades y características: el metrado de evacuación y señalización '
+          '(Excel) y las especificaciones técnicas de evacuación y señalización (Word).')
+    M.d.core_properties.author = ''; M.d.core_properties.title = 'Memoria descriptiva - Evacuación y señalización - Hogar de Refugio Temporal'
     M.d.save(SALIDA)
     return SALIDA
 

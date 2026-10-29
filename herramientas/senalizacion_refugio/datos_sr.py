@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Datos comunes de señalización y seguridad del Hogar de Refugio Temporal "Mujeres Violentadas" (CUI 2675514): una sola
+"""Datos comunes de evacuación y señalización del Hogar de Refugio Temporal "Mujeres Violentadas" (CUI 2675514): una sola
 fuente para el metrado, la memoria descriptiva, las especificaciones técnicas y la nota de observaciones.
 
 Cantidades: del plano de señalización de la arquitecta (lee_plano_sr.py -> entregables/_calc/senalizacion_plano.json):
@@ -14,11 +14,13 @@ Datos que el plano no define y se adoptan aquí (nota de observaciones): extinto
 de arquitectura: 33 extintores PQS de 9 kg), señal de extintor sobre el equipo a 1.80 m, punto ecológico a 1.80 m.
 """
 import json
+import math
 import os
 from collections import OrderedDict
 
 AQUI = os.path.dirname(os.path.abspath(__file__)); RAIZ = os.path.dirname(os.path.dirname(AQUI))
 PLANO = os.path.join(RAIZ, 'entregables/_calc/senalizacion_plano.json')
+EVAC = os.path.join(RAIZ, 'entregables/_calc/evacuacion_plano.json')      # plano de evacuación (lee_plano_ev.py)
 # metrado de evacuación de arquitectura (Excel de la usuaria): solo para el reparto por edificación de la señal de riesgo eléctrico
 METRADO_ARQ = os.path.join(RAIZ, 'insumos/solange/senalizacion/METRADOS_EVACUACION_REFUGIO_MUJERES_ok.xlsx')
 SAL = os.path.join(RAIZ, 'entregables')
@@ -30,7 +32,7 @@ CUI = '2675514'
 CORTO = 'HOGAR DE REFUGIO TEMPORAL'
 ENTIDAD = 'GERENCIA TERRITORIAL BAJO MAYO - TARAPOTO'
 UBICACION = 'Distrito de Morales, provincia y departamento de San Martín'
-ESPECIALIDAD = 'ARQUITECTURA - SEÑALIZACIÓN Y SEGURIDAD'
+ESPECIALIDAD = 'ARQUITECTURA - EVACUACIÓN Y SEÑALIZACIÓN'
 FECHA = 'OCTUBRE 2026'                         # la del rótulo del plano de señalización (Octubre-2026)
 # códigos del índice de planos de arquitectura del hogar (grupo VI, evacuación y señalización)
 LAMINA_S = ('SE-S-02', 'Planta general de señalización', '1/150')
@@ -73,6 +75,9 @@ CATALOGO = [
      'Identifica los lugares de protección dentro de los ambientes (columnas y muros estructurales) durante un sismo.', ['A$C3C91529B']),
     ('LETRERO DE AFORO', '01', 'LETRERO DE AFORO CON BRAILLE', 'und', '0.30 x 0.20 m', VINIL, '2.10 m',
      'Indica la capacidad máxima de personas del ambiente; junto al ingreso, en el lado de la cerradura.', ['A$C6B5B2E50']),
+    ('ZONA DE REUNI', '01', 'PINTURA DE ZONA DE EVACUACIÓN EN CASO DE EMERGENCIA EN PISO (CÍRCULO DE 4.30 m, LÍNEA DE 0.15 m)', 'm2',
+     'anillo de 4.30 m de diámetro exterior y 0.15 m de ancho', 'Pintura de tránsito color amarillo sobre piso de concreto', 'en piso',
+     'Zona exterior de concentración de los ocupantes al final de las rutas de evacuación (zonas 01 a 13 de la lámina SE-E-01).', 'ZONAS'),
     ('SEÑAL DE UBICACIÓN DE EXTINTOR PQS', '02', 'SEÑAL DE UBICACIÓN DE EXTINTOR PQS CON BRAILLE', 'und', '0.20 x 0.30 m', FOTOLUM,
      '1.80 m', 'Identifica la ubicación del extintor de polvo químico seco; sobre el equipo.', ['extintor1']),
     ('ATENCIÓN RIESGO', '03', 'SEÑAL DE ATENCIÓN RIESGO ELÉCTRICO CON BRAILLE', 'und', '0.20 x 0.30 m', VINIL, '1.10 m',
@@ -152,7 +157,12 @@ def partidas(P=None):
                        leyenda=f['cantidad'] or 0, altura_leyenda=f['altura'], desc_leyenda=f['descripcion'], bloques=bloques)
             if g == '05' and clave.startswith('SEÑAL DE UBICACIÓN'):
                 reg['altura_leyenda'] = None                 # la altura de la leyenda es la de la señal, no la del equipo
-            if bloques is None:
+            if bloques == 'ZONAS':
+                zs = zonas(); a = area_zona()
+                reg.update(por={'EXT': round(len(zs) * a, 2)}, sin_ubicar=0, total=round(len(zs) * a, 2), n_zonas=len(zs), area_zona=a,
+                           leyenda=0, fuente='Lámina %s: %d zonas de evacuación de 4.30 m de diámetro con anillo de 0.15 m '
+                                             '(%d x %.4f m²); leyenda de %s: 00' % (LAMINA_E[0], len(zs), len(zs), a, LS))
+            elif bloques is None:
                 n = len(ole_senal(P)); rp = riesgo_por_edificacion()
                 if rp and sum(rp.values()) == n:                 # reparto del metrado de arquitectura con el mismo total
                     reg.update(por={e: rp.get(e, 0) for e in eds}, sin_ubicar=0, total=n,
@@ -173,6 +183,44 @@ def partidas(P=None):
                 reg.update(por=por, sin_ubicar=0, total=tot, fuente=txt + '; leyenda: %d' % (f['cantidad'] or 0))
             out.append(reg)
     return out
+
+
+def evac():
+    return json.load(open(EVAC, encoding='utf-8'))
+
+
+def zonas(E=None):
+    """Zonas de evacuación del plano SE-E-01, en el orden de su número (el número 10 está repetido en el plano)."""
+    E = E or evac()
+    zs = [dict(z) for z in E['zonas']]
+    vistos = set(); n_max = max(int(z['numero']) for z in zs)
+    for z in zs:                                    # el número repetido (10) pasa al siguiente libre: 13
+        if z['numero'] in vistos:
+            n_max += 1; z['numero_plano'] = z['numero']; z['numero'] = '%02d' % n_max
+        vistos.add(z['numero'])
+    return sorted(zs, key=lambda z: int(z['numero']))
+
+
+def area_zona(E=None):
+    """Área pintada del anillo: radios exterior e interior de los círculos del plano (2.15 y 2.00 m)."""
+    E = E or evac()
+    rs = next(z['radios'] for z in E['zonas'] if z['radios'])
+    return math.pi * (max(rs) ** 2 - min(rs) ** 2)
+
+
+def radios(E=None):
+    E = E or evac()
+    rs = next(z['radios'] for z in E['zonas'] if z['radios'])
+    return max(rs), min(rs)
+
+
+V_EVAC = (0.60, 1.00)                         # m/s: grupos con niñas y niños pequeños o movilidad reducida / adultos
+
+
+def rutas(E=None):
+    E = E or evac()
+    return [dict(n=r['n'], L=r['L'], ed=r['edificacion'], t1=r['L'] / V_EVAC[0], t2=r['L'] / V_EVAC[1], cumple=r['L'] <= D_MAX)
+            for r in E['rutas']]
 
 
 def leyenda_corregida(P=None):

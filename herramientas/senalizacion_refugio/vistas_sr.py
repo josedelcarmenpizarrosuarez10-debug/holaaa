@@ -8,6 +8,7 @@ los bloques explotados, rellenos solo en los símbolos), porque el render comple
   - conteo.png: planta general con un círculo de color sobre cada símbolo contado en el metrado (para la nota de observaciones).
 
 Uso: python3 herramientas/senalizacion_refugio/vistas_sr.py   (lee el DXF: 3 a 6 minutos)
+     python3 herramientas/senalizacion_refugio/vistas_sr.py --evacuacion   (planta_evacuacion.png, del plano de evacuación)
 Salida: entregables/figuras_senalizacion/
 """
 import os
@@ -84,6 +85,20 @@ def generar():
     return out
 
 
+def generar_evacuacion():
+    """Planta general de evacuación (lámina SE-E-01): rutas, zonas de evacuación y aforos."""
+    import lee_plano_ev as LE
+    doc = LE.abrir(); msp = doc.modelspace()
+    os.makedirs(FIG, exist_ok=True)
+    L = VS.Lienzo((349088.0, 9281908.0, 349164.0, 9282033.0))
+    for e in msp:
+        L.entidad(e)
+    return L.guardar(os.path.join(FIG, 'planta_evacuacion.png'), ancho_pulg=20, dpi=150)
+
+
 if __name__ == '__main__':
-    for r in generar():
-        print(r)
+    if '--evacuacion' in sys.argv:
+        print(generar_evacuacion())
+    else:
+        for r in generar():
+            print(r)

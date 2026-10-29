@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Especificaciones técnicas de señalización y seguridad - Hogar de Refugio Temporal "Mujeres Violentadas" (CUI 2675514).
+"""Especificaciones técnicas de evacuación y señalización - Hogar de Refugio Temporal "Mujeres Violentadas" (CUI 2675514).
 
 Motor y formato de las especificaciones del expediente (JSON -> herramientas/especificaciones/docx_espec.js): carátula con la
 foto del hogar, índice, generalidades y una ficha por partida (descripción con la imagen de la señal, materiales, equipos y
@@ -9,7 +9,7 @@ especificaciones de señalización del CAR Varones, con lo propio del hogar (lá
 evacuación, señales de SS.HH. de 0.20 x 0.30 m).
 
 Uso: python3 herramientas/senalizacion_refugio/espec_sr.py
-Salida: entregables/ESPECIFICACIONES_TECNICAS_SENALIZACION_Y_SEGURIDAD_HOGAR_REFUGIO.docx
+Salida: entregables/ESPECIFICACIONES_TECNICAS_EVACUACION_Y_SENALIZACION_HOGAR_REFUGIO.docx
 """
 import json
 import os
@@ -26,7 +26,7 @@ import caratulas_refugio as CR  # noqa: E402  (foto y leyenda del Hogar de Refug
 V = CR.V
 ESP = os.path.join(HER, 'especificaciones')
 JSON = os.path.join(ESP, '_json', 'refugio_senalizacion.json')
-SALIDA = os.path.join(D.SAL, 'ESPECIFICACIONES_TECNICAS_SENALIZACION_Y_SEGURIDAD_HOGAR_REFUGIO.docx')
+SALIDA = os.path.join(D.SAL, 'ESPECIFICACIONES_TECNICAS_EVACUACION_Y_SENALIZACION_HOGAR_REFUGIO.docx')
 LS = D.LS
 
 
@@ -160,16 +160,46 @@ def detector(pt):
     return ficha(desc, mat, equ, proc, ctrl, SEG_ALTURA, med, pt['total'])
 
 
+def zona(pt):
+    """Pintura de las zonas de evacuación en caso de emergencia (lámina SE-E-01), medida en m²."""
+    re_, ri_ = D.radios(); a = D.area_zona(); n = pt['n_zonas']; le = D.LAMINA_E[0]
+    desc = [p('Comprende el trazo y el pintado en el piso de concreto de las %d zonas de evacuación en caso de emergencia de la lámina '
+              '%s: un anillo de %.2f m de diámetro exterior y %.2f m de ancho de línea, de pintura de tránsito color amarillo, con el '
+              'número de la zona y su aforo. Cada anillo tiene %.4f m² de pintura (π x (%.2f² - %.2f²)); en total, %.2f m². %s' % (
+                  n, le, 2 * re_, re_ - ri_, a, re_, ri_, pt['total'], pt['uso']))]
+    mat = l('Pintura de tránsito a base de resina acrílica o alquídica, color amarillo, de secado rápido, resistente a la abrasión y a '
+            'los rayos ultravioleta.', 'Diluyente recomendado por el fabricante.', 'Cinta de enmascarar de 1" y plantillas para los números.')
+    equ = l('Cordel y estaca para el trazo desde el centro, tiza, wincha, rodillo, brochas, escobillas y soplador o escoba.')
+    proc = l('Ubicar el centro de cada zona según la lámina %s y marcarlo con la Supervisión.' % le,
+             'Limpiar el piso: sin polvo, grasa ni humedad; el concreto debe tener al menos 28 días.',
+             'Trazar el círculo exterior (r = %.2f m) y el interior (r = %.2f m) con cordel desde el centro y enmascarar los bordes.' % (re_, ri_),
+             'Aplicar dos manos de pintura, la segunda después del secado de la primera; pintar el número de la zona y su aforo.',
+             'Retirar la cinta y proteger del tránsito hasta el secado total.')
+    ctrl = l('Radio exterior de %.2f m (± 2 cm) y ancho de línea de %.2f m (± 0.5 cm); bordes nítidos y color uniforme.' % (re_, re_ - ri_),
+             'Pintura sin desprendimientos ni zonas sin cubrir; números legibles.')
+    seg = l(EPP, 'Señalizar el área de trabajo; respirador para vapores orgánicos al aplicar la pintura; materiales lejos de fuentes de calor.')
+    return [['DESCRIPCIÓN', desc], ['MATERIALES', [mat]], ['EQUIPOS Y HERRAMIENTAS', [equ]], ['PROCEDIMIENTO DE EJECUCIÓN', [proc]],
+            ['CONTROL DE CALIDAD Y TOLERANCIAS', [ctrl]], ['SEGURIDAD Y SALUD EN EL TRABAJO', [seg]],
+            ['UNIDAD DE MEDIDA', [p('La unidad de medida es el metro cuadrado (m²) de anillo pintado.')]],
+            ['MÉTODO DE MEDICIÓN', [p('Se medirá el área de los anillos pintados y recibidos a satisfacción de la Supervisión: número de '
+                                      'zonas por el área de cada anillo, según la lámina %s y la hoja ZONAS DE EVACUACIÓN del metrado.' % le)]],
+            ['FORMA DE PAGO', [p('El pago se efectuará al precio unitario del presupuesto por metro cuadrado (m²), de acuerdo con el avance '
+                                 'valorizado y con la conformidad de la Supervisión. Dicho precio constituye compensación total por la mano '
+                                 'de obra, los materiales, el equipo, las herramientas y todo imprevisto necesario. Cantidad del metrado: '
+                                 '%.2f m².' % pt['total'])]]]
+
+
 def generalidades(pts):
     filas = [['01.' + x['item'], x['desc'], x['und'], str(x['total'])] for x in pts if x['und']]
     return [
         ['GENERALIDADES', [
             p('Las presentes especificaciones técnicas definen la calidad de los materiales, el procedimiento de instalación, los '
-              'controles, la seguridad, la unidad de medida, el método de medición y la forma de pago de cada partida de señalización '
-              'y seguridad del proyecto “%s”, con CUI N.° %s.' % (D.PROYECTO, D.CUI)),
+              'controles, la seguridad, la unidad de medida, el método de medición y la forma de pago de cada partida de evacuación '
+              'y señalización del proyecto “%s”, con CUI N.° %s.' % (D.PROYECTO, D.CUI)),
             p('Comprenden las señales de evacuación y emergencia, de equipos contra incendio, de advertencia e informativas, los '
-              'extintores portátiles, las unidades de luces de emergencia y los detectores de humo de las nueve edificaciones y de '
-              'los exteriores, según la lámina %s (%s).' % (LS, D.LAMINA_S[1].lower())),
+              'extintores portátiles, las unidades de luces de emergencia, los detectores de humo y las zonas de evacuación pintadas '
+              'en el piso de las nueve edificaciones y de los exteriores, según las láminas %s (%s) y %s (%s).' % (
+                  LS, D.LAMINA_S[1].lower(), D.LAMINA_E[0], D.LAMINA_E[1].lower())),
             p('La numeración, la descripción, la unidad y la cantidad de cada partida son las del metrado de señalización y '
               'seguridad (hoja RESUMEN, ítem 01). La memoria descriptiva, las láminas y el metrado forman parte de este documento.')]],
         ['UBICACIÓN', [p('Entidad: Gobierno Regional San Martín - Gerencia Territorial Bajo Mayo - Tarapoto. Ubicación: %s.' % D.UBICACION),
@@ -194,7 +224,7 @@ def generalidades(pts):
               'Alturas de instalación (borde inferior de la señal sobre el piso terminado): las de la tabla de partidas; la señal de '
               'extintor va encima del equipo, a 1.80 m.',
               'Las señales se instalan sobre superficies terminadas y no deben quedar tapadas por puertas abiertas, muebles ni equipos.')]],
-        ['PARTIDAS Y CANTIDADES', [p('Partidas del metrado de señalización y seguridad:'), t(['ITEM', 'DESCRIPCIÓN', 'UND', 'CANT.'], filas, [13, 67, 9, 11])]],
+        ['PARTIDAS Y CANTIDADES', [p('Partidas del metrado de evacuación y señalización:'), t(['ITEM', 'DESCRIPCIÓN', 'UND', 'CANT.'], filas, [13, 67, 9, 11])]],
         ['RECEPCIÓN Y MANTENIMIENTO', [
             l('La Supervisión recibirá las partidas con la verificación de cantidad, ubicación, altura, fijación y funcionamiento '
               '(luces de emergencia, detectores y extintores).',
@@ -207,7 +237,7 @@ def construir():
     pts = D.partidas()
     img = SR.generar()
     partidas = []
-    for x in [dict(item='', desc='SEÑALIZACIÓN Y SEGURIDAD', und=None)] + pts:
+    for x in [dict(item='', desc='EVACUACIÓN Y SEÑALIZACIÓN', und=None)] + pts:
         cod = '01' + ('.' + x['item'] if x['item'] else '')
         it = dict(codigo=cod, desc=x['desc'], und=x['und'] or '', nivel=len(cod.split('.')) - 1)
         if x['und']:
@@ -215,6 +245,7 @@ def construir():
             if d.startswith('EXTINTOR'): it['secciones'] = extintor(x)
             elif d.startswith('UNIDAD DE LUCES'): it['secciones'] = luces(x)
             elif d.startswith('DETECTOR'): it['secciones'] = detector(x)
+            elif x.get('bloques') == 'ZONAS': it['secciones'] = zona(x)
             else: it['secciones'] = senal(x)
             ruta = img[x['item']]
             from PIL import Image
@@ -225,11 +256,11 @@ def construir():
     foto = V.foto(); w, h = Image.open(foto).size
     doc = dict(proyecto=D.PROYECTO, cui=D.CUI, corto=D.CORTO, entidad=D.ENTIDAD,
                especialidad=D.ESPECIALIDAD, ubicacion='SAN MARTÍN - SAN MARTÍN - MORALES', fecha=D.FECHA,
-               cabecera='ESPECIFICACIONES TÉCNICAS - SEÑALIZACIÓN Y SEGURIDAD', titulo_doc='Especificaciones técnicas - Señalización y seguridad',
+               cabecera='ESPECIFICACIONES TÉCNICAS - EVACUACIÓN Y SEÑALIZACIÓN', titulo_doc='Especificaciones técnicas - Evacuación y señalización',
                caratula=dict(entidad='GOBIERNO REGIONAL SAN MARTÍN', gerencia=D.ENTIDAD,
                              expediente='EXPEDIENTE TÉCNICO DEL PROYECTO DE INVERSIÓN:', proyecto='“%s”' % D.PROYECTO,
                              ci='CUI N.° %s' % D.CUI, foto=foto, proporcion=h / w, leyenda=V.LEYENDA,
-                             titulo='ESPECIFICACIONES TÉCNICAS', subtitulo='SEÑALIZACIÓN Y SEGURIDAD',
+                             titulo='ESPECIFICACIONES TÉCNICAS', subtitulo='EVACUACIÓN Y SEÑALIZACIÓN',
                              especialidad='ESPECIALIDAD: ' + D.ESPECIALIDAD, ubicacion=D.UBICACION, fecha=D.FECHA),
                generalidades=generalidades(pts), partidas=partidas)
     os.makedirs(os.path.dirname(JSON), exist_ok=True)

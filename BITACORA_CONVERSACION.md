@@ -875,3 +875,11 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   señal, SS.HH. H/M. Mal: SS.HH. mixtos (HR!E26 enlaza HD!K107 en vez de K112 -> 0; HD 19, plano 20 con la garita), detector 66 (plano 67,
   garita), SS.HH. discapacitados (3, pero la tercera es E-06, no E-05), botiquín 9 (no está en el plano), pintura zona segura 13 x 1.96 m²
   (sin sustento en SE-S-02; falta SE-E-01), falta punto ecológico (4); título repetido HD 134-135, fechas 2025/2026, Hoja1 de otro proyecto.
+- Refugio: plano de evacuación de la arquitecta (125 MB, `insumos/solange/senalizacion/PLANO_DE_EVACUACION_HOGAR_REFUGIO_TEMPORAL.zip`),
+  `lee_plano_ev.py` -> `entregables/_calc/evacuacion_plano.json`: 84 rutas (RUTA 1 a 84, sin faltantes ni repetidas, máx. 39.67 m <= 45 m;
+  la distancia rotulada se toma como dato, el trazo comparte tramos y no se puede cotejar ruta por ruta), 13 zonas de evacuación (anillo de
+  4.30 m y línea de 0.15 m: 13 x 1.9556 = 25.42 m²; el número 10 está repetido -> la de junto a E-06 es la 13), aforos de zona 12/20/40
+  (total 208 < capacidad máxima 305), sin leyenda; rótulo de otro proyecto ("S-01", "02-02"). Evacuación y señalización = una sola
+  especialidad: salidas renombradas `*EVACUACION_Y_SENALIZACION_HOGAR_REFUGIO*`; metrado con partida 01.01.05 pintura de zonas (m²) y
+  hojas ZONAS DE EVACUACIÓN y RUTAS DE EVACUACIÓN; memoria con rutas, tiempos, zonas y planta de evacuación; especificación de la
+  pintura de zonas; comparación: pintura de la usuaria 25.48 m² = bien (redondeo), pero su descripción dice E=10CM y es 0.15 m.
