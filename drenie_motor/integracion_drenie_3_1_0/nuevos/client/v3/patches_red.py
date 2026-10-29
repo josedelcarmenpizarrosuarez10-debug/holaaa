@@ -5,6 +5,12 @@ incrustada y sin recursos externos; queda en src/visor-red.html, cubierto por la
 R("state.step === 14 ? h(WsPlan,{state:state,setState:setState,onStep:setStep}) :",
   "state.step === 14 ? h(WsPlan,{state:state,setState:setState,onStep:setStep}) : state.step === 15 ? h(RcPage,{state:state,setState:setState,onStep:setStep}) :",
   1, '3.1.0 página Red de cunetas')
+R("state.step === 15 ? h(RcPage,{state:state,setState:setState,onStep:setStep}) :",
+  "state.step === 15 ? h(RcPage,{state:state,setState:setState,onStep:setStep}) : state.step === 16 ? h(DvPage,{state:state,setState:setState,onStep:setStep}) :",
+  1, '3.1.0 página Drenaje vial')
+R("else if (tab === 'red') body = v3RedRibbon(props);", "else if (tab === 'red') body = v3RedRibbon(props);\n  else if (tab === 'vial') body = v3VialRibbon(props);",
+  1, '3.1.0 cinta DRENAJE VIAL')
+R("red:[15], lluvia: [1]", "red:[15], vial:[16], lluvia: [1]", 1, '3.1.0 pestaña DRENAJE VIAL abre su página')
 
 vis = open(os.path.join(CLIENT, '..', 'motor_red', 'visor', 'visor.html'), encoding='utf-8').read()
 vis = re.sub(r'<link rel="stylesheet" href="https://fonts\.googleapis\.com[^>]*>\n?', '', vis)

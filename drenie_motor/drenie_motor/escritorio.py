@@ -344,9 +344,20 @@ def vial(d, carpeta=None):
     plantilla Excel (la lluvia de DrenIE, si viene, manda); {"crear_plantilla": true} solo escribe la plantilla en CARPETA."""
     from . import vial as V, vial_excel, vial_plantilla
     if d.get("crear_plantilla"):
-        if not carpeta: raise ValueError("Indique la carpeta donde guardar la plantilla.")
-        os.makedirs(carpeta, exist_ok=True)
-        return {"accion": "vial", "archivos": [vial_plantilla.crear(os.path.join(carpeta, "DATOS_DRENAJE_VIAL.xlsx"), d.get("datos"))]}
+        destino = carpeta or d.get("carpeta")
+        if not destino: raise ValueError("Indique la carpeta donde guardar la plantilla.")
+        os.makedirs(destino, exist_ok=True)
+        return {"accion": "vial", "archivos": [vial_plantilla.crear(os.path.join(destino, "DATOS_DRENAJE_VIAL.xlsx"), d.get("datos"))]}
+    if d.get("abrir_carpeta"):                             # solo una carpeta de entregables o de la plantilla del drenaje vial
+        r = d["abrir_carpeta"]
+        if not (os.path.isdir(r) and any(os.path.exists(os.path.join(r, n)) for n in ("MEMORIA_CALCULO_DRENAJE_VIAL.xlsx", "DATOS_DRENAJE_VIAL.xlsx"))):
+            raise ValueError("La carpeta no tiene entregables del drenaje vial.")
+        if sys.platform.startswith("win"): os.startfile(r)                   # noqa: Windows
+        elif sys.platform == "darwin": subprocess.Popen(["open", r])
+        else: subprocess.Popen(["xdg-open", r], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return {"accion": "vial", "abierto": r}
+    if d.get("leer_plantilla"):                             # la pantalla de DrenIE carga los datos de la plantilla en sus tablas
+        return {"accion": "vial", "datos": vial_plantilla.leer(d["leer_plantilla"])}
     if d.get("plantilla"):
         x = vial_plantilla.leer(d["plantilla"])
         if d.get("lluvia"): x["lluvia"] = d["lluvia"]

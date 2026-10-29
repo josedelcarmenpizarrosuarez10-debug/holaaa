@@ -34,6 +34,8 @@ const ORDENES: &[(&str, usize, usize, bool, &str)] = &[
     ("para_drenie", 1, 1, false, EXPORTAR),
     ("ubicacion", 1, 1, true, DEMO),
     ("pisco", 0, 0, true, DEMO),
+    ("vial", 0, 0, true, DEMO),
+    ("vial_entregables", 1, 1, true, EXPORTAR),
 ];
 
 fn permiso(app: &tauri::AppHandle, clase: &str) -> Result<(), String> {
@@ -111,6 +113,7 @@ pub async fn motor_elegir(app: tauri::AppHandle, tipo: String) -> Result<Option<
             "proyecto" => dialogo.set_title("Proyecto de red de cunetas — DrenIE").add_filter("Proyecto de red (proyecto.json)", &["json"]).blocking_pick_file(),
             "carpeta" => dialogo.set_title("Carpeta del proyecto — DrenIE").blocking_pick_folder(),
             "imagen" => dialogo.set_title("Foto aérea del proyecto — DrenIE").add_filter("Imagen (PNG o JPG)", &["png", "jpg", "jpeg"]).blocking_pick_file(),
+            "plantilla" => dialogo.set_title("Datos del drenaje vial (Excel) — DrenIE").add_filter("Plantilla de datos (Excel)", &["xlsx"]).blocking_pick_file(),
             _ => return Err("Tipo de archivo no válido.".into()),
         };
         let Some(elegido) = elegido else { return Ok(None) };
@@ -133,13 +136,16 @@ mod tests {
     fn solo_ordenes_conocidas() {
         assert!(ORDENES.iter().all(|o| o.1 <= o.2 && (o.4 == DEMO || o.4 == EXPORTAR)));
         // con licencia (módulo export): diseñar, aplicar soluciones y pasar la red a CUNETAS / MONTANTES / METRADO
-        assert!(ORDENES.iter().filter(|o| o.4 == EXPORTAR).all(|o| o.0 == "disenar" || o.0 == "aplicar" || o.0 == "para_drenie"));
-        assert!(["disenar", "aplicar", "para_drenie"].iter().all(|n| ORDENES.iter().any(|o| o.0 == *n && o.4 == EXPORTAR)));
+        assert!(ORDENES.iter().filter(|o| o.4 == EXPORTAR).all(|o| o.0 == "disenar" || o.0 == "aplicar" || o.0 == "para_drenie" || o.0 == "vial_entregables"));
+        assert!(["disenar", "aplicar", "para_drenie", "vial_entregables"].iter().all(|n| ORDENES.iter().any(|o| o.0 == *n && o.4 == EXPORTAR)));
         assert!(!ORDENES.iter().any(|o| o.0 == "lluvia" || o.0 == "cmd"));
         // editor de Ubicación: solo mapas de vista previa, recibe lo editado por la entrada estándar
         assert!(ORDENES.iter().any(|o| o.0 == "ubicacion" && o.1 == 1 && o.2 == 1 && o.3 && o.4 == DEMO));
         // lluvia PISCO-SENAMHI de la pestaña LLUVIA: sin proyecto, recibe el lugar por la entrada estándar
         assert!(ORDENES.iter().any(|o| o.0 == "pisco" && o.1 == 0 && o.2 == 0 && o.3 && o.4 == DEMO));
+        // drenaje vial MTC: el cálculo en la demo; los entregables (Word, Excel, DXF, metrado) con licencia
+        assert!(ORDENES.iter().any(|o| o.0 == "vial" && o.1 == 0 && o.2 == 0 && o.3 && o.4 == DEMO));
+        assert!(ORDENES.iter().any(|o| o.0 == "vial_entregables" && o.1 == 1 && o.2 == 1 && o.3 && o.4 == EXPORTAR));
         assert!(!argumento_valido("--help") && !argumento_valido("") && argumento_valido("C:\\obra\\proyecto.json"));
     }
 }

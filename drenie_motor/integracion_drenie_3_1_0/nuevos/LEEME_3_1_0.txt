@@ -177,3 +177,13 @@ Trae la precipitación máxima en 24 h de cada mes (1981-2025) de cualquier dist
 SENAMHI (va dentro del programa, sin internet), corregida con el factor estación / PISCO interpolado entre 8 estaciones del
 SENAMHI de San Martín (1.04 a 1.57; 5 con coordenadas exactas de su ficha). «Cargar en la tabla de lluvias» la pone en la misma tabla que «Importar Excel» y DrenIE
 calcula todo como siempre. Es una serie REFERENCIAL: para el expediente use la serie certificada de la estación más cercana.
+
+Drenaje vial MTC (pestaña DRENAJE VIAL, página 16)
+--------------------------------------------------
+Cunetas de carretera, alcantarillas de alivio y de paso de quebradas (TMC o marco de concreto) y badenes según el Manual de
+Hidrología, Hidráulica y Drenaje del MTC (R.D. N.° 20-2011-MTC/14), con la serie de lluvias de la pestaña LLUVIA. Período de
+retorno por riesgo admisible y vida útil (Tabla 02), C de la Tabla 08, tiempos de concentración de la Tabla 05, racional o Témez,
+Manning con borde libre del 25 %, dimensiones mínimas de la Tabla 34, longitud máxima de cuneta y alcantarillas de alivio
+ubicadas solas. Datos en tablas de la pantalla o en la plantilla Excel («Plantilla Excel» / «Importar Excel»). «Calcular»
+funciona también en la demo; «Entregables» (con licencia) escribe en la carpeta elegida: memoria Word, memoria de cálculo Excel
+con fórmulas, metrado y planos DXF (VD-01 a VD-05) con su vista PNG. Órdenes nativas: vial y vial_entregables.
