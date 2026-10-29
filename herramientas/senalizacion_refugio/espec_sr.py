@@ -266,6 +266,8 @@ def construir():
     os.makedirs(os.path.dirname(JSON), exist_ok=True)
     json.dump(doc, open(JSON, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     subprocess.run(['node', os.path.join(ESP, 'docx_espec.js'), JSON, SALIDA], check=True, cwd=ESP)
+    import indice_word
+    indice_word.llenar([SALIDA])                                # índice lleno para imprimir
     return SALIDA
 
 

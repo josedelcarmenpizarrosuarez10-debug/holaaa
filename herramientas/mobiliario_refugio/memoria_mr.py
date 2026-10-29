@@ -259,6 +259,8 @@ def generar():
     M.d.core_properties.author = ''
     M.d.core_properties.title = 'Memoria descriptiva - Equipamiento y mobiliario - Hogar de Refugio Temporal'
     M.d.save(SALIDA)
+    import indice_word
+    indice_word.llenar([SALIDA])                                # índice lleno para imprimir
     return SALIDA
 
 

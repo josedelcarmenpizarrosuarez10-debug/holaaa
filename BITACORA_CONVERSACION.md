@@ -883,3 +883,7 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   especialidad: salidas renombradas `*EVACUACION_Y_SENALIZACION_HOGAR_REFUGIO*`; metrado con partida 01.01.05 pintura de zonas (m²) y
   hojas ZONAS DE EVACUACIÓN y RUTAS DE EVACUACIÓN; memoria con rutas, tiempos, zonas y planta de evacuación; especificación de la
   pintura de zonas; comparación: pintura de la usuaria 25.48 m² = bien (redondeo), pero su descripción dice E=10CM y es 0.15 m.
+- Refugio, equipamiento y mobiliario listo para imprimir (sobre el plano recibido; las correcciones posteriores de la arquitecta no se
+  han recibido): cotejo de cantidades metrado = especificaciones = memoria (99 partidas, 1251 und, sin diferencias); edificaciones E-06
+  a E-08 renombradas "Habitaciones (1) a (3)" como en el plano y en evacuación y señalización; índice lleno con `herramientas/indice_word.py`
+  (también en evacuación y señalización).

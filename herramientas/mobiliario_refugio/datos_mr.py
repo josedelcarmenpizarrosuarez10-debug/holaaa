@@ -29,7 +29,7 @@ FECHA = 'SETIEMBRE 2026'
 EDIFICACIONES = OrderedDict([
     ('E-01', 'Administración'), ('E-02', 'Almacén de donaciones y tópico'), ('E-03', 'Mantenimiento'),
     ('E-04', 'Talleres'), ('E-05', 'SUM-comedor, cocina, lavandería, módulo de enseñanza y módulo infantil'),
-    ('E-06', 'Dormitorios (1)'), ('E-07', 'Dormitorios (2)'), ('E-08', 'Dormitorios (3)'),
+    ('E-06', 'Habitaciones (1)'), ('E-07', 'Habitaciones (2)'), ('E-08', 'Habitaciones (3)'),
     ('E-09', 'Vestidores y almacén de implementos deportivos')])
 LAMINA = {'E-01': 'EM-01', 'E-02': 'EM-02', 'E-03': 'EM-02', 'E-04': 'EM-03', 'E-05': 'EM-04', 'E-06': 'EM-05', 'E-07': 'EM-06',
           'E-08': 'EM-07', 'E-09': 'EM-07'}
