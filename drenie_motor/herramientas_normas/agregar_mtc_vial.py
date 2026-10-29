@@ -72,6 +72,26 @@ DATOS = [
       "En terraplenes de más de 1.5 m; sobresale 0.15 m de la rodadura; aliviaderos cada 50 a 100 m en tangente."),
 ]
 
+P = "PROYECTISTA"
+DATOS += [
+    d("vial_cab_espesor", "Drenaje vial", "Espesor del cabezal y de las alas de la alcantarilla", 0.30, "m", "",
+      "La Lámina N.° 02 del MTC muestra el cabezal, las alas y la protección de entrada y salida sin medidas: se adoptan medidas típicas "
+      "editables. Concreto f'c = 210 kg/cm².", clase="criterio", fuente=P),
+    d("vial_cab_sobre_clave", "Drenaje vial", "Altura del cabezal sobre la clave del tubo", 0.30, "m", "", "Medida típica editable.",
+      clase="criterio", fuente=P),
+    d("vial_cab_cimiento", "Drenaje vial", "Profundidad del cimiento del cabezal bajo el fondo del tubo", 0.60, "m", "", "Medida típica editable.",
+      clase="criterio", fuente=P),
+    d("vial_cama", "Drenaje vial", "Cama de apoyo de grava arenosa bajo la TMC", 0.15, "m", "", "Espesor típico editable.",
+      clase="criterio", fuente=P),
+    d("vial_relleno_min", "Drenaje vial", "Relleno mínimo sobre la clave de la TMC", 0.60, "m", "",
+      "Medida típica editable; confirmar con el fabricante según la carga vehicular y el calibre.", clase="criterio", fuente=P),
+    d("vial_proteccion", "Drenaje vial", "Protección de piedra emboquillada a la entrada y a la salida", "e = 0.30 m; L = 1.5 D (mín. 1.50 m)", "",
+      "", "Medidas típicas editables; uña de 0.50 m al final. A la salida el enrocado o la piedra cumple d50 ≥ V²/(3.1 g) (ecuación 49 del MTC).",
+      clase="criterio", fuente=P),
+    d("vial_cuneta_junta", "Drenaje vial", "Juntas de la cuneta de concreto", "cada 3.0 m, asfálticas de 1\"", "", "",
+      "Separación típica editable.", clase="criterio", fuente=P),
+]
+
 CUADROS = [
     c("vial_riesgo_tabla02", "Drenaje vial", "Valores máximos recomendados de riesgo admisible de obras de drenaje", "numeral 3.6, Tabla N.° 02",
       ["Tipo de obra", "Riesgo admisible (%)", "Vida útil n (años)"],

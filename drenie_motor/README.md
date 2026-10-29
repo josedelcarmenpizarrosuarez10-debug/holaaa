@@ -345,3 +345,29 @@ y San Antonio (variación local de la lluvia).
 
 En DrenIE: pestaña LLUVIA → Análisis estadístico → «Lluvia PISCO-SENAMHI»: distrito o coordenadas, factor (automático o a mano),
 «Traer serie» y «Cargar en la tabla de lluvias». Orden: `echo '{"ubigeo":"220910"}' | python -m drenie_motor pisco`.
+
+## Drenaje vial MTC (`vial.py`, orden `vial`)
+
+Drenaje de carreteras según el Manual de Hidrología, Hidráulica y Drenaje del MTC (R.D. N.° 20-2011-MTC/14). Los valores
+normativos están en la biblioteca (`herramientas_normas/agregar_mtc_vial.py`, cotejados con `insumos/normas/MAN_11_HHD-2011.pdf`):
+
+- **Período de retorno** por riesgo admisible y vida útil (Tabla N.° 02, ecuación 1): plataforma R 40 %, n 15 → T 30 años; alcantarillas
+  de quebradas menores y alivios R 35 %, n 15 → T 36; quebradas importantes y badenes R 30 %, n 25 → T 71 (editables).
+- **Lluvia**: la serie de la pestaña LLUVIA (análisis de frecuencias del motor) o P24 por T; intensidad de Dick y Peschke.
+- **Cuencas**: C de la Tabla N.° 08 (cobertura, suelo y pendiente, ponderado), tc de la Tabla N.° 05 (Kirpich, California, Témez, SCS,
+  FAA; promedio, mínimo o un método), racional (A < 10 km²) o racional modificado de Témez (10 a 770 km²).
+- **Cunetas**: Manning (ecuación 117) con n de la Tabla N.° 32; capacidad = cuneta llena limitada por la velocidad de la Tabla N.° 33;
+  dimensiones mínimas de la Tabla N.° 34; talud interior de la Tabla N.° 304.12; longitud máxima 250 m (200 m en región muy
+  lluviosa); pendiente 0.5–2 %. Divide cada cuneta en tramos iguales y pone una **alcantarilla de alivio automática** en cada
+  descarga que no tenga obra (una alcantarilla o un badén que nombra la cuneta recibe su descarga más cercana, hasta 50 m).
+- **Alcantarillas**: TMC (Ø comerciales desde 36", o 48" en selva alta; hasta 3 líneas) o marco de concreto; tirante ≤ 75 % (borde
+  libre 25 %); V ≥ 0.25 m/s; marco ≤ 6 m/s; enrocado de salida d50 = V²/(3.1 g) (Laushey).
+- **Badenes**: canal trapezoidal en régimen uniforme, borde libre ≥ 0.30 m, pendiente transversal 2–3 %.
+
+Entregables con `echo '{...}' | python -m drenie_motor vial CARPETA` (o `{"plantilla": "DATOS_DRENAJE_VIAL.xlsx"}`;
+`{"crear_plantilla": true}` escribe la plantilla vacía): `MEMORIA_CALCULO_DRENAJE_VIAL.xlsx` (fórmulas), `MEMORIA_DRENAJE_VIAL.docx`,
+`METRADO_DRENAJE_VIAL.xlsx` (planilla veces × largo × ancho × alto con fórmulas), `PLANOS_DRENAJE_VIAL.dxf` (VD-01 diagrama por
+progresivas, VD-02 secciones típicas de cuneta, VD-03 alcantarillas típicas con cabezales y protección, VD-04 badenes, VD-05 cuadro
+de obras de arte) con su PNG por lámina. Las medidas que el MTC no fija (cabezal, cama, relleno mínimo, protección, juntas) son
+típicas editables, marcadas como criterio del proyectista. Ejemplo: `ejemplos/vial/vial_ejemplo.json`; pruebas:
+`python3 pruebas/vial_pruebas.py`.

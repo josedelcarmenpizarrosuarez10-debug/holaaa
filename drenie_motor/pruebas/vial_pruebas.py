@@ -10,7 +10,7 @@ import sys
 import tempfile
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-from drenie_motor import vial as V, vial_excel  # noqa: E402
+from drenie_motor import vial as V  # noqa: E402
 
 BASE = json.load(open(os.path.join(os.path.dirname(__file__), "..", "ejemplos", "vial", "vial_ejemplo.json"), encoding="utf-8"))
 ok = 0
@@ -108,10 +108,19 @@ def plantilla_ida_y_vuelta():
         assert vacia["cunetas"] == [] and vacia["via"]["velocidad_kmh"] == 40
 
 
-def excel():
-    R = V.calcular(BASE)
-    with tempfile.TemporaryDirectory() as t:
-        assert os.path.getsize(vial_excel.libro(os.path.join(t, "m.xlsx"), R)) > 10000
+def entregables_completos():
+    from drenie_motor import escritorio
+    for caso_ in ("base", "sin_badenes_mca"):
+        d = copy.deepcopy(BASE)
+        if caso_ != "base":
+            d["badenes"] = []; d["alcantarillas"][1]["tipo_conducto"] = "MCA"; d["cunetas"][1]["seccion"] = {"tipo": "rectangular", "d": 0.5, "b": 0.6}
+        with tempfile.TemporaryDirectory() as t:
+            R = escritorio.vial(d, t)
+            nombres = {os.path.basename(a) for a in R["archivos"]}
+            for n in ("MEMORIA_CALCULO_DRENAJE_VIAL.xlsx", "MEMORIA_DRENAJE_VIAL.docx", "METRADO_DRENAJE_VIAL.xlsx", "PLANOS_DRENAJE_VIAL.dxf"):
+                assert n in nombres, n
+            assert all(os.path.getsize(a) > 5000 for a in R["archivos"] if not a.endswith(".json"))
+            assert sum(1 for n in nombres if n.endswith(".png")) == len(R["laminas"])
 
 
 for n, f in list(globals().items()):

@@ -96,7 +96,7 @@ class Doc:
         if subtitulo:
             p = c.add_paragraph(); p.alignment = WD_ALIGN_PARAGRAPH.CENTER; r = p.add_run(subtitulo); r.bold = True; r.font.size = Pt(11)
             r.font.color.rgb = RGBColor(255, 255, 255)
-        linea("ESPECIALIDAD: " + ESPECIALIDAD, 10.5, True, antes=12, despues=2)
+        linea("ESPECIALIDAD: " + (pr.get("especialidad_documentos") or ESPECIALIDAD), 10.5, True, antes=12, despues=2)
         if pr.get("ubicacion"): linea("UBICACIÓN: " + pr["ubicacion"], 10, despues=8)
         if pr.get("fecha"): linea(pr["fecha"].upper(), 12, True, AZUL)
         self.salto()

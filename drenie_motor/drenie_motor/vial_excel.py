@@ -207,7 +207,7 @@ def libro(ruta, R):
             cel(wal, r, 15, None); cel(wal, r, 16, "=J{0}*I{0}*M{0}".format(r), "0.0000"); cel(wal, r, 17, "=J{0}*(I{0}+2*M{0})".format(r), "0.000")
         cel(wal, r, 18, "=P{0}*(P{0}/Q{0})^(2/3)*SQRT(K{0})/L{0}".format(r), "0.000")
         cel(wal, r, 19, "=R%d/P%d" % (r, r), "0.00"); cel(wal, r, 20, "=S%d^2/(3.1*%s)" % (r, D["g"]), "0.000")
-        cel(wal, r, 21, '=IF(AND(N{0}<=1-{1},R{0}>=F{0}*0.999,S{0}>={2}),"CUMPLE","REVISAR")'.format(r, D["bl"], D["vmin"]), bold=True)
+        cel(wal, r, 21, '=IF(AND(N{0}<=1-{1},R{0}>=F{0}*0.999,S{0}>={2},IF(ISBLANK(I{0}),TRUE,S{0}<=6)),"CUMPLE","REVISAR")'.format(r, D["bl"], D["vmin"]), bold=True)
         cel(wal, r, 22, "; ".join(a["desde_cunetas"]), wrap=True)
         r += 1
     wal.freeze_panes = "C7"

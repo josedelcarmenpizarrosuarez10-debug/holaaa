@@ -348,6 +348,10 @@ def alcantarilla(x, via, lluvia, tc_norma, avisos):
     altura = sec.get("D") or sec.get("h")
     vmin = normas.dato("vial_alc_vmin")["valor"]
     if V < vmin: av.append("%s: velocidad %.2f m/s menor que %.2f m/s; puede sedimentarse (aumente la pendiente)." % (x["id"], V, vmin))
+    vmax_c = 6.0                                            # Tabla N.° 10: concreto 3.0 – 6.0 m/s
+    if sec["tipo"] == "marco" and V > vmax_c:
+        av.append("%s: velocidad %.2f m/s mayor que %.1f m/s, límite del concreto en la Tabla N.° 10; reduzca la pendiente, agrande la "
+                  "sección o disipe la energía a la salida." % (x["id"], V, vmax_c))
     if via.get("selva_alta") and sec["tipo"] == "circular" and sec["pulg"] < 48:
         av.append("%s: en selva alta con cauces en V y suelos erosionables el MTC recomienda TMC Ø 48\" como mínimo." % x["id"])
     vel11 = {f[0]: f[1] for f in normas.cuadro("vial_vel_tabla11")["filas"]}
@@ -359,7 +363,8 @@ def alcantarilla(x, via, lluvia, tc_norma, avisos):
             "Q_cuencas": hid["Q"] if hid else 0.0, "Q_cunetas": round(Qc, 4), "desde_cunetas": desde, "Q": round(Q, 3),
             "pendiente": S, "longitud": float(x.get("longitud_m", 0)) or None, "seccion": sec, "conducto": nombre, "n": n,
             "tirante": round(y, 5), "tirante_rel": round(y / altura, 3), "V": round(V, 2), "froude": round(froude(sec, y, V), 2),
-            "d50_salida": round(d50, 3), "estado": "CUMPLE" if V >= vmin else "REVISAR", "avisos": av}
+            "d50_salida": round(d50, 3),
+            "estado": "CUMPLE" if V >= vmin and not (sec["tipo"] == "marco" and V > vmax_c) else "REVISAR", "avisos": av}
 
 
 # ------------------------------------------------------------------------------------------------ badenes

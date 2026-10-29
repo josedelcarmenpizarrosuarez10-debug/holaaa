@@ -862,6 +862,90 @@
    "ref": "numeral 4.1.2.5",
    "consideracion": "En terraplenes de más de 1.5 m; sobresale 0.15 m de la rodadura; aliviaderos cada 50 a 100 m en tangente.",
    "estado": "verificado"
+  },
+  {
+   "id": "vial_cab_espesor",
+   "grupo": "Drenaje vial",
+   "texto": "Espesor del cabezal y de las alas de la alcantarilla",
+   "valor": 0.3,
+   "unidad": "m",
+   "clase": "criterio",
+   "fuente": "PROYECTISTA",
+   "ref": "",
+   "consideracion": "La Lámina N.° 02 del MTC muestra el cabezal, las alas y la protección de entrada y salida sin medidas: se adoptan medidas típicas editables. Concreto f'c = 210 kg/cm².",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_cab_sobre_clave",
+   "grupo": "Drenaje vial",
+   "texto": "Altura del cabezal sobre la clave del tubo",
+   "valor": 0.3,
+   "unidad": "m",
+   "clase": "criterio",
+   "fuente": "PROYECTISTA",
+   "ref": "",
+   "consideracion": "Medida típica editable.",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_cab_cimiento",
+   "grupo": "Drenaje vial",
+   "texto": "Profundidad del cimiento del cabezal bajo el fondo del tubo",
+   "valor": 0.6,
+   "unidad": "m",
+   "clase": "criterio",
+   "fuente": "PROYECTISTA",
+   "ref": "",
+   "consideracion": "Medida típica editable.",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_cama",
+   "grupo": "Drenaje vial",
+   "texto": "Cama de apoyo de grava arenosa bajo la TMC",
+   "valor": 0.15,
+   "unidad": "m",
+   "clase": "criterio",
+   "fuente": "PROYECTISTA",
+   "ref": "",
+   "consideracion": "Espesor típico editable.",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_relleno_min",
+   "grupo": "Drenaje vial",
+   "texto": "Relleno mínimo sobre la clave de la TMC",
+   "valor": 0.6,
+   "unidad": "m",
+   "clase": "criterio",
+   "fuente": "PROYECTISTA",
+   "ref": "",
+   "consideracion": "Medida típica editable; confirmar con el fabricante según la carga vehicular y el calibre.",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_proteccion",
+   "grupo": "Drenaje vial",
+   "texto": "Protección de piedra emboquillada a la entrada y a la salida",
+   "valor": "e = 0.30 m; L = 1.5 D (mín. 1.50 m)",
+   "unidad": "",
+   "clase": "criterio",
+   "fuente": "PROYECTISTA",
+   "ref": "",
+   "consideracion": "Medidas típicas editables; uña de 0.50 m al final. A la salida el enrocado o la piedra cumple d50 ≥ V²/(3.1 g) (ecuación 49 del MTC).",
+   "estado": "verificado"
+  },
+  {
+   "id": "vial_cuneta_junta",
+   "grupo": "Drenaje vial",
+   "texto": "Juntas de la cuneta de concreto",
+   "valor": "cada 3.0 m, asfálticas de 1\"",
+   "unidad": "",
+   "clase": "criterio",
+   "fuente": "PROYECTISTA",
+   "ref": "",
+   "consideracion": "Separación típica editable.",
+   "estado": "verificado"
   }
  ],
  "cuadros": [

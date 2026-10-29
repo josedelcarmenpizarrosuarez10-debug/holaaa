@@ -339,7 +339,8 @@ def abrir(ruta, nombre=None):
 
 def vial(d, carpeta=None):
     """Drenaje vial (Manual de Hidrología, Hidráulica y Drenaje del MTC): cunetas, alcantarillas de alivio y de paso, badenes.
-    Con CARPETA escribe ahí la memoria de cálculo en Excel y el resultado en JSON. {"plantilla": ruta} lee los datos de la
+    Con CARPETA escribe ahí la memoria de cálculo (Excel), la memoria en Word, el metrado, los planos DXF con su vista PNG y el
+    resultado en JSON. {"plantilla": ruta} lee los datos de la
     plantilla Excel (la lluvia de DrenIE, si viene, manda); {"crear_plantilla": true} solo escribe la plantilla en CARPETA."""
     from . import vial as V, vial_excel, vial_plantilla
     if d.get("crear_plantilla"):
@@ -353,8 +354,14 @@ def vial(d, carpeta=None):
         d = x
     R = V.calcular(d, carpeta or ".")
     if carpeta:
+        from . import vial_dxf, vial_metrado, vial_word
         os.makedirs(carpeta, exist_ok=True)
-        R["archivos"] = [vial_excel.libro(os.path.join(carpeta, "MEMORIA_CALCULO_DRENAJE_VIAL.xlsx"), R)]
+        R["archivos"] = [vial_excel.libro(os.path.join(carpeta, "MEMORIA_CALCULO_DRENAJE_VIAL.xlsx"), R),
+                         vial_word.escribir(os.path.join(carpeta, "MEMORIA_DRENAJE_VIAL.docx"), R),
+                         vial_metrado.libro(os.path.join(carpeta, "METRADO_DRENAJE_VIAL.xlsx"), R)]
+        if d.get("planos", True):
+            P = vial_dxf.planos(R, os.path.join(carpeta, "PLANOS_DRENAJE_VIAL.dxf"), carpeta)
+            R["archivos"] += [P["dxf"]] + P["png"]; R["laminas"] = P["laminas"]
         ruta = os.path.join(carpeta, "resultado_vial.json")
         json.dump(R, open(ruta, "w", encoding="utf-8"), ensure_ascii=False, indent=1, default=str); R["archivos"].append(ruta)
     return R
