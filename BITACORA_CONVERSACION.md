@@ -831,3 +831,7 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Pedido: carátula en guinda con otra forma, 4 opciones en un Word con vista previa. `herramientas/varones/caratulas_opciones_v.py` (contenido de
   `caratulas_v.py`, ejemplo "MEMORIA DESCRIPTIVA"): 1 banda lateral guinda, 2 franjas superior e inferior, 3 marco clásico (borde de página doble),
   4 bloques; página 1 con el mosaico (render LibreOffice) y PNG por opción en `entregables_varones/figuras_caratula/`. Falta que elija una.
+- Corrección del usuario: las opciones de carátula no eran para Varones sino para el Hogar de Refugio (Solange). Script movido a
+  `herramientas/caratulas_opciones_refugio.py` (datos de `caratulas_refugio.py`, servicio y especialidad de arquitectura, para su memoria
+  descriptiva de arquitectura); salida en `entregables/arquitectura/OPCIONES_CARATULA_GUINDA_MEMORIA_ARQUITECTURA_HOGAR_REFUGIO.docx`.
+  Se retiró la versión de Varones.

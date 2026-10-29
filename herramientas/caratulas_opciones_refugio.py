@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
-"""Cuatro opciones de carátula en color guinda - CAR Varones (CUI 2705619), en un solo Word con vista previa.
+"""Cuatro opciones de carátula en color guinda - Hogar de Refugio Temporal "Mujeres Violentadas" (CUI 2675514), memoria
+descriptiva de arquitectura (Solange), en un solo Word con vista previa.
 
-Mismo contenido que las carátulas vigentes (varones/caratulas_v.py: escudo, entidad, servicio, proyecto, CUI, foto, título,
-ubicación y fecha) con otra composición. La página 1 muestra las cuatro opciones en miniatura; luego cada opción en su página.
-Ejemplo con el título "MEMORIA DESCRIPTIVA"; la opción elegida se aplica después a todas las carátulas.
+Datos del proyecto de caratulas_refugio.py (escudo, entidad, proyecto, CUI, foto de la usuaria, fecha) y servicio de la carátula
+de la memoria de arquitectura. La página 1 muestra las cuatro opciones en miniatura; luego cada opción en su página.
   Opción 1 - Banda lateral guinda.   Opción 2 - Franjas superior e inferior.
   Opción 3 - Marco clásico.          Opción 4 - Bloques.
 
-Uso: python3 herramientas/varones/caratulas_opciones_v.py
-Salida: entregables_varones/OPCIONES_CARATULA_GUINDA_CAR_VARONES.docx y vistas previas PNG en entregables_varones/figuras_caratula/
+Uso: python3 herramientas/caratulas_opciones_refugio.py
+Salida: entregables/arquitectura/OPCIONES_CARATULA_GUINDA_MEMORIA_ARQUITECTURA_HOGAR_REFUGIO.docx y vistas previas PNG en
+        entregables/figuras_caratula/
 """
 import os
 import subprocess
@@ -22,14 +23,18 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Cm, Pt
 
-AQUI = os.path.dirname(os.path.abspath(__file__)); RAIZ = os.path.dirname(os.path.dirname(AQUI))
+AQUI = os.path.dirname(os.path.abspath(__file__)); RAIZ = os.path.dirname(AQUI)
 sys.path.insert(0, AQUI)
-import caratulas_v as V  # noqa: E402  (textos, foto y escudo de las carátulas vigentes)
+import caratulas_refugio as CR  # noqa: E402  (fija en caratulas_v los datos del Hogar de Refugio: proyecto, CUI, foto, fecha)
+
+V = CR.V
 
 C = V.C
 G, G_CLARO, G_OSCURO, GRIS, ROSA = '7B1E2B', 'F3E6E8', '5A1520', '595959', 'F2D7DB'
-TITULO, SUBTITULO = 'MEMORIA DESCRIPTIVA', V.ESP
-SALIDA = os.path.join(RAIZ, 'entregables_varones/OPCIONES_CARATULA_GUINDA_CAR_VARONES.docx')
+TITULO, SUBTITULO, ESPEC_CORTA = 'MEMORIA DESCRIPTIVA', 'ESPECIALIDAD DE ARQUITECTURA', 'ARQUITECTURA'
+SERVICIO = 'SERVICIO DE CONSULTORÍA PARA LA ELABORACIÓN DE LA ESPECIALIDAD DE ARQUITECTURA DEL PROYECTO:'
+NOMBRE = 'Hogar de Refugio Temporal - Mujeres Violentadas'
+SALIDA = os.path.join(RAIZ, 'entregables/arquitectura/OPCIONES_CARATULA_GUINDA_MEMORIA_ARQUITECTURA_HOGAR_REFUGIO.docx')
 NOMBRES = ['Opción 1 - Banda lateral guinda', 'Opción 2 - Franjas', 'Opción 3 - Marco clásico',
            'Opción 4 - Bloques']
 par, sombra, bordes, sin_bordes, anchos, linea = C._par, C._sombra, C._bordes, C._sin_bordes, C._anchos, C._linea
@@ -119,7 +124,7 @@ def opcion1(d, img, primera=False):
     ubicacion(c0, 'FFFFFF', 'FFFFFF', 9)
     par(c0, 'FECHA', 9.5, True, ROSA, centro=False, antes=14, despues=3, sep=6)
     par(c0, V.FECHA, 13, True, 'FFFFFF', centro=False, sep=4)
-    par(c1.paragraphs[0], V.C.SERVICIO, 10.5, True, G, centro=False, despues=6)
+    par(c1.paragraphs[0], SERVICIO, 10.5, True, G, centro=False, despues=6)
     par(c1, V.PROYECTO, 9.5, True, centro=False, despues=30, esp=1.1)
     par(c1).add_run().add_picture(img, width=Cm(12.4))
     par(c1, V.LEYENDA, 7.5, False, GRIS, cursiva=True, antes=2, despues=110)
@@ -140,7 +145,7 @@ def opcion2(d, img, primera=False):
     par(e.paragraphs[0]).add_run().add_picture(V.ESCUDO, height=Cm(2.3))
     par(c1.paragraphs[0], C.ENTIDAD, 19, True, 'FFFFFF', centro=False, sep=10)
     par(c1, C.GERENCIA, 10, True, ROSA, centro=False, antes=2, sep=6)
-    par(d, V.C.SERVICIO, 10.5, True, G, antes=16, despues=6)
+    par(d, SERVICIO, 10.5, True, G, antes=16, despues=6)
     par(d, V.PROYECTO, 9.5, True, despues=4, esp=1.1)
     par(d, V.CUI, 12, True, G, despues=18, sep=4)
     tb, (c,) = tabla(d, (A,)); par(c.paragraphs[0]).add_run().add_picture(img, width=Cm(A))
@@ -152,7 +157,7 @@ def opcion2(d, img, primera=False):
     par(celdas[0].paragraphs[0], 'UBICACIÓN DEL PROYECTO', 9, True, ROSA, centro=False, despues=2, sep=4)
     ubicacion(celdas[0], 'FFFFFF', 'FFFFFF', 9)
     par(celdas[1].paragraphs[0], 'ESPECIALIDAD', 9, True, ROSA, despues=2, sep=4)
-    par(celdas[1], 'DRENAJE PLUVIAL', 11, True, 'FFFFFF', sep=4)
+    par(celdas[1], ESPEC_CORTA, 11, True, 'FFFFFF', sep=4)
     par(celdas[2].paragraphs[0], 'FECHA', 9, True, ROSA, despues=2, sep=4)
     par(celdas[2], V.FECHA, 15, True, 'FFFFFF', sep=6)
     minimo(d)
@@ -164,7 +169,7 @@ def opcion3(d, img, primera=False):
     par(d).add_run().add_picture(V.ESCUDO, height=Cm(3.2))
     par(d, C.ENTIDAD, 19, True, G, antes=6, sep=10)
     p = par(d, C.GERENCIA, 10, True, GRIS, antes=2, despues=4, sep=6); linea(p, G, 12)
-    par(d, V.C.SERVICIO, 10.5, True, G, antes=14, despues=6)
+    par(d, SERVICIO, 10.5, True, G, antes=14, despues=6)
     par(d, V.PROYECTO, 9.5, True, despues=4, esp=1.1)
     par(d, V.CUI, 12, True, G, despues=16, sep=4)
     tb, (c,) = tabla(d, (13.2,)); bordes(c, top=(12, G), left=(12, G), bottom=(12, G), right=(12, G)); margen(c, 0.2, 0.2, 0.2, 0.2)
@@ -197,7 +202,7 @@ def opcion4(d, img, primera=False):
     par(c, SUBTITULO, 12, True, GRIS, centro=False, antes=6, despues=4, sep=8)
     tb, (c,) = tabla(d, (A,)); par(c.paragraphs[0], antes=18).add_run().add_picture(img, width=Cm(A))
     tb, (c,) = tabla(d, (A,)); sombra(c, G_CLARO); margen(c, 0.5, 0.5, 0.3, 0.3); bordes(c, top=(24, G))
-    par(c.paragraphs[0], V.C.SERVICIO, 10, True, G, centro=False, antes=4, despues=4)
+    par(c.paragraphs[0], SERVICIO, 10, True, G, centro=False, antes=4, despues=4)
     par(c, V.PROYECTO, 9.5, True, centro=False, despues=4, esp=1.1)
     par(d, '', antes=12)
     tb, celdas = tabla(d, (5.6, 5.8, 5.6), alto=1.9)
@@ -221,12 +226,12 @@ def documento(img, mosaico=None):
     if mosaico:                                                     # página de vista previa
         seccion(d, True, 1.5, 1.5, 1.2)
         par(d, 'OPCIONES DE CARÁTULA - COLOR GUINDA', 16, True, G, despues=2, sep=6)
-        p = par(d, 'CAR Varones - ' + V.CUI + '  |  vista previa de las cuatro opciones (cada una, a tamaño real, en las páginas '
+        p = par(d, NOMBRE + ' - ' + V.CUI + '  |  vista previa de las cuatro opciones (cada una, a tamaño real, en las páginas '
                 'siguientes)', 9, False, GRIS, despues=10); linea(p, G, 12)
         par(d).add_run().add_picture(mosaico, width=Cm(16.0))
     for k, f in enumerate(OPCIONES):
         f(d, img, primera=not mosaico and k == 0)
-    d.core_properties.author = ''; d.core_properties.title = 'Opciones de carátula - CAR Varones'
+    d.core_properties.author = ''; d.core_properties.title = 'Opciones de carátula - ' + NOMBRE
     return d
 
 
