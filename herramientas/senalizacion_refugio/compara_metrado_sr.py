@@ -106,8 +106,8 @@ def generar():
         'SALIDA CON': 'Conforme con el plano.',
         'ZONA SEGURA EN': 'Conforme con el plano (la leyenda dice 210, pero hay 209 dibujadas).',
         'DIRECCIÓN DE EVACUACIÓN': 'Conforme con el plano.',
-        'ATENCIÓN RIESGO': 'Total conforme con las 39 imágenes del plano (la leyenda dice 38). El reparto por edificación no se puede '
-                           'comprobar en el DXF (imágenes sin posición): se toma el de este metrado.',
+        'ATENCIÓN RIESGO': 'Conforme: las 39 imágenes del plano (la leyenda dice 38), ubicadas en el PDF de la lámina, dan el mismo '
+                           'reparto por edificación que este metrado.',
         'UNIDAD DE LUCES': 'Total conforme (77 "LE" + 38 "A$C7A2016C2"). En el metrado propio es la unidad de luces de emergencia '
                            '(equipo); en este, "señal de luces de emergencia": definir si el equipo va en instalaciones eléctricas.',
         'LETRERO DE AFORO': 'Conforme con el plano.',

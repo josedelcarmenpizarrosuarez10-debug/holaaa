@@ -895,3 +895,8 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   no hay señales fuera de los bloques ya contados; las únicas sin posición son las 39 imágenes OLE de riesgo eléctrico (el DXF solo guarda
   su tamaño; para ubicarlas hace falta el PDF de la lámina). SS.HH. mujeres = 3 + 20 "mixto" = 23 (sin partida de mixto).
   `subsanacion_sr.py` -> `entregables/revision_interna/OBSERVACIONES_SUBSANADAS_Y_PENDIENTES_EVACUACION_Y_SENALIZACION_HOGAR_REFUGIO.docx`.
+- Refugio: PDF A1 de las láminas de señalización y evacuación (copias en `insumos/solange/senalizacion/`). `lee_pdf_sr.py`: las 39 imágenes
+  de riesgo eléctrico (17.2 x 25.8 pt = 0.90 x 1.36 m a 1/150, dos imágenes de la misma señal) ubicadas con la calibración de los rótulos
+  EDIF. 01-09: E-01 8, E-02 2, E-03 2, E-04 5, E-05 3, E-06 6, E-07 6, E-08 6, E-09 1 (igual al metrado de la usuaria). Comprobación
+  independiente con las palabras del PDF: zona segura 209, aforo 55, extintor 33, discapacitados 3 (coinciden con el DXF); PDF de
+  evacuación: 84 rutas, máx. 39.67 m, 13 zonas con el 10 repetido, sin leyenda. Figura de conteo con las 39 señales.

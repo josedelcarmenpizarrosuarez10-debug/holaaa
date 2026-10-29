@@ -1,0 +1,267 @@
+{
+ "fuente": "insumos/solange/senalizacion/PLANO_DE_SENALIZACION_HOGAR_REFUGIO_TEMPORAL_A1.pdf",
+ "calibracion": {
+  "rotulos": 9,
+  "escala_pt_m": 18.923,
+  "residuo_max_m": 1.51
+ },
+ "riesgo_electrico": [
+  {
+   "x": 349150.442,
+   "y": 9281979.435,
+   "edificacion": "E-05",
+   "imagen": 3436
+  },
+  {
+   "x": 349142.693,
+   "y": 9281986.626,
+   "edificacion": "E-05",
+   "imagen": 3436
+  },
+  {
+   "x": 349145.043,
+   "y": 9281959.17,
+   "edificacion": "E-05",
+   "imagen": 3438
+  },
+  {
+   "x": 349151.542,
+   "y": 9281993.961,
+   "edificacion": "E-07",
+   "imagen": 3438
+  },
+  {
+   "x": 349151.507,
+   "y": 9282004.036,
+   "edificacion": "E-07",
+   "imagen": 3438
+  },
+  {
+   "x": 349153.753,
+   "y": 9282005.56,
+   "edificacion": "E-07",
+   "imagen": 3438
+  },
+  {
+   "x": 349153.718,
+   "y": 9282015.642,
+   "edificacion": "E-07",
+   "imagen": 3438
+  },
+  {
+   "x": 349147.762,
+   "y": 9282023.128,
+   "edificacion": "E-07",
+   "imagen": 3438
+  },
+  {
+   "x": 349157.357,
+   "y": 9282023.127,
+   "edificacion": "E-07",
+   "imagen": 3438
+  },
+  {
+   "x": 349136.671,
+   "y": 9282018.406,
+   "edificacion": "E-08",
+   "imagen": 3436
+  },
+  {
+   "x": 349136.64,
+   "y": 9282027.292,
+   "edificacion": "E-08",
+   "imagen": 3436
+  },
+  {
+   "x": 349128.146,
+   "y": 9282027.293,
+   "edificacion": "E-08",
+   "imagen": 3438
+  },
+  {
+   "x": 349128.18,
+   "y": 9282018.417,
+   "edificacion": "E-08",
+   "imagen": 3436
+  },
+  {
+   "x": 349130.118,
+   "y": 9282023.743,
+   "edificacion": "E-08",
+   "imagen": 3438
+  },
+  {
+   "x": 349133.768,
+   "y": 9282025.295,
+   "edificacion": "E-08",
+   "imagen": 3436
+  },
+  {
+   "x": 349136.756,
+   "y": 9281994.109,
+   "edificacion": "E-06",
+   "imagen": 3436
+  },
+  {
+   "x": 349136.725,
+   "y": 9282002.997,
+   "edificacion": "E-06",
+   "imagen": 3436
+  },
+  {
+   "x": 349128.23,
+   "y": 9282002.999,
+   "edificacion": "E-06",
+   "imagen": 3438
+  },
+  {
+   "x": 349128.265,
+   "y": 9281994.12,
+   "edificacion": "E-06",
+   "imagen": 3436
+  },
+  {
+   "x": 349130.202,
+   "y": 9281999.446,
+   "edificacion": "E-06",
+   "imagen": 3438
+  },
+  {
+   "x": 349133.853,
+   "y": 9282000.998,
+   "edificacion": "E-06",
+   "imagen": 3436
+  },
+  {
+   "x": 349107.049,
+   "y": 9281986.647,
+   "edificacion": "E-04",
+   "imagen": 3438
+  },
+  {
+   "x": 349107.066,
+   "y": 9281980.968,
+   "edificacion": "E-04",
+   "imagen": 3436
+  },
+  {
+   "x": 349107.104,
+   "y": 9281969.051,
+   "edificacion": "E-04",
+   "imagen": 3438
+  },
+  {
+   "x": 349107.229,
+   "y": 9281963.451,
+   "edificacion": "E-04",
+   "imagen": 3436
+  },
+  {
+   "x": 349107.138,
+   "y": 9281957.601,
+   "edificacion": "E-04",
+   "imagen": 3438
+  },
+  {
+   "x": 349107.187,
+   "y": 9281948.223,
+   "edificacion": "E-01",
+   "imagen": 3436
+  },
+  {
+   "x": 349107.22,
+   "y": 9281933.211,
+   "edificacion": "E-01",
+   "imagen": 3436
+  },
+  {
+   "x": 349107.254,
+   "y": 9281927.847,
+   "edificacion": "E-01",
+   "imagen": 3438
+  },
+  {
+   "x": 349121.753,
+   "y": 9281937.342,
+   "edificacion": "E-01",
+   "imagen": 3436
+  },
+  {
+   "x": 349119.042,
+   "y": 9281937.343,
+   "edificacion": "E-01",
+   "imagen": 3438
+  },
+  {
+   "x": 349121.735,
+   "y": 9281938.869,
+   "edificacion": "E-01",
+   "imagen": 3436
+  },
+  {
+   "x": 349121.737,
+   "y": 9281942.828,
+   "edificacion": "E-01",
+   "imagen": 3438
+  },
+  {
+   "x": 349137.769,
+   "y": 9281945.559,
+   "edificacion": "E-02",
+   "imagen": 3436
+  },
+  {
+   "x": 349138.648,
+   "y": 9281949.755,
+   "edificacion": "E-02",
+   "imagen": 3436
+  },
+  {
+   "x": 349150.647,
+   "y": 9281935.081,
+   "edificacion": "E-03",
+   "imagen": 3436
+  },
+  {
+   "x": 349144.814,
+   "y": 9281934.895,
+   "edificacion": "E-03",
+   "imagen": 3436
+  },
+  {
+   "x": 349096.864,
+   "y": 9281976.82,
+   "edificacion": "E-09",
+   "imagen": 3436
+  },
+  {
+   "x": 349117.883,
+   "y": 9281927.728,
+   "edificacion": "E-01",
+   "imagen": 3438
+  }
+ ],
+ "riesgo_por_edificacion": {
+  "E-01": 8,
+  "E-02": 2,
+  "E-03": 2,
+  "E-04": 5,
+  "E-05": 3,
+  "E-06": 6,
+  "E-07": 6,
+  "E-08": 6,
+  "E-09": 1
+ },
+ "imagenes_tipo": [
+  3436,
+  3438
+ ],
+ "comprobacion_texto": {
+  "SISMOS": 210,
+  "AFORO": 57,
+  "EXTINTOR": 75,
+  "PQS": 70,
+  "DISCAPACITADOS": 4,
+  "SALIDA": 52
+ }
+}

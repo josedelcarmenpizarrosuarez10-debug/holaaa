@@ -67,11 +67,10 @@ def observaciones(P):
          'Borrar la copia suelta y corregir la leyenda a %d.' % pts['DETECTOR DE HUMO']['total']),
         ('Punto ecológico', 'La leyenda indica 00, pero en los exteriores hay %d puntos ecológicos dibujados (cuatro contenedores cada '
          'uno).' % pts['PUNTO ECOL']['total'], 'Corregir la leyenda a %d.' % pts['PUNTO ECOL']['total']),
-        ('Atención riesgo eléctrico', 'La señal no es un bloque: es una imagen pegada (OLE). El DXF guarda solo su tamaño, no su '
-         'posición, por lo que no se puede ubicar ni asignar a cada edificación. En el espacio modelo hay %d imágenes iguales '
-         '(%.2f x %.2f m); la leyenda indica 38.' % (len(ole), ole[0]['ancho'], ole[0]['alto']),
-         'Reemplazar las imágenes por un bloque de señal (así se cuentan y ubican) y confirmar la cantidad: el metrado toma las %d '
-         'imágenes; si una es copia sobrante, bajar a 38 en el metrado y en la leyenda.' % len(ole)),
+        ('Atención riesgo eléctrico', 'La señal no es un bloque: es una imagen pegada (OLE), que el DXF guarda sin su posición. Con '
+         'el PDF de la lámina se ubicaron las %d imágenes de la planta (%s); la leyenda indica 38.' % (
+             len(ole), ', '.join('%s: %d' % kv for kv in sorted(D.riesgo_pdf()['riesgo_por_edificacion'].items()))),
+         'Corregir la leyenda a %d y reemplazar las imágenes por un bloque de señal, para que se cuenten y ubiquen en el DXF.' % len(ole)),
         ('Letreros de aforo', 'Los %d letreros de aforo de la planta tienen el texto “__ PERSONAS”, sin el número de personas.' % pts[
             'LETRERO DE AFORO']['total'], 'Indicar en la lámina el aforo de cada ambiente (cálculo de aforo de arquitectura) para '
          'imprimir cada letrero con su número.'),
@@ -223,8 +222,8 @@ def generar():
 
     d.add_page_break()
     sec('5. SÍMBOLOS CONTADOS EN LA PLANTA')
-    M.par('Cada círculo de color marca un símbolo contado en el metrado (las señales de riesgo eléctrico no se pueden marcar porque '
-          'el DXF no trae su posición):', despues=4)
+    M.par('Cada círculo de color marca un símbolo contado en el metrado; las señales de riesgo eléctrico se ubicaron con el PDF de '
+          'la lámina:', despues=4)
     MS.figura(M, os.path.join(FIG, 'conteo.png'), 'Símbolos contados en la planta de la lámina %s' % LS, 14.5, 'Fuente: plano de señalización de la arquitecta.')
     d.core_properties.author = ''
     d.core_properties.title = 'Evacuación y señalización: lectura del plano y observaciones - Hogar de Refugio'

@@ -69,11 +69,15 @@ def generar():
         if nombre == 'planta_general':
             marcas = []
             for p in D.partidas(P):
-                if not p['und'] or not p['bloques'] or p['desc'].startswith('EXTINTOR DE'):
+                if not p['und'] or not isinstance(p['bloques'], list) or p['desc'].startswith('EXTINTOR DE'):
                     continue
                 for b in p['bloques']:
                     et = p['desc'].replace(' CON BRAILLE', '').capitalize() + ' (%d)' % p['total']
                     marcas.append((b, P['bloques'][b]['posiciones'], COLORES[b], et))
+            rp = D.riesgo_pdf()
+            if rp:                                                 # imágenes de riesgo eléctrico ubicadas en el PDF de la lámina
+                marcas.append(('riesgo', [[q['x'], q['y']] for q in rp['riesgo_electrico']], '#F2C200',
+                               'Señal de atención riesgo eléctrico (%d, del PDF)' % len(rp['riesgo_electrico'])))
             out.append(guardar_con_marcas(L, os.path.join(FIG, 'conteo.png'), marcas))
     for lay in doc.layouts:                                        # ventanas de la presentación: qué parte del modelo muestran
         if lay.name == 'Model':

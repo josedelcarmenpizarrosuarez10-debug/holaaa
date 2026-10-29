@@ -55,7 +55,9 @@ def generar():
     M.par('El metrado, la memoria descriptiva y las especificaciones técnicas de evacuación y señalización dicen lo mismo y siguen lo '
           'dibujado en los planos: %d partidas en la planta de señalización %s y en la planta de evacuación %s. Se leyeron todos los '
           'símbolos: los bloques de la planta (también los que están dentro de otros bloques), los dibujos sueltos (líneas, sombreados y '
-          'textos) y las imágenes pegadas; no hay señales dibujadas fuera de los bloques. Donde la leyenda o los cuadros dicen otra cosa, '
+          'textos) y las imágenes pegadas; no hay señales dibujadas fuera de los bloques. Con los PDF de las láminas se ubicaron las 39 '
+          'imágenes de riesgo eléctrico y se comprobaron los conteos del DXF (zona segura, aforo, extintor, SS.HH. discapacitados, rutas y '
+          'zonas de evacuación). Donde la leyenda o los cuadros dicen otra cosa, '
           'los documentos ya están corregidos (parte 1); para que los planos cuadren, la arquitecta debe hacer las correcciones de la '
           'parte 2; la parte 3 corrige el metrado de evacuación de arquitectura (HR y HD) y la parte 4 son decisiones de la arquitecta.'
           % (len(und), LS, LE))
@@ -84,8 +86,9 @@ def generar():
         ['Detector de humo', 'No se metra la copia suelta fuera del dibujo (coordenadas del doble de las del terreno): 67 und.'],
         ['Garita de control', 'Su señal de SS.HH. y su detector de humo se metran en exteriores (EXT).'],
         ['Extintores', '33 extintores PQS tipo ABC de 9 kg (uno por cada señal), con la señal a 1.80 m sobre el equipo.'],
-        ['Riesgo eléctrico', '39 imágenes del plano (la leyenda dice 38), con el reparto por edificación del metrado de evacuación de '
-         'arquitectura (el DXF no trae la posición de las imágenes).'],
+        ['Riesgo eléctrico', 'Las 39 imágenes de la planta (la leyenda dice 38), ubicadas una por una en el PDF de la lámina, porque el DXF '
+         'no guarda su posición: E-01 8, E-02 2, E-03 2, E-04 5, E-05 3, E-06 6, E-07 6, E-08 6 y E-09 1 (igual al metrado de '
+         'arquitectura).'],
         ['Zonas de evacuación', 'Las 13 zonas de %s (anillo de 4.30 m y línea de 0.15 m): 25.42 m² de pintura; la zona 10 repetida '
          '(junto a E-06) es la zona 13.' % LE],
         ['Rutas de evacuación', 'Las 84 rutas de %s con su longitud (máximo 39.67 m ≤ 45 m) y su edificación de origen, en el metrado y '
@@ -150,8 +153,8 @@ def generar():
         ['Aforo de las zonas de evacuación', 'Se pintan las 13 zonas del plano; sus aforos (12, 20 y 40 personas, mismo tamaño) suman %d '
          'personas, menos que la capacidad máxima (%d).' % (sum(z['aforo'] for z in zs), D.POBLACION['maxima']),
          'Si se agregan o agrandan zonas, cambian el área de pintura y la tabla de zonas.'],
-        ['Riesgo eléctrico', '39 señales con el reparto del metrado de arquitectura.', 'Si se convierten las imágenes a bloque y son 38, '
-         'o cambian de edificación, se actualiza la partida.'],
+        ['Riesgo eléctrico', '39 señales, ubicadas en el PDF de la lámina.', 'Si al convertir las imágenes a bloque se quita o mueve '
+         'alguna, se actualiza la partida.'],
         ['Extintor de la cocina', 'Solo extintores PQS; la fila de extintor clase K está en 00.', 'Si se agrega un extintor K, se dibuja y '
          'se metra (señal y equipo).'],
         ['Botiquín', 'Sin señal de botiquín (la fila está en 00).', 'Si se dibuja (por ejemplo en el tópico), se agrega la partida.'],

@@ -7,9 +7,9 @@ Cantidades: del plano de señalización de la arquitecta (lee_plano_sr.py -> ent
     las copias sueltas fuera del terreno no se metran;
   - unidad de luces de emergencia: los bloques "LE" y "A$C7A2016C2" son el mismo símbolo ("LE" contiene a "A$C7A2016C2",
     que es el símbolo de la leyenda); se suman los dos;
-  - atención riesgo eléctrico: en el DXF es una imagen pegada (OLE) sin ubicación; se metran las 39 imágenes de igual tamaño
-    (0.90 x 1.36 m) del espacio modelo (la leyenda indica 38); su reparto por edificación es el del metrado de evacuación de
-    arquitectura (hoja HD), que suma lo mismo; si no sumara igual, van a la columna "sin ubicar".
+  - atención riesgo eléctrico: en el DXF es una imagen pegada (OLE) que no guarda su posición; se metran las 39 imágenes de igual
+    tamaño (0.90 x 1.36 m) del espacio modelo (la leyenda indica 38), ubicadas una por una en el PDF de la lámina (lee_pdf_sr.py);
+    sin el PDF, se usa el reparto del metrado de evacuación de arquitectura (hoja HD), que da lo mismo.
 Datos que el plano no define y se adoptan aquí (nota de observaciones): extintor PQS tipo ABC de 9 kg (memoria de evacuación
 de arquitectura: 33 extintores PQS de 9 kg), señal de extintor sobre el equipo a 1.80 m, punto ecológico a 1.80 m.
 """
@@ -23,6 +23,8 @@ PLANO = os.path.join(RAIZ, 'entregables/_calc/senalizacion_plano.json')
 EVAC = os.path.join(RAIZ, 'entregables/_calc/evacuacion_plano.json')      # plano de evacuación (lee_plano_ev.py)
 # metrado de evacuación de arquitectura (Excel de la usuaria): solo para el reparto por edificación de la señal de riesgo eléctrico
 METRADO_ARQ = os.path.join(RAIZ, 'insumos/solange/senalizacion/METRADOS_EVACUACION_REFUGIO_MUJERES_ok.xlsx')
+# ubicación de las señales de riesgo eléctrico leída del PDF de la lámina (lee_pdf_sr.py)
+PDF_SR = os.path.join(RAIZ, 'entregables/_calc/senalizacion_pdf.json')
 SAL = os.path.join(RAIZ, 'entregables')
 
 PROYECTO = ('CREACIÓN DEL SERVICIO DE PROTECCIÓN A MUJERES VÍCTIMAS DE VIOLENCIA EN SITUACIÓN DE RIESGO DE FEMINICIDIO O PELIGRE '
@@ -125,6 +127,11 @@ def ole_senal(P=None):
     return [o for o in P['ole'] if o['propietario'] == '1F' and abs((o['ancho'] or 0) - 0.904) < 0.01 and abs((o['alto'] or 0) - 1.356) < 0.01]
 
 
+def riesgo_pdf():
+    """Señales de riesgo eléctrico ubicadas en el PDF de la lámina (posición UTM y edificación)."""
+    return json.load(open(PDF_SR, encoding='utf-8')) if os.path.exists(PDF_SR) else None
+
+
 def riesgo_por_edificacion():
     """Reparto por edificación de la señal de riesgo eléctrico en la hoja HD del metrado de arquitectura (partida 03.14.01.04)."""
     import openpyxl
@@ -163,8 +170,13 @@ def partidas(P=None):
                            leyenda=0, fuente='Lámina %s: %d zonas de evacuación de 4.30 m de diámetro con anillo de 0.15 m '
                                              '(%d x %.4f m²); leyenda de %s: 00' % (LAMINA_E[0], len(zs), len(zs), a, LS))
             elif bloques is None:
-                n = len(ole_senal(P)); rp = riesgo_por_edificacion()
-                if rp and sum(rp.values()) == n:                 # reparto del metrado de arquitectura con el mismo total
+                n = len(ole_senal(P)); rp = riesgo_por_edificacion(); pdf = riesgo_pdf()
+                if pdf and len(pdf['riesgo_electrico']) == n:     # ubicadas en el PDF de la lámina
+                    rq = pdf['riesgo_por_edificacion']
+                    reg.update(por={e: rq.get(e, 0) for e in eds}, sin_ubicar=0, total=n,
+                               fuente='Planta de %s: %d señales (imágenes pegadas, ubicadas en el PDF de la lámina); leyenda: %d' % (
+                                   LS, n, f['cantidad']))
+                elif rp and sum(rp.values()) == n:               # reparto del metrado de arquitectura con el mismo total
                     reg.update(por={e: rp.get(e, 0) for e in eds}, sin_ubicar=0, total=n,
                                fuente='Imagen pegada en el DXF (sin ubicación): %d imágenes en el espacio modelo; reparto por '
                                       'edificación del metrado de evacuación de arquitectura; leyenda: %d' % (n, f['cantidad']))

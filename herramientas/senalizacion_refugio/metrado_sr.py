@@ -3,7 +3,7 @@
 
 Cantidades del plano de señalización de la arquitecta (datos_sr.py / lee_plano_sr.py): cada señal y equipo contado en la
 planta de la lámina SE-S-02 y repartido por edificación (E-01 a E-09 y exteriores), cotejado con la columna CANTIDAD de su
-leyenda; la señal de atención riesgo eléctrico, que en el DXF es una imagen pegada sin ubicación, en la columna SIN UBICAR.
+leyenda; la señal de atención riesgo eléctrico, que en el DXF es una imagen pegada sin ubicación, ubicada en el PDF de la lámina.
 
 Hojas: RESUMEN (partidas y metrado, enlazado), METRADO (por edificación, total = suma, cotejo con la leyenda),
 ZONAS DE EVACUACIÓN (las 13 zonas de la lámina SE-E-01, área del anillo con fórmula), RUTAS DE EVACUACIÓN (84 rutas de SE-E-01,
@@ -77,9 +77,8 @@ def hoja_metrado(wb, P, pts):
              'bloque de la planta general, con 0.60 m de margen para las señales de fachada; donde los contornos se traslapan en los '
              'aleros, la edificación que lo contiene con más holgura); EXT = exteriores (garita de control, patios, estacionamientos, '
              'puntos ecológicos y circulaciones). No se metran las copias de símbolos que están fuera del terreno.' % D.LS,
-             '2. Atención riesgo eléctrico: en el DXF es una imagen pegada (OLE) que no exporta su ubicación; se metran las 39 '
-             'imágenes de igual tamaño del espacio modelo (la leyenda indica 38), con el reparto por edificación del metrado de '
-             'evacuación de arquitectura, que suma lo mismo. Se instalan en los tableros y ambientes eléctricos que indica la lámina.',
+             '2. Atención riesgo eléctrico: en el DXF es una imagen pegada (OLE) que no guarda su ubicación; las 39 imágenes de la '
+             'planta (la leyenda indica 38) se ubicaron una por una en el PDF de la lámina y se asignaron a su edificación.',
              '3. Unidad de luces de emergencia: los bloques "LE" (77) y "A$C7A2016C2" (38) son el mismo símbolo de la leyenda '
              '(el primero contiene al segundo); se suman los dos: 115 und. La leyenda indica 77.',
              '4. Extintores: uno por cada señal de ubicación de extintor de la planta (33), PQS tipo ABC de 9 kg.',
@@ -114,7 +113,7 @@ def hoja_leyenda(wb, P):
         if p is None:
             obs = 'Sin símbolos en la planta; no se metra.' if not f['cantidad'] else 'Revisar.'
         elif p['bloques'] is None:
-            obs = 'Imagen pegada (OLE): %d imágenes en el espacio modelo, sin ubicación.' % dib
+            obs = 'Imagen pegada (OLE): %d imágenes en la planta, ubicadas en el PDF de la lámina; corregir la leyenda a %d.' % (dib, dib)
         elif dib == (f['cantidad'] or 0):
             obs = 'Conforme.'
         else:
