@@ -851,3 +851,7 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   mobiliario. El Excel trae EM-01 a EM-09 con EM-03 y EM-04 repitiendo las edificaciones 01 y 02-03; el DXF de mobiliario tiene 7 láminas
   (EM-01 a EM-07), que son las del metrado y la memoria: el índice toma las del plano (a confirmar con Solange). 116 láminas. Se regeneró
   la memoria de arquitectura corregida (su listado de planos sale de este índice).
+- PSST del CAR Mujeres (Word del usuario, copia en `insumos/wilma/psst/`): pedido "borra la parte 9 que dice firma". Se retiró el ANEXO 09
+  (formatos de registros ATS, PETAR, visitas, EPP, inspección y reporte, con campos de firma) con `herramientas/mujeres/psst_sin_anexo09_m.py`;
+  el ANEXO 10 (presupuesto) pasa a ANEXO 09; se ajustaron la lista de anexos, el índice (8 entradas menos, páginas -3), los numerales 4.4,
+  8.9, el texto de los PETS, la fuente del cuadro de presupuesto y la matriz de requisitos legales. Salida `entregables_mujeres/PLAN_DE_SST_CAR_MUJERES_2026.docx`.
