@@ -887,3 +887,6 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   han recibido): cotejo de cantidades metrado = especificaciones = memoria (99 partidas, 1251 und, sin diferencias); edificaciones E-06
   a E-08 renombradas "Habitaciones (1) a (3)" como en el plano y en evacuación y señalización; índice lleno con `herramientas/indice_word.py`
   (también en evacuación y señalización).
+- Refugio, mobiliario: `subsanacion_mr.py` -> `entregables/revision_interna/OBSERVACIONES_SUBSANADAS_Y_PENDIENTES_MOBILIARIO_HOGAR_REFUGIO.docx`
+  (1: 24 cantidades corregidas + descripciones, cuadros mal titulados, cuadro repetido, códigos dobles, extintores, nombres; 2: 40
+  correcciones para la arquitecta en EM-01 a EM-07; 3: 7 decisiones que cambiarían los documentos).
