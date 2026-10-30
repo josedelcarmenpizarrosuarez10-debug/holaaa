@@ -906,3 +906,12 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   POBLACIÓN, SEÑALES). Sin columnas LEYENDA/DIFERENCIA/SIN UBICAR, sin hoja LEYENDA ni "altura en la leyenda"; fuentes y notas como
   referencias neutras a las láminas SE-S-02 y SE-E-01. El cotejo con la leyenda queda solo en `revision_interna/`. Cantidades sin cambio
   (14 partidas; zonas 25.42 m²).
+
+### 30-10-2026 – Refugio: especificaciones de equipamiento y mobiliario del Word del usuario
+- El usuario mandó su Word de EETT (copiado del CAR Mujeres, CUI 2717013, con encabezados de la I.E. Ofelia Velásquez). Pidió dejar
+  solo lo del metrado, borrar lo demás y conservar las imágenes; manda el metrado propio (99 partidas de los planos EM).
+- `mobiliario_refugio/eett_usuario_mr.py`: 44 partidas con el texto e imágenes del usuario (40 imágenes, sin cambio), 48 completadas
+  con su formato, 7 "Ídem" (cojines y piso encastrable repetidos por ambiente); 21 partidas borradas (caballete, papelera vaivén, juegos
+  de cocina y lavandería, pelotas de otro número, futsal, torre de básquet, conos, barra de equilibrio, ula ula, cinta métrica, balanza,
+  flexaband, cronómetro, ajedrez, linterna, megáfono, chaleco). Proyecto y CUI 2675514 en los datos iniciales; encabezado del hogar en
+  todas las páginas.
