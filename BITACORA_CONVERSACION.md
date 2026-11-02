@@ -915,3 +915,11 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   de cocina y lavandería, pelotas de otro número, futsal, torre de básquet, conos, barra de equilibrio, ula ula, cinta métrica, balanza,
   flexaband, cronómetro, ajedrez, linterna, megáfono, chaleco). Proyecto y CUI 2675514 en los datos iniciales; encabezado del hogar en
   todas las páginas.
+
+### 02-11-2026 – Carátulas de tomos y lomos de archivador en PowerPoint (los 3 proyectos)
+- Pedido: carátulas distintas a las anteriores, elegantes, en PowerPoint, del Tomo I al Tomo X, con espacio para el contenido de
+  cada tomo; y lomos para archivador oficio delgado y grueso, 3 por hoja A4, con espacio para el contenido.
+- `herramientas/caratulas_tomos_pptx.py`: modelo 1 CAR Varones (banda lateral azul marino y dorado), modelo 2 Hogar de Refugio
+  (foto a todo el ancho y sello circular, verde y champán), modelo 3 CAR Mujeres (marco doble clásico, ciruela y dorado).
+  Lomos: ancho 6.3 x 27.6 cm y delgado 4.0 x 27.6 cm, 3 por A4 con línea de corte; 4 hojas por tipo (la última con el Tomo X y
+  2 lomos de reserva sin número).
