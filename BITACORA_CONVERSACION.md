@@ -932,3 +932,6 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Cambio (02-11-2026): "no tan lleno de color, cambia diseño en todos". Carátulas y lomos en fondo blanco; el guinda y el dorado
   solo en letras, líneas finas y detalles (sin bloques de color). Los lomos conservan la tabla editable de contenido (encabezado
   en tono claro) y el nombre completo del proyecto con su CUI.
+- Ajuste (02-11-2026): "no menos color, no tan lleno pero sí usa color". Punto medio: franjas, placas y sellos en guinda y dorado
+  con el cuerpo de la hoja en blanco (carátulas y lomos); lomos con franja guinda arriba y al pie, tabla con encabezado guinda y
+  nombre completo con CUI sobre fondo rosado.
