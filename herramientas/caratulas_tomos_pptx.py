@@ -5,7 +5,8 @@ Un modelo de diseño distinto por proyecto (no se mezclan entre proyectos), guin
 detalles de color, cuerpo de la hoja en blanco (la usuaria quiere color, pero sin llenar la hoja):
   - CAR Varones (CUI 2705619): modelo 1, franja guinda arriba y al pie, placa guinda con el tomo;
   - Hogar de Refugio Temporal (CUI 2675514): modelo 2, columna guinda angosta a la izquierda con el tomo, pie rosado;
-  - CAR Mujeres (CUI 2717013): modelo 3, marco guinda fino con esquinas, banda con el título y sello circular con el tomo.
+  - CAR Mujeres (CUI 2717013): opción E elegida (caratula_3e / lomo_3e): foto panorámica entre filetes guinda y bloque guinda
+    del tomo con los datos al lado (las opciones A a F quedan en el script; vista previa con opciones_mujeres()).
 Carátulas: hoja A4 vertical, una por tomo (Tomo I a Tomo X), sin contenido (el contenido se escribe en los lomos).
 Lomos: archivador de palanca tamaño oficio, lomo ancho (6.3 x 27.6 cm) y lomo delgado (4.0 x 27.6 cm), 3 por hoja A4 con
 líneas de corte; cada lomo con escudo, número de tomo, tabla editable "CONTENIDO" y nombre completo del proyecto con su CUI
@@ -826,6 +827,9 @@ def opciones_mujeres(carpeta, letras='AB'):
         ruta = os.path.join(carpeta, 'OPCION_%s_CAR_MUJERES.pptx' % letra)
         prs.save(ruta); out.append(ruta)
     return out
+
+
+CARATULA[3], LOMO[3] = caratula_3e, lomo_3e                       # CAR Mujeres: opción E elegida por la usuaria
 
 
 def hoja_lomos(prs, P, w, tomos, titulo):

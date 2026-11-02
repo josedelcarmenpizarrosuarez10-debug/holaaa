@@ -945,3 +945,6 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Lomos nuevos (02-11-2026) del Hogar de Refugio y del CAR Mujeres con el estilo de su carátula nueva: Refugio con encabezado
   guinda, franja rosada con el tomo, tabla y pie guinda (`lomo_2`); Mujeres con foto arriba y escudo en sello, tomo entre filetes
   dorados, tabla y tarjeta guinda con el nombre completo y CUI (`lomo_3`). CAR Varones sin cambio.
+- CAR Mujeres (02-11-2026): la usuaria pidió opciones antes de procesar; se mostraron A-F en PNG (A diagonal, B arco, C pestaña y
+  ficha, D panel rosado, E panorámica, F geométrica). Eligió la **E**: carátulas Tomo I-X y lomos regenerados con `caratula_3e` y
+  `lomo_3e`.
