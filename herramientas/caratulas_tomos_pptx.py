@@ -685,11 +685,135 @@ def lomo_3d(sl, P, x, y, w, h, n):
     rect(sl, x, y, w, h, line='7F7F7F', lw=0.5, dash=MSO_LINE.DASH, nombre='Línea de corte')
 
 
+def caratula_3e(sl, P, n):
+    """Opción E: encabezado con escudo a la izquierda, título y datos centrados, foto panorámica de borde a borde entre filetes
+    guinda y, abajo, bloque guinda con el tomo a la izquierda y ubicación y fecha a la derecha."""
+    c1, c2 = P['c1'], P['c2']
+    rect(sl, 0, 0, 21, 29.7, fill=BLANCO)
+    escudo(sl, 2.6, 1.0, 2.2)
+    texto(sl, 4.2, 1.35, 15.5, 0.85, ENTIDAD, size=16, color=c1, font=SERIF, bold=True, esp=2)
+    texto(sl, 4.2, 2.15, 15.5, 0.7, GERENCIA, size=11, color=GRIS, esp=1)
+    rect(sl, 1.5, 3.55, 18, 0.05, fill=c2)
+    texto(sl, 1, 4.1, 19, 1.1, 'EXPEDIENTE TÉCNICO', size=26, color=c1, font=SERIF, bold=True, align=PP_ALIGN.CENTER, esp=5)
+    texto(sl, 1.8, 5.5, 17.4, 3.4, P['nombre'], size=12.5, color='333333', font=SERIF, bold=True, align=PP_ALIGN.CENTER)
+    texto(sl, 1, 8.95, 19, 0.75, 'CUI N° ' + P['cui'], size=14, color=c1, bold=True, align=PP_ALIGN.CENTER, esp=1.5)
+    fy, fh = 10.4, 9.6                                              # foto panorámica
+    rect(sl, 0, fy - 0.3, 21, 0.12, fill=c1); rect(sl, 0, fy - 0.15, 21, 0.04, fill=c2)
+    foto(sl, os.path.join(RAIZ, P['foto']), 0, fy, 21, fh)
+    rect(sl, 0, fy + fh + 0.11, 21, 0.04, fill=c2); rect(sl, 0, fy + fh + 0.18, 21, 0.12, fill=c1)
+    by, bh = fy + fh + 1.2, 5.6
+    rect(sl, 1.5, by, 6.2, bh, fill=c1)
+    rect(sl, 1.75, by + 0.25, 5.7, bh - 0.5, line=c2, lw=0.75)
+    texto(sl, 1.5, by + 0.6, 6.2, 0.7, 'TOMO', size=14, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=4)
+    texto(sl, 1.5, by + 1.3, 6.2, 3.6, ROMANOS[n], size=60 if len(ROMANOS[n]) < 4 else 44, color=BLANCO, font=SERIF, bold=True,
+          align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    tx = 8.6
+    rect(sl, tx, by, 0.06, bh, fill=c2)
+    texto(sl, tx + 0.6, by + 0.35, 10.5, 4.9,
+          [[('CENTRO DE ACOGIDA RESIDENCIAL', dict(size=13, color=c1, font=SERIF))], [('MUJERES', dict(size=13, color=c1, font=SERIF))],
+           [('', {})],
+           [('UBICACIÓN', dict(size=9.5, color=c2))], [(UBICACION, dict(size=11.5, color='333333'))], [('', dict(size=6))],
+           [('FECHA', dict(size=9.5, color=c2))], [(P['fecha'], dict(size=11.5, color='333333'))]],
+          bold=True, anchor=MSO_ANCHOR.MIDDLE, esp=1)
+    rect(sl, 0, 29.2, 21, 0.5, fill=c1)
+
+
+def esquinas_triangulo(sl, x, y, w, h, c1, c2, t):
+    """Triángulos de color en la esquina superior derecha y la inferior izquierda."""
+    a = rect(sl, x + w - t, y, t, t, fill=c1, forma=MSO_SHAPE.RIGHT_TRIANGLE); a.rotation = 180
+    b = rect(sl, x + w - t * 0.62, y, t * 0.62, t * 0.62, fill=c2, forma=MSO_SHAPE.RIGHT_TRIANGLE); b.rotation = 180
+    rect(sl, x, y + h - t, t, t, fill=c1, forma=MSO_SHAPE.RIGHT_TRIANGLE)
+    rect(sl, x, y + h - t * 0.62, t * 0.62, t * 0.62, fill=c2, forma=MSO_SHAPE.RIGHT_TRIANGLE)
+
+
+def caratula_3f(sl, P, n):
+    """Opción F: esquinas triangulares en guinda y dorado, contenido centrado, foto con esquinas redondeadas y el tomo en un
+    hexágono guinda."""
+    c1, c2 = P['c1'], P['c2']
+    rect(sl, 0, 0, 21, 29.7, fill=BLANCO)
+    esquinas_triangulo(sl, 0, 0, 21, 29.7, c1, c2, 5.0)
+    escudo(sl, 10.5, 1.3, 2.3)
+    texto(sl, 1, 3.75, 19, 0.85, ENTIDAD, size=16, color=c1, font=SERIF, bold=True, align=PP_ALIGN.CENTER, esp=2)
+    texto(sl, 1, 4.55, 19, 0.7, GERENCIA, size=11, color=GRIS, align=PP_ALIGN.CENTER, esp=1)
+    rect(sl, 7.0, 5.55, 7.0, 0.05, fill=c2)
+    texto(sl, 1, 5.9, 19, 1.0, 'EXPEDIENTE TÉCNICO', size=23, color=c1, font=SERIF, bold=True, align=PP_ALIGN.CENTER, esp=4)
+    texto(sl, 2.2, 7.1, 16.6, 3.3, P['nombre'], size=12, color='333333', font=SERIF, bold=True, align=PP_ALIGN.CENTER)
+    texto(sl, 1, 10.45, 19, 0.75, 'CUI N° ' + P['cui'], size=14, color=c1, bold=True, align=PP_ALIGN.CENTER, esp=1.5)
+    fw, fh = 15.4, 9.4; fx, fy = 10.5 - fw / 2, 11.75
+    p = foto(sl, os.path.join(RAIZ, P['foto']), fx, fy, fw, fh)
+    p.auto_shape_type = MSO_SHAPE.ROUNDED_RECTANGLE
+    av = p._element.spPr.find(qn('a:prstGeom')).find(qn('a:avLst'))
+    etree.SubElement(av, qn('a:gd'), name='adj', fmla='val 8000')
+    hw, hh = 6.4, 4.4; hy = fy + fh + 0.8                            # hexágono con el tomo
+    rect(sl, 10.5 - hw / 2, hy, hw, hh, fill=c1, line=c2, lw=2, forma=MSO_SHAPE.HEXAGON)
+    texto(sl, 10.5 - hw / 2, hy + 0.55, hw, 0.6, 'TOMO', size=12, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=4)
+    texto(sl, 10.5 - hw / 2, hy + 1.1, hw, 2.8, ROMANOS[n], size=48 if len(ROMANOS[n]) < 4 else 36, color=BLANCO, font=SERIF,
+          bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    texto(sl, 5, 27.6, 15.2, 0.65, [[(UBICACION, {}), ('   ◆   ', dict(color=c2)), (P['fecha'], {})]], size=11, color=c1,
+          bold=True, align=PP_ALIGN.RIGHT, esp=1)
+
+
+def lomo_3e(sl, P, x, y, w, h, n):
+    """Lomo de la opción E: escudo y entidad, foto panorámica entre filetes, bloque guinda con el tomo, tabla, nombre y pie."""
+    c1, c2 = P['c1'], P['c2']
+    ancho = w > 5
+    rect(sl, x, y, w, h, fill=BLANCO)
+    escudo(sl, x + w / 2, y + 0.35, 1.35 if ancho else 1.05)
+    texto(sl, x + 0.1, y + (1.8 if ancho else 1.5), w - 0.2, 0.85, ['GOBIERNO REGIONAL', 'SAN MARTÍN'], size=8 if ancho else 6.5,
+          color=c1, bold=True, align=PP_ALIGN.CENTER, esp=0.5)
+    fy = y + (2.95 if ancho else 2.6); fh = 2.2 if ancho else 1.8
+    rect(sl, x, fy - 0.15, w, 0.08, fill=c1)
+    foto(sl, os.path.join(RAIZ, P['foto']), x, fy, w, fh)
+    rect(sl, x, fy + fh + 0.07, w, 0.08, fill=c1)
+    by = fy + fh + 0.45; bh = 2.9
+    rect(sl, x + 0.4, by, w - 0.8, bh, fill=c1); rect(sl, x + 0.55, by + 0.15, w - 1.1, bh - 0.3, line=c2, lw=0.75)
+    texto(sl, x, by + 0.25, w, 0.55, 'TOMO', size=10 if ancho else 8.5, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=3)
+    num = ROMANOS[n] if n is not None else ''
+    texto(sl, x, by + 0.75, w, 1.95, num, size=(38 if ancho else 26) if len(num) < 4 else (30 if ancho else 19), color=BLANCO,
+          font=SERIF, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    if n is None:
+        rect(sl, x + w * 0.3, by + 2.3, w * 0.4, 0.025, fill=c2)
+    yc = by + bh + 0.35; hc = 10.2
+    tabla(sl, x + 0.3, yc, w - 0.6, hc, P, 'CONTENIDO', 0.68, False, 9 if ancho else 7.5, 9 if ancho else 7.5, hdr=0.65)
+    yv = yc + hc + 0.3; hv = y + h - 1.2 - yv
+    nombre_vertical(sl, P, x, w, yv, hv, ancho, BLANCO, c2, c1, c1)
+    texto(sl, x, y + h - 1.15, w, 0.6, P['fecha'], size=7 if ancho else 5.5, color=c1, bold=True, align=PP_ALIGN.CENTER, esp=0.5)
+    rect(sl, x, y + h - 0.45, w, 0.45, fill=c1)
+    rect(sl, x, y, w, h, line='7F7F7F', lw=0.5, dash=MSO_LINE.DASH, nombre='Línea de corte')
+
+
+def lomo_3f(sl, P, x, y, w, h, n):
+    """Lomo de la opción F: esquinas triangulares, escudo, hexágono guinda con el tomo, tabla y nombre con CUI."""
+    c1, c2 = P['c1'], P['c2']
+    ancho = w > 5
+    rect(sl, x, y, w, h, fill=BLANCO)
+    esquinas_triangulo(sl, x, y, w, h, c1, c2, 1.8 if ancho else 1.3)
+    escudo(sl, x + w / 2, y + 0.45, 1.35 if ancho else 1.05)
+    texto(sl, x + 0.1, y + (1.9 if ancho else 1.6), w - 0.2, 0.85, ['GOBIERNO REGIONAL', 'SAN MARTÍN'], size=8 if ancho else 6.5,
+          color=c1, bold=True, align=PP_ALIGN.CENTER, esp=0.5)
+    hw = w - 0.6; hh = 3.2 if ancho else 2.6; hy = y + (3.0 if ancho else 2.65)
+    rect(sl, x + 0.3, hy, hw, hh, fill=c1, line=c2, lw=1.25, forma=MSO_SHAPE.HEXAGON)
+    texto(sl, x, hy + 0.3, w, 0.5, 'TOMO', size=9.5 if ancho else 8, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=3)
+    num = ROMANOS[n] if n is not None else ''
+    texto(sl, x, hy + 0.75, w, hh - 1.0, num, size=(36 if ancho else 24) if len(num) < 4 else (28 if ancho else 18),
+          color=BLANCO, font=SERIF, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    if n is None:
+        rect(sl, x + w * 0.3, hy + hh - 0.6, w * 0.4, 0.025, fill=c2)
+    yc = hy + hh + 0.4; hc = 10.2
+    tabla(sl, x + 0.3, yc, w - 0.6, hc, P, 'CONTENIDO', 0.68, False, 9 if ancho else 7.5, 9 if ancho else 7.5, hdr=0.65)
+    yv = yc + hc + 0.3; hv = y + h - 2.0 - yv
+    nombre_vertical(sl, P, x, w, yv, hv, ancho, BLANCO, c2, c1, c2)
+    texto(sl, x + 0.3, y + h - 1.55, w - 0.5, 0.6, P['fecha'], size=7 if ancho else 5.5, color=c1, bold=True,
+          align=PP_ALIGN.RIGHT, esp=0.5)
+    rect(sl, x, y, w, h, line='7F7F7F', lw=0.5, dash=MSO_LINE.DASH, nombre='Línea de corte')
+
+
 def opciones_mujeres(carpeta, letras='AB'):
     """Vista previa de las opciones del CAR Mujeres: carátula (Tomo I) y hojas de lomos (grueso y delgado) de cada una."""
     P = next(p for p in PROYECTOS if p['clave'] == 'CAR_MUJERES')
     out = []
-    todas = {'A': (caratula_3a, lomo_3a), 'B': (caratula_3b, lomo_3b), 'C': (caratula_3c, lomo_3c), 'D': (caratula_3d, lomo_3d)}
+    todas = {'A': (caratula_3a, lomo_3a), 'B': (caratula_3b, lomo_3b), 'C': (caratula_3c, lomo_3c), 'D': (caratula_3d, lomo_3d),
+             'E': (caratula_3e, lomo_3e), 'F': (caratula_3f, lomo_3f)}
     for letra in letras:
         car, lom = todas[letra]
         prs = presentacion()
