@@ -413,6 +413,158 @@ def lomo_3(sl, P, x, y, w, h, n):
 LOMO = {1: lomo, 2: lomo_2, 3: lomo_3}
 
 
+# ------------------------------------------------------------------ opciones para el CAR Mujeres (a elegir por la usuaria)
+def voltear_h(s):
+    s._element.spPr.find(qn('a:xfrm')).set('flipH', '1')
+    return s
+
+
+def caratula_3a(sl, P, n):
+    """Opción A: foto arriba con corte en diagonal (filete guinda), textos a la izquierda y cuadro guinda con el tomo abajo a la
+    derecha."""
+    c1, c2 = P['c1'], P['c2']
+    rect(sl, 0, 0, 21, 29.7, fill=BLANCO)
+    foto(sl, os.path.join(RAIZ, P['foto']), 0, 0, 21, 13.0)
+    voltear_h(rect(sl, 0, 9.6, 21, 3.45, fill=c1, forma=MSO_SHAPE.RIGHT_TRIANGLE))
+    voltear_h(rect(sl, 0, 10.25, 21, 2.8, fill=BLANCO, forma=MSO_SHAPE.RIGHT_TRIANGLE))
+    escudo(sl, 3.0, 11.0, 2.2, circulo=c2)
+    x, w = 2.0, 17.0
+    texto(sl, x + 2.5, 13.35, w - 2.5, 0.8, ENTIDAD, size=15, color=c1, bold=True, esp=2)
+    texto(sl, x + 2.5, 14.1, w - 2.5, 0.7, GERENCIA, size=11, color=GRIS, esp=1)
+    rect(sl, x, 15.15, w, 0.04, fill=c2)
+    texto(sl, x, 15.55, w, 1.0, 'EXPEDIENTE TÉCNICO', size=23, color=c1, font=SERIF, bold=True, esp=3)
+    texto(sl, x, 16.75, w, 3.6, P['nombre'], size=12.5, color='333333', font=SERIF, align=PP_ALIGN.JUSTIFY)
+    rect(sl, x, 20.55, 0.14, 0.9, fill=c1)
+    texto(sl, x + 0.35, 20.55, 8, 0.9, 'CUI N° ' + P['cui'], size=14, color=c1, bold=True, anchor=MSO_ANCHOR.MIDDLE, esp=1.5)
+    q = 5.2; qx, qy = 21 - 2.0 - q, 22.1                             # cuadro con el tomo
+    rect(sl, qx, qy, q, q, fill=c1)
+    rect(sl, qx + 0.25, qy + 0.25, q - 0.5, q - 0.5, line=c2, lw=1)
+    texto(sl, qx, qy + 0.7, q, 0.7, 'TOMO', size=13, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=4)
+    texto(sl, qx, qy + 1.35, q, 3.0, ROMANOS[n], size=50 if len(ROMANOS[n]) < 4 else 38, color=BLANCO, font=SERIF, bold=True,
+          align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    texto(sl, x, 25.2, 11, 0.7, UBICACION, size=12, color=c1, bold=True, esp=1)
+    texto(sl, x, 25.9, 11, 0.7, P['fecha'], size=11, color=c2, bold=True, esp=1)
+    rect(sl, x, 26.8, 10.5, 0.04, fill=c2)
+    rect(sl, 0, 29.0, 21, 0.7, fill=c1)
+
+
+def caratula_3b(sl, P, n):
+    """Opción B: marco fino con esquinas doradas, foto en arco con filete dorado, todo centrado y cápsula guinda con el tomo."""
+    c1, c2 = P['c1'], P['c2']
+    rect(sl, 0, 0, 21, 29.7, fill=BLANCO)
+    rect(sl, 0.9, 0.9, 19.2, 27.9, line=c1, lw=1.5)
+    L, g = 2.2, 0.16                                                 # esquinas doradas en L
+    for ex, ey, sx, sy in ((0.6, 0.6, 1, 1), (20.4, 0.6, -1, 1), (0.6, 29.1, 1, -1), (20.4, 29.1, -1, -1)):
+        rect(sl, ex if sx > 0 else ex - L, ey if sy > 0 else ey - g, L, g, fill=c2)
+        rect(sl, ex if sx > 0 else ex - g, ey if sy > 0 else ey - L, g, L, fill=c2)
+    escudo(sl, 10.5, 1.7, 2.2)
+    texto(sl, 1.5, 4.05, 18, 0.8, ENTIDAD, size=15, color=c1, font=SERIF, bold=True, align=PP_ALIGN.CENTER, esp=2)
+    texto(sl, 1.5, 4.8, 18, 0.7, GERENCIA, size=11, color=GRIS, align=PP_ALIGN.CENTER, esp=1)
+    aw, ah, ax, ay = 13.0, 10.2, 10.5 - 6.5, 5.95
+    a = rect(sl, ax - 0.3, ay - 0.3, aw + 0.6, ah + 0.3, line=c2, lw=1.25, forma=MSO_SHAPE.ROUND_2_SAME_RECTANGLE)
+    a.adjustments[0] = 0.5
+    p = foto(sl, os.path.join(RAIZ, P['foto']), ax, ay, aw, ah)
+    p.auto_shape_type = MSO_SHAPE.ROUND_2_SAME_RECTANGLE
+    prst = p._element.spPr.find(qn('a:prstGeom')); av = prst.find(qn('a:avLst'))
+    etree.SubElement(av, qn('a:gd'), name='adj1', fmla='val 50000'); etree.SubElement(av, qn('a:gd'), name='adj2', fmla='val 0')
+    rect(sl, 2.5, ay + ah, 16, 0.06, fill=c2)
+    texto(sl, 1.5, ay + ah + 0.55, 18, 0.7, 'EXPEDIENTE TÉCNICO', size=14, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=5)
+    texto(sl, 2.4, ay + ah + 1.3, 16.2, 3.5, P['nombre'], size=12.5, color=c1, font=SERIF, bold=True, align=PP_ALIGN.CENTER)
+    texto(sl, 1.5, ay + ah + 4.75, 18, 0.75, 'CUI N° ' + P['cui'], size=14, color='333333', bold=True, align=PP_ALIGN.CENTER,
+          esp=1.5)
+    cw_, ch_ = 8.2, 2.0; cy_ = 23.7
+    rect(sl, 10.5 - cw_ / 2, cy_, cw_, ch_, fill=c1, line=c2, lw=1.5, forma=MSO_SHAPE.ROUNDED_RECTANGLE).adjustments[0] = 0.5
+    texto(sl, 10.5 - cw_ / 2, cy_, cw_, ch_, [[('TOMO  ', dict(size=20, color=c2)), (ROMANOS[n], dict(size=30, color=BLANCO))]],
+          font=SERIF, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, esp=2)
+    for lado in (-1, 1):
+        rect(sl, 10.5 + lado * (cw_ / 2 + 0.4) - (3.2 if lado < 0 else 0), cy_ + ch_ / 2, 3.2, 0.03, fill=c2)
+    texto(sl, 1.5, 26.9, 18, 0.65, [[(UBICACION, {}), ('   ◆   ', dict(color=c2)), (P['fecha'], {})]], size=11, color=c1,
+          bold=True, align=PP_ALIGN.CENTER, esp=1)
+
+
+def lomo_3a(sl, P, x, y, w, h, n):
+    """Lomo de la opción A: foto con corte en diagonal, escudo, cuadro guinda con el tomo, tabla, nombre con filete y pie."""
+    c1, c2 = P['c1'], P['c2']
+    ancho = w > 5
+    rect(sl, x, y, w, h, fill=BLANCO)
+    hf = 3.6
+    foto(sl, os.path.join(RAIZ, P['foto']), x, y, w, hf)
+    voltear_h(rect(sl, x, y + hf - 1.15, w, 1.2, fill=c1, forma=MSO_SHAPE.RIGHT_TRIANGLE))
+    voltear_h(rect(sl, x, y + hf - 0.9, w, 0.95, fill=BLANCO, forma=MSO_SHAPE.RIGHT_TRIANGLE))
+    ae = 1.3 if ancho else 1.0
+    escudo(sl, x + 0.35 + ae * 0.64, y + hf - ae * 0.75, ae, circulo=c2)
+    yq = y + hf + 0.9; q = w - 0.8
+    hq = 3.0
+    rect(sl, x + 0.4, yq, q, hq, fill=c1); rect(sl, x + 0.55, yq + 0.15, q - 0.3, hq - 0.3, line=c2, lw=0.75)
+    texto(sl, x, yq + 0.25, w, 0.55, 'TOMO', size=10 if ancho else 8.5, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=3)
+    num = ROMANOS[n] if n is not None else ''
+    texto(sl, x, yq + 0.75, w, 2.0, num, size=(38 if ancho else 26) if len(num) < 4 else (30 if ancho else 19), color=BLANCO,
+          font=SERIF, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    if n is None:
+        rect(sl, x + w * 0.25, yq + 2.4, w * 0.5, 0.025, fill=c2)
+    yc = yq + hq + 0.4; hc = 10.2
+    tabla(sl, x + 0.3, yc, w - 0.6, hc, P, 'CONTENIDO', 0.68, False, 9 if ancho else 7.5, 9 if ancho else 7.5, hdr=0.65)
+    yv = yc + hc + 0.3; hv = y + h - 1.6 - yv
+    rect(sl, x + 0.3, yv, 0.1, hv, fill=c1)
+    nombre_vertical(sl, P, x + 0.1, w - 0.1, yv, hv, ancho, BLANCO, BLANCO, c1, c2)
+    texto(sl, x, y + h - 1.5, w, 0.9, [[('MORALES - SAN MARTÍN', dict(color=c1))], [(P['fecha'], dict(color=c2))]],
+          size=7 if ancho else 5.5, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, esp=0.5)
+    rect(sl, x, y + h - 0.45, w, 0.45, fill=c1)
+    rect(sl, x, y, w, h, line='7F7F7F', lw=0.5, dash=MSO_LINE.DASH, nombre='Línea de corte')
+
+
+def lomo_3b(sl, P, x, y, w, h, n):
+    """Lomo de la opción B: marco fino con esquinas doradas, escudo, foto en arco, cápsula guinda con el tomo, tabla y nombre."""
+    c1, c2 = P['c1'], P['c2']
+    ancho = w > 5
+    rect(sl, x, y, w, h, fill=BLANCO)
+    rect(sl, x + 0.2, y + 0.2, w - 0.4, h - 0.4, line=c1, lw=1)
+    L, g = 1.0 if ancho else 0.8, 0.1
+    for ex, ey, sx, sy in ((x + 0.08, y + 0.08, 1, 1), (x + w - 0.08, y + 0.08, -1, 1), (x + 0.08, y + h - 0.08, 1, -1),
+                           (x + w - 0.08, y + h - 0.08, -1, -1)):
+        rect(sl, ex if sx > 0 else ex - L, ey if sy > 0 else ey - g, L, g, fill=c2)
+        rect(sl, ex if sx > 0 else ex - g, ey if sy > 0 else ey - L, g, L, fill=c2)
+    escudo(sl, x + w / 2, y + 0.5, 1.3 if ancho else 1.0)
+    aw = w - 1.2; ah = 2.6 if ancho else 2.2; ax, ay = x + 0.6, y + (2.05 if ancho else 1.75)
+    p = foto(sl, os.path.join(RAIZ, P['foto']), ax, ay, aw, ah)
+    p.auto_shape_type = MSO_SHAPE.ROUND_2_SAME_RECTANGLE
+    av = p._element.spPr.find(qn('a:prstGeom')).find(qn('a:avLst'))
+    etree.SubElement(av, qn('a:gd'), name='adj1', fmla='val 50000'); etree.SubElement(av, qn('a:gd'), name='adj2', fmla='val 0')
+    rect(sl, ax, ay + ah, aw, 0.05, fill=c2)
+    yt = ay + ah + 0.35; ct = 2.4
+    rect(sl, x + 0.5, yt, w - 1.0, ct, fill=c1, line=c2, lw=1, forma=MSO_SHAPE.ROUNDED_RECTANGLE).adjustments[0] = 0.3
+    texto(sl, x, yt + 0.15, w, 0.5, 'TOMO', size=9.5 if ancho else 8, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=3)
+    num = ROMANOS[n] if n is not None else ''
+    texto(sl, x, yt + 0.55, w, 1.7, num, size=(34 if ancho else 24) if len(num) < 4 else (28 if ancho else 18), color=BLANCO,
+          font=SERIF, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    if n is None:
+        rect(sl, x + w * 0.3, yt + 1.95, w * 0.4, 0.025, fill=c2)
+    yc = yt + ct + 0.35; hc = 10.2
+    tabla(sl, x + 0.45, yc, w - 0.9, hc, P, 'CONTENIDO', 0.68, False, 9 if ancho else 7.5, 9 if ancho else 7.5, hdr=0.65)
+    yv = yc + hc + 0.3; hv = y + h - 1.55 - yv
+    nombre_vertical(sl, P, x + 0.15, w - 0.3, yv, hv, ancho, BLANCO, c2, c1, '333333')
+    texto(sl, x, y + h - 1.45, w, 1.05, [[('MORALES - SAN MARTÍN', dict(color=c1))], [(P['fecha'], dict(color=c2))]],
+          size=7 if ancho else 5.5, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, esp=0.5)
+    rect(sl, x, y, w, h, line='7F7F7F', lw=0.5, dash=MSO_LINE.DASH, nombre='Línea de corte')
+
+
+def opciones_mujeres(carpeta):
+    """Vista previa de las dos opciones del CAR Mujeres: carátula (Tomo I) y hojas de lomos (grueso y delgado) de cada una."""
+    P = next(p for p in PROYECTOS if p['clave'] == 'CAR_MUJERES')
+    out = []
+    for letra, car, lom in (('A', caratula_3a, lomo_3a), ('B', caratula_3b, lomo_3b)):
+        prs = presentacion()
+        car(nueva(prs), P, 0)
+        for w in (6.3, 4.0):
+            sl = nueva(prs); hgt, sep = 27.6, 0.35
+            x0 = (21 - (3 * w + 2 * sep)) / 2; y0 = (29.7 - hgt) / 2
+            for i, nn in enumerate([0, 1, 2]):
+                lom(sl, P, x0 + i * (w + sep), y0, w, hgt, nn)
+        ruta = os.path.join(carpeta, 'OPCION_%s_CAR_MUJERES.pptx' % letra)
+        prs.save(ruta); out.append(ruta)
+    return out
+
+
 def hoja_lomos(prs, P, w, tomos, titulo):
     sl = nueva(prs)
     h, sep = 27.6, 0.35
