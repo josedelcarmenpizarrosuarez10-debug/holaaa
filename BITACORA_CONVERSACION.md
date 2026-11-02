@@ -923,3 +923,6 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   (foto a todo el ancho y sello circular, verde y champán), modelo 3 CAR Mujeres (marco doble clásico, ciruela y dorado).
   Lomos: ancho 6.3 x 27.6 cm y delgado 4.0 x 27.6 cm, 3 por A4 con línea de corte; 4 hojas por tipo (la última con el Tomo X y
   2 lomos de reserva sin número).
+- Corrección (02-11-2026): PowerPoint no abría los archivos (cuadro de texto con dos rellenos). Ahora el contenido es una tabla
+  editable (clic en la celda y escribir), los tres modelos en guinda (6B1F2E) y dorado, y los lomos llevan el nombre completo del
+  proyecto con su CUI en vertical. Validados contra el esquema de PowerPoint (pml.xsd).

@@ -5,10 +5,11 @@ Un modelo de diseño distinto por proyecto (no se mezclan entre proyectos):
   - CAR Varones (CUI 2705619): modelo 1, banda lateral azul marino y dorado;
   - Hogar de Refugio Temporal (CUI 2675514): modelo 2, foto a todo el ancho con sello circular, verde y champán;
   - CAR Mujeres (CUI 2717013): modelo 3, marco clásico doble, ciruela y dorado.
-Carátulas: hoja A4 vertical, una por tomo (Tomo I a Tomo X), con un recuadro "CONTENIDO DEL TOMO" con renglones y un cuadro de
-texto editable encima (se puede escribir en PowerPoint o a mano).
+Carátulas: hoja A4 vertical, una por tomo (Tomo I a Tomo X), con una tabla editable "CONTENIDO DEL TOMO" (clic en la celda y escribir;
+también se puede llenar a mano).
 Lomos: archivador de palanca tamaño oficio, lomo ancho (6.3 x 27.6 cm) y lomo delgado (4.0 x 27.6 cm), 3 por hoja A4 con
-líneas de corte; cada lomo con escudo, número de tomo, recuadro "CONTENIDO" con renglones y nombre del proyecto en vertical.
+líneas de corte; cada lomo con escudo, número de tomo, tabla editable "CONTENIDO" y nombre completo del proyecto con su CUI
+en vertical. Colores: guinda y dorado en los tres proyectos.
 
 Uso: python3 herramientas/caratulas_tomos_pptx.py
 Salidas: entregables_varones/, entregables/ y entregables_mujeres/  CARATULAS_TOMOS_I_AL_X_*.pptx y LOMOS_ARCHIVADORES_OFICIO_*.pptx
@@ -33,6 +34,7 @@ ENTIDAD = 'GOBIERNO REGIONAL SAN MARTÍN'
 GERENCIA = 'GERENCIA TERRITORIAL BAJO MAYO - TARAPOTO'
 UBICACION = 'MORALES - SAN MARTÍN - SAN MARTÍN'
 
+GUINDA, DORADO, CREMA = '6B1F2E', 'C5A15A', 'FBF6F2'           # guinda (pedido de la usuaria) con dorado
 PROYECTOS = [
     dict(clave='CAR_VARONES', modelo=1, carpeta='entregables_varones', cui='2705619', fecha='SETIEMBRE - 2026',
          corto='CENTRO DE ACOGIDA RESIDENCIAL - VARONES',
@@ -40,21 +42,21 @@ PROYECTOS = [
          nombre='“CREACIÓN DEL SERVICIO DE PROTECCIÓN INTEGRAL A NIÑAS, NIÑOS Y ADOLESCENTES SIN CUIDADOS PARENTALES O EN RIESGO '
                 'DE PERDERLOS EN CENTRO DE ACOGIDA RESIDENCIAL - VARONES DISTRITO DE MORALES DE LA PROVINCIA DE SAN MARTÍN DEL '
                 'DEPARTAMENTO DE SAN MARTÍN”',
-         c1='1B2A41', c2='B8962E', c3='F5F1E8'),
+         c1=GUINDA, c2=DORADO, c3=CREMA),
     dict(clave='HOGAR_REFUGIO', modelo=2, carpeta='entregables', cui='2675514', fecha='SETIEMBRE - 2026',
          corto='HOGAR DE REFUGIO TEMPORAL',
          foto='entregables/figuras_caratula/foto_proyecto_hogar_refugio.jpg',
          nombre='“CREACIÓN DEL SERVICIO DE PROTECCIÓN A MUJERES VÍCTIMAS DE VIOLENCIA EN SITUACIÓN DE RIESGO DE FEMINICIDIO O '
                 'PELIGRE SU INTEGRIDAD Y/O SALUD FÍSICA Y/O MENTAL EN HOGAR DE REFUGIO TEMPORAL DISTRITO DE MORALES DE LA '
                 'PROVINCIA DE SAN MARTÍN DEL DEPARTAMENTO DE SAN MARTÍN”',
-         c1='0F4C3A', c2='C9A86A', c3='EEF4F0'),
+         c1=GUINDA, c2=DORADO, c3=CREMA),
     dict(clave='CAR_MUJERES', modelo=3, carpeta='entregables_mujeres', cui='2717013', fecha='SEPTIEMBRE - 2026',
          corto='CENTRO DE ACOGIDA RESIDENCIAL - MUJERES',
          foto='entregables_mujeres/figuras_caratula/vista_3d_car.jpg',
          nombre='“CREACIÓN DEL SERVICIO DE PROTECCIÓN INTEGRAL A NIÑAS, NIÑOS Y ADOLESCENTES SIN CUIDADOS PARENTALES O EN RIESGO '
                 'DE PERDERLOS EN CENTRO DE ACOGIDA RESIDENCIAL - MUJERES DISTRITO DE MORALES DE LA PROVINCIA DE SAN MARTÍN DEL '
                 'DEPARTAMENTO DE SAN MARTÍN”',
-         c1='3F1D38', c2='C5A572', c3='FBF8F3'),
+         c1=GUINDA, c2=DORADO, c3=CREMA),
 ]
 BLANCO, GRIS, GRIS_CLARO = 'FFFFFF', '595959', 'BFBFBF'
 
@@ -136,17 +138,64 @@ def escudo(sl, cx, y, alto, circulo=None):
     sl.shapes.add_picture(ESCUDO, Cm(cx - ancho / 2), Cm(y), Cm(ancho), Cm(alto))
 
 
-def renglones(sl, x, y, w, h, paso, color, nombre, size=11):
-    """Renglones para escribir a mano y un cuadro de texto editable encima (interlineado igual al renglón)."""
-    n = int(h // paso)
-    for i in range(1, n + 1):
-        rect(sl, x, y + i * paso - 0.012, w, 0.024, fill=color)
-    tb = texto(sl, x, y + 0.06, w, n * paso, '', size=size, interl=Pt(paso / 2.54 * 72), nombre=nombre)
-    tb.text_frame.word_wrap = True
-    tb.fill.solid(); tb.fill.fore_color.rgb = rgb('FFFFFF')       # relleno transparente: se puede hacer clic en todo el recuadro
-    clr = tb.fill._xPr.find(qn('a:solidFill')).find(qn('a:srgbClr'))
-    etree.SubElement(clr, qn('a:alpha')).set('val', '0')
-    return tb
+def borde_celda(cell, fondo, linea, lw=0.5):
+    """Relleno y bordes de una celda (en el orden del esquema: bordes y luego relleno)."""
+    tcPr = cell._tc.get_or_add_tcPr()
+    for ch in list(tcPr):
+        tcPr.remove(ch)
+    for lado in ('lnL', 'lnR', 'lnT', 'lnB'):
+        ln = etree.SubElement(tcPr, qn('a:' + lado), w=str(int(Pt(lw))), cap='flat', cmpd='sng', algn='ctr')
+        sf = etree.SubElement(ln, qn('a:solidFill')); etree.SubElement(sf, qn('a:srgbClr'), val=linea)
+        etree.SubElement(ln, qn('a:prstDash'), val='solid')
+    sf = etree.SubElement(tcPr, qn('a:solidFill')); etree.SubElement(sf, qn('a:srgbClr'), val=fondo)
+
+
+def letra_celda(cell, txt, size, color, bold=False, align=PP_ALIGN.LEFT, esp=0):
+    """Texto de la celda y formato para lo que se escriba después (endParaRPr)."""
+    cell.margin_left = cell.margin_right = Cm(0.15); cell.margin_top = cell.margin_bottom = Cm(0.03)
+    cell.vertical_anchor = MSO_ANCHOR.MIDDLE
+    p = cell.text_frame.paragraphs[0]; p.alignment = align
+    if txt:
+        r = p.add_run(); r.text = txt
+        f = r.font; f.name = SANS; f.size = Pt(size); f.bold = bold; f.color.rgb = rgb(color)
+        if esp:
+            r._r.get_or_add_rPr().set('spc', str(int(esp * 100)))
+    e = p._p.get_or_add_endParaRPr(); e.set('lang', 'es-PE'); e.set('sz', str(int(size * 100))); e.set('b', '1' if bold else '0')
+    sf = etree.SubElement(e, qn('a:solidFill')); etree.SubElement(sf, qn('a:srgbClr'), val=color)
+    etree.SubElement(e, qn('a:latin'), typeface=SANS)
+
+
+def tabla(sl, x, y, w, h, P, titulo, paso, numerada, size_t, size_c, hdr=0.8):
+    """Tabla editable para escribir el contenido (clic en la celda y escribir); encabezado guinda, filas con borde fino."""
+    n = int(round((h - hdr) / paso - 0.49))
+    cols = 2 if numerada else 1
+    gf = sl.shapes.add_table(n + 1, cols, Cm(x), Cm(y), Cm(w), Cm(hdr + n * paso))
+    gf.name = 'Contenido (escriba en las celdas)'
+    tbl = gf.table
+    tblPr = tbl._tbl.tblPr
+    tblPr.set('firstRow', '0'); tblPr.set('bandRow', '0')
+    for ch in list(tblPr):
+        tblPr.remove(ch)                                           # sin estilo de tabla del tema
+    anchos = [1.0, w - 1.0] if numerada else [w]
+    for i, a in enumerate(anchos):
+        tbl.columns[i].width = Cm(a)
+    tbl.rows[0].height = Cm(hdr)
+    for r in range(1, n + 1):
+        tbl.rows[r].height = Cm(paso)
+    linea = 'C9A9AE'
+    if numerada:
+        tbl.cell(0, 0).merge(tbl.cell(0, 1))
+    for c in range(cols):
+        borde_celda(tbl.cell(0, c), P['c1'], P['c1'])
+    letra_celda(tbl.cell(0, 0), titulo, size_t, BLANCO, bold=True, align=PP_ALIGN.CENTER, esp=1.5)
+    for r in range(1, n + 1):
+        if numerada:
+            borde_celda(tbl.cell(r, 0), 'F4E8EA', linea)
+            letra_celda(tbl.cell(r, 0), str(r), size_c, P['c1'], bold=True, align=PP_ALIGN.CENTER)
+        c = cols - 1
+        borde_celda(tbl.cell(r, c), BLANCO, linea)
+        letra_celda(tbl.cell(r, c), '', size_c, '262626')
+    return gf
 
 
 def nueva(prs):
@@ -188,10 +237,7 @@ def caratula_1(sl, P, n):
     texto(sl, x, y + 0.45, w, 1.6, [[('TOMO ', dict(size=30, color=c1)), (ROMANOS[n], dict(size=30, color=c2))]], font=SERIF,
           bold=True, anchor=MSO_ANCHOR.MIDDLE)
     yc = y + 2.35; hc = 26.75 - yc
-    rect(sl, x, yc, w, hc, fill=c3, line=c1, lw=1)
-    rect(sl, x, yc, w, 0.85, fill=c1)
-    texto(sl, x + 0.3, yc, w - 0.6, 0.85, 'CONTENIDO DEL TOMO', size=11, color=BLANCO, bold=True, anchor=MSO_ANCHOR.MIDDLE, esp=2)
-    renglones(sl, x + 0.45, yc + 1.0, w - 0.9, hc - 1.15, 0.8, GRIS_CLARO, 'Contenido del tomo')
+    tabla(sl, x, yc, w, hc, P, 'CONTENIDO DEL TOMO', 0.78, True, 11, 10.5)
     rect(sl, x, 27.25, w, 0.03, fill=c2)
     texto(sl, x, 27.45, w * 0.6, 0.7, UBICACION, size=10.5, color=c1, bold=True, esp=0.5)
     texto(sl, x + w * 0.4, 27.45, w * 0.6, 0.7, P['fecha'], size=10.5, color=c1, bold=True, align=PP_ALIGN.RIGHT, esp=0.5)
@@ -217,10 +263,7 @@ def caratula_2(sl, P, n):
     texto(sl, 1.8, 16.2, 17.4, 3.4, P['nombre'], size=12, color='2B2B2B', font=SERIF, bold=True, align=PP_ALIGN.CENTER)
     texto(sl, 1.5, 19.55, 18, 0.7, 'CUI N° ' + P['cui'], size=13, color=c1, bold=True, align=PP_ALIGN.CENTER, esp=1)
     yc, hc = 20.5, 6.1
-    rect(sl, 1.8, yc, 17.4, hc, fill=c3, forma=MSO_SHAPE.ROUNDED_RECTANGLE).adjustments[0] = 0.05
-    rect(sl, 1.8, yc + 0.35, 0.22, hc - 0.7, fill=c1)
-    texto(sl, 2.4, yc + 0.2, 16, 0.7, 'CONTENIDO DEL TOMO', size=11, color=c1, bold=True, esp=2)
-    renglones(sl, 2.4, yc + 0.85, 16.3, hc - 1.0, 0.75, 'A9BFB3', 'Contenido del tomo')
+    tabla(sl, 1.8, yc, 17.4, hc, P, 'CONTENIDO DEL TOMO', 0.75, True, 11, 10.5)
     rect(sl, 0, 27.3, 21, 2.4, fill=c1)
     rect(sl, 0, 27.3, 21, 0.1, fill=c2)
     texto(sl, 0, 27.75, 21, 0.7, UBICACION, size=12, color=BLANCO, bold=True, align=PP_ALIGN.CENTER, esp=1.5)
@@ -249,11 +292,8 @@ def caratula_3(sl, P, n):
     texto(sl, 10.5 - pw / 2, fy + fh - ph / 2, pw, ph, 'TOMO ' + ROMANOS[n], size=28, color=c3, font=SERIF, bold=True,
           align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, esp=2)
     yc = fy + fh + ph / 2 + 0.7; hc = 26.9 - yc
-    rect(sl, 2.2, yc, 16.6, hc, line=c2, lw=1)
-    rect(sl, 10.5 - 3.3, yc - 0.32, 6.6, 0.64, fill=c3)
-    texto(sl, 10.5 - 3.3, yc - 0.32, 6.6, 0.64, 'CONTENIDO DEL TOMO', size=11, color=c1, bold=True, align=PP_ALIGN.CENTER,
-          anchor=MSO_ANCHOR.MIDDLE, esp=2)
-    renglones(sl, 2.7, yc + 0.35, 15.6, hc - 0.5, 0.72, 'D9CBB0', 'Contenido del tomo')
+    rect(sl, 2.2 - 0.12, yc - 0.12, 16.6 + 0.24, hc + 0.24, line=c2, lw=0.75)
+    tabla(sl, 2.2, yc, 16.6, hc, P, 'CONTENIDO DEL TOMO', 0.72, True, 11, 10.5)
     texto(sl, 1.5, 27.3, 18, 0.7, [[(UBICACION, {}), ('   ◆   ', dict(color=c2)), (P['fecha'], {})]], size=10.5, color=c1,
           bold=True, align=PP_ALIGN.CENTER, esp=1)
 
@@ -281,18 +321,14 @@ def lomo(sl, P, x, y, w, h, n):
     if n is None:                                                  # lomo de reserva: renglón para escribir el número
         rect(sl, x + w * 0.25, yt + 2.2, w * 0.5, 0.025, fill=GRIS_CLARO)
     rect(sl, x + w * 0.3, yt + 2.95, w * 0.4, 0.05, fill=c2)
-    yc = yt + 3.25; hc = 11.4
-    rect(sl, x + 0.3, yc, w - 0.6, hc, fill=BLANCO, line=c1 if m != 3 else c2, lw=0.75)
-    rect(sl, x + 0.3, yc, w - 0.6, 0.65, fill=c1)
-    texto(sl, x + 0.3, yc, w - 0.6, 0.65, 'CONTENIDO', size=9 if ancho else 7.5, color=BLANCO, bold=True,
-          align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, esp=1.5)
-    renglones(sl, x + 0.5, yc + 0.75, w - 1.0, hc - 0.85, 0.7, GRIS_CLARO, 'Contenido del archivador', size=9 if ancho else 7.5)
-    yv = yc + hc + 0.3; hv = y + h - 1.5 - yv                       # nombre del proyecto en vertical (se lee de abajo hacia arriba)
-    rect(sl, x + 0.3, yv, w - 0.6, hv, fill=c1 if m == 2 else c3 if m == 3 else 'F2EFE7', line=c2 if m == 3 else None)
+    yc = yt + 3.25; hc = 10.2
+    tabla(sl, x + 0.3, yc, w - 0.6, hc, P, 'CONTENIDO', 0.68, False, 9 if ancho else 7.5, 9 if ancho else 7.5, hdr=0.65)
+    yv = yc + hc + 0.3; hv = y + h - 1.5 - yv                       # nombre completo del proyecto y CUI en vertical
+    rect(sl, x + 0.3, yv, w - 0.6, hv, fill=c1 if m == 2 else c3 if m == 3 else 'F7EEEF', line=c2 if m == 3 else None)
     col = BLANCO if m == 2 else c1
-    texto(sl, x + w / 2 - hv / 2, yv + hv / 2 - (w - 0.8) / 2, hv, w - 0.8,
-          [[(P['corto'], dict(size=10.5 if ancho else 8, color=col, font=SERIF, bold=True))],
-           [('CUI N° ' + P['cui'], dict(size=9 if ancho else 7, color=c2, bold=True, esp=1))]],
+    texto(sl, x + w / 2 - hv / 2 + 0.15, yv + hv / 2 - (w - 0.8) / 2, hv - 0.3, w - 0.8,
+          [[(P['nombre'], dict(size=10.5 if ancho else 7.5, color=col, font=SERIF, bold=True))],
+           [('CUI N° ' + P['cui'], dict(size=11 if ancho else 8, color=c2, bold=True, esp=1))]],
           align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, rot=270)
     rect(sl, x, y + h - 1.2, w, 1.2, fill=c1)
     rect(sl, x, y + h - 1.2, w, 0.08, fill=c2)
