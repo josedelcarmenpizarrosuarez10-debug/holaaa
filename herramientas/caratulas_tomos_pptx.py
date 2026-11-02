@@ -548,11 +548,150 @@ def lomo_3b(sl, P, x, y, w, h, n):
     rect(sl, x, y, w, h, line='7F7F7F', lw=0.5, dash=MSO_LINE.DASH, nombre='Línea de corte')
 
 
-def opciones_mujeres(carpeta):
-    """Vista previa de las dos opciones del CAR Mujeres: carátula (Tomo I) y hojas de lomos (grueso y delgado) de cada una."""
+def marcapaginas(sl, x, y, w, h, c1, c2):
+    """Pestaña colgante (pentágono con punta hacia abajo) en guinda con filete dorado."""
+    s = rect(sl, x + w / 2 - h / 2, y + h / 2 - w / 2, h, w, fill=c1, line=c2, lw=1, forma=MSO_SHAPE.PENTAGON)
+    s.rotation = 90
+    return s
+
+
+def ficha(sl, P, x, y, w, filas, size=10.5, ancho_et=3.6):
+    """Ficha de datos del proyecto: etiqueta en guinda y dato en blanco."""
+    alto = sum(h for _, _, h in filas)
+    gf = sl.shapes.add_table(len(filas), 2, Cm(x), Cm(y), Cm(w), Cm(alto))
+    gf.name = 'Datos del proyecto'
+    tbl = gf.table; tblPr = tbl._tbl.tblPr; tblPr.set('firstRow', '0'); tblPr.set('bandRow', '0')
+    for ch in list(tblPr):
+        tblPr.remove(ch)
+    tbl.columns[0].width = Cm(ancho_et); tbl.columns[1].width = Cm(w - ancho_et)
+    for r, (et, val, h) in enumerate(filas):
+        tbl.rows[r].height = Cm(h)
+        borde_celda(tbl.cell(r, 0), P['c1'], 'FFFFFF', lw=1)
+        borde_celda(tbl.cell(r, 1), BLANCO, 'D9C3C7', lw=0.75)
+        letra_celda(tbl.cell(r, 0), et, size - 0.5, BLANCO, bold=True, align=PP_ALIGN.LEFT, esp=1)
+        letra_celda(tbl.cell(r, 1), val, size, '262626', bold=et in ('CUI', 'PROYECTO'))
+        tbl.cell(r, 1).margin_left = Cm(0.3)
+    return gf
+
+
+def caratula_3c(sl, P, n):
+    """Opción C: franja guinda delgada arriba con pestaña colgante del tomo, título a la izquierda, foto grande y ficha de datos
+    del proyecto en tabla."""
+    c1, c2 = P['c1'], P['c2']
+    rect(sl, 0, 0, 21, 29.7, fill=BLANCO)
+    rect(sl, 0, 0, 21, 0.55, fill=c1); rect(sl, 0, 0.55, 21, 0.06, fill=c2)
+    marcapaginas(sl, 15.3, 0.3, 4.0, 4.6, c1, c2)
+    texto(sl, 15.3, 0.75, 4.0, 0.6, 'TOMO', size=12, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=3)
+    texto(sl, 15.3, 1.3, 4.0, 2.0, ROMANOS[n], size=40 if len(ROMANOS[n]) < 4 else 30, color=BLANCO, font=SERIF, bold=True,
+          align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    escudo(sl, 2.85, 1.2, 2.1)
+    texto(sl, 4.3, 1.45, 10.6, 0.8, ENTIDAD, size=14, color=c1, bold=True, esp=1.5)
+    texto(sl, 4.3, 2.2, 10.6, 0.7, GERENCIA, size=10, color=GRIS, esp=0.8)
+    texto(sl, 1.8, 5.0, 17.4, 1.1, 'EXPEDIENTE TÉCNICO', size=26, color=c1, font=SERIF, bold=True, esp=4)
+    rect(sl, 1.8, 6.2, 6.5, 0.06, fill=c2)
+    foto(sl, os.path.join(RAIZ, P['foto']), 1.8, 6.8, 17.4, 11.4)
+    rect(sl, 1.8, 18.2, 17.4, 0.12, fill=c1)
+    ficha(sl, P, 1.8, 19.0, 17.4, [('PROYECTO', P['nombre'], 3.2), ('CUI', P['cui'], 1.05), ('UBICACIÓN', UBICACION, 1.05),
+                                    ('ENTIDAD', ENTIDAD, 1.05), ('UNIDAD', GERENCIA, 1.05), ('FECHA', P['fecha'], 1.05)],
+          size=11)
+    rect(sl, 0, 29.09, 21, 0.06, fill=c2); rect(sl, 0, 29.15, 21, 0.55, fill=c1)
+
+
+def caratula_3d(sl, P, n):
+    """Opción D: encabezado centrado, título y datos arriba, panel rosado a todo el ancho con la foto enmarcada en blanco y
+    sello guinda del tomo sobre la esquina de la foto."""
+    c1, c2 = P['c1'], P['c2']
+    rect(sl, 0, 0, 21, 29.7, fill=BLANCO)
+    escudo(sl, 10.5, 1.2, 2.2)
+    texto(sl, 1, 3.55, 19, 0.8, ENTIDAD, size=15, color=c1, font=SERIF, bold=True, align=PP_ALIGN.CENTER, esp=2)
+    texto(sl, 1, 4.3, 19, 0.7, GERENCIA, size=10.5, color=GRIS, align=PP_ALIGN.CENTER, esp=1)
+    ornamento(sl, 10.5, 5.3, c2, largo=2.6)
+    texto(sl, 1, 5.75, 19, 1.0, 'EXPEDIENTE TÉCNICO', size=22, color=c1, font=SERIF, bold=True, align=PP_ALIGN.CENTER, esp=4)
+    texto(sl, 2.0, 6.95, 17, 3.3, P['nombre'], size=12, color='333333', font=SERIF, bold=True, align=PP_ALIGN.CENTER)
+    texto(sl, 1, 10.25, 19, 0.75, 'CUI N° ' + P['cui'], size=14, color=c1, bold=True, align=PP_ALIGN.CENTER, esp=1.5)
+    py, ph = 11.6, 13.9                                             # panel rosado
+    rect(sl, 0, py, 21, ph, fill=ROSA)
+    rect(sl, 0, py, 21, 0.05, fill=c2); rect(sl, 0, py + ph - 0.05, 21, 0.05, fill=c2)
+    fw, fh = 15.0, 15.0 * 9 / 16; fx, fy = 10.5 - fw / 2 - 0.6, py + 1.0
+    rect(sl, fx - 0.35, fy - 0.35, fw + 0.7, fh + 0.7, fill=BLANCO, line='E2CFD3', lw=0.5)
+    foto(sl, os.path.join(RAIZ, P['foto']), fx, fy, fw, fh)
+    d = 4.6; scx, scy = fx + fw + 0.1, fy + fh + 0.2               # sello del tomo sobre la esquina de la foto
+    rect(sl, scx - d / 2, scy - d / 2, d, d, fill=c1, line=c2, lw=2.5, forma=MSO_SHAPE.OVAL)
+    texto(sl, scx - d / 2, scy - d / 2 + 0.7, d, 0.6, 'TOMO', size=12, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=3)
+    texto(sl, scx - d / 2, scy - d / 2 + 1.25, d, 2.3, ROMANOS[n], size=44 if len(ROMANOS[n]) < 4 else 32, color=BLANCO,
+          font=SERIF, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    texto(sl, 1.3, py + ph - 2.45, 9.5, 1.6, [[(UBICACION, dict(color=c1, size=11.5))], [(P['fecha'], dict(color=GRIS, size=10.5))]],
+          bold=True, anchor=MSO_ANCHOR.MIDDLE, esp=1)
+    rect(sl, 0, 26.6, 21, 0.06, fill=c2); rect(sl, 0, 26.66, 21, 3.04, fill=BLANCO)
+    texto(sl, 1, 27.1, 19, 1.2, [[('CENTRO DE ACOGIDA RESIDENCIAL - MUJERES', dict(color=c1, size=12, font=SERIF))]],
+          bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, esp=2)
+    rect(sl, 0, 29.15, 21, 0.55, fill=c1)
+
+
+def lomo_3c(sl, P, x, y, w, h, n):
+    """Lomo de la opción C: franja guinda arriba, escudo, pestaña colgante con el tomo, tabla, nombre con CUI y pie."""
+    c1, c2 = P['c1'], P['c2']
+    ancho = w > 5
+    rect(sl, x, y, w, h, fill=BLANCO)
+    rect(sl, x, y, w, 0.45, fill=c1); rect(sl, x, y + 0.45, w, 0.05, fill=c2)
+    escudo(sl, x + w / 2, y + 0.75, 1.35 if ancho else 1.05)
+    texto(sl, x + 0.1, y + (2.2 if ancho else 1.9), w - 0.2, 0.85, ['GOBIERNO REGIONAL', 'SAN MARTÍN'], size=8 if ancho else 6.5,
+          color=c1, bold=True, align=PP_ALIGN.CENTER, esp=0.5)
+    tw, th = w - 1.2, 3.6
+    ty = y + (3.15 if ancho else 2.8)
+    marcapaginas(sl, x + 0.6, ty, tw, th, c1, c2)
+    texto(sl, x, ty + 0.25, w, 0.55, 'TOMO', size=10 if ancho else 8.5, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=3)
+    num = ROMANOS[n] if n is not None else ''
+    texto(sl, x, ty + 0.75, w, 1.9, num, size=(36 if ancho else 26) if len(num) < 4 else (28 if ancho else 19), color=BLANCO,
+          font=SERIF, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    if n is None:
+        rect(sl, x + w * 0.3, ty + 2.25, w * 0.4, 0.025, fill=c2)
+    yc = ty + th + 0.35; hc = 10.2
+    tabla(sl, x + 0.3, yc, w - 0.6, hc, P, 'CONTENIDO', 0.68, False, 9 if ancho else 7.5, 9 if ancho else 7.5, hdr=0.65)
+    yv = yc + hc + 0.3; hv = y + h - 1.2 - yv
+    nombre_vertical(sl, P, x, w, yv, hv, ancho, BLANCO, c1, c1, c2)
+    texto(sl, x, y + h - 1.15, w, 0.6, P['fecha'], size=7 if ancho else 5.5, color=c1, bold=True, align=PP_ALIGN.CENTER, esp=0.5)
+    rect(sl, x, y + h - 0.5, w, 0.05, fill=c2); rect(sl, x, y + h - 0.45, w, 0.45, fill=c1)
+    rect(sl, x, y, w, h, line='7F7F7F', lw=0.5, dash=MSO_LINE.DASH, nombre='Línea de corte')
+
+
+def lomo_3d(sl, P, x, y, w, h, n):
+    """Lomo de la opción D: escudo y entidad, panel rosado con la foto enmarcada y el sello del tomo, tabla, nombre y pie."""
+    c1, c2 = P['c1'], P['c2']
+    ancho = w > 5
+    rect(sl, x, y, w, h, fill=BLANCO)
+    escudo(sl, x + w / 2, y + 0.35, 1.35 if ancho else 1.05)
+    texto(sl, x + 0.1, y + (1.8 if ancho else 1.5), w - 0.2, 0.85, ['GOBIERNO REGIONAL', 'SAN MARTÍN'], size=8 if ancho else 6.5,
+          color=c1, bold=True, align=PP_ALIGN.CENTER, esp=0.5)
+    py = y + (2.8 if ancho else 2.45); ph = 5.3 if ancho else 4.6
+    rect(sl, x, py, w, ph, fill=ROSA)
+    rect(sl, x, py, w, 0.04, fill=c2); rect(sl, x, py + ph - 0.04, w, 0.04, fill=c2)
+    fw = w - 1.0; fh = 2.1 if ancho else 1.6
+    rect(sl, x + 0.35, py + 0.35, fw + 0.3, fh + 0.3, fill=BLANCO)
+    foto(sl, os.path.join(RAIZ, P['foto']), x + 0.5, py + 0.5, fw, fh)
+    d = 2.6 if ancho else 2.2; scy = py + 0.5 + fh + d / 2 - 0.35
+    rect(sl, x + w / 2 - d / 2, scy - d / 2, d, d, fill=c1, line=c2, lw=1.5, forma=MSO_SHAPE.OVAL)
+    texto(sl, x + w / 2 - d / 2, scy - d / 2 + 0.3, d, 0.45, 'TOMO', size=8 if ancho else 7, color=c2, bold=True,
+          align=PP_ALIGN.CENTER, esp=2)
+    num = ROMANOS[n] if n is not None else ''
+    texto(sl, x + w / 2 - d / 2, scy - d / 2 + 0.65, d, d - 0.9, num, size=(24 if ancho else 19) if len(num) < 4 else
+          (18 if ancho else 14), color=BLANCO, font=SERIF, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    yc = py + ph + 0.35; hc = 10.2
+    tabla(sl, x + 0.3, yc, w - 0.6, hc, P, 'CONTENIDO', 0.68, False, 9 if ancho else 7.5, 9 if ancho else 7.5, hdr=0.65)
+    yv = yc + hc + 0.3; hv = y + h - 1.25 - yv
+    nombre_vertical(sl, P, x, w, yv, hv, ancho, ROSA, c2, c1, c1)
+    texto(sl, x, y + h - 1.2, w, 0.6, P['fecha'], size=7 if ancho else 5.5, color=c1, bold=True, align=PP_ALIGN.CENTER, esp=0.5)
+    rect(sl, x, y + h - 0.5, w, 0.5, fill=c1)
+    rect(sl, x, y, w, h, line='7F7F7F', lw=0.5, dash=MSO_LINE.DASH, nombre='Línea de corte')
+
+
+def opciones_mujeres(carpeta, letras='AB'):
+    """Vista previa de las opciones del CAR Mujeres: carátula (Tomo I) y hojas de lomos (grueso y delgado) de cada una."""
     P = next(p for p in PROYECTOS if p['clave'] == 'CAR_MUJERES')
     out = []
-    for letra, car, lom in (('A', caratula_3a, lomo_3a), ('B', caratula_3b, lomo_3b)):
+    todas = {'A': (caratula_3a, lomo_3a), 'B': (caratula_3b, lomo_3b), 'C': (caratula_3c, lomo_3c), 'D': (caratula_3d, lomo_3d)}
+    for letra in letras:
+        car, lom = todas[letra]
         prs = presentacion()
         car(nueva(prs), P, 0)
         for w in (6.3, 4.0):
