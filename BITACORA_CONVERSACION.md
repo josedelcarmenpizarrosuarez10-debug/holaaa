@@ -950,3 +950,10 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   `lomo_3e`.
 - CAR Mujeres (02-11-2026): sin foto en los lomos (pedido de la usuaria). `lomo_3e`: escudo más grande, doble filete, bloque del
   tomo más alto y tabla de contenido con más filas (11.6 cm); la carátula no cambia.
+
+### 02-11-2026 – CAR Mujeres (Wilma, CUI 2717013): separadores del expediente
+- Insumos: índice final de la usuaria (`insumos/wilma/indice_final/1._INDICE_FINAL_CAR_NINAS.xlsx`) y vista aérea del CAR
+  (`FOTO_CAR_MUJERES_VISTA_AEREA.jpg`), pedida como marca de agua en todos los separadores.
+- `herramientas/mujeres/separadores_m.py`: 105 separadores (capítulos 01 a 12 y sus ítems con título; sin las filas de planos sin
+  título ni las notas de estado "OK / DEBEN PASAR"). Excel había convertido "06.06" y "08.01" en fechas (formato dd.mm) y 10.04 en
+  número: se leen como texto. Foto recortada a A4 y aclarada al 85 % de blanco.
