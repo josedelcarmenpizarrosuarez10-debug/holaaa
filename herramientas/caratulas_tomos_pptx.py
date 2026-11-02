@@ -143,12 +143,9 @@ def renglones(sl, x, y, w, h, paso, color, nombre, size=11):
         rect(sl, x, y + i * paso - 0.012, w, 0.024, fill=color)
     tb = texto(sl, x, y + 0.06, w, n * paso, '', size=size, interl=Pt(paso / 2.54 * 72), nombre=nombre)
     tb.text_frame.word_wrap = True
-    sp = tb._element.spPr                                       # relleno transparente: se puede hacer clic en todo el recuadro
-    sf = etree.SubElement(sp, qn('a:solidFill')); c = etree.SubElement(sf, qn('a:srgbClr')); c.set('val', 'FFFFFF')
-    etree.SubElement(c, qn('a:alpha')).set('val', '0')
-    prst = sp.find(qn('a:prstGeom'))
-    if prst is not None:
-        sp.remove(sf); prst.addnext(sf)
+    tb.fill.solid(); tb.fill.fore_color.rgb = rgb('FFFFFF')       # relleno transparente: se puede hacer clic en todo el recuadro
+    clr = tb.fill._xPr.find(qn('a:solidFill')).find(qn('a:srgbClr'))
+    etree.SubElement(clr, qn('a:alpha')).set('val', '0')
     return tb
 
 
