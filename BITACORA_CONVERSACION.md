@@ -948,3 +948,5 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - CAR Mujeres (02-11-2026): la usuaria pidió opciones antes de procesar; se mostraron A-F en PNG (A diagonal, B arco, C pestaña y
   ficha, D panel rosado, E panorámica, F geométrica). Eligió la **E**: carátulas Tomo I-X y lomos regenerados con `caratula_3e` y
   `lomo_3e`.
+- CAR Mujeres (02-11-2026): sin foto en los lomos (pedido de la usuaria). `lomo_3e`: escudo más grande, doble filete, bloque del
+  tomo más alto y tabla de contenido con más filas (11.6 cm); la carátula no cambia.

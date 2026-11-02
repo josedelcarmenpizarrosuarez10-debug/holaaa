@@ -755,26 +755,26 @@ def caratula_3f(sl, P, n):
 
 
 def lomo_3e(sl, P, x, y, w, h, n):
-    """Lomo de la opción E: escudo y entidad, foto panorámica entre filetes, bloque guinda con el tomo, tabla, nombre y pie."""
+    """Lomo del CAR Mujeres (opción E, sin foto): escudo y entidad, doble filete, bloque guinda con el tomo, tabla de contenido,
+    nombre completo con CUI en vertical y pie."""
     c1, c2 = P['c1'], P['c2']
     ancho = w > 5
     rect(sl, x, y, w, h, fill=BLANCO)
-    escudo(sl, x + w / 2, y + 0.35, 1.35 if ancho else 1.05)
-    texto(sl, x + 0.1, y + (1.8 if ancho else 1.5), w - 0.2, 0.85, ['GOBIERNO REGIONAL', 'SAN MARTÍN'], size=8 if ancho else 6.5,
+    rect(sl, x, y, w, 0.12, fill=c1)
+    escudo(sl, x + w / 2, y + 0.45, 1.75 if ancho else 1.35)
+    texto(sl, x + 0.1, y + (2.35 if ancho else 1.95), w - 0.2, 0.85, ['GOBIERNO REGIONAL', 'SAN MARTÍN'], size=8.5 if ancho else 6.5,
           color=c1, bold=True, align=PP_ALIGN.CENTER, esp=0.5)
-    fy = y + (2.95 if ancho else 2.6); fh = 2.2 if ancho else 1.8
-    rect(sl, x, fy - 0.15, w, 0.08, fill=c1)
-    foto(sl, os.path.join(RAIZ, P['foto']), x, fy, w, fh)
-    rect(sl, x, fy + fh + 0.07, w, 0.08, fill=c1)
-    by = fy + fh + 0.45; bh = 2.9
+    yf = y + (3.35 if ancho else 2.95)
+    rect(sl, x, yf, w, 0.08, fill=c1); rect(sl, x, yf + 0.13, w, 0.03, fill=c2)
+    by = yf + 0.5; bh = 3.4
     rect(sl, x + 0.4, by, w - 0.8, bh, fill=c1); rect(sl, x + 0.55, by + 0.15, w - 1.1, bh - 0.3, line=c2, lw=0.75)
-    texto(sl, x, by + 0.25, w, 0.55, 'TOMO', size=10 if ancho else 8.5, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=3)
+    texto(sl, x, by + 0.3, w, 0.55, 'TOMO', size=11 if ancho else 9, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=3)
     num = ROMANOS[n] if n is not None else ''
-    texto(sl, x, by + 0.75, w, 1.95, num, size=(38 if ancho else 26) if len(num) < 4 else (30 if ancho else 19), color=BLANCO,
+    texto(sl, x, by + 0.85, w, 2.25, num, size=(44 if ancho else 30) if len(num) < 4 else (34 if ancho else 22), color=BLANCO,
           font=SERIF, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
     if n is None:
-        rect(sl, x + w * 0.3, by + 2.3, w * 0.4, 0.025, fill=c2)
-    yc = by + bh + 0.35; hc = 10.2
+        rect(sl, x + w * 0.3, by + 2.7, w * 0.4, 0.025, fill=c2)
+    yc = by + bh + 0.4; hc = 11.6
     tabla(sl, x + 0.3, yc, w - 0.6, hc, P, 'CONTENIDO', 0.68, False, 9 if ancho else 7.5, 9 if ancho else 7.5, hdr=0.65)
     yv = yc + hc + 0.3; hv = y + h - 1.2 - yv
     nombre_vertical(sl, P, x, w, yv, hv, ancho, BLANCO, c2, c1, c1)
