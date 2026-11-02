@@ -937,3 +937,5 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   nombre completo con CUI sobre fondo rosado.
 - Ajuste (02-11-2026), solo Hogar de Refugio: el tomo salía dos veces y quedaba mucho espacio libre. Ahora el tomo va una sola vez
   en una placa guinda grande bajo la foto (más alta), la columna guinda lleva el escudo y "HOGAR DE REFUGIO TEMPORAL" en vertical.
+- Ajuste (02-11-2026), solo Hogar de Refugio: la placa del tomo quedó muy grande. Diseño nuevo: encabezado guinda con escudo,
+  título y nombre centrados, CUI en recuadro rosado, foto ancha con filete dorado, franja rosada con "TOMO n" (32 pt) y pie guinda.
