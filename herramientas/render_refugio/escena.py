@@ -187,6 +187,7 @@ mat_simple('vidrio', rgb(35, 52, 62), rug=0.04)
 MATS['vidrio'].node_tree.nodes['Principled BSDF'].inputs['Specular IOR Level'].default_value = 0.9
 mat_simple('aluminio', rgb(70, 72, 75), rug=0.35, metal=0.9)
 mat_simple('aluminio_claro', rgb(200, 200, 198), rug=0.3, metal=0.9)
+mat_simple('canaleta_galv', rgb(176, 180, 182), rug=0.35, metal=0.85)
 mat_simple('acero', rgb(110, 115, 120), rug=0.4, metal=0.8)
 mat_simple('puerta', rgb(92, 64, 45), rug=0.5)
 mat_simple('negro', rgb(20, 20, 22), rug=0.5)
@@ -367,7 +368,7 @@ def edificio(e):
             obj_mesh(cod + '_hastial', vv, [(0, 1, 2), (3, 5, 4), (0, 3, 4, 1), (1, 4, 5, 2), (0, 2, 5, 3)], 'TP3', col)
             caja(cod + '_canal', x0, yy + s * VOL - 0.06, ze - 0.12, x1, yy + s * VOL + 0.06, ze, 'TP1_acrilica', col) if False else None
         for xx in (x0, x1):
-            caja(cod + '_canaleta', xx - 0.12, y0, ze - 0.2, xx + 0.12, y1, ze, 'aluminio_claro', col)
+            caja(cod + '_canaleta', xx - 0.12, y0, ze - 0.2, xx + 0.12, y1, ze, 'canaleta_galv', col)
     else:
         cym = (y0 + y1) / 2; semi = (b1 - b0) / 2
         zr = Z_TECHO + PEND * semi; ze = Z_TECHO - PEND * VOL
@@ -380,7 +381,7 @@ def edificio(e):
             vv = [(xx, y, z) for y, z in tri] + [(xx - s * 0.2, y, z) for y, z in tri]
             obj_mesh(cod + '_hastial', vv, [(0, 1, 2), (3, 5, 4), (0, 3, 4, 1), (1, 4, 5, 2), (0, 2, 5, 3)], 'TP3', col)
         for yy in (y0, y1):
-            caja(cod + '_canaleta', x0, yy - 0.12, ze - 0.2, x1, yy + 0.12, ze, 'aluminio_claro', col)
+            caja(cod + '_canaleta', x0, yy - 0.12, ze - 0.2, x1, yy + 0.12, ze, 'canaleta_galv', col)
     # solidificar techo
     t = bpy.data.objects[cod + '_techo']; mod = t.modifiers.new('esp', 'SOLIDIFY'); mod.thickness = 0.05
 
@@ -610,25 +611,256 @@ for k in range(3):
         for j, m_ in enumerate(('bandera_roja', 'bandera_blanca', 'bandera_roja')):
             caja('bandera', xx + 0.05 + j * 0.5, (ay0 + ay1) / 2 - 0.01, 6.7, xx + 0.05 + (j + 1) * 0.5, (ay0 + ay1) / 2 + 0.01, 7.7, m_, CO)
 caja('asta_base', ax0, ay0, 0, ax1, ay1, 0.35, 'concreto_gris', CO)
-ox0, oy0, ox1, oy1 = D['oc04']                                     # juegos infantiles
-caja('juegos_piso', ox0, oy0, 0, ox1, oy1, 0.06, 'caucho_verde', CO)
-caja('juegos_piso2', ox0 + 2, oy0 + 2, 0.06, ox0 + 7, oy1 - 2, 0.065, 'caucho_rojo', CO)
-tx_, ty_ = ox0 + 4, (oy0 + oy1) / 2
-for dx in (-0.9, 0.9):
-    for dy in (-0.9, 0.9):
-        caja('torre_poste', tx_ + dx - 0.07, ty_ + dy - 0.07, 0.06, tx_ + dx + 0.07, ty_ + dy + 0.07, 3.0, 'juego_azul', CO)
-caja('torre_piso', tx_ - 1, ty_ - 1, 1.4, tx_ + 1, ty_ + 1, 1.5, 'juego_amarillo', CO)
-caja('torre_techo', tx_ - 1.1, ty_ - 1.1, 3.0, tx_ + 1.1, ty_ + 1.1, 3.1, 'juego_amarillo', CO)
-v = [(tx_ + 1, ty_ - 0.4, 1.5), (tx_ + 1, ty_ + 0.4, 1.5), (tx_ + 3.8, ty_ + 0.4, 0.15), (tx_ + 3.8, ty_ - 0.4, 0.15)]
-o = obj_mesh('tobogan', v, [(0, 1, 2, 3)], 'juego_amarillo', CO); o.modifiers.new('esp', 'SOLIDIFY').thickness = 0.06
-sx_ = ox1 - 3.5
-for yy in (oy0 + 2, oy1 - 2):
-    caja('columpio_poste', sx_ - 0.06, yy - 0.06, 0.06, sx_ + 0.06, yy + 0.06, 2.6, 'juego_azul', CO)
-caja('columpio_viga', sx_ - 0.06, oy0 + 2, 2.5, sx_ + 0.06, oy1 - 2, 2.62, 'juego_azul', CO)
-for yy in ((oy0 + oy1) / 2 - 1, (oy0 + oy1) / 2 + 1):
-    caja('columpio_asiento', sx_ - 0.25, yy - 0.2, 0.5, sx_ + 0.25, yy + 0.2, 0.55, 'juego_amarillo', CO)
-    for dy in (-0.18, 0.18):
-        caja('cadena', sx_ - 0.01, yy + dy - 0.01, 0.55, sx_ + 0.01, yy + dy + 0.01, 2.5, 'acero', CO)
+# ------------------------------------------------------------------ juegos infantiles OC-04 (piso de arena AR-SAND del plano)
+mat_concreto('arena', (198, 168, 120), escala=60.0, agregado=0.45)
+mat_simple('juego_rojo', rgb(200, 45, 40), rug=0.35); mat_simple('juego_verde', rgb(40, 150, 70), rug=0.4)
+mat_simple('plastico_amarillo', rgb(245, 196, 30), rug=0.25)
+ox0, oy0, ox1, oy1 = D['oc04']
+caja('juegos_arena', ox0, oy0, 0, ox1, oy1, 0.13, 'arena', CO)
+for (a0, b0, a1, b1) in ((ox0 - 0.15, oy0 - 0.15, ox1 + 0.15, oy0), (ox0 - 0.15, oy1, ox1 + 0.15, oy1 + 0.15),
+                         (ox0 - 0.15, oy0, ox0, oy1), (ox1, oy0, ox1 + 0.15, oy1)):
+    caja('juegos_sardinel', a0, b0, 0, a1, b1, 0.26, 'concreto_gris', CO)
+
+
+def tubo(nombre, p0, p1, r, mat, col=CO):
+    """Tubo metálico entre dos puntos (cilindro orientado)."""
+    p0, p1 = Vector(p0), Vector(p1); d = p1 - p0
+    bpy.ops.mesh.primitive_cylinder_add(vertices=12, radius=r, depth=d.length, location=(p0 + p1) / 2)
+    o = bpy.context.active_object; o.name = nombre
+    o.rotation_euler = d.to_track_quat('Z', 'Y').to_euler()
+    o.data.materials.append(MATS[mat]); bpy.context.collection.objects.unlink(o); col.objects.link(o)
+    return o
+
+
+ZA = 0.13                                                          # nivel de la arena
+for j in D['juegos']:
+    x0, y0, x1, y1 = j['bb']; cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    largo_x = (x1 - x0) >= (y1 - y0)
+    if j['n'] == 'COLUMPIO':                                       # pórtico en A con dos asientos
+        for xe in (x0 + 0.1, x1 - 0.1):
+            for dy in (-0.42, 0.42):
+                tubo('columpio_pata', (xe, cy + dy, ZA), (xe, cy, 2.35), 0.04, 'juego_rojo')
+        tubo('columpio_viga', (x0 + 0.1, cy, 2.35), (x1 - 0.1, cy, 2.35), 0.05, 'juego_rojo')
+        for xs in (cx - 0.75, cx + 0.75):
+            caja('columpio_asiento', xs - 0.23, cy - 0.11, 0.48, xs + 0.23, cy + 0.11, 0.52, 'plastico_amarillo', CO)
+            for dx in (-0.2, 0.2):
+                tubo('cadena', (xs + dx, cy, 0.52), (xs + dx, cy, 2.33), 0.008, 'acero')
+    elif j['n'] == 'TBGAN':                                        # escalera, plataforma y resbaladera
+        xa, xb = x0 + 0.2, x1 - 0.2; ya = y0 + 0.15; yp0, yp1 = y0 + 0.75, y0 + 1.55
+        for xx in (xa, xb):
+            tubo('tobogan_escalera', (xx, ya, ZA), (xx, yp0, 1.45), 0.035, 'juego_azul')
+            for yy in (yp0, yp1):
+                tubo('tobogan_poste', (xx, yy, ZA), (xx, yy, 2.4), 0.04, 'juego_azul')
+        for k in range(1, 6):
+            t = k / 6; tubo('peldano', (xa, ya + (yp0 - ya) * t, ZA + (1.45 - ZA) * t), (xb, ya + (yp0 - ya) * t, ZA + (1.45 - ZA) * t), 0.02, 'acero')
+        caja('tobogan_plataforma', xa, yp0, 1.40, xb, yp1, 1.48, 'juego_rojo', CO)
+        caja('tobogan_techo', xa - 0.1, yp0 - 0.1, 2.40, xb + 0.1, yp1 + 0.1, 2.48, 'juego_verde', CO)
+        for xx in (xa, xb):
+            tubo('baranda', (xx, yp0, 2.0), (xx, yp1, 2.0), 0.025, 'juego_azul')
+        w = 0.5; xm = cx
+        v = [(xm - w / 2, yp1, 1.46), (xm + w / 2, yp1, 1.46), (xm + w / 2, y1 - 0.45, 0.42), (xm - w / 2, y1 - 0.45, 0.42),
+             (xm - w / 2, y1 - 0.05, 0.32), (xm + w / 2, y1 - 0.05, 0.32)]
+        o = obj_mesh('resbaladera', v, [(0, 1, 2, 3), (3, 2, 5, 4)], 'plastico_amarillo', CO)
+        o.modifiers.new('esp', 'SOLIDIFY').thickness = 0.03
+        for s_ in (-1, 1):
+            obj_mesh('resbaladera_borde', [(xm + s_ * w / 2, yp1, 1.46), (xm + s_ * w / 2, y1 - 0.45, 0.42), (xm + s_ * w / 2, y1 - 0.05, 0.32),
+                                           (xm + s_ * w / 2, y1 - 0.05, 0.47), (xm + s_ * w / 2, y1 - 0.45, 0.57), (xm + s_ * w / 2, yp1, 1.61)],
+                     [(0, 1, 4, 5), (1, 2, 3, 4)], 'plastico_amarillo', CO).modifiers.new('esp', 'SOLIDIFY').thickness = 0.03
+    else:                                                          # sube y baja (uno o dos balancines)
+        corto = (y1 - y0) if largo_x else (x1 - x0)
+        n = 2 if corto > 1.5 else 1
+        for k in range(n):
+            f = (k + 0.5) / n
+            if largo_x:
+                yy = y0 + corto * f; a, b = (x0 + 0.1, yy, 0.30), (x1 - 0.1, yy, 0.78); piv = (cx, yy)
+            else:
+                xx = x0 + corto * f; a, b = (xx, y0 + 0.1, 0.30), (xx, y1 - 0.1, 0.78); piv = (xx, cy)
+            caja_c('balancin_base', piv[0], piv[1], ZA + 0.22, 0.35, 0.35, 0.44, 'juego_azul', 0, CO)
+            av = Vector(a); bv = Vector(b); d = bv - av
+            o = caja_c('balancin_tabla', *((av + bv) / 2), d.length, 0.28, 0.05, 'juego_rojo', 0, CO)
+            o.rotation_euler = d.to_track_quat('X', 'Z').to_euler()
+            for e_ in (0.12, 0.88):
+                pe = av + d * e_
+                tubo('balancin_manija', pe + Vector((0, 0, 0.03)), pe + Vector((0, 0, 0.45)), 0.022, 'plastico_amarillo')
+
+# ------------------------------------------------------------------ cunetas con rejilla (capa 1-CUNETAS) y colector frontal
+mat_simple('galvanizado', rgb(168, 172, 174), rug=0.38, metal=0.85)
+mat_simple('pvc', rgb(205, 205, 200), rug=0.4)
+mat_concreto('cuneta_fondo', (34, 34, 33), escala=8.0, agregado=0.2)
+mat_concreto('concreto_cuneta', (196, 194, 188), agregado=0.1)
+CDR = coleccion('Drenaje')
+VER = _UU([_SP(p).buffer(0) for p in D['veredas'] if len(p) >= 3])
+_bv, _bf = [], []
+
+
+def _barra(x0, y0, z0, x1, y1, z1):
+    i = len(_bv)
+    _bv.extend([(x0, y0, z0), (x1, y0, z0), (x1, y1, z0), (x0, y1, z0), (x0, y0, z1), (x1, y0, z1), (x1, y1, z1), (x0, y1, z1)])
+    _bf.extend([(i, i + 3, i + 2, i + 1), (i + 4, i + 5, i + 6, i + 7), (i, i + 1, i + 5, i + 4), (i + 1, i + 2, i + 6, i + 5),
+                (i + 2, i + 3, i + 7, i + 6), (i + 3, i, i + 4, i + 7)])
+
+
+# Red de cunetas tal cual el plano de drenaje (bloque "red drenaje" del DXF PLANTA GENERAL - MUJERES VIOLENTADAS): ejes 01 a
+# 12 con interior 0.40, muros de 0.10 y rejilla de platinas 1" x 3/16" @ 0.025 con angulo de marco; tapas de inspeccion,
+# sumideros con rejilla y las cunetas del frente achuradas en el mismo bloque.
+PISOS = _UU([_SB(e['rect'][0] + VOL - 1.2, e['rect'][1] + VOL - 1.2, e['rect'][2] - VOL + 1.2, e['rect'][3] - VOL + 1.2) for e in D['edificios']])
+_mv, _mf, _fv, _ff = [], [], [], []
+
+
+def _orientada(lv, lf, P, d, n, s0, s1, t0, t1, z0, z1):
+    """Caja orientada: s a lo largo de d, t a lo largo de n (en metros)."""
+    i = len(lv)
+    for (s, t) in ((s0, t0), (s1, t0), (s1, t1), (s0, t1)):
+        lv.append((P[0] + d[0] * s + n[0] * t, P[1] + d[1] * s + n[1] * t, z0))
+    for (s, t) in ((s0, t0), (s1, t0), (s1, t1), (s0, t1)):
+        lv.append((P[0] + d[0] * s + n[0] * t, P[1] + d[1] * s + n[1] * t, z1))
+    lf.extend([(i, i + 3, i + 2, i + 1), (i + 4, i + 5, i + 6, i + 7), (i, i + 1, i + 5, i + 4), (i + 1, i + 2, i + 6, i + 5),
+               (i + 2, i + 3, i + 7, i + 6), (i + 3, i, i + 4, i + 7)])
+
+
+def _nivel(geom):
+    if PISOS.intersection(geom).area > 0.02:
+        return 0.158
+    return 0.118 if VER.intersection(geom).area > 0.02 else 0.092
+
+
+def cuneta(A, B, w=0.20, e_=0.10, ext=True):
+    dx, dy = B[0] - A[0], B[1] - A[1]; L = math.hypot(dx, dy)
+    if L < 1e-3:
+        return 0
+    d = (dx / L, dy / L); n = (-d[1], d[0]); x0 = -(w + e_) if ext else 0; x1 = L + (w + e_ if ext else 0)
+    zt = _nivel(_SP([(A[0] + n[0] * 0.3, A[1] + n[1] * 0.3), (B[0] + n[0] * 0.3, B[1] + n[1] * 0.3),
+                     (B[0] - n[0] * 0.3, B[1] - n[1] * 0.3), (A[0] - n[0] * 0.3, A[1] - n[1] * 0.3)]))
+    _orientada(_mv, _mf, A, d, n, x0, x1, w, w + e_, -0.02, zt)          # muros
+    _orientada(_mv, _mf, A, d, n, x0, x1, -w - e_, -w, -0.02, zt)
+    _orientada(_fv, _ff, A, d, n, x0, x1, -w, w, -0.02, zt - 0.03)       # fondo (agua y sombra)
+    zb = zt - 0.0254
+    _orientada(_bv, _bf, A, d, n, x0 + e_, x1 - e_, w - 0.025, w, zb, zt)    # ángulo del marco
+    _orientada(_bv, _bf, A, d, n, x0 + e_, x1 - e_, -w, -w + 0.025, zb, zt)
+    s = x0 + e_ + 0.0125
+    while s < x1 - e_:
+        _orientada(_bv, _bf, A, d, n, s - 0.0024, s + 0.0024, -w + 0.025, w - 0.025, zb, zt - 0.001); s += 0.025
+    return L
+
+
+L_cun = 0
+for k_, pts in D['ejes_cuneta'].items():
+    for A_, B_ in zip(pts, pts[1:]):
+        L_cun += cuneta(A_, B_)
+for (x0, y0, x1, y1) in D['cunetas_frente']:                       # cunetas del frente (achurado del mismo bloque)
+    if (x1 - x0) >= (y1 - y0):
+        L_cun += cuneta(((x0), (y0 + y1) / 2), (x1, (y0 + y1) / 2), w=(y1 - y0) / 2, ext=False)
+    else:
+        L_cun += cuneta(((x0 + x1) / 2, y0), ((x0 + x1) / 2, y1), w=(x1 - x0) / 2, ext=False)
+obj_mesh('cunetas_muros', _mv, _mf, 'concreto_cuneta', CDR)
+obj_mesh('cunetas_fondo', _fv, _ff, 'cuneta_fondo', CDR)
+_bv2, _bf2 = [], []
+for (x0, y0, x1, y1) in D['sumideros']:                            # sumideros con rejilla 0.25 x 0.25
+    zt = _nivel(_SB(x0 - 0.05, y0 - 0.05, x1 + 0.05, y1 + 0.05)) + 0.002
+    caja('sumidero_fondo', x0, y0, -0.02, x1, y1, zt - 0.03, 'cuneta_fondo', CDR)
+    for (a0, b0, a1, b1) in ((x0 - 0.02, y0 - 0.02, x1 + 0.02, y0), (x0 - 0.02, y1, x1 + 0.02, y1 + 0.02), (x0 - 0.02, y0, x0, y1), (x1, y0, x1 + 0.02, y1)):
+        _barra(a0, b0, zt - 0.0254, a1, b1, zt)
+    k = x0 + 0.025
+    while k < x1 - 0.01:
+        _barra(k - 0.0024, y0, zt - 0.0254, k + 0.0024, y1, zt - 0.001); k += 0.025
+obj_mesh('rejillas_cunetas', _bv, _bf, 'galvanizado', CDR)
+mat_concreto('tapa_inspeccion', (150, 148, 142), escala=6.0, agregado=0.25)
+for (x0, y0, x1, y1) in D['tapas_inspeccion']:                     # tapas de inspección de concreto sobre la cuneta
+    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    zt = _nivel(_SB(cx - 0.3, cy - 0.3, cx + 0.3, cy + 0.3))
+    caja('tapa_insp_junta', cx - 0.32, cy - 0.32, zt - 0.01, cx + 0.32, cy + 0.32, zt + 0.004, 'negro', CDR)
+    caja('tapa_inspeccion', cx - 0.30, cy - 0.30, zt - 0.01, cx + 0.30, cy + 0.30, zt + 0.012, 'tapa_inspeccion', CDR)
+    for dd in (-0.15, 0.15):
+        caja('tapa_insp_asa', cx + dd - 0.04, cy - 0.012, zt + 0.012, cx + dd + 0.04, cy + 0.012, zt + 0.016, 'acero', CDR)
+print('cunetas con rejilla m', round(L_cun, 2), 'sumideros', len(D['sumideros']), 'tapas', len(D['tapas_inspeccion']))
+# montantes PVC 4" en las esquinas de cada edificación (símbolo del plano): boquilla, desvío bajo el alero, bajada adosada
+# al muro y falsa columna de concreto hasta +1.05
+N_mont = 0
+for e in D['edificios']:
+    x0, y0, x1, y1 = e['rect']; a0, b0, a1, b1 = x0 + VOL, y0 + VOL, x1 - VOL, y1 - VOL; ze = Z_TECHO - PEND * VOL
+    if e['cumbrera'] == 'y':
+        pts = [(x0 + 0.12, a0 - 0.09, b0 + 0.35, 'x'), (x0 + 0.12, a0 - 0.09, b1 - 0.35, 'x'),
+               (x1 - 0.12, a1 + 0.09, b0 + 0.35, 'x'), (x1 - 0.12, a1 + 0.09, b1 - 0.35, 'x')]
+    else:
+        pts = [(y0 + 0.12, b0 - 0.09, a0 + 0.35, 'y'), (y0 + 0.12, b0 - 0.09, a1 - 0.35, 'y'),
+               (y1 - 0.12, b1 + 0.09, a0 + 0.35, 'y'), (y1 - 0.12, b1 + 0.09, a1 - 0.35, 'y')]
+    for (c_can, c_muro, c_l, eje_) in pts:
+        P = (lambda c, l: (c, l)) if eje_ == 'x' else (lambda c, l: (l, c))
+        p1, p2 = P(c_can, c_l), P(c_muro, c_l)
+        tubo('montante_boquilla', (*p1, ze - 0.2), (*p1, ze - 0.42), 0.055, 'pvc')
+        tubo('montante_desvio', (*p1, ze - 0.42), (*p2, ze - 0.42), 0.055, 'pvc')
+        tubo('montante_bajada', (*p2, ze - 0.42), (*p2, 1.05), 0.055, 'pvc')
+        for zz in (1.8, 2.7):
+            tubo('montante_abrazadera', (*p2, zz), (*p2, zz + 0.04), 0.062, 'galvanizado')
+        caja_c('falsa_columna', p2[0], p2[1], 0.15 + 0.45, 0.25, 0.25, 0.90, 'concreto_gris', 0, CDR)
+        N_mont += 1
+print('montantes', N_mont)
+C_ = D['colector']                                                 # losa-vereda del colector b 0.80 y tapas ciegas
+ye, yc, xne = C_['y_eje'], C_['y_cerco'], C_['x_ne']
+ya_ = ye - C_['b'] / 2 - C_['e_muro']
+caja('colector_losa', xne - C_['p_quiebre'] - 0.3, ya_, 0.15, xne + 0.3, yc, 0.162, 'concreto_cuneta', CDR)
+mat_concreto('tapa_concreto', (112, 110, 104), escala=6.0, agregado=0.3)
+for yj in (ya_, yc - 0.0254):                                      # juntas de 1" (vereda-colector y colector-cerco)
+    caja('junta_colector', xne - C_['p_quiebre'] - 0.3, yj, 0.15, xne + 0.3, yj + 0.0254, 0.164, 'negro', CDR)
+xj = xne
+while xj > xne - C_['p_quiebre']:                                  # juntas transversales de la losa
+    caja('junta_losa', xj - 0.0127, ya_, 0.15, xj + 0.0127, yc, 0.1635, 'negro', CDR); xj -= 3.0
+for r in C_['registros']:
+    xr = xne - r['p']
+    caja('tapa_junta', xr - 0.345, ye - 0.495, 0.161, xr + 0.345, ye + 0.495, 0.164, 'negro', CDR)
+    caja('tapa_ciega', xr - 0.31, ye - 0.46, 0.161, xr + 0.31, ye + 0.46, 0.170, 'tapa_concreto', CDR)
+    for dy in (-0.25, 0.25):
+        caja('tapa_asa', xr - 0.04, ye + dy - 0.012, 0.168, xr + 0.04, ye + dy + 0.012, 0.172, 'acero', CDR)
+
+# ------------------------------------------------------------------ OC-01 jardinera + banca + pérgola (3 juegos, lámina OC-01)
+mat_simple('estructura_acero', rgb(38, 38, 40), rug=0.45, metal=0.6)
+mat_concreto('tierra_jardinera', (92, 70, 50), escala=20.0, agregado=0.3)
+mat_simple('arbusto', rgb(48, 96, 38), rug=0.8)
+MODS = [(0.0, 3.79, -1, 0.15), (3.79, 8.00, 1, 3.94), (8.00, 11.79, -1, 11.65)]   # (u0, u1, lado de la banca, salida de la canaleta)
+Z_BAJO, Z_ALTO = 2.70, 3.16
+JARD = []
+JARD_ARB = []
+for J in D['oc01']:
+    x0, y0, x1, y1 = J['bb']; c0 = Vector(((x0 + x1) / 2, (y0 + y1) / 2, 0)); th = math.radians(J['rot'])
+    ru = Vector((math.cos(th), math.sin(th), 0)); rv = Vector((-math.sin(th), math.cos(th), 0)); Lt = 11.79
+
+    def W(u, v, z=0.0):
+        return c0 + ru * (u - Lt / 2) + rv * v + Vector((0, 0, z))
+
+    def pieza(nombre, u0, v0, z0, u1, v1, z1, mat):
+        cc = W((u0 + u1) / 2, (v0 + v1) / 2, (z0 + z1) / 2)
+        return caja_c(nombre, cc.x, cc.y, cc.z, abs(u1 - u0), abs(v1 - v0), abs(z1 - z0), mat, th, CO)
+
+    pieza('jardinera', -0.1, -0.6, 0.0, Lt + 0.1, 0.6, 0.45, 'concreto_gris')
+    pieza('jardinera_tierra', 0.0, -0.5, 0.40, Lt, 0.5, 0.455, 'tierra_jardinera')
+    JARD.append(_SP([tuple(W(u, v))[:2] for u, v in ((0.05, -0.45), (Lt - 0.05, -0.45), (Lt - 0.05, 0.45), (0.05, 0.45))]))
+    cal = 'calamina_x' if abs(math.cos(th)) > 0.5 else 'calamina_y'
+    for (u0, u1, s, us) in MODS:
+        vb, va = -s * 0.6, s * 1.8                                  # borde bajo (canaleta) y borde alto
+        zc = Z_BAJO + (Z_ALTO - Z_BAJO) * (1.2 / 2.4)               # altura en la línea de columnas (v = s*0.6)
+        for uc in (u0 + 0.18, u1 - 0.18):
+            pieza('oc01_columna', uc - 0.05, s * 0.6 - 0.125, 0.0, uc + 0.05, s * 0.6 + 0.125, zc, 'estructura_acero')
+        pieza('oc01_viga', u0 + 0.05, s * 0.6 - 0.05, zc - 0.12, u1 - 0.05, s * 0.6 + 0.05, zc, 'estructura_acero')
+        for uc in (u0 + 0.18, u1 - 0.18):                           # vigas inclinadas bajo la cobertura
+            a, b = W(uc, vb, Z_BAJO - 0.06), W(uc, va, Z_ALTO - 0.06); d = b - a
+            o = caja_c('oc01_correa', *((a + b) / 2), d.length, 0.05, 0.10, 'estructura_acero', 0, CO)
+            o.rotation_euler = d.to_track_quat('X', 'Z').to_euler()
+        vs_ = [tuple(W(u0, vb, Z_BAJO)), tuple(W(u1, vb, Z_BAJO)), tuple(W(u1, va, Z_ALTO)), tuple(W(u0, va, Z_ALTO))]
+        o = obj_mesh('oc01_cobertura_aluzinc', vs_, [(0, 1, 2, 3)], cal, CO); o.modifiers.new('esp', 'SOLIDIFY').thickness = 0.03
+        pieza('oc01_canaleta', u0, vb - s * 0.0, Z_BAJO - 0.21, u1, vb - s * 0.18, Z_BAJO + 0.01, 'galvanizado')
+        pv = W(us, vb - s * 0.09)                                    # bajada Ø4" y falsa columna CL-01
+        tubo('oc01_bajada', (pv.x, pv.y, Z_BAJO - 0.21), (pv.x, pv.y, 1.05), 0.055, 'pvc')
+        pieza('oc01_falsa_columna', us - 0.1, vb - s * 0.09 - 0.1, 0.0, us + 0.1, vb - s * 0.09 + 0.1, 1.05, 'concreto_gris')
+        for k in range(6):                                           # celosía de madera (respaldo)
+            zz = 1.05 + k * 0.24
+            pieza('oc01_celosia', u0 + 0.25, s * 0.6 - 0.02, zz, u1 - 0.25, s * 0.6 + 0.02, zz + 0.14, 'madera')
+        for k in range(5):                                           # asiento de madera
+            vv = s * (0.70 + k * 0.09)
+            pieza('oc01_asiento', u0 + 0.15, vv - 0.035, 0.44, u1 - 0.15, vv + 0.035, 0.48, 'madera')
+        for uc in (u0 + 0.25, (u0 + u1) / 2, u1 - 0.25):
+            pieza('oc01_pata', uc - 0.025, s * 0.66, 0.0, uc + 0.025, s * 1.12, 0.44, 'estructura_acero')
+        if s > 0:                                                    # dos arbolitos en la jardinera central (elevación E1)
+            JARD_ARB.extend([W(u0 + 1.25, 0.0, 0.45), W(u1 - 1.25, 0.0, 0.45)])
 
 # ------------------------------------------------------------------ árboles
 CA = coleccion('Arboles')
@@ -713,7 +945,7 @@ for k, col in enumerate(PROTO[:4]):                                # follaje: ho
     print('follaje', col.name, len(fs))
 POS_ARBOLES = [tuple(p) for p in D['arboles']]
 POS_ARBOLES += [(6.0, 52), (6.0, 60), (6.0, 68), (2.5, 46), (66, 33), (66, 45), (66, 56), (66, 70), (66, 82),
-                (28, 60), (41, 74), (29, 90), (52, 90), (40, 110), (47, 112), (60, 112), (28, 18.8), (58, 19.3)]
+                (28, 60), (29, 90), (52, 90), (48.5, 114), (60, 112), (28.8, 18.8), (58, 19.3)]
 rng = random.Random(3)
 for _ in range(1400):                                               # vegetación del entorno
     r_ = 20 + rng.random() ** 0.7 * 520; a_ = rng.uniform(0, 6.283)
@@ -726,6 +958,9 @@ for i, (x, y) in enumerate(POS_ARBOLES):
     e = bpy.data.objects.new('arbol', None); e.instance_type = 'COLLECTION'; e.instance_collection = PROTO[i % 4 + (4 if lejos else 0)]
     e.location = (x, y, 0); e.rotation_euler = (0, 0, rng.uniform(0, 6.28)); s = rng.uniform(0.85, 1.35); e.scale = (s, s, s)
     CA.objects.link(e)
+for i, p_ in enumerate(JARD_ARB):                                   # arbolitos de las jardineras OC-01
+    e = bpy.data.objects.new('arbol_jardinera', None); e.instance_type = 'COLLECTION'; e.instance_collection = PROTO[i % 4]
+    e.location = p_; e.rotation_euler = (0, 0, rng.uniform(0, 6.28)); e.scale = (0.34, 0.34, 0.34); CA.objects.link(e)
 
 # ------------------------------------------------------------------ pasto en 3D (matas de hojas instanciadas)
 from shapely.geometry import Polygon as SPoly, box as SBox, Point as SPt
@@ -769,11 +1004,13 @@ duro += [SPoly(p).buffer(0.05) for p in D['veredas'] if len(p) >= 3]
 for k in ('losa', 'garita', 'autos', 'motos', 'tanque', 'plaza', 'oc04', 'asta'):
     r_ = D[k]; duro.append(SBox(r_[0] - 0.3, r_[1] - 0.3, r_[2] + 0.3, r_[3] + 0.3))
 duro = unary_union([g.buffer(0) for g in duro])
+from shapely.geometry import LineString as _SL                       # sin pasto sobre las cunetas
+duro = duro.union(unary_union([_SL(p_).buffer(0.32, cap_style=2, join_style=2) for p_ in D['ejes_cuneta'].values()]))
 lote_ = SPoly(D['limite']).convex_hull
 zonas = [VERDES.buffer(-0.05).difference(duro), SBox(-45, -30, 120, 6.6), SBox(-45, 18.2, 1.0, 80), SBox(71.9, 18.2, 110, 80)]
 
 
-def emisor(nombre, zona, paso=0.5):
+def emisor(nombre, zona, paso=0.5, z=0.0):
     x0_, y0_, x1_, y1_ = zona.bounds; vs = []; fs = []; idx = {}
     nx_, ny_ = int((x1_ - x0_) / paso) + 1, int((y1_ - y0_) / paso) + 1
     for i in range(nx_):
@@ -794,12 +1031,15 @@ def emisor(nombre, zona, paso=0.5):
     ps_.particle_size = 1.0; ps_.size_random = 0.45; ps_.use_rotations = True; ps_.rotation_mode = 'GLOB_Z'
     ps_.phase_factor_random = 2.0; ps_.rotation_factor_random = 0.08; ps_.use_even_distribution = True; ps_.emit_from = 'FACE'
     o.show_instancer_for_render = False
+    o.location.z = z
     return area
 
 
 print('zonas', [round(z.area) for z in zonas])
 tot = sum(emisor('pasto_%d' % i, z) for i, z in enumerate(zonas) if not z.is_empty)
 print('pasto m2', round(tot))
+for i_, zj in enumerate(JARD):
+    emisor('pasto_jardinera_%d' % i_, zj, paso=0.15, z=0.455)
 
 # ------------------------------------------------------------------ personas
 CP = coleccion('Personas')
@@ -849,17 +1089,17 @@ for o in bpy.data.objects:                                       # ropa del mani
         m = mat_simple('ropa_maniqui', rgb(60, 90, 140), rug=0.6); o.data.materials.clear(); o.data.materials.append(m)
 GENTE = [('mujer', 1.0, (38, 21, 0.15), 200), ('hombre', 1.0, (36, 19.6, 0.15), 160), ('mujer', 0.72, (37, 20.2, 0.15), 190),
          ('maniqui', 1.0, (33, 40, 0.15), 90), ('mujer', 1.0, (31, 58, 0.12), 30), ('caminante', 1.0, (35, 62, 0.12), 210),
-         ('mujer', 0.66, (32, 82, 0.06), 10), ('maniqui', 0.62, (35.5, 80.5, 0.06), 160), ('mujer', 0.7, (38.5, 84, 0.06), 300),
+         ('mujer', 0.66, (32.2, 82.6, 0.13), 10), ('maniqui', 0.62, (36.4, 81.2, 0.13), 160), ('mujer', 0.7, (38.6, 83.4, 0.13), 300),
          ('hombre', 0.65, (12, 105, 0.13), 40), ('maniqui', 0.68, (16, 112, 0.13), 200), ('mujer', 0.7, (19, 100, 0.13), 120),
          ('caminante', 0.66, (9, 118, 0.13), 300), ('mujer', 1.0, (5, 98, 0.12), 80), ('hombre', 1.0, (42, 50, 0.10), 250),
          ('mujer', 1.0, (52, 92.5, 0.10), 180), ('maniqui', 1.0, (61, 110, 0.10), 270), ('mujer', 0.7, (28.3, 64, 0.12), 60),
-         ('caminante', 1.0, (20, 47, 0.10), 0), ('mujer', 1.0, (39, 12.0, 0.02), 100),
-         ('mujer', 0.62, (33.5, 79.5, 0.06), 200), ('maniqui', 0.58, (39.5, 82.0, 0.06), 250), ('hombre', 0.6, (36.8, 86.2, 0.06), 140),
-         ('mujer', 1.0, (30.2, 78.8, 0.06), 70), ('mujer', 0.66, (14, 108, 0.13), 260), ('caminante', 0.6, (18, 117, 0.13), 110),
+         ('caminante', 1.0, (20, 47, 0.10), 0), ('mujer', 1.0, (39, 16.3, 0.16), 100),
+         ('mujer', 0.62, (33.6, 81.0, 0.13), 200), ('maniqui', 0.58, (40.9, 82.6, 0.13), 250), ('hombre', 0.6, (36.5, 86.9, 0.13), 140),
+         ('mujer', 1.0, (29.2, 78.6, 0.13), 70), ('mujer', 0.66, (14, 108, 0.13), 260), ('caminante', 0.6, (18, 117, 0.13), 110),
          ('maniqui', 0.64, (10, 101, 0.13), 30), ('mujer', 1.0, (24.8, 110, 0.13), 270), ('mujer', 0.95, (34.5, 64.5, 0.12), 300),
          ('hombre', 0.95, (31.5, 60.5, 0.12), 80), ('mujer', 0.68, (35.6, 59.2, 0.12), 20), ('mujer', 1.0, (58.5, 60, 0.12), 180),
          ('caminante', 1.0, (49, 46, 0.10), 230), ('mujer', 0.7, (50.0, 45.2, 0.10), 220), ('mujer', 1.0, (27.5, 41, 0.12), 90)]
-for i, (n, s, p, r) in enumerate(GENTE):
+for i, (n, s, p, r) in enumerate([]):                               # sin personas (pedido del usuario, 02-11-2026)
     if n not in PERS:
         continue
     e = bpy.data.objects.new('persona', None); e.instance_type = 'COLLECTION'; e.instance_collection = PERS[n]

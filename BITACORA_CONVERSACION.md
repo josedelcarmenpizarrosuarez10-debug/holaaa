@@ -964,3 +964,9 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Correcciones de la usuaria: faltaba el cerco frontal; habia demasiada area verde en el centro -> el pasto sale solo de los achurados 0_PASTO 01 / HIERVA de la planta y el resto es concreto con juntas.
 - Pendiente de confirmar: las elevaciones generales rotulan el muro M-2 como TP-1, mientras el detalle OE-01 usa TP-2 en muros (se uso TP-2). Sin autos (modelos disponibles comprimidos con draco).
 - Salida: `entregables/renders_hogar_refugio/` (15 JPG 1920x1080).
+- 02-11 (2): la usuaria no veia cunetas ni bancas y el area de juegos parecia cemento. Se agregaron: los 3 juegos OC-01 (jardinera,
+  banca de madera, celosia, cobertura de aluzinc con canaleta y bajada), piso de arena del OC-04 (achurado AR-SAND) con columpios,
+  tobogan y sube y baja en su sitio, losa del colector frontal con tapas ciegas. Luego subio el plano de drenaje (PLANTA GENERAL -
+  MUJERES VIOLENTADAS.dxf): "quita a las personas... hazlo tal cual fielmente... tambien debe verse" -> red de cunetas en los ejes
+  01 a 12 del plano (685 m dibujados con rejilla), 30 sumideros, 17 tapas de inspeccion, canaletas y 36 montantes en las esquinas,
+  sin personas; vistas nuevas 16 a 21 (bancas, cunetas, colector, planta de la red sin techos, patio, montante).
