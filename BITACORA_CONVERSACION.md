@@ -929,3 +929,6 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Cambio (02-11-2026): la usuaria no quiso el contenido en las carátulas ni los diseños anteriores. Carátulas nuevas sin contenido
   (modelo 1 foto arriba y bloque guinda con escudo en sello; modelo 2 encabezado guinda, foto con marco desplazado y pie en diagonal;
   modelo 3 marco guinda con filete dorado, foto en círculo y cinta con el tomo). El contenido solo va en los lomos.
+- Cambio (02-11-2026): "no tan lleno de color, cambia diseño en todos". Carátulas y lomos en fondo blanco; el guinda y el dorado
+  solo en letras, líneas finas y detalles (sin bloques de color). Los lomos conservan la tabla editable de contenido (encabezado
+  en tono claro) y el nombre completo del proyecto con su CUI.
