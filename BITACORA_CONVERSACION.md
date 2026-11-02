@@ -942,3 +942,6 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Ajuste (02-11-2026), solo CAR Mujeres: "muy simple, mejóralo sin que se parezca a los otros". Diseño nuevo: foto a todo el
   ancho arriba, tarjeta guinda superpuesta con el escudo en sello, título, nombre completo y CUI; número de tomo grande entre
   líneas doradas; entidad y gerencia; pie guinda con Morales y la fecha.
+- Lomos nuevos (02-11-2026) del Hogar de Refugio y del CAR Mujeres con el estilo de su carátula nueva: Refugio con encabezado
+  guinda, franja rosada con el tomo, tabla y pie guinda (`lomo_2`); Mujeres con foto arriba y escudo en sello, tomo entre filetes
+  dorados, tabla y tarjeta guinda con el nombre completo y CUI (`lomo_3`). CAR Varones sin cambio.

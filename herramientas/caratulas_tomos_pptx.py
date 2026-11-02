@@ -9,7 +9,7 @@ detalles de color, cuerpo de la hoja en blanco (la usuaria quiere color, pero si
 Carátulas: hoja A4 vertical, una por tomo (Tomo I a Tomo X), sin contenido (el contenido se escribe en los lomos).
 Lomos: archivador de palanca tamaño oficio, lomo ancho (6.3 x 27.6 cm) y lomo delgado (4.0 x 27.6 cm), 3 por hoja A4 con
 líneas de corte; cada lomo con escudo, número de tomo, tabla editable "CONTENIDO" y nombre completo del proyecto con su CUI
-en vertical. Colores: guinda y dorado en los tres proyectos.
+en vertical; los del Hogar de Refugio (lomo_2) y del CAR Mujeres (lomo_3) siguen el estilo de su carátula. Colores: guinda y dorado en los tres proyectos.
 
 Uso: python3 herramientas/caratulas_tomos_pptx.py
 Salidas: entregables_varones/, entregables/ y entregables_mujeres/  CARATULAS_TOMOS_I_AL_X_*.pptx y LOMOS_ARCHIVADORES_OFICIO_*.pptx
@@ -337,12 +337,88 @@ def lomo(sl, P, x, y, w, h, n):
     rect(sl, x, y, w, h, line='7F7F7F', lw=0.5, dash=MSO_LINE.DASH, nombre='Línea de corte')
 
 
+def nombre_vertical(sl, P, x, w, yv, hv, ancho, fondo, linea, col_nom, col_cui):
+    """Recuadro con el nombre completo del proyecto y su CUI en vertical (se lee de abajo hacia arriba)."""
+    rect(sl, x + 0.3, yv, w - 0.6, hv, fill=fondo, line=linea, lw=0.5)
+    if fondo != BLANCO:
+        rect(sl, x + 0.45, yv + 0.15, w - 0.9, hv - 0.3, line=linea, lw=0.5)
+    texto(sl, x + w / 2 - hv / 2 + 0.25, yv + hv / 2 - (w - 0.9) / 2, hv - 0.5, w - 0.9,
+          [[(P['nombre'], dict(size=10.5 if ancho else 7.5, color=col_nom, font=SERIF, bold=True))],
+           [('CUI N° ' + P['cui'], dict(size=11 if ancho else 8, color=col_cui, bold=True, esp=1))]],
+          align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, rot=270)
+
+
+def lomo_2(sl, P, x, y, w, h, n):
+    """Lomo del Hogar de Refugio (como su carátula): encabezado guinda con el escudo, franja rosada con el tomo, tabla de
+    contenido, nombre completo con CUI en vertical y pie guinda."""
+    c1, c2 = P['c1'], P['c2']
+    ancho = w > 5
+    rect(sl, x, y, w, h, fill=BLANCO)
+    hh = 3.0 if ancho else 2.6
+    rect(sl, x, y, w, hh, fill=c1); rect(sl, x, y + hh, w, 0.08, fill=c2)
+    escudo(sl, x + w / 2, y + 0.3, 1.5 if ancho else 1.15, circulo=c2)
+    texto(sl, x + 0.1, y + (2.15 if ancho else 1.75), w - 0.2, 0.85, ['GOBIERNO REGIONAL', 'SAN MARTÍN'], size=8 if ancho else 6.5,
+          color=BLANCO, bold=True, align=PP_ALIGN.CENTER, esp=0.5)
+    y1 = y + hh + 0.3
+    texto(sl, x, y1, w, 0.6, 'EXPEDIENTE TÉCNICO', size=8.5 if ancho else 6.5, color=c1, bold=True, align=PP_ALIGN.CENTER, esp=1)
+    yb, hb = y1 + 0.75, 2.7                                         # franja rosada con el tomo
+    rect(sl, x, yb, w, hb, fill=ROSA)
+    rect(sl, x, yb, w, 0.05, fill=c2); rect(sl, x, yb + hb - 0.05, w, 0.05, fill=c2)
+    texto(sl, x, yb + 0.15, w, 0.55, 'TOMO', size=10 if ancho else 8.5, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=3)
+    num = ROMANOS[n] if n is not None else ''
+    texto(sl, x, yb + 0.6, w, 1.95, num, size=(38 if ancho else 27) if len(num) < 4 else (30 if ancho else 20), color=c1,
+          font=SERIF, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    if n is None:
+        rect(sl, x + w * 0.25, yb + 2.15, w * 0.5, 0.025, fill=GRIS_CLARO)
+    yc = yb + hb + 0.4; hc = 10.2
+    tabla(sl, x + 0.3, yc, w - 0.6, hc, P, 'CONTENIDO', 0.68, False, 9 if ancho else 7.5, 9 if ancho else 7.5, hdr=0.65)
+    yv = yc + hc + 0.3; hv = y + h - 1.25 - yv
+    nombre_vertical(sl, P, x, w, yv, hv, ancho, BLANCO, c2, c1, c1)
+    rect(sl, x, y + h - 1.0, w, 0.08, fill=c2); rect(sl, x, y + h - 0.92, w, 0.92, fill=c1)
+    texto(sl, x, y + h - 0.92, w, 0.92, [[('MORALES - SAN MARTÍN', dict(color=BLANCO))], [(P['fecha'], dict(color=c2))]],
+          size=7 if ancho else 5.5, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, esp=0.5)
+    rect(sl, x, y, w, h, line='7F7F7F', lw=0.5, dash=MSO_LINE.DASH, nombre='Línea de corte')
+
+
+def lomo_3(sl, P, x, y, w, h, n):
+    """Lomo del CAR Mujeres (como su carátula): foto arriba con el escudo en sello, tomo entre líneas doradas, tabla de
+    contenido, tarjeta guinda con el nombre completo y CUI en vertical y pie guinda."""
+    c1, c2 = P['c1'], P['c2']
+    ancho = w > 5
+    rect(sl, x, y, w, h, fill=BLANCO)
+    hf = 3.6
+    foto(sl, os.path.join(RAIZ, P['foto']), x, y, w, hf)
+    rect(sl, x, y + hf, w, 0.08, fill=c2)
+    ae = 1.3 if ancho else 1.0
+    escudo(sl, x + w / 2, y + hf - ae / 2, ae, circulo=c2)
+    y1 = y + hf + ae / 2 + 0.55
+    texto(sl, x, y1, w, 0.55, 'T O M O', size=10 if ancho else 8.5, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=1)
+    num = ROMANOS[n] if n is not None else ''
+    texto(sl, x, y1 + 0.5, w, 1.95, num, size=(40 if ancho else 28) if len(num) < 4 else (32 if ancho else 21), color=c1,
+          font=SERIF, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    if n is None:
+        rect(sl, x + w * 0.25, y1 + 2.05, w * 0.5, 0.025, fill=GRIS_CLARO)
+    rect(sl, x + 0.3, y1 + 2.6, w - 0.6, 0.03, fill=c2)
+    rect(sl, x + w / 2 - 0.12, y1 + 2.495, 0.24, 0.24, fill=c2, forma=MSO_SHAPE.DIAMOND)
+    yc = y1 + 3.0; hc = 10.2
+    tabla(sl, x + 0.3, yc, w - 0.6, hc, P, 'CONTENIDO', 0.68, False, 9 if ancho else 7.5, 9 if ancho else 7.5, hdr=0.65)
+    yv = yc + hc + 0.3; hv = y + h - 1.25 - yv
+    nombre_vertical(sl, P, x, w, yv, hv, ancho, c1, c2, BLANCO, c2)
+    rect(sl, x, y + h - 1.0, w, 0.08, fill=c2); rect(sl, x, y + h - 0.92, w, 0.92, fill=c1)
+    texto(sl, x, y + h - 0.92, w, 0.92, [[('EXPEDIENTE TÉCNICO', dict(color=BLANCO))], [(P['fecha'], dict(color=c2))]],
+          size=7 if ancho else 5.5, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, esp=0.5)
+    rect(sl, x, y, w, h, line='7F7F7F', lw=0.5, dash=MSO_LINE.DASH, nombre='Línea de corte')
+
+
+LOMO = {1: lomo, 2: lomo_2, 3: lomo_3}
+
+
 def hoja_lomos(prs, P, w, tomos, titulo):
     sl = nueva(prs)
     h, sep = 27.6, 0.35
     x0 = (21 - (3 * w + 2 * sep)) / 2; y0 = (29.7 - h) / 2
     for i, n in enumerate(tomos):
-        lomo(sl, P, x0 + i * (w + sep), y0, w, h, n)
+        LOMO[P['modelo']](sl, P, x0 + i * (w + sep), y0, w, h, n)
     for i in range(3):                                             # marcas de corte en los bordes de la hoja
         for xx in (x0 + i * (w + sep), x0 + i * (w + sep) + w):
             rect(sl, xx - 0.005, 0.15, 0.01, y0 - 0.3, fill='7F7F7F'); rect(sl, xx - 0.005, y0 + h + 0.15, 0.01, y0 - 0.3, fill='7F7F7F')
