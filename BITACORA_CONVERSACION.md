@@ -957,3 +957,10 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - `herramientas/mujeres/separadores_m.py`: 105 separadores (capítulos 01 a 12 y sus ítems con título; sin las filas de planos sin
   título ni las notas de estado "OK / DEBEN PASAR"). Excel había convertido "06.06" y "08.01" en fechas (formato dd.mm) y 10.04 en
   número: se leen como texto. Foto recortada a A4 y aclarada al 85 % de blanco.
+
+## Renders del Hogar de Refugio (CUI 2675514)
+- Pedido: unas 15 imagenes realistas (aereas, planta general, fachada, interiores del patio, losa deportiva con su techo completo, personas y ninos), con los colores del cuadro de la usuaria y el detalle OE-01 del ingreso.
+- `herramientas/render_refugio/`: modelo en Blender (Cycles) desde los DXF; muros TP-2, columnas y vigas TP-1, hastiales y parapeto TP-3; portico OE-01 con letras "HOGAR DE REFUGIO TEMPORAL"; cerco perimetrico en todo el lote (frente con baranda hasta el portico).
+- Correcciones de la usuaria: faltaba el cerco frontal; habia demasiada area verde en el centro -> el pasto sale solo de los achurados 0_PASTO 01 / HIERVA de la planta y el resto es concreto con juntas.
+- Pendiente de confirmar: las elevaciones generales rotulan el muro M-2 como TP-1, mientras el detalle OE-01 usa TP-2 en muros (se uso TP-2). Sin autos (modelos disponibles comprimidos con draco).
+- Salida: `entregables/renders_hogar_refugio/` (15 JPG 1920x1080).
