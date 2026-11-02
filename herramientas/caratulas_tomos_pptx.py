@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 """Carátulas de tomos (I a X) y lomos de archivador en PowerPoint - CAR Varones, Hogar de Refugio y CAR Mujeres.
 
-Un modelo de diseño distinto por proyecto (no se mezclan entre proyectos):
-  - CAR Varones (CUI 2705619): modelo 1, banda lateral azul marino y dorado;
-  - Hogar de Refugio Temporal (CUI 2675514): modelo 2, foto a todo el ancho con sello circular, verde y champán;
-  - CAR Mujeres (CUI 2717013): modelo 3, marco clásico doble, ciruela y dorado.
-Carátulas: hoja A4 vertical, una por tomo (Tomo I a Tomo X), con una tabla editable "CONTENIDO DEL TOMO" (clic en la celda y escribir;
-también se puede llenar a mano).
+Un modelo de diseño distinto por proyecto (no se mezclan entre proyectos), los tres en guinda y dorado:
+  - CAR Varones (CUI 2705619): modelo 1, foto arriba y bloque guinda con el escudo en sello;
+  - Hogar de Refugio Temporal (CUI 2675514): modelo 2, encabezado guinda, foto con marco desplazado y pie en diagonal;
+  - CAR Mujeres (CUI 2717013): modelo 3, marco guinda con filete dorado, foto en círculo y cinta con el tomo.
+Carátulas: hoja A4 vertical, una por tomo (Tomo I a Tomo X), sin contenido (el contenido se escribe en los lomos).
 Lomos: archivador de palanca tamaño oficio, lomo ancho (6.3 x 27.6 cm) y lomo delgado (4.0 x 27.6 cm), 3 por hoja A4 con
 líneas de corte; cada lomo con escudo, número de tomo, tabla editable "CONTENIDO" y nombre completo del proyecto con su CUI
 en vertical. Colores: guinda y dorado en los tres proyectos.
@@ -209,92 +208,90 @@ def presentacion():
     return prs
 
 
-# ------------------------------------------------------------------ carátulas
+# ------------------------------------------------------------------ carátulas (sin contenido: el contenido va en los lomos)
+def tomo_grande(sl, cx, y, n, color, linea, size=44, ancho_lineas=4.2):
+    """'TOMO' + número romano centrado en cx, con líneas doradas a los lados."""
+    texto(sl, cx - 6, y, 12, 1.9, [[('TOMO  ', dict(size=size * 0.62)), (ROMANOS[n], dict(size=size))]], color=color, font=SERIF,
+          bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, esp=2)
+    rect(sl, cx - 6 - ancho_lineas + 0.6, y + 0.93, ancho_lineas, 0.04, fill=linea)
+    rect(sl, cx + 6 - 0.6, y + 0.93, ancho_lineas, 0.04, fill=linea)
+
+
 def caratula_1(sl, P, n):
-    """Modelo 1: banda lateral con el número del tomo, foto y recuadro de contenido."""
-    c1, c2, c3 = P['c1'], P['c2'], P['c3']
-    rect(sl, 0, 0, 21, 29.7, fill=BLANCO)
-    rect(sl, 0, 0, 4.6, 29.7, fill=c1)
-    rect(sl, 4.6, 0, 0.12, 29.7, fill=c2)
-    escudo(sl, 2.3, 1.45, 2.5, circulo=c2)
-    texto(sl, 2.3 - 8.5, 13.2 - 0.9, 17, 1.8, 'EXPEDIENTE TÉCNICO', size=24, color=BLANCO, font=SERIF, align=PP_ALIGN.CENTER,
-          anchor=MSO_ANCHOR.MIDDLE, esp=6, rot=270)
-    rect(sl, 0.9, 22.6, 2.8, 0.05, fill=c2)
-    texto(sl, 0, 22.9, 4.6, 0.8, 'TOMO', size=13, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=4)
-    texto(sl, 0, 23.7, 4.6, 3.2, ROMANOS[n], size=60 if len(ROMANOS[n]) < 4 else 46, color=BLANCO, font=SERIF, bold=True,
-          align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
-    rect(sl, 0.9, 27.2, 2.8, 0.05, fill=c2)
-    x, w = 5.6, 14.3
-    texto(sl, x, 1.1, w, 0.8, ENTIDAD, size=14, color=c1, bold=True, esp=1.5)
-    texto(sl, x, 1.85, w, 0.7, GERENCIA, size=10.5, color=GRIS, esp=0.8)
-    rect(sl, x, 2.75, w, 0.05, fill=c2)
-    texto(sl, x, 3.05, w, 0.6, 'EXPEDIENTE TÉCNICO DEL PROYECTO DE INVERSIÓN:', size=9.5, color=GRIS, bold=True, esp=0.5)
-    texto(sl, x, 3.65, w, 3.8, P['nombre'], size=12.5, color=c1, font=SERIF, bold=True, align=PP_ALIGN.JUSTIFY)
-    texto(sl, x, 7.55, w, 0.7, 'CUI N° ' + P['cui'], size=13, color=c2, bold=True, esp=1)
-    foto(sl, os.path.join(RAIZ, P['foto']), x, 8.5, w, w * 9 / 16)
-    rect(sl, x, 8.5, w, w * 9 / 16, line=c2, lw=1.5)
-    y = 8.5 + w * 9 / 16
-    texto(sl, x, y + 0.45, w, 1.6, [[('TOMO ', dict(size=30, color=c1)), (ROMANOS[n], dict(size=30, color=c2))]], font=SERIF,
-          bold=True, anchor=MSO_ANCHOR.MIDDLE)
-    yc = y + 2.35; hc = 26.75 - yc
-    tabla(sl, x, yc, w, hc, P, 'CONTENIDO DEL TOMO', 0.78, True, 11, 10.5)
-    rect(sl, x, 27.25, w, 0.03, fill=c2)
-    texto(sl, x, 27.45, w * 0.6, 0.7, UBICACION, size=10.5, color=c1, bold=True, esp=0.5)
-    texto(sl, x + w * 0.4, 27.45, w * 0.6, 0.7, P['fecha'], size=10.5, color=c1, bold=True, align=PP_ALIGN.RIGHT, esp=0.5)
+    """Modelo 1: foto en la mitad superior y bloque guinda con el escudo en sello, textos en blanco y dorado."""
+    c1, c2 = P['c1'], P['c2']
+    foto(sl, os.path.join(RAIZ, P['foto']), 0, 0, 21, 12.6)
+    rect(sl, 0, 12.6, 21, 17.1, fill=c1)
+    rect(sl, 0, 12.6, 21, 0.14, fill=c2)
+    escudo(sl, 10.5, 11.55, 2.3, circulo=c2)
+    texto(sl, 1, 14.45, 19, 0.8, ENTIDAD, size=16, color=BLANCO, bold=True, align=PP_ALIGN.CENTER, esp=2)
+    texto(sl, 1, 15.2, 19, 0.7, GERENCIA, size=11, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=1)
+    texto(sl, 1, 16.2, 19, 1.1, 'EXPEDIENTE TÉCNICO', size=24, color=BLANCO, font=SERIF, align=PP_ALIGN.CENTER, esp=5)
+    rect(sl, 8.0, 17.45, 5.0, 0.04, fill=c2)
+    texto(sl, 1.8, 17.75, 17.4, 3.6, P['nombre'], size=12, color=BLANCO, font=SERIF, bold=True, align=PP_ALIGN.CENTER)
+    texto(sl, 1, 21.35, 19, 0.8, 'CUI N° ' + P['cui'], size=14, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=1.5)
+    tomo_grande(sl, 10.5, 22.7, n, BLANCO, c2, size=54, ancho_lineas=3.4)
+    rect(sl, 1.5, 27.35, 18, 0.03, fill=c2)
+    texto(sl, 1, 27.6, 19, 0.7, [[(UBICACION, {}), ('    |    ', dict(color=c2)), (P['fecha'], {})]], size=11, color=BLANCO,
+          bold=True, align=PP_ALIGN.CENTER, esp=1)
 
 
 def caratula_2(sl, P, n):
-    """Modelo 2: foto a todo el ancho, sello circular con el tomo, recuadro de contenido y pie de color."""
-    c1, c2, c3 = P['c1'], P['c2'], P['c3']
+    """Modelo 2: encabezado guinda, foto con marco dorado desplazado, número de tomo grande y pie en diagonal."""
+    c1, c2 = P['c1'], P['c2']
     rect(sl, 0, 0, 21, 29.7, fill=BLANCO)
-    foto(sl, os.path.join(RAIZ, P['foto']), 0, 0, 21, 12.2)
-    rect(sl, 0, 0, 21, 2.9, fill=c1, alpha=88)
-    escudo(sl, 1.9, 0.45, 2.0, circulo=c2)
-    texto(sl, 3.5, 0.55, 16.5, 0.9, ENTIDAD, size=15, color=BLANCO, bold=True, esp=1.5)
-    texto(sl, 3.5, 1.4, 16.5, 0.8, GERENCIA, size=11, color=c2, bold=True, esp=0.8)
-    rect(sl, 0, 12.2, 21, 0.14, fill=c2)
-    d = 5.0
-    rect(sl, 10.5 - d / 2, 12.27 - d / 2, d, d, fill=c1, line=c2, lw=3, forma=MSO_SHAPE.OVAL)
-    texto(sl, 10.5 - d / 2, 12.27 - d / 2 + 0.75, d, 0.8, 'TOMO', size=13, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=4)
-    texto(sl, 10.5 - d / 2, 12.27 - d / 2 + 1.45, d, 2.6, ROMANOS[n], size=50 if len(ROMANOS[n]) < 4 else 38, color=BLANCO,
-          font=SERIF, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
-    texto(sl, 1.5, 15.1, 18, 0.8, 'EXPEDIENTE TÉCNICO', size=15, color=c1, bold=True, align=PP_ALIGN.CENTER, esp=4)
-    rect(sl, 7.5, 15.95, 6, 0.05, fill=c2)
-    texto(sl, 1.8, 16.2, 17.4, 3.4, P['nombre'], size=12, color='2B2B2B', font=SERIF, bold=True, align=PP_ALIGN.CENTER)
-    texto(sl, 1.5, 19.55, 18, 0.7, 'CUI N° ' + P['cui'], size=13, color=c1, bold=True, align=PP_ALIGN.CENTER, esp=1)
-    yc, hc = 20.5, 6.1
-    tabla(sl, 1.8, yc, 17.4, hc, P, 'CONTENIDO DEL TOMO', 0.75, True, 11, 10.5)
-    rect(sl, 0, 27.3, 21, 2.4, fill=c1)
-    rect(sl, 0, 27.3, 21, 0.1, fill=c2)
-    texto(sl, 0, 27.75, 21, 0.7, UBICACION, size=12, color=BLANCO, bold=True, align=PP_ALIGN.CENTER, esp=1.5)
-    texto(sl, 0, 28.45, 21, 0.7, P['fecha'], size=11, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=1.5)
+    rect(sl, 0, 0, 21, 3.3, fill=c1)
+    rect(sl, 0, 3.3, 21, 0.12, fill=c2)
+    escudo(sl, 2.2, 0.55, 2.2, circulo=c2)
+    texto(sl, 4.0, 0.85, 16.2, 0.9, ENTIDAD, size=17, color=BLANCO, bold=True, esp=2)
+    texto(sl, 4.0, 1.75, 16.2, 0.8, GERENCIA, size=11.5, color=c2, bold=True, esp=1)
+    texto(sl, 1, 4.2, 19, 1.2, 'EXPEDIENTE TÉCNICO', size=26, color=c1, font=SERIF, bold=True, align=PP_ALIGN.CENTER, esp=4)
+    rect(sl, 6.2, 5.62, 3.7, 0.04, fill=c2); rect(sl, 11.1, 5.62, 3.7, 0.04, fill=c2)
+    rect(sl, 10.5 - 0.17, 5.47, 0.34, 0.34, fill=c2, forma=MSO_SHAPE.DIAMOND)
+    texto(sl, 1.8, 6.05, 17.4, 3.5, P['nombre'], size=12, color='2B2B2B', font=SERIF, bold=True, align=PP_ALIGN.CENTER)
+    texto(sl, 1, 9.55, 19, 0.8, 'CUI N° ' + P['cui'], size=14, color=c1, bold=True, align=PP_ALIGN.CENTER, esp=1.5)
+    fw = 15.6; fh = fw * 9 / 16; fx, fy = 10.5 - fw / 2 - 0.25, 10.75
+    rect(sl, fx + 0.5, fy + 0.5, fw, fh, fill=c2)
+    foto(sl, os.path.join(RAIZ, P['foto']), fx, fy, fw, fh)
+    rect(sl, fx, fy, fw, fh, line=c1, lw=1.5)
+    texto(sl, 1, fy + fh + 0.85, 19, 0.7, 'T  O  M  O', size=14, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=3)
+    texto(sl, 1, fy + fh + 1.4, 19, 2.6, ROMANOS[n], size=64, color=c1, font=SERIF, bold=True, align=PP_ALIGN.CENTER,
+          anchor=MSO_ANCHOR.MIDDLE)
+    t = rect(sl, 0, 25.9, 21, 3.8, fill=c2, forma=MSO_SHAPE.RIGHT_TRIANGLE)
+    t2 = rect(sl, 0, 26.35, 21, 3.35, fill=c1, forma=MSO_SHAPE.RIGHT_TRIANGLE)
+    texto(sl, 0.9, 28.25, 12, 0.6, UBICACION, size=11, color=BLANCO, bold=True, esp=1)
+    texto(sl, 0.9, 28.85, 12, 0.6, P['fecha'], size=10.5, color=c2, bold=True, esp=1)
 
 
 def caratula_3(sl, P, n):
-    """Modelo 3: marco doble clásico, escudo centrado, foto con placa del tomo y recuadro de contenido."""
+    """Modelo 3: marco guinda grueso con filete dorado, foto en círculo y cinta guinda con el tomo."""
     c1, c2, c3 = P['c1'], P['c2'], P['c3']
     rect(sl, 0, 0, 21, 29.7, fill=c3)
-    rect(sl, 0.7, 0.7, 19.6, 28.3, line=c1, lw=2.5)
-    rect(sl, 0.98, 0.98, 19.04, 27.74, line=c2, lw=0.75)
-    escudo(sl, 10.5, 1.45, 2.3)
-    texto(sl, 1.5, 3.95, 18, 0.8, ENTIDAD, size=15, color=c1, font=SERIF, bold=True, align=PP_ALIGN.CENTER, esp=1.5)
-    texto(sl, 1.5, 4.7, 18, 0.7, GERENCIA, size=10.5, color=GRIS, align=PP_ALIGN.CENTER, esp=0.8)
-    rect(sl, 6.6, 5.72, 3.4, 0.03, fill=c2); rect(sl, 11.0, 5.72, 3.4, 0.03, fill=c2)
-    rect(sl, 10.5 - 0.17, 5.565, 0.34, 0.34, fill=c2, forma=MSO_SHAPE.DIAMOND)
-    texto(sl, 1.5, 6.05, 18, 0.7, 'EXPEDIENTE TÉCNICO', size=12, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=4)
-    texto(sl, 2.2, 6.75, 16.6, 3.5, P['nombre'], size=12, color=c1, font=SERIF, bold=True, align=PP_ALIGN.CENTER)
-    texto(sl, 1.5, 10.2, 18, 0.7, 'CUI N° ' + P['cui'], size=12.5, color=c1, bold=True, align=PP_ALIGN.CENTER, esp=1)
-    fw, fh = 14.6, 14.6 * 9 / 16; fx, fy = 10.5 - fw / 2, 11.15
-    rect(sl, fx - 0.18, fy - 0.18, fw + 0.36, fh + 0.36, line=c2, lw=0.75)
-    foto(sl, os.path.join(RAIZ, P['foto']), fx, fy, fw, fh)
-    pw, ph = 7.6, 1.9
-    rect(sl, 10.5 - pw / 2, fy + fh - ph / 2, pw, ph, fill=c1, line=c2, lw=1.5)
-    texto(sl, 10.5 - pw / 2, fy + fh - ph / 2, pw, ph, 'TOMO ' + ROMANOS[n], size=28, color=c3, font=SERIF, bold=True,
-          align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, esp=2)
-    yc = fy + fh + ph / 2 + 0.7; hc = 26.9 - yc
-    rect(sl, 2.2 - 0.12, yc - 0.12, 16.6 + 0.24, hc + 0.24, line=c2, lw=0.75)
-    tabla(sl, 2.2, yc, 16.6, hc, P, 'CONTENIDO DEL TOMO', 0.72, True, 11, 10.5)
-    texto(sl, 1.5, 27.3, 18, 0.7, [[(UBICACION, {}), ('   ◆   ', dict(color=c2)), (P['fecha'], {})]], size=10.5, color=c1,
+    m = 0.85
+    for x, y, w, h in ((0, 0, 21, m), (0, 29.7 - m, 21, m), (0, 0, m, 29.7), (21 - m, 0, m, 29.7)):
+        rect(sl, x, y, w, h, fill=c1)
+    rect(sl, m + 0.3, m + 0.3, 21 - 2 * m - 0.6, 29.7 - 2 * m - 0.6, line=c2, lw=1.25)
+    escudo(sl, 10.5, 1.75, 2.3)
+    texto(sl, 1.5, 4.15, 18, 0.8, ENTIDAD, size=16, color=c1, font=SERIF, bold=True, align=PP_ALIGN.CENTER, esp=2)
+    texto(sl, 1.5, 4.9, 18, 0.7, GERENCIA, size=11, color=GRIS, align=PP_ALIGN.CENTER, esp=1)
+    d = 9.2; cy = 6.0
+    rect(sl, 10.5 - d / 2 - 0.3, cy - 0.3, d + 0.6, d + 0.6, fill=c2, forma=MSO_SHAPE.OVAL)
+    W, H = Image.open(os.path.join(RAIZ, P['foto'])).size
+    p = foto(sl, os.path.join(RAIZ, P['foto']), 10.5 - d / 2, cy, d, d)
+    p.auto_shape_type = MSO_SHAPE.OVAL
+    texto(sl, 1.5, cy + d + 0.75, 18, 0.7, 'EXPEDIENTE TÉCNICO', size=14, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=5)
+    texto(sl, 2.3, cy + d + 1.5, 16.4, 3.5, P['nombre'], size=12, color=c1, font=SERIF, bold=True, align=PP_ALIGN.CENTER)
+    texto(sl, 1.5, cy + d + 5.0, 18, 0.8, 'CUI N° ' + P['cui'], size=14, color=c1, bold=True, align=PP_ALIGN.CENTER, esp=1.5)
+    yb = 22.35; bw, bh = 10.4, 2.4
+    for lado in (-1, 1):                                            # puntas de la cinta, con muesca en V hacia afuera
+        r = rect(sl, 10.5 + lado * (bw / 2 - 0.2) - (1.6 if lado < 0 else 0), yb + 0.45, 1.6, bh - 0.4, fill='4E1520',
+                 forma=MSO_SHAPE.CHEVRON)
+        if lado > 0:
+            r.rotation = 180
+    rect(sl, 10.5 - bw / 2, yb, bw, bh, fill=c1, line=c2, lw=1.25)
+    texto(sl, 10.5 - bw / 2, yb, bw, bh, 'TOMO ' + ROMANOS[n], size=34, color=c3, font=SERIF, bold=True, align=PP_ALIGN.CENTER,
+          anchor=MSO_ANCHOR.MIDDLE, esp=3)
+    texto(sl, 1.5, 26.75, 18, 0.7, [[(UBICACION, {}), ('   ◆   ', dict(color=c2)), (P['fecha'], {})]], size=11, color=c1,
           bold=True, align=PP_ALIGN.CENTER, esp=1)
 
 

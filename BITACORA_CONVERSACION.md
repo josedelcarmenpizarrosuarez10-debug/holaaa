@@ -926,3 +926,6 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Corrección (02-11-2026): PowerPoint no abría los archivos (cuadro de texto con dos rellenos). Ahora el contenido es una tabla
   editable (clic en la celda y escribir), los tres modelos en guinda (6B1F2E) y dorado, y los lomos llevan el nombre completo del
   proyecto con su CUI en vertical. Validados contra el esquema de PowerPoint (pml.xsd).
+- Cambio (02-11-2026): la usuaria no quiso el contenido en las carátulas ni los diseños anteriores. Carátulas nuevas sin contenido
+  (modelo 1 foto arriba y bloque guinda con escudo en sello; modelo 2 encabezado guinda, foto con marco desplazado y pie en diagonal;
+  modelo 3 marco guinda con filete dorado, foto en círculo y cinta con el tomo). El contenido solo va en los lomos.
