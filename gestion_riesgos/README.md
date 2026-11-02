@@ -16,12 +16,14 @@ gestion_riesgos/
 │   ├── estudio_docx.py           estudio (Word)
 │   ├── fotos_sm107.py            fotos georreferenciadas del inventario vial -> _calc/fotos/ (catálogo con coordenadas)
 │   ├── levantamiento_obs_docx.py levantamiento de observaciones (Word aparte)
+│   ├── caratula_car_mujeres.py   carátula del estudio del CAR Mujeres (diseño de herramientas/mujeres/caratulas_m.py)
 │   ├── anexos_estudio_docx.py    estudio presentado (insumos/estudio_presentado, sin cambios) + Anexos 3, 4 y 5 al final
 │   └── dxf_base.py, dxf_layouts.py, dxf_render.py   estilo de láminas, presentaciones y vista previa PNG
 └── proyectos/
     └── SM-107_TINGO_DE_PONASA_SHAMBOYACU/      Vía SM-107 Tingo de Ponasa – Shamboyacu (CUI 2673852)
         ├── insumos/              archivos del usuario (no se editan)
         └── entregables/          Word, Excel, DXF, vistas_previas/ y _calc/ (datos intermedios)
+    └── CAR_MUJERES_MORALES/      CAR Mujeres, Morales (CUI 2717013): por ahora la carátula
 ```
 
 ## Regenerar (desde la raíz del repositorio)
