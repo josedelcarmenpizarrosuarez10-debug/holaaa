@@ -935,3 +935,5 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Ajuste (02-11-2026): "no menos color, no tan lleno pero sí usa color". Punto medio: franjas, placas y sellos en guinda y dorado
   con el cuerpo de la hoja en blanco (carátulas y lomos); lomos con franja guinda arriba y al pie, tabla con encabezado guinda y
   nombre completo con CUI sobre fondo rosado.
+- Ajuste (02-11-2026), solo Hogar de Refugio: el tomo salía dos veces y quedaba mucho espacio libre. Ahora el tomo va una sola vez
+  en una placa guinda grande bajo la foto (más alta), la columna guinda lleva el escudo y "HOGAR DE REFUGIO TEMPORAL" en vertical.

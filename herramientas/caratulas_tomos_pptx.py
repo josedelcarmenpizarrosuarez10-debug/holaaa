@@ -244,30 +244,34 @@ def caratula_1(sl, P, n):
 
 
 def caratula_2(sl, P, n):
-    """Modelo 2: columna guinda angosta a la izquierda con el tomo, textos alineados a la izquierda y pie rosado."""
+    """Modelo 2: columna guinda angosta a la izquierda (escudo y nombre corto en vertical), textos a la izquierda, foto grande
+    y una sola placa guinda con el tomo; pie rosado."""
     c1, c2 = P['c1'], P['c2']
     rect(sl, 0, 0, 21, 29.7, fill=BLANCO)
     rect(sl, 0, 0, 3.0, 29.7, fill=c1); rect(sl, 3.0, 0, 0.1, 29.7, fill=c2)
     escudo(sl, 1.5, 1.3, 1.7, circulo=c2)
-    texto(sl, 0, 21.6, 3.0, 0.7, 'TOMO', size=12, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=3)
-    texto(sl, 0, 22.3, 3.0, 2.2, ROMANOS[n], size=40 if len(ROMANOS[n]) < 3 else 28, color=BLANCO, font=SERIF, bold=True,
-          align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    texto(sl, 1.5 - 9.0, 15.3 - 0.8, 18.0, 1.6, P['corto'], size=16, color=c2, font=SERIF, bold=True, align=PP_ALIGN.CENTER,
+          anchor=MSO_ANCHOR.MIDDLE, esp=6, rot=270)
     x, w = 4.1, 15.6
-    texto(sl, x, 1.35, w, 0.8, ENTIDAD, size=15, color=c1, bold=True, esp=2)
-    texto(sl, x, 2.1, w, 0.7, GERENCIA, size=11, color=GRIS, esp=1)
-    rect(sl, x, 3.05, w, 0.04, fill=c2)
-    texto(sl, x, 3.6, w, 1.0, 'EXPEDIENTE TÉCNICO', size=22, color=c1, font=SERIF, bold=True, esp=3)
-    texto(sl, x, 4.75, w, 3.6, P['nombre'], size=12, color='333333', font=SERIF, align=PP_ALIGN.JUSTIFY)
-    rect(sl, x, 8.75, 5.6, 0.85, fill=ROSA)
-    texto(sl, x + 0.25, 8.75, 5.4, 0.85, 'CUI N° ' + P['cui'], size=13, color=c1, bold=True, anchor=MSO_ANCHOR.MIDDLE, esp=1.5)
-    fh = w * 9 / 16
-    foto(sl, os.path.join(RAIZ, P['foto']), x, 10.4, w, fh)
-    rect(sl, x, 10.4 + fh, w, 0.14, fill=c2)
-    texto(sl, x, 10.4 + fh + 0.9, w, 1.6, [[('TOMO ', dict(size=30, color=c2)), (ROMANOS[n], dict(size=40, color=c1))]],
-          font=SERIF, bold=True, anchor=MSO_ANCHOR.MIDDLE, esp=2)
-    rect(sl, 3.1, 27.4, 17.9, 2.3, fill=ROSA); rect(sl, 3.1, 27.4, 17.9, 0.06, fill=c1)
-    texto(sl, x, 27.75, w, 0.65, UBICACION, size=11.5, color=c1, bold=True, esp=1)
-    texto(sl, x, 28.4, w, 0.65, P['fecha'], size=10.5, color=GRIS, bold=True, esp=1)
+    texto(sl, x, 1.35, w, 0.8, ENTIDAD, size=16, color=c1, bold=True, esp=2)
+    texto(sl, x, 2.15, w, 0.7, GERENCIA, size=11.5, color=GRIS, esp=1)
+    rect(sl, x, 3.1, w, 0.04, fill=c2)
+    texto(sl, x, 3.55, w, 1.1, 'EXPEDIENTE TÉCNICO', size=24, color=c1, font=SERIF, bold=True, esp=3)
+    texto(sl, x, 4.8, w, 3.9, P['nombre'], size=13, color='333333', font=SERIF, align=PP_ALIGN.JUSTIFY)
+    rect(sl, x, 8.85, 6.0, 0.9, fill=ROSA); rect(sl, x, 8.85, 0.12, 0.9, fill=c1)
+    texto(sl, x + 0.35, 8.85, 5.6, 0.9, 'CUI N° ' + P['cui'], size=14, color=c1, bold=True, anchor=MSO_ANCHOR.MIDDLE, esp=1.5)
+    fy, fh = 10.35, 11.0
+    foto(sl, os.path.join(RAIZ, P['foto']), x, fy, w, fh)
+    rect(sl, x, fy + fh, w, 0.14, fill=c2)
+    py, ph = fy + fh + 0.75, 4.15                                   # una sola placa con el tomo
+    rect(sl, x, py, w, ph, fill=c1)
+    rect(sl, x + 0.3, py + 0.3, w - 0.6, ph - 0.6, line=c2, lw=1)
+    texto(sl, x + 0.6, py, 6.2, ph, 'TOMO', size=30, color=c2, font=SERIF, bold=True, anchor=MSO_ANCHOR.MIDDLE, esp=6)
+    texto(sl, x + 6.0, py, w - 6.6, ph, ROMANOS[n], size=72, color=BLANCO, font=SERIF, bold=True, align=PP_ALIGN.RIGHT,
+          anchor=MSO_ANCHOR.MIDDLE)
+    rect(sl, 3.1, 27.45, 17.9, 2.25, fill=ROSA); rect(sl, 3.1, 27.45, 17.9, 0.06, fill=c1)
+    texto(sl, x, 27.75, w, 0.65, UBICACION, size=12, color=c1, bold=True, esp=1)
+    texto(sl, x, 28.4, w, 0.65, P['fecha'], size=11, color=GRIS, bold=True, esp=1)
 
 
 def caratula_3(sl, P, n):
