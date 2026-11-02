@@ -273,33 +273,32 @@ def caratula_2(sl, P, n):
 
 
 def caratula_3(sl, P, n):
-    """Modelo 3: marco guinda fino con esquinas, banda guinda con el título, foto y sello circular con el tomo."""
+    """Modelo 3: foto a todo el ancho arriba, tarjeta guinda superpuesta con el escudo en sello y los datos del proyecto,
+    número de tomo entre líneas doradas, entidad al pie y franja guinda angosta."""
     c1, c2 = P['c1'], P['c2']
     rect(sl, 0, 0, 21, 29.7, fill=BLANCO)
-    rect(sl, 0.9, 0.9, 19.2, 27.9, line=c1, lw=2.5)
-    rect(sl, 1.15, 1.15, 18.7, 27.4, line=c2, lw=0.75)
-    for cx_, cy_ in ((0.9, 0.9), (20.1, 0.9), (0.9, 28.8), (20.1, 28.8)):          # esquinas
-        rect(sl, cx_ - 0.35, cy_ - 0.35, 0.7, 0.7, fill=c2, forma=MSO_SHAPE.DIAMOND)
-    escudo(sl, 10.5, 1.8, 2.3)
-    texto(sl, 1.5, 4.25, 18, 0.8, ENTIDAD, size=15, color=c1, font=SERIF, bold=True, align=PP_ALIGN.CENTER, esp=2)
-    texto(sl, 1.5, 5.0, 18, 0.7, GERENCIA, size=10.5, color=GRIS, align=PP_ALIGN.CENTER, esp=1)
-    rect(sl, 1.15, 6.05, 18.7, 1.35, fill=c1)
-    rect(sl, 1.15, 6.05, 18.7, 0.06, fill=c2); rect(sl, 1.15, 7.34, 18.7, 0.06, fill=c2)
-    texto(sl, 1.15, 6.05, 18.7, 1.35, 'EXPEDIENTE TÉCNICO', size=20, color=BLANCO, font=SERIF, bold=True, align=PP_ALIGN.CENTER,
-          anchor=MSO_ANCHOR.MIDDLE, esp=5)
-    texto(sl, 2.4, 7.85, 16.2, 3.4, P['nombre'], size=12, color=c1, font=SERIF, bold=True, align=PP_ALIGN.CENTER)
-    texto(sl, 1.5, 11.2, 18, 0.75, 'CUI N° ' + P['cui'], size=13.5, color='333333', bold=True, align=PP_ALIGN.CENTER, esp=1.5)
-    fw = 14.6; fh = fw * 9 / 16; fy = 12.3
-    foto(sl, os.path.join(RAIZ, P['foto']), 10.5 - fw / 2, fy, fw, fh)
-    d = 4.6; cy = fy + fh + 2.75
-    for lado in (-1, 1):                                            # líneas doradas a los costados del sello
-        rect(sl, 10.5 + lado * (d / 2 + 0.3) - (4.0 if lado < 0 else 0), cy - 0.015, 4.0, 0.03, fill=c2)
-    rect(sl, 10.5 - d / 2, cy - d / 2, d, d, fill=c1, line=c2, lw=2.5, forma=MSO_SHAPE.OVAL)
-    texto(sl, 10.5 - d / 2, cy - d / 2 + 0.65, d, 0.7, 'TOMO', size=12, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=3)
-    texto(sl, 10.5 - d / 2, cy - d / 2 + 1.25, d, 2.4, ROMANOS[n], size=44 if len(ROMANOS[n]) < 4 else 34, color=BLANCO,
-          font=SERIF, bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
-    texto(sl, 1.5, 27.3, 18, 0.65, [[(UBICACION, {}), ('   ◆   ', dict(color=c2)), (P['fecha'], {})]], size=10.5, color=c1,
-          bold=True, align=PP_ALIGN.CENTER, esp=1)
+    foto(sl, os.path.join(RAIZ, P['foto']), 0, 0, 21, 13.4)
+    rect(sl, 0, 13.4, 21, 0.1, fill=c2)
+    cx, cw, cy, ch = 2.2, 16.6, 11.2, 6.6                          # tarjeta superpuesta a la foto
+    rect(sl, cx, cy, cw, ch, fill=c1)
+    rect(sl, cx + 0.25, cy + 0.25, cw - 0.5, ch - 0.5, line=c2, lw=0.75)
+    escudo(sl, 10.5, cy - 1.05, 2.0, circulo=c2)
+    texto(sl, cx, cy + 1.45, cw, 0.7, 'EXPEDIENTE TÉCNICO', size=14, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=5)
+    texto(sl, cx + 0.8, cy + 2.2, cw - 1.6, 3.6, P['nombre'], size=12, color=BLANCO, font=SERIF, bold=True,
+          align=PP_ALIGN.CENTER)
+    texto(sl, cx, cy + 5.4, cw, 0.75, 'CUI N° ' + P['cui'], size=13.5, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=1.5)
+    ty = cy + ch + 1.75
+    texto(sl, 1, ty, 19, 0.7, 'T  O  M  O', size=13, color=c2, bold=True, align=PP_ALIGN.CENTER, esp=2)
+    texto(sl, 1, ty + 0.55, 19, 2.4, ROMANOS[n], size=60, color=c1, font=SERIF, bold=True, align=PP_ALIGN.CENTER,
+          anchor=MSO_ANCHOR.MIDDLE)
+    for lado in (-1, 1):
+        rect(sl, 10.5 + lado * 3.2 - (4.2 if lado < 0 else 0), ty + 1.75, 4.2, 0.03, fill=c2)
+    ornamento(sl, 10.5, ty + 3.55, c2, largo=1.6)
+    texto(sl, 1, ty + 3.95, 19, 0.8, ENTIDAD, size=15, color=c1, font=SERIF, bold=True, align=PP_ALIGN.CENTER, esp=2)
+    texto(sl, 1, ty + 4.7, 19, 0.7, GERENCIA, size=11, color=GRIS, align=PP_ALIGN.CENTER, esp=1)
+    rect(sl, 0, 26.9, 21, 0.1, fill=c2); rect(sl, 0, 27.0, 21, 2.7, fill=c1)
+    texto(sl, 0, 27.0, 21, 2.7, [[(UBICACION, dict(color=BLANCO))], [(P['fecha'], dict(color=c2, size=11))]], size=12.5,
+          bold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, esp=1.5)
 
 
 CARATULA = {1: caratula_1, 2: caratula_2, 3: caratula_3}

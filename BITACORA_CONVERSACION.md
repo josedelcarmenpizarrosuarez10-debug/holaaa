@@ -939,3 +939,6 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   en una placa guinda grande bajo la foto (más alta), la columna guinda lleva el escudo y "HOGAR DE REFUGIO TEMPORAL" en vertical.
 - Ajuste (02-11-2026), solo Hogar de Refugio: la placa del tomo quedó muy grande. Diseño nuevo: encabezado guinda con escudo,
   título y nombre centrados, CUI en recuadro rosado, foto ancha con filete dorado, franja rosada con "TOMO n" (32 pt) y pie guinda.
+- Ajuste (02-11-2026), solo CAR Mujeres: "muy simple, mejóralo sin que se parezca a los otros". Diseño nuevo: foto a todo el
+  ancho arriba, tarjeta guinda superpuesta con el escudo en sello, título, nombre completo y CUI; número de tomo grande entre
+  líneas doradas; entidad y gerencia; pie guinda con Morales y la fecha.
