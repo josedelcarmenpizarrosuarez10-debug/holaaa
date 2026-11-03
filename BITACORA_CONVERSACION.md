@@ -1004,3 +1004,6 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
       - E-02 y E-03: el corte A-A y el B-B rotulan valores distintos.
       - E-05 rotula 6.68 y 7.88; la geometría da 6.45 y 7.65.
   - Los DXF (unos 2.8 GB) no se versionan; quedan ignorados por git.
+- 03-11: primera corrida en Revit 2027 de la versión precisa: "Can't keep elements joined" (2 errores). Causa: dos muros paralelos
+  que se montaban (E-04, eje 71.54/71.64; E-09, tramo de 0.13 m dentro de otro muro). `revit_nativo.py` recorta el más corto (los
+  muros con vanos al final) y desactiva la unión automática en los extremos de los muros de las edificaciones.

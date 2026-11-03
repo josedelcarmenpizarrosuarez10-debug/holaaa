@@ -48,8 +48,26 @@ def anfitrion(muros, v):
     return mejor[1]
 
 
+def sin_solapes(muros, vigas, vanos):
+    """Recorta el más corto de dos muros paralelos que se montan (Revit no puede mantenerlos unidos); quita los que quedan dentro.
+    Los muros que llevan puertas o ventanas se recortan al final, para que conserven su vano."""
+    W = [list(w) for w in muros]; V = [list(v) for v in vigas]
+    con_vano = {anfitrion(muros, v) for v in vanos}
+    for i in sorted(range(len(W)), key=lambda k: (k in con_vano, abs(W[k][2] - W[k][0]) + abs(W[k][3] - W[k][1]))):
+        a = W[i]; h = abs(a[1] - a[3]) < 1e-6; k0, k1 = (0, 2) if h else (1, 3); c = 1 if h else 0
+        for j, b in enumerate(W):
+            if j == i or b is None or a is None or (abs(b[1] - b[3]) < 1e-6) != h or abs(a[c] - b[c]) >= (a[4] + b[4]) / 2: continue
+            a0, a1 = sorted((a[k0], a[k1])); b0, b1 = sorted((b[k0], b[k1]))
+            if min(a1, b1) - max(a0, b0) <= 0.02: continue
+            if b0 <= a0 + 0.02 and a1 <= b1 + 0.02: W[i] = a = None; break   # queda dentro del otro
+            a0, a1 = (b1, a1) if a0 >= b0 else (a0, b0)                     # se deja la parte que sobresale
+            a[k0], a[k1] = round(a0, 3), round(a1, 3); V[i][k0], V[i][k1] = a[k0], a[k1]
+    return [w for w in W if w is not None], [v for w, v in zip(W, V) if w is not None]
+
+
 edificios = []
 for e in ED['edificios']:
+    e['muros'], e['vigas'] = sin_solapes(e['muros'], e['vigas'], e['puertas'] + e['ventanas'])
     for v in e['puertas'] + e['ventanas']: v['muro'] = anfitrion(e['muros'], v)
     edificios.append({k: e[k] for k in ('cod', 'nombre', 'npt', 'piso', 'muros', 'vigas', 'columnas', 'puertas', 'ventanas', 'techos',
                                          'hastiales', 'aberturas_techo', 'celosias')})
@@ -373,7 +391,10 @@ def _principal():
             muros = []
             for (x0, y0, x1, y1, esp, z0, z1, ext), vg in zip(e['muros'], e['vigas']):
                 fondo = vg[5]                                              # el muro llega al fondo de la viga; encima, la viga TP-1
-                muros.append(muro(x0, y0, x1, y1, tipo_muro(esp), z0, fondo - z0)); suma('muros')
+                w = muro(x0, y0, x1, y1, tipo_muro(esp), z0, fondo - z0); muros.append(w); suma('muros')
+                for extremo in (0, 1):                                     # los muros llegan a tope a columnas y a otros muros:
+                    try: WallUtils.DisallowWallJoinAtEnd(w, extremo)       # sin uniones automáticas ("Can't keep elements joined")
+                    except Exception: pass
                 a = vg[4] / 2
                 if abs(y0 - y1) < 1e-6:
                     solido(min(x0, x1), y0 - a, fondo, max(x0, x1), y0 + a, vg[6], TP1, BuiltInCategory.OST_StructuralFraming, e['cod'] + ' viga TP-1')
