@@ -13,7 +13,9 @@ Esquema: IFC2X3 por defecto (sólidos IfcFacetedBrep; Revit lo abre con Abrir IF
 con --ifc4 sale en IFC4 con mallas IfcTriangulatedFaceSet. En la rejilla de las cunetas se exporta una platina de cada cuatro
 (@ 0.10 m en vez de @ 0.025 m) para que el archivo sea manejable en Revit.
 
-Uso: python3.11 exporta_ifc.py [refugio.blend] [salida.ifc] [--ifc4]
+Uso: python3.11 exporta_ifc.py [refugio.blend] [salida.ifc] [--ifc4] [--complemento] [--arboles]
+--complemento: solo lo que no modela el script de Dynamo (drenaje, juegos, bancas, portones, letras, tanque, estacionamientos,
+cancha, detalles), para vincularlo origen a origen sobre el modelo nativo.
 """
 import math, os, re, sys, time
 import bpy
@@ -23,6 +25,19 @@ from mathutils import Matrix, Vector
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 IFC4 = '--ifc4' in sys.argv
+COMPLEMENTO = '--complemento' in sys.argv                       # sin lo que modela el script de Dynamo (revit_nativo.py)
+
+
+def nativo(n):
+    """Elementos que el script de Dynamo crea como familias nativas de Revit (no van en el IFC complementario)."""
+    n = n.lower().split('.')[0]
+    if n.startswith('e-0'):
+        return '_canaleta' not in n and '_zocalo' not in n
+    return (n.startswith(('cerco_muro', 'cerco_zocalo', 'columna_cerco', 'oe01_col', 'oe01_viga', 'oe01_cielo', 'oe01_parapeto',
+                          'oe01_lateral', 'oe01_muro_m1', 'oe01_caseta', 'oe01_techo', 'oe01_piso', 'columna_losa', 'cubierta_losa',
+                          'pavimento_concreto', 'plaza_piso'))
+            or n == 'losa' or (n.startswith('vereda_') and n[7:].isdigit())
+            or (n.startswith('pasto_') and n[6:].isdigit()))
 ARGS = [a for a in sys.argv[1:] if not a.startswith('--')]
 BLEND = ARGS[0] if len(ARGS) > 0 else os.path.join(AQUI, 'refugio.blend')
 SALIDA = ARGS[1] if len(ARGS) > 1 else os.path.join(AQUI, 'HOGAR_REFUGIO_MODELO_3D.ifc')
@@ -253,6 +268,8 @@ for inst in dg.object_instances:
         ob.to_mesh_clear(); continue
     M = inst.matrix_world.copy()
     bm = bmesh.new(); bm.from_mesh(me)
+    bmesh.ops.dissolve_limit(bm, angle_limit=math.radians(0.5), use_dissolve_boundaries=False, verts=bm.verts[:], edges=bm.edges[:],
+                             delimit={'MATERIAL'})                 # caras coplanares unidas: sin la cuadrícula de líneas en Revit
     if any(ed.is_boundary for ed in bm.edges):                    # superficie abierta: se le da espesor (sólido cerrado para Revit)
         bmesh.ops.solidify(bm, geom=bm.faces[:], thickness=0.02)
         bm.to_mesh(me); me.update()
@@ -265,6 +282,8 @@ for inst in dg.object_instances:
     tris = [tuple(q.vertices) for q in polis]
     mats = list(me.materials)
     nombre = orig.name
+    if COMPLEMENTO and nativo(nombre):
+        ob.to_mesh_clear(); continue
     if nombre.startswith(('pista', 'vereda_ext', 'vereda_otra', 'sardinel', 'linea_carril')):
         verts, tris = recorta(verts, tris)
         if nombre.startswith('linea_carril') and not dentro(verts):
@@ -282,7 +301,9 @@ for inst in dg.object_instances:
         agrega(nombre, grupo_de(orig), verts, tris, mats[0] if mats else None)
     ob.to_mesh_clear()
 
-# árboles del lote: tronco y copa simples (la vegetación del entorno no se exporta)
+# árboles: van como familias RPC de Revit (script de Dynamo); con --arboles salen como tronco y copa simples
+if '--arboles' not in sys.argv:
+    ARBOLES = []
 mt = bpy.data.materials.get('tronco'); mh = bpy.data.materials.get('hojas1')
 for nom, (x, y, z), s in ARBOLES:
     if not (LOTE[0] < x < LOTE[2] and 17.5 < y < LOTE[3]):

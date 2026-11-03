@@ -1,0 +1,24 @@
+HOGAR DE REFUGIO TEMPORAL "MUJERES VIOLENTADAS" - CUI 2675514
+MODELO EN REVIT CON FAMILIAS NATIVAS + IFC COMPLEMENTARIO
+
+1. Abrir Revit 2027 > Nuevo > Proyecto > plantilla de Arquitectura (metrica).
+2. Cargar las familias que usara el script (Insertar > Cargar familia de Autodesk):
+   - Puertas: Single-Flush (puerta simple) y una puerta doble de vidrio.
+   - Ventanas: Sliding o Fixed.
+   - Columnas: Rectangular Column (columna arquitectonica rectangular).
+   - Vegetacion: RPC Tree (cualquier arbol RPC).
+   Si falta alguna, el script usa la primera de esa categoria o crea la pieza como forma directa con su material.
+3. Abrir la vista 3D (casita) o la planta Level 1.
+4. Gestionar > Dynamo > Abrir > DYNAMO_MODELO_NATIVO_HOGAR_REFUGIO.dyn > Ejecutar (modo Manual).
+   Si el nodo pide motor de Python, elegir PythonNet3 o CPython3 en el desplegable del nodo.
+   Tambien se puede pegar DYNAMO_MODELO_NATIVO_HOGAR_REFUGIO.py en un nodo Python Script vacio.
+   Correrlo UNA sola vez (si se corre de nuevo duplica los elementos).
+   La salida del nodo indica cuantos muros, columnas, puertas, ventanas, cubiertas y pisos se crearon y los avisos.
+5. Insertar > Vincular IFC > HOGAR_REFUGIO_IFC2X3_COMPLEMENTO.ifc > Posicionamiento: Automatico - origen a origen.
+   Trae lo que no es arquitectura: red de drenaje (cunetas con rejilla, sumideros, tapas, canaletas, montantes, colector
+   frontal y tapas), juegos OC-04 sobre arena, bancas OC-01, portones metalicos y letras del OE-01, tanque elevado,
+   estacionamientos, cancha y estructura del techo de la losa deportiva, asta de banderas.
+6. Vista 3D > Graphic Display Options > Model Display: Style = Realistic o Shaded y quitar Show Edges.
+
+HOGAR_REFUGIO_IFC2X3_COMPLETO.ifc: todo el modelo en un solo IFC (para verlo sin Dynamo).
+Coordenadas en metros; origen local = E 349 090, N 9 281 900 (UTM WGS 84, zona 18 S).
