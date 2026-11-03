@@ -977,4 +977,31 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - 03-11: "quiero que exportes todo a Revit": no se puede manejar Revit desde la nube; se exporto el modelo 3D completo a IFC4 (exporta_ifc.py), validado con ifcopenshell (0 errores de esquema, 2548 elementos con geometria), en entregables/modelo_revit/.
 - 03-11: en Revit 2027 el IFC4 vinculado solo mostraba cunetas, losas y arboles en sombreado; se cambio a IFC2X3 con solidos cerrados (IfcFacetedBrep), validado (0 errores, 2548 elementos con geometria).
 - 03-11: Revit: lineas blancas = aristas (Show Edges) y cuadricula de caras; arboles bola. Pedido "hazlo en familias todo, dibuja bien techos, acabado profesional": script de Dynamo con elementos nativos (revit_nativo.py) + IFC complementario (drenaje, juegos, bancas, portones, letras, tanque, cancha) con caras coplanares unidas; LEEME con los pasos.
+- 03-11 (equipo local): versión precisa del modelo Revit. Pedido: "muros reales también interiores, puertas y ventanas por
+  bloque con su tamaño de los DT, alturas de los cortes y techos de la PG-02". Nuevo `lee_edificaciones.py`:
+  - **Muros:** pares de caras paralelas de 0.07 a 0.42 m en la PG-01, unidos a través de columnas y columnetas.
+  - **Vanos:** indicadores de puertas y ventanas de las plantas A 01-A 09, trasladados a la PG por votación de extremos de
+    muro. Cada vano toma su ancho, alto y alféizar del cuadro de los DT-01 a DT-09, que manda sobre los cuadros de las A.
+  - **Alturas de los cortes:** NPT +0.15, nivel superior de viga +3.85 (E-01 +3.70; nave del SUM +5.05) y fondo de viga
+    +3.44. La pendiente es del 30 % y arranca en el borde del alero al nivel de viga.
+  - **Techos:** contorno de 1-PROYECCIONES en la PG-02.
+  - **Resultado:** 213 muros, 136 columnas, 108 puertas, 139 ventanas y 66 sobreluces. E-05 sale en tres cuerpos y E-01
+    lleva sobretecho (cumbrera 8.77), abertura y celosías.
+  - `revit_nativo.py` usa `edificaciones_revit.json`. Se probó con la API simulada; falta la prueba en Revit 2027. Antes de
+    correrlo hay que borrar lo creado en la corrida anterior.
+  - **Diferencias entre planos (por confirmar con la arquitecta):**
+    - E-07: el cuadro del DT da P-7 = 13 y V-63 de 1.92; la A da 15 y 1.94.
+    - Indicadores dibujados contra el cuadro del DT:
+      - E-01: V-14 2/1, V-3 4/3.
+      - E-02: P-8 sin indicador.
+      - E-04: P-2 6/4; V-26, V-34 y V-37 2/1 cada una.
+      - E-05: V-51 (4) y V-52 (2) sin indicador; V-55 no está en su cuadro y se le dio el alto de V-46. P-1 va sin sobreluz
+        porque encima va la ventana alta V-46.
+      - E-06: V-3 no está en su cuadro y se le dio el alto de V-56; P-4 5/6; V-55 1/2.
+      - E-07: P-7 15/13; V-60 5/2; V-62, V-63 y V-68 2/1 cada una; V-66 3/1; V-69 1/2.
+    - Cumbreras rotuladas contra las que salen de la geometría:
+      - E-09 rotula +5.98, pero el corte dibujado da unos 5.2.
+      - E-02 y E-03: el corte A-A y el B-B rotulan valores distintos.
+      - E-05 rotula 6.68 y 7.88; la geometría da 6.45 y 7.65.
+  - Los DXF (unos 2.8 GB) no se versionan; quedan ignorados por git.
 - 03-11: encabezado "vacan" para las especificaciones tecnicas del CAR Mujeres (Wilma, CUI 2717013) en Word: encabezado_espec_m.py.

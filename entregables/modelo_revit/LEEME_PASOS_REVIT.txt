@@ -1,10 +1,15 @@
 HOGAR DE REFUGIO TEMPORAL "MUJERES VIOLENTADAS" - CUI 2675514
 MODELO EN REVIT CON FAMILIAS NATIVAS + IFC COMPLEMENTARIO
 
+0. SI YA SE CORRIO LA VERSION ANTERIOR DEL SCRIPT: borrar en el proyecto todo lo que creo (muros, pisos, cubiertas,
+   puertas, ventanas, columnas, formas directas de vigas y arboles). En la vista 3D: seleccionar todo > Filtro > marcar
+   esas categorias > Suprimir. Los tipos y materiales HR- se reutilizan; no hace falta borrarlos.
+   O empezar de nuevo en un proyecto nuevo (paso 1).
+
 1. Abrir Revit 2027 > Nuevo > Proyecto > plantilla de Arquitectura (metrica).
 2. Cargar las familias que usara el script (Insertar > Cargar familia de Autodesk):
    - Puertas: Single-Flush (puerta simple) y una puerta doble de vidrio.
-   - Ventanas: Sliding o Fixed.
+   - Ventanas: Sliding (corrediza) y Fixed (fija, para las sobreluces de las puertas).
    - Columnas: Rectangular Column (columna arquitectonica rectangular).
    - Vegetacion: RPC Tree (cualquier arbol RPC).
    Si falta alguna, el script usa la primera de esa categoria o crea la pieza como forma directa con su material.
@@ -18,6 +23,16 @@ MODELO EN REVIT CON FAMILIAS NATIVAS + IFC COMPLEMENTARIO
    Trae lo que no es arquitectura: red de drenaje (cunetas con rejilla, sumideros, tapas, canaletas, montantes, colector
    frontal y tapas), juegos OC-04 sobre arena, bancas OC-01, portones metalicos y letras del OE-01, tanque elevado,
    estacionamientos, cancha y estructura del techo de la losa deportiva, asta de banderas.
+   Que trae esta version (planos PG-01/PG-02, A 01-A 09 y DT-01 a DT-15):
+   - muros reales exteriores e interiores con su espesor, hasta el fondo de viga +3.44, y vigas TP-1 encima hasta el nivel
+     superior de viga de los cortes (+3.70 en E-01, +3.85 en las demas, +5.05 en la nave del SUM);
+   - columnas TP-1 con su seccion de la planta;
+   - 108 puertas y 139 ventanas en su vano, cada una con el ancho, alto y alfeizar del cuadro de vanos de los DT
+     (tipos "HR-Puerta 0.90x2.50", "HR-Ventana 1.20x1.99"...) y 66 sobreluces fijas sobre las puertas que la llevan;
+   - cubiertas a dos aguas con el contorno de la planta de techos PG-02 y pendiente 30 %; E-05 en tres cuerpos con la
+     nave central mas alta; E-01 con sobretecho sobre el lucernario y celosias.
+   Las plantas de control de cada edificacion estan en control_edificaciones\PLANTA_CONTROL_E-0X.png.
+
 6. Vista 3D > Graphic Display Options > Model Display: Style = Realistic o Shaded y quitar Show Edges.
 
 HOGAR_REFUGIO_IFC2X3_COMPLETO.ifc: todo el modelo en un solo IFC (para verlo sin Dynamo).

@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 """Genera el script de Dynamo que modela en Revit, con elementos nativos (familias de sistema y cargables), la arquitectura
-del Hogar de Refugio Temporal (CUI 2675514) a partir de los mismos datos del modelo 3D (escena.json + medidas de escena.py):
+del Hogar de Refugio Temporal (CUI 2675514). Las edificaciones salen de los planos de la arquitecta (edificaciones_revit.json, que
+escribe lee_edificaciones.py desde la PG 01-PG 02, las A 01-A 09 y los DT-01 a DT-15); el resto, de escena.json:
 
   - materiales TP-1 (RGB 123-31-45), TP-2 (RGB 125-133-139), TP-3 (RAL 9010), concreto, calamina, área verde;
   - tipos de muro, piso y cubierta propios (prefijo "HR-");
-  - E-01 a E-09: piso +0.15, muros TP-2 de 0.15 hasta +3.30, viga collar TP-1 +3.30 a +3.75, columnas TP-1 0.32 x 0.32 en las
-    esquinas y cada ~3.6 m, hastiales TP-3 (muros de perfil), cubierta a dos aguas por huella (alero 1.50, pendiente 28 %),
-    puertas y ventanas (familias del proyecto) en las mismas posiciones del render;
+  - E-01 a E-09: piso +0.15; muros reales exteriores e interiores con su espesor (TP-2) hasta el fondo de viga +3.44; vigas TP-1
+    sobre cada muro hasta el nivel superior de viga de los cortes (+3.70 en E-01, +3.85 en las demás; nave del SUM +5.05);
+    columnas TP-1 con su sección de la planta; puertas y ventanas en su vano, con el ancho, alto y alféizar del cuadro de vanos
+    de los DT (sobreluz fija sobre las puertas que la llevan); cubiertas a dos aguas con el contorno de la PG-02 (pendiente 30 %,
+    arranque en el borde del alero al nivel de viga), hastiales TP-3 en los testeros; E-05 en tres cuerpos (nave central más
+    alta); E-01 con sobretecho sobre el lucernario, abertura en la cubierta y celosías;
   - losa deportiva OC-06: losa, 14 columnas y cubierta en arco (cubierta por extrusión, flecha 4.20 sobre columnas de 6.00);
   - pórtico de ingreso OE-01: columnas C-1, viga VG-1, cielo CR-1, parapeto PL-2, muros laterales de perfil, muro M-1, caseta
     y losa inclinada (5.72 a 4.19);
@@ -16,7 +20,7 @@ del Hogar de Refugio Temporal (CUI 2675514) a partir de los mismos datos del mod
 Lo que no es arquitectura (red de drenaje, juegos, bancas OC-01, portones, letras, tanque, estacionamientos, cancha) va en el
 IFC complementario (exporta_ifc.py --complemento) para vincularlo encima, en la misma posición (origen a origen).
 
-Uso: python3.11 revit_nativo.py  ->  entregables/modelo_revit/DYNAMO_MODELO_NATIVO_HOGAR_REFUGIO.dyn y .py
+Uso: python lee_edificaciones.py (solo si cambian los DXF) y python revit_nativo.py  ->  entregables/modelo_revit/DYNAMO_MODELO_NATIVO_HOGAR_REFUGIO.dyn y .py
 """
 import json, math, os, uuid
 from shapely.geometry import Polygon, box
@@ -25,46 +29,30 @@ from shapely.ops import unary_union
 AQUI = os.path.dirname(os.path.abspath(__file__)); RAIZ = os.path.abspath(os.path.join(AQUI, '..', '..'))
 D = json.load(open(os.path.join(AQUI, 'escena.json')))
 SAL = os.path.join(RAIZ, 'entregables', 'modelo_revit'); os.makedirs(SAL, exist_ok=True)
-VOL, H_MURO, Z_TECHO, PEND = 1.5, 3.3, 3.75, 0.28                  # mismas medidas de escena.py
 r3 = lambda v: round(float(v), 3)
 
-# ------------------------------------------------------------------ edificaciones (mismas reglas de escena.py)
+# ------------------------------------------------------------------ edificaciones (leídas de los planos por lee_edificaciones.py)
+ED = json.load(open(os.path.join(AQUI, 'edificaciones_revit.json'), encoding='utf-8'))
+PEND, FONDO_VIGA = ED['pendiente'], ED['fondo_viga']
+
+
+def anfitrion(muros, v):
+    """Índice del muro cuyo eje contiene el vano completo (mismo sentido, eje a menos de 6 cm)."""
+    mejor = None
+    for i, w in enumerate(muros):
+        h = abs(w[1] - w[3]) < 1e-6
+        if (v['o'] == 'H') != h: continue
+        d, c, a, b = (abs(w[1] - v['y']), v['x'], min(w[0], w[2]), max(w[0], w[2])) if h else (abs(w[0] - v['x']), v['y'], min(w[1], w[3]), max(w[1], w[3]))
+        if d < 0.06 and a - 0.01 <= c - v['ancho'] / 2 and c + v['ancho'] / 2 <= b + 0.01 and (mejor is None or d < mejor[0]): mejor = (d, i)
+    if mejor is None: raise SystemExit('%s sin muro anfitrión en %.2f, %.2f' % (v['cod'], v['x'], v['y']))
+    return mejor[1]
+
+
 edificios = []
-for e in D['edificios']:
-    x0, y0, x1, y1 = e['rect']; a0, b0, a1, b1 = x0 + VOL, y0 + VOL, x1 - VOL, y1 - VOL
-    largo_x = e['cumbrera'] == 'y'
-    lados, vanos, cols = [], [], []
-    for k, (xa, ya, xb, yb, nrm) in enumerate(((a0, b0, a1, b0, (0, -1)), (a0, b1, a1, b1, (0, 1)),
-                                               (a0, b0, a0, b1, (-1, 0)), (a1, b0, a1, b1, (1, 0)))):
-        L = math.hypot(xb - xa, yb - ya); n = max(1, round(L / 3.6)); paso = L / n
-        es_largo = (nrm[0] != 0) == largo_x
-        lados.append([r3(xa), r3(ya), r3(xb), r3(yb), nrm[0], nrm[1]])
-        for i in range(n + 1):
-            t = i / n; cols.append([r3(xa + (xb - xa) * t), r3(ya + (yb - ya) * t)])
-        for i in range(n):
-            t = (i + 0.5) / n; cx, cy = xa + (xb - xa) * t, ya + (yb - ya) * t
-            if es_largo:
-                if i % 3 == 1 and L > 8:
-                    vanos.append(dict(lado=k, x=r3(cx), y=r3(cy), tipo='puerta', ancho=1.0, alto=2.15, alf=0.15))
-                else:
-                    vanos.append(dict(lado=k, x=r3(cx), y=r3(cy), tipo='ventana', ancho=r3(paso * 0.58), alto=1.35, alf=1.05))
-            else:
-                if i == n // 2:
-                    vid = e['cod'] in ('E-01', 'E-05')
-                    vanos.append(dict(lado=k, x=r3(cx), y=r3(cy), tipo='puerta', ancho=1.8 if vid else 1.0, alto=2.35, alf=0.15,
-                                      vidrio=vid))
-                else:
-                    vanos.append(dict(lado=k, x=r3(cx), y=r3(cy), tipo='ventana', ancho=r3(paso * 0.5), alto=1.35, alf=1.05))
-    cols = [list(c) for c in {tuple(c) for c in cols}]
-    if largo_x:
-        semi = (a1 - a0) / 2; zr = Z_TECHO + PEND * semi
-        hast = [[[r3(a0), r3(b), Z_TECHO], [r3((x0 + x1) / 2), r3(b), r3(zr)], [r3(a1), r3(b), Z_TECHO]] for b in (b0, b1)]
-    else:
-        semi = (b1 - b0) / 2; zr = Z_TECHO + PEND * semi
-        hast = [[[r3(a), r3(b0), Z_TECHO], [r3(a), r3((y0 + y1) / 2), r3(zr)], [r3(a), r3(b1), Z_TECHO]] for a in (a0, a1)]
-    edificios.append(dict(cod=e['cod'], nombre=e.get('nombre', ''), techo=[r3(x0), r3(y0), r3(x1), r3(y1)], cumbrera=e['cumbrera'],
-                          muro=[r3(a0), r3(b0), r3(a1), r3(b1)], piso=[r3(a0 - 1.2), r3(b0 - 1.2), r3(a1 + 1.2), r3(b1 + 1.2)],
-                          lados=lados, vanos=vanos, columnas=cols, hastiales=hast, alero=r3(Z_TECHO - PEND * VOL)))
+for e in ED['edificios']:
+    for v in e['puertas'] + e['ventanas']: v['muro'] = anfitrion(e['muros'], v)
+    edificios.append({k: e[k] for k in ('cod', 'nombre', 'npt', 'piso', 'muros', 'vigas', 'columnas', 'puertas', 'ventanas', 'techos',
+                                         'hastiales', 'aberturas_techo', 'celosias')})
 
 # ------------------------------------------------------------------ losa deportiva, pórtico OE-01, cerco
 lx0, ly0, lx1, ly1 = D['losa']
@@ -101,8 +89,7 @@ pisos = dict(veredas=anillos(unary_union(veredas).difference(EDIF)), pavimento=a
                                                                                 [D['plaza'][2], D['plaza'][3]], [D['plaza'][0], D['plaza'][3]]]]])
 arboles = [list(p) for p in D['arboles']] + [[6.0, 52], [6.0, 60], [6.0, 68], [2.5, 46], [66, 33], [66, 45], [66, 56], [66, 70], [66, 82],
                                              [28, 60], [29, 90], [52, 90], [48.5, 114], [60, 112], [28.8, 18.8], [58, 19.3]]
-DATOS = dict(edificios=edificios, losa=losa, oe01=oe01, cerco=cerco, pisos=pisos, arboles=arboles,
-             medidas=dict(VOL=VOL, H_MURO=H_MURO, Z_TECHO=Z_TECHO, PEND=PEND))
+DATOS = dict(edificios=edificios, losa=losa, oe01=oe01, cerco=cerco, pisos=pisos, arboles=arboles, medidas=dict(PEND=PEND, FONDO_VIGA=FONDO_VIGA))
 
 # ------------------------------------------------------------------ script de Dynamo (Python Script, CPython3 / PythonNet3)
 CODIGO = r'''# Modelo nativo del Hogar de Refugio Temporal (CUI 2675514) - Revit + Dynamo (nodo Python Script, CPython3 o PythonNet3)
@@ -253,7 +240,8 @@ def _principal():
     def muro_perfil(pts, wtipo):
         c = List[Curve]()
         for i in range(len(pts)):
-            a = P(*pts[i]); b = P(*pts[(i + 1) % len(pts)]); c.Add(Line.CreateBound(a, b))
+            a = P(*pts[i]); b = P(*pts[(i + 1) % len(pts)])
+            if a.DistanceTo(b) > 0.003: c.Add(Line.CreateBound(a, b))
         return Wall.Create(doc, c, wtipo.Id, NIV.Id, False)
 
     def solido(x0, y0, z0, x1, y1, z1, mat, cat, nombre):
@@ -345,55 +333,102 @@ def _principal():
 
     def suma(k, n=1): cuenta[k] = cuenta.get(k, 0) + n
 
-    # ---------------- edificaciones E-01 a E-09
+    # ---------------- edificaciones E-01 a E-09 (muros, vanos, alturas y coberturas leídos de los planos)
+    W_MURO = {}
+    def tipo_muro(e_):
+        k = round(e_, 2)
+        if k not in W_MURO: W_MURO[k] = tipo(WallType, '', 'HR-Muro TP-2 e=%.2f' % k, k, TP2)
+        return W_MURO[k]
+    W_CEL = tipo(WallType, '', 'HR-Celosia sobretecho TP-1 e=0.05', 0.05, TP1)
+
     S_PUERTA = {}; S_VENT = {}
+    def familia_puerta(ancho, alto, vidrio):
+        k = (ancho, alto, vidrio)
+        if k not in S_PUERTA:
+            S_PUERTA[k] = simbolo(BuiltInCategory.OST_Doors, ('double glass', 'doble', 'glass', 'vidrio') if vidrio else ('single-flush', 'single', 'simple'),
+                                  'HR-Puerta %.2fx%.2f%s' % (ancho, alto, ' vidrio' if vidrio else ''),
+                                  [(ancho, ['Width', 'Ancho'], [BuiltInParameter.DOOR_WIDTH, BuiltInParameter.FAMILY_WIDTH_PARAM]),
+                                   (alto, ['Height', 'Altura'], [BuiltInParameter.DOOR_HEIGHT, BuiltInParameter.FAMILY_HEIGHT_PARAM])])
+        return S_PUERTA[k]
+
+    def familia_ventana(ancho, alto, fija=False):
+        k = (ancho, alto, fija)
+        if k not in S_VENT:
+            S_VENT[k] = simbolo(BuiltInCategory.OST_Windows, ('fixed', 'fija', 'sliding', 'corrediza') if fija else ('sliding', 'corrediza', 'fixed', 'fija'),
+                                'HR-%s %.2fx%.2f' % ('Sobreluz' if fija else 'Ventana', ancho, alto),
+                                [(ancho, ['Width', 'Ancho'], [BuiltInParameter.WINDOW_WIDTH, BuiltInParameter.FAMILY_WIDTH_PARAM]),
+                                 (alto, ['Height', 'Altura'], [BuiltInParameter.WINDOW_HEIGHT, BuiltInParameter.FAMILY_HEIGHT_PARAM])])
+        return S_VENT[k]
+
+    def vano(s, host, v, sill):
+        fi = doc.Create.NewFamilyInstance(P(v['x'], v['y'], sill), s, host, NIV, StructuralType.NonStructural)
+        pa = fi.get_Parameter(BuiltInParameter.INSTANCE_SILL_HEIGHT_PARAM)
+        if pa is not None and not pa.IsReadOnly: pa.Set(ft(sill))
+        return fi
+
     for e in D['edificios']:
         try:
-            a0, b0, a1, b1 = e['muro']; t = 0.075
-            piso([[[[x, y] for x, y in ((e['piso'][0], e['piso'][1]), (e['piso'][2], e['piso'][1]), (e['piso'][2], e['piso'][3]), (e['piso'][0], e['piso'][3]))]]], F_PISO, 0.15)
+            p_ = e['piso']
+            piso([[[[p_[0], p_[1]], [p_[2], p_[1]], [p_[2], p_[3]], [p_[0], p_[3]]]]], F_PISO, e['npt'])
             muros = []
-            for (xa, ya, xb, yb, nx, ny) in e['lados']:                    # eje del muro 0.075 hacia adentro de la cara exterior
-                w = muro(xa - nx * t, ya - ny * t, xb - nx * t, yb - ny * t, W_TP2, 0.15, M['H_MURO'] - 0.15); muros.append(w); suma('muros')
-                muro(xa - nx * 0.115, ya - ny * 0.115, xb - nx * 0.115, yb - ny * 0.115, W_VIGA, M['H_MURO'], M['Z_TECHO'] - M['H_MURO']); suma('vigas collar')
-            for h in e['hastiales']:
-                try: muro_perfil(h, W_HAST); suma('hastiales')
-                except Exception as ex_: nota('%s hastial: %s' % (e['cod'], ex_))
+            for (x0, y0, x1, y1, esp, z0, z1, ext), vg in zip(e['muros'], e['vigas']):
+                fondo = vg[5]                                              # el muro llega al fondo de la viga; encima, la viga TP-1
+                muros.append(muro(x0, y0, x1, y1, tipo_muro(esp), z0, fondo - z0)); suma('muros')
+                a = vg[4] / 2
+                if abs(y0 - y1) < 1e-6:
+                    solido(min(x0, x1), y0 - a, fondo, max(x0, x1), y0 + a, vg[6], TP1, BuiltInCategory.OST_StructuralFraming, e['cod'] + ' viga TP-1')
+                else:
+                    solido(x0 - a, min(y0, y1), fondo, x0 + a, max(y0, y1), vg[6], TP1, BuiltInCategory.OST_StructuralFraming, e['cod'] + ' viga TP-1')
+                suma('vigas')
             cols = []
-            for (x, y) in e['columnas']:
-                cols.append(columna(x, y, 0.32, 0.32, 0.15, M['H_MURO'], TP1, e['cod'] + ' columna TP-1')); suma('columnas')
+            for (x, y, b, h, z0, z1) in e['columnas']:
+                cols.append(columna(x, y, round(b, 2), round(h, 2), z0, z1, TP1, e['cod'] + ' columna TP-1')); suma('columnas')
             doc.Regenerate()
             for c in cols:                                                 # la columna queda en TP-1 (no toma el material del muro)
                 for w in muros:
                     try:
                         if JoinGeometryUtils.AreElementsJoined(doc, c, w): JoinGeometryUtils.UnjoinGeometry(doc, c, w)
                     except Exception: pass
-            for v in e['vanos']:
+            for v in e['puertas']:
                 try:
-                    w = muros[v['lado']]
-                    if v['tipo'] == 'puerta':
-                        k = (v['ancho'], v['alto'], v.get('vidrio', False))
-                        if k not in S_PUERTA:
-                            S_PUERTA[k] = simbolo(BuiltInCategory.OST_Doors, ('double glass', 'doble', 'glass') if k[2] else ('single-flush', 'single', 'simple'),
-                                                  'HR-Puerta %.2fx%.2f%s' % (k[0], k[1], ' vidrio' if k[2] else ''),
-                                                  [(k[0], ['Width', 'Ancho'], [BuiltInParameter.DOOR_WIDTH, BuiltInParameter.FAMILY_WIDTH_PARAM]),
-                                                   (k[1], ['Height', 'Altura'], [BuiltInParameter.DOOR_HEIGHT, BuiltInParameter.FAMILY_HEIGHT_PARAM])])
-                        s = S_PUERTA[k]
-                    else:
-                        k = (v['ancho'], v['alto'])
-                        if k not in S_VENT:
-                            S_VENT[k] = simbolo(BuiltInCategory.OST_Windows, ('sliding', 'corrediza', 'fixed', 'fija'), 'HR-Ventana %.2fx%.2f' % k,
-                                                [(k[0], ['Width', 'Ancho'], [BuiltInParameter.WINDOW_WIDTH, BuiltInParameter.FAMILY_WIDTH_PARAM]),
-                                                 (k[1], ['Height', 'Altura'], [BuiltInParameter.WINDOW_HEIGHT, BuiltInParameter.FAMILY_HEIGHT_PARAM])])
-                        s = S_VENT[k]
-                    if s is None: nota('sin familia de %s cargada' % v['tipo']); continue
-                    nx, ny = e['lados'][v['lado']][4], e['lados'][v['lado']][5]
-                    fi = doc.Create.NewFamilyInstance(P(v['x'] - nx * 0.075, v['y'] - ny * 0.075, 0), s, w, NIV, StructuralType.NonStructural)
-                    pa = fi.get_Parameter(BuiltInParameter.INSTANCE_SILL_HEIGHT_PARAM)
-                    if pa is not None and not pa.IsReadOnly: pa.Set(ft(v['alf']))
-                    suma(v['tipo'] + 's')
+                    s = familia_puerta(v['ancho'], v['alto'], v['vidrio'])
+                    if s is None: nota('sin familia de puerta cargada'); continue
+                    vano(s, muros[v['muro']], v, v['sill']); suma('puertas')
+                    hs = round(M['FONDO_VIGA'] - (v['sill'] + v['alto']), 3)
+                    if v['sobreluz'] and hs > 0.2:                         # sobreluz fija sobre la puerta, hasta el fondo de la viga
+                        s2 = familia_ventana(v['ancho'], hs, True)
+                        if s2 is not None: vano(s2, muros[v['muro']], v, v['sill'] + v['alto']); suma('sobreluces')
                 except Exception as ex_:
-                    nota('%s %s: %s' % (e['cod'], v['tipo'], ex_))
-            techo_huella(e['techo'], e['alero'], M['PEND'], e['cumbrera'], R_CAL); suma('cubiertas a dos aguas')
+                    nota('%s puerta %s: %s' % (e['cod'], v['cod'], ex_))
+            for v in e['ventanas']:
+                try:
+                    s = familia_ventana(v['ancho'], v['alto'])
+                    if s is None: nota('sin familia de ventana cargada'); continue
+                    vano(s, muros[v['muro']], v, v['sill']); suma('ventanas')
+                except Exception as ex_:
+                    nota('%s ventana %s: %s' % (e['cod'], v['cod'], ex_))
+            for h in e['hastiales']:
+                try: muro_perfil(h, W_HAST); suma('hastiales')
+                except Exception as ex_: nota('%s hastial: %s' % (e['cod'], ex_))
+            techo_ppal = None
+            for t in e['techos']:
+                try:
+                    r_ = techo_huella(t['rect'], t['base'], t['pend'], t['eje'], R_CAL); suma('cubiertas a dos aguas')
+                    if not t.get('sobretecho') and techo_ppal is None: techo_ppal = r_
+                except Exception as ex_:
+                    nota('%s cubierta: %s' % (e['cod'], ex_))
+            for (x0, y0, x1, y1) in e['aberturas_techo']:                 # lucernario bajo el sobretecho (E-01)
+                try:
+                    doc.Regenerate()
+                    ca = CurveArray()
+                    for a, b in ((P(x0, y0), P(x1, y0)), (P(x1, y0), P(x1, y1)), (P(x1, y1), P(x0, y1)), (P(x0, y1), P(x0, y0))):
+                        ca.Append(Line.CreateBound(a, b))
+                    doc.Create.NewOpening(techo_ppal, ca, True); suma('aberturas de cobertura')
+                except Exception as ex_:
+                    nota('%s abertura de cobertura: %s' % (e['cod'], ex_))
+            for c in e['celosias']:
+                try: muro_perfil(c, W_CEL); suma('celosias')
+                except Exception as ex_: nota('%s celosia: %s' % (e['cod'], ex_))
         except Exception as ex_:
             nota('%s: %s' % (e['cod'], ex_))
 
@@ -513,5 +548,6 @@ dyn = {
                             "Excluded": False, "ShowGeometry": True, "X": 300.0, "Y": 0.0}],
              "Annotations": [], "X": 0.0, "Y": 0.0, "Zoom": 1.0}}
 json.dump(dyn, open(os.path.join(SAL, 'DYNAMO_MODELO_NATIVO_HOGAR_REFUGIO.dyn'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
-print('edificios', len(edificios), 'vanos', sum(len(e['vanos']) for e in edificios), 'columnas', sum(len(e['columnas']) for e in edificios),
+print('edificios', len(edificios), 'muros', sum(len(e['muros']) for e in edificios), 'puertas', sum(len(e['puertas']) for e in edificios),
+      'ventanas', sum(len(e['ventanas']) for e in edificios), 'columnas', sum(len(e['columnas']) for e in edificios),
       'pisos', {k: len(v) for k, v in pisos.items()}, 'arboles', len(arboles), '->', SAL)
