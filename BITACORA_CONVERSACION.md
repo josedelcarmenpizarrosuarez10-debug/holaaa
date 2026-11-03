@@ -1007,3 +1007,4 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - 03-11: primera corrida en Revit 2027 de la versión precisa: "Can't keep elements joined" (2 errores). Causa: dos muros paralelos
   que se montaban (E-04, eje 71.54/71.64; E-09, tramo de 0.13 m dentro de otro muro). `revit_nativo.py` recorta el más corto (los
   muros con vanos al final) y desactiva la unión automática en los extremos de los muros de las edificaciones.
+- 03-11: encabezado "vacan" para las especificaciones tecnicas del CAR Mujeres (Wilma, CUI 2717013) en Word: encabezado_espec_m.py.
