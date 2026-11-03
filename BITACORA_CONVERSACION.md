@@ -970,3 +970,5 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   MUJERES VIOLENTADAS.dxf): "quita a las personas... hazlo tal cual fielmente... tambien debe verse" -> red de cunetas en los ejes
   01 a 12 del plano (685 m dibujados con rejilla), 30 sumideros, 17 tapas de inspeccion, canaletas y 36 montantes en las esquinas,
   sin personas; vistas nuevas 16 a 21 (bancas, cunetas, colector, planta de la red sin techos, patio, montante).
+- 03-11: índice de planos de arquitectura del Hogar de Refugio con el nuevo Excel de la usuaria (v4, 155 láminas: EM-01 a EM-09 y
+  DM-01 a DM-37 en el grupo VII); mismo estilo Word; se corrigen solo los códigos repetidos por copia (A-06, A-08, OC-03/03-03).
