@@ -406,7 +406,15 @@ def _principal():
         rp = doc.Create.NewReferencePlane(P(x1, y0, 0), P(x0, y0, 0), XYZ.BasisZ, doc.ActiveView)
         ca = CurveArray()
         ca.Append(Arc.Create(P(x0, y0, L['h_col']), P(x1, y0, L['h_col']), P((x0 + x1) / 2, y0, L['h_col'] + L['flecha'])))
-        doc.Create.NewExtrusionRoof(ca, rp, NIV, R_CAL, 0.0, ft(y1 - y0)); suma('cubierta en arco')
+        doc.Regenerate()
+        Lx = ft(y1 - y0)                                               # la extrusión va según la normal del plano: hacia +Y
+        e0, e1 = (0.0, Lx) if rp.Normal.Y > 0 else (-Lx, 0.0)
+        techo_arco = doc.Create.NewExtrusionRoof(ca, rp, NIV, R_CAL, e0, e1); suma('cubierta en arco')
+        doc.Regenerate()
+        bb = techo_arco.get_BoundingBox(None)                           # comprobación: debe quedar sobre la losa deportiva
+        if bb is not None and (bb.Min.Y < ft(y0) - 1.0 or bb.Max.Y > ft(y1) + 1.0):
+            ElementTransformUtils.MoveElement(doc, techo_arco.Id, XYZ(0, ft(y0) - bb.Min.Y, 0))
+            nota('cubierta en arco reubicada sobre la losa deportiva')
     except Exception as ex_:
         nota('losa deportiva: %s' % ex_)
 
