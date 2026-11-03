@@ -29,13 +29,15 @@ Copia los DXF de arquitectura en `holaaa\herramientas\render_refugio\dxf\`. Es l
 demás lectores, y los nombres de archivo deben quedar como los de la arquitecta. Por ejemplo, la planta general debe
 llamarse `PG 01-PG 02 PLANTA GENERAL.dxf`.
 
-| Ya usados en la versión actual | Faltan para la versión precisa |
+| Ya usados | Aún no usados en el modelo Revit |
 |---|---|
-| A 01 a A 09 EDIFICACIONES | DT-01 a DT-15 (detalles de puertas y ventanas) |
-| PG 01-PG 02 PLANTA GENERAL (PG-02 = planta de techos) | OE-01 a OE-07 |
-| CG 01-EG 01 (cortes y elevaciones generales) | OC-02 a OC-05 |
-| OC-06 | Cortes y elevaciones de cada edificación |
+| A 01 a A 09 EDIFICACIONES (plantas, cortes y elevaciones de cada edificación) | OE-01 a OE-07 |
+| PG 01-PG 02 PLANTA GENERAL (PG-02 = planta de techos) | OC-02 a OC-05 |
+| DT-01 a DT-15 (cuadros de vanos de puertas y ventanas) | |
+| CG 01-EG 01 (cortes y elevaciones generales) y OC-06 | |
 | Plano de drenaje: `PLANTA GENERAL - MUJERES VIOLENTADAS.dxf` | |
+
+Los DXF no se suben al repositorio (pesan cerca de 2.8 GB); quedan solo en tu equipo.
 
 ## 3. Qué está hecho
 
@@ -49,24 +51,35 @@ llamarse `PG 01-PG 02 PLANTA GENERAL.dxf`.
     PythonNet3 y crea con familias nativas:
     - materiales TP-1 guinda RGB 123-31-45, TP-2 gris RGB 125-133-139 y TP-3 RAL 9010;
     - tipos HR- de muro, piso y cubierta;
-    - muros, columnas, vigas collar, hastiales, cubiertas al 28 % con alero de 1.50;
+    - muros, columnas, vigas, hastiales y cubiertas leídos de los planos (antes eran por regla: 28 % y alero de 1.50);
     - arco de la losa deportiva, OE-01, cerco, pisos, puertas, ventanas y árboles RPC.
   - `HOGAR_REFUGIO_IFC2X3_COMPLEMENTO.ifc`: lo genera `exporta_ifc.py --complemento`. Lleva drenaje, juegos, bancas,
     portones, letras, tanque y cancha.
   - `LEEME_PASOS_REVIT.txt`: los pasos dentro de Revit.
   - Ya probado en Revit 2027 con éxito: muros, techos, el arco corregido, cerco, árboles RPC (se ven reales con
     *Accelerated Graphics* apagado) y el IFC vinculado.
-- **Limitación actual:** las puertas y ventanas se colocan por regla, una cada ~3.6 m, y solo con la planta general.
+- **Versión precisa (03-11-2026):** `lee_edificaciones.py` lee la PG-02, las A 01-A 09 y los DT y escribe
+  `herramientas/render_refugio/edificaciones_revit.json`, que `revit_nativo.py` mete en el script de Dynamo:
+  - 213 muros reales exteriores e interiores con su espesor (0.13 en su mayoría);
+  - 136 columnas con su sección;
+  - 108 puertas y 139 ventanas con el tamaño del cuadro de vanos de los DT;
+  - alturas de los cortes, techos de la PG-02 y la nave alta del SUM;
+  - el sobretecho de la administración.
+  Las plantas de control están en `entregables/modelo_revit/control_edificaciones/`. Lo que no cuadra entre planos está en
+  la bitácora (03-11-2026). Falta probarlo en Revit 2027.
 
-## 4. Lo que sigue (versión precisa del script de Dynamo)
+## 4. Lo que se pidió para la versión precisa (hecho el 03-11-2026)
 
-Hay que hacer una nueva versión de `herramientas/render_refugio/revit_nativo.py` que:
+Se pidió una nueva versión de `herramientas/render_refugio/revit_nativo.py` que:
 
 1. lea del DXF los **muros reales**, también los interiores, con su espesor;
 2. coloque las **puertas y ventanas por bloque**, con su ancho y alto según los DT-01 a DT-15;
 3. tome las **alturas** de los cortes de cada edificación (piso terminado, dintel, alféizar, viga, cumbrera);
 4. arme los **techos** con la geometría de la PG-02 (planta de techos);
 5. deje la salida en `entregables/modelo_revit/` con el mismo nombre y actualice `LEEME_PASOS_REVIT.txt`.
+
+Para regenerarla si cambian los DXF: `python herramientas/render_refugio/lee_edificaciones.py` y luego
+`python herramientas/render_refugio/revit_nativo.py`.
 
 Antes de correr la versión nueva en Revit, **borra lo creado en la corrida anterior** (muros, pisos, cubiertas, puertas,
 ventanas, columnas y árboles). Los tipos y materiales HR- se reutilizan, así que no hace falta borrarlos.
