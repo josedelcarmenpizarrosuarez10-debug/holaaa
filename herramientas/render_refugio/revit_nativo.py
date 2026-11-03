@@ -10,7 +10,7 @@ escribe lee_edificaciones.py desde la PG 01-PG 02, las A 01-A 09 y los DT-01 a D
     columnas TP-1 con su sección de la planta; puertas y ventanas en su vano, con el ancho, alto y alféizar del cuadro de vanos
     de los DT (sobreluz fija sobre las puertas que la llevan); cubiertas a dos aguas con el contorno de la PG-02 (pendiente 30 %,
     arranque en el borde del alero al nivel de viga), hastiales TP-3 en los testeros; E-05 en tres cuerpos (nave central más
-    alta); E-01 con sobretecho sobre el lucernario, abertura en la cubierta y celosías;
+    alta); E-01 con sobretecho sobre el lucernario y celosías;
   - losa deportiva OC-06: losa, 14 columnas y cubierta en arco (cubierta por extrusión, flecha 4.20 sobre columnas de 6.00);
   - pórtico de ingreso OE-01: columnas C-1, viga VG-1, cielo CR-1, parapeto PL-2, muros laterales de perfil, muro M-1, caseta
     y losa inclinada (5.72 a 4.19);
@@ -70,7 +70,7 @@ for e in ED['edificios']:
     e['muros'], e['vigas'] = sin_solapes(e['muros'], e['vigas'], e['puertas'] + e['ventanas'])
     for v in e['puertas'] + e['ventanas']: v['muro'] = anfitrion(e['muros'], v)
     edificios.append({k: e[k] for k in ('cod', 'nombre', 'npt', 'piso', 'muros', 'vigas', 'columnas', 'puertas', 'ventanas', 'techos',
-                                         'hastiales', 'aberturas_techo', 'celosias')})
+                                         'hastiales', 'celosias')})
 
 # ------------------------------------------------------------------ losa deportiva, pórtico OE-01, cerco
 lx0, ly0, lx1, ly1 = D['losa']
@@ -431,22 +431,11 @@ def _principal():
             for h in e['hastiales']:
                 try: muro_perfil(h, W_HAST); suma('hastiales')
                 except Exception as ex_: nota('%s hastial: %s' % (e['cod'], ex_))
-            techo_ppal = None
-            for t in e['techos']:
-                try:
-                    r_ = techo_huella(t['rect'], t['base'], t['pend'], t['eje'], R_CAL); suma('cubiertas a dos aguas')
-                    if not t.get('sobretecho') and techo_ppal is None: techo_ppal = r_
+            for t in e['techos']:                                          # sin abertura bajo el sobretecho: en Revit 2027 la abertura
+                try:                                                       # de cubierta da "Can't change plane of Opening Cut Sketch"
+                    techo_huella(t['rect'], t['base'], t['pend'], t['eje'], R_CAL); suma('cubiertas a dos aguas')
                 except Exception as ex_:
                     nota('%s cubierta: %s' % (e['cod'], ex_))
-            for (x0, y0, x1, y1) in e['aberturas_techo']:                 # lucernario bajo el sobretecho (E-01)
-                try:
-                    doc.Regenerate()
-                    ca = CurveArray()
-                    for a, b in ((P(x0, y0), P(x1, y0)), (P(x1, y0), P(x1, y1)), (P(x1, y1), P(x0, y1)), (P(x0, y1), P(x0, y0))):
-                        ca.Append(Line.CreateBound(a, b))
-                    doc.Create.NewOpening(techo_ppal, ca, True); suma('aberturas de cobertura')
-                except Exception as ex_:
-                    nota('%s abertura de cobertura: %s' % (e['cod'], ex_))
             for c in e['celosias']:
                 try: muro_perfil(c, W_CEL); suma('celosias')
                 except Exception as ex_: nota('%s celosia: %s' % (e['cod'], ex_))
