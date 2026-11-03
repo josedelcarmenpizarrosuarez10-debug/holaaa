@@ -1005,3 +1005,4 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
       - E-05 rotula 6.68 y 7.88; la geometría da 6.45 y 7.65.
   - Los DXF (unos 2.8 GB) no se versionan; quedan ignorados por git.
 - 03-11: encabezado "vacan" para las especificaciones tecnicas del CAR Mujeres (Wilma, CUI 2717013) en Word: encabezado_espec_m.py.
+- 03-11: planteamiento de drenaje exportable para otro chat (como Barranquita): exportables/PLANTEAMIENTO_DRENAJE_PLUVIAL_SKILL.zip + instrucciones con mensaje para pegar.
