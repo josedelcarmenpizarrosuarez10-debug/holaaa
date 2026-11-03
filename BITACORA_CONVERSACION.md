@@ -972,3 +972,4 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   sin personas; vistas nuevas 16 a 21 (bancas, cunetas, colector, planta de la red sin techos, patio, montante).
 - 03-11: índice de planos de arquitectura del Hogar de Refugio con el nuevo Excel de la usuaria (v4, 155 láminas: EM-01 a EM-09 y
   DM-01 a DM-37 en el grupo VII); mismo estilo Word; se corrigen solo los códigos repetidos por copia (A-06, A-08, OC-03/03-03).
+- 03-11: renders del Refugio: el patio cívico es área libre; se quitó la pérgola (techo de madera) de toda la escena; vista 08 = patio cívico.

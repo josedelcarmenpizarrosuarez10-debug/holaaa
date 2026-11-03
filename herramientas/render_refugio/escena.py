@@ -586,18 +586,10 @@ for (xa, ya), (xb, yb) in TRAMOS:
             t = k / nc; bx, by = xa + (xb - xa) * t, ya + (yb - ya) * t
             caja_c('columna_cerco', bx, by, 1.25, 0.28, 0.28, 2.5, 'TP2', ang, CO)
 
-# ------------------------------------------------------------------ plaza con pérgola, juegos, asta
+# ------------------------------------------------------------------ patio cívico (área libre), juegos, asta
 px0, py0, px1, py1 = D['plaza']
 caja('plaza_piso', px0, py0, 0, px1, py1, 0.12, 'adoquin', CO)
-for xx in [px0 + 0.2 + i * ((px1 - px0 - 0.4) / 3) for i in range(4)]:
-    for yy in [py0 + 0.2 + i * ((py1 - py0 - 0.4) / 4) for i in range(5)]:
-        caja('pergola_poste', xx - 0.1, yy - 0.1, 0.12, xx + 0.1, yy + 0.1, 3.0, 'madera', CO)
-for i in range(int((py1 - py0) / 1.5) + 1):
-    yy = py0 + i * 1.5
-    caja('pergola_viga', px0 - 0.3, yy - 0.06, 3.0, px1 + 0.3, yy + 0.06, 3.25, 'madera', CO)
-for i in range(int((px1 - px0) / 0.5) + 1):
-    xx = px0 + i * 0.5
-    caja('pergola_liston', xx - 0.03, py0 - 0.3, 3.25, xx + 0.03, py1 + 0.3, 3.37, 'madera', CO)
+# patio cívico OC-03: área libre, sin pérgola ni techo (indicación de la usuaria, 03-11-2026)
 for b in D['bancas']:
     (bx, by), r = b['p'], math.radians(b['rot'])
     caja_c('banca_base', bx, by, 0.22, 1.6, 0.4, 0.3, 'concreto_gris', r, CO)
