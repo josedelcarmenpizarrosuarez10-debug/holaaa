@@ -165,9 +165,25 @@ def agrega(nombre, grupo, verts, caras, mat):
         rep = f.createIfcShapeRepresentation(cuerpo, 'Body', 'Tessellation', [geo])
     else:
         clase = CLASE_2X3.get(clase, clase)
-        P = [f.createIfcCartesianPoint([round(c, 4) for c in v]) for v in verts]
-        caras_ifc = [f.createIfcFace([f.createIfcFaceOuterBound(f.createIfcPolyLoop([P[i] for i in c]), True)])
-                     for c in caras if len(set(c)) >= 3]
+        clave, P, idx = {}, [], []                                 # puntos únicos por coordenada (sin puntos repetidos en los lazos)
+        for v in verts:
+            k = tuple(round(c, 4) for c in v)
+            if k not in clave:
+                clave[k] = len(P); P.append(f.createIfcCartesianPoint(list(k)))
+            idx.append(clave[k])
+        caras_ifc = []
+        for c in caras:
+            lazo = []
+            for i in c:
+                j = idx[i]
+                if not lazo or lazo[-1] != j:
+                    lazo.append(j)
+            if len(lazo) > 1 and lazo[0] == lazo[-1]:
+                lazo.pop()
+            if len(set(lazo)) == len(lazo) >= 3:
+                caras_ifc.append(f.createIfcFace([f.createIfcFaceOuterBound(f.createIfcPolyLoop([P[j] for j in lazo]), True)]))
+        if not caras_ifc:
+            return
         geo = f.createIfcFacetedBrep(f.createIfcClosedShell(caras_ifc))
         f.createIfcStyledItem(geo, [f.createIfcPresentationStyleAssignment([estilo(mat)])], None)
         rep = f.createIfcShapeRepresentation(cuerpo, 'Body', 'Brep', [geo])
