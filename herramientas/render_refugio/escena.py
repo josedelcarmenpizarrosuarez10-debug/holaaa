@@ -471,27 +471,40 @@ yf, yb = gy0, gy1
 X = lambda d: gx0 + d * (gx1 - gx0) / 13.75
 
 
+def mat_plancha(nombre, color):
+    """Plancha metálica pintada (portones y paños del OE-01): llena, sin vanos, con nervaduras horizontales."""
+    m = bpy.data.materials.new(nombre); nt, N, Lk, p = nodos(m)
+    p.inputs['Base Color'].default_value = color; p.inputs['Metallic'].default_value = 0.55; p.inputs['Roughness'].default_value = 0.42
+    tc = N.new('ShaderNodeTexCoord'); w = N.new('ShaderNodeTexWave'); w.wave_type = 'BANDS'; w.bands_direction = 'Z'
+    w.wave_profile = 'SAW'; w.inputs['Scale'].default_value = 1.6; Lk.new(tc.outputs['Object'], w.inputs['Vector'])
+    bm = N.new('ShaderNodeBump'); bm.inputs['Strength'].default_value = 0.35; bm.inputs['Distance'].default_value = 0.01
+    Lk.new(w.outputs['Fac'], bm.inputs['Height']); Lk.new(bm.outputs['Normal'], p.inputs['Normal'])
+    MATS[nombre] = m
+    return m
+
+
+mat_plancha('plancha_metalica', rgb(58, 60, 63))
+
+
 def celosia(nombre, xa, xb, za, zb, y, paso=0.09):
-    n = int((zb - za) / paso)
-    for k in range(n):
-        z = za + (k + 0.5) * (zb - za) / n
-        caja(nombre, xa, y - 0.02, z - 0.025, xb, y + 0.02, z + 0.02, 'acero', CO)
+    """Paño metálico lleno (sin rejilla), con marco."""
+    caja(nombre, xa, y - 0.02, za, xb, y + 0.02, zb, 'plancha_metalica', CO)
     caja(nombre + '_marco', xa, y - 0.03, za, xb, y + 0.03, za + 0.04, 'negro', CO)
     caja(nombre + '_marco', xa, y - 0.03, zb - 0.04, xb, y + 0.03, zb, 'negro', CO)
 
 
 def porton(nombre, xa, xb, zb, y, hojas=2):
+    """Portón metálico de planchas llenas (sin rejas ni vanos), con marco de tubo y división de hojas."""
     ancho = (xb - xa) / hojas
     for h in range(hojas):
-        a, b = xa + h * ancho + 0.02, xa + (h + 1) * ancho - 0.02
+        a, b = xa + h * ancho + 0.01, xa + (h + 1) * ancho - 0.01
+        caja(nombre + '_plancha', a + 0.04, y - 0.015, 0.09, b - 0.04, y + 0.015, zb - 0.04, 'plancha_metalica', CO)
         caja(nombre + '_m', a, y - 0.03, 0.05, b, y + 0.03, 0.1, 'negro', CO)
         caja(nombre + '_m', a, y - 0.03, zb - 0.05, b, y + 0.03, zb, 'negro', CO)
         caja(nombre + '_m', a, y - 0.03, 0.05, a + 0.05, y + 0.03, zb, 'negro', CO)
         caja(nombre + '_m', b - 0.05, y - 0.03, 0.05, b, y + 0.03, zb, 'negro', CO)
-        n = int((zb - 0.15) / 0.1)
-        for k in range(n):
-            z = 0.12 + k * 0.1
-            caja(nombre + '_l', a + 0.05, y - 0.015, z, b - 0.05, y + 0.015, z + 0.07, 'acero', CO)
+        caja(nombre + '_m', a, y - 0.03, zb / 2 - 0.025, b, y + 0.03, zb / 2 + 0.025, 'negro', CO)       # travesaño
+        caja(nombre + '_manija', (b - 0.12 if h == 0 else a + 0.06), y - 0.06, 1.0, (b - 0.06 if h == 0 else a + 0.12), y - 0.03, 1.15, 'acero', CO)
 
 
 caja('oe01_piso', gx0 - 0.5, yf - 0.6, 0, gx1 + 0.5, yb + 0.6, 0.05, 'vereda', CO)
@@ -565,7 +578,7 @@ for (xa, ya), (xb, yb) in TRAMOS:
     if L < 0.5:
         continue
     ang = math.atan2(yb - ya, xb - xa); cx, cy = (xa + xb) / 2, (ya + yb) / 2
-    frontal = ya < 19.5 and yb < 19.5
+    frontal = False                                                  # frente también con muro: no van rejas en el ingreso
     if frontal:
         caja_c('cerco_base', cx, cy, 0.3, L, 0.2, 0.6, 'TP3', ang, CO)
         nb = int(L / 0.14)
