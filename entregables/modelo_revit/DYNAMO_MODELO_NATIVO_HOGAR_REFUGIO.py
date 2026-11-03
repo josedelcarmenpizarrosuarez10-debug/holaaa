@@ -64,13 +64,43 @@ def _principal():
 
     # ---------------- tipos de muro, piso y cubierta de una capa
     def tipo(clase, base_nombre, nombre, ancho, mat, funcion=MaterialFunctionAssignment.Structure):
+        """Tipo de una sola capa (espesor y material); si ya existe (corrida anterior) se le vuelve a fijar la capa."""
         ex = [t for t in FilteredElementCollector(doc).OfClass(clase).ToElements() if t.Name == nombre]
-        if ex: return ex[0]
-        bases = [t for t in FilteredElementCollector(doc).OfClass(clase).ToElements()
-                 if (clase != WallType or t.Kind == WallKind.Basic) and t.GetCompoundStructure() is not None]
-        t = doc.GetElement(bases[0].Duplicate(nombre).Id)
-        cs = CompoundStructure.CreateSingleLayerCompoundStructure(funcion, ft(ancho), mat)
-        t.SetCompoundStructure(cs)
+        if ex:
+            t = ex[0]
+        else:
+            bases = [t for t in FilteredElementCollector(doc).OfClass(clase).ToElements()
+                     if (clase != WallType or t.Kind == WallKind.Basic) and t.GetCompoundStructure() is not None]
+            t = doc.GetElement(bases[0].Duplicate(nombre).Id)
+        errores = []
+        # 1) la estructura del tipo base con una sola capa (núcleo) del espesor y material pedidos
+        try:
+            cs = t.GetCompoundStructure()
+            capas = List[CompoundStructureLayer]()
+            capas.Add(CompoundStructureLayer(ft(ancho), funcion, mat))
+            cs.SetLayers(capas)
+            cs.SetNumberOfShellLayers(ShellLayerType.Exterior, 0)
+            cs.SetNumberOfShellLayers(ShellLayerType.Interior, 0)
+            try: cs.StructuralMaterialIndex = 0
+            except Exception: pass
+            t.SetCompoundStructure(cs)
+            return t
+        except Exception as ex_:
+            errores.append(str(ex_).split('\n')[0])
+        # 2) estructura nueva de una capa
+        try:
+            t.SetCompoundStructure(CompoundStructure.CreateSingleLayerCompoundStructure(funcion, ft(ancho), mat))
+            return t
+        except Exception as ex_:
+            errores.append(str(ex_).split('\n')[0])
+        # 3) solo el material en todas las capas del tipo base (espesor del tipo base)
+        try:
+            cs = t.GetCompoundStructure()
+            for i in range(cs.LayerCount): cs.SetMaterialId(i, mat)
+            t.SetCompoundStructure(cs)
+        except Exception as ex_:
+            errores.append(str(ex_).split('\n')[0])
+        nota('%s: %s' % (nombre, ' | '.join(errores)))
         return t
 
     W_TP2 = tipo(WallType, '', 'HR-Muro TP-2 e=0.15', 0.15, TP2)
