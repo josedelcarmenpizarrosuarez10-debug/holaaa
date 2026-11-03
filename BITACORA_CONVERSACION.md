@@ -974,3 +974,4 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   DM-01 a DM-37 en el grupo VII); mismo estilo Word; se corrigen solo los códigos repetidos por copia (A-06, A-08, OC-03/03-03).
 - 03-11: renders del Refugio: el patio cívico es área libre; se quitó la pérgola (techo de madera) de toda la escena; vista 08 = patio cívico.
 - 03-11: fachada del Refugio: portones y celosías del OE-01 de plancha metálica llena (no rejilla), cerco del frente de muro (no van rejas en el ingreso); solo 3 vistas de fachada: 04 frontal, 05 ingreso y 22 perspectiva.
+- 03-11: "quiero que exportes todo a Revit": no se puede manejar Revit desde la nube; se exporto el modelo 3D completo a IFC4 (exporta_ifc.py), validado con ifcopenshell (0 errores de esquema, 2548 elementos con geometria), en entregables/modelo_revit/.
