@@ -1027,3 +1027,4 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   regla de copas que tampoco cruzan el cerco y pavimento recortado al contorno diagonal de las áreas verdes del frente. Las 21 imágenes de la serie
   y `refugio.blend` son anteriores a esos cambios; la PL1 ya tiene todos salvo el recorte (borde en escalones junto a esas áreas verdes). Para
   actualizar: `escena.py` y luego `render.py serie_planos 192 1920`.
+- 03-11: planteamiento de drenaje exportable para otro chat (como Barranquita): exportables/PLANTEAMIENTO_DRENAJE_PLUVIAL_SKILL.zip + instrucciones con mensaje para pegar.
