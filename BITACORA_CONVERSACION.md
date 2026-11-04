@@ -1010,3 +1010,20 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - 03-11: encabezado "vacan" para las especificaciones tecnicas del CAR Mujeres (Wilma, CUI 2717013) en Word: encabezado_espec_m.py.
 - 03-11: segunda corrida: "Can't change plane of Opening Cut Sketch" = la abertura de la cubierta de E-01 bajo el sobretecho
   (NewOpening sobre la cubierta por huella). Se quitó del script; el sobretecho y las celosías quedan.
+- 03-11: renders con las edificaciones de los planos. Pedido: "7 vistas perspectiva aérea, dos fotos de la fachada, dos entre las
+  edificaciones como si alguien parado mirando, las demás a tu criterio... que sea realista". Lumion no se puede manejar desde
+  aquí: Blender 4.2 LTS portable (Cycles con la RTX 4060, OptiX). `escena.py` usa `edificaciones_revit.json` (muros reales con
+  vanos, puertas y ventanas de los DT, vigas y columnas a la altura de los cortes, cubiertas PG-02 al 30 % con cierre TP-3 sobre
+  la viga en los muros largos, nave del SUM, sobretecho con celosías de E-01). 21 vistas en
+  `entregables/renders_hogar_refugio/modelo_planos/`: A1-A7 aéreas, F1-F2 fachada, P1 eje central y P2 entre pabellones
+  (peatonales), O1 patio cívico, O2 administración, O3 SUM y juegos, O4 losa deportiva, E1-E2 estacionamientos, B1-B2 biohuerto,
+  T1 tanque, D1 patio de descarga y PTAR. Sin personas.
+  Correcciones de la usuaria: "revisa el área de estacionamiento... va cada detalle" (OE-02/03, biohuerto con su techito, OC-02,
+  OE-04 a OE-07 según sus láminas); "árboles que pasan el techo" (regla: ningún árbol atraviesa una cobertura); "PTAR... es tierra
+  o hierba nada más" (sin piso de concreto, solo las tapas); "las bancas... están metidas hacia dentro" (OC-03 con los contornos
+  de la lámina: la banca da al patio, al ras, y el sardinel la rodea por detrás).
+- 04-11: vista en planta PL1 (`PL1_PLANTA_GENERAL_HOGAR_REFUGIO.jpg`, 1350 x 2400). La usuaria pidió cerrar aquí. Quedan en los generadores, sin
+  renderizar: nuevos encuadres de A1-A7, P1 y B1, menos sol y más luz de cielo, nubes, pasto sin cuadrícula, follaje en los árboles del entorno,
+  regla de copas que tampoco cruzan el cerco y pavimento recortado al contorno diagonal de las áreas verdes del frente. Las 21 imágenes de la serie
+  y `refugio.blend` son anteriores a esos cambios; la PL1 ya tiene todos salvo el recorte (borde en escalones junto a esas áreas verdes). Para
+  actualizar: `escena.py` y luego `render.py serie_planos 192 1920`.

@@ -17,5 +17,22 @@ Modelo 3D en Blender (bpy 4.2, Python 3.11) armado con los planos de la arquitec
   edificación, losa del colector b = 0.80 con tapas ciegas y juntas de 1".
 - `render.py <vista|todas> <muestras> <ancho>`: 22 cámaras (22 = fachada en perspectiva) (`SALIDA_RENDERS` = carpeta de salida); la 19 es la planta de la red
   de drenaje sin coberturas ni árboles, en formato vertical como el plano.
-- Colores (cuadro de la arquitecta): TP-1 RGB 123-31-45, TP-2 RGB 125-133-139, TP-3 RAL 9010; vista "Standard" para que salgan tal cual.
+- Colores (cuadro de la arquitecta): TP-1 RGB 123-31-45, TP-2 RGB 125-133-139, TP-3 RAL 9010; la serie con las edificaciones usa la vista AgX.
+- Serie con las edificaciones de los planos (03-11-2026): `escena.py` toma de `edificaciones_revit.json` (de
+  `lee_edificaciones.py`, el mismo dato del modelo Revit) los muros reales con sus vanos, puertas y ventanas con el tamaño de
+  los DT, vigas y columnas a la altura de los cortes, cubiertas de la PG-02 al 30 %, la nave alta del SUM y el sobretecho con
+  celosías de la administración. 22 vistas: 7 aéreas (A1-A7), 2 de fachada (F1-F2), 2 peatonales entre edificaciones (P1-P2),
+  4 más (O1-O4), estacionamientos (E1-E2), biohuerto (B1-B2), tanque (T1), patio de descarga y PTAR (D1), planta general (PL1):
+  `blender -b -P render.py -- serie_planos 192 1920` con `SALIDA_RENDERS=../../entregables/renders_hogar_refugio/modelo_planos`
+  y `FORMATO_RENDERS=JPG`.
+- En Windows: Blender 4.2 LTS portable (`D:/PROYECTOS/blender`, con shapely instalado en su Python):
+  `blender.exe -b --factory-startup --python escena.py` y luego el `render.py` de arriba (usa la GPU OptiX o CUDA si la hay).
+- Exteriores de la serie, cada uno con su lámina: OE-02/03 estacionamientos (coberturas TR-4 en arco, autos y motos armados con
+  primitivas), biohuerto, OC-02, OC-03 patio cívico (contornos de la capa 1-TEXTURA PISOS: el sardinel rodea cada banca por detrás
+  y la banca da al patio, al ras), OE-04 patio de descarga, OE-05 cerco, OE-06 tanque elevado, OE-07 PTAR (piso de tierra o hierba,
+  sin concreto: del tanque y los pozos enterrados solo asoman las tapas).
+- `cerco_columnas.json`: ejes de las columnas del cerco, leídos de la capa `1-COLUMNA CERCO PERIMETRICO` del DXF; es un dato
+  versionado, no lo genera ningún script de esta carpeta.
+- Árboles: se descartan los que no caben; la copa se reduce donde hay poco espacio y ninguno atraviesa una cobertura ni el cerco.
+- Tono: vista AgX (`AgX - High Contrast`, exposición -1.0), 10 rebotes, luz de cielo 1.15 e intensidad del sol 0.23; nubes solo en los rayos de cámara.
 - Assets libres: `sh descarga_assets.sh`. Los DXF de la arquitecta (650 MB) no se versionan.
