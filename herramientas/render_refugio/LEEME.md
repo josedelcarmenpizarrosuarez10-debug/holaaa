@@ -34,5 +34,6 @@ Modelo 3D en Blender (bpy 4.2, Python 3.11) armado con los planos de la arquitec
 - `cerco_columnas.json`: ejes de las columnas del cerco, leídos de la capa `1-COLUMNA CERCO PERIMETRICO` del DXF; es un dato
   versionado, no lo genera ningún script de esta carpeta.
 - Árboles: se descartan los que no caben; la copa se reduce donde hay poco espacio y ninguno atraviesa una cobertura ni el cerco.
-- Tono: vista AgX (`AgX - High Contrast`, exposición -1.0), 10 rebotes, luz de cielo 1.15 e intensidad del sol 0.23; nubes solo en los rayos de cámara.
+- Tono: vista AgX (`AgX - High Contrast`, exposición -1.0), 10 rebotes. Cielo en dos ramas: lo que ve la cámara (intensidad 1.15, con nubes) y lo que ilumina
+  la escena (intensidad 0.22, o 0.5 con sol bajo, sol 0.23 y luz blanca de las nubes, que rellena las sombras).
 - Assets libres: `sh descarga_assets.sh`. Los DXF de la arquitecta (650 MB) no se versionan.

@@ -1756,9 +1756,11 @@ Lk.new(cw.outputs['Vector'], nw.inputs['Vector'])
 rw = N.new('ShaderNodeMapRange'); rw.inputs['From Min'].default_value = 0.53; rw.inputs['From Max'].default_value = 0.68; Lk.new(nw.outputs['Fac'], rw.inputs['Value'])
 hw = N.new('ShaderNodeMapRange'); hw.inputs['From Min'].default_value = 0.0; hw.inputs['From Max'].default_value = 0.10; Lk.new(sw.outputs['Z'], hw.inputs['Value'])
 mw = N.new('ShaderNodeMath'); mw.operation = 'MULTIPLY'; Lk.new(rw.outputs[0], mw.inputs[0]); Lk.new(hw.outputs[0], mw.inputs[1])
-bgn = N.new('ShaderNodeBackground'); bgn.inputs['Color'].default_value = (1.0, 0.99, 0.97, 1); bgn.inputs['Strength'].default_value = 2.6   # nubes
+bgn = N.new('ShaderNodeBackground'); bgn.inputs['Color'].default_value = (1.0, 0.99, 0.97, 1); bgn.inputs['Strength'].default_value = 2.6   # luz blanca de las nubes: rellena las sombras
 msn = N.new('ShaderNodeMixShader'); Lk.new(mw.outputs[0], msn.inputs['Fac']); Lk.new(bg.outputs['Background'], msn.inputs[1]); Lk.new(bgn.outputs['Background'], msn.inputs[2])
-Lk.new(lp.outputs['Is Camera Ray'], ms.inputs['Fac']); Lk.new(msn.outputs['Shader'], ms.inputs[1]); Lk.new(bg2.outputs['Background'], ms.inputs[2])
+bgc = N.new('ShaderNodeBackground'); bgc.inputs['Color'].default_value = (1.0, 0.99, 0.97, 1); bgc.inputs['Strength'].default_value = 3.2   # nubes que ve la cámara
+msc = N.new('ShaderNodeMixShader'); Lk.new(mw.outputs[0], msc.inputs['Fac']); Lk.new(bg2.outputs['Background'], msc.inputs[1]); Lk.new(bgc.outputs['Background'], msc.inputs[2])
+Lk.new(lp.outputs['Is Camera Ray'], ms.inputs['Fac']); Lk.new(msn.outputs['Shader'], ms.inputs[1]); Lk.new(msc.outputs['Shader'], ms.inputs[2])
 Lk.new(ms.outputs['Shader'], N['World Output'].inputs['Surface'])
 sc.render.engine = 'CYCLES'; sc.cycles.device = 'CPU'; sc.cycles.samples = 64; sc.cycles.use_denoising = True
 sc.cycles.max_bounces = 10; sc.cycles.diffuse_bounces = 5; sc.cycles.glossy_bounces = 3; sc.cycles.transparent_max_bounces = 12
