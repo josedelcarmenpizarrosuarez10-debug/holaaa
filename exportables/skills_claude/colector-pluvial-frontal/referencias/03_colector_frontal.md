@@ -1,3 +1,7 @@
+> **Casos de ejemplo.** Este archivo documenta proyectos ya trabajados para mostrar el método. Sus valores (nombres, CUI,
+> dimensiones, niveles, lluvias, cantidades, colores, códigos de lámina) **no se usan en un proyecto nuevo**: se toman de sus
+> planos y documentos o se le preguntan al usuario.
+
 # 03 — Colector pluvial frontal cubierto (diseño completo)
 
 Base de conocimiento del colector pluvial frontal compartido por tres expedientes del predio Los Mangos, Morales (San Martín).

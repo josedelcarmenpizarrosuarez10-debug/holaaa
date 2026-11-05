@@ -1,3 +1,7 @@
+> **Casos de ejemplo.** Este archivo documenta proyectos ya trabajados para mostrar el método. Sus valores (nombres, CUI,
+> dimensiones, niveles, lluvias, cantidades, colores, códigos de lámina) **no se usan en un proyecto nuevo**: se toman de sus
+> planos y documentos o se le preguntan al usuario.
+
 # 08 — Documentos del expediente y sus formatos
 
 Base de conocimiento permanente (vigente al 24-10-2026). Recoge cómo se arman, con qué formato y con qué datos, todos los

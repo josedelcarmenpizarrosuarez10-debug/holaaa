@@ -1,6 +1,6 @@
 ---
 name: programa-drenie
-description: Usar, mantener y ampliar DrenIE, el programa de escritorio de drenaje pluvial que el usuario vende con licencia (Windows, interfaz Tauri y motor de cálculo en Python), en especial la pestaña RED DE CUNETAS que lee el plano DXF del local, plantea la red con descargas por gravedad, calcula lluvia, caudales y secciones y entrega planos DXF y PNG, metrado, memorias, memoria de cálculo y especificaciones. Incluye las reglas del usuario para el programa (solo hasta metrados, todo en español, el programa propone y el proyectista elige), el flujo de pestañas, órdenes del motor, visor tipo CAD, lluvia PISCO-SENAMHI, mapas de ubicación, licencias, actualizaciones firmadas, reglas de seguridad de las claves y pendientes. Usar cuando el usuario hable de DrenIE, de su programa de drenaje, de licencias o versiones, o pida una mejora del programa.
+description: "Usar, mantener y ampliar DrenIE, el programa de escritorio de drenaje pluvial que el usuario vende con licencia (Windows, interfaz Tauri y motor de cálculo en Python), en especial la pestaña RED DE CUNETAS que lee el plano DXF del local, plantea la red con descargas por gravedad, calcula lluvia, caudales y secciones y entrega planos DXF y PNG, metrado, memorias, memoria de cálculo y especificaciones. Incluye las reglas del usuario para el programa (solo hasta metrados, todo en español, el programa propone y el proyectista elige), pestañas, motor, visor tipo CAD, lluvia PISCO-SENAMHI, mapas, licencias, actualizaciones firmadas, seguridad de claves y pendientes. Usar cuando el usuario hable de DrenIE, de su programa de drenaje, de licencias o versiones, o pida una mejora del programa. Sirve para cualquier tipo de local y región: los datos de cada proyecto salen de su plano."
 ---
 
 # Programa DrenIE: red de cunetas desde el plano
@@ -9,22 +9,26 @@ DrenIE es el programa de escritorio de drenaje pluvial del usuario (Windows, ins
 La versión 3.0.2 trae las pestañas de siempre; la 3.1.0 agrega la **RED DE CUNETAS**: lee el plano general en DXF, propone la
 red y entrega el expediente de drenaje. Los criterios técnicos completos están en los skills `planteamiento-drenaje-pluvial`,
 `hidrologia-drenaje-pluvial`, `metrado-drenaje-delphin` y `planos-dxf-escala-real`; aquí va cómo es y cómo se trabaja el programa.
+Sirve para cualquier local (colegio, CAR, hogar, posta, municipalidad, mercado…) y región: todo dato del proyecto sale de su
+plano o lo ingresa el proyectista.
 El código del programa no está en este chat: pedirlo al usuario (zip de fuentes) si hay que cambiar algo.
 
-## Reglas permanentes del usuario (no negociables)
+## Reglas permanentes del usuario (valen para todo proyecto)
 - Todo en español. Entregables en **Word, Excel y DXF**; vistas previas en **PNG**; PDF solo si el usuario lo pide.
 - **Escala real: 1 unidad = 1 m** ("si algo mide 0.56, así debe medir en el plano").
 - Decir siempre **"cota de fondo"**.
-- Citar cada proyecto por su **nombre completo y su CUI**. No mezclar partidas, láminas ni datos entre proyectos.
+- Citar cada proyecto por su **nombre completo y su CUI** (o código de inversión). No mezclar partidas, láminas ni datos entre proyectos.
 - **Nada en los documentos que revele el uso de IA.** Nombre y CIP del proyectista: **campos en blanco**.
 - **No modificar** los metrados ni los documentos del usuario salvo pedido expreso; cambiar solo lo pedido y verificar
   que lo demás quede idéntico (cotejo antes y después).
-- Partidas con nombres y estructura **Delphin**; cantidades siempre del metrado propio. Precios reales con su fuente;
-  mano de obra CAPECO-FTCCP 2026 (operario 28.95, oficial 22.68, peón 20.54 S/ por hora) salvo que el usuario dé otra.
+- Partidas con nombres y estructura **Delphin**; cantidades siempre del metrado propio. Precios reales con su fuente y fecha;
+  mano de obra según la tabla CAPECO vigente o la que indique el usuario.
 - Actualizar todo lo relacionado de forma coherente: **metrado ↔ planos ↔ especificaciones ↔ memoria**.
 - **Cuando el usuario ya imprimió un plano, no se regenera**: los cambios van a los documentos y se le avisan.
 - Las observaciones sobre documentos de otros profesionales van en una **nota de revisión interna**, nunca dentro del documento.
 - No reenviar archivos que no cambiaron. Preguntar lo dudoso antes de producir, con una imagen de control si hace falta.
+- **Ningún dato de un proyecto anterior se usa en uno nuevo** (colores, dimensiones, niveles, lluvias, cantidades, nombres):
+  todo sale de los planos y documentos del proyecto nuevo o se le pregunta al usuario. Los proyectos citados son solo ejemplos.
 - Revisar el trabajo propio varias veces antes de entregar; decir con claridad lo que no se pudo comprobar.
 
 ## 1. Reglas del usuario para el programa
@@ -56,12 +60,14 @@ El código del programa no está en este chat: pedirlo al usuario (zip de fuente
 
 ## 3. Pestañas y flujo de trabajo
 ARCHIVO · PROYECTO · LLUVIA · **RED DE CUNETAS** · TECHOS Y ÁREAS · CUNETAS · MONTANTES · METRADO · RESULTADOS · CONFIGURACIÓN
-(DRENAJE VIAL oculta). Tema claro: Poppins, azul marino #0B2545 y celeste #1EA7F2.
+(DRENAJE VIAL oculta). Tema de la interfaz del programa (no de los proyectos): Poppins, azul marino #0B2545
+y celeste #1EA7F2.
 0. **LLUVIA**: curva IDF por análisis estadístico de la estación (o curva ingresada); botón «Lluvia PISCO-SENAMHI» en Análisis
    estadístico (§6). La red usa esa misma lluvia (intensidad para el tc de diseño, con su fuente; avisa si es la curva de ejemplo).
 1. RED DE CUNETAS → «Nuevo desde plano DXF» → «Elegir plano DXF»: el programa propone las capas de cerco, techos, curvas de nivel,
    veredas, muros y líneas de cuneta del proyectista; se revisan. Sin curvas: terreno en LandXML.
-2. Datos: nombre, CUI, entidad, ubicación, NPT (borde de cuneta), nivel del área verde.
+2. Datos del proyecto nuevo: nombre, CUI, tipo de local, entidad, ubicación, NPT (borde de cuneta), nivel del área verde
+   (nunca los de un proyecto anterior).
 3. Planteamiento: «Completar mis líneas de cuneta» (recomendado: solo agrega cuneta donde un montante no llega), «Proponer toda la
    red» o «Solo mis líneas de cuneta».
 4. «Crear y abrir el proyecto» → visor (§4). Lo dibujado se guarda solo en la carpeta del proyecto.
@@ -88,8 +94,8 @@ dato (suele ser de otro plano o una cota relativa). La misma lista va en la hoja
 
 ## 6. Lluvia PISCO-SENAMHI (serie referencial)
 Máxima en 24 h de cada mes (1981-2025) de cualquier distrito o coordenada del Perú desde PISCOp v3.0 (va dentro del programa, sin
-internet), corregida por el factor estación / PISCO interpolado entre 8 estaciones de San Martín (1.04 a 1.57; a más de 80 km, 1.00
-con aviso). «Traer serie» y «Cargar en la tabla de lluvias» (misma tabla que «Importar Excel»); en la demo, los últimos 30 años.
+internet), corregida por el factor estación / PISCO interpolado entre las estaciones calibradas en la base (hoy solo 8 de San Martín, como
+ejemplo de partida); a más de 80 km de ellas, 1.00 con aviso: para otras regiones hay que calibrar estaciones de esa región. «Traer serie» y «Cargar en la tabla de lluvias» (misma tabla que «Importar Excel»); en la demo, los últimos 30 años.
 Es **referencial**: para el expediente se usa la serie certificada de la estación más cercana. Factores y método: skill de hidrología.
 La base se arma en la PC del usuario reduciendo el NetCDF diario de PISCOp a máximas mensuales por celda (el eje de tiempo puede
 llamarse «Z1»).
@@ -115,12 +121,13 @@ deformarse. El distrito elegido en el editor manda sobre las coordenadas (con av
   (NPT, borde, área verde, plataformas, rampas, escaleras, bordes por eje), `superficies` y `superficies_cfg` (leyenda, rótulos,
   asignaciones, por defecto), `techos_caida`, `secciones` o `dimensionamiento_adoptado`, `lluvia`, `descargas`, `planteamiento`
   («completar», «automatico», «no»), `descarga_alternativa`, `ubicacion`, `planos` (prefijo y número inicial) y `parametros` (b mínimo
-  0.30, b máximo 0.40, paso 0.05, h inicial 0.30, S 0.5 %, espesores 0.10, una medida por sector, lloraderos @1.50, todo cambiable).
+  0.30, b máximo 0.40, paso 0.05, h inicial 0.30, S 0.5 %, espesores 0.10, una medida por sector, lloraderos @1.50: criterios por
+  defecto del usuario, cambiables y a confirmar en cada proyecto).
 - Visor y motor se comunican por archivos JSON: escena y observaciones hacia el visor; ediciones y soluciones elegidas hacia el motor.
 
 ## 9. Entregables de «Calcular todo»
 Planos en un solo DXF con una presentación por lámina (U-01, DC-01 planta, DC-02 cuadros, perfiles, secciones, una lámina 1/25 por
-descarga, detalles, estructuras) y un PNG por lámina; METRADO_DRENAJE_PLUVIAL.xlsx (formato del CAR Mujeres, partidas Delphin, con
+descarga, detalles, estructuras) y un PNG por lámina; METRADO_DRENAJE_PLUVIAL.xlsx (formato de metrado del usuario, partidas Delphin, con
 fórmulas); MEMORIA_CALCULO (Excel con fórmulas: datos, serie, frecuencias, K-S, IDF, superficies, Manning por tramo, canaletas y
 montantes, sumideros, descargas, perfil de flujo, estructuras, tapa vehicular, normas y fuentes); memorias hidrológica y descriptiva,
 especificaciones técnicas (una ficha por partida), carátulas e índice de planos (Word); DIMENSIONAMIENTO.xlsx (columna ADOPTADO para
@@ -143,8 +150,9 @@ red en EPA SWMM 5 (.inp y su reporte). Documentos sin nombre ni CIP del proyecti
 
 ## 11. Pendientes propuestos (hacer solo si el usuario lo aprueba)
 Capacidad de rejillas y sumideros (HEC-22), zanjas de infiltración, manual de usuario en Word y video largo, aviso de vencimiento de
-licencia, exportar la red a Google Earth (KMZ), simulación de lluvia en 3D, más estaciones para el factor PISCO (serie diaria completa
-de Picota, coordenadas exactas de Jepelacio, Sauce y San Antonio; Rioja, Moyobamba, Juanjuí, Tocache, Bellavista, Yurimaguas).
+licencia, exportar la red a Google Earth (KMZ), simulación de lluvia en 3D, más estaciones para el factor PISCO en cada región donde se
+trabaje (ejemplo pendiente en San Martín: serie completa de Picota, coordenadas exactas de Jepelacio, Sauce y San Antonio, y Rioja,
+Moyobamba, Juanjuí, Tocache, Bellavista, Yurimaguas).
 
 ## 12. Antes de entregar una versión
 - [ ] Batería de pruebas (ejemplos reales y terrenos inventados) sin caídas ni fallas sin explicar; regresiones de DrenIE iguales.

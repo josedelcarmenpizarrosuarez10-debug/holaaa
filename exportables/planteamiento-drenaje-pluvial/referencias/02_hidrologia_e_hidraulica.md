@@ -1,3 +1,7 @@
+> **Casos de ejemplo.** Este archivo documenta proyectos ya trabajados para mostrar el método. Sus valores (nombres, CUI,
+> dimensiones, niveles, lluvias, cantidades, colores, códigos de lámina) **no se usan en un proyecto nuevo**: se toman de sus
+> planos y documentos o se le preguntan al usuario.
+
 # 02 — Hidrología e hidráulica de diseño
 
 Base de conocimiento permanente. Reúne todo lo aprendido desde el 3 de octubre de 2026 sobre lluvia de diseño, caudales,

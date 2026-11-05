@@ -1,3 +1,7 @@
+> **Casos de ejemplo.** Este archivo documenta proyectos ya trabajados para mostrar el método. Sus valores (nombres, CUI,
+> dimensiones, niveles, lluvias, cantidades, colores, códigos de lámina) **no se usan en un proyecto nuevo**: se toman de sus
+> planos y documentos o se le preguntan al usuario.
+
 # 05 — Planos DXF: estilo, láminas, plantas, perfiles, secciones, detalles e isométricos
 
 Base de conocimiento permanente del dibujo de planos de drenaje pluvial (colectores frontales y cunetas) del repositorio.

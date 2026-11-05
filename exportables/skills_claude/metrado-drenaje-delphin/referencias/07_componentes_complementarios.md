@@ -1,3 +1,7 @@
+> **Casos de ejemplo.** Este archivo documenta proyectos ya trabajados para mostrar el método. Sus valores (nombres, CUI,
+> dimensiones, niveles, lluvias, cantidades, colores, códigos de lámina) **no se usan en un proyecto nuevo**: se toman de sus
+> planos y documentos o se le preguntan al usuario.
+
 # 07 — Componentes complementarios del drenaje pluvial
 
 Base de conocimiento permanente (desde el 03-10-2026). Cubre todo lo que no es el colector frontal en sí: red de techo
