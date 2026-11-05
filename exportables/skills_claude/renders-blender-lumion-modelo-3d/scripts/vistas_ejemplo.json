@@ -1,0 +1,8 @@
+{
+  "sufijo": "_EJEMPLO",
+  "vistas": {
+    "A1_aerea": {"pos": [-22, -30, 28], "mira": [15.53, 11.27, 0], "focal": 45.2, "sol_elev": 42, "sol_rot": 205},
+    "P1_peatonal": {"pos": [10, 3, 1.65], "mira": [26, 13, 2.2], "focal": 22, "sol_elev": 48, "sol_rot": 230},
+    "PL1_planta": {"pos": [20, 15, 150], "mira": [20, 15.01, 0], "focal": 0, "escala": 60, "vertical": true, "sol_elev": 72, "sol_rot": 200}
+  }
+}

@@ -40,7 +40,7 @@ todo al final. Sirve para cualquier proyecto y tipo de obra; los proyectos que c
 | Carátulas, lomos, separadores, índices, encabezados | `expediente-caratulas-lomos-indices` |
 | Plan de Seguridad y Salud en el Trabajo, IPERC | `psst-iperc-obra` |
 | Estudio de gestión de riesgos en la ejecución de obra, matriz de riesgos, reserva de contingencia | `gestion-riesgos-ejecucion-obra` |
-| Renders, modelo 3D, IFC, Revit, Dynamo, Lumion | `renders-revit-modelo-3d` |
+| Renders, modelo 3D, maqueta, Blender, Cycles, Lumion | `renders-blender-lumion-modelo-3d` |
 | Observaciones del evaluador, subsanar, corregir o anexar a un documento ya presentado | `levantamiento-observaciones-expediente` |
 | Informe técnico de culminación o consistencia (Invierte.pe, Formato 08-A) de un expediente | `informe-tecnico-obra` |
 | Asesoría de tesis (objetivos, resultados, discusión, formato de la universidad) | `tesis-academica` |
@@ -87,7 +87,7 @@ Si falta algo, preguntar antes de producir; si se supone algo, decirlo en el rep
 9. Revisión final (sección 4).
 ### 3.3 Arquitectura, señalización y mobiliario
 Lectura de los planos de la arquitecta → `revision-arquitectura-normativa` (nota interna, sin corregir el plano ajeno) →
-`senalizacion-mobiliario-metrado` (metrado = lo dibujado) → memorias y especificaciones → `renders-revit-modelo-3d` si se piden.
+`senalizacion-mobiliario-metrado` (metrado = lo dibujado) → memorias y especificaciones → `renders-blender-lumion-modelo-3d` si se piden.
 ### 3.4 PSST y gestión de riesgos
 Presupuesto y cronograma → partidas → peligros (PSST) o riesgos (estudio) → matriz Excel con fórmulas → Word con tablas y
 gráficos → plano de riesgos si corresponde. Cada uno en su carpeta y documento, sin mezclarse.
