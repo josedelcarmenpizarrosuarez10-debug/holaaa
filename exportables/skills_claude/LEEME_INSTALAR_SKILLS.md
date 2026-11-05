@@ -1,6 +1,6 @@
 # Skills para Claude (claude.ai): expediente técnico, drenaje pluvial y obra
 
-Son 16 skills; cada `.zip` es uno. Todos llevan las mismas reglas permanentes del usuario: Word, Excel y DXF a escala
+Son 17 skills; cada `.zip` es uno. Todos llevan las mismas reglas permanentes del usuario: Word, Excel y DXF a escala
 real, "cota de fondo", nombre y CIP en blanco, nada que revele uso de IA, partidas Delphin y no tocar lo que no se pide.
 
 | N.° | Archivo | Para qué |
@@ -21,6 +21,7 @@ real, "cota de fondo", nombre y CIP en blanco, nada que revele uso de IA, partid
 | 14 | `levantamiento-observaciones-expediente.zip` | Levantar observaciones y editar documentos ya presentados sin romperlos |
 | 15 | `informe-tecnico-obra.zip` | Informe de culminación y consistencia del expediente (Formato 08-A) |
 | 16 | `tesis-academica.zip` | Asesoría de tesis con el formato de la universidad |
+| 17 | `programa-drenie.zip` | Usar, mantener y ampliar el programa DrenIE (licencias, versiones, pestaña de cunetas) |
 
 ## Cómo instalarlos
 1. En claude.ai entra a **Configuración → Capacidades** y activa la opción de skills, si no está activa.

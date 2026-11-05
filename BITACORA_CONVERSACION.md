@@ -1029,3 +1029,4 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   actualizar: `escena.py` y luego `render.py serie_planos 192 1920`.
 - 03-11: planteamiento de drenaje exportable para otro chat (como Barranquita): exportables/PLANTEAMIENTO_DRENAJE_PLUVIAL_SKILL.zip + instrucciones con mensaje para pegar.
 - 05-11: 13 skills para claude.ai sacados de todo el trabajo (coordinador, drenaje, colector, hidrologia, metrado, planos, memorias, senalizacion/mobiliario, arquitectura, expediente, PSST, riesgos, renders/Revit) en exportables/skills_claude*; front matter YAML validado.
+- 05-11: skills complementados con las sesiones de Claude Code (Gestion de riesgos SM-107, PSST, DRENIE, Informe 044 Chazuta, Tesis); nuevos: informe-tecnico-obra, tesis-academica, levantamiento-observaciones-expediente, programa-drenie; renders con Lumion y fidelidad lamina por lamina. Total 17.
