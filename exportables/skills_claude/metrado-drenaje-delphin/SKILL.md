@@ -225,7 +225,7 @@ MÉTODO DE MEDICIÓN, FORMA DE PAGO ("al precio unitario del presupuesto por <un
 - Reemplazar citas de láminas excluidas por otras: se borra la cita y el valor no se toca.
 - Leer el "1.40" (ancho de zanja o franja de trabajo) como ancho del colector.
 - Rótulo NCF que no cierra con la pendiente usado sin avisar (Eje 04: 259.66 era 260.42).
-- Proponer presupuesto con ACU como "lo que más falta": rechazado; solo metrados.
+- Proponer para el programa de drenaje un presupuesto con ACU como "lo que más falta": rechazado; solo metrados.
 - "¿Por qué el Excel está protegido? me redondea decimales": sin protección y con todos los decimales.
 - Horas-hombre de una obra puestas en el archivo de otra: se devolvió el archivo a su original.
 - Conteos de soportes muy grandes entregados sin revisar con el usuario ("1616 soportes es demasiado").

@@ -121,7 +121,17 @@ Zonas fijas: vistas arriba; leyenda, notas y cuadros en la franja inferior (~110
   rejilla/tapada) → registros exactamente donde entrega cada cuneta → juntas → flechas (cada 5 m y en cada quiebre) → progresivas
   cada 10 m → rótulos → grilla UTM y norte → cuadro de coordenadas (punto, progresiva, E, N, cota de fondo, cota de tapa) → leyenda
   y notas. Quiebres a 45° en planta (chaflán de 0.60 m), que no se muestran en el perfil. Bloques de AutoCAD por tema
-  (ARQUITECTURA_BASE, CURVAS_DE_NIVEL, LIMITE_DE_INTERVENCION, CUNETAS_SISTEMA_n, ROTULOS_RED).
+  (ARQUITECTURA_BASE, CURVAS_DE_NIVEL, LIMITE_DE_INTERVENCION, CUNETAS_SISTEMA_n, ROTULOS_RED, CANALETAS_Y_MONTANTES).
+  Planta general de cunetas: escala elegida para que el cerco entre en A1, coordenadas UTM; cada eje con su código y su ancho libre;
+  cunetas con el ancho real de cada eje; lloraderos con su caja filtrante del lado del área verde; montante como lo dibuja el
+  usuario (falsa columna, tubo Ø 4" y el concreto que lo envuelve, junto a la columna de la esquina); sumideros con su tubo a la
+  cuneta; rótulos medidos para que no se encimen.
+- **Lámina U-01 de ubicación** (primera del juego): 4 mapas (Perú con el departamento, departamento con la provincia, provincia con
+  el distrito y el local) con los **límites reales** del INEI/IGN, área siguiente resaltada con su recuadro, norte, escala y fuente
+  corta; mapa del local sobre la foto aérea del usuario (si la da, con sus esquinas en UTM), si no sobre calles de OpenStreetMap o el
+  plano del sitio; localización a escala con la cuadrícula UTM verdadera (rótulos que no tapen la escala ni el norte), datos de
+  ubicación (ubigeo) y coordenadas de los vértices del cerco. Imágenes que cargue el usuario se ajustan al tamaño de los demás mapas
+  sin deformarlas. Confirmar la zona UTM si cabe en más de una.
 - **Perfil longitudinal** (1/50 H = V; 1/25 si la losa mide < 3 mm en papel; ancho útil 800 mm en A1, ejes largos en piezas
   iguales apiladas): agua (relleno entre fondo y NA, termina en la caída), losa de fondo y solado cortados, losa superior con huecos
   de registro, NPT grueso, registros, ventanas de cunetas que llegan, juntas "J", cruces vehiculares, cajas, cotas "h=1.43",
@@ -131,6 +141,8 @@ Zonas fijas: vistas arriba; leyenda, notas y cuadros en la franja inferior (~110
   (cunetas: Progresiva, Etiqueta, Longitud, Pendiente). Estaciones en extremos, registros, cambios de zona y cada 5 m, omitiendo las
   que quedan a menos de 0.75 m (detalle) o 2.6 m (general). La longitud siempre de sección a sección completa aunque el tramo
   siga en otra pieza. Título: "PERFIL LONGITUDINAL EJE-04 - <descripción> - PROG. 0+000.00 A 0+035.59" (sin "bloque X" ni coordenadas).
+  En la guitarra va la **pendiente de diseño** del tramo (no la que resulta de cotas redondeadas al mm), con textos horizontales. Si
+  se calculó el perfil de flujo (paso estándar), su línea de agua va en una capa propia, con las caídas y resaltos.
 - **Sección** (1/15 de a 2 x 2, o 1/20 de a 3; nunca 4 en fila a 1/25; si la vista ocupa < 1/3 de su espacio, subir la escala):
   mirando aguas abajo; concreto en una pieza con hueco y relleno gris; acero con recubrimiento real (nada "al aire", el acero no
   sale del concreto); agua con el Q de ESE tramo; NPT, terreno, excavación, cerco y junta si existen; cotas por fuera; niveles;
@@ -143,6 +155,10 @@ Zonas fijas: vistas arriba; leyenda, notas y cuadros en la franja inferior (~110
   `(x, y, z) → (y, x, z)` y comprobar con una rosa N/E dibujada igual (mirando desde el sur, el este a la derecha). Teselar caras
   (0.05 m) y pintar por profundidad; sombreado por la normal; aristas en capa aparte; con bloques a 0° y 45° girar la vista 22.5°;
   solo las caras interiores que miran al observador. Color verdadero en cada cara.
+- **Detalles de la red de cunetas** (escala real): rejilla, tapa de inspección y juntas (1/5); lloradero, falsa columna con el montante
+  en la esquina, canaleta con soporte y sumidero (1/5); montante en elevación y muro con lloraderos (1/10). Lámina de estructuras de
+  caída (caída corta, caja de caída, pase por muro con marco y poza) y, si hay, de pozos de absorción o cámara de bombeo (corte y
+  planta de cada uno, cuadro y notas). Las especificaciones citan la lámina de detalle de cada partida.
 - **Cuadros** (acero, metrados, coordenadas, empalmes): valores guardados de la planilla; si guarda fórmulas sin valores,
   recalcular una copia con LibreOffice (`soffice --headless --convert-to xlsx`) y leer con openpyxl `data_only=True`.
 
@@ -151,7 +167,9 @@ Zonas fijas: vistas arriba; leyenda, notas y cuadros en la franja inferior (~110
   isométricos de secciones, DP-06A secciones típicas, DP-06B registro y tapa, DP-06C empalme de cuneta, DP-07 cajas, DP-08 cuadros,
   DP-09/DP-10 isométricos; DA detalle de partidas; DD detalles constructivos; DJ juntas y rejilla; DL lloraderos; DS sumidero; DR red de techo.
 - Cunetas sobre terreno: DC-00 índice, DC-01 planta, DC-02 secciones típicas, perfiles, secciones, cortes, descargas; numeración
-  correlativa sin saltos (si cambia la cantidad de perfiles, se renumeran las siguientes).
+  correlativa sin saltos (si cambia la cantidad de perfiles, se renumeran las siguientes). Variante del juego automático: U-01
+  ubicación, DC-01 planta, DC-02 cuadros (ejes: sector, L, Q máx., b libre, total, h mín./máx., excavación; descargas; lloraderos;
+  montantes y sumideros), DC-03 en adelante perfiles 1/50 y cortes de sección 1/20; prefijo y número inicial a elección del usuario.
 - Juegos renombrados por el usuario (p. ej. DPL-01 a DPL-42, DPLV-01 a DPLV-44, incluso con erratas como "DPVL-09"): se respetan
   tal cual en índices y documentos.
 
@@ -182,6 +200,9 @@ Zonas fijas: vistas arriba; leyenda, notas y cuadros en la franja inferior (~110
 9. `doc.audit()` sin errores; láminas congeladas comparadas por huella (tipo, capa, punto, texto) antes/después: idénticas.
 10. Mirar el PNG de cada lámina tocada; corregir y repetir. Entregar DXF + PNG (no PDF salvo pedido).
 11. Un cambio de detalle (p. ej. tapa) obliga a revisar todas las láminas donde aparece y sus leyendas y notas.
+12. Propiedades y metadatos del DXF vacíos (sin marcas de la herramienta que lo generó); unidades en metros; sección tapada sin
+    relleno blanco; la profundidad máxima con una sola cifra en planos, memorias y metrado.
+13. Láminas citadas en memorias y especificaciones existen en el juego con ese código.
 
 ## 12. Errores que el usuario ya corrigió (no repetirlos)
 - Amarillo en fondo blanco; isométricos negros en el celular (faltaba RGB por entidad).
@@ -200,3 +221,7 @@ Zonas fijas: vistas arriba; leyenda, notas y cuadros en la franja inferior (~110
 - Acero en cunetas de h 0.30 o 0.36 (solo desde 0.40 o tapada); sección imposible de 0.15 tapada (altura libre ≥ 0.25).
 - Vista a otra escala dentro de la lámina sin decirlo; patrones de achurado que en AutoCAD "se ven horribles"; "m³" que sale "m?".
 - Índice renumerado, ordenado distinto del PDF del usuario o con observaciones; regenerar planos ya impresos.
+- Mapas de ubicación con límites simplificados ("no lo veo tan real, lo haces muy recto"): límites con su forma real del INEI/IGN.
+- Mapas sin opción de elegir: cada mapa con su lista (país Perú por defecto, departamento, provincia, distrito) y la imagen de la
+  localidad cargada por el usuario redimensionada sola al tamaño de los demás.
+- Pendiente de la guitarra calculada con cotas redondeadas (no coincide con la de diseño); rótulos de curvas verticales.
