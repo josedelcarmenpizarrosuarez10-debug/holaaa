@@ -41,6 +41,12 @@ ciega, bancas). Las rutas de archivos de las referencias son del trabajo origina
    und) solo en el libro de ACU; vale el metrado original.
 8. No inventar lo que no está en el plano (montantes, sumideros, dados, tapas, descuentos de rejilla): pedirlo y listarlo como
    pendiente. No preguntar lo que el plano ya muestra (por dónde entran vehículos, dónde hay cerco).
+9. **El trabajo llega hasta el metrado** (usuario, 24-10 y 29-10-2026: "olvídate de costos de precios, en ningún momento estamos
+   viendo eso, solo llegamos hasta metrados"): no proponer ACU, precios ni presupuesto si no los pide; las ACU de §8 solo a pedido.
+   El presupuesto lo hace el ingeniero en **Delphin, no en S10** (no proponer exportar a S10).
+10. Antes de usar datos (horas-hombre, insumos, metrados, precios) confirmar de qué proyecto son; nunca meter datos de una obra en el
+   archivo de otra (pasó con horas-hombre del CAR Mujeres puestas en el archivo de otra obra).
+11. Excel que se entrega: sin hojas protegidas, con los decimales completos a la vista y todo con fórmulas.
 
 ## 2. Insumos que hay que pedir
 Planilla vigente (.xlsx), planta general y perfiles/secciones (DXF), juego de láminas que imprime el usuario (PDF con códigos), lista de
@@ -107,6 +113,17 @@ JUNTA E=1" CON TECNOPOR Y SELLADOR ASFALTICO ENTRE COLECTOR Y CERCO PERIMETRICO 
   mortero 1:3 0.0005 m³; control con el RESUMEN `=SI(ABS(E−F)<0.001;"CONFORME";"REVISAR")`.
 - Cunetas que llegan a un colector: se metran hasta la cara del muro (acortar lo que invade la franja; prolongar lo que no llega) y se
   documenta en una hoja "CUNETAS - LLEGADA AL COLECTOR" (longitud dibujada, ajuste, longitud metrada, termina en, sustento).
+- **Ancho variable por eje** (criterio general, 24-10-2026): cada eje con su ancho libre b (0.30 a 0.40, de 5 en 5 cm, una medida por
+  sector). En las fórmulas de arriba 0.40 pasa a b y 0.60 a b + 0.20 (losa, tapa, fondo de tapa, curado, refine y solado); excavación =
+  altura libre + 0.10 de losa + 0.10 de solado. La columna del ancho va en la planilla por eje.
+- Con lloraderos no se metran drenes franceses ni subdrén (el usuario no los usa). Lloradero = tubo + caja filtrante 0.30 × 0.30 de grava
+  y geotextil (su DESAGREGADO).
+- **Tarrajeo interior de cunetas** (cuando el proyecto lo lleva; I.E. N.° 292 Ciudad Satélite, CUI 2684251, 26-10-2026): hoja METRADO DE
+  TARRAJEO con el interior de las cunetas con rejilla y de las tapadas (muros y fondo), en su propia partida del árbol del proyecto.
+- Junta cuneta-piso: confirmar con el usuario a qué lados va (contra qué pisos) antes de metrarla; no asumir "ambos lados contra
+  cualquier piso" (quedó pendiente de revisar).
+- Partidas que aparecen solo si el diseño las tiene: losa vehicular de cuneta tapada en estacionamiento (f'c 280, rueda HL-93), caída
+  corta, caja de caída y pase por muro con marco de concreto armado y poza; pozos de absorción o cámara de bombeo.
 
 ## 6. Red de techo, piso y bancas
 - Canaletas (una por borde bajo de techo; dos aguas = dos): por edificación y lado, N° × L; soportes = SI(L>0; REDONDEAR.MAS(L/0.60)+1;
@@ -115,6 +132,14 @@ JUNTA E=1" CON TECNOPOR Y SELLADOR ASFALTICO ENTRE COLECTOR Y CERCO PERIMETRICO 
   MAX(1; REDONDEAR.MENOS(L/4)) (no cambiar aunque la especificación diga @1.50: es el metrado del usuario).
 - Falsa columna 0.20 × 0.15 × 1.30 (und = montantes, sin pago propio): concreto 0.039 m³, encofrado 0.65 m², acero (4 × 1.20 + 9 × 0.58)
   × 0.56 = 5.6112 kg por und; dado 0.40 × 0.40 × 0.35 en excavación y concreto f'c 140.
+- Alcance acordado (25-10-2026) cuando el metrado sale del diseño de la red: se metran canaletas, soportes de platina 1" × 1/8", tapas
+  laterales, boquillas, falsa columna (concreto, encofrado, acero), dados y, por cada montante, el codo de 90° de 4" del dado y el tubo
+  PVC 4" embebido del dado a la cuneta (máximo 5 m, 1 %, mínimo 0.5 %). La altura del montante, el tubo que sube a la canaleta, los
+  codos del desvío, colgadores y abrazaderas los mete el proyectista con los cortes de arquitectura; rejillas, tramos tapados y áreas
+  verdes los confirma él. Montantes siempre de 4" (2 por lado en las esquinas; hasta 4 por lado).
+- Soportes: el usuario observó "1616 soportes es demasiado; después revisaré": antes de entregar un conteo grande de soportes @0.60,
+  mostrarlo por edificación y lado y pedir su confirmación.
+- Sumideros solo en áreas libres pavimentadas sin cobertura (patio, maniobra, estacionamiento), con su tubo PVC 4" recto a la cuneta.
 - Red de piso por sector: tubería PVC-CP 4" (m), sumideros, codos 90° (distinguir del codo del techo por el código), codos 45°, tees.
 - Bancas con techo: solo los ítems que pida el usuario (ej. canaleta, tapas, 2 soportes por techo, 1 boquilla por techo); los codos,
   colgadores y abrazaderas que ya estén en METRADO MONTANTES no se repiten. Si falta una partida en el RESUMEN que el plano sí tiene
@@ -181,6 +206,10 @@ MÉTODO DE MEDICIÓN, FORMA DE PAGO ("al precio unitario del presupuesto por <un
 - [ ] Desagregados = hoja fuente = RESUMEN ("CONFORME"); ACU enlazadas a la hoja de mano de obra y a precios con fuente.
 - [ ] Mismas cantidades (registros, juntas, tapas, longitudes) en metrado, planos (cuadros leen la planilla), especificaciones y memoria.
 - [ ] Citas de lámina existentes en el juego del usuario; pendientes y datos no disponibles listados aparte.
+- [ ] Cada eje con su ancho libre; cantidades iguales a las del diseño (concreto, acero, rejilla, tapas, juntas, lloraderos, montantes).
+- [ ] Datos solo del proyecto del archivo (horas-hombre, insumos, precios); nombre, CUI, ubicación y entidad (GTBM) del proyecto.
+- [ ] Sin hojas protegidas, decimales completos; sin errores de fórmula tras recalcular (LibreOffice o un calculador equivalente).
+- [ ] Ni ACU, ni precios, ni presupuesto si el usuario no los pidió.
 
 ## 14. Errores que el usuario ya corrigió (no repetirlos)
 - Borrar o rehacer las hojas de cunetas del usuario al integrar el colector.
@@ -196,6 +225,10 @@ MÉTODO DE MEDICIÓN, FORMA DE PAGO ("al precio unitario del presupuesto por <un
 - Reemplazar citas de láminas excluidas por otras: se borra la cita y el valor no se toca.
 - Leer el "1.40" (ancho de zanja o franja de trabajo) como ancho del colector.
 - Rótulo NCF que no cierra con la pendiente usado sin avisar (Eje 04: 259.66 era 260.42).
+- Proponer presupuesto con ACU como "lo que más falta": rechazado; solo metrados.
+- "¿Por qué el Excel está protegido? me redondea decimales": sin protección y con todos los decimales.
+- Horas-hombre de una obra puestas en el archivo de otra: se devolvió el archivo a su original.
+- Conteos de soportes muy grandes entregados sin revisar con el usuario ("1616 soportes es demasiado").
 
 ## Referencias
 - `referencias/06_metrado_acu_especificaciones.md`: reglas, árboles de partidas por proyecto, hojas, fórmulas, tapa ciega, juntas,

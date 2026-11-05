@@ -108,6 +108,10 @@ Cumple si V ≥ 0.90 con el Q de diseño y τ ≥ 0.15 en los parciales. En cabe
   Refuerzo: 4 barras 3/8" verticales L = Hv + 0.60 y 2 horizontales de 1.00; los marcos se cortan con gancho de 0.10.
 - Caída libre al fondo; fondo pulido 1:3 e = 1 cm en 1.00 m bajo la caída; junta de tecnopor 1" con sellador en el contorno; registro encima.
 - Verificar NCF en el muro − NA del colector > 0 ("CAIDA LIBRE"; si no, "AHOGADA" y la cuneta remansa).
+- Tuberías que entregan directo (montante o sumidero): misma regla que en cunetas (usuario, 25-10-2026): el fondo del tubo llega
+  sobre el NA del colector en ese punto + 0.05 m; si llega a la cota de fondo queda ahogado y el agua regresa.
+- Cuando el colector recibe una red de cunetas sobre terreno, en la verificación de cada descarga su cota de fondo y su NA reemplazan
+  al terreno exterior (prueba del CAR Varones, descargas D1 a D5): la cuneta no puede quedar "enterrada" respecto del colector.
 - Si la cuneta no llega al muro se prolonga con su sección y pendiente (NCF muro = NCF − 0.005·prolongación); si invade la franja del
   colector se acorta hasta la cara del muro (NCF + 0.005·acortamiento). **Prolongación y acortamiento se metran en las partidas de
   cunetas; no hay partida de empalme ni de prolongación en el colector.**
@@ -184,6 +188,13 @@ longitudinales = n × L × (1 + 0.40/9.00); tapa de registro por und; dos partid
 - [ ] Cotas, NA, caudales, ventanas y coordenadas iguales en los expedientes vecinos (cuadro de empalme).
 - [ ] Metrado = cálculo (tolerancia 0.05) y ningún valor previo del usuario cambió; prolongaciones de cunetas fuera del colector.
 - [ ] Misma información en memoria, Excel, planos, metrado y especificaciones; proyectos citados por nombre y CUI.
+- [ ] Criterio de llenado declarado: los colectores aprobados usan y/h ≤ 0.85; la CE.040, 17.6.2 limita a 80 % el tirante en
+      conductos cerrados (criterio que el usuario adoptó para los tramos tapados el 25-10-2026). En un colector nuevo cumplir el más
+      exigente o consultarlo; en los aprobados (CAR Mujeres llega a 0.815) no se cambia nada sin pedido: solo se avisa.
+- [ ] Recubrimiento contra el suelo: la biblioteca de normas cotejada con el texto oficial registra 75 mm para concreto vaciado
+      contra el suelo (E.060, 7.7.1 a); los colectores aprobados usan 0.04 sobre solado. En uno nuevo, declarar qué caso aplica.
+- [ ] Cada dato con su fuente (norma con artículo o tabla, referencia técnica o criterio del proyectista) en la hoja DATOS y en la memoria.
+- [ ] Nombre, CUI, ubicación y entidad (GTBM; nunca "PEHCBM") del propio expediente, sin textos que queden de otro proyecto.
 
 ## 17. Errores que el usuario ya corrigió (no repetirlos)
 - "Losa vehicular en todo el frente": no; hay vereda peatonal, portón de motos e ingreso de camiones; armado por zona.
@@ -199,6 +210,10 @@ longitudinales = n × L × (1 + 0.40/9.00); tapa de registro por und; dos partid
 - Borde engrosado de 4 lados copiado a un colector de b 0.60: va solo en 2 lados (concreto 56.02 → 55.72 m³).
 - Dejar pendiente un detalle porque "el modelo supone otro ancho": rechazado ("tú diseñaste todo, todo debe cuadrar").
 - Confundir el ancho de zanja (1.40) con el ancho del colector (0.60).
+- Memoria con textos de otro proyecto ("recuerda, esta memoria es de Refugio Mujeres Violentadas, CUI que termina en 14"; "varios
+  dicen institución educativa"): revisar nombre, CUI, entidad y tipo de local en todo el documento.
+- Proponer costos o presupuesto cuando se pide diseño o metrado: el usuario llega solo hasta los metrados; el presupuesto lo hace el
+  ingeniero en Delphin (no en S10).
 - Planos: amarillo sobre fondo blanco, 3D negros, cotas que no miden lo que dicen, acero fuera de su losa, barras sin su diámetro real
   (3/8" = 9.5 mm), huecos en secciones, textos encimados o verticales.
 

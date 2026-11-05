@@ -35,6 +35,12 @@ Las rutas de archivos de esas referencias son del trabajo original y no existen 
 4. Superficies dentro del límite de intervención (techos en proyección horizontal con aleros, áreas libres de concreto,
    estacionamiento/patio de maniobra, áreas verdes) y la red (canaletas, montantes, cunetas, colector).
 Si no hay acceso a internet para bajar datos, decirlo y pedir los archivos; nunca rellenar con valores supuestos.
+5. Formatos de lluvia diaria que se leen: SENAMHI (txt: año, mes, día, precipitación, tmax, tmin; −99.9 = sin dato), NASA POWER y
+   CHIRPS; o las máximas mensuales/anuales ya armadas. El usuario: "las lluvias se compran, no hay así gratis": la serie del
+   expediente es la **certificada** de la estación; las fuentes libres (§2b) son solo referenciales o de contraste.
+6. Las tablas certificadas del SENAMHI dicen "solo será empleada para el propósito de la solicitud, quedando prohibida su
+   reproducción total o parcial": usarlas solo en el proyecto para el que se pidieron; no copiarlas a otros archivos ni programas
+   (de ellas solo se guardan factores derivados).
 
 ## 2. Conformar la serie (sin inventar datos)
 - Máximo de cada mes válido (≥ 20 días con dato) y máximo anual = mayor de los meses disponibles. Año incompleto: se conserva el
@@ -43,6 +49,21 @@ Si no hay acceso a internet para bajar datos, decirlo y pedir los archivos; nunc
   año más reciente hacia abajo" (excluir el último año si solo tiene unos meses).
 - Preferir la estación de la misma subcuenca sin transponer. La transposición por lluvia anual sobreestima la máxima diaria (se
   descartó en Barranquita: la estación llovía 3.6 veces más al año pero solo 1.4 veces más en 24 h); dejarla solo como contraste.
+
+## 2b. Serie referencial PISCO-SENAMHI (cuando no hay estación cercana; definida con el usuario, 27-10-2026)
+- PISCOp v3.0 del SENAMHI: lluvia diaria grillada de 0.1° (1981-2025), de descarga libre (figshare, DOI 10.6084/m9.figshare.32411886).
+  Se reduce a la **máxima en 24 h de cada mes** por celda (mismo formato año × 12 meses de las tablas del SENAMHI) y se toma la celda
+  con datos más cercana al distrito o a las coordenadas.
+- La grilla promedia ~10 × 10 km y **subestima las máximas puntuales** ("le veo pocos mm para Tarapoto"): se multiplica por el factor
+  estación / PISCO = media de las máximas anuales de la estación ÷ media de las de PISCO en su celda exacta (años comunes),
+  interpolado por inverso de la distancia al cuadrado. San Martín: CO Tarapoto 1.35, Pongo de Caynarachi 1.28, Chazuta 1.37,
+  Lamas 1.57, San Pablo 1.26 (coordenadas exactas de su ficha); Jepelacio 1.33, Sauce 1.33, San Antonio 1.04 (ubicación aproximada).
+  A más de 80 km de toda estación el factor es 1.00 y se avisa. Control: Tarapoto 75.0 mm de media de máximas con PISCO corregido
+  frente a 76.6 mm de la estación; estimando el factor de cada estación solo con las demás, el error es de 0 a 6 % en 5 de las 8.
+- Fichas SENAMHI (para ubicar estaciones): Chazuta 153319 (6°34'16.3" S, 76°7'53.4" W, 203 msnm); Pongo de Caynarachi 003317
+  (6°19'49.7", 76°16'54.3", 187); Lamas 000383 (6°25'7.46", 76°31'40.6", 840); Picota 153313 (6°55'11.61", 76°19'48.77", 220);
+  San Pablo 153307 (6°48'34.4", 76°34'34.5", 270).
+- Es una serie **REFERENCIAL**: escribirlo así; para el expediente vale la serie certificada de la estación más cercana.
 
 ## 3. Estadísticos y distribuciones (métodos exactos de la hoja del usuario)
 - x̄, s con n − 1, Cs = n·Σ(x − x̄)³/((n − 1)(n − 2)·s³) (= SKEW de Excel), para x, log10 x y ln x.
@@ -78,6 +99,8 @@ I = K·T^m/t^n para t = 10 a 120 min y T = 2 a 100.
   llega a la vez: caudal 35.5 % mayor sin sustento (texto aprobado). Misma intensidad en todos los tramos de un colector compartido.
 - T = 25 años (CE.040 11.1 y 11.3; locales con niños, estudiantes o personas protegidas). Riesgo R = 1 − (1 − 1/T)^n (tabla T 5–100,
   n 10, 20, 25, 50). **FS = 1.15 en todos los caudales** (criterio fijo; el usuario lo repuso cuando se quitó).
+- Una sola lluvia para todo el proyecto: la intensidad de la IDF del proyecto para el tc de diseño, citando su fuente (análisis
+  estadístico de la estación o curva ingresada); avisar si se está usando una curva de ejemplo.
 
 ## 8. Coeficientes de escorrentía (RNE CE.040, Anexo I, Tabla 1.a, T = 25)
 | Superficie | C |
@@ -101,6 +124,14 @@ I = K·T^m/t^n para t = 10 a 120 min y T = 2 a 100.
 - Montante (Wyly-Eaton, rs = 0.25): Q (L/s) = 1.754·rs^(5/3)·D^(8/3) (D en pulgadas; o 27.8·rs^(5/3)·D^(8/3) en gpm, 1 L/s = 15.85 gpm);
   D req = (Q/(1.754·rs^(5/3)))^(3/8). 4" = 7.0 L/s, 3" = 3.26 L/s → se adopta 4" (≥ mínimo de la CE.040 12.5). Área máxima por
   montante de 4" = 7.0 / (C·I·FS/3600) m² (ej. 0.88 · 293.18 · 1.15/3600 = 0.0824 L/s por m² → 85.1 m²; montantes por lado = ceil(A/85.1)).
+- Montantes por lado: a lo más 4 de 4" (llenado rs 1/4); si hicieran falta más, 4 con llenado hasta 7/24. Nunca 6".
+- Caudal de cada tramo de cuneta **separado en techos, pisos y áreas verdes** (área y caudal de cada tipo) en la memoria.
+- Perfil de flujo de la red (paso estándar de Chow, régimen mixto, controles en descargas, uniones y caídas, caudal creciente en el
+  tramo): donde el remanso no deja el borde libre se profundiza el camino a la descarga. Tramos tapados: tirante ≤ 80 % de la altura
+  libre bajo la losa (CE.040, 17.6.2). Comprobación dinámica opcional en EPA SWMM 5: hietograma de bloques alternos de la IDF (bloques
+  del tc; Chow, Maidment y Mays), Horton en áreas verdes; resumir continuidad, caudal pico por descarga, rebalses y tramos llenos.
+- Descarga sin gravedad (solo si no hay otra): pozos de absorción con tránsito del hidrograma de la tormenta (IS.020: f = 0.6/t/FS en
+  m/h, vaciado del 50 % en ≤ 24 h) o cámara de bombeo (IS.010, OS.080). Detalle en el skill `planteamiento-drenaje-pluvial`.
 - Lloraderos: no cambian el dimensionamiento (el agua infiltrada ya está en el C de las áreas verdes).
 - Colector frontal: perfil, cajas y autolimpieza con el skill `colector-pluvial-frontal`.
 
@@ -110,6 +141,12 @@ I = K·T^m/t^n para t = 10 a 120 min y T = 2 a 100.
 - Pongo de Caynarachi (SENAMHI 003317), 1989–2013 (n 25): x̄ 110.31, s 27.56; K-S Normal 0.1304, LN 0.0947, **LP3 0.0683 (adoptada)**,
   Gumbel 0.0775, crítico 0.2650; P24 T25 = 169.27 mm; P10 48.86 → I10 293.18 mm/h; Bell K 211.66, m 0.1786, n 0.5269.
 - Caudales compartidos de Morales (I 155.66, FS 1.15): Σ C·A 5,203.32 → 258.7; 6,072.36 → 301.9; 5,274.45 → 262.3 L/s; total 822.9.
+
+## 10b. Drenaje vial (MTC) – solo si el usuario lo pide
+El usuario dijo (29-10-2026) que por ahora no trabaja drenaje de carreteras ("no lo veía tan necesario"): no proponerlo. Si lo pide:
+Manual de Hidrología, Hidráulica y Drenaje del MTC (R.D. N.° 20-2011-MTC/14); T por riesgo admisible y vida útil (Tabla 02):
+plataforma R 40 %, n 15 → 30 años; alcantarillas menores y alivios R 35 %, n 15 → 36; quebradas importantes y badenes R 30 %,
+n 25 → 71; C de la Tabla 08; tc de la Tabla 05; racional si A < 10 km², Témez de 10 a 770 km²; Manning con borde libre del 25 %.
 
 ## 11. Excel del análisis estadístico (formato del usuario, con fórmulas)
 Hojas (nombres tal cual): "A. Estación" (registro mensual, máximos, S/D resaltados), "B.Modelo Distribución" (B.1 Normal, B.2 Log
@@ -137,6 +174,10 @@ Ubicación, Fecha. Procedimiento sobre la plantilla del usuario (LibreOffice sin
   texto blanco, encabezado repetido, filas que no se parten; "Tabla N° xx" y "Fuente: …" debajo, numeración continua con la del
   documento; índice automático con actualización al abrir; encabezado con proyecto y CUI; pie "Página X de Y"; carátula en sección
   propia; propiedades del archivo sin autor. Figuras de planos = las láminas del PDF que imprime el usuario, con su código.
+- Recuadro de **fuente** junto a cada cálculo (norma con artículo o tabla, referencia técnica o criterio del proyectista, y si se cotejó
+  con el texto oficial) y anexo de normas, referencias y criterios. Capítulo "Perfil de flujo y comprobación dinámica" si se hizo.
+- Editar la memoria del usuario: quitar o cambiar **solo** lo pedido ("borra el encabezado que dice la fecha" no incluye el título) y
+  comparar el texto de todas las páginas con el original. Revisar que no queden resaltados.
 - Textos obligatorios: por qué T = 25; por qué tc = 10 en cunetas y 15 en el colector (bloque "Intensidad de diseño: … en cunetas y …
   en el colector"); hipótesis de suma de picos con FS 1.15; datos de otros expedientes citados como dato de su memoria.
 - Memoria de cálculo en Excel con fórmulas (visibles en español: REDONDEAR, SUMA, SI con ";"): DATOS (P anual, T, tc, n capacidad,
@@ -160,6 +201,11 @@ ya están impresos, no se regeneran: avisar qué rótulos quedan con el valor an
 - [ ] Memoria = Excel (cotejo con 0 diferencias); las memorias de proyectos vecinos dicen los mismos P24, I, C y caudales.
 - [ ] Norma citada: CE.040 (R.M. N.° 126-2021-VIVIENDA), no la OS.060; Manual de Hidrología MTC; Chow; Aparicio.
 - [ ] Sin nombre ni CIP; sin rastros de IA; todo en español; proyecto con nombre y CUI.
+- [ ] Nombre, CUI, ubicación y entidad del propio proyecto (Gobierno Regional San Martín – Gerencia Territorial Bajo Mayo, GTBM; nunca
+      "Proyecto Especial Huallaga" ni "PEHCBM"); ningún texto que quede de otro proyecto.
+- [ ] Serie certificada en el expediente; PISCO u otras fuentes libres declaradas como referenciales y con su factor de corrección.
+- [ ] Cada valor con su fuente; montantes ≤ 4 de 4" por lado; tirante ≤ 80 % en tramos tapados si se hizo el perfil de flujo.
+- [ ] Excel sin hojas protegidas, con los decimales completos a la vista y todo con fórmulas (amarillo dato, gris cálculo, verde resultado).
 
 ## 15. Errores que el usuario ya corrigió (no repetirlos)
 - "¿Por qué pones 35.163 mm si el diseño es 210?": mostrar lluvia e intensidad juntas; son el mismo dato.
@@ -173,7 +219,11 @@ ya están impresos, no se regeneran: avisar qué rótulos quedan con el valor an
 - Columna "Diseño" fija en Log-Normal aunque la K-S elija otra; fórmula MAX que dejaba fuera los dos últimos años.
 - Memoria hidrológica de pocas páginas: el usuario pidió la estructura completa de los estudios de los CAR.
 - Reducir la cuneta a 0.15 m junto al cerco ("ahí se obstruye el flujo"): la sección nunca se achica al llegar a la descarga.
-- Escribir textos en inglés (hojas, rótulos, mensajes): todo en español.
+- Escribir textos en inglés (hojas, rótulos, mensajes): todo en español ("¿acaso yo hablo inglés?"), también cada mensaje al usuario.
+- Usar la lluvia grillada (PISCO) tal cual: subestima las máximas; va con el factor estación / PISCO y como serie referencial.
+- Copiar la serie certificada del SENAMHI a otro proyecto o archivo: prohibido por la propia tabla.
+- Excel protegido que "redondea decimales": entregarlo sin protección y con los decimales completos.
+- Borrar de más en Word o PDF (se pidió quitar la fecha del encabezado y se borró el título): solo lo pedido.
 
 ## Referencias
 - `referencias/02_hidrologia_e_hidraulica.md`: series completas, estadísticos, tablas por T, K-S, Bell, C, caudales por proyecto,
