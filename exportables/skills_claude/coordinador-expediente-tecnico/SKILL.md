@@ -37,6 +37,9 @@ Este skill no produce los documentos por sí mismo: elige el skill especializado
 | Plan de Seguridad y Salud en el Trabajo, IPERC | `psst-iperc-obra` |
 | Estudio de gestión de riesgos en la ejecución de obra | `gestion-riesgos-ejecucion-obra` |
 | Renders, modelo 3D, IFC, Revit, Dynamo | `renders-revit-modelo-3d` |
+| Observaciones del evaluador, subsanar, corregir o anexar a un documento ya presentado | `levantamiento-observaciones-expediente` |
+| Informe técnico de culminación o consistencia (Invierte.pe, Formato 08-A) de un expediente | `informe-tecnico-obra` |
+| Asesoría de tesis (objetivos, resultados, discusión, formato de la universidad) | `tesis-academica` |
 
 Si el pedido toca varias filas, se usan los skills en el orden de la sección 2. Si ninguno encaja, se trabaja con las
 reglas de arriba y se avisa que no hay skill para ese tema.
