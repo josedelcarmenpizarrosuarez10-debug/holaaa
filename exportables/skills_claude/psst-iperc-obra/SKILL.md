@@ -33,7 +33,17 @@ separado del estudio de gestión de riesgos de obra y de los expedientes de dren
 3. **Personal**: histograma de trabajadores por mes (del cronograma o del calendario de adquisición de mano de obra).
 4. **Emergencia**: teléfonos locales (centro de salud más cercano, hospital de referencia, bomberos, PNP, defensa civil, SCTR).
 5. Si existe, el PSST anterior del usuario (se respeta su formato y solo se cambia lo que pida).
-Si falta el histograma, suponer una cuadrilla razonable por mes y decirlo; si falta un teléfono, dejar la celda amarilla.
+Si falta el histograma, calcular los obreros con las **horas-hombre de mano de obra de la lista de insumos del presupuesto**
+entre las horas del plazo del cronograma (así lo hizo el usuario: 78 obreros en 10 meses); si tampoco hay insumos, suponer una
+cuadrilla razonable por mes y decirlo. Si falta un teléfono, dejar la celda amarilla para que el usuario lo confirme.
+
+**Antes de producir nada:**
+- Si el usuario solo pide confirmar el acceso o resumir el método, contestar en pocas líneas y **esperar sus instrucciones**.
+- Si pregunta "¿sabes qué hacer?" sin indicar la obra, no arrancar: listar los datos que faltan (obra con nombre y CUI,
+  presupuesto, personal por mes, condiciones del lugar, teléfonos), los pasos que se seguirán y **preguntar para qué obra es**.
+- No tomar por iniciativa propia el presupuesto de otro estudio (por ejemplo, el de un estudio de gestión de riesgos) aunque
+  sea el único disponible: ofrecerlo y esperar la confirmación; si se usa, el PSST va en su propia carpeta y sin mezclarse.
+- Comprobar que estén las herramientas de gráficos, de lectura del PDF y la hoja de cálculo para recalcular; avisar si falta algo.
 
 ## 2. Marco normativo que se cita
 Ley N.° 29783 y su reglamento D.S. N.° 005-2012-TR (art. 21: jerarquía de controles); D.S. N.° 011-2019-TR (Reglamento de SST
@@ -41,6 +51,13 @@ para el Sector Construcción); Norma G.050 Seguridad durante la construcción (c
 (formatos de registros e IPERC); R.M. N.° 375-2008-TR (ergonomía); R.M. N.° 312-2011-MINSA (vigilancia médica ocupacional);
 SCTR (Ley N.° 26790 y D.S. N.° 003-98-SA); NTP 399.010-1 (señales de seguridad) y NTP de extintores; y las que correspondan a la
 obra: Manual de Dispositivos de Control del Tránsito del MTC, Código Nacional de Electricidad, normas de explosivos (SUCAMEC).
+Precisiones del modelo del usuario: el PSST **forma parte del expediente técnico** (D.S. N.° 011-2019-TR, art. 17) y sigue el
+contenido mínimo del **art. 18**; numeral 17.1 = partida específica de SST en el presupuesto (y Norma Técnica de Metrados, R.D.
+N.° 073-2010/VIVIENDA/VMCS-DNC); numeral 17.3 = el contratista y sus subcontratistas elaboran su propio PSST tomando este como
+base, aprobado por el Subcomité o Comité de SST y presentado a la supervisión antes de iniciar. Indicar que la obra está en el
+listado de actividades del sector construcción vigente. Registros obligatorios: art. 33 del D.S. N.° 005-2012-TR; IPERC: art. 77
+(modificado por D.S. N.° 002-2020-TR). Requisitos contractuales: Ley N.° 32069 y su reglamento. Matriz de requisitos legales en
+anexo (norma, requisito aplicable, cumplimiento en el plan).
 
 ## 3. Reconocimiento de actividades (desde las partidas)
 - Cada actividad estándar se reconoce por palabras clave en la descripción de las partidas (y, si hace falta, por el título padre).
@@ -100,7 +117,11 @@ Por cada peligro: proceso, actividad, puestos, rutinaria (R) o no rutinaria (NR)
   izaje y cauces según los PETAR.
 - **Monitoreo de agentes** solo de los que aparecen en el IPERC: ruido (dosimetría, 85 dB(A) 8 h), polvo y sílice, vibración
   (ISO 5349 / 2631), estrés térmico (WBGT), vapores y humos, monóxido de carbono, radiación UV, ergonomía.
-- **Organización**: comité paritario de SST si el mes de mayor personal tiene **20 o más trabajadores**; supervisor de SST si menos.
+- **Organización** (D.S. N.° 011-2019-TR): con menos de 20 trabajadores, **supervisor de SST** elegido el primer día (art. 23);
+  de 20 a 100, **Subcomité de SST** bipartito y paritario de **4 titulares** (2 del empleador, 2 de los trabajadores; numeral 27.1),
+  que sesiona al menos una vez al mes y lleva libro de actas; si el contratista tiene una sola obra, **Comité de SST**. Al pasar de
+  20 trabajadores se inicia la elección del subcomité. Perfil del especialista en SST: profesional colegiado y habilitado, con
+  capacitación en SST de construcción, permanente en obra y sin funciones de producción (sin nombres).
 - **Indicadores**: HHT = trabajadores x 8 h x 26 días; IF = accidentes x 1,000,000 / HHT; IG = días perdidos x 1,000,000 / HHT;
   IA = IF x IG / 1,000. Metas: cero accidentes mortales, 100 % de inducción, cumplimiento de programas ≥ 90 %.
 - **Emergencias**: escenarios (accidente grave, incendio, sismo, lluvias e inundación, mordedura de ofidio, electrocución,
@@ -116,6 +137,26 @@ señalización; 7 Procedimientos (PETS, PETAR, ATS, charla diaria); 8 EPP y prot
 y proveedores; 13 Respuesta ante emergencias; 14 Notificación e investigación de accidentes; 15 Registros obligatorios,
 indicadores y mejora continua; 16 Partidas de SST del presupuesto; 17 Anexos (IPERC completo, EPP por puesto, formato de ATS,
 lista de verificación del PETAR).
+**Estructura del modelo del usuario** (PSST del CAR Mujeres, CUI 2717013): usarla cuando el usuario traiga su plan o la pida;
+respetar su numeración. 1 Generalidades (nombre, entidad y unidad ejecutora, ubicación, naturaleza y vigencia); 2 Objetivo
+(general y específicos); 3 Alcance de la obra (descripción, **condiciones del sitio con incidencia en la SST**: condición | dato del
+expediente | implicancia; plazo, **frentes** con procesos y peligros predominantes, personal estimado; alcance del plan); 4 Sistema
+de gestión del empleador (documentos en obra, autorización de visitas, control de alcohol y drogas, **interrupción de actividades
+por peligro inminente**, coordinación con subcontratistas y obras colindantes); 5 Política; 6 Presupuesto; 7 Organización
+(organigrama, responsabilidades, perfil del especialista); 8 Elementos del plan (8.1 objetivos, metas e indicadores; 8.2
+subcomité; 8.3 requisitos legales; 8.4 IPERC: metodología, resultados, ATS y PETAR; 8.5 mapa de riesgos; 8.6 vigilancia de la
+salud; 8.7 PETS de alto riesgo; 8.8 capacitación; 8.9 registros; 8.10 inspecciones; 8.11 investigación; 8.12 auditorías; 8.13
+mejora continua; 8.14 emergencias; 8.15 EPP por puesto; 8.16 señalización). Anexos: requisitos legales, matriz IPERC, mapa de
+riesgos, PETS (cada uno con objetivo, alcance, responsables, EPP, equipos, procedimiento, restricciones, registros), capacitación
+y programa de SST, inspecciones, vigilancia de la salud, emergencias (emergencias posibles, alerta, brigadas, antes/durante/después,
+simulacros, autoridades y gestión del riesgo de desastres, directorio) y presupuesto del plan.
+- **Presupuesto del plan**: cuadro resumen; % del costo directo de la obra; comparar con lo asignado en la preinversión y explicar
+  la diferencia (número de obreros, capacitación mensual, agua para consumo); la señalética de la etapa de operación (Norma A.130)
+  no entra; honorarios del especialista y exámenes médicos van en gastos generales. Anexo: cálculo del número de trabajadores
+  (horas-hombre de insumos y plazo), detalle por subpartida y resumen. Las cantidades del presupuesto de obra no se tocan.
+- Resultados del IPERC en el texto: número de combinaciones actividad-peligro y de procesos, cuadro inicial vs residual, número de
+  significativos iniciales y las actividades que los concentran (caída de altura, derrumbe de zanja, espacio confinado...) con su PETAR.
+- Cuadros y figuras numerados ("Cuadro N.° x") con su fuente; la fuente cita el anexo exacto (revisarla si se renumeran anexos).
 - Tablas de ancho fijo con encabezado repetido; IPERC en sección horizontal A3 o A4 apaisada; títulos numerados; pie con el nombre
   corto del plan y página.
 - Gráficos (PNG 200 ppp): histograma de personal; mapa de calor probabilidad x severidad inicial y residual; barras de niveles
@@ -140,9 +181,15 @@ PETS-PETAR, CAPACITACION, INSPECCIONES, MONITOREO, INDICADORES, PARTIDAS (trazab
 - [ ] Ningún peligro residual en Importante o Intolerable; los significativos iniciales tienen controles de ingeniería o administrativos concretos.
 - [ ] Conteos del Word = conteos del Excel (peligros, niveles inicial y residual, significativos, actividades, PETAR).
 - [ ] PETAR solo los que aplican; explosivos solo con voladura en el presupuesto; selva y altura según el lugar.
-- [ ] Comité o supervisor según el pico de personal; histograma igual al dato del usuario.
+- [ ] Supervisor, subcomité (4 titulares) o comité según el pico de personal; histograma igual al dato del usuario o calculado
+      con las horas-hombre de insumos (y dicho).
+- [ ] La obra, su presupuesto y el alcance los confirmó el usuario; nada tomado de otro estudio u obra sin su visto bueno.
+- [ ] Presupuesto del plan: % del costo directo, comparación con la preinversión explicada, sin señalética de operación.
+- [ ] Al retirar o renumerar una parte: cero referencias huérfanas (buscar "Anexo NN" y "numeral" en todo el texto, índice,
+      lista de anexos, fuentes de cuadros, PETS y matriz de requisitos legales) y lo demás idéntico al original (cotejo).
 - [ ] Nombre completo y CUI en carátula y pies; sin nombres ni CIP; sin texto que revele IA; nada de otro proyecto.
 - [ ] Excel recalculado sin errores; Word revisado en vista previa (índice actualizado, tablas que no se cortan mal, figuras legibles).
+- [ ] Informar al usuario lo que no se pudo comprobar y los datos supuestos (teléfonos, personal, condiciones del lugar).
 
 ## 9. Errores que el usuario ya corrigió (no repetirlos)
 - El programa del PSST es **general**: no dejar planes de una obra de ejemplo dentro del programa ni generar el PSST de una obra
@@ -152,7 +199,12 @@ PETS-PETAR, CAPACITACION, INSPECCIONES, MONITOREO, INDICADORES, PARTIDAS (trazab
 - PSST del usuario (CAR Mujeres, CUI 2717013): pidió "borra la parte 9 que dice firma" → se retiró el anexo de formatos con campos
   de firma (ATS, PETAR, visitas, EPP, inspección y reporte) y se **renumeró todo lo que dependía**: el anexo siguiente pasó a ocupar
   su número, se ajustaron la lista de anexos, el índice (entradas y páginas), los numerales que lo citaban, el texto de los PETS,
-  la fuente del cuadro de presupuesto y la matriz de requisitos legales. Al quitar una parte, buscar y corregir todas sus referencias.
+  la fuente del cuadro de presupuesto y la matriz de requisitos legales. En el índice se quitaron las entradas del anexo (8) y se
+  corrieron las páginas siguientes lo que este ocupaba (3), dejando el campo para que Word lo actualice al abrir. Donde un texto
+  remitía al anexo retirado, se reescribió sin la remisión (no se dejó "ver Anexo 09" apuntando al presupuesto). Al quitar una
+  parte, buscar y corregir todas sus referencias; no volver a poner esos formatos con firma en ese plan salvo pedido.
+- Ante una pregunta general ("¿sabes qué hacer?") no se generó nada: se pidieron la obra y los datos. Mantener esa conducta;
+  la conversación del programa general es solo para el programa (no se generan ni modifican PSST de obras sin instrucción).
 - Al editar el Word del usuario, conservar su formato, estilos e imágenes; trabajar sobre una copia y cotejar que lo demás quede igual.
 - No escribir nombres ni CIP de profesionales: dejar líneas en blanco para firmas y colegiaturas.
 - No corregir a mano el Word o el Excel final para tapar una actividad faltante: ampliar la biblioteca y volver a generar.
