@@ -1,0 +1,10 @@
+{
+ "muro": {"nombre": "muro", "rgb": [0, 0, 0]},
+ "columna": {"nombre": "columna", "rgb": [0, 0, 0]},
+ "viga": {"nombre": "viga", "rgb": [0, 0, 0]},
+ "cierre": {"nombre": "cierre", "rgb": [0, 0, 0]},
+ "cobertura": {"nombre": "cobertura", "tipo": "calamina", "rgb": [0, 0, 0]},
+ "piso": {"nombre": "concreto_piso", "tipo": "concreto", "rgb": [0, 0, 0], "juntas": 1.5},
+ "cerco": {"nombre": "cerco", "rgb": [0, 0, 0], "altura": 0, "espesor": 0},
+ "arboles": []
+}

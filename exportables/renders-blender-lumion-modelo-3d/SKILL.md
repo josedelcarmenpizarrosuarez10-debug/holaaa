@@ -1,6 +1,6 @@
 ---
 name: renders-blender-lumion-modelo-3d
-description: "Armar en Blender el modelo 3D de cualquier proyecto con planos de arquitectura en DXF (colegios, centros de salud, albergues, oficinas, viviendas, mercados, locales comunales y sus obras exteriores) y producir renders realistas fieles al plano: en Blender Cycles o llevando el modelo a Lumion por FBX o DAE. Colores del cuadro de acabados, pisos y áreas verdes según los achurados, cerco, obras exteriores según sus láminas, instalaciones visibles tal cual su plano. Trae scripts probados de materiales, árboles que no cruzan techos, piso recortado, cielo, encuadre de aéreas, serie de vistas y exportación a Lumion con tablas de materiales, árboles y cámaras. Usar cuando el usuario pida renders, vistas realistas, imágenes, maqueta o modelo 3D de un proyecto, o mencione Blender, Lumion o Cycles, aunque no pida este método por su nombre."
+description: "Armar en Blender el modelo 3D de cualquier proyecto con planos de arquitectura en DXF (colegios, centros de salud, albergues, oficinas, viviendas, mercados, locales comunales y sus obras exteriores) y producir renders realistas fieles al plano: en Blender Cycles o llevando el modelo a Lumion por FBX o DAE. Colores del cuadro de acabados, pisos y áreas verdes según los achurados, cerco, obras exteriores según sus láminas, instalaciones visibles tal cual su plano. Trae scripts probados que exploran y leen los DXF y levantan el modelo, y de materiales, árboles que no cruzan techos, piso recortado, cielo, encuadre de aéreas, serie de vistas y exportación a Lumion con tablas de materiales, árboles y cámaras. Usar cuando el usuario pida renders, vistas realistas, imágenes, maqueta o modelo 3D de un proyecto, o mencione Blender, Lumion o Cycles, aunque no pida este método por su nombre."
 ---
 
 # Renders realistas y modelo 3D con Blender y Lumion desde los DXF de arquitectura
@@ -60,6 +60,44 @@ probó: el FBX y el DAE se comprobaron reimportándolos en Blender (escala, ejes
 Lo que falte se pregunta; nunca se completa con datos de otro proyecto.
 
 ## 2. Lectura de los DXF (un solo dato para Blender y Lumion)
+Corre en Python normal (ezdxf, shapely, numpy, matplotlib), sin Blender. El resultado es un `modelo.json` con todo en metros.
+
+**Paso 1. Explorar el plano.** Lista capas, tramas, bloques con atributos, tablas y textos de vanos, y propone qué capa es cada cosa:
+```bash
+python explora_dxf.py planta_general.dxf --plantilla proyecto.json
+```
+Confirmar las capas con el usuario o en una planta de control. Si el archivo trae copias de la planta, acotar con `--ventana` y
+poner `ventana_local`. Si los módulos son bloques con los muros en una capa genérica, pedirlos como `"BLOQUE|CAPA"`.
+
+**Paso 2. Proponer las edificaciones.** Escribe `control/PROPUESTA_EDIFICACIONES.png` y `edificaciones_propuestas.json`:
+```bash
+python lee_planos.py proyecto.json --detecta
+```
+Es una propuesta: **comprobar número y contorno sobre la imagen**, porque puede partir una edificación, juntar dos o tomar una copia.
+Corregir las zonas a mano y completar en `proyecto.json` (formato en `scripts/proyecto_plantilla.json`) lo que el plano en planta no
+dice: `npt`, `viga`, `fondo_viga`, `pendiente`, tipo de cubierta (`dos_aguas`, `un_agua`, `cuatro_aguas`, `plana`) y cumbrera, **de los
+cortes**. Si falta un nivel, la lectura se detiene: se pregunta, no se supone. El cuadro de vanos va en una tabla de AutoCAD o en un CSV.
+
+**Paso 3. Leer y revisar.**
+```bash
+python lee_planos.py proyecto.json
+```
+Da `modelo.json`, una `control/PLANTA_CONTROL_<cod>.png` por edificación y `control/AVISOS.txt`. **Revisar las plantas y todos los avisos
+antes de modelar.** El aviso **"NO MODELAR AÚN"** significa que la capa de muros trae también muebles, pisos o tarrajeo (más de
+0.7 m de muro por m² de planta, o más de 30 % de tramos cortos): hay que pasar los muros a una capa propia en el CAD, o indicar otra
+capa, y volver a leer. No se levanta un modelo con ese aviso.
+
+**Qué tan confiable es la lectura** (decírselo al usuario):
+| Situación del plano | Resultado |
+|---|---|
+| Muros en capa propia, indicadores o códigos de vano, cuadro de vanos | Automático y exacto, con revisión de las plantas de control |
+| Edificación girada respecto de los ejes | Automático: el giro se detecta y se aplica al levantar |
+| Muros mezclados con otras cosas en una capa o bloque | **No sale solo**: el aviso lo detiene y hay que ordenar el CAD |
+| Muros diagonales o curvos, cubiertas no rectangulares | No se levantan: se avisa y se modelan en el generador del proyecto |
+| Sin indicadores de vano | Vanos medidos en planta con la altura de `vanos.defecto`, a confirmar con la arquitecta |
+| Cerco en líneas abiertas | Contorno aproximado, con aviso: revisarlo o indicar `lote_puntos` |
+
+Criterios que aplica el lector:
 - **Coordenadas locales en metros**: restar un origen redondo de la UTM del proyecto y usar **el mismo** en todo. Con la UTM completa
   fallan la precisión en Blender y el punto de inserción en Lumion, que es el 0,0,0 de Blender. El origen se anota en el LEEME.
 - Muros: pares de líneas paralelas de la capa de muros separadas dentro del rango de espesores del proyecto (criterio por defecto
@@ -78,13 +116,30 @@ Lo que falte se pregunta; nunca se completa con datos de otro proyecto.
   usuario, antes de modelar.
 
 ## 3. Escena en Blender
-Copiar `scripts/` a una carpeta del proyecto y escribir ahí un generador propio de la obra (por ejemplo `escena.py`) que importa
-`base_escena.py`. **`scripts/ejemplo_escena.py` es la plantilla mínima**, con datos inventados: comprueba la instalación y muestra el
-uso de cada función. Todo cambio se hace en el generador y se vuelve a correr; nunca a mano en el .blend.
+**El modelo se levanta solo desde `modelo.json`** con `levanta_modelo.py`: edificaciones con muros, vanos, vigas, columnas, cierres bajo
+cubierta y cubiertas, y el terreno con piso recortado, áreas verdes, cerco y árboles que no tocan techos ni cerco. Los colores salen de
+`acabados.json` (formato en `scripts/acabados_plantilla.json`), con el cuadro de acabados de la arquitecta: faltando muro, columna, viga
+o cobertura se detiene; lo demás toma un color neutro y lo avisa para confirmarlo. Cerco (`altura`, `espesor`) y `arboles` (posiciones)
+son opcionales y salen del plano.
+
+**Lo que el lector no cubre** (pórtico, tanque, bancas, juegos, losas deportivas, instalaciones) se agrega lámina por lámina en un generador
+propio de la obra, que parte del modelo levantado:
+```python
+import json, base_escena as B, levanta_modelo as L
+ctx = L.levantar(json.load(open('modelo.json', encoding='utf-8')), json.load(open('acabados.json', encoding='utf-8')))
+B.caja('tanque', 10, 10, 0, 13, 13, 12, L.material('muro'), ctx['colecciones']['exteriores'])   # medidas de su lámina
+L.terminar(ctx, 'modelo.blend')
+```
+`scripts/ejemplo_escena.py` es otra plantilla mínima, sin DXF y con datos inventados: comprueba la instalación y muestra el uso de cada
+función. Todo cambio se hace en el generador o en los JSON y se vuelve a correr; nunca a mano en el .blend.
 
 | Script | Qué da |
 |---|---|
-| `base_escena.py` | `rgb`, `mat_pintura`, `mat_concreto` (juntas), `mat_calamina`, `mat_pasto`, `mat_vidrio`, `mat_simple`; `caja`, `prisma`, `obj_mesh`, `Malla` (miles de cajas en un objeto por material); `piso_exacto`; `prototipos_arbol`, `plantar_arboles`; `suavizar_cilindros`; `mundo`, `ajustes_render` |
+| `explora_dxf.py` | Primer vistazo a un DXF desconocido: capas, tramas, bloques, tablas, códigos de vano y propuesta de capas (no requiere Blender) |
+| `lee_planos.py` | Lector: `modelo.json`, plantas de control y avisos; con `--detecta`, propuesta de edificaciones (no requiere Blender) |
+| `levanta_modelo.py` | Levanta el `modelo.json` en Blender; también `levantar`, `material` y `terminar` para el generador de la obra |
+| `proyecto_plantilla.json`, `acabados_plantilla.json` | Formato de los datos de cada proyecto; se copian y se llenan con los planos |
+| `base_escena.py` | `rgb`, `mat_pintura`, `mat_concreto` (juntas), `mat_calamina`, `mat_pasto`, `mat_vidrio`, `mat_simple`; `caja`, `prisma`, `obj_mesh`, `Malla` (miles de cajas en un objeto por material); `Malla.placa` (cierres bajo cubierta), `piso_exacto`; `prototipos_arbol`, `plantar_arboles`; `suavizar_cilindros`; `mundo`, `ajustes_render` |
 | `render_serie.py` | Serie de vistas desde un JSON, con GPU, sol por vista y planta ortográfica |
 | `encuadre.py` | Mira y focal para que todo el predio entre en una aérea sin cortarse (no requiere Blender) |
 | `exporta_lumion.py` | FBX y DAE, tablas de materiales, árboles y cámaras, y marcas para plantar los árboles (ver §5) |
@@ -95,7 +150,7 @@ uso de cada función. Todo cambio se hace en el generador y se vuelve a correr; 
 "<carpeta de blender>/4.2/python/bin/python.exe" -m pip install shapely
 ```
 ```bash
-blender -b --factory-startup --python escena.py -- modelo.blend
+blender -b --factory-startup --python levanta_modelo.py -- modelo.json acabados.json modelo.blend
 ```
 ```bash
 blender -b modelo.blend --factory-startup -P render_serie.py -- vistas.json renders 48 1280
@@ -198,6 +253,7 @@ no se corrige el plano ajeno.
 - [ ] Ningún dato tomado de otro proyecto: colores, alturas, pendientes y medidas trazables a una lámina de este proyecto o a
       una respuesta del usuario.
 - [ ] Plantas de control revisadas: cantidad de muros, columnas, puertas, ventanas y sobreluces igual a la de los planos.
+- [ ] `control/AVISOS.txt` leído completo, sin ningún "NO MODELAR AÚN" vigente; lo que queda se le dice al usuario.
 - [ ] Colores según el cuadro de acabados; cerco completo incluido el frente; portones del material del plano; nada agregado
       que no esté en el plano ni nada que el usuario haya retirado; sin personas salvo pedido.
 - [ ] Verde solo donde hay achurado; bordes de piso sin escalones; instalaciones completas y en su sitio; obras exteriores con su detalle.

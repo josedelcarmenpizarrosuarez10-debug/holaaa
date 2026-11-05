@@ -231,6 +231,22 @@ class Malla:
         fs.extend([(i, i + 3, i + 2, i + 1), (i + 4, i + 5, i + 6, i + 7), (i, i + 1, i + 5, i + 4), (i + 1, i + 2, i + 6, i + 5),
                    (i + 2, i + 3, i + 7, i + 6), (i + 3, i, i + 4, i + 7)])
 
+    def placa(self, mat, pts, esp):
+        """Placa plana (polígono en un plano vertical) con espesor, centrada en el plano. Cierres bajo cubierta y similares."""
+        p = [Vector(q) for q in pts]
+        n = Vector((0, 0, 0))
+        for i in range(1, len(p) - 1):
+            n = (p[i] - p[0]).cross(p[i + 1] - p[0])
+            if n.length > 1e-6:
+                break
+        if n.length < 1e-6:
+            return
+        n.normalize(); vs, fs = self.d.setdefault(mat, ([], [])); i = len(vs); k = len(p)
+        vs.extend([tuple(q - n * esp / 2) for q in p] + [tuple(q + n * esp / 2) for q in p])
+        fs.append(tuple(range(i + k - 1, i - 1, -1))); fs.append(tuple(range(i + k, i + 2 * k)))
+        for j in range(k):
+            fs.append((i + j, i + (j + 1) % k, i + k + (j + 1) % k, i + k + j))
+
     def crear(self):
         return [obj_mesh('%s_%s' % (self.nombre, m), vs, fs, m, self.col) for m, (vs, fs) in self.d.items()]
 

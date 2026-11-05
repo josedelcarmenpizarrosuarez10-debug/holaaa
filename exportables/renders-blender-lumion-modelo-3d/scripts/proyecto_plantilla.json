@@ -1,0 +1,38 @@
+{
+ "proyecto": "NOMBRE DEL PROYECTO",
+ "cui": "",
+ "origen": [0, 0],
+ "planta_general": {"archivo": "PLANTA_GENERAL.dxf", "ventana": null},
+ "ventana_local": null,
+ "capas": {
+  "muro": ["CAPA_DE_MUROS", "BLOQUE|0"],
+  "muro_bajo": [],
+  "columna": ["CAPA_DE_COLUMNAS"],
+  "columneta": [],
+  "vano": ["CAPA_DE_VENTANAS"],
+  "techo": ["CAPA_DE_PROYECCION_DE_TECHOS"],
+  "lote": ["CAPA_DEL_CERCO"]
+ },
+ "lote_puntos": null,
+ "pisos": {"verde": ["CAPA_DEL_ACHURADO_DE_PASTO"]},
+ "espesor_muro": [0.07, 0.42],
+ "vano_max": 3.6,
+ "carpeta_control": "control",
+ "salida": "modelo.json",
+ "vanos": {
+  "puerta": {"bloque": "NOMBRE_BLOQUE_INDICADOR_PUERTA", "atr_numero": "ATRIBUTO_DEL_NUMERO", "letra": "P"},
+  "ventana": {"bloque": "NOMBRE_BLOQUE_INDICADOR_VENTANA", "atr_numero": "ATRIBUTO_DEL_NUMERO", "letra": "V"},
+  "texto_regex": "^[PV]-?[0-9]+[A-Z]?$",
+  "cuadro": {"archivo": "CUADRO_DE_VANOS.csv"},
+  "sobreluz_regex": "sobre\\s*luz",
+  "vidrio_regex": "vidrio|mampara",
+  "defecto": {}
+ },
+ "edificaciones": [
+  {
+   "cod": "E-01", "nombre": "", "zona": [0, 0, 20, 10],
+   "npt": null, "viga": null, "fondo_viga": null,
+   "cubierta": "dos_aguas", "cumbrera": "x", "pendiente": null, "techo_rotulado": null
+  }
+ ]
+}
