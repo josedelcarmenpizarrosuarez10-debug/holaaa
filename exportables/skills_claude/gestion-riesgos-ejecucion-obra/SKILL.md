@@ -5,26 +5,29 @@ description: "Elaborar el estudio de gestión de riesgos en la planificación de
 
 # Estudio de gestión de riesgos en la ejecución de obra
 
-Ejemplo de referencia aprobado por el usuario: "Mejoramiento del servicio de transitabilidad vial interurbana en la vía
-departamental SM-107, tramo Tingo de Ponasa – Shamboyacu" (CUI 2673852), 25.35 km, 5 puentes, 720 días: 34 riesgos,
-3 oportunidades, P x I, valor esperado, Monte Carlo, planos PR-01 y PR-02 y levantamiento de 3 observaciones.
-El método sirve igual para edificaciones (CAR, colegios, hogares) cambiando las categorías y la ubicación por ambientes o frentes.
+Método general para cualquier obra pública: **obras lineales** (vías, canales, redes de agua y alcantarillado, líneas
+eléctricas), ubicadas por progresivas sobre un eje, y **obras puntuales** (edificaciones, colegios, establecimientos de salud,
+PTAR, reservorios, puentes), ubicadas por frentes, sectores o ambientes del predio. Las categorías, la escala y la ubicación se
+adaptan al tipo de obra; todos los datos salen de los documentos del proyecto. El caso que el usuario aprobó está al final como
+"Ejemplo de referencia" y no se copia a otra obra.
 Es un documento distinto del PSST (peligros a las personas) y de la evaluación de riesgo de desastres (EVAR).
 
-## Reglas permanentes del usuario (no negociables)
+## Reglas permanentes del usuario (valen para todo proyecto)
 - Todo en español. Entregables en **Word, Excel y DXF**; vistas previas en **PNG**; PDF solo si el usuario lo pide.
 - **Escala real: 1 unidad = 1 m** ("si algo mide 0.56, así debe medir en el plano").
 - Decir siempre **"cota de fondo"**.
-- Citar cada proyecto por su **nombre completo y su CUI**. No mezclar partidas, láminas ni datos entre proyectos.
+- Citar cada proyecto por su **nombre completo y su CUI** (o código de inversión). No mezclar partidas, láminas ni datos entre proyectos.
 - **Nada en los documentos que revele el uso de IA.** Nombre y CIP del proyectista: **campos en blanco**.
 - **No modificar** los metrados ni los documentos del usuario salvo pedido expreso; cambiar solo lo pedido y verificar
   que lo demás quede idéntico (cotejo antes y después).
-- Partidas con nombres y estructura **Delphin**; cantidades siempre del metrado propio. Precios reales con su fuente;
-  mano de obra CAPECO-FTCCP 2026 (operario 28.95, oficial 22.68, peón 20.54 S/ por hora) salvo que el usuario dé otra.
+- Partidas con nombres y estructura **Delphin**; cantidades siempre del metrado propio. Precios reales con su fuente y fecha;
+  mano de obra según la tabla CAPECO vigente o la que indique el usuario.
 - Actualizar todo lo relacionado de forma coherente: **metrado ↔ planos ↔ especificaciones ↔ memoria**.
 - **Cuando el usuario ya imprimió un plano, no se regenera**: los cambios van a los documentos y se le avisan.
 - Las observaciones sobre documentos de otros profesionales van en una **nota de revisión interna**, nunca dentro del documento.
 - No reenviar archivos que no cambiaron. Preguntar lo dudoso antes de producir, con una imagen de control si hace falta.
+- **Ningún dato de un proyecto anterior se usa en uno nuevo** (colores, dimensiones, niveles, lluvias, cantidades, nombres):
+  todo sale de los planos y documentos del proyecto nuevo o se le pregunta al usuario. Los proyectos citados son solo ejemplos.
 - Revisar el trabajo propio varias veces antes de entregar; decir con claridad lo que no se pudo comprobar.
 
 **Reglas propias de este estudio:** ningún monto en soles en Word, Excel ni plano (todo efecto en **% del presupuesto de obra**
@@ -32,35 +35,42 @@ y en días); los componentes del presupuesto también en %; **sin sección ni ho
 (FTE, expediente, inventario) y sin textos que señalen diferencias entre ellos: si algo no cuadra, va como riesgo neutro
 ("subrasante de menor capacidad que la prevista") o en nota interna aparte.
 
-## 1. Datos que hay que pedir
-1. Ficha técnica (FTE) o expediente con su resumen ejecutivo: nombre, CUI, código de idea, entidad, unidad ejecutora, ubicación,
-   modalidad (contrata o administración directa), fuente de financiamiento, plazo en días, metas físicas.
+## 1. Insumos y datos que hay que pedir
+1. Ficha técnica (FTE) o expediente con su resumen ejecutivo: tipo de obra, nombre, CUI, código de idea, entidad, unidad
+   ejecutora, ubicación, modalidad (contrata o administración directa), sistema de contratación, fuente de financiamiento,
+   plazo en días, fecha prevista de convocatoria e inicio, metas físicas.
 2. Presupuesto S10: costo directo, gastos generales, utilidad, IGV, presupuesto de obra, supervisión, gestión, control concurrente
    (solo para calcular porcentajes; no se publican los montos).
-3. Estudios básicos: inventario vial o diagnóstico, topografía, mecánica de suelos, hidrología, canteras y DME, impacto ambiental,
-   arqueología, predios e interferencias; panel fotográfico con fecha y coordenadas UTM; plano clave o planta con el eje.
+3. Estudios básicos: inventario vial o diagnóstico del local o del sistema existente, topografía, mecánica de suelos, hidrología, canteras y DME, impacto ambiental,
+   arqueología, predios e interferencias (redes, postes, canales, local en funcionamiento); panel fotográfico con fecha y
+   coordenadas UTM; plano clave con el eje (obra lineal) o planta general del predio (obra puntual) en DXF georreferenciado.
 4. Clima: lluvia mensual de estaciones cercanas (SENAMHI o NOAA) para el calendario de programación.
 5. Si es levantamiento: el estudio **tal como se presentó** (el archivo que sube el usuario, no una versión propia: puede diferir
    en encabezado, imágenes o filas) y el texto exacto de cada observación (cita textual, con el numeral que señala el evaluador).
-6. Para edificaciones: memoria descriptiva o resumen ejecutivo del expediente, cronograma de obra, estudio de suelos y el
-   **EVAR** del proyecto (para no contradecir sus peligros). Mínimo indispensable: presupuesto S10, plazo, modalidad y resumen.
+6. Memoria descriptiva, cronograma de obra (ruta crítica), estudio de suelos y el **EVAR** del proyecto si existe (para no
+   contradecir sus peligros); para edificaciones, el plan de frentes y si el local sigue funcionando durante la obra.
+7. El formato o modelo que exija la entidad y, si hay, la carátula del expediente (para usar el mismo diseño).
+Mínimo indispensable: presupuesto S10, plazo, modalidad y resumen ejecutivo; si algo falta, decir qué quedó supuesto.
 
 Antes de empezar, comprobar si el estudio ya existe (de otro profesional) para revisarlo o completarlo, y no confundirlo con el
 PSST ni con el EVAR. Si solo hay carátula o índice, decirlo y preguntar si se elabora desde cero.
 
 ## 2. Marco normativo
+**Antes de citar, verificar que cada norma y artículo sigan vigentes** (reglamentos, directivas y comunicados del OECE cambian
+seguido): si hay versión nueva, citarla y avisarlo al usuario.
 Ley N.° 32069, Ley General de Contrataciones Públicas; su Reglamento (D.S. N.° 009-2025-EF), **art. 156** (matriz de riesgos en el
 expediente de contratación: identificación, responsable, análisis cualitativo y cuantitativo; asignación a la parte que mejor
 lo gestiona; comité de gestión de riesgos cuando la cuantía supera el monto del reglamento); Comunicado N.° 016-2025-OECE
 (arts. 128 y 156 obligatorios sin esperar la directiva). La Directiva N.° 012-2017-OSCE/CD está **derogada** (Res. N.°
 D000129-2025-OECE-PRE): citarla solo como referencia de método (escalas y formatos). Si la Dirección General de Abastecimiento
 publica su directiva, adecuar los formatos. Normas sectoriales de la obra (EG-2013, DG-2018, Manual de Puentes, Manual de
-Hidrología, Manual de Dispositivos de Control del Tránsito; RNE para edificaciones), Ley N.° 29664 (SINAGERD), Ley N.° 29783,
+Hidrología, Manual de Dispositivos de Control del Tránsito para vías; RNE para edificaciones; normas de saneamiento del MVCS
+para agua y alcantarillado; Código Nacional de Electricidad para energía), Ley N.° 29664 (SINAGERD), Ley N.° 29783,
 Ley N.° 27446 (SEIA), D.S. N.° 011-2022-MC (arqueología), Ley N.° 30025 (predios), Ley N.° 29338 (recursos hídricos).
 Método: PMBOK y su estándar de gestión de riesgos; ISO 31000:2018.
 
 ## 3. Identificación
-- Revisar todos los documentos y el recorrido del eje o del predio con relieve y lluvia; lista de verificación por categorías:
+- Revisar todos los documentos y el recorrido del eje (obra lineal) o del predio (obra puntual) con relieve y lluvia; lista de verificación por categorías:
   diseño y expediente, geotecnia, clima y naturaleza, social y predios, permisos, interferencias, insumos y canteras, económico,
   ejecución, gestión del contrato, seguridad, ambiental.
 - Registro por riesgo (código R-01...): evento (riesgo), causa (con datos concretos: volúmenes, alturas de talud, lluvias),
@@ -76,9 +86,11 @@ Método: PMBOK y su estándar de gestión de riesgos; ISO 31000:2018.
 - Ubicación de riesgos sin lugar físico (gestión, contrato, financiamiento, permisos): "No localizado". Cantera, fuente de agua,
   DME o arqueología sin coordenadas en el expediente: "ubicación por definir".
 - Progresiva de cada foto y punto = proyección sobre el eje georreferenciado; si el inventario da otra progresiva, usar la del
-  eje (la misma de los planos PR-01 y PR-02).
+  eje (la misma de los planos del estudio).
 
 ## 4. Análisis cualitativo (P x I)
+Escalas y umbrales: criterio por defecto del usuario; confirmar en cada proyecto (o usar los de la entidad si los fija).
+
 | Nivel | Probabilidad | Impacto | Costo (% del presupuesto de obra) | Plazo |
 |---|---|---|---|---|
 | Muy bajo/a | 0.10 | 0.05 | < 0.1 % | < 7 días |
@@ -95,16 +107,16 @@ Método: PMBOK y su estándar de gestión de riesgos; ISO 31000:2018.
 
 ## 5. Análisis cuantitativo
 - Por riesgo: costo (mín., más probable, máx.) en % del presupuesto de obra y retraso (mín., más probable, máx.) en días,
-  distribución triangular. Si se estima en soles, convertir a precio de obra (costo directo x factor = subtotal x 1.18 / CD) y
-  publicar solo el %.
+  distribución triangular. Si se estima en soles, convertir a precio de obra (CD x factor = subtotal x (1 + IGV) / CD) y publicar solo el %.
 - Valor esperado = P x media triangular, en % y en días (inherente y residual).
 - Exposición de la Entidad: factor 1.0 Entidad, 0.5 compartido, 0 contratista; descontar lo que cubre la póliza CAR; sumar el
-  costo por día de ampliación atribuible = (gastos generales x 1.18 + supervisión) / plazo, expresado en % del presupuesto por día.
+  costo por día de ampliación atribuible = (gastos generales x (1 + IGV) + supervisión) / plazo, expresado en % del presupuesto por día.
 - Monte Carlo (20,000 iteraciones, semilla fija = CUI para que sea reproducible): cada riesgo ocurre según su P; costo y retraso
   triangulares. Retrasos: solo los de ruta crítica; dentro de cada grupo se suma el mayor y el 25 % de los demás (concurrencia);
   los grupos se suman. Resultados P50, P80, P90 y media, inherente y residual: costo para la Entidad, costo del contratista,
   retraso total y retraso atribuible a la Entidad.
-- **Reserva de contingencia recomendada = P80 residual del costo para la Entidad (% del presupuesto).**
+- **Reserva de contingencia recomendada = P80 residual del costo para la Entidad (% del presupuesto)** (criterio por defecto del
+  usuario; confirmar si la entidad fija otro percentil).
 
 ## 6. Respuesta, asignación y seguimiento
 - Estrategia: evitar, mitigar, transferir (póliza CAR, garantías), aceptar; oportunidades: explotar, mejorar, compartir, aceptar.
@@ -113,8 +125,9 @@ Método: PMBOK y su estándar de gestión de riesgos; ISO 31000:2018.
   > 0.50 m en 24 h, desplazamiento de hitos > 2 cm, autorización no emitida 30 días antes del inicio...).
 - Capítulos aparte: acciones previas a la convocatoria (las de mayor efecto: canteras, DME, certificación ambiental, predios,
   interferencias, revisión del expediente, verificación en campo con foto georreferenciada de los puntos que solo tienen
-  registro documental); programación según la lluvia (mes LLUVIOSO ≥ 110 mm, TRANSICIÓN ≥ 75 mm, ESTIAJE
-  < 75 mm; en estiaje cimentaciones, terraplenes y carpeta; en lluvias obras de arte, cunetas y taller).
+  registro documental); programación según la lluvia (criterio por defecto: mes LLUVIOSO ≥ 110 mm, TRANSICIÓN ≥ 75 mm,
+  ESTIAJE < 75 mm; confirmar con la lluvia del lugar): en estiaje lo sensible al agua (excavaciones, cimentaciones, terraplenes,
+  carpetas, coberturas); en lluvias lo que tolera la lluvia o va bajo techo (obras de arte, acabados interiores, taller).
 - Asignación a quien controla la causa: Entidad (decisiones, permisos, predios, interferencias, financiamiento, expediente),
   contratista (métodos, equipos, suministros, calidad, seguridad, lluvias previsibles), compartido (causas mixtas).
 - Comité de gestión de riesgos, revisión mensual, formato de seguimiento y actualización de la matriz.
@@ -134,7 +147,7 @@ Carátula (entidad, título, nombre completo, CUI; sin especialista ni CIP) e í
 alcance, diferencia con la EVAR, datos del proyecto); 2 Marco normativo; 3 Descripción del proyecto y su entorno (ubicación y
 trazo, componentes en %, estado y puntos críticos con fotos, relieve, clima); 4 Metodología (con las tablas de escalas); 5
 Identificación; 6 Análisis cualitativo (tabla ordenada por P x I y mapa de calor inherente y residual); 7 Análisis cuantitativo
-(valor esperado de los 15 mayores; Monte Carlo y lectura de resultados); 8 Plan de respuesta; 9 Asignación; 10 Oportunidades;
+(valor esperado de los mayores, p. ej. los 15 primeros; Monte Carlo y lectura de resultados); 8 Plan de respuesta; 9 Asignación; 10 Oportunidades;
 11 Organización y seguimiento; 12 Conclusiones y recomendaciones; 13 Anexos.
 Figuras: mapa de ubicación de sectores y puntos, perfil del terreno y pendiente, lluvia mensual con temporadas, mapa de calor,
 curvas de probabilidad acumulada del costo y del retraso. Tablas con número ("Tabla N.° 08") y fuente.
@@ -147,13 +160,16 @@ PROYECTO DE INVERSIÓN:", nombre completo y CUI, vista de la obra (3D o foto), f
 sola, en la carpeta propia del estudio de ese proyecto, y ofrecer variantes (fecha, título largo, línea de la gerencia).
 
 ## 9. Plano DXF de riesgos (escala real, coordenadas UTM reales)
-- **PR-01 Ubicación de riesgos**, 1/25,000, UTM WGS 84 (zona del proyecto): eje georreferenciado (del plano clave), curvas de
-  nivel cada 10 m de un DEM público (Copernicus GLO-30, rotuladas como referenciales: incluye vegetación), localidades, puentes,
-  sectores como polilíneas gruesas y puntos como círculos llenos, una capa y color por tipo (R-INUNDACION, R-EROSION, R-TALUDES,
-  R-RIEGO, R-INTERFERENCIAS, R-PLATAFORMA, R-PREDIOS), llamadas con el código R-xx, leyenda, rótulo y norte.
-- **PR-02 Diagrama lineal por progresiva** (horizontal 1/40,000): una fila por tipo de riesgo, barra de pendiente del entorno cada
-  100 m (≥ 25° alto, 15-25° moderado, < 15° bajo), perfil de cotas, localidades y puentes, cuadro de riesgos por kilómetro.
-- Para edificaciones: planta del predio con zonas de riesgo por ambiente o frente. Vista previa PNG de cada lámina.
+Obra lineal: las dos láminas siguientes. Obra puntual: planta del predio (o del entorno) con zonas de riesgo por frente, sector
+o ambiente, accesos, colindantes, redes e interferencias, con la misma lógica de capas, llamadas, leyenda y rótulo.
+Escalas, nombres de capa y códigos de lámina se adaptan a cada proyecto (ver el ejemplo al final).
+- **Ubicación de riesgos** (escala según la extensión), UTM WGS 84 de la zona del proyecto: eje o predio georreferenciado,
+  curvas de nivel de un DEM público si no hay topografía (Copernicus GLO-30, rotuladas como referenciales: incluye vegetación),
+  localidades, accesos y estructuras, sectores como polilíneas gruesas y puntos como círculos llenos, una capa y color por tipo
+  de riesgo (inundación, erosión, taludes, interferencias, predios...), llamadas con el código R-xx, leyenda, rótulo y norte.
+- **Diagrama lineal por progresiva** (solo obra lineal): una fila por tipo de riesgo, barra de pendiente del entorno cada 100 m
+  (criterio por defecto: ≥ 25° alto, 15-25° moderado, < 15° bajo), perfil de cotas, localidades y estructuras, cuadro por km.
+  Vista previa PNG de cada lámina.
 
 ## 10. Anexos y levantamiento de observaciones
 - Anexos: registro completo; matriz impresa (todas las hojas como apartados A.1 a A.12); ubicación georreferenciada (tabla de
@@ -183,9 +199,9 @@ sola, en la carpeta propia del estudio de ese proyecto, y ofrecer variantes (fec
 - **Unión al estudio presentado sin tocarlo** (no varía ni una letra; ya se envió): el archivo que subió el usuario es la base;
   se agregan al final anexos nuevos que continúan la numeración del capítulo de anexos (13.3, 13.4, 13.5...) y de las tablas
   (si la última es la Tabla N.° 14, siguen 15, 16, 17), con el mismo encabezado y pie de página del original, **sin las palabras
-  "observación", "subsanación" ni "absolución"**. Ejemplo aprobado: Anexo 3 matriz impresa completa (hojas apaisadas), Anexo 4
-  ubicación georreferenciada (tablas que complementan las Tablas N.° 04 y N.° 08 + fichas), Anexo 5 panel fotográfico
-  (A fotos; B puntos con foto de su sector y su distancia; C registro documental). Comprobar con un programa que todo lo anterior
+  "observación", "subsanación" ni "absolución"**. Contenido típico: matriz impresa completa (hojas
+  apaisadas), ubicación georreferenciada (tablas que complementan las observadas + fichas) y panel fotográfico (A fotos;
+  B puntos con foto de su sector y su distancia; C registro documental). Comprobar con un programa que todo lo anterior
   a los anexos quedó idéntico (elemento por elemento) e informar las páginas antes y después. El índice del inicio no se toca:
   preguntar si se agregan las líneas de los anexos nuevos. Si la observación buscaba algo en un anexo y ahora está en otro,
   decirlo en la respuesta ("la matriz se adjunta impresa en el Anexo 3 y en Excel").
@@ -220,16 +236,25 @@ sola, en la carpeta propia del estudio de ese proyecto, y ofrecer variantes (fec
 - El estudio ya presentado se conserva sin cambios; lo nuevo va como anexos al final o en el levantamiento aparte.
 - El estudio va en su propia carpeta y documento, separado del PSST y de los expedientes de drenaje; un proyecto nuevo, carpeta nueva.
 - Carátulas con el diseño del proyecto (logo de la entidad, foto de la obra), sin nombre ni CIP del especialista.
-- Se entregó el levantamiento con 31 recuadros "FOTOGRAFÍA POR INCORPORAR": el usuario lo rechazó ("si lo identificaste, debe
-  haber fotografía"). Primero agotar las fotos de todos los documentos (aparecieron 2 más en las PNG del inventario), luego foto
+- Se entregó un levantamiento con recuadros "FOTOGRAFÍA POR INCORPORAR": el usuario lo rechazó ("si lo identificaste, debe
+  haber fotografía"). Primero agotar las fotos de todos los documentos (aparecen fotos en las imágenes del inventario), luego foto
   de sector a ≤ 500 m y el resto como registro documental con acción de verificación; nunca dejar vacíos visibles.
 - Al pedir "otra solución" no hay que insistir en la misma (fotos de campo): ofrecer una alternativa distinta y aplicable con
   lo que hay (fotos por sector), explicando su punto débil.
 - El usuario quiso borrar los puntos sin foto: se le mostró dónde estaba citado cada uno en lo presentado (tabla, conclusiones,
-  recomendaciones, matriz, planos) y se mantuvieron; el único sin otras citas se dejó igual por coherencia con el inventario.
-- La absolución de la Tabla N.° 08 solo remitía a fotos por número en otro anexo: el usuario preguntó "¿adjuntaste fotografías?"
-  y hubo que agregar fichas por riesgo con sus fotos, igual que las de la Tabla N.° 04. Contestar cada tabla observada en su sitio.
+  recomendaciones, matriz, planos) y se mantuvieron; aun el que no tenía otras citas se dejó por coherencia con el inventario.
+- La absolución de una tabla observada solo remitía a fotos por número en otro anexo: el usuario preguntó "¿adjuntaste
+  fotografías?" y hubo que agregar fichas con sus fotos junto a esa tabla. Contestar cada tabla observada en su sitio.
 - La versión presentada no era igual a la del repositorio (encabezado, una imagen más, una fila menos): la base es siempre el
   archivo que el usuario envió, guardado tal cual.
 - Los anexos nuevos no dicen "subsanación" ni "observación": se agregan como anexos normales del estudio.
 - Ante "dime texto para explicar al ingeniero", entregar un solo párrafo corrido, formal y concreto, listo para copiar.
+
+## Ejemplo de referencia (solo ilustrativo; sus datos no se usan en otra obra)
+"Mejoramiento del servicio de transitabilidad vial interurbana en la vía departamental SM-107, tramo Tingo de Ponasa –
+Shamboyacu" (CUI 2673852), obra lineal de 25.35 km, 5 puentes, 720 días: 34 riesgos, 3 oportunidades, P x I, valor esperado,
+Monte Carlo (semilla = CUI), planos PR-01 (1/25,000) y PR-02 (1/40,000, capas R-INUNDACION, R-EROSION, R-TALUDES, R-RIEGO,
+R-INTERFERENCIAS, R-PLATAFORMA, R-PREDIOS) y levantamiento de 3 observaciones. En el levantamiento se completaron fichas con
+foto para las Tablas N.° 04 (puntos críticos) y N.° 08 (riesgos) y se agregaron los Anexos 3 (matriz impresa), 4 (ubicación
+georreferenciada) y 5 (panel fotográfico); de 31 puntos sin foto, 2 se cubrieron con fotos halladas en las PNG del inventario
+y el resto con foto de sector a ≤ 500 m o como registro documental.
