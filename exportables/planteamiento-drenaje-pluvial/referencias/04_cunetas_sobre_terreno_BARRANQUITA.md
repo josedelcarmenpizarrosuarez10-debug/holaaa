@@ -1,3 +1,7 @@
+> **Casos de ejemplo.** Este archivo documenta proyectos ya trabajados para mostrar el método. Sus valores (nombres, CUI,
+> dimensiones, niveles, lluvias, cantidades, colores, códigos de lámina) **no se usan en un proyecto nuevo**: se toman de sus
+> planos y documentos o se le preguntan al usuario.
+
 # 04 — Planteamiento de cunetas sobre terreno (algoritmo completo)
 
 Base de conocimiento del repositorio. Tema: cómo se plantea una red de cunetas pluviales de un local (colegio, CAR, hogar)

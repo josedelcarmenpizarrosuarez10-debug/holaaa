@@ -1,7 +1,7 @@
 # Cómo usar el planteamiento de drenaje pluvial en otro chat
 
 Paquete: `PLANTEAMIENTO_DRENAJE_PLUVIAL_SKILL.zip`. Trae la carpeta `planteamiento-drenaje-pluvial/` con:
-- `SKILL.md`: los criterios y el método completo (el mismo de la I.E. N.° 0590 Barranquita).
+- `SKILL.md`: los criterios y el método general (sirve para cualquier local; Barranquita queda solo como ejemplo de referencia).
 - `referencias/04_cunetas_sobre_terreno_BARRANQUITA.md`: el caso completo, con cada decisión y sus números.
 - `referencias/02_hidrologia_e_hidraulica.md`: la lluvia, los coeficientes C, el método racional, Manning, canaletas y montantes.
 
@@ -26,7 +26,7 @@ El repositorio ya tiene el skill `planteamiento-cunetas-terreno` y la implementa
 
 ```
 Hola. Necesito el planteamiento de drenaje pluvial con cunetas de este proyecto, con el mismo método y criterios del skill
-"planteamiento-drenaje-pluvial" (el de la I.E. N.° 0590 Barranquita). Lee primero SKILL.md y las referencias.
+"planteamiento-drenaje-pluvial". Lee primero SKILL.md y las referencias.
 
 Proyecto: [nombre completo del proyecto]
 CUI / código de inversión: [CUI]
