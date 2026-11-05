@@ -1,6 +1,6 @@
 ---
 name: renders-revit-modelo-3d
-description: "Armar el modelo 3D de un local (CAR, hogar, colegio, centro de salud) a partir de los DXF de la arquitecta y producir renders realistas en Blender Cycles (materiales y colores del cuadro de acabados, pisos y áreas verdes según los achurados de la planta, cerco perimétrico, obras exteriores según sus láminas, drenaje pluvial visible tal cual el plano) y llevarlo a Revit: IFC2X3 con sólidos cerrados para vincular origen a origen y script de Dynamo (nodo Python) con familias nativas (muros, pisos, cubiertas por huella con pendiente, cubierta en arco por extrusión, puertas y ventanas de familias cargadas, árboles RPC). Usar cuando el usuario pida renders, vistas realistas, fotomontajes, modelo 3D, IFC, Revit o Dynamo de un proyecto."
+description: "Armar el modelo 3D de un local (CAR, hogar, colegio, centro de salud) a partir de los DXF de la arquitecta y producir renders realistas en Blender Cycles (materiales y colores del cuadro de acabados, pisos y áreas verdes según los achurados de la planta, cerco perimétrico, obras exteriores según sus láminas, drenaje pluvial visible tal cual el plano) y llevarlo a BIM: Revit (IFC2X3 con sólidos cerrados para vincular origen a origen y script de Dynamo (nodo Python) con familias nativas (muros, pisos, cubiertas por huella con pendiente, cubierta en arco por extrusión, puertas y ventanas de familias cargadas, árboles RPC)) y a Lumion, Twinmotion o Enscape (LiveSync o FBX con materiales por nombre). Usar cuando el usuario pida renders, vistas realistas, modelo 3D o BIM, IFC, Revit, Dynamo o Lumion de un proyecto."
 ---
 
 # Renders realistas y modelo para Revit desde los DXF de arquitectura
@@ -106,6 +106,35 @@ Nombre de archivo con código y lugar (A1_aerea_frontal_suroeste.jpg) y un zip c
 - Visualización: Gráficos > estilo Realista o Sombreado y **quitar Show Edges** (las líneas blancas eran aristas); los árboles RPC
   se ven reales solo con **Accelerated Graphics apagado** (Opciones > Gráficos).
 
+### 5.3 Lumion, Twinmotion o Enscape (render en el equipo del usuario)
+- **Desde Revit (lo más limpio)**: con el modelo nativo de Dynamo y el IFC complementario vinculado, usar el plugin
+  **LiveSync** de Lumion (o el botón Twinmotion / Enscape de Revit). Los materiales llegan con su nombre (HR TP-1 Guinda,
+  HR TP-2 Gris, HR TP-3 Blanco, HR Concreto, HR Calamina, HR Área verde…) y en Lumion se reemplazan por materiales realistas:
+  pintura mate para TP-1/TP-2/TP-3 con su color exacto, concreto frotachado con juntas, calamina o aluzinc metálico,
+  pasto 3D en las áreas verdes, arena en el patio de juegos, vidrio y aluminio en ventanas, plancha metálica en portones.
+- **Desde Blender**: exportar la escena en **FBX** (o COLLADA .dae) con un material por superficie y nombres claros, escala
+  en metros, sin vegetación del entorno ni pasto de partículas (Lumion pone los suyos). Los árboles del lote se reemplazan por
+  árboles de la biblioteca de Lumion en las mismas posiciones (entregar la lista de coordenadas).
+- Entregar con el archivo un **LEEME** con: qué archivo importar, origen y unidades, la tabla material → acabado sugerido
+  con el RGB de cada color, la lista de vistas aprobadas (posición de cámara y objetivo) y lo que se debe revisar.
+- No prometer que el resultado de Lumion se ve igual en todos los equipos: depende de la tarjeta de video y de los materiales
+  que el usuario elija; el modelo y los colores sí deben ser exactos.
+
+### 5.4 Fidelidad al plano, lámina por lámina ("cada detalle")
+Antes de dar por terminado el modelo, recorrer cada lámina de arquitectura y marcar en una tabla (elemento, lámina, estado):
+- **Planta general (PG-01 / PG-02)**: posición y contorno de cada edificación y su techo (cumbreras, caídas, aleros),
+  veredas, pisos, áreas verdes (solo achurados), cerco completo, ingresos y obras exteriores.
+- **Edificaciones (A-xx)**: muros exteriores e interiores con su espesor, columnas con su sección, puertas y ventanas con
+  ancho, alto y alféizar del cuadro de vanos de los detalles (DT manda sobre la planta), sobreluces, alturas de los cortes
+  (NPT, fondo y nivel superior de viga, cumbrera), pendiente de techo.
+- **Obras complementarias y exteriores (OC / OE)**: pórtico de ingreso con sus portones, caseta, estacionamientos, tanque
+  elevado y cisterna, patio cívico con asta, juegos sobre arena, bancas, biohuerto, PTAR (tierra o hierba con sus tapas),
+  losa deportiva con su techo, cerco con su detalle.
+- **Drenaje**: cunetas con rejilla, sumideros, tapas de inspección, canaletas, montantes y colector, copiados del plano de drenaje.
+- **Acabados**: cada color del cuadro de acabados de la arquitecta en el elemento que indica la elevación.
+Toda diferencia entre láminas (vanos, alturas, cumbreras) se anota en una nota aparte "por confirmar con la arquitecta";
+no se corrige el plano ajeno.
+
 ## 6. Verificación antes de entregar
 - [ ] Plantas de control revisadas: cantidad de muros, columnas, puertas, ventanas y sobreluces igual a la de los planos.
 - [ ] Colores según el cuadro; cerco completo incluido el frente; portones llenos; nada que el usuario retiró (pérgola, personas).
@@ -113,6 +142,8 @@ Nombre de archivo con código y lugar (A1_aerea_frontal_suroeste.jpg) y un zip c
 - [ ] Ningún árbol cruza techos ni cerco; nada flota ni se hunde; sombras y exposición sin zonas quemadas.
 - [ ] IFC validado; mismo origen en IFC y Dynamo; script probado al menos con una API simulada y dicho si falta la prueba en Revit.
 - [ ] Lista de diferencias entre planos enviada como nota aparte para confirmar con la arquitecta.
+- [ ] Tabla de fidelidad lámina por lámina completa (§5.4), sin elementos pendientes.
+- [ ] Si va a Lumion / Twinmotion / Enscape: archivo, LEEME con origen, unidades, tabla de materiales con RGB y vistas aprobadas.
 
 ## 7. Errores que el usuario ya corrigió (no repetirlos)
 - Faltaba el cerco frontal: el cerco va en todo el lote; el frente es de muro, **sin rejas** en el ingreso.
