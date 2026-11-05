@@ -40,7 +40,13 @@ y en días); los componentes del presupuesto también en %; **sin sección ni ho
 3. Estudios básicos: inventario vial o diagnóstico, topografía, mecánica de suelos, hidrología, canteras y DME, impacto ambiental,
    arqueología, predios e interferencias; panel fotográfico con fecha y coordenadas UTM; plano clave o planta con el eje.
 4. Clima: lluvia mensual de estaciones cercanas (SENAMHI o NOAA) para el calendario de programación.
-5. Si es levantamiento: el estudio tal como se presentó y el texto exacto de cada observación.
+5. Si es levantamiento: el estudio **tal como se presentó** (el archivo que sube el usuario, no una versión propia: puede diferir
+   en encabezado, imágenes o filas) y el texto exacto de cada observación (cita textual, con el numeral que señala el evaluador).
+6. Para edificaciones: memoria descriptiva o resumen ejecutivo del expediente, cronograma de obra, estudio de suelos y el
+   **EVAR** del proyecto (para no contradecir sus peligros). Mínimo indispensable: presupuesto S10, plazo, modalidad y resumen.
+
+Antes de empezar, comprobar si el estudio ya existe (de otro profesional) para revisarlo o completarlo, y no confundirlo con el
+PSST ni con el EVAR. Si solo hay carátula o índice, decirlo y preguntar si se elabora desde cero.
 
 ## 2. Marco normativo
 Ley N.° 32069, Ley General de Contrataciones Públicas; su Reglamento (D.S. N.° 009-2025-EF), **art. 156** (matriz de riesgos en el
@@ -61,6 +67,16 @@ Método: PMBOK y su estándar de gestión de riesgos; ISO 31000:2018.
   efecto, ubicación (progresivas, sectores o ambientes), evidencia (documento y numeral, sin calificarlo), grupo de la ruta
   crítica (inicio, clima, terreno, gestión, otros), en ruta crítica sí/no.
 - Oportunidades (O-01...): por ejemplo material de corte reutilizable, concentrar trabajos críticos en estiaje, compra anticipada.
+- **Evidencia desde el primer día**: el evaluador pide foto con coordenadas de cada punto o riesgo identificado, y el usuario
+  espera que "si se identificó, debe haber foto". Al armar la tabla de puntos críticos y el registro, anotar por cada punto su
+  progresiva, coordenadas UTM de inicio y fin y la foto que lo respalda. Revisar todas las imágenes de todos los documentos
+  (JPG y PNG del inventario, resumen ejecutivo, FTE): muchas fotos traen fecha, hora y coordenadas impresas por la cámara.
+  Si un punto sale de un registro histórico sin fotos (por ejemplo, una tabla de zonas críticas antigua por progresivas),
+  marcarlo así en el registro interno y pedir la foto de campo antes de presentar, no después.
+- Ubicación de riesgos sin lugar físico (gestión, contrato, financiamiento, permisos): "No localizado". Cantera, fuente de agua,
+  DME o arqueología sin coordenadas en el expediente: "ubicación por definir".
+- Progresiva de cada foto y punto = proyección sobre el eje georreferenciado; si el inventario da otra progresiva, usar la del
+  eje (la misma de los planos PR-01 y PR-02).
 
 ## 4. Análisis cualitativo (P x I)
 | Nivel | Probabilidad | Impacto | Costo (% del presupuesto de obra) | Plazo |
@@ -96,7 +112,8 @@ Método: PMBOK y su estándar de gestión de riesgos; ISO 31000:2018.
   (antes de la convocatoria, antes del inicio, ejecución) y **alerta temprana medible** (lluvia > 30 mm/día, subida de quebrada
   > 0.50 m en 24 h, desplazamiento de hitos > 2 cm, autorización no emitida 30 días antes del inicio...).
 - Capítulos aparte: acciones previas a la convocatoria (las de mayor efecto: canteras, DME, certificación ambiental, predios,
-  interferencias, revisión del expediente); programación según la lluvia (mes LLUVIOSO ≥ 110 mm, TRANSICIÓN ≥ 75 mm, ESTIAJE
+  interferencias, revisión del expediente, verificación en campo con foto georreferenciada de los puntos que solo tienen
+  registro documental); programación según la lluvia (mes LLUVIOSO ≥ 110 mm, TRANSICIÓN ≥ 75 mm, ESTIAJE
   < 75 mm; en estiaje cimentaciones, terraplenes y carpeta; en lluvias obras de arte, cunetas y taller).
 - Asignación a quien controla la causa: Entidad (decisiones, permisos, predios, interferencias, financiamiento, expediente),
   contratista (métodos, equipos, suministros, calidad, seguridad, lluvias previsibles), compartido (causas mixtas).
@@ -122,6 +139,13 @@ Identificación; 6 Análisis cualitativo (tabla ordenada por P x I y mapa de cal
 Figuras: mapa de ubicación de sectores y puntos, perfil del terreno y pendiente, lluvia mensual con temporadas, mapa de calor,
 curvas de probabilidad acumulada del costo y del retraso. Tablas con número ("Tabla N.° 08") y fuente.
 
+**Carátula en Word** con el mismo diseño de las carátulas que ya tiene el expediente de ese proyecto (para que todo el expediente
+se vea igual), de arriba abajo: escudo y nombre de la entidad (y la gerencia u oficina, si la usan), "EXPEDIENTE TÉCNICO DEL
+PROYECTO DE INVERSIÓN:", nombre completo y CUI, vista de la obra (3D o foto), franja del color del proyecto con
+**"GESTIÓN DE RIESGOS"** y debajo "EN LA PLANIFICACIÓN DE LA EJECUCIÓN DE LA OBRA", vista aérea del terreno, ubicación
+(distrito, provincia, región) y fecha "MES - AÑO". Sin especialista ni CIP. Si el usuario pide solo la carátula, entregarla
+sola, en la carpeta propia del estudio de ese proyecto, y ofrecer variantes (fecha, título largo, línea de la gerencia).
+
 ## 9. Plano DXF de riesgos (escala real, coordenadas UTM reales)
 - **PR-01 Ubicación de riesgos**, 1/25,000, UTM WGS 84 (zona del proyecto): eje georreferenciado (del plano clave), curvas de
   nivel cada 10 m de un DEM público (Copernicus GLO-30, rotuladas como referenciales: incluye vegetación), localidades, puentes,
@@ -135,13 +159,39 @@ curvas de probabilidad acumulada del costo y del retraso. Tablas con número ("T
 - Anexos: registro completo; matriz impresa (todas las hojas como apartados A.1 a A.12); ubicación georreferenciada (tabla de
   puntos y sectores críticos y tabla de riesgos con progresiva y coordenadas UTM de inicio y fin, fichas con foto); panel fotográfico
   georreferenciado.
-- Fotos: usar las que imprimen fecha y coordenadas; progresiva = proyección sobre el eje; un punto sin foto propia se registra
-  con la foto de su sector a ≤ 500 m (indicar la distancia; las coordenadas del punto son las de la tabla); sin foto cercana =
-  registro documental y su verificación de campo pasa a ser acción del plan de respuesta; riesgos globales = "No localizado".
-- **Levantamiento de observaciones en Word aparte**: carátula; cuadro resumen (N.°, observación, absolución, ubicación en el
-  estudio); por cada observación, cita textual, "Absolución:" y el contenido corregido (tablas completas como quedan); anexos.
-- Si el usuario pide agregar al estudio presentado, **no tocar lo presentado**: anexar al final y comprobar que el cuerpo
-  original quede idéntico (comparar elemento por elemento).
+- Fotos: usar las que imprimen fecha y coordenadas; progresiva = proyección sobre el eje; riesgos globales = "No localizado".
+  Punto sin foto propia: la foto georreferenciada más cercana **del mismo tramo, a ≤ 500 m**, rotulada "F-06 (vista del sector, a 44 m)";
+  las coordenadas que se publican son las del punto, no las de la foto. Nunca poner la foto de otro lugar como propia ni inventar
+  coordenadas. Una imagen satelital solo como "imagen satelital", nunca como foto de campo.
+- **Sin recuadros vacíos ni "fotografía por incorporar" / "fotos por completar"**: el punto sin foto a ≤ 500 m va como
+  "Registro documental" con sus coordenadas exactas y una acción del plan de respuesta: la Entidad lo verifica en campo con foto
+  georreferenciada antes de la convocatoria. Si luego llegan fotos de campo, se reemplaza sin tocar nada más.
+- **No borrar puntos o riesgos porque les falte foto**: antes de quitar algo, buscar dónde se cita (tablas, anexos, conclusiones,
+  recomendaciones, matriz, planos); quitarlo deja el estudio incoherente y "esconde" peligros. Explicarlo al usuario con esa tabla.
+- **Fichas junto a la tabla** (el evaluador no debe buscar la foto en otro anexo): debajo de la tabla de coordenadas,
+  - una ficha por punto crítico: título "FICHA 11 - km 37+520 a 37+780 - Inestabilidad de talud h = 30 m (LI)"; a la izquierda
+    progresiva, descripción, coordenadas UTM de inicio y fin y código del riesgo relacionado; a la derecha la foto con su número,
+    progresiva, coordenadas, fecha y hora (y la distancia si es del sector); sin foto: nota de registro documental, sin recuadro;
+  - una ficha por riesgo localizado: categoría, riesgo, ubicación (la misma de la tabla de riesgos) y cada punto con progresiva y
+    coordenadas; dos fotos representativas y "Ver también" con las demás; los riesgos sin lugar físico se listan al final con una
+    nota (no hay lugar que fotografiar).
+  - Formato: anchos de tabla fijos (que la foto no se recorte), título unido a su contenido (no partir la ficha entre páginas),
+    dos fotos lado a lado, panel de 4 fotos por página; revisar cada página en imagen antes de entregar.
+- **Levantamiento en dos pasos**: (1) primero un Word aparte solo con lo absuelto, para que el usuario lo revise: carátula;
+  cuadro resumen (N.°, observación, absolución, ubicación en el estudio); por cada observación, cita textual, "Absolución:" y el
+  contenido corregido (tablas completas como quedan); anexos; (2) cuando lo apruebe, se une al estudio presentado.
+- **Unión al estudio presentado sin tocarlo** (no varía ni una letra; ya se envió): el archivo que subió el usuario es la base;
+  se agregan al final anexos nuevos que continúan la numeración del capítulo de anexos (13.3, 13.4, 13.5...) y de las tablas
+  (si la última es la Tabla N.° 14, siguen 15, 16, 17), con el mismo encabezado y pie de página del original, **sin las palabras
+  "observación", "subsanación" ni "absolución"**. Ejemplo aprobado: Anexo 3 matriz impresa completa (hojas apaisadas), Anexo 4
+  ubicación georreferenciada (tablas que complementan las Tablas N.° 04 y N.° 08 + fichas), Anexo 5 panel fotográfico
+  (A fotos; B puntos con foto de su sector y su distancia; C registro documental). Comprobar con un programa que todo lo anterior
+  a los anexos quedó idéntico (elemento por elemento) e informar las páginas antes y después. El índice del inicio no se toca:
+  preguntar si se agregan las líneas de los anexos nuevos. Si la observación buscaba algo en un anexo y ahora está en otro,
+  decirlo en la respuesta ("la matriz se adjunta impresa en el Anexo 3 y en Excel").
+- Al cerrar, revisar **observación por observación y tabla por tabla** que lo pedido se vea en el documento (no solo
+  referenciado por número), decir cuál queda completa y cuál tiene un punto débil, y dar al usuario un **párrafo listo para
+  enviar al ingeniero** (qué se agregó, dónde, criterio de fotos, qué queda como registro documental y por qué).
 
 ## 11. Verificación antes de entregar
 - [ ] Ningún "S/" ni monto en soles en Word, Excel ni plano; todo en % y días. Buscar "S/" y cifras con millones.
@@ -150,6 +200,13 @@ curvas de probabilidad acumulada del costo y del retraso. Tablas con número ("T
 - [ ] Impacto coherente con el valor más probable; ALTO/MODERADO/BAJO con los umbrales; residuales con respuesta y momento.
 - [ ] Coordenadas en el sistema y zona correctos; progresivas dentro del tramo; fotos con su distancia al eje.
 - [ ] Nombre completo y CUI en carátula, pies y rótulos; sin nombres ni CIP; sin texto que revele IA.
+- [ ] Cada punto crítico y cada riesgo localizado con foto propia, foto de sector (≤ 500 m, con distancia) o "Registro documental"
+      con acción de verificación en el plan de respuesta; ningún recuadro vacío ni "por completar"; ninguna foto inventada.
+- [ ] Levantamiento: cada observación citada textualmente y respondida donde el evaluador la buscará (fichas con foto junto a la
+      tabla observada, no solo números de foto); cuadro resumen con ubicación en el estudio.
+- [ ] Unión al presentado: base = archivo del usuario; cuerpo idéntico comprobado por programa; anexos con numeración
+      continua de capítulo y tablas, mismo encabezado y pie; sin "observación" ni "subsanación"; índice sin tocar salvo pedido.
+- [ ] Fichas revisadas en imagen: no se parten entre páginas, fotos sin recortar y lado a lado.
 
 ## 12. Errores que el usuario ya corrigió (no repetirlos)
 - La primera versión traía montos en soles: se cambió todo (costos, valor esperado, Monte Carlo, reserva, componentes del
@@ -163,3 +220,16 @@ curvas de probabilidad acumulada del costo y del retraso. Tablas con número ("T
 - El estudio ya presentado se conserva sin cambios; lo nuevo va como anexos al final o en el levantamiento aparte.
 - El estudio va en su propia carpeta y documento, separado del PSST y de los expedientes de drenaje; un proyecto nuevo, carpeta nueva.
 - Carátulas con el diseño del proyecto (logo de la entidad, foto de la obra), sin nombre ni CIP del especialista.
+- Se entregó el levantamiento con 31 recuadros "FOTOGRAFÍA POR INCORPORAR": el usuario lo rechazó ("si lo identificaste, debe
+  haber fotografía"). Primero agotar las fotos de todos los documentos (aparecieron 2 más en las PNG del inventario), luego foto
+  de sector a ≤ 500 m y el resto como registro documental con acción de verificación; nunca dejar vacíos visibles.
+- Al pedir "otra solución" no hay que insistir en la misma (fotos de campo): ofrecer una alternativa distinta y aplicable con
+  lo que hay (fotos por sector), explicando su punto débil.
+- El usuario quiso borrar los puntos sin foto: se le mostró dónde estaba citado cada uno en lo presentado (tabla, conclusiones,
+  recomendaciones, matriz, planos) y se mantuvieron; el único sin otras citas se dejó igual por coherencia con el inventario.
+- La absolución de la Tabla N.° 08 solo remitía a fotos por número en otro anexo: el usuario preguntó "¿adjuntaste fotografías?"
+  y hubo que agregar fichas por riesgo con sus fotos, igual que las de la Tabla N.° 04. Contestar cada tabla observada en su sitio.
+- La versión presentada no era igual a la del repositorio (encabezado, una imagen más, una fila menos): la base es siempre el
+  archivo que el usuario envió, guardado tal cual.
+- Los anexos nuevos no dicen "subsanación" ni "observación": se agregan como anexos normales del estudio.
+- Ante "dime texto para explicar al ingeniero", entregar un solo párrafo corrido, formal y concreto, listo para copiar.
