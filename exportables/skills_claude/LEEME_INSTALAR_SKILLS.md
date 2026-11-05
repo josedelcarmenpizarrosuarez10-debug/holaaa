@@ -17,7 +17,7 @@ real, "cota de fondo", nombre y CIP en blanco, nada que revele uso de IA, partid
 | 10 | `expediente-caratulas-lomos-indices.zip` | Carátulas, lomos, separadores, índices y encabezados |
 | 11 | `psst-iperc-obra.zip` | Plan de Seguridad y Salud en el Trabajo con matriz IPERC |
 | 12 | `gestion-riesgos-ejecucion-obra.zip` | Estudio de gestión de riesgos en la ejecución de obra |
-| 13 | `renders-revit-modelo-3d.zip` | Renders realistas, IFC y modelo de Revit con Dynamo |
+| 13 | `renders-blender-lumion-modelo-3d.zip` | Renders realistas y modelo 3D en Blender desde los DXF, con salida en Cycles o en Lumion |
 | 14 | `levantamiento-observaciones-expediente.zip` | Levantar observaciones y editar documentos ya presentados sin romperlos |
 | 15 | `informe-tecnico-obra.zip` | Informe de culminación y consistencia del expediente (Formato 08-A) |
 | 16 | `tesis-academica.zip` | Asesoría de tesis con el formato de la universidad |
