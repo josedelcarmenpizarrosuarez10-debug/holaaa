@@ -1,6 +1,6 @@
 ---
 name: planos-dxf-escala-real
-description: Producir láminas DXF de drenaje pluvial (colector frontal, cunetas, cajas, registros, juntas, lloraderos, canaletas) a escala real (1 unidad = 1 m) con Python y ezdxf: plantas, perfiles longitudinales con guitarra (NCT, NCF, H), secciones, detalles, isométricos, cuadros, rótulo, presentaciones de AutoCAD, índice de planos en Word y vistas previas PNG. Reglas de legibilidad del usuario: sin textos encimados ni verticales, letra grande, concreto con relleno gris sólido, colores para fondo blanco, llamadas sin cruces. Usar siempre que se pida dibujar, corregir, reordenar, imprimir o indexar cualquier plano o lámina DXF de un expediente técnico.
+description: "Producir láminas DXF de drenaje pluvial (colector frontal, cunetas, cajas, registros, juntas, lloraderos, canaletas) a escala real (1 unidad = 1 m) con Python y ezdxf: plantas, perfiles longitudinales con guitarra (NCT, NCF, H), secciones, detalles, isométricos, cuadros, rótulo, presentaciones de AutoCAD, índice de planos en Word y vistas previas PNG. Reglas de legibilidad del usuario: sin textos encimados ni verticales, letra grande, concreto con relleno gris sólido, colores para fondo blanco, llamadas sin cruces. Usar siempre que se pida dibujar, corregir, reordenar, imprimir o indexar cualquier plano o lámina DXF de un expediente técnico."
 ---
 # Planos DXF a escala real, ordenados y legibles
 
