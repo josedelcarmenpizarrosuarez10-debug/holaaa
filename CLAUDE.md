@@ -17,6 +17,15 @@ Leer completo antes de trabajar. Detalle técnico en los skills de `.claude/skil
 - Estudios de gestión de riesgos de obra: sin montos en soles ni "observaciones" a documentos ajenos; efectos en % del presupuesto.
 - PSST y gestión de riesgos: siempre con su matriz (IPERC o matriz de riesgos) en Excel con fórmulas y un Word ordenado con tablas y gráficos.
   El método es estándar para cualquier tipo de obra en el Perú (no solo vial o CAR). Cada tema en su carpeta: `PROGRAMA DE ELABORACION DE PSST/` (programa general, sin proyectos de ejemplo) y `gestion_riesgos/`.
+- Entidad: Gobierno Regional San Martín – Gerencia Territorial Bajo Mayo (GTBM) – Tarapoto. Nunca "Proyecto Especial Huallaga" ni "PEHCBM": si aparece, se borra.
+- El presupuesto de obra lo hace el ingeniero en Delphin, no en S10.
+- Antes de usar datos (horas-hombre, insumos, metrados, precios) confirmar de qué proyecto son; nunca meter datos de una obra en el archivo de otra.
+- Al revisar un documento, comprobar que nombre, CUI, ubicación y entidad sean de ese proyecto y que no queden textos copiados de otro.
+- En Word y PDF también se quita o cambia solo lo pedido (un encabezado no incluye el título) y se compara el resto con el original.
+- Excel para el usuario: sin hojas protegidas, decimales completos, todo con fórmulas, formato ordenado (amarillo datos, gris cálculo, verde resultado).
+- Archivos terminados: adjuntos en el chat para descargar; sus archivos en `D:\GTBM\...` se editan en su sitio solo cuando lo pide.
+- Mensajes para terceros (ingeniero, arquitecta): un solo párrafo, tono amigable, decir lo que se necesita sin hacer preguntas.
+- Reglas nuevas que dé el usuario: anotarlas aquí (resumen), en `conocimiento/01_reglas_y_forma_de_trabajo.md` (con fecha y sus palabras) y en la bitácora.
 
 ## Proyectos
 | Proyecto | Responsable | CUI | Colector | Carpeta de entregables | Generador |
@@ -29,6 +38,11 @@ Leer completo antes de trabajar. Detalle técnico en los skills de `.claude/skil
 
 Cadena hidráulica: Varones (0.60) → caja de llegada CL → Refugio (0.80) → caja de caída CC → R-01 del CAR Mujeres (1.50) → salida.
 
+Otros proyectos del usuario, con sus archivos fuera del repositorio (no mezclarlos con los de la tabla): I.E. N.° 292 Ciudad Satélite
+(CUI 2684251, `D:\GTBM\SATELITE\`), I.E. N.° 0603 Sauce (CUI 2647660, `D:\GTBM\SAUCE\`), PSST del CAR Mujeres
+(`D:\GTBM\ALDEA INFANTIL\WILMA\PLAN DE SEGURIDAD Y SALUD EN EL TRABAJO - MUJERES\`, 78 obreros, 10 meses). Detalle en
+`conocimiento/01_reglas_y_forma_de_trabajo.md` (sección 3.1).
+
 ## Mapa del repositorio
 - `insumos/`: archivos del usuario (no se editan; las versiones vigentes en `insumos/metrados_vigentes/` y `insumos/solange/vigente/`).
 - `herramientas/`: todos los generadores (Python). Todo cambio se hace en el generador y se regenera; nunca a mano en el DXF/XLSX final.
@@ -37,7 +51,7 @@ Cadena hidráulica: Varones (0.60) → caja de llegada CL → Refugio (0.80) →
   - Tapa de registro: `render_tapa/` (`dxf_tapa_ciega.py` DP-06B, `dxf_tapa_3d.py` DP-06D, `modelo.py`, `iso.py`, `foto.py`), `tapa_ciega.py` (parche de planillas).
   - Especificaciones: `especificaciones/espec.py` → `_json/` → `node docx_espec.js <json> <docx>`.
   - Edición de planillas sin romper formato: `angulo_contramarco_refugio.Libro` (XML) + `recalcular()` con LibreOffice.
-- `.claude/skills/`: `diseno-colector-pluvial` (criterios y decisiones de diseño), `planos-ordenados` (dibujo sin cruces), `metrado-cunetas`, `planteamiento-cunetas-terreno` (cargar DXF y curvas, cerco = límite, cuneta bajo cada caída de techo, descargas por gravedad, verificación), `psst-iperc` (plan de seguridad y salud en el trabajo).
+- `.claude/skills/`: `diseno-colector-pluvial` (criterios y decisiones de diseño), `planos-ordenados` (dibujo sin cruces), `metrado-cunetas`, `planteamiento-cunetas-terreno` (cargar DXF y curvas, cerco = límite, cuneta bajo cada caída de techo, descargas por gravedad, verificación), `psst-iperc` (plan de seguridad y salud en el trabajo y criterios del presupuesto del PSST), `revision-planos-arquitectura` (las 14 indicaciones de revisión de planos de arquitectura, informe Word y matriz Excel).
 - `MetraP/`: programa de metrados (ejecutable Windows con `build_exe.bat`).
 - `herramientas/barranquita/`: I.E. 0590 Barranquita. Base del sitio en `insumos/barranquita/base_sitio.pkl` (extraída del DXF
   PLANTA_GENERAL_590_2 de 332 MB, que no se versiona; la copia real del sitio es la que está sobre las curvas C-TOPO, en UTM).

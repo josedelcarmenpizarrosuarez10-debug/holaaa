@@ -649,3 +649,18 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
   `herramientas/conocimiento_docx.py` -> `conocimiento/MANUAL_TECNICO_DRENAJE_PLUVIAL.docx` (≈159 páginas, índice automático).
 - Chat nuevo "PROGRAMA DRENIE" (rama `claude/programa-drenie`, parte de esta rama) para cargar el código del programa del usuario
   e integrar la base de conocimiento.
+
+## 29/10/2026 - Reglas de los chats del 26 al 28-10 guardadas en los md
+- Pedido del usuario: "de todos los chats que ya tenemos, ¿puedes crear md, o sea reglas o indicaciones?". La base `conocimiento/`
+  llegaba al 24-10; se leyeron los chats locales del 16-10 al 28-10 (evacuación y señalización, tarrajeo de Satélite, PSST del
+  CAR Mujeres y de Sauce, ACU de policarbonato, revisión de planos de arquitectura, altar de la iglesia) y se pasaron sus reglas.
+- `CLAUDE.md`: reglas permanentes nuevas (entidad GTBM y nunca PEHCBM; Delphin, no S10; confirmar de qué proyecto son los datos;
+  revisar nombre, CUI y entidad en documentos; quitar solo lo pedido en Word y PDF; Excel sin protección y ordenado; archivos
+  adjuntos en el chat; mensajes para terceros en un párrafo sin preguntas) y lista de otros proyectos fuera del repositorio.
+- `conocimiento/01_reglas_y_forma_de_trabajo.md`: reglas R24 a R30, otros proyectos (sección 3.1), cronología del 26 al 28-10 y
+  dos puntos más en la lista de comprobación. Manual Word regenerado.
+- Skill `psst-iperc`: sección "Presupuesto del PSST" (personal por horas-hombre, 78 obreros del CAR Mujeres, solo insumos del
+  presupuesto de obra, sustento y fuente de cada número, hoja PARA DELPHIN).
+- Skill nuevo `revision-planos-arquitectura`: las 14 indicaciones, cómo verificarlas en el DXF y los entregables.
+- Los chats hechos en claude.ai (nube) después del 24-10 (desarrollo de DRENIE) no se pueden leer desde esta PC; sus criterios
+  están en los commits y en `drenie_motor/README.md`.
