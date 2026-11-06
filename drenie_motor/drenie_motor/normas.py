@@ -64,13 +64,23 @@ def para_drenie():
             "pendientes": sum(1 for x in b["datos"] + b["cuadros"] if x["estado"] != "verificado")}
 
 
-def hoja_excel(wb, titulo="NORMAS Y FUENTES"):
-    """Hoja con todos los datos y cuadros normativos, su fuente, consideración y estado."""
+VIAL = "Drenaje vial"          # grupo de la biblioteca que solo citan los documentos del drenaje vial
+VIAL_TAMBIEN = {"dick_peschke", "tc_min", "riesgo", "registro_min", "ks_alfa"}   # datos generales que también usa el drenaje vial
+
+
+def _de(b, solo_vial):
+    """Datos y cuadros de un tipo de documento: los del drenaje vial, o los de la red de cunetas (todo lo demás)."""
+    f = lambda x: (x["grupo"] == VIAL or x["id"] in VIAL_TAMBIEN) if solo_vial else x["grupo"] != VIAL
+    return [d for d in b["datos"] if f(d)], [q for q in b["cuadros"] if f(q)]
+
+
+def hoja_excel(wb, titulo="NORMAS Y FUENTES", vial=False):
+    """Hoja con los datos y cuadros normativos del documento (vial=True: solo los del drenaje vial), su fuente, consideración y estado."""
     from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
-    b = biblioteca(); ws = wb.create_sheet(titulo)
+    b = biblioteca(); ws = wb.create_sheet(titulo); datos, cuadros = _de(b, vial)
     fino = Side(style="thin", color="9FB3C8"); borde = Border(left=fino, right=fino, top=fino, bottom=fino)
     cab = PatternFill("solid", fgColor="0B2545"); gris = PatternFill("solid", fgColor="F3F7FB"); amar = PatternFill("solid", fgColor="FFF4D6")
-    ws["A1"] = "NORMAS, REFERENCIAS Y CRITERIOS DEL DISEÑO DE DRENAJE PLUVIAL"; ws["A1"].font = Font(bold=True, size=12, color="0B2545")
+    ws["A1"] = "NORMAS, REFERENCIAS Y CRITERIOS DEL DISEÑO DE DRENAJE " + ("VIAL" if vial else "PLUVIAL"); ws["A1"].font = Font(bold=True, size=12, color="0B2545")
     ws["A2"] = ("Cada valor con su fuente. Tipo: norma (exigencia normativa), referencia técnica (manual o libro) o criterio del "
                 "proyectista. «Por verificar»: transcrito de los expedientes, falta cotejar con el texto oficial vigente.")
     ws["A2"].alignment = Alignment(wrap_text=True); ws.merge_cells("A2:G2"); ws.row_dimensions[2].height = 30
@@ -78,7 +88,7 @@ def hoja_excel(wb, titulo="NORMAS Y FUENTES"):
     for i, t in enumerate(["Grupo", "Dato", "Valor", "Unidad", "Fuente", "Consideración adoptada", "Tipo y estado"]):
         c = ws.cell(r, i + 1, t); c.font = Font(bold=True, color="FFFFFF"); c.fill = cab; c.border = borde
         c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
-    for d in b["datos"]:
+    for d in datos:
         r += 1
         fila = [d["grupo"], d["texto"], d["valor"], d["unidad"], cita_larga(d["id"]), d.get("consideracion", ""),
                 CLASES[d["clase"]] + " · " + ESTADOS[d["estado"]]]
@@ -86,7 +96,7 @@ def hoja_excel(wb, titulo="NORMAS Y FUENTES"):
             c = ws.cell(r, i + 1, v); c.border = borde; c.alignment = Alignment(wrap_text=True, vertical="top")
             if d["estado"] != "verificado" and i == 6: c.fill = amar
     r += 2
-    for q in b["cuadros"]:
+    for q in cuadros:
         ws.cell(r, 1, q["titulo"]).font = Font(bold=True, color="0B2545")
         ws.cell(r + 1, 1, "Fuente: " + cita_larga(q["id"]) + ". " + CLASES[q["clase"]] + " · " + ESTADOS[q["estado"]] + ".").font = Font(italic=True, size=9)
         r += 2
@@ -108,17 +118,17 @@ def recuadro_word(D, *claves):
     D.recuadro(" ".join(recuadro(k).replace("Fuente: ", "", 1) for k in claves), "Fuente" if len(claves) == 1 else "Fuentes")
 
 
-def anexo_word(D, titulo="Normas, referencias y criterios"):
+def anexo_word(D, titulo="Normas, referencias y criterios", vial=False):
     """Anexo de las memorias en Word: los cuadros normativos y la tabla de datos con su fuente (D = word.Doc del motor)."""
-    b = biblioteca()
+    b = biblioteca(); datos, cuadros = _de(b, vial)
     D.h(1, titulo)
     D.p("Cada valor usado en el diseño se indica con su fuente: norma peruana, referencia técnica o criterio del proyectista. "
         "Los marcados «por verificar» se transcribieron de los expedientes y deben cotejarse con el texto oficial vigente.")
     D.tabla("Datos de diseño y su fuente", ["Dato", "Valor", "Fuente", "Consideración", "Estado"],
             [[d["texto"], ("%s %s" % (d["valor"], d["unidad"])).strip(), cita(d["id"]) + ("" if d["clase"] == "criterio" else " (" + CLASES[d["clase"]].lower() + ")"),
-              d.get("consideracion", ""), "verificado" if d["estado"] == "verificado" else "por verificar"] for d in b["datos"]],
+              d.get("consideracion", ""), "verificado" if d["estado"] == "verificado" else "por verificar"] for d in datos],
             [3.2, 2.2, 3.2, 4.6, 1.6], tam=7)
-    for q in b["cuadros"]:
+    for q in cuadros:
         D.tabla(q["titulo"], q["columnas"], [[str(v) for v in f] for f in q["filas"]], None, tam=8,
                 fuente=cita_larga(q["id"]) + ". " + CLASES[q["clase"]] + ", " + ESTADOS[q["estado"]].lower() + "." +
                 (" " + q["consideracion"] if q.get("consideracion") else ""))

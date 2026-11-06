@@ -261,6 +261,6 @@ def libro(ruta, R):
         r += 1; cel(wr, r, 1, "OBSERVACIONES DEL CÁLCULO", bold=True, borde=False)
         for t in R["avisos"]:
             r += 1; cel(wr, r, 1, "• " + t, borde=False)
-    normas.hoja_excel(wb)
+    normas.hoja_excel(wb, vial=True)
     wb.save(ruta)
     return ruta

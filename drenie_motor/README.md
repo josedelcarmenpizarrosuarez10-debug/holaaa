@@ -193,6 +193,12 @@ sí sale, calcula cuánto hay que subir el piso y lo verifica rediseñando con e
 (NPT 170.64): verificado, con ese nivel toda la red sale por gravedad»); si con ningún nivel razonable sale, pide una descarga
 a un colector o canal existente. Si quedan cunetas sin unir, la red se rehace admitiendo uniones más largas (×2, ×3).
 
+`python3 pruebas/validacion_bibliografia.py` compara el motor con ejemplos resueltos de la bibliografía (Manning en secciones
+trapecial, rectangular y circular, tirante normal y crítico, perfil M2 por el paso estándar, resalto hidráulico, Gumbel por
+momentos y con yn y σn, Kirpich y método racional): Pedro Rodríguez Ruiz (Hidráulica de canales), Hidráulica de canales:
+fundamentos y ejercicios, Fattorelli y Fernández (Diseño hidrológico) y Villón (Hidrología). 36 casos, todos dentro de la
+tolerancia; el ejemplo 4.16 de Fattorelli trae una desviación estándar mal calculada (87.89 en vez de 85.98 m³/s), anotada.
+
 ## Ventana de soluciones
 
 Lo que el programa no resuelve solo, o que conviene confirmar, no se esconde: `resultado.json` trae `observaciones`, cada una con
