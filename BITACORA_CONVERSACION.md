@@ -664,3 +664,16 @@ Se mantuvieron los metrados del CAR Varones. Los nombres de las partidas y los c
 - Skill nuevo `revision-planos-arquitectura`: las 14 indicaciones, cómo verificarlas en el DXF y los entregables.
 - Los chats hechos en claude.ai (nube) después del 24-10 (desarrollo de DRENIE) no se pueden leer desde esta PC; sus criterios
   están en los commits y en `drenie_motor/README.md`.
+
+## 06/11/2026 - DrenIE: reglas nuevas y validación con la bibliografía (chat en la nube)
+- Reglas nuevas del usuario (29-10): DrenIE llega solo hasta los metrados, sin costos ni precios (R31); el drenaje vial se
+  programó (cunetas, alcantarillas y badenes según el Manual de Hidrología, Hidráulica y Drenaje del MTC) pero su pestaña queda
+  oculta hasta que el usuario la pida (R32).
+- El usuario envió 15 PDF de hidrología e hidráulica. Con los ejemplos resueltos de Pedro Rodríguez (Hidráulica de canales),
+  «Hidráulica de canales: fundamentos y ejercicios», Fattorelli y Fernández (Diseño hidrológico) y Villón (Hidrología) se armó
+  `drenie_motor/pruebas/validacion_bibliografia.py`: 36 casos, todos coinciden con el motor. Fattorelli, ejemplo 4.16, trae
+  σ = 87.89 m³/s, pero sus 20 datos dan 85.98 m³/s (anotado).
+- Motor: tabla de yn y σn de Gumbel completa (8 a 1000 años, tabla 6.13 de Villón; antes se interpolaba entre 30 y 90 años).
+  Las memorias de la red de cunetas ya no llevan los datos del drenaje vial en su anexo de normas. Batería: 22 BIEN y
+  9 PROYECTISTA, sin fallas; los proyectos de ejemplo quedan igual que antes.
+

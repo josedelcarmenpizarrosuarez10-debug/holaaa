@@ -46,6 +46,8 @@ Fuentes: `conocimiento/_fuentes/mensajes_usuario.txt` (todos los mensajes del us
 | R28 | Excel para el usuario: sin hojas protegidas, con los decimales completos a la vista, todo con fórmulas y con formato ordenado (amarillo = datos, gris = cálculo, verde = resultado) | 28-10 | "¿por qué el Excel está protegido todo? me redondea decimales"; "está feo el formato… necesito todo con un buen formato" |
 | R29 | Al revisar o corregir un documento, comprobar que nombre, CUI, ubicación y entidad sean de ese proyecto y que no queden textos copiados de otro proyecto | 26-10 | "recuerda, esta memoria es de Refugio Mujeres Violentadas, CUI que termina en 14"; "varios dicen institución educativa… cambia todo" |
 | R30 | Los archivos terminados se adjuntan en el chat para descargarlos; los archivos del usuario en `D:\GTBM\...` se editan en su sitio solo cuando él lo pide | 26-10 | "pásame aquí todos los archivos, no lo copies en carpetas, dame aquí, yo descargo" |
+| R31 | **DrenIE llega solo hasta los metrados**: nada de costos, precios, ACU ni presupuesto en el programa, ni proponerlo | 29-10 | "olvidate de costos de precios olvidate de eso en nincun momento estamos viendo eso, solo llegamos hasta metrados" |
+| R32 | El **drenaje vial** de DrenIE queda programado pero con la pestaña oculta (interruptor `DV_ACTIVO = false`) hasta que el usuario lo pida | 29-10 | "no lo veía tan necesario eso. Bloquea esa parte, o sea, que la pestaña no esté activada" |
 
 El detalle de cada regla, con sus casos, está en las secciones 2 a 6.
 

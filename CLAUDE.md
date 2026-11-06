@@ -25,6 +25,7 @@ Leer completo antes de trabajar. Detalle técnico en los skills de `.claude/skil
 - Excel para el usuario: sin hojas protegidas, decimales completos, todo con fórmulas, formato ordenado (amarillo datos, gris cálculo, verde resultado).
 - Archivos terminados: adjuntos en el chat para descargar; sus archivos en `D:\GTBM\...` se editan en su sitio solo cuando lo pide.
 - Mensajes para terceros (ingeniero, arquitecta): un solo párrafo, tono amigable, decir lo que se necesita sin hacer preguntas.
+- DrenIE llega solo hasta los metrados: nada de costos, precios, ACU ni presupuesto en el programa. El drenaje vial de DrenIE queda oculto (`DV_ACTIVO = false`) hasta que el usuario lo pida.
 - Reglas nuevas que dé el usuario: anotarlas aquí (resumen), en `conocimiento/01_reglas_y_forma_de_trabajo.md` (con fecha y sus palabras) y en la bitácora.
 
 ## Proyectos
