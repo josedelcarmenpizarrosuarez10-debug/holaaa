@@ -312,8 +312,24 @@ def construir():
                 "está aplicado en la planilla de metrados del proyecto.")
     vineta(doc, "La capacidad portante del suelo debe confirmarse con el estudio de mecánica de suelos; la ubicación UTM del trazo se verifica en el replanteo.")
     lloraderos(doc)
+    terreno_actualizado(doc)
     doc.save(DEST)
     return n_par, n_tab
+
+
+# Terreno del CAR segun el cuadro de datos tecnicos del plano de ubicacion (vertices A-J, 13-11-2026): 9,686.08 m2 (0.96861 ha),
+# perimetro 398.86 ml (comprobado con las coordenadas: 9,686.07 m2 y 398.86 m). Reemplaza el dato anterior de la memoria del usuario.
+TERRENO_ANTERIOR = '6,999.976m², con un perímetro de 336.894 m'
+TERRENO_NUEVO = '9,686.08 m², con un perímetro de 398.86 m'
+
+
+def terreno_actualizado(doc):
+    n = 0
+    for par in doc.paragraphs:
+        for r in par.runs:
+            if TERRENO_ANTERIOR in r.text:
+                r.text = r.text.replace(TERRENO_ANTERIOR, TERRENO_NUEVO); n += 1
+    return n
 
 
 def lloraderos(doc):
