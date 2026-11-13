@@ -18,8 +18,9 @@ from docx.oxml.ns import qn
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ENT = os.path.join(RAIZ, 'entregables_mujeres')
-DOCS = ['MEMORIA_HIDROLOGICA_CAR_MUJERES_CON_COLECTOR.docx', 'MEMORIA_DESCRIPTIVA_GENERAL_CAR_MUJERES.docx',
-        'MEMORIA_DESCRIPTIVA_DESCRIPCION_DEL_PROYECTO_CAR_MUJERES.docx', 'PLAN_DE_SST_CAR_MUJERES_2026.docx']
+# Por pedido del usuario (13-11) solo hidrología y PSST; las memorias descriptivas quedan como estaban hasta que él lo indique
+# (para incluirlas: 'MEMORIA_DESCRIPTIVA_GENERAL_CAR_MUJERES.docx', 'MEMORIA_DESCRIPTIVA_DESCRIPCION_DEL_PROYECTO_CAR_MUJERES.docx').
+DOCS = ['MEMORIA_HIDROLOGICA_CAR_MUJERES_CON_COLECTOR.docx', 'PLAN_DE_SST_CAR_MUJERES_2026.docx']
 AREA, PERIM, LIBRE = '10,424.72', '414.69', '6,770.14'
 CAMBIOS = [   # (texto anterior, texto nuevo) dentro del párrafo
     ('6,999.98m², con un perímetro de 336.89 m', AREA + ' m², con un perímetro de ' + PERIM + ' m'),
